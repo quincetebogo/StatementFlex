@@ -861,22 +861,17 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
-
 		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-				.map((item) => {
-					const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-					const formatedDate = new Date(Date.parse(item.Date));
-					item.formatedPremiumDate = formatedPremiumDate;
+			const formattedTrans = returnValue.result.transactions.
+				filter((ele) => ele.transactionType === `PremiumCollection`).map((item) => {
+					const formatedDate = new Date(Date.parse(item.date));
 					item.formatedDate = formatedDate;
-					item.formatedPremium = formatCurrency(item.premium);
-					item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-					item.formatedAmount = formatCurrency(item.amount);
+					item.formatedAmount = isNullorEmpty(item.amount) ? `` : formatCurrency(item.amount);
 					return item;
 				});
 			this.transactions.push(...formattedTrans);
-
 			this.policyTransactionHistory.transactions = this.transactions;
 
 			this.endCallContext = `PolicyTransactionHistory`;

@@ -414,9 +414,6 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
 		} else {
-			// if (policyItem.status === `Active` && policyItem.arrearDetails?.outstandingAmount > 0) {
-			// policyItem.showOptions.push({ showPayArrears: true });
-			// }
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
@@ -426,10 +423,10 @@ class ClientSummary extends Component {
 
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
 				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 				policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 			}
 		}
+		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 	}
 
 	/**
