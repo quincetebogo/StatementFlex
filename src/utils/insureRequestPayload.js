@@ -6,20 +6,31 @@
  */
 export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
 	"email": ``,
+	"title": ``,
+	"surname": ``,
+	"firstName": ``,
+	"middleName": ``,
+	"contactDetails": {
+	  "cellphone": ``,
+	  "homephone": ``,
+	  "workphone": ``,
+	  "email": ``
+	},
+	"gender": ``,
 	"cifNumber": ``,
 	"contractReference": ``,
 	"documentInfo": [
-		{
-			"documentId": ``,
-			"documentType": ``,
-			"documentGuid": ``,
-			"content": {
-				"value": ``,
-				"type": ``
-			}
+	  {
+		"documentID": ``,
+		"documentType": ``,
+		"documentGuid": ``,
+		"content": {
+		  "value": ``,
+		  "type": ``
 		}
+	  }
 	]
-};
+  };
 
 /**
  * Generate document Request Payload

@@ -274,7 +274,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES } }));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
 	}
 
 	/**
@@ -342,6 +342,11 @@ class ClientSummary extends Component {
 	_closeCancelPolicyDialog() {
 		this.showCancelPolicyDialog = false;
 		this.cancelPolicyDocumentDetails = undefined;
+	}
+
+	_showEmailPlanDialog(contractRef) {
+		this.emailContractRef = contractRef;
+		this.showEmailPlanDialog = true;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -456,7 +461,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this.showEmailPlanDialog = true}">
+				@click="${() => this._showEmailPlanDialog(policyItem.contractReference)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
