@@ -242,6 +242,9 @@ import 'app/components/common/HorizonLabel';
 				horizon-label[label="Status"] {
 					width: 116px;
 				}
+				horizon-label[value="Active"] {
+					--horizon-label-value-color:#70AF00;
+				}
 				#budget-name-label {
 					width: 253px;
 					--theme-label-cursor: pointer;
