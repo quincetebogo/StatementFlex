@@ -156,8 +156,6 @@ export class ExistingClient extends InsureViewBase {
 		this.accountDetails = await this._retrieveAccountDetails();
 		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
-
-		console.log(this.callerInformation);
 	}
 
 	/**
@@ -1179,7 +1177,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	  */
 	async _sendEmail(e) {
-		console.log(e);
 		this.confirmedEmail = e.detail.emailId.detail.emailAddress;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
