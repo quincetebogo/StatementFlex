@@ -13,7 +13,6 @@ import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { SavingsService } from 'app/services/SavingsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-
 import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicyEstimate';
 import 'app/components/insure/UpdatePlan';
@@ -1180,7 +1179,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	  */
 	async _sendEmail(e) {
-
+		console.log(e);
 		this.confirmedEmail = e.detail.emailId.detail.emailAddress;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
@@ -1195,12 +1194,12 @@ export class ExistingClient extends InsureViewBase {
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.cifNumber = this.callerInformation.cifNumber;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contractReference = isNullorEmpty(this.contractReference) ? e.detail?.contractRef : this.contractReference;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.title = this.callerInformation.title;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.firstName = this.callerInformation.firstName;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.surname = this.callerInformation.lastName;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.middleName = this.callerInformation?.middleName1;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.gender = this.callerInformation.gender;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.gender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber);
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.cellphone = this.callerInformation?.verifiedTelephoneNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.email = e.detail.emailId.detail.emailAddress;
 
