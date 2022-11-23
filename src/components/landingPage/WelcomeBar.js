@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
@@ -22,6 +23,7 @@ export class LandingPageWelcome extends Component {
 		super();
 
 		this.router = HorizonRouter.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		this.fullname = ``;
 	}
@@ -62,6 +64,11 @@ export class LandingPageWelcome extends Component {
 
 	_productButtonClick(event) {
 		const product = event.detail.productButton;
+
+		// Note that when invoked from screen other than Landing Page, stop propogating further
+		if (this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES) {
+			return;
+		}
 		
 		// Navigate to one of the "initial landing page" versions of the product info page.
 		// These pagea are the pages that the agent can visit while waiting for a call

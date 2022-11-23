@@ -2,7 +2,7 @@
   "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "2.13.26",
+  "version": "2.16.0",
   "alias": "horizon",
   "release": "221101",
   "contractVersion": "v1",

@@ -54,7 +54,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			null, 
 			null, 
 			900,
-			null,
+			10000,
 			errorHandler,
 			autoRetries
 		);
