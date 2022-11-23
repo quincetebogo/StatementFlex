@@ -447,7 +447,6 @@ class ClientSummary extends Component {
 	 * @returns {html} - html content of option
 	 */
 	_getOptions(showOption, policyItem) {
-		console.log(this.emailEstimateSuccess);
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<horizon-option-button 
