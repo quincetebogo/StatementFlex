@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+import { formatDate, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 
 /**
  * Claim Summary component shows details of a selected claim, including any outstanding documents
@@ -69,6 +71,8 @@ class ClaimSummary extends Component {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
+
 				.insure-title-bar{
 					margin-bottom: 0px; 
 					border-top-left-radius: 5px; 
@@ -168,18 +172,18 @@ class ClaimSummary extends Component {
 					<horizon-label label="Task reference" class="row-item"
 						value="${this.claimSummary?.taskReference}">
 					</horizon-label>
-					<horizon-label label="Claim status" class="row-item"
-						value="${this.claimSummary?.claimStatus}">
-					</horizon-label>
-
 					<horizon-label label="Claim type" class="row-item"
 						value="${this.claimSummary?.claimType}">
+					</horizon-label>
+					<horizon-label label="Claim status" 
+					class="${this.claimSummary?.claimStatus === `Active` ? `active-status` : `inactive-status`} row-item"
+						value="${this.claimSummary?.claimStatus}">
 					</horizon-label>
 				</div>
 
 				<div class="summary-row">
-					<horizon-label label="Cause of incident" class="row-item"
-						value="${this.claimSummary?.causeOfIncident}">
+					<horizon-label label="Date of event" class="row-item"
+						value="${formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Incident number" class="row-item"
 						value="${this.claimSummary?.incidentNumber}">
@@ -188,14 +192,19 @@ class ClaimSummary extends Component {
 						value="${this.claimSummary?.policyNumber}">
 					</horizon-label>
 					<horizon-label label="Account number" class="row-item"
-						value="${this.claimSummary?.accountNumber}">
+						value="${this.claimSummary?.bankAccount?.accountNumber}">
 					</horizon-label>
 				</div>
 
 				<div class="summary-row">
-					<horizon-label label="Date of event" class="row-item"
-						value="${formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
+					<horizon-label label="Date of claim" class="row-item"
+						value="${formatDate(this.claimSummary?.dateOfClaim, `dd mmm yyyy`)}">
 					</horizon-label>
+					${this.claimSummary?.claimType.toUpperCase() === `DEATH` ? html`
+						<horizon-label label="Cause of death" class="row-item"
+							value="${this.claimSummary?.causeOfDeath}">
+						</horizon-label>
+					` : html``}
 				</div>
 
 				<div class="doc-container">
@@ -226,7 +235,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="Relationship"
 									textOverflow="ellipsis"
-									value="${this.claimSummary?.lifeAssured?.relationship}">
+									value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[this.claimSummary?.lifeAssured?.relationship?.toUpperCase()])}">
 								</horizon-label>
 								<horizon-label
 									class="fixed-label"
