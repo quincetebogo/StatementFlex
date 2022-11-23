@@ -28,9 +28,18 @@ export const ClientPoliciesEvents = {
 * @enum {String} PolicyEstimateEvents
 */
 export const PolicyEstimateEvents = {
-	ESTIMATE: `call.fulfill-need.insure.estimate`,
-	ESTIMATE_CALCULATE: `call.fulfill-need.insure.estimate`,
-	ESTIMATE_PRINT: `call.fulfill-need.insure.estimate`,
-	ESTIMATE_ADD_LIFE_DIALOG: `call.fulfill-need.insure.estimate`,
-	ESTIMATE_REMOVE_LIVE: `call.fulfill-need.insure.estimate`
+	ESTIMATE: `call.fulfill-need.insure.estimate?`,
+	ESTIMATE_CALCULATE: `call.fulfill-need.insure.estimate?`,
+	ESTIMATE_PRINT: `call.fulfill-need.insure.estimate?`,
+	ESTIMATE_ADD_LIFE_DIALOG: `call.fulfill-need.insure.estimate?`,
+	ESTIMATE_REMOVE_LIVE: `call.fulfill-need.insure.estimate?`
+};
+
+/**
+* @readonly
+* @enum {String} PolicySummaryEvents
+*/
+export const PolicySummaryEvents = {
+	POLICY_SUMMARY: `call.fulfill-need.insure.policy-summary`,
+	POLICY_SUMMARY_BACK: `call.fulfill-need.insure.policy-summary`
 };

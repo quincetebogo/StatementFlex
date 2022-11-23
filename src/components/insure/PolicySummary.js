@@ -1,7 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { PolicySummaryEvents } from 'app/constants/telemetry/events/Insure';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 
@@ -24,6 +27,8 @@ class PolicySummary extends Component {
 		super();
 
 		this.policyDetails = null;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALISATION
@@ -46,13 +51,23 @@ class PolicySummary extends Component {
 	// #region LIFECYCLE OVERRIDES
 
 	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	async connectedCallback() {
+		super.connectedCallback();
+		this.telemetryEvents = PolicySummaryEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.POLICY_SUMMARY, {});
+	}
+
+	/**
 	 * call unload event once the component removed from the DOM.
 	 * @returns {void}
 	 */
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
-
 		this._unloading();
+		await this._telemetry.endSpan(this.telemetryEvents.POLICY_SUMMARY, {});
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -72,10 +87,11 @@ class PolicySummary extends Component {
 	 * @returns {void} 
 	 */
 	_backToClientPoliciesPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, {
-			detail: {
-			}
-		}));
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+			"screen": TelemetryScreen.INSURE_POLICY_SUMMARY,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
+		});
+		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 
 	/**
@@ -243,11 +259,11 @@ class PolicySummary extends Component {
 						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Funeral Plan" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false 
-					? html`<capitec-button label="Update Plan" type="white"
+					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false
+				? html`<capitec-button label="Update Plan" type="white"
 						data-automation-id="policy-summary-update-plan"
-						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>` 
-					: html``}
+						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>`
+				: html``}
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
