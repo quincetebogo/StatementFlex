@@ -25,13 +25,14 @@ class PayPremiumConfirmationDialog extends Component {
 
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
 	 * @property {Number} amountToPay Total arrears amount to be paid
 	 * @property {Object} contractReference contains the contract reference
+	 * @property {String} fromAccount account number of the account being paid from
 	 * 
 	 * @readonly
 	 * @static
@@ -45,27 +46,31 @@ class PayPremiumConfirmationDialog extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region PRIVATE METHODS
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	 _onCancelClick() {
+	 _cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	_onConfirmClick() {
+	/**
+	 * comfirm event from the dialog footer button
+	 * @returns {void}
+	 */
+	_confirmClick() {
 		this.dispatchEvent(new CustomEvent(`confirm-payment`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -126,18 +131,18 @@ class PayPremiumConfirmationDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button slot="footer" type="secondary" label="Cancel" class="capitec-button-medium"
-					@click="${() => this._onCancelClick()}"
+					@click="${() => this._cancelClick()}"
 					data-automation-id="insure-pay-premium-confirmation-dialog-cancel">
 				</capitec-button>
 				<capitec-button slot="footer" type="primary" label="Confirm" class="capitec-button-medium"
-					@click="${() => this._onConfirmClick()}"
+					@click="${() => this._confirmClick()}"
 					data-automation-id="insure-pay-premium-confirmation-dialog-confirm">
 				</capitec-button>
 		`;
 	}
 
-	// #endregion
-
+	// #endregion RENDERING
+ 
 
 }
 
@@ -157,7 +162,7 @@ window.customElements.define(`insure-pay-premium-confirmation-dialog`, PayPremiu
  * Send Confirm Payment dialog event to consuming componant when 'Confirm' is clicked
  *
  * @example
- * <insure-pay-premium-confirmation-dialog ... @agree="${this._handler}"></insure-pay-premium-confirmation-dialog>
+ * <insure-pay-premium-confirmation-dialog ... @confirm-payment="${this._handler}"></insure-pay-premium-confirmation-dialog>
  *
  * @event PayPremiumConfirmationDialog#confirm-payment
  * @type {Object} - N/A

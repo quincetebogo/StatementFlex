@@ -10,8 +10,7 @@ import { formatCurrency } from '../../../utils/channelServiceUtilities';
  * Events Raised 
  * -------------
  * close-modal
- * email-plan
- * agree
+ * pay-premium-agree
  *  
  * @export
  * @class PayPremiumAgreementDialog
@@ -25,7 +24,7 @@ class PayPremiumAgreementDialog extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -46,8 +45,8 @@ class PayPremiumAgreementDialog extends Component {
 		};
 	}
 
-	// #endregion
-
+	// #endregion PROPERTIES
+ 
 	// #region LIFECYCLE OVERRIDES
 
 	/**
@@ -60,7 +59,7 @@ class PayPremiumAgreementDialog extends Component {
 
 	 }
 
-	 // #endregion
+	 // #endregion LIFECYCLE OVERRIDES
 
 
 	// #region PRIVATE METHODS
@@ -70,38 +69,37 @@ class PayPremiumAgreementDialog extends Component {
 		
 	}
 
-
-	// #endregion
-
-	// #region EVENT HANDLERS
-
 	/**
 	 * fetch arrears payment document
 	 * @returns {null} null
-
-	/**
-	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
 	 */
-	 _onCancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
-	}
-
-	/**
-	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
-	 * @returns {null} null
-	 */
-	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
-	}
-
-	async _getDocument() {
+	 async _getDocument() {
 
 		await this.getArrearsPaymentDocument(this.contractReference);
 
 	}
 
-	// #endregion
+	// #endregion PRIVATE METHODS
+
+	// #region EVENT HANDLERS
+
+	/**
+	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * @returns {void} 
+	 */
+	 _cancelClick() {
+		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
+	}
+
+	/**
+	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
+	 * @returns {void} 
+	 */
+	_agreeClick() {
+		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
+	}
+
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -224,11 +222,11 @@ class PayPremiumAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}"
+					@click="${() => this._cancelClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
-					@click="${() => this._onAgreeClick()}"
+					@click="${() => this._agreeClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
 		`;
@@ -255,7 +253,7 @@ window.customElements.define(`insure-pay-premium-agreement-dialog`, PayPremiumAg
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <insure-pay-premium-agreement-dialog ... @agree="${this._handler}"></insure-pay-premium-agreement-dialog>
+ * <insure-pay-premium-agreement-dialog ... @pay-premium-agree="${this._handler}"></insure-pay-premium-agreement-dialog>
  *
  * @event PayPremiumAgreementDialog#agree
  * @type {Object} - N/A

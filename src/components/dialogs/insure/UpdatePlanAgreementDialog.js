@@ -10,8 +10,7 @@ const ERROR_MESSAGE = `Please select confirmation checkbox`;
  * Events Raised 
  * -------------
  * close-modal
- * email-plan
- * agree
+ * update-plan-agree-click
  *  
  * @export_onAgreeClick
  * @class UpdatePlanAgreementDialog
@@ -27,10 +26,17 @@ class UpdatePlanAgreementDialog extends Component {
 		this.alertBannerMessage = ``;
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
+	/**
+	 * @property {String} planAgreementContent doc content for the plan agreement
+	 * @property {String} paymentAgreementContent doc content for the payment agreement
+	 * @property {String} contractReference contract reference for the selected policy 
+	 * @property {String} alertBannerMessage message for the alert banner
+	 * @property {Boolean} showUpdatePlanPaymentAgreementDocument determines whether to show the update plan payment agreement 
+	 */
 	static get properties() {
 		return {
 			planAgreementContent: { type: String, state: true },
@@ -41,27 +47,27 @@ class UpdatePlanAgreementDialog extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region PRIVATE METHODS
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onAgreeClick() {
+	_agreeClick() {
 		const agreeCheck = this.shadowRoot.getElementById(`update-plan-agree-check`);
 
 		if (!agreeCheck.checked) {
@@ -72,7 +78,7 @@ class UpdatePlanAgreementDialog extends Component {
 		}
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -190,10 +196,10 @@ class UpdatePlanAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
+				<capitec-button class="capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
 				</capitec-button>
-				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
+				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
 					data-automation-id="insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
 		`;
@@ -238,7 +244,7 @@ window.customElements.define(`insure-update-plan-agreement-dialog`, UpdatePlanAg
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <insure-update-plan-agreement-dialog ... @agree="${this._handler}"></insure-update-plan-agreement-dialog>
+ * <insure-update-plan-agreement-dialog ... @update-plan-agree-click="${this._handler}"></insure-update-plan-agreement-dialog>
  *
  * @event UpdatePlanAgreementDialog#agree
  * @type {Object} - N/A

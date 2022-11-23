@@ -21,7 +21,7 @@ class UnknownErrorDialog extends Component {
 
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -34,23 +34,23 @@ class UnknownErrorDialog extends Component {
 		};
 	}
 
-	// #endregion
-
+	// #endregion PROPERTIES
+ 
 	// #region PRIVATE METHODS
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Okay event from dialog footer button, closes modal 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onOkayClick() {
+	_confirmClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -110,12 +110,12 @@ class UnknownErrorDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button slot="footer" type="primary" label="Okay" 
-					@click="${() => this._onConfirmClick()}">
+					@click="${() => this._confirmClick()}">
 				</capitec-button>
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING 
 
 
 }

@@ -6,10 +6,10 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
  * 
  * Events Raised 
  * -------------
- * confirm
+ * confirmation-click
  *  
  * @export
- * @class InsureConfirmationDialog
+ * @class UpdateValidationDialog
  * @extends {Component}
  */
 class UpdateValidationDialog extends Component {
@@ -20,12 +20,12 @@ class UpdateValidationDialog extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} body - confirmation message
+	 * @property {Object} validationMessage - validation message
 	 * 
 	 * @readonly
 	 * @static
@@ -36,19 +36,23 @@ class UpdateValidationDialog extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region PRIVATE METHODS
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
+	/**
+	 * dispatch confirmation click event
+	 * @returns {void}
+	 */
 	_onConfirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirmation-click`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -112,7 +116,7 @@ class UpdateValidationDialog extends Component {
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 

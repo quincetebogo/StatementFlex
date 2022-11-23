@@ -1,34 +1,54 @@
 
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * Dialog that will display the FCP Agreement
+ * 
+ * Events Raised 
+ * -------------
+ * agreementAccepted
+ * close-modal
+ *  
+ * @export
+ * @class EACLAgreementDialog
+ * @extends {Component}
+ */
 export class FCPAgreementDialog extends Component {
 
-	/**
-	 * Initialize
-	 */
+	
+	// #region INITIALIZE
+
 	constructor() {
 		super();
 	}
 
+	// #endregion INITIALIZE
+
+	// #region EVENT HANDLERS
+
 	/**
 	 * Accept terms and close dialog 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
 	}
 
 	/**
-	 * Cancel dialog 
-	 * @returns {null} null
+	 * Cancel and close modal 
+	 * @returns {void} 
 	*/
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
 
+	// #endregion EVENT HANDLERS
+
+	// #region RENDERING
+
 	/**
 	 * Generates the component template for web mode
-	 * @returns {null} null
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -82,5 +102,27 @@ export class FCPAgreementDialog extends Component {
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
+
+	// #endregion RENDERING
 }
 window.customElements.define(`horizon-insure-fcp-agreement-dialog`, FCPAgreementDialog);
+
+/**
+ * send close modal event to the consuming componant when 'cancel' is clicked
+ *
+ * @example
+ * <horizon-insure-fcp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-fcp-agreement-dialog>
+ *
+ * @event FCPAgreementDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * send agree event to the consuming componant when agreement is accepted 
+ *
+ * @example
+ * <horizon-insure-fcp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-fcp-agreement-dialog>
+ *
+ * @event FCPAgreementDialog#agreementAccepted
+ * @type {Object} - N/A
+ */

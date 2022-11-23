@@ -20,12 +20,12 @@ class InsureConfirmationDialog extends Component {
 		super();
 	}
 
-	// #endregion
-
+	// #endregion INITIALIZE
+ 
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} body - confirmation message
+	 * @property {String} confirmationMessage - confirmation message
 	 * 
 	 * @readonly
 	 * @static
@@ -36,7 +36,7 @@ class InsureConfirmationDialog extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region PRIVATE METHODS
 
@@ -44,11 +44,16 @@ class InsureConfirmationDialog extends Component {
 
 	// #region EVENT HANDLERS
 
+	/**
+	 *  confirm and close dialog
+	 * 
+	 * @returns {void}
+	 */
 	_onConfirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirmation-click`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -111,7 +116,7 @@ class InsureConfirmationDialog extends Component {
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 

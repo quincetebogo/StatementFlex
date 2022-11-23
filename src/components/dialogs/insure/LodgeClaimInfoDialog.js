@@ -19,7 +19,7 @@ class LodgeClaimInfoDialog extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -27,19 +27,19 @@ class LodgeClaimInfoDialog extends Component {
 		return {};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Confirm event from dialog footer, closes modal, no navigation or actions
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_onConfirmClick() {
 		this.dispatchEvent(new CustomEvent(`confirm`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -219,7 +219,7 @@ class LodgeClaimInfoDialog extends Component {
 		`;
 		}
 
-	// #endregion
+	// #endregion RENDERING
 }
 
 window.customElements.define(`insure-lodge-claim-info-dialog`, LodgeClaimInfoDialog);
@@ -228,7 +228,7 @@ window.customElements.define(`insure-lodge-claim-info-dialog`, LodgeClaimInfoDia
  * Send confirm dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-lodge-claim-info-dialog ... @agree="${this._handler}"></insure-lodge-claim-info-dialog>
+ * <insure-lodge-claim-info-dialog ... @confirm="${this._handler}"></insure-lodge-claim-info-dialog>
  *
  * @event LodgeClaimInfoDialog#confirm
  * @type {Object} - N/A

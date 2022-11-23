@@ -31,12 +31,12 @@ class AddLifeDialog extends Component {
 		this.showExtendedList = false;
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} currentLifesAssured Current list of covered lives, used to check max per policy rules for new additions
+	 * @property {Array} currentLifesAssured Current list of covered lives, used to check max per policy rules for new additions
 	 * @property {Object} productParams Data & flags for insure product parameters
 	 * @property {boolean} showExtendedList Used to toggle between the primary and extended list
 	 * 
@@ -45,13 +45,13 @@ class AddLifeDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			currentLifesAssured: { type: Object },
+			currentLifesAssured: { type: Array },
 			productParams: { type: Object },
 			showExtendedList: { type: Boolean, state: true }
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -64,14 +64,14 @@ class AddLifeDialog extends Component {
 		this._initialise();
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
 
 	/**
 	 * Initialize component when loaded / Count current lives in list and set limits
 	 * Resets last selected relationship
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_initialise() {
 		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === `Spouse`).length;
@@ -81,13 +81,13 @@ class AddLifeDialog extends Component {
 		this.selectedRelationship = ``;
 	}
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
@@ -96,7 +96,7 @@ class AddLifeDialog extends Component {
 
 	/**
 	 * Back event from dialog footer button, sets view back to main relationship
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_onBackClick() {
 		this.showExtendedList = false;
@@ -104,7 +104,7 @@ class AddLifeDialog extends Component {
 
 	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
-	 * @returns {null} null
+	 * @returns {void}
 	 */
 	_onAddClick() {
 		const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
@@ -115,7 +115,7 @@ class AddLifeDialog extends Component {
 	/**
 	 * Set the newly selected relationship type if value has changed
 	 * @param {event} event Contains old and new value from selected radio button
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_relationshipSelect(event) {
 		if (event.detail.new) {
@@ -126,14 +126,14 @@ class AddLifeDialog extends Component {
 
 	/**
 	 * Switch from default list to extended family list & reset current selected relationship
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_showExtendedFamilyList() {
 		this.showExtendedList = true;
 		this.selectedRelationship = ``;
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -385,7 +385,7 @@ class AddLifeDialog extends Component {
 
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 }
 
 window.customElements.define(`insure-add-life-dialog`, AddLifeDialog);

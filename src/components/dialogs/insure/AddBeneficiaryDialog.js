@@ -4,12 +4,12 @@ import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
 /**
- * 
+ * Dialog to add a beneficiary by selecting either an existing life assured or a relationship type
  * 
  * Events Raised 
  * -------------
- * navigate-back
- * agree-click
+ * close-modal
+ * add-click
  * 
  *  
  * @export
@@ -25,57 +25,69 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	constructor() {
 		super();
-		this.isLifeAssured = false;
 		this.newBeneficiary = {};
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} lifesAssured current list of lives assured
+	 * @property {Array} lifesAssured current list of lives assured
 	 *
 	 * @readonly
 	 * @static
 	 */
 	static get properties() {
 		return {
-			isLifeAssured: { type: Number, state: true },
-			lifesAssured: { type: Object, state: true },
-			beneficiaries: { type: Object, state: true }
+			lifesAssured: { type: Array, state: true }
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region EVENT HANDLERS
 
-	
-	// Cancel event from dialog footer button, closes modal & reset toggles 
+	/**
+	 * Cancel event from dialog footer button, closes modal & reset toggles
+	 * @returns {void}
+	 */
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	// Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
+	/**
+	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles
+	 * @returns {void}
+	 */
 	_onAddClick() {
 		const detail = {
-			isLifeAssured: this.isLifeAssured,
 			beneficiary: this.newBeneficiary
 		};
 		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
 
-	 // event to add a beneficiary that is also a life assured0
+	// #endregion EVENT HANDLERS
+
+	// #region PRIVATE METHODS
+
+	 /**
+	  * event to add a beneficiary that is also a life assured
+	  * @param {object} lifeAssured life Assured details of selected life assured
+	  * @returns {void}
+	  */
 	_addExistingBeneficiaryChange(lifeAssured) {
-		this.isLifeAssured = true;
 		lifeAssured.beneficiary = true;
+		lifeAssured.benefitPayout = 0;
 		this.newBeneficiary = lifeAssured;
 	}
 
-	// Event to add a new beneficiary that is not a life assured
+	/**
+	 * Event to add a new beneficiary that is not a life assured
+	 * @param {String} relationship selected relationship type
+	 * @returns {void}
+	 */
 	_addNewBeneficiaryChange(relationship) {
-		this.isLifeAssured = false;
 		this.newBeneficiary = {
 			relationship: relationship,
 			beneficiary: true,
@@ -90,7 +102,7 @@ class AddBeneficiaryDialog extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region RENDERING
 
@@ -137,8 +149,6 @@ class AddBeneficiaryDialog extends Component {
 				border-radius: 5px; 
 				padding: 17px 17px 17px 10px;
 			}
-
-
 			`
 		];
 	}
@@ -173,7 +183,7 @@ class AddBeneficiaryDialog extends Component {
 			<capitec-label label="Choose from clients policy members" type="default"></capitec-label>
 			<capitec-radio-group>
 				<capitec-content-box style="max-height:200px; padding-left: 0px;">
-					${this.lifesAssured.map((lifeAssured, index) => html`
+					${this.lifesAssured.map((lifeAssured) => html`
 					<div class="add-life-assured">
 						<capitec-radio label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}: ${lifeAssured.firstName} ${lifeAssured.surname}"
 							@value-changed="${() => this._addExistingBeneficiaryChange(lifeAssured)}">
@@ -228,7 +238,7 @@ class AddBeneficiaryDialog extends Component {
 		</capitec-button>`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 
@@ -240,7 +250,7 @@ window.customElements.define(`add-beneficiary-dialog`, AddBeneficiaryDialog);
  * @example
  * <remove-life-assured-dialog ... @close-modal="${this._handler}"></remove-life-assured-dialog>
  *
- * @event RemoveLifeAssuredDialog#close-moda
+ * @event RemoveLifeAssuredDialog#close-modal
  * @type {Object} - N/A
  */
 

@@ -33,7 +33,7 @@ class CancelPolicyDialog extends Component {
 		this.cancelPolicyDocumentDetails = {};
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -44,6 +44,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {String} cancelReason contains the chosen cancellation reason
 	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
+	 * @property {String} errorMsg error message to be displayed if cancellation reason is not selected
 	 * 
 	 */
 	static get properties() {
@@ -58,7 +59,7 @@ class CancelPolicyDialog extends Component {
 		};
 	}
 
-	//  #endregion
+	//  #endregion PROPERTIES
 
 	//  #region LIFECYCLE OVERRIDES
 
@@ -70,39 +71,24 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 	}
 
-	//  #endregion
-
-
-	//  #region PRIVATE METHODS
-
-	//  #endregion
+	//  #endregion LIFECYCLE OVERRIDES
 
 	//  #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 * 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
 	/**
-	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
-	 * 
-	 * @returns {null} null
-	 */
-	_onAgreeClick() {
-		this.dispatchEvent(new CustomEvent(`agree`, { detail: { cancellationReason: this.cancelReason } }));
-	}
-
-	/**
 	 * Event to to change the value of selected once an option has been chosen from the cancelation select box and also to cancelReason with the reason chosen
-	 * @param {*} e 
-	 * @returns {null} null
+	 * @param {event} e e
+	 * @returns {void}
 	 */
-
 	_valueSelected(e) {
 		this.selected = true;
 		this.errorMsg = ``;
@@ -113,16 +99,38 @@ class CancelPolicyDialog extends Component {
 		this.requestUpdate();
 	}
 
-	async _getCancelAgreement(cancelReason) {
-		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
+	/**
+	 * determine if a cancellation reason was selected
+	 * @returns {void}
+	 */
+	_checkSelected() {
+
+		if (this.selected === true) {
+			this._agreeClick();
+		} else {
+			this.errorMsg = `Please select a cancellation reason`;
+		}
+	}
+
+	//  #endregion EVENT HANDLERS
+
+	//  #region PRIVATE METHODS
+
+	/**
+	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
+	 * 
+	 * @returns {void} 
+	 */
+	 _agreeClick() {
+		this.dispatchEvent(new CustomEvent(`agree`, { detail: { cancellationReason: this.cancelReason } }));
 	}
 
 	/**
 	 * Event that returns the following day's date
 	 * 
-	 * @returns {null} null
+	 * @returns {String} tomorrows date
 	 */
-	_getDate() {
+	 _getDate() {
 		const today = new Date();
 		const tomorrow = new Date(today);
 		tomorrow.setDate(tomorrow.getDate() + 1);
@@ -130,16 +138,16 @@ class CancelPolicyDialog extends Component {
 		return tomorrow;
 	}
 
-	_checkSelected() {
-
-		if (this.selected === true) {
-			this._onAgreeClick();
-		} else {
-			this.errorMsg = `Please select a cancellation reason`;
-		}
+	/**
+	 * 
+	 * @param {String} cancelReason cancelation reason selected
+	 * @returns {void}
+	 */
+	 async _getCancelAgreement(cancelReason) {
+		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
-	//  #endregion
+	//  #endregion PRIVATE METHODS
 
 	//  #region RENDERING
 
@@ -270,7 +278,7 @@ class CancelPolicyDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-					@click="${() => this._onCancelClick()}"
+					@click="${() => this._cancelClick()}"
 					data-automation-id="insure-cancel-policy-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
@@ -280,8 +288,7 @@ class CancelPolicyDialog extends Component {
 		`;
 	}
 
-	//  #endregion
-
+	// #endregion RENDERING
 
 }
 

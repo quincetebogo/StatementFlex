@@ -1,11 +1,11 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, html } from 'platform/elements';
 
 /**
  * remove beneficiary dialog allows one to confirm whether they would like to remove the selected beneficiary
  * 
  * Events Raised 
  * -------------
- * navigate-back
+ * close-modal
  * agree-click
  * 
  *  
@@ -17,15 +17,13 @@ class RemoveBeneficiaryDialog extends Component {
 
 	// #region INITIALIZE
 
-	/**
-	 * Initialize
-	 */
+	
 	constructor() {
 		super();
 
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -47,27 +45,27 @@ class RemoveBeneficiaryDialog extends Component {
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void}
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
 	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onAgreeClick() {
+	_agreeClick() {
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
 	/**
 	 * Generates the component template for web mode
-	 * @returns {null} null
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -104,16 +102,16 @@ class RemoveBeneficiaryDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<!-- <capitec-group > -->
-			<capitec-button type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+			<capitec-button type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 			</capitec-button>
 			
-			<capitec-button type="clear" label="Confirm" @click="${() => this._onAgreeClick()}">
+			<capitec-button type="clear" label="Confirm" @click="${() => this._agreeClick()}">
 			</capitec-button>
 			<!-- </capitec-group> -->
 			`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 
@@ -125,7 +123,7 @@ window.customElements.define(`remove-beneficiary-dialog`, RemoveBeneficiaryDialo
  * @example
  * <remove-beneficiary-dialog ... @close-modal="${this._handler}"></remove-beneficiary-dialog>
  *
- * @event RemoveBeneficiaryDialog#close-moda
+ * @event RemoveBeneficiaryDialog#close-modal
  * @type {Object} - N/A
  */
 

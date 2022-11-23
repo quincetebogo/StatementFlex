@@ -1,18 +1,34 @@
 
-import { Component, css, html } from 'platform/elements';
+import { Component, html } from 'platform/elements';
 
+/**
+ * Dialog that will display the YBP Agreement
+ * 
+ * Events Raised 
+ * -------------
+ * agreementAccepted
+ * close-modal
+ * 
+ *  
+ * @export
+ * @class YBPAgreementDialog
+ * @extends {Component}
+ */
 export class YBPAgreementDialog extends Component {
 
-	/**
-	 * Initialize
-	 */
+	// #region INITIALIZE
+
 	constructor() {
 		super();
 	}
 
+	// #endregion INITIALIZE
+
+	// #region EVENT HANDLERS
+
 	/**
 	 * Accept terms and close dialog 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -20,15 +36,19 @@ export class YBPAgreementDialog extends Component {
 
 	/**
 	 * Cancel dialog 
-	 * @returns {null} null
+	 * @returns {void} 
 	*/
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
 
+	// #endregion EVENT HANDLERS
+
+	// #region RENDERING
+
 	/**
 	 * Generates the component template for web mode
-	 * @returns {null} null
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -79,5 +99,29 @@ export class YBPAgreementDialog extends Component {
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
+
+	// #endregion RENDERING
+
 }
 window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreementDialog);
+
+/**
+ * Send close dialog event to consuming component when 'Cancel' is clicked
+ *
+ * @example
+ * <horizon-insure-ybp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ *
+ * @event YBPAgreementDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+
+/**
+ * Send agree dialog event to consuming componant when 'Agree' is clicked
+ *
+ * @example
+ * <horizon-insure-ybp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ *
+ * @event YBPAgreementDialog#agreementAccepted
+ * @type {Object} - N/A
+ */
