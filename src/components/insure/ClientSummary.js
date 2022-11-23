@@ -68,6 +68,7 @@ class ClientSummary extends Component {
 		this.showPayPremiumAgreementDialog = false;
 		this.showLodgeClaimInfoDialog = false;
 		this.showCFPAgreementDialog = false;
+		this.emailEstimateSuccess = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -137,7 +138,8 @@ class ClientSummary extends Component {
 			selectedContractRef: { type: String, state: true },
 			canReinstate: { type: Boolean, state: true },
 			selectedPolicyItem: { type: Object, state: true },
-			productCode: { type: String, state: true }
+			productCode: { type: String, state: true },
+			emailEstimateSuccess: { type: Boolean, state: true }
 
 		};
 	}
@@ -154,6 +156,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
+		window.setTimeout(() => this.emailEstimateSuccess = false, 2000);
 	}
 
 	async disconnectedCallback() {
@@ -274,7 +277,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES } }));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
 	}
 
 	/**
@@ -342,6 +345,11 @@ class ClientSummary extends Component {
 	_closeCancelPolicyDialog() {
 		this.showCancelPolicyDialog = false;
 		this.cancelPolicyDocumentDetails = undefined;
+	}
+
+	_showEmailPlanDialog(contractRef) {
+		this.emailContractRef = contractRef;
+		this.showEmailPlanDialog = true;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -453,7 +461,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this.showEmailPlanDialog = true}">
+				@click="${() => this._showEmailPlanDialog(policyItem.contractReference)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -741,6 +749,11 @@ class ClientSummary extends Component {
 				--horizon-option-btn-icon-width: 26px;
 			}
 
+			.notification {
+				width: 350px;
+				margin: auto;
+			}
+
 			/* Expander header and content styles */
 			horizon-expander {
 				margin-bottom: 16px;
@@ -921,6 +934,11 @@ class ClientSummary extends Component {
 	 */
 	_renderContent() {
 		return html`
+
+			<div class="notification">
+				${this._renderSuccessAlert()}
+			</div>
+
 			<capitec-card 
 				data-automation-id="insure-landing-screen"
 				class="card" id="policies-container">
@@ -1323,11 +1341,31 @@ class ClientSummary extends Component {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
 				<insure-email-dialog 
-					.titleMessage = "${`Email Funeral Plan Estimate`}"
+					.titleMessage = "${`Email Funeral Plan`}"
 					@close-modal="${() => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 				</insure-email-dialog>`;
 	}
+
+	
+/**
+ * Renders the Email Success alert
+ * @returns {html} html content
+ */
+_renderSuccessAlert() {
+	return this.emailEstimateSuccess === false ? html``
+	: html`
+		<capitec-toast
+			class="toast"
+			type="success"
+			Header="Successful"
+			layout = "vertical"
+			detail = "Document sent successfully"
+			@click = "${() => this.emailEstimateSuccess = false}">
+		</capitec-toast>
+
+	`;
+}
 
 	// #endregion RENDERING
 }
