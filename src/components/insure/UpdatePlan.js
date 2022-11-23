@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { checkPolicyRules, dateFormat, getAgeFromDob, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDateToInsure, getAgeFromDob, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -1278,8 +1278,7 @@ class UpdatePlan extends Component {
 	 *  @returns {boolean} boolean
 	 */
 	_policyRuleAllowsChange(field, relationship) {
-		return checkPolicyRules(this.policyDetails.policyRule, this.productParams, field, relationship);
-
+		return policyAllowsEditing(this.policyDetails.policyRule, this.productParams, field, relationship);
 	}
 
 	/**
@@ -2192,7 +2191,7 @@ class UpdatePlan extends Component {
 					</capitec-date-time-picker>`
 				: html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${dateFormat(roleplayer?.dateOfBirth)}">
+						value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 			}
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 

@@ -422,9 +422,6 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
 		} else {
-			// if (policyItem.status === `Active` && policyItem.arrearDetails?.outstandingAmount > 0) {
-			// policyItem.showOptions.push({ showPayArrears: true });
-			// }
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
@@ -434,10 +431,10 @@ class ClientSummary extends Component {
 
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
 				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 				policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 			}
 		}
+		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 	}
 
 	/**
@@ -615,17 +612,17 @@ class ClientSummary extends Component {
 		}
 	}
 
-/**
- * determines the value to display for Total Premium
- * @param {Object} policyItem Policy Item
- * @returns {String} string
- */
+	/**
+	 * determines the value to display for Total Premium
+	 * @param {Object} policyItem Policy Item
+	 * @returns {String} string
+	 */
 	_totalPremiumDisplay(policyItem) {
 		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
 			return `-`;
 		}
 		return isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium);
-		
+
 	}
 
 	/**
@@ -884,6 +881,21 @@ class ClientSummary extends Component {
 			#policies-container{
 				margin-bottom:20px;
 			}
+
+			capitec-icon.default {
+				width: 44px;
+				height: 38px;
+			}
+
+			.more-options-button{
+				font-size: 16px;
+				font-weight: 500; 
+				margin-bottom: 9px;
+			}
+			
+			.more-options-card{
+				gap: 0px;
+			}
 			`
 		];
 	}
@@ -1127,11 +1139,11 @@ class ClientSummary extends Component {
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				${policyItem.showOptions?.map((option) => html`${this._getOptions(option, policyItem)}`)}
 				${moreOptions?.length > 0 ? html`
-					<capitec-card class="action-card">
+					<capitec-card class="action-card more-options-card" >
 						<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 							${moreOptions?.map((option) => html`${this._getMoreOptions(option, policyItem)}`)}
 						</capitec-overflow-menu>
-						<capitec-label label="More" class="label-text">
+						<capitec-label label="More" class="label-text more-options-button">
 						</capitec-label>
 					</capitec-card>` : ``}
 			</capitec-group>`;
