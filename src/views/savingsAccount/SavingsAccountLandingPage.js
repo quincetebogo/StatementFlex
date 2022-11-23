@@ -407,11 +407,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				field="description"
 				size="410px;">
 			</capitec-table-column>
-			<capitec-table-column
-				label="Transaction Status"
-				field="transactionStatus"
-				size="144px;"
-				.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
