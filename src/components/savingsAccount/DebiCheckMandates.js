@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { convertCentsToRand, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatStringAsPascalCase, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -16,10 +16,10 @@ const FILTER_BY = {
 
 const MANDATE_STATUS = {
 	// ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
-	ACTIVE: `Accepted`,
-	INACTIVE: `Expired`,
-	PENDING: `Pending`,
-	SUSPENDED: `Expired`
+	ACTIVE: `ACTIVE`,
+	INACTIVE: `INACTIVE`,
+	PENDING: `PENDING`,
+	SUSPENDED: `SUSPENDED`
 };
 
 const SECONDARY_STATUS = {
@@ -146,10 +146,10 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === MANDATE_STATUS.PENDING);
 		this.pendingMandates.sort((a, b) => b.canBeAuthenticated - a.canBeAuthenticated);
-		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE && SECONDARY_STATUS[item.secondaryStatus] !== SECONDARY_STATUS.DECLINED);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === MANDATE_STATUS.ACTIVE);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === MANDATE_STATUS.INACTIVE && SECONDARY_STATUS[item.secondaryStatus] !== SECONDARY_STATUS.DECLINED);
 		this.declinedMandates = this.debiCheckMandates.filter(item => SECONDARY_STATUS[item.secondaryStatus] === SECONDARY_STATUS.DECLINED);
 	}
 	
@@ -158,7 +158,7 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_lookForSearchText(status, searchText, secondaryStatus) {
-		return this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === status && SECONDARY_STATUS[item.secondaryStatus] === secondaryStatus &&
+		return this.debiCheckMandates.filter(item => item.mandateStatus === status && SECONDARY_STATUS[item.secondaryStatus] === secondaryStatus &&
 											  (item.mandateName.toLowerCase().indexOf(searchText) !== -1 ||
 											   parseFloat(item.amount).toFixed(2).startsWith(searchText) ||
 											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
@@ -579,11 +579,11 @@ export class DebiCheckMandates extends Component {
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Max collection amount`, formatCurrency(convertCentsToRand(rowData.maxCollectionAmount)))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width156).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width128).toString()}">
-					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+					${this._renderCell(`Secondary status`, formatStringAsPascalCase(rowData.secondaryStatus))}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center" style="width: 190px;">
 					${this._renderButtons(rowData.mandateStatus, rowData)}

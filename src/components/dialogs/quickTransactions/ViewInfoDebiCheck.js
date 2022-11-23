@@ -115,18 +115,18 @@ export class ViewInfoDebiCheck extends Component {
 
 		this.dateDetails = {
 			"Collection day": this.debiCheckDetails.collectionDate.day,
-			"Initiation date": null,
+			"Initiation date": this._formartDate(this.debiCheckDetails.initiationDate),
 			"Date amended": this._formartDate(this.debiCheckDetails.dateAmended),
 			"Frequency": this.debiCheckDetails.frequency,
 			"First collection date": this._formartDate(this.debiCheckDetails.firstCollectionDate)
 		};
 
 		this.creditorDetails = {
-			"Creditor name": this.debiCheckDetails.creditorUltimateName,
+			"Creditor name": this.debiCheckDetails.creditorName,
 			"Mandate status": formatStringAsPascalCase(this.debiCheckDetails.mandateStatus),
 			"Contract reference": this.debiCheckDetails.contractReference,
 			"Creditor telephone number": this.debiCheckDetails.creditorTelephoneNo,
-			"Creditor short name": this.debiCheckDetails.creditorUltimateName,
+			"Creditor short name": this.debiCheckDetails.creditorShortName,
 			"Mandate reference": this.debiCheckDetails.mandateReference,
 			"Ultimate creditor name": this.debiCheckDetails.ultimateCreditorName,
 			"Creditor email": this.debiCheckDetails.collectorEmail,
@@ -136,10 +136,10 @@ export class ViewInfoDebiCheck extends Component {
 
 		this.payerDetails = {
 			"Payer ID": this.debiCheckDetails.payerID,
-			"Debtor telephone number": null,
+			"Debtor telephone number": this.debiCheckDetails.debtorTelephoneNumber,
 			"Payer account": this.debiCheckDetails.payerAccount,
 			"Ultimate debtor name": this.debiCheckDetails.ultimateDebtorName,
-			"Debtor email": null,
+			"Debtor email": this.debiCheckDetails.debtorEmail,
 			"CIF number": this.debiCheckDetails.cifNumber,
 			"Entry class": this.debiCheckDetails.entryClass
 		};
@@ -177,63 +177,15 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-container-padding-top: 4px;
 				--theme-tab-border-bottom: 1px solid #E1E1E1;
 			}
-			horizon-label[value ="Pending"] {
+			horizon-label[value ="Pending"], [value = "Notapplicable"] {
 				--horizon-label-value-color: #D4781C;
 			}
-			horizon-label[value ="Active"]{
+			horizon-label[value ="Active"], [value="Accepted"]{
 				--horizon-label-value-color: #70AF00;
 			}
-			horizon-label[value ="Inactive"] {
+			horizon-label[value ="Inactive"], [value="Updated"], [value="Cancelled"], [value="Rejected"], [value="Expired"], [value="Duplicate"] {
 				--horizon-label-value-color: #A5132A;
 			}
-			horizon-label[value="Notapplicable"] {
-
-				--horizon-label-value-color: #D4781C;
-
-			}
-
-			horizon-label[value="Updated"] {
-
-				--horizon-label-value-color: #D4781C;
-
-			}
-
-			horizon-label[value="Cancelled"] {
-
-				--horizon-label-value-color:#C83B37;
-
-			}
-
-			horizon-label[value="Rejected"] {
-
-				--horizon-label-value-color:#C83B37;
-
-			}
-
-			horizon-label[value="Declined"] {
-
-				--horizon-label-value-color: #C83B37;
-
-			}
-
-			horizon-label[value="Expired"] {
-
-				--horizon-label-value-color:#C83B37;
-
-			}
-
-			horizon-label[value="Duplicate"] {
-
-				--horizon-label-value-color: #D4781C;
-
-			}
-
-			horizon-label[value="Accepted"] {
-
-				--horizon-label-value-color: #70AF00;
-
-			}
-			
 			horizon-label {
 				height: 64px;
 				width: 341px;
