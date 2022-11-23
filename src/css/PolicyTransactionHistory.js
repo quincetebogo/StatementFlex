@@ -247,6 +247,8 @@ export const INSURE_TRANSACTIONS_CSS = css`
 	.transact {
 		background: var(--theme-type-insure-background);
 		--theme-label-font-color: #FFFFFF;
+		border-top-left-radius: 5px;
+    	border-top-right-radius: 5px;
 	}
 	.no-border-bottom {
 		border-bottom: 0px;

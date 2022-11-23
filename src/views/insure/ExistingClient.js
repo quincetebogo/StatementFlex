@@ -1,5 +1,5 @@
 
-import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS } from 'app/constants/InsureTransactionHistory';
+import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { css, html } from 'platform/elements';
@@ -867,8 +867,9 @@ export class ExistingClient extends InsureViewBase {
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.transactionType === `PremiumCollection`).map((item) => {
+				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
+					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;

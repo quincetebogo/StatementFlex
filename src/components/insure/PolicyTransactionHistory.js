@@ -108,6 +108,18 @@ class PolicyTransactionHistory extends Component {
 				capitec-table > capitec-icon {
 					--theme-icon-size-medium: 24px;
 				}
+
+				.transaction-card{
+					margin-bottom:30px;
+				}
+
+				#header-label{
+					color: #FFF;
+				}
+
+				.insure-title-bar{
+					box-shadow: none;
+				}
 			`
 		];
 	}
@@ -121,7 +133,6 @@ class PolicyTransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
 	}
 
 	/**
@@ -235,7 +246,7 @@ class PolicyTransactionHistory extends Component {
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
-		this.filteredData = this.policyTransactionHistory?.transactions;
+		this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 		this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 	}
 
@@ -257,9 +268,12 @@ class PolicyTransactionHistory extends Component {
 	_renderContent() {
 		return html`
 		<capitec-card class="transaction-card">
-			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-				${this._renderTitleBar()}
-				${this._renderHeaderDetailsBar()}
+			<capitec-group layout="vertical" gap="line" halign="left" valign="top" >
+				<div class="transact">
+					${this._renderTitleBar()}
+					${this._renderHeaderDetailsBar()}
+				</div>
+				
 				${this._renderActionBar()}
 				${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id="policy-transactions-table">
@@ -276,7 +290,7 @@ class PolicyTransactionHistory extends Component {
 	*/
 	_renderTitleBar() {
 		return html`
-		<capitec-title-bar class="insure-title-bar no-border-bottom" type="insure">
+		<capitec-title-bar class="insure-title-bar no-border-bottom" type="clear">
 			<capitec-image
 				alt="back"
 				class="action-image"
@@ -286,7 +300,8 @@ class PolicyTransactionHistory extends Component {
 			</capitec-image>
 			<capitec-label 
 				label="Transaction History"
-				type="title">
+				type="title"
+				id="header-label">
 			</capitec-label>
 		</capitec-title-bar>`;
 	}
@@ -298,7 +313,7 @@ class PolicyTransactionHistory extends Component {
 	_renderHeaderDetailsBar() {
 		return html`
 			<capitec-group
-				class= "actionbar-header transact"
+				class= "actionbar-header"
 				layout="horizontal"
 				gap="none"
 				halign="left"
@@ -329,20 +344,7 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_renderActionBar() {
 		return html`
-
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-action-bar">
-				<!-- <capitec-select
-					label="" 
-					class="transaction-status-select"
-					display-field="text"
-					id-field="code"
-					value = "${RENDER_CHIPS[FILTER_BY.DATE_TYPE]}"
-					hint=""
-					.items="${this.dateTypeOptions}"
-					@value-change = "${(e) => this._filterByDateType(e)}"
-					data-automation-id="transaction-status-filter">
-				</capitec-select> -->
-
 				<capitec-date-time-picker
 					id="calendarRange"
 					label = "Choose a date (up to 90 days)"
@@ -560,12 +562,6 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_renderPolicyTransHistoryColumns() {
 		return html`
-			<!-- <capitec-table-column
-				label="Premium due date"
-				field="premiumDueDate"
-				type="date"
-				size="160px">
-			</capitec-table-column> -->
 			<capitec-table-column
 				label="Premium"
 				field="formatedPremium"
@@ -604,6 +600,14 @@ class PolicyTransactionHistory extends Component {
 	 * @returns {html} - message for no results
 	 */
 	_renderNoResults() {
+		let noResultsMessage;
+		if (this.startDate) {
+			noResultsMessage = `No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
+		} else {
+			noResultsMessage = `Adjust filters to see policy transactions`;
+		}
+
+
 		return html`
 			<capitec-group
 				class="no-result-group"
@@ -620,7 +624,7 @@ class PolicyTransactionHistory extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						label="${noResultsMessage}"
 						type="strong">
 					</capitec-label>
 			</capitec-group>
@@ -685,12 +689,7 @@ class PolicyTransactionHistory extends Component {
 			if (RENDER_CHIPS[FILTER_BY.DATE]) {
 				const startDate = new Date(Date.parse(this.startDate));
 				const endDate = new Date(Date.parse(this.endDate));
-
-				// if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
 				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
-				// } else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
-				// this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate);
-				// }
 			}
 		} else {
 			this.filteredData = [];
