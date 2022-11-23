@@ -78,6 +78,7 @@ export class ExistingClient extends InsureViewBase {
 		this.updatePaymentAgreementDocument = {};
 
 		this.readOnly = false;
+		this.emailEstimateSuccess = false;
 		// this.auditTransactionHistory = {};
 	}
 
@@ -96,6 +97,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} cancellationReason contains the cancellation reason selected
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
 	 * @property {Object} arrearsPaymentDocumentDetails contains the arrears payment document details
+	 * @property {Boolean} emailEstimateSuccess determin whether to show a success alert for estimate email
 	 * 
 	 * @readonly
 	 * @static
@@ -123,7 +125,8 @@ export class ExistingClient extends InsureViewBase {
 			arrearsPaymentDocumentDetails: { type: Object, state: true },
 			confirmedEmail: { type: Object, state: true },
 			renderMode: { type: Number },
-			claims: { type: Object, state: true }
+			claims: { type: Object, state: true },
+			emailEstimateSuccess: { type: Boolean, state: true }
 
 		};
 	}
@@ -366,6 +369,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _rerenderClientSummary(navigateBackTo) {
 		await this._retrieveClientSummary();
+		this.emailEstimateSuccess = false;
 		this._navigateToSubView(navigateBackTo);
 	}
 
@@ -387,6 +391,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	_backToSummaryPage() {
+		this.emailEstimateSuccess = false;
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
@@ -732,6 +737,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	_backToSummaryPage() {
+		this.emailEstimateSuccess = false;
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
@@ -1213,6 +1219,7 @@ export class ExistingClient extends InsureViewBase {
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
+			this.emailEstimateSuccess = true;
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
 	}
@@ -1396,6 +1403,7 @@ export class ExistingClient extends InsureViewBase {
 
 		return html`
 			<horizon-insure-client-summary 
+				.emailEstimateSuccess ="${this.emailEstimateSuccess}"
 				.clientClaims="${this.claims}"
 				.clientPolicies="${this.clientPolicies}"
 				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" 
