@@ -407,7 +407,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				field="description"
 				size="410px;">
 			</capitec-table-column>
-			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
 				field="formatedAmount"
