@@ -447,7 +447,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/horizon-insurance/ViewExistingClaims`,
+			`/horizon-insurance/view-existing-claims`,
 			viewExistingClaimsRequest,
 			this._setInsureHeaders(),
 			`ViewExistingClaims`,

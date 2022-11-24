@@ -1,5 +1,5 @@
 
-import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS } from 'app/constants/InsureTransactionHistory';
+import { ACTIVITY_TYPE_DESCRIPTION, AUDIT_DATE_TYPE_LIST, MAX_RESULTS, NINETY_DAYS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { css, html } from 'platform/elements';
@@ -78,6 +78,7 @@ export class ExistingClient extends InsureViewBase {
 		this.updatePaymentAgreementDocument = {};
 
 		this.readOnly = false;
+		this.emailEstimateSuccess = false;
 		// this.auditTransactionHistory = {};
 	}
 
@@ -96,6 +97,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} cancellationReason contains the cancellation reason selected
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy document details
 	 * @property {Object} arrearsPaymentDocumentDetails contains the arrears payment document details
+	 * @property {Boolean} emailEstimateSuccess determin whether to show a success alert for estimate email
 	 * 
 	 * @readonly
 	 * @static
@@ -123,7 +125,8 @@ export class ExistingClient extends InsureViewBase {
 			arrearsPaymentDocumentDetails: { type: Object, state: true },
 			confirmedEmail: { type: Object, state: true },
 			renderMode: { type: Number },
-			claims: { type: Object, state: true }
+			claims: { type: Object, state: true },
+			emailEstimateSuccess: { type: Boolean, state: true }
 
 		};
 	}
@@ -366,6 +369,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _rerenderClientSummary(navigateBackTo) {
 		await this._retrieveClientSummary();
+		this.emailEstimateSuccess = false;
 		this._navigateToSubView(navigateBackTo);
 	}
 
@@ -387,6 +391,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	_backToSummaryPage() {
+		this.emailEstimateSuccess = false;
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
@@ -732,6 +737,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	_backToSummaryPage() {
+		this.emailEstimateSuccess = false;
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
@@ -859,22 +865,18 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
-
 		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-				.map((item) => {
-					const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-					const formatedDate = new Date(Date.parse(item.Date));
-					item.formatedPremiumDate = formatedPremiumDate;
+			const formattedTrans = returnValue.result.transactions.
+				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement`).map((item) => {
+					const formatedDate = new Date(Date.parse(item.date));
+					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
 					item.formatedDate = formatedDate;
-					item.formatedPremium = formatCurrency(item.premium);
-					item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
+					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-					item.formatedAmount = formatCurrency(item.amount);
+					item.formatedAmount = isNullorEmpty(item.amount) ? `` : formatCurrency(item.amount);
 					return item;
 				});
 			this.transactions.push(...formattedTrans);
-
 			this.policyTransactionHistory.transactions = this.transactions;
 
 			this.endCallContext = `PolicyTransactionHistory`;
@@ -1213,6 +1215,7 @@ export class ExistingClient extends InsureViewBase {
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
+			this.emailEstimateSuccess = true;
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
 	}
@@ -1396,6 +1399,7 @@ export class ExistingClient extends InsureViewBase {
 
 		return html`
 			<horizon-insure-client-summary 
+				.emailEstimateSuccess ="${this.emailEstimateSuccess}"
 				.clientClaims="${this.claims}"
 				.clientPolicies="${this.clientPolicies}"
 				.cancelPolicyDocumentDetails="${this.cancelPolicyDocumentDetails}" 

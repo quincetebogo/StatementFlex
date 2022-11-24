@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
 
@@ -89,33 +90,10 @@ class SMSHistory extends Component {
 	}
 
 	/**
-	 * Get Predefined date ranges
-	 * @return {null} null
+	 * filter sms history when date is changed
+	 * @param {*} e e
+	 * @return {void}
 	 */
-	getPredefinedDateRanges() {
-		const last7day = new Date(today);
-		const last30day = new Date(today);
-		const last60day = new Date(today);
-		const last90day = new Date(today);
-
-		last7day.setDate(today.getDate() - 7);
-		last30day.setDate(today.getDate() - 30);
-		last60day.setDate(today.getDate() - 60);
-		last90day.setDate(today.getDate() - 90);
-
-		return [
-			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
-		];
-	}
-
-	/**
-		 * filter sms history when date is changed
-		 * @param {*} e e
-		 * @return {void}
-		 */
 	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
@@ -153,7 +131,7 @@ class SMSHistory extends Component {
 			this.endDate = toDate;
 		}
 
-		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
 		await this._refineSearch();
 
@@ -176,34 +154,6 @@ class SMSHistory extends Component {
 		}
 
 		this.requestUpdate();
-	}
-
-	/**
-	 * Get selected date range
-	 * @returns {string} - fromdate to todate
-	 */
-	_getDateRange() {
-		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
-		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
-
-		const preDefinedRanges = this.getPredefinedDateRanges();
-		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
-
-		if (selectedValue.length > 0) {
-			return selectedValue[0].text;
-		}
-
-		return `${fromDate} - ${toDate}`;
-	}
-
-	/**
-		 * format the give date
-		 * @param {*} date - date to be formatted 
-		 * @return {void}
-		 */
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	/**
@@ -520,7 +470,7 @@ class SMSHistory extends Component {
 					mode="date"
 					inputType="calendar"
 					outputType="string"
-					.predefinedRanges="${this.getPredefinedDateRanges()}"
+					.predefinedRanges="${getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="insure-sms-history-date-picker">
 				</capitec-date-time-picker>

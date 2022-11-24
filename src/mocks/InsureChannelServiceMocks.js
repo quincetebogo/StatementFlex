@@ -93,9 +93,7 @@ export default class InsureChannelServiceMocks {
 	 */
 	insurePolicyTransactionHistory(policyTransactionHistoryRequest) {
 		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
-			const result = this.transactionHistoryMocks.PolicyTransactionHistory;
-			const policyTrans = result.filter(x => x.contractReference === `FP123456`);
-			return policyTrans[0];
+			return this.transactionHistoryMocks.PolicyTransactionHistory;
 		}
 
 		// Code for a negative case could come here
