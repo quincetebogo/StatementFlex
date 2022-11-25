@@ -1238,7 +1238,7 @@ class UpdatePlan extends Component {
 
 		this.showReinstatePolicyAgreementDialog = true;
 
-		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+		if (this.newContractReference.toLowerCase().startsWith(`cf`)) {
 			this.showReinstatePaymentAgreementDocument = true;
 			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
 		}
@@ -1249,7 +1249,7 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_acceptReinstatePolicy() {
-		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
+		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse, newContractRef: this.newContractReference } }));
 	}
 
 	/**

@@ -1146,10 +1146,18 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null 
 	 */
 	async _acceptPolicy(event) {
-		const documents = [
-			event.detail.policyResponse.issuePlanAgreement.documentDetails,
-			event.detail.policyResponse.paymentAgreement.documentDetails
-		];
+
+		let documents = [];
+
+		if (event.detail.newContractRef.substring(0, 2) === `CF`) {
+			documents = [
+				event.detail.policyResponse.issuePlanAgreement.documentDetails,
+				event.detail.policyResponse.paymentAgreement.documentDetails
+			];
+		} else {
+			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
+		}
+
 		const acceptPlanRequest =
 		{
 			"cifNumber": this.callerInformation.cifNumber,
