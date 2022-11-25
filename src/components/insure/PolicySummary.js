@@ -7,7 +7,6 @@ import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
-
 /**
  * Policy summary component showing details of single policy with its role players
  * 
@@ -25,10 +24,9 @@ class PolicySummary extends Component {
 
 	constructor() {
 		super();
-
 		this.policyDetails = null;
-		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 	// #endregion INITIALISATION
@@ -36,13 +34,14 @@ class PolicySummary extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {Object} policyDetails Selected policy being viewed
+	 * 
 	 * @readonly
 	 * @static
 	 */
 	static get properties() {
 		return {
-			policyDetails: { type: Object, state: true },
-			readOnlyMode: { type: Boolean, state: true }
+			policyDetails: { type: Object, state: true }
 		};
 	}
 
@@ -65,9 +64,9 @@ class PolicySummary extends Component {
 	 * @returns {void}
 	 */
 	async disconnectedCallback() {
+		await this._telemetry.endSpan(this.telemetryEvents.POLICY_SUMMARY, {});
 		super.disconnectedCallback();
 		this._unloading();
-		await this._telemetry.endSpan(this.telemetryEvents.POLICY_SUMMARY, {});
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -87,7 +86,7 @@ class PolicySummary extends Component {
 	 * @returns {void} 
 	 */
 	_backToClientPoliciesPage() {
-		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+		this._telemetry.logEvent(this.telemetryEvents.POLICY_SUMMARY_BACK, {
 			"screen": TelemetryScreen.INSURE_POLICY_SUMMARY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
 		});
@@ -259,11 +258,6 @@ class PolicySummary extends Component {
 						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Funeral Plan" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false
-				? html`<capitec-button label="Update Plan" type="white"
-						data-automation-id="policy-summary-update-plan"
-						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>`
-				: html``}
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
@@ -289,7 +283,7 @@ class PolicySummary extends Component {
 	 * @returns {html} The html content of Main Life section
 	 */
 	_renderMainLifeSection() {
-		const sumArrears = this.policyDetails?.arrearDetails?.outstandingAmount;
+		const outstandingArrearsAmount = this.policyDetails?.arrearDetails?.outstandingAmount;
 		const mainLifeDetails = this.policyDetails?.roleplayers?.filter(item => item.relationship === `MainLife`);
 
 		return html`
@@ -326,8 +320,8 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-arrears"
 						label="Arrears"
-						class="${sumArrears > 0 ? `arrears` : ``}"
-						value="${isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears)}">
+						class="${outstandingArrearsAmount > 0 ? `arrears` : ``}"
+						value="${isNullorEmpty(outstandingArrearsAmount) ? formatCurrency(0) : formatCurrency(outstandingArrearsAmount)}">
 					</horizon-label>
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
@@ -347,14 +341,13 @@ class PolicySummary extends Component {
 	}
 
 	/**
- * Render MainLife Additional Information
- * @returns {html} The html content of the each MainLife Addition Information
- */
+	 * Render MainLife Additional Information
+	 * @returns {html} The html content of the each MainLife Addition Information
+	 */
 	_renderOptions() {
 		const paymentSchedule = this.policyDetails?.paymentSchedule;
 		const csvOfMonths = this.policyDetails?.arrearDetails?.arrears?.map((item) => formatDate(item.dueDate, `dd mmm yyyy`)).join(`, `);
 		const activeBankAccountNo = this.policyDetails?.deductionDetails?.bankDetails?.accountNumber;
-
 		const activeMandateDetails = this.policyDetails?.mandates?.filter(x => x.accountNumber === activeBankAccountNo);
 
 		return html`
@@ -598,7 +591,6 @@ class PolicySummary extends Component {
 			</capitec-content-box>
 		`;
 	}
-
 	// #endregion
 }
 window.customElements.define(`horizon-insure-policy-summary`, PolicySummary);
