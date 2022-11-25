@@ -210,7 +210,7 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_renderArrearsAlertBanner() {
-		return !this.accountDetails.arrears
+		return this.accountDetails.arrears[`Total arrears amount`] === `R0.00`
 			? html``
 			: html`
 				<horizon-alert-banner
@@ -238,21 +238,19 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_renderArrears() {
-		return !this.accountDetails.arrears
-			? html``
-			: html`
-				<capitec-title-bar
-					type="default"
-					label="Arrears">
-				</capitec-title-bar>
-				<capitec-group
-					layout="horizontal"
-					gap="none"
-					halign="left"
-					valign="top"
-					wrap>
-						${this._renderFields(this.accountDetails.arrears)}
-				</capitec-group>`;
+		return html`
+			<capitec-title-bar
+				type="default"
+				label="Arrears">
+			</capitec-title-bar>
+			<capitec-group
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="top"
+				wrap>
+					${this._renderFields(this.accountDetails.arrears)}
+			</capitec-group>`;
 	}
 
 	_renderRepayment() {

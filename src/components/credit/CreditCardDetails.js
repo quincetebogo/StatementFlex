@@ -69,7 +69,9 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Auto limit increase': `${this.creditCardDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
 				'Account status': this.creditCardDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.creditCardDetails.accountStatusDescription)
 			},
-			'arrears': null,
+			'arrears': {
+				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable || `0`)
+			},
 			'repayment': {
 				'Repayment day': `${this.creditCardDetails.repaymentDay}${getDateOrdinal(this.creditCardDetails.repaymentDay)} of every month`,
 				'Repayment method': this.creditCardDetails.repaymentMethodDescription,
@@ -84,12 +86,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Waiting period expiry date': formatDate(this.creditCardDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
 			}
 		};
-
-		if (this.creditCardDetails.arrearsStatus) {
-			this.accountDetails.arrears = {
-				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable)
-			};
-		}
 	}
 
 	// ---------------
