@@ -21,6 +21,18 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	// PROPERTIES
 	// --------------
 
+	get incidentDescription() {
+		const type = this.screenDetails.unlockType;
+		const fromAccNumber = this.screenDetails.unlockAccountNumber;
+		const unlockBalance = formatCurrency(this.screenDetails.unlockBalance);
+		const unlockAmount = formatCurrency(this.screenDetails.unlockAmount);
+		const penaltyFee = formatCurrency(this.screenDetails.penaltyFee);
+		const balancePostUnlock = formatCurrency(this.screenDetails.balancePostUnlock);
+
+		return `Type: ${type} unlock\nFTSP account number: ${fromAccNumber}\nValue of FTSP:${unlockBalance}\nUnlock amount: ` +
+				`${unlockAmount}\nPenalty Fee: ${penaltyFee}\nBalance of FTSP:${balancePostUnlock}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -70,6 +82,7 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.description = this.incidentDescription;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
