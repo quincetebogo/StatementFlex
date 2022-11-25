@@ -878,8 +878,6 @@ export class ExistingClient extends InsureViewBase {
 				});
 			this.transactions.push(...formattedTrans);
 			this.policyTransactionHistory.transactions = this.transactions;
-
-			this.endCallContext = `PolicyTransactionHistory`;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		} else {
 			this.handleToastError(returnValue.exception);
