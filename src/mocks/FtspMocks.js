@@ -17,7 +17,7 @@ export const unlockOptions = {
 
 export const unlockQuote = {
 	"quoteReferenceNumber": `9faaf09e-c4f3-4a1d-b821-6a4bdaeef83a`,
-	"unlockFee": `154`
+	"unlockFee": ``
 };
 
 export const unlockAgreement = {
