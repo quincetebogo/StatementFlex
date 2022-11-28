@@ -685,19 +685,20 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void} 
 	 */
 	_refineSearch() {
+		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
+			this.filteredData = this.policyTransactionHistory?.transactions;
 
-		this.filteredData = this.policyTransactionHistory?.transactions;
-
-		if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
-			if (RENDER_CHIPS[FILTER_BY.DATE]) {
-				const startDate = new Date(Date.parse(this.startDate));
-				const endDate = new Date(Date.parse(this.endDate));
-				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+			if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
+				if (RENDER_CHIPS[FILTER_BY.DATE]) {
+					const startDate = new Date(Date.parse(this.startDate));
+					const endDate = new Date(Date.parse(this.endDate));
+					this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+				}
+			} else {
+				this.filteredData = [];
 			}
-		} else {
-			this.filteredData = [];
+			this.requestUpdate();
 		}
-		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE FUNCTIONS
