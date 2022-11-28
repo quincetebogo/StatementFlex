@@ -13,7 +13,7 @@ const rowItem = `height: 64px;
 const width273 = `width: 273px;`;
 const width240 = `width: 240px;`;
 const width185 = `width: 185px`;
-const width128 = `width: 128px;`;
+const width156 = `width: 156px;`;
 const width200 = `width: 200px`;
 
 const borderRight = `border-right: 1px solid #E1E1E1;`;
@@ -56,7 +56,7 @@ export const TABLE_ROW_CSS = {
 	width273: width273,
 	width240: width240,
 	width185: width185,
-    width128: width128,
+    width156: width156,
     width200: width200,
 	borderRight: borderRight
 };
@@ -88,15 +88,15 @@ export const TABLE_ROW_CELL_CSS = {
  */
 export function getFontColor(key, value) {
 	
-	if (key !== `Status`) {
+	if (key !== `Secondary status`) {
 		return ``;
 	}
 
-	if (value === `Pending`) {
+	if (value === `Pending` || value === `Notapplicable`) {
 		return cellColorOrange;
 	} else if (value === `Accepted`) {
 		return cellColorGreen;
-	} else if (value === `Expired`) {
+	} else if (value === `Expired` || value === `Updated` || value === `Cancelled` || value === `Rejected` || value === `Duplicate`) {
 		return cellColorRed;
 	}
 		return cellColorBlack;

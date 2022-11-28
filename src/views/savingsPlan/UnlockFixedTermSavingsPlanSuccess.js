@@ -117,8 +117,8 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 				@right-click=${() => this._doneClick()}>
 					<section id="id-success-msg" slot="detail">
 						${this.screenDetails.unlockType === `Partial`
-							? `${formatCurrency(this.screenDetails.unlockAmount)} Partial transfer from ${this.screenDetails.unlockAccountName} has been transfered to Main savings account was unsuccessful.`
-							: `Fixed-term savings plan for ${this.screenDetails.unlockAccountName} has been unlocked.`}
+							? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main Savings Account was successful.`
+							: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has been unlocked.`}
 					</section>
 			</horizon-success-screen>
 		`;

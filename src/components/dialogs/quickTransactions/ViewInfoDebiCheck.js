@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { convertCentsToRand, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+
 
 import 'platform/components/popups/Modal';
 
@@ -99,7 +100,7 @@ export class ViewInfoDebiCheck extends Component {
 			"Collector contact number": this.debiCheckDetails.collectorContact,
 			"Collector email address": this.debiCheckDetails.collectorEmail,
 			"Collector account number": this.debiCheckDetails.debtorAccountNumber,
-			"Secondary status": this.debiCheckDetails.secondaryStatus,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
 			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
 			"Mandate request transaction identifier": this.debiCheckDetails.mandateRequestTransactionIdentifier
 		};
@@ -114,31 +115,31 @@ export class ViewInfoDebiCheck extends Component {
 
 		this.dateDetails = {
 			"Collection day": this.debiCheckDetails.collectionDate.day,
-			"Initiation date": null,
+			"Initiation date": this._formartDate(this.debiCheckDetails.initiationDate),
 			"Date amended": this._formartDate(this.debiCheckDetails.dateAmended),
 			"Frequency": this.debiCheckDetails.frequency,
 			"First collection date": this._formartDate(this.debiCheckDetails.firstCollectionDate)
 		};
 
 		this.creditorDetails = {
-			"Creditor name": this.debiCheckDetails.creditorUltimateName,
-			"Mandate status": this.debiCheckDetails.mandateStatus,
+			"Creditor name": this.debiCheckDetails.creditorName,
+			"Mandate status": formatStringAsPascalCase(this.debiCheckDetails.mandateStatus),
 			"Contract reference": this.debiCheckDetails.contractReference,
 			"Creditor telephone number": this.debiCheckDetails.creditorTelephoneNo,
-			"Creditor short name": this.debiCheckDetails.creditorUltimateName,
+			"Creditor short name": this.debiCheckDetails.creditorShortName,
 			"Mandate reference": this.debiCheckDetails.mandateReference,
 			"Ultimate creditor name": this.debiCheckDetails.ultimateCreditorName,
 			"Creditor email": this.debiCheckDetails.collectorEmail,
-			"Secondary status": this.debiCheckDetails.secondaryStatus,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
 			"MRTI": this.debiCheckDetails.mrti
 		};
 
 		this.payerDetails = {
 			"Payer ID": this.debiCheckDetails.payerID,
-			"Debtor telephone number": null,
+			"Debtor telephone number": this.debiCheckDetails.debtorTelephoneNumber,
 			"Payer account": this.debiCheckDetails.payerAccount,
 			"Ultimate debtor name": this.debiCheckDetails.ultimateDebtorName,
-			"Debtor email": null,
+			"Debtor email": this.debiCheckDetails.debtorEmail,
 			"CIF number": this.debiCheckDetails.cifNumber,
 			"Entry class": this.debiCheckDetails.entryClass
 		};
@@ -175,6 +176,15 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-tab-min-width: 168px;
 				--theme-container-padding-top: 4px;
 				--theme-tab-border-bottom: 1px solid #E1E1E1;
+			}
+			horizon-label[value ="Pending"], [value = "Notapplicable"] {
+				--horizon-label-value-color: #D4781C;
+			}
+			horizon-label[value ="Active"], [value="Accepted"]{
+				--horizon-label-value-color: #70AF00;
+			}
+			horizon-label[value ="Inactive"], [value="Updated"], [value="Cancelled"], [value="Rejected"], [value="Expired"], [value="Duplicate"] {
+				--horizon-label-value-color: #A5132A;
 			}
 			horizon-label {
 				height: 64px;

@@ -19,6 +19,7 @@ export const mockMandates = {
             "maxCollectionAmount": 565600,
             "mandateName": "DISCLIFE 5130111776-21",
             "mandateStatus": "ACTIVE",
+			"secondaryStatus": "ACCEPTED",
             "collectionDayFrequency": "23rd of Month"
         },
         {
@@ -32,7 +33,9 @@ export const mockMandates = {
             "maxCollectionAmount": 29900,
             "mandateName": "TELKOMMOB15922277090232",
             "mandateStatus": "PENDING",
-            "collectionDayFrequency": "11th of Month"
+			"secondaryStatus": "NOTAPPLICABLE",
+            "collectionDayFrequency": "11th of Month",
+            "canBeAuthenticated": true
         },
         {
             "mandateId": 3,
@@ -45,6 +48,7 @@ export const mockMandates = {
             "maxCollectionAmount": 129900,
             "mandateName": "VODACOM 0340833372 1000",
             "mandateStatus": "INACTIVE",
+			"secondaryStatus": "DECLINED",
             "collectionDayFrequency": "22nd of Month",
             "canBeAuthenticated": true
         },
@@ -59,6 +63,7 @@ export const mockMandates = {
             "maxCollectionAmount": 345000,
             "mandateName": "BMWFINANCE 989800101333",
             "mandateStatus": "SUSPENDED",
+			"secondaryStatus": "NOTAPPLICABLE",
             "collectionDayFrequency": "1st of Month",
             "canBeAuthenticated": true
         },
@@ -72,7 +77,8 @@ export const mockMandates = {
             },
             "maxCollectionAmount": 120000,
             "mandateName": "FNBRVLLOAN4000069539246",
-            "mandateStatus": "PENDING",
+            "mandateStatus": "INACTIVE",
+			"secondaryStatus": "DECLINED",
             "collectionDayFrequency": "30th of Month",
             "canBeAuthenticated": true
         },
@@ -86,7 +92,8 @@ export const mockMandates = {
             },
             "maxCollectionAmount": 120000,
             "mandateName": "MTN",
-            "mandateStatus": "PENDING",
+            "mandateStatus": "INACTIVE",
+			"secondaryStatus": "EXPIRED",
             "collectionDayFrequency": "8th of Month",
             "canBeAuthenticated": true
         }
@@ -119,7 +126,13 @@ export const mandateInfo = {
 		"ultimateDebtorName": "Capitec Bank LTD",
 		"creditorContactNumber": "0112322455",
 		"creditorTelephoneNo": "021034440344",
-		"creditorUltimateName": "Vodacom" 
+		"creditorUltimateName": "Vodacom",
+		"creditorName": "ALTECH NUPAY A DIVISION OF ALTRON",
+		"creditorShortName": "NPSTIFIN",
+		"debtorEmail": null,
+		"installmentAmount": 46010,
+		"debtorTelephoneNumber": null,
+		"initiationDate": "2022-07-28T00:00:00+00:00"
 	};
 
 export const agreement = [

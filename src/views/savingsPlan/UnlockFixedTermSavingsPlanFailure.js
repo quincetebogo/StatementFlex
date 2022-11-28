@@ -128,8 +128,8 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 				@right-click=${() => this._tryAgain()}>
 					<section id="id-error-msg" slot="detail">
 					${this.screenDetails.unlockType === `Partial`
-							? `${formatCurrency(this.screenDetails.unlockAmount)} Partial transfer from ${this.screenDetails.unlockAccountName} to Main savings account was unsuccessful.`
-							: `Fixed-term savings plan for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
+							? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main Savings Account was unsuccessful.`
+							: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
 					</section>
 			</horizon-error-screen>
 		`;

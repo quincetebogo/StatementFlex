@@ -288,7 +288,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_formatAmount(amount) {
-		if (amount) {
+		if (!isNaN(amount) && amount !== null) {
 			return `${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 		}
 	}
@@ -499,9 +499,11 @@ const UNLOCK_OPTIONS = {
 					margin: 0px 0px 16px 16px;
 					border: 1px solid #e1e1e1;
 					border-radius: 4px;
+					cursor: pointer;
 				}
 				.group-disabled {
 					background-color: #F5F5F5;
+					cursor: default;
 				}
 				.agreement-group > capitec-icon {
 					margin: 0px 16px;
@@ -873,7 +875,7 @@ const UNLOCK_OPTIONS = {
 					<capitec-text-field
 						data-automation-id="unlock-ftsp-unlock-fee"
 						label="Penalty fee"
-						type="${this.unlockFee ? `currency` : ``}"
+						type="currency"
 						value="${this._formatAmount(this.unlockFee)}"
 						?disabled=${true}>
 					</capitec-text-field>
@@ -892,7 +894,8 @@ const UNLOCK_OPTIONS = {
 				?expanded=${this.declarationExpanded}
 				@expand="${() => this.declarationExpanded = true}"
 				@collapse="${() => this.declarationExpanded = false}"
-				label="Declaration">
+				label="Declaration"
+				icon="/attorneys_declaration">
 				<capitec-content-box class="expander-cb" noPadding>
 					<ul class="list-items">
 						<li><capitec-label type="default" label="We will charge you a penalty fee for unlocking before the agreed maturity date"></capitec-label></li>
