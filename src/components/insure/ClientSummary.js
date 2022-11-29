@@ -15,7 +15,6 @@ import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
-import 'app/components/dialogs/insure/EmailPlanDialog';
 import 'app/components/insure/ClientClaimsSummary';
 import 'app/components/dialogs/insure/CFPAgreementDialog';
 
@@ -59,10 +58,8 @@ class ClientSummary extends Component {
 		this.clientClaims = null;
 		this.amountToPay = 0;
 
-		this.showSubMenu = true;
 		this.showCancelPolicyDialog = false;
 		this.showEmailPlanDialog = false;
-		this.showCancelPolicyConfirmationDialog = false;
 		this.showPayPremiumDialog = false;
 		this.showPayPremiumConfirmationDialog = false;
 		this.showPayPremiumAgreementDialog = false;
@@ -92,14 +89,18 @@ class ClientSummary extends Component {
 	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails cancel document
 	 * @property {boolean} readOnlyMode toggle to disable actions based on rules
-	 * @property {boolean} showSubMenu Determines if the sub menu to be shown or not
 	 * @property {boolean} showCancelPolicyDialog Determines if the Cancel Policy dialog should be shown
 	 * @property {boolean} showEmailPlanDialog Determines if the Email Plan dialog should be shown
-	 * @property {boolean} showCancelPolicyConfirmationDialog Determines if the Cancel Policy Confirmation dialog should be shown
 	 * @property {boolean} showPayPremiumDialog Determines if the Pay Premium dialog should be shown
 	 * @property {boolean} showPayPremiumConfirmationDialog Determines if the Pay Premium Confirmation dialog should be shown
 	 * @property {boolean} showPayPremiumAgreementDialog Determines if the Pay Premium Agreement dialog should be shown
 	 * @property {boolean} showLodgeClaimInfoDialog Determines if the Claim Inf dialog should be shown
+	 * @property {boolean} showCFPAgreementDialog Determines if the CFP agreement dialog should be shown
+	 * @property {String} selectedFlow current selected flow
+	 * @property {String} selectedContractRef selected policy contract reference
+	 * @property {boolean} canReinstate determines whether a policy can be reinstated
+	 * @property {Object} selectedPolicyItem selected policy item
+	 * @property {String} productCode policy product code
 	 * 
 	 * @readonly
 	 * @static
@@ -123,10 +124,8 @@ class ClientSummary extends Component {
 			cancelPolicyDocumentDetails: { type: Object, state: true },
 
 			readOnlyMode: { type: Boolean, state: true },
-			showSubMenu: { type: Boolean, state: true },
 			showCancelPolicyDialog: { type: Boolean, state: true },
 			showEmailPlanDialog: { type: Boolean, state: true },
-			showCancelPolicyConfirmationDialog: { type: Boolean, state: true },
 			showPayPremiumDialog: { type: Boolean, state: true },
 			showPayPremiumConfirmationDialog: { type: Boolean, state: true },
 			showPayPremiumAgreementDialog: { type: Boolean, state: true },
@@ -166,42 +165,8 @@ class ClientSummary extends Component {
 	// #region EVENT HANDLERS
 
 	/**
-	 * Fire navigate event to Estimate
-	 * @returns {void}
-	 */
-	_goToEstimate() {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_GET_ESTIMATE, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`));
-	}
-
-	/**
-	 * Fire navigate event to Claim Summary
-	 * @param {*} e event
-	 * @returns {void}
-	 */
-	_goToClaimSummary(e) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail.claim }));
-	}
-
-	/**
-	 * Fire navigate event to Update Plan
-	 * @param {*} contractReference contract reference
-	 * @param {*} canReinstate canReinstate
-	 * @returns {void}
-	 */
-	_goToUpdatePlan(contractReference, canReinstate) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
-		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
-			detail: {
-				policyContractReference: contractReference, canReinstate: canReinstate
-			}
-		}));
-	}
-
-	/**
 	 * Fire navigate event to Policy Summary
-	 * @param {*} contractReference contract reference
+	 * @param {String} contractReference contract reference
 	 * @returns {void}
 	 */
 	_goToPolicySummary(contractReference) {
@@ -240,7 +205,7 @@ class ClientSummary extends Component {
 
 	/**
 	 * Cancel Policy event
-	 * @param {*} e event
+	 * @param {event} e event
 	 * @returns {void}
 	 */
 	_cancelPolicyAgree(e) {
@@ -249,23 +214,15 @@ class ClientSummary extends Component {
 		}));
 	}
 
-	/*
+	/**
 	 * Fire navigate to SMS History
+	 * 
+	 * @param {Object} policyItem policy item
+	 * @returns {void}
 	 */
 	_goToSMSHistory(policyItem) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_SMS_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyItem: policyItem } }));
-	}
-
-	/**
-	 * event to open the cancel policy dialog
-	 * @param {string} contractReference contract reference
-	 * @returns {void} 
-	 */
-	_openCancelPolicyDialog(contractReference) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
-		this.contractReferenceToCancel = contractReference;
-		this.showCancelPolicyDialog = true;
 	}
 
 	/**
@@ -280,7 +237,7 @@ class ClientSummary extends Component {
 	/**
 	 * Close Pay Premium Dialog and Open the Pay Premium Confirmation Dialog.
 	 *
-	 * @param {*} e contains the values pay arrears and amount to be paid
+	 * @param {event} e contains the values pay arrears and amount to be paid
 	 * @returns {void}
 	 */
 	_payArrears(e) {
@@ -302,24 +259,10 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Open Pay Premium dialog 
-	 * @param {*} policyItem policy item
-	 * @returns {void}
-	 */
-	_openPayPremiumDialog(policyItem) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
-		this.clientArrears = {
-			contractReference: policyItem.contractReference,
-			arrears: policyItem.arrearDetails?.arrears
-		};
-		this.showPayPremiumDialog = true;
-	}
-
-	/**
 	 * Get the Cancel Policy Document
 	 * 
-	 * @param {*} contractReference contractReference
-	 * @param {*} cancelReason cancelReason
+	 * @param {String} contractReference contract Reference
+	 * @param {String} cancelReason cancel Reason
 	 * @returns {void}
 	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason) {
@@ -328,7 +271,7 @@ class ClientSummary extends Component {
 
 	/**
 	 * Get the Arrears Payment Document
-	 * @param {string} contractReference contractReference
+	 * @param {string} contractReference contract Reference
 	 * @return {void} 
 	 */
 	async _getArrearsPaymentDocument(contractReference) {
@@ -344,25 +287,12 @@ class ClientSummary extends Component {
 		this.cancelPolicyDocumentDetails = undefined;
 	}
 
-	// #endregion EVENT HANDLERS
-
-	// #region PRIVATE FUNCTIONS
-
 	/**
 	 * Fire navigate event to Product Enquiry
 	 * @returns {void}
 	 */
-	_productEnquiry() {
+	 _productEnquiry() {
 		this.dispatchEvent(new CustomEvent(`product-enquiry`, { detail: {} }));
-	}
-
-	/**
-	 * Get Total cover amount of all role players
-	 * @param {Object} policyItem - Policy details 
-	 * @returns {void}
-	 */
-	_getTotalCoverAmount(policyItem) {
-		return policyItem.roleplayers.filter(x => x.beneficiary !== true).reduce((accumulator, object) => accumulator + (object.coverAmount ?? 0), 0);
 	}
 
 	/**
@@ -370,7 +300,7 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem - Policy details 
 	 * @returns {void}
 	 */
-	_expanded(policyItem) {
+	 _expanded(policyItem) {
 		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference &&
 			x.isExpanded === true);
 
@@ -397,9 +327,130 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem - Policy details 
 	 * @returns {void}
 	 */
-	_collapsed(policyItem) {
-		policyItem.isExpanded = false;
-		this.requestUpdate();
+		 _collapsed(policyItem) {
+			policyItem.isExpanded = false;
+			this.requestUpdate();
+		}
+
+	/**
+	 * displays the CFP disclosure
+	 * @param {String} flow selected flow
+	 * @param {Object} [policyItem = null] policy item
+	 * @returns {void}
+	 */
+	_displayCFPDisclosure(flow, policyItem = null) {
+
+		this.selectedFlow = flow;
+		this.selectedContractRef = policyItem?.contractReference;
+		this.canReinstate = policyItem?.canReinstate;
+		this.selectedPolicyItem = policyItem;
+
+		if (policyItem === null) {
+			this.productCode = `Capitec`;
+		} else {
+			this.productCode = policyItem.productCode;
+		}
+
+
+		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
+			this.showCFPAgreementDialog = true;
+		} else {
+			this._navigateAfterCFP();
+		}
+	}
+
+	/**
+	 * determines where to navigate after accepting the cfp disclosure
+	 * @returns {void}
+	 */
+		 _navigateAfterCFP() {
+
+			this.horizonInsureStore.setCFPStatus(true);
+	
+			switch (this.selectedFlow) {
+				case `update`:
+					this.showCFPAgreementDialog = false;
+					this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
+					break;
+				case `cancel`:
+					this.showCFPAgreementDialog = false;
+					this._openCancelPolicyDialog(this.selectedContractRef);
+					break;
+				case `adhoc`:
+					this.showCFPAgreementDialog = false;
+					this._openPayPremiumDialog(this.selectedPolicyItem);
+					break;
+				case `estimate`:
+					this.showCFPAgreementDialog = false;
+					this._goToEstimate();
+					break;
+				default:
+					this.showCFPAgreementDialog = false;
+					break;
+			}
+		}
+
+	// #endregion EVENT HANDLERS
+
+	// #region PRIVATE FUNCTIONS
+
+	/**
+	 * Open Pay Premium dialog 
+	 * @param {Object} policyItem policy item
+	 * @returns {void}
+	 */
+	 _openPayPremiumDialog(policyItem) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
+		this.clientArrears = {
+			contractReference: policyItem.contractReference,
+			arrears: policyItem.arrearDetails?.arrears
+		};
+		this.showPayPremiumDialog = true;
+	}
+
+	/**
+	 * event to open the cancel policy dialog
+	 * @param {string} contractReference contract reference
+	 * @returns {void} 
+	 */
+	 _openCancelPolicyDialog(contractReference) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
+		this.contractReferenceToCancel = contractReference;
+		this.showCancelPolicyDialog = true;
+	}
+
+	/**
+	 * Fire navigate event to Claim Summary
+	 * @param {event} e event
+	 * @returns {void}
+	 */
+	 _goToClaimSummary(e) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
+		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail.claim }));
+	}
+
+	/**
+	 * Fire navigate event to Update Plan
+	 * @param {string} contractReference contract reference
+	 * @param {string} canReinstate canReinstate
+	 * @returns {void}
+	 */
+	 _goToUpdatePlan(contractReference, canReinstate) {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
+		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
+			detail: {
+				policyContractReference: contractReference, canReinstate: canReinstate
+			}
+		}));
+	}
+
+	/**
+	 * Fire navigate event to Estimate
+	 * @returns {void}
+	 */
+	 _goToEstimate() {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_GET_ESTIMATE, {});
+		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`));
 	}
 
 	/**
@@ -546,64 +597,6 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
-		}
-	}
-
-	/**
-	 * displays the CFP disclosure
-	 * @param {String} flow flow
-	 * @param {Object} [policyItem = null] policy item
-	 * @returns {void}
-	 */
-	_displayCFPDisclosure(flow, policyItem = null) {
-
-		this.selectedFlow = flow;
-		this.selectedContractRef = policyItem?.contractReference;
-		this.canReinstate = policyItem?.canReinstate;
-		this.selectedPolicyItem = policyItem;
-
-		if (policyItem === null) {
-			this.productCode = `Capitec`;
-		} else {
-			this.productCode = policyItem.productCode;
-		}
-
-
-		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
-			this.showCFPAgreementDialog = true;
-		} else {
-			this._navigateAfterCFP();
-		}
-	}
-
-	/**
-	 * determines where to navigate after accepting the cfp disclosure
-	 * @returns {void}
-	 */
-	_navigateAfterCFP() {
-
-		this.horizonInsureStore.setCFPStatus(true);
-
-		switch (this.selectedFlow) {
-			case `update`:
-				this.showCFPAgreementDialog = false;
-				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
-				break;
-			case `cancel`:
-				this.showCFPAgreementDialog = false;
-				this._openCancelPolicyDialog(this.selectedContractRef);
-				break;
-			case `adhoc`:
-				this.showCFPAgreementDialog = false;
-				this._openPayPremiumDialog(this.selectedPolicyItem);
-				break;
-			case `estimate`:
-				this.showCFPAgreementDialog = false;
-				this._goToEstimate();
-				break;
-			default:
-				this.showCFPAgreementDialog = false;
-				break;
 		}
 	}
 
@@ -887,7 +880,6 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	
 	 * Generates the component template for web mode.
 	 * @returns {html} The html content of the component.
 	 */
@@ -1305,16 +1297,16 @@ class ClientSummary extends Component {
 
 	/** 
 	 * Render dialog for confirming email address then sending
-	 * @returns {void}
+	 * @returns {html} html
 	 */
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
-				<insure-email-dialog 
+				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Funeral Plan Estimate`}"
 					@close-modal="${() => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
-				</insure-email-dialog>`;
+				</horizon-insure-email-dialog>`;
 	}
 
 	// #endregion RENDERING

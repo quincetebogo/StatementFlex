@@ -1075,6 +1075,7 @@ export class ExistingClient extends InsureViewBase {
 			event.detail.prepareUpdate.paymentAgreement.documentDetails,
 			event.detail.prepareUpdate.planAgreement.documentDetails
 		];
+		console.log(event.detail.prepareUpdate.paymentAgreement.documentDetails);
 		const acceptPlanRequest =
 		{
 			"cifNumber": this.callerInformation.cifNumber,

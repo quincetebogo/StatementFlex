@@ -61,6 +61,7 @@ class PolicyTransactionHistory extends Component {
 	 * @property {Function} getPolicyTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
+	 * @property {Boolean} isBusy 
 	 * 
 	 * @readonly
 	 * @static
@@ -75,55 +76,11 @@ class PolicyTransactionHistory extends Component {
 			getPolicyTransactionHistory: { type: Object },
 			disposeData: { type: Object },
 			hideLoadMore: { type: Boolean, state: true },
-			isBusy: { state: true },
-			readOnlyMode: { type: Boolean, state: true }
+			isBusy: { type: Boolean, state: true }
 		};
 	}
 
 	// #endregion PROPERTIES
-
-	/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				${INSURE_TRANSACTIONS_CSS}
-
-				/* Header Details Bar styles */
-				.actionbar-header > horizon-label {
-					width: 256px;
-					height: 100%;
-					padding: 0px 0px 0px 16px;
-				
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-value-color: #FFFFFF;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-				.actionbar-header > horizon-label[label="Account Number"] {
-					width: 174px;
-				}
-				.actionbar-header > horizon-label[label="Interest"] {
-					width: 120px;
-				}
-
-				capitec-table > capitec-icon {
-					--theme-icon-size-medium: 24px;
-				}
-
-				.transaction-status-select{
-					margin-right: 10px;
-				}
-			`
-		];
-	}
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -158,15 +115,7 @@ class PolicyTransactionHistory extends Component {
 
 	// #endregion LIFECYCLE OVERRIDES
 
-	// #region EVENTS
-
-	/**
-	 * unload the policy transactions
-	 * @return {void}
-	 */
-	_unloading() {
-		this.dispatchEvent(new CustomEvent(`unloading`));
-	}
+	// #region EVENT HANDLER
 
 	/**
 	 * Navigate back to Policy summary page
@@ -181,7 +130,7 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * filter transactions when date is changed
-	 * @param {*} e e
+	 * @param {event} e e
 	 * @return {void} 
 	 */
 	async _dateChanged(e) {
@@ -228,17 +177,17 @@ class PolicyTransactionHistory extends Component {
 
 	/**
 	 * scroll to top of transactions table
-	 * @param {*} e e
+	 * @param {event} e e
 	 * @return {void} 
 	 */
-	_scrollToTop(e) {
+	_scrollToTop() {
 		const element = this.shadowRoot.getElementById(`policy-transactions-table`);
 		element.scrollTop = 0;
 	}
 
 	/**
 	 * filter transactions when date type is changed
-	 * @param {*} event event
+	 * @param {event} event event
 	 * @return {void} 
 	 */
 	_filterByDateType(event) {
@@ -248,9 +197,173 @@ class PolicyTransactionHistory extends Component {
 		this._refineSearch();
 	}
 
-	// #endregion EVENTS
+	/**
+	 * Clear all filters
+	 * @return {void} 
+	 */
+	 _clearFilters() {
+		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
+
+		Array.from(activeFilters.children)
+			.filter(field => field.localName === `capitec-chip` && !field.hidden)
+			.forEach(item => {
+				this._clearFilter(item.id);
+			});
+
+		this._refineSearch();
+	}
+
+		/**
+	 * close specified chip
+	 * @param {*} type - filter type 
+	 * @return {void} 
+	 */
+		 _closeChip(type) {
+			this._clearFilter(type);
+			this._refineSearch();
+		}
+
+	/**
+	 * load more transaction when clicked on load more button
+	 * @return {void} 
+	 */
+		async _loadMoreTransactions() {
+			const oldCount = this.policyTransactionHistory?.transactions?.length;
+			const startDate = this.startDate.toLocaleString().slice(0, 10);
+			const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+			await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
+
+			// If the old record count and count after load more are same means no more data to populate,
+			// so hiding loadmore button
+			if (oldCount === this.policyTransactionHistory?.transactions?.length) {
+				this.hideLoadMore = true;
+			} else {
+				this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+			}
+			this._refineSearch();
+		}
+
+	// #endregion EVENT HANDLER
 
 	// #region PRIVATE FUNCTIONS
+
+	/**
+	 * unload the policy transactions
+	 * @return {void}
+	 */
+	 _unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
+
+	/**
+	 * Clear filter by criteria type
+	 * @param {*} type - filter type
+	 * @return {void} 
+	 */
+	_clearFilter(type) {
+		const date = () => this._reset();
+		const dateType = () => {
+			this.dateLabel = DEFAULTS.DATE_LABEL;
+		};
+
+		const resetForfilters = {
+			'DATE': date,
+			'DATE_TYPE': dateType
+		};
+
+		RENDER_CHIPS[type] = ``;
+		if (resetForfilters[type]) {
+			resetForfilters[type]();
+		}
+	}
+
+	/**
+	 * reset all filters and load transactions
+	 * @return {void} 
+	 */
+	async _reset() {
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+			this.startDate = ``;
+			this.endDate = ``;
+
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
+			await this._refineSearch();
+		}
+	}
+	
+	/**
+	 * filter the transactions
+	 * @return {void} 
+	 */
+	_refineSearch() {
+
+		this.filteredData = this.policyTransactionHistory?.transactions;
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
+
+			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+			} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
+				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate);
+			}
+		}
+
+		this.requestUpdate();
+	}
+
+	// #endregion PRIVATE FUNCTIONS
+
+	// #region RENDERING
+	
+		/**
+	 * Generates the component stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the component.
+	 */
+		 static get styles() {
+			return [
+				super.styles,
+				css`
+					${INSURE_TRANSACTIONS_CSS}
+	
+					/* Header Details Bar styles */
+					.actionbar-header > horizon-label {
+						width: 256px;
+						height: 100%;
+						padding: 0px 0px 0px 16px;
+					
+						--horizon-label-text-height: 20px;
+						--horizon-label-text-color: #FFFFFF;
+						--horizon-label-value-color: #FFFFFF;
+						--horizon-label-value-font-size: 16px;
+						--horizon-label-value-line-height: 20px;
+					}
+					.actionbar-header > horizon-label[label="Account Number"] {
+						width: 174px;
+					}
+					.actionbar-header > horizon-label[label="Interest"] {
+						width: 120px;
+					}
+	
+					capitec-table > capitec-icon {
+						--theme-icon-size-medium: 24px;
+					}
+	
+					.transaction-status-select{
+						margin-right: 10px;
+					}
+				`
+			];
+		}
 
 	/**
 	 * 
@@ -434,72 +547,6 @@ class PolicyTransactionHistory extends Component {
 	}
 
 	/**
-	 * Clear all filters
-	 * @return {void} 
-	 */
-	_clearFilters() {
-		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
-
-		Array.from(activeFilters.children)
-			.filter(field => field.localName === `capitec-chip` && !field.hidden)
-			.forEach(item => {
-				this._clearFilter(item.id);
-			});
-
-		this._refineSearch();
-	}
-
-	/**
-	 * Clear filter by criteria type
-	 * @param {*} type - filter type
-	 * @return {void} 
-	 */
-	_clearFilter(type) {
-		const date = () => this._reset();
-		const dateType = () => {
-			this.dateLabel = DEFAULTS.DATE_LABEL;
-		};
-
-		const resetForfilters = {
-			'DATE': date,
-			'DATE_TYPE': dateType
-		};
-
-		RENDER_CHIPS[type] = ``;
-		if (resetForfilters[type]) {
-			resetForfilters[type]();
-		}
-	}
-
-	/**
-	 * close specified chip
-	 * @param {*} type - filter type 
-	 * @return {void} 
-	 */
-	_closeChip(type) {
-		this._clearFilter(type);
-		this._refineSearch();
-	}
-
-	/**
-	 * reset all filters and load transactions
-	 * @return {void} 
-	 */
-	async _reset() {
-		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``;
-			this.endDate = ``;
-
-			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-			if (calendar) {
-				calendar._placeholderEndDate = null;
-				calendar._placeholderStartDate = null;
-			}
-			await this._refineSearch();
-		}
-	}
-
-	/**
 	 * Render policy transactions
 	 * @returns {html} - content of transactions
 	 */
@@ -666,7 +713,7 @@ class PolicyTransactionHistory extends Component {
 					class='scroll-top'
 					size="medium"
 					icon="system/arrow-up-action"
-					@click = ${(e) => this._scrollToTop(e)}
+					@click = ${() => this._scrollToTop()}
 					data-automation-id="policy-transaction-history-scroll-top">
 				</capitec-icon>
 			</capitec-action-bar>`;
@@ -682,50 +729,8 @@ class PolicyTransactionHistory extends Component {
 			: html``;
 	}
 
-	/**
-	 * load more transaction when clicked on load more button
-	 * @return {void} 
-	 */
-	async _loadMoreTransactions() {
-		const oldCount = this.policyTransactionHistory?.transactions?.length;
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
-		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
-
-		// If the old record count and count after load more are same means no more data to populate,
-		// so hiding loadmore button
-		if (oldCount === this.policyTransactionHistory?.transactions?.length) {
-			this.hideLoadMore = true;
-		} else {
-			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
-		}
-		this._refineSearch();
-	}
-
-	/**
-	 * filter the transactions
-	 * @return {void} 
-	 */
-	_refineSearch() {
-
-		this.filteredData = this.policyTransactionHistory?.transactions;
-
-		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(Date.parse(this.startDate));
-			const endDate = new Date(Date.parse(this.endDate));
-
-			if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[0].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
-			} else if (RENDER_CHIPS[FILTER_BY.DATE_TYPE] === this.dateTypeOptions[1].text) {
-				this.filteredData = this.filteredData.filter(item => new Date(item.premiumDueDate) >= startDate && new Date(item.premiumDueDate) <= endDate);
-			}
-		}
-
-		this.requestUpdate();
-	}
-
-	// #endregion PRIVATE FUNCTIONS
+	// #endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-policy-transaction-history`, PolicyTransactionHistory);
