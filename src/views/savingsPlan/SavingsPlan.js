@@ -681,7 +681,9 @@ export class SavingsPlan extends ViewBase {
 		screenDetails.unlockAmount = event.detail.unlockAmount;
 		screenDetails.penaltyFee = event.detail.penaltyFee;
 		screenDetails.unlockBalance = event.detail.unlockBalance;
-		screenDetails.balancePostUnlock = event.detail.unlockBalance - event.detail.unlockAmount;
+		screenDetails.balancePostUnlock = screenDetails.unlockType === `Full`
+											? 0
+											: event.detail.unlockBalance - event.detail.unlockAmount - event.detail.penaltyFee;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 
