@@ -210,12 +210,12 @@ class SMSHistory extends Component {
 	// #region RENDERING
 
 	/**
-		 * Generates the component stylesheet.
-		 *
-		 * @readonly
-		 * @static
-		 * @returns {css} CSS for the component.
-		 */
+	 * Generates the component stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the component.
+	 */
 	static get styles() {
 		return [
 			super.styles,
@@ -494,9 +494,9 @@ class SMSHistory extends Component {
 	}
 
 	/**
-		 * Clear Date filter
-		 * @returns {html} Render Date chip 
-		 */
+	 * Clear Date filter
+	 * @returns {html} Render Date chip 
+	 */
 	_renderDateChip() {
 		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
 			? html`

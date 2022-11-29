@@ -651,6 +651,15 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Show dialog explaining how to Lodge a Claim
+	 * @returns {void}
+	 */
+	_openClaimInfoDialog() {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
+		this.showLodgeClaimInfoDialog = false;
+	}
+
+	/**
 	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
 	 * @param {String} contractReference contract reference
 	 * @returns {void}
@@ -1316,7 +1325,7 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<insure-lodge-claim-info-dialog @confirm="${() => this.showLodgeClaimInfoDialog = false}">
+			<insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
 			</insure-lodge-claim-info-dialog>`;
 	}
 
@@ -1347,14 +1356,14 @@ class ClientSummary extends Component {
 				</insure-email-dialog>`;
 	}
 
-	
-/**
- * Renders the Email Success alert
- * @returns {html} html content
- */
-_renderSuccessAlert() {
-	return this.emailEstimateSuccess === false ? html``
-	: html`
+
+	/**
+	 * Renders the Email Success alert
+	 * @returns {html} html content
+	 */
+	_renderSuccessAlert() {
+		return this.emailEstimateSuccess === false ? html``
+			: html`
 		<capitec-toast
 			class="toast"
 			type="success"
@@ -1365,7 +1374,7 @@ _renderSuccessAlert() {
 		</capitec-toast>
 
 	`;
-}
+	}
 
 	// #endregion RENDERING
 }
