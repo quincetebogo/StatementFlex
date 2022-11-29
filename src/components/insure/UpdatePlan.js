@@ -1231,6 +1231,18 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _onReinstatePolicyPopup() {
+
+		
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+
+			this.showValidationConfirmDialog = true;
+
+			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+
+			return;
+		}
+
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 
 		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
