@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 
@@ -89,6 +89,18 @@ class PolicySummary extends Component {
 				policyContractReference: contractReference
 			}
 		}));
+	}
+
+	/**
+	 * Status to show on policy
+	 * @returns {string} displayStatus
+	 */
+	_getPolicyDisplayStatus() {
+		let displayStatus = this.policyDetails?.displayStatus;
+		if (this.policyDetails?.policyRule !== `Standard`) {
+			displayStatus = POLICY_RULES[this.policyDetails?.policyRule.toUpperCase()];
+		}
+		return displayStatus;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -243,11 +255,11 @@ class PolicySummary extends Component {
 						data-automation-id="policy-summary-back-to-policies" @click="${() => this._backToClientPoliciesPage()}" />
 					<capitec-label label="Funeral Plan" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false 
-					? html`<capitec-button label="Update Plan" type="white"
+					${(this.policyDetails.status === `InForce` || this.policyDetails.status === `Active`) && this.readOnlyMode === false
+				? html`<capitec-button label="Update Plan" type="white"
 						data-automation-id="policy-summary-update-plan"
-						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>` 
-					: html``}
+						@click="${() => this._goToUpdatePlan(this.policyDetails.contractReference)}"></capitec-button>`
+				: html``}
 				</capitec-title-bar>
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
@@ -316,7 +328,7 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
 						label="Status"
-						value="${this.policyDetails?.displayStatus}"
+						value="${this._getPolicyDisplayStatus()}"
 						class="column-width-200 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status`}">
 					</horizon-label>
 				</capitec-group>
