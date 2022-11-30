@@ -112,6 +112,7 @@ class PolicySummary extends Component {
 			.card{
 				width:100%;
 				height:100%;
+				
 			}
 			.action-image{
 				cursor: pointer;
@@ -217,6 +218,10 @@ class PolicySummary extends Component {
 			.horizon-expander-height{
 				--theme-expander-header-height: auto !important;
 			}
+
+			.bottom-spacing {
+				margin-bottom: 30px;
+			}
 			`
 		];
 	}
@@ -237,6 +242,7 @@ class PolicySummary extends Component {
 	 */
 	_renderContent() {
 		return html`
+		<div class="bottom-spacing">
 			<capitec-card data-automation-id="policy-summary" class="card">
 				<capitec-title-bar type="insure" class="insure-title-bar">
 					<img class="action-image" src="/images/insure/left-arrow.svg"
@@ -252,7 +258,8 @@ class PolicySummary extends Component {
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
 				</capitec-group>
-			</capitec-card>`;
+			</capitec-card>
+		</div>`;
 	}
 
 	/**
