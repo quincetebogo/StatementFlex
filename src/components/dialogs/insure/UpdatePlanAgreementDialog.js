@@ -117,6 +117,10 @@ class UpdatePlanAgreementDialog extends Component {
 				.alert-banner {
 					padding: 0px 0px 16px 0px;
 				}
+
+				.full-length-banner > capitec-toast{
+					width: 100%;
+				}
 				`
 		];
 	}
@@ -207,12 +211,16 @@ class UpdatePlanAgreementDialog extends Component {
 		if (this.alertBannerMessage) {
 			return html`
 				<capitec-content-box class="alert-banner">
-					<capitec-alert-banner 
+					<capitec-toast 
+						class="full-length-banner"
+						type="error" 
 						data-automation-id="insure-update-plan-agreement-dialog-banner"
-						type="unsuccessful-red">
-							${this.alertBannerMessage}
-					</capitec-alert-banner>
-				</capitec-content-box>`;
+						header="${this.alertBannerMessage}" 
+						layout="horizontal">
+					</capitec-toast>
+				</capitec-content-box>
+				`;
+
 		}
 	}
 
