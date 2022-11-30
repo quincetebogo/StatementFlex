@@ -71,7 +71,7 @@ class RemoveBeneficiaryDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="warn" header="Remove Family Member">
+		<capitec-modal type="warn" header="Remove Beneficiary">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -91,8 +91,7 @@ class RemoveBeneficiaryDialog extends Component {
 	*/
 	_renderDialogBody() {
 		return html`
-			<p>Are you sure you want to remove ${this.beneficiaryName} from your <br>Funeral Plan? They will no longer be covered.
-			</p>
+			<p>Are you sure you want to remove ${this.beneficiaryName} from your <br>Funeral Plan? </p>
 		`;
 	}
 
