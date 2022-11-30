@@ -352,7 +352,7 @@ class UpdatePlan extends Component {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 					this.newTotalPremium = ``;
-				
+
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
@@ -369,15 +369,19 @@ class UpdatePlan extends Component {
 					false
 				);
 
+				if (isNullorEmpty(rolePlayer.idNumber)) {
+					rolePlayer.coverDetails.disableDoB = false;
+				} else {
 					const birthYear = rolePlayer.idNumber.substring(0, 2);
 					const fullCurrentYear = new Date().getFullYear();
 					const currentYear = fullCurrentYear.toString().substring(2);
-		
+
 					if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
 						rolePlayer.coverDetails.disableDoB = true;
 					}
+				}
 
 			});
 		}
@@ -943,14 +947,18 @@ class UpdatePlan extends Component {
 		this.canReinstate = this.policyDetails.canReinstate;
 		this.policyDetails.roleplayers.forEach((rolePlayer) => {
 
-			const birthYear = rolePlayer.idNumber.substring(0, 2);
-			const fullCurrentYear = new Date().getFullYear();
-			const currentYear = fullCurrentYear.toString().substring(2);
-
-			if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+			if (isNullorEmpty(rolePlayer.idNumber)) {
 				rolePlayer.coverDetails.disableDoB = false;
 			} else {
-				rolePlayer.coverDetails.disableDoB = true;
+				const birthYear = rolePlayer.idNumber.substring(0, 2);
+				const fullCurrentYear = new Date().getFullYear();
+				const currentYear = fullCurrentYear.toString().substring(2);
+
+				if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+					rolePlayer.coverDetails.disableDoB = false;
+				} else {
+					rolePlayer.coverDetails.disableDoB = true;
+				}
 			}
 		});
 
@@ -1043,7 +1051,7 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _onUpdatePlan() {
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
 
 			this.showValidationConfirmDialog = true;
@@ -1069,7 +1077,6 @@ class UpdatePlan extends Component {
 
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 
-		// This needs to move
 		this.showUpdatePlanAgreementDialog = true;
 
 		// policyScheduleDocContent
@@ -1081,10 +1088,10 @@ class UpdatePlan extends Component {
 		}
 	}
 
-/**
- * validate fields on beneficiary tab and banking details tab when update button is clicked
- * @returns {Boolean} boolean
- */
+	/**
+	 * validate fields on beneficiary tab and banking details tab when update button is clicked
+	 * @returns {Boolean} boolean
+	 */
 	_validateOnUpdate() {
 		const onUpdateValidations = {};
 		onUpdateValidations.lives = [];
@@ -1232,8 +1239,8 @@ class UpdatePlan extends Component {
 	 */
 	async _onReinstatePolicyPopup() {
 
-		
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
 
 			this.showValidationConfirmDialog = true;
