@@ -112,7 +112,6 @@ class PolicySummary extends Component {
 			.card{
 				width:100%;
 				height:100%;
-				
 			}
 			.action-image{
 				cursor: pointer;
