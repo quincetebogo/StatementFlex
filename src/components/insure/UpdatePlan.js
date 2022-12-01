@@ -922,9 +922,13 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Initialize component
+	 * 
+	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
 	_initialise() {
+		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			const relationship = this.policyDetails.roleplayers[index].relationship;
