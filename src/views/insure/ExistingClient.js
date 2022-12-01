@@ -287,43 +287,69 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_getAgreementAttachments(sourcePage, emailDocumentRequestPayload, docContent) {
 		if (sourcePage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
-			emailDocumentRequestPayload.documentInfo = [
-				{
-					"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
-					"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
-					"content": {
-						"type": `PDF`,
-						"value": this.issuePlanAgreementDocument?.documentContent.value
+			if (this.contractReference.toLowerCase().startsWith(`cf`)) {
+				emailDocumentRequestPayload.documentInfo = [
+					{
+						"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
+						"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.issuePlanAgreementDocument?.documentContent.value
+						}
+					},
+					{
+						"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+						"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.reinstatePaymentAgreementDocument?.documentContent.value
+						}
 					}
-				},
-				{
-					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-					"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": {
-						"type": `PDF`,
-						"value": this.reinstatePaymentAgreementDocument?.documentContent.value
+				];
+			} else {
+				emailDocumentRequestPayload.documentInfo = [
+					{
+						"documentType": DOCUMENT_TYPE.ISSUE_POLICY_AGREEMENT,
+						"documentGuid": this.issuePlanAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.issuePlanAgreementDocument?.documentContent.value
+						}
 					}
-				}
-			];
+				];
+			}
 		} else if (sourcePage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
-			emailDocumentRequestPayload.documentInfo = [
-				{
-					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
-					"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
-					"content": {
-						"type": `PDF`,
-						"value": this.updatePlanAgreementDocument?.documentContent.value
+			if (this.contractReference.toLowerCase().startsWith(`cf`)) {
+				emailDocumentRequestPayload.documentInfo = [
+					{
+						"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
+						"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.updatePlanAgreementDocument?.documentContent.value
+						}
+					},
+					{
+						"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
+						"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.updatePaymentAgreementDocument?.documentContent?.value
+						}
 					}
-				},
-				{
-					"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-					"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
-					"content": {
-						"type": `PDF`,
-						"value": this.updatePaymentAgreementDocument?.documentContent?.value
+				];
+			} else {
+				emailDocumentRequestPayload.documentInfo = [
+					{
+						"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
+						"documentGuid": this.updatePlanAgreementDocument?.documentDetails?.guid,
+						"content": {
+							"type": `PDF`,
+							"value": this.updatePlanAgreementDocument?.documentContent.value
+						}
 					}
-				}
-			];
+				];
+			}
 		} else if (sourcePage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
