@@ -651,6 +651,15 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Show dialog explaining how to Lodge a Claim
+	 * @returns {void}
+	 */
+	_openClaimInfoDialog() {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
+		this.showLodgeClaimInfoDialog = false;
+	}
+
+	/**
 	 * Status to show on policy
 	 * @param {object} policyItem Current iteration policy
 	 * @returns {string} displayStatus
@@ -1330,7 +1339,7 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<insure-lodge-claim-info-dialog @confirm="${() => this.showLodgeClaimInfoDialog = false}">
+			<insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
 			</insure-lodge-claim-info-dialog>`;
 	}
 

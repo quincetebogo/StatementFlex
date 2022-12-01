@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { LodgeClaimEvents } from 'app/constants/telemetry/events/Insure';
 
 /**
  * Lodge Claim Info Dialog will be used to show instructions on how to 'Lodge a claim'
@@ -28,6 +29,16 @@ class LodgeClaimInfoDialog extends Component {
 	}
 
 	// #endregion
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	async connectedCallback() {
+		super.connectedCallback();
+		this.telemetryEvents = LodgeClaimEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.LODGE_CLAIM_INFO, {});
+	}
 
 	// #region EVENT HANDLERS
 
@@ -217,7 +228,7 @@ class LodgeClaimInfoDialog extends Component {
 				data-automation-id="insure-lodge-claim-info-dialog-agree">
 			</capitec-button>
 		`;
-		}
+	}
 
 	// #endregion
 }
