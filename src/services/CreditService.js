@@ -533,7 +533,8 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		const settleAndClose =
 		{
