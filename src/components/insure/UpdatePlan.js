@@ -1396,7 +1396,31 @@ class UpdatePlan extends Component {
 		</ul>`;
 	}
 
-	// #endregion
+	_dateOfBirthRenderer(roleplayer) {
+
+		if (this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
+			return html`
+				<capitec-text-field label="Date of birth" style="width: 50%" disabled
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+				</capitec-text-field>`;
+		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false) {
+			return html`
+				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
+					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
+					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
+				</capitec-date-time-picker>`;
+		} 
+
+		return html`
+			<capitec-text-field label="Date of birth" style="width: 50%" disabled
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+			</capitec-text-field>
+		`;
+		
+	
+	}
+
+	// #endregion PRIVATE Functions
 
 	// #region RENDERING
 
@@ -2131,7 +2155,7 @@ class UpdatePlan extends Component {
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
-					value="${formatDate(roleplayer?.dateOfBirth)}">
+					value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 				</capitec-text-field>
 			
 				<capitec-text-field 
@@ -2199,24 +2223,9 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				${this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)
-				? html`
-					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDate(roleplayer?.dateOfBirth)}">
-					</capitec-text-field>`
-				: html``}
 
-				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false
-				? html`
-					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
-						@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
-					</capitec-date-time-picker>`
-				: html`
-					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
-					</capitec-text-field>`
-			}
+				${this._dateOfBirthRenderer(roleplayer)}
+				
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
