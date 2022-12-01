@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { PolicySummaryEvents } from 'app/constants/telemetry/events/Insure';
-import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -93,17 +93,17 @@ class PolicySummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 
+
 	/**
-	 * Fire navigate event to Update Plan
-	 * @param {*} contractReference contract reference
-	 * @returns {void}
+	 * Status to show on policy
+	 * @returns {string} displayStatus
 	 */
-	_goToUpdatePlan(contractReference) {
-		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
-			detail: {
-				policyContractReference: contractReference
-			}
-		}));
+	_getPolicyDisplayStatus() {
+		let displayStatus = this.policyDetails?.displayStatus;
+		if (this.policyDetails?.policyRule !== `Standard`) {
+			displayStatus = POLICY_RULES[this.policyDetails?.policyRule.toUpperCase()];
+		}
+		return displayStatus;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -232,6 +232,10 @@ class PolicySummary extends Component {
 			.horizon-expander-height{
 				--theme-expander-header-height: auto !important;
 			}
+
+			.bottom-spacing {
+				margin-bottom: 30px;
+			}
 			`
 		];
 	}
@@ -252,6 +256,7 @@ class PolicySummary extends Component {
 	 */
 	_renderContent() {
 		return html`
+		<div class="bottom-spacing">
 			<capitec-card data-automation-id="policy-summary" class="card">
 				<capitec-title-bar type="insure" class="insure-title-bar">
 					<img class="action-image" src="/images/insure/left-arrow.svg"
@@ -262,7 +267,8 @@ class PolicySummary extends Component {
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 					${this._renderSections()}
 				</capitec-group>
-			</capitec-card>`;
+			</capitec-card>
+		</div>`;
 	}
 
 	/**
@@ -326,7 +332,7 @@ class PolicySummary extends Component {
 					<horizon-label
 						data-automation-id="insure-main-life-display-status"
 						label="Status"
-						value="${this.policyDetails?.displayStatus}"
+						value="${this._getPolicyDisplayStatus()}"
 						class="column-width-200 ${this.policyDetails?.status === `Active` ? `active-status` : `inactive-status`}">
 					</horizon-label>
 				</capitec-group>

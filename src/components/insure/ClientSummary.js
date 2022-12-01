@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, POLICY_OPTIONS, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -660,6 +660,20 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Status to show on policy
+	 * @param {object} policyItem Current iteration policy
+	 * @returns {string} displayStatus
+	 */
+	_getPolicyDisplayStatus(policyItem) {
+		let displayStatus = policyItem?.displayStatus;
+		if (policyItem?.policyRule !== `Standard`) {
+			displayStatus = POLICY_RULES[policyItem?.policyRule.toUpperCase()];
+		}
+		return displayStatus;
+	}
+
+
+	/**
 	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
 	 * @param {String} contractReference contract reference
 	 * @returns {void}
@@ -1114,7 +1128,7 @@ class ClientSummary extends Component {
 							data-automation-id="insure-policy-display-status"
 							label="Status"
 							class = "${policyItem.status === `Active` ? `active-status` : `inactive-status`}"
-							value="${policyItem.displayStatus}">
+							value="${this._getPolicyDisplayStatus(policyItem)}">
 						</horizon-label>
 				</capitec-group>
 				<div slot="content">

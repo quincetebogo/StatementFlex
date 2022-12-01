@@ -246,8 +246,11 @@ class PolicyTransactionHistory extends Component {
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
-		this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
-		this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		this.filteredData = [];
+		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
+			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
+			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		}
 	}
 
 	/**
@@ -682,19 +685,20 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void} 
 	 */
 	_refineSearch() {
+		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
+			this.filteredData = this.policyTransactionHistory?.transactions;
 
-		this.filteredData = this.policyTransactionHistory?.transactions;
-
-		if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
-			if (RENDER_CHIPS[FILTER_BY.DATE]) {
-				const startDate = new Date(Date.parse(this.startDate));
-				const endDate = new Date(Date.parse(this.endDate));
-				this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+			if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
+				if (RENDER_CHIPS[FILTER_BY.DATE]) {
+					const startDate = new Date(Date.parse(this.startDate));
+					const endDate = new Date(Date.parse(this.endDate));
+					this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+				}
+			} else {
+				this.filteredData = [];
 			}
-		} else {
-			this.filteredData = [];
+			this.requestUpdate();
 		}
-		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE FUNCTIONS

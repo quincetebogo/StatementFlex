@@ -1069,10 +1069,16 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
-		const documents = [
-			event.detail.prepareUpdate.paymentAgreement.documentDetails,
-			event.detail.prepareUpdate.planAgreement.documentDetails
-		];
+
+		
+		const documents = [];
+		if (!isNullorEmpty(event.detail.prepareUpdate.paymentAgreement.documentDetails)) {
+			documents.push(event.detail.prepareUpdate.paymentAgreement.documentDetails);
+		}
+		if (!isNullorEmpty(event.detail.prepareUpdate.planAgreement.documentDetails)) {
+			documents.push(event.detail.prepareUpdate.planAgreement.documentDetails);
+		}
+
 		const acceptPlanRequest =
 		{
 			"cifNumber": this.callerInformation.cifNumber,

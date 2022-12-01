@@ -218,7 +218,7 @@ class ClaimSummary extends Component {
 				</div>
 
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-					<capitec-title-bar type="default" label="Deceased details">
+					<capitec-title-bar type="default" label="${this.claimSummary?.claimType.toUpperCase() === `DEATH` ? `Deceased details` : `Life assured`}">
 					</capitec-title-bar>
 					<capitec-content-box class="lives-container">
 						<horizon-expander
