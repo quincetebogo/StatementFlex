@@ -1396,6 +1396,11 @@ class UpdatePlan extends Component {
 		</ul>`;
 	}
 
+	/**
+	 * renders the proper DoB field to display
+	 * @param {array} roleplayer roleplayer
+	 * @returns {html} dob html 
+	 */
 	_dateOfBirthRenderer(roleplayer) {
 
 		if (this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
