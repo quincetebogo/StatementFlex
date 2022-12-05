@@ -197,11 +197,11 @@ class ReinstatePolicyAgreementDialog extends Component {
 		if (this.alertBannerMessage) {
 			return html`
 				<capitec-content-box class="alert-banner">
-					<capitec-alert-banner 
+					<capitec-toast 
 						data-automation-id="insure-reinstate-policy-agreement-dialog-banner"
 						type="unsuccessful-red">
 							${this.alertBannerMessage}
-					</capitec-alert-banner>
+					</capitec-toast>
 				</capitec-content-box>`;
 		}
 	}
