@@ -1205,7 +1205,7 @@ export class ExistingClient extends InsureViewBase {
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 		await this._generateDocumentsForReinstate(true);
 
-		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reinstated`;
+		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
