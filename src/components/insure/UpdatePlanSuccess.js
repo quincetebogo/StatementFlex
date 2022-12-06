@@ -17,7 +17,7 @@ class UpdatePlanSuccess extends Component {
 		this.showEmailPlanDialog = false;
 	}
 
-	// #endregion
+	// #endregion INITIALISATION
 
 	// #region PROPERTIES
 
@@ -33,9 +33,9 @@ class UpdatePlanSuccess extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true }
 		};
 	}
-	// #endregion
+	// #endregion PROPERTIES
 
-	// #region EVENTS
+	// #region EVENT HANDLERS
 
 	/**
 	 * Navigate to Client Landing
@@ -45,7 +45,7 @@ class UpdatePlanSuccess extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -172,7 +172,7 @@ class UpdatePlanSuccess extends Component {
 	}
 
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 
