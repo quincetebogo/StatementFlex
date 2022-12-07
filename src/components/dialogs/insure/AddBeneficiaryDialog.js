@@ -86,7 +86,11 @@ class AddBeneficiaryDialog extends Component {
 			gender: `Male`,
 			benefitPayout: 0,
 			coverAmount: 0,
-			recordID: v4()
+			recordID: v4(),
+			coverDetails: {},
+			contactDetails: {
+				cellphone: ``
+			}
 		};
 	}
 

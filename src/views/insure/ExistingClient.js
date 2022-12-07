@@ -1001,6 +1001,13 @@ export class ExistingClient extends InsureViewBase {
 			life.coverDetails = foundPlayer.coverDetails;
 			return life;
 		});
+
+		policyToCalc.roleplayers.forEach((life) => {
+			if (life.lifeAssured === false && life.beneficiary === true) {
+				adjustedRoleplayers.push(life);
+			}
+		});
+
 		calculatedQuote.lifesAssured = adjustedRoleplayers;
 		return calculatedQuote;
 	}
