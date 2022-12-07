@@ -808,9 +808,9 @@ class UpdatePlan extends Component {
 
 			// }
 
-			// ID Check
+			// ID/DoB Check
 			if (ele.lifeAssured === true) {
-				if (isNullorEmpty(ele.idNumber)) {
+				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
 				}
@@ -1138,7 +1138,7 @@ class UpdatePlan extends Component {
 
 			// id check
 			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele?.idNumber)) {
+				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
 				}
@@ -1359,6 +1359,13 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+
+					if (rolePlayer.beneficiary === true) {
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
+					} else if (rolePlayer.lifeAssured === true) {
+							rolePlayer.coverDetails.idErrorMessageLA = ``;
+					}
+					
 				}
 			});
 		}
