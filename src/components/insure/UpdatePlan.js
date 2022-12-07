@@ -1288,9 +1288,11 @@ class UpdatePlan extends Component {
 			birthdate.setFullYear(birthdate.getFullYear() + 100);
 		}
 
-		return birthdate.toISOString();
-
-
+		const month = birthdate.getMonth() + 1;
+		const day = birthdate.getDate();
+		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0` + month : month}-${day <= 9 ? `0` + day : day}T00:00:00+00:00`;
+	
+		return birthDateString;
 	}
 
 	/**
@@ -1358,7 +1360,7 @@ class UpdatePlan extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordID) {
-					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+					this.policyDetails.roleplayers[index].dateOfBirth = dateStrNoTimezone;
 				}
 			});
 		}
@@ -1402,7 +1404,6 @@ class UpdatePlan extends Component {
 	 * @returns {html} dob html 
 	 */
 	_dateOfBirthRenderer(roleplayer) {
-
 		if (this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
 			return html`
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
@@ -1414,15 +1415,15 @@ class UpdatePlan extends Component {
 					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
 					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 				</capitec-date-time-picker>`;
-		} 
+		}
 
 		return html`
 			<capitec-text-field label="Date of birth" style="width: 50%" disabled
 				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 			</capitec-text-field>
 		`;
-		
-	
+
+
 	}
 
 	// #endregion PRIVATE Functions
@@ -2296,7 +2297,7 @@ class UpdatePlan extends Component {
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html`
-					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
+					<capitec-date-time-picker label="Date of Birth" type="single" mode="datetime" inputType="calendar"
 						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						?disabled="${this.canReinstate}" 
