@@ -2,7 +2,7 @@
   "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "2.15.1",
+  "version": "2.15.4",
   "alias": "horizon",
   "release": "220901",
   "contractVersion": "v1",
@@ -11,7 +11,7 @@
   "redundancySize": "custom",
   "redundancySizes": {
     "NP": 3,
-    "PROD": 5
+    "PROD": 6
   },
   "port": 6001,
   "client": {
