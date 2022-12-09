@@ -18,6 +18,7 @@ import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
 import 'app/components/dialogs/insure/UpdateValidationDialog';
+import 'app/components/dialogs/insure/IneligibleLivesDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -78,6 +79,7 @@ class UpdatePlan extends Component {
 		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
+		this.showIneligibleLivesDialog = false;
 
 		this.agreementFCPAccepted = ``;
 		this.agreementEACLAccepted = ``;
@@ -180,7 +182,8 @@ class UpdatePlan extends Component {
 			disclosureValidationMessage: { type: Object, state: true },
 			showUpdateValidationDialog: { type: Boolean, state: true },
 			disableBranchCode: { type: Boolean, state: true },
-			onUpdateValidationMessage: { type: Object, state: true }
+			onUpdateValidationMessage: { type: Object, state: true },
+			showIneligibleLivesDialog: { type: Object, state: true }
 		};
 	}
 
@@ -965,7 +968,20 @@ class UpdatePlan extends Component {
 				}
 			}
 		});
+		
+		this._openIneligibleLivesDialog();
+		
+	}
 
+	/**
+	 * determines whether to show the Ineligible Lives Dialog
+	 * @returns {void}
+	 */
+	_openIneligibleLivesDialog() {
+		if (this.canReinstate === true && this.policyDetails.ineligibleRoleplayers.length > 0) {
+			this.showIneligibleLivesDialog = true;
+		}
+		
 	}
 
 	/**
@@ -1714,7 +1730,8 @@ class UpdatePlan extends Component {
 		${this._renderUpdatePlanAgreementDialog()}
 		${this._renderReinstatePolicyAgreementDialog()}
 		${this._renderValidationConfirmDialog()}
-		${this._renderUpdateValidationDialog()}`;
+		${this._renderUpdateValidationDialog()}
+		${this._renderIneligibleLivesDialog()}`;
 	}
 
 	/**
@@ -2510,6 +2527,21 @@ class UpdatePlan extends Component {
 				.validationMessage = "${this.onUpdateValidationMessage}"
 				@confirmation-click="${() => this.showUpdateValidationDialog = false}">
 			</insure-update-validation-dialog>
+		
+		`;
+	}
+
+	/**
+	 * Render Dialog for Ineligible lives dialog 
+	 * @returns {html} html content
+	 */
+	_renderIneligibleLivesDialog() {
+		return this.showIneligibleLivesDialog === false ? `` : html`
+			<horizon-insure-ineligible-lives-dialog 
+				.ineligibleRoleplayers = "${this.policyDetails.ineligibleRoleplayers}"
+				@confirmation-click="${() => this.showIneligibleLivesDialog = false}"
+				@cancel-click = "${() => this._backToSummaryPage()}" >
+			</horizon-insure-ineligible-lives-dialog>
 		
 		`;
 	}
