@@ -593,18 +593,22 @@ class ClientSummary extends Component {
 			case `update`:
 				this.showCFPAgreementDialog = false;
 				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
+				this.horizonInsureStore.setCFPStatus(false);
 				break;
 			case `cancel`:
 				this.showCFPAgreementDialog = false;
 				this._openCancelPolicyDialog(this.selectedContractRef);
+				this.horizonInsureStore.setCFPStatus(false);
 				break;
 			case `adhoc`:
 				this.showCFPAgreementDialog = false;
 				this._openPayPremiumDialog(this.selectedPolicyItem);
+				this.horizonInsureStore.setCFPStatus(false);
 				break;
 			case `estimate`:
 				this.showCFPAgreementDialog = false;
 				this._goToEstimate();
+				this.horizonInsureStore.setCFPStatus(false);
 				break;
 			default:
 				this.showCFPAgreementDialog = false;
