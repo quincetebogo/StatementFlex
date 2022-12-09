@@ -451,7 +451,6 @@ export class ExistingClient extends InsureViewBase {
 				this.policyDetails = calcResponse;
 				this.policyDetails.roleplayers = calcResponse.eligibleRoleplayers;
 				delete this.policyDetails.eligibleRoleplayers;
-				delete this.policyDetails.ineligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
 			} else {
 				this.handleToastError(calcResponse.exception);
