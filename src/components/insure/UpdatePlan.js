@@ -541,10 +541,9 @@ class UpdatePlan extends Component {
 
 						if (rolePlayer.beneficiary === true) {
 							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
 							if (age < 18) {
 								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary cannot be a minor`;
-							} else {
-								rolePlayer.coverDetails.idNumberErrorMessage = ``;
 							}
 						}
 
@@ -1398,11 +1397,10 @@ class UpdatePlan extends Component {
 
 					if (rolePlayer.beneficiary === true) {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
+						rolePlayer.coverDetails.dobErrorMessage = ``;
 						if (age < 18) {
 							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary cannot be a minor`;
-						} else {
-							rolePlayer.coverDetails.dobErrorMessage = ``;
-						}
+						} 
 					}
 					
 				}
@@ -2345,7 +2343,7 @@ class UpdatePlan extends Component {
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
 						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
-						error="${roleplayer?.coverDetails?.dobErrorMessage === `` ? `` : roleplayer?.coverDetails?.dobErrorMessage}"
+						error="${roleplayer?.coverDetails?.dobErrorMessage}"
 						?disabled="${this.canReinstate}" 
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
