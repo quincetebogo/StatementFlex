@@ -196,7 +196,7 @@ class AddBeneficiaryDialog extends Component {
 					</div>
 					<div class="add-beneficiary">
 						<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange(`Extended Family`)}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`ExtendedFamily`)}">
 						</capitec-radio>
 					</div>
 					<div class="add-beneficiary">
