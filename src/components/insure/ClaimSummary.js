@@ -44,6 +44,9 @@ class ClaimSummary extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		console.log(this.claimSummary);
+		console.log('lifeAssured :>> ', this.claimSummary.lifeAssured);
+		console.log('lifeAssured.relationship :>> ', this.claimSummary.lifeAssured.relationship);
 	}
 
 	// #region EVENT HANDLERS 
@@ -235,7 +238,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="Relationship"
 									textOverflow="ellipsis"
-									value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[this.claimSummary?.lifeAssured?.relationship?.toUpperCase()])}">
+									value="${this.claimSummary?.lifeAssured?.relationship}">
 								</horizon-label>
 								<horizon-label
 									class="fixed-label"

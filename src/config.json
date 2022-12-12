@@ -333,7 +333,7 @@
 			"positiveCase": true
 		},
 		"insureClaims": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"searchCallerAdvanced": {
