@@ -235,7 +235,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="Relationship"
 									textOverflow="ellipsis"
-									value="${formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[this.claimSummary?.lifeAssured?.relationship?.toUpperCase()])}">
+									value="${this.claimSummary?.lifeAssured?.relationship}">
 								</horizon-label>
 								<horizon-label
 									class="fixed-label"
