@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatDateToInsure, getAgeFromDob, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -539,6 +539,14 @@ class UpdatePlan extends Component {
 							}
 						}
 
+						if (rolePlayer.beneficiary === true) {
+							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
+							if (age < 18) {
+								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary cannot be a minor`;
+							}
+						}
+
 
 						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
@@ -648,7 +656,10 @@ class UpdatePlan extends Component {
 	 * @returns {String} null
 	 */
 	_getBank() {
-		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		let bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		if (isNullorEmpty(bank?.text)) {
+			bank = this.bankOptions.find(banks => banks.branchCode === this.policyDetails.deductionDetails?.bankDetails?.branchCode.toUpperCase().trim());
+		}
 		return bank?.text;
 	}
 
@@ -1306,7 +1317,7 @@ class UpdatePlan extends Component {
 
 		const month = birthdate.getMonth() + 1;
 		const day = birthdate.getDate();
-		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0` + month : month}-${day <= 9 ? `0` + day : day}T00:00:00+00:00`;
+		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
 	
 		return birthDateString;
 	}
@@ -1382,6 +1393,14 @@ class UpdatePlan extends Component {
 							rolePlayer.coverDetails.idNumberErrorMessage = ``;
 					} else if (rolePlayer.lifeAssured === true) {
 							rolePlayer.coverDetails.idErrorMessageLA = ``;
+					}
+
+					if (rolePlayer.beneficiary === true) {
+						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
+						rolePlayer.coverDetails.dobErrorMessage = ``;
+						if (age < 18) {
+							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary cannot be a minor`;
+						} 
 					}
 					
 				}
@@ -2321,9 +2340,10 @@ class UpdatePlan extends Component {
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html`
-					<capitec-date-time-picker label="Date of Birth" type="single" mode="datetime" inputType="calendar"
+					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
 						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
+						error="${roleplayer?.coverDetails?.dobErrorMessage}"
 						?disabled="${this.canReinstate}" 
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
