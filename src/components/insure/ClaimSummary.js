@@ -44,9 +44,6 @@ class ClaimSummary extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		console.log(this.claimSummary);
-		console.log('lifeAssured :>> ', this.claimSummary.lifeAssured);
-		console.log('lifeAssured.relationship :>> ', this.claimSummary.lifeAssured.relationship);
 	}
 
 	// #region EVENT HANDLERS 
