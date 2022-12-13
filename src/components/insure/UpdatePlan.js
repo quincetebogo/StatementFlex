@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { checkPolicyRules, dateFormat, getAgeFromDob, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -18,6 +18,7 @@ import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
 import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
 import 'app/components/dialogs/insure/UpdateValidationDialog';
+import 'app/components/dialogs/insure/IneligibleLivesDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -79,6 +80,7 @@ class UpdatePlan extends Component {
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
 		this.showUpdateValidationDialog = false;
+		this.showIneligibleLivesDialog = false;
 
 		this.agreementFCPAccepted = ``;
 		this.agreementEACLAccepted = ``;
@@ -189,7 +191,8 @@ class UpdatePlan extends Component {
 			disclosureValidationMessage: { type: Object, state: true },
 			showUpdateValidationDialog: { type: Boolean, state: true },
 			disableBranchCode: { type: Boolean, state: true },
-			onUpdateValidationMessage: { type: Object, state: true }
+			onUpdateValidationMessage: { type: Object, state: true },
+			showIneligibleLivesDialog: { type: Object, state: true }
 		};
 	}
 
@@ -360,7 +363,7 @@ class UpdatePlan extends Component {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 					this.newTotalPremium = ``;
-				
+
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
@@ -377,15 +380,19 @@ class UpdatePlan extends Component {
 					false
 				);
 
+				if (isNullorEmpty(rolePlayer.idNumber)) {
+					rolePlayer.coverDetails.disableDoB = false;
+				} else {
 					const birthYear = rolePlayer.idNumber.substring(0, 2);
 					const fullCurrentYear = new Date().getFullYear();
 					const currentYear = fullCurrentYear.toString().substring(2);
-		
+
 					if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
 						rolePlayer.coverDetails.disableDoB = true;
 					}
+				}
 
 			});
 		}
@@ -539,7 +546,16 @@ class UpdatePlan extends Component {
 								rolePlayer.coverDetails.idErrorMessageLA = ``;
 							}
 						}
-						
+
+						if (rolePlayer.beneficiary === true) {
+							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
+							if (age < 18) {
+								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary must be 18 years or older`;
+							}
+						}
+
+
 						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
@@ -644,6 +660,17 @@ class UpdatePlan extends Component {
 
 	/** Debit order details events */
 
+	/** change format of the bank returned to match the format of banks in the list
+	 * @returns {String} null
+	 */
+	_getBank() {
+		let bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		if (isNullorEmpty(bank?.text)) {
+			bank = this.bankOptions.find(banks => banks.branchCode === this.policyDetails.deductionDetails?.bankDetails?.branchCode.toUpperCase().trim());
+		}
+		return bank?.text;
+	}
+
 	/**
 	 * Event fired when the debit order bank value changes
 	 * 
@@ -746,6 +773,77 @@ class UpdatePlan extends Component {
 			this.showUpdateValidationDialog = true;
 		}
 		this.requestUpdate();
+	}
+
+	/**
+	 * Validate required fields on update plan
+	 * @returns {Boolean} canSubmit
+	 */
+	validateUpdatePlanCalculate() {
+
+		const onUpdateValidations = {};
+		onUpdateValidations.lives = [];
+		onUpdateValidations.validated = true;
+		onUpdateValidations.bankingDetailsValid = true;
+		onUpdateValidations.lifeAssured = true;
+
+		this.policyDetails.roleplayers.forEach(ele => {
+			ele.coverDetails.canSubmit = true;
+			// General Checks
+			if (ele.lifeAssured === true) {
+				if (ele.firstName === `` || ele.surname === ``) {
+					ele.coverDetails.canSubmit = false;
+				}
+			}
+
+			// title check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.title)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.titleErrorMessageLA = `Title is a required field`;
+				}
+			}
+
+			// LA Checks
+			if (ele.lifeAssured === true) {
+				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
+					ele.coverDetails.canSubmit = false;
+				}
+			}
+
+			// Banking Details
+			// if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
+			// canSubmit = false;
+
+			// }
+
+			// ID/DoB Check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
+				}
+			}
+
+			// Gender check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.gender)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.genderErrorMessageLA = `Gender is a required field`;
+				}
+			}
+
+			// build list for validation dialog
+			if (ele.coverDetails.canSubmit === false) {
+				onUpdateValidations.lives.push({
+					name: ele.firstName,
+					surname: ele.surname
+				});
+				onUpdateValidations.validated = false;
+			}
+
+		});
+		return onUpdateValidations;
 	}
 
 	/**
@@ -1056,9 +1154,13 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Initialize component
+	 * 
+	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
 	_initialise() {
+		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			const relationship = this.policyDetails.roleplayers[index].relationship;
@@ -1081,17 +1183,34 @@ class UpdatePlan extends Component {
 		this.canReinstate = this.policyDetails.canReinstate;
 		this.policyDetails.roleplayers.forEach((rolePlayer) => {
 
-			const birthYear = rolePlayer.idNumber.substring(0, 2);
-			const fullCurrentYear = new Date().getFullYear();
-			const currentYear = fullCurrentYear.toString().substring(2);
-
-			if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+			if (isNullorEmpty(rolePlayer.idNumber)) {
 				rolePlayer.coverDetails.disableDoB = false;
 			} else {
-				rolePlayer.coverDetails.disableDoB = true;
+				const birthYear = rolePlayer.idNumber.substring(0, 2);
+				const fullCurrentYear = new Date().getFullYear();
+				const currentYear = fullCurrentYear.toString().substring(2);
+
+				if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+					rolePlayer.coverDetails.disableDoB = false;
+				} else {
+					rolePlayer.coverDetails.disableDoB = true;
+				}
 			}
 		});
+		
+		this._openIneligibleLivesDialog();
+		
+	}
 
+	/**
+	 * determines whether to show the Ineligible Lives Dialog
+	 * @returns {void}
+	 */
+	_openIneligibleLivesDialog() {
+		if (this.canReinstate === true && this.policyDetails.ineligibleRoleplayers.length > 0) {
+			this.showIneligibleLivesDialog = true;
+		}
+		
 	}
 
 	/**
@@ -1108,10 +1227,54 @@ class UpdatePlan extends Component {
 		}, 0);
 	}
 
-/**
- * validate fields on beneficiary tab and banking details tab when update button is clicked
- * @returns {Boolean} boolean
- */
+
+	/**
+	 * Update Plan button click event
+	 * Invoke API endpoints
+	 * @return {void} 
+	 */
+	async _onUpdatePlan() {
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+
+			this.showValidationConfirmDialog = true;
+
+			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+
+			return;
+		}
+
+		const onUpdateValidations = this._validateOnUpdate();
+
+		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) {
+
+			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
+
+			this.showUpdateValidationDialog = true;
+
+			return;
+		}
+
+		this._calculatePremium();
+
+
+		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
+
+		this.showUpdatePlanAgreementDialog = true;
+
+		// policyScheduleDocContent
+		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
+
+		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+			this.showUpdatePlanPaymentAgreementDocument = true;
+			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
+		}
+	}
+
+	/**
+	 * validate fields on beneficiary tab and banking details tab when update button is clicked
+	 * @returns {Boolean} boolean
+	 */
 	_validateOnUpdate() {
 		const onUpdateValidations = {};
 		onUpdateValidations.lives = [];
@@ -1154,7 +1317,7 @@ class UpdatePlan extends Component {
 
 			// id check
 			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele?.idNumber)) {
+				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
 				}
@@ -1246,6 +1409,52 @@ class UpdatePlan extends Component {
 	}
 
 	/**
+	 * event for update plan accept
+	 * @returns {void}
+	 */
+	_acceptUpdatedPlan() {
+		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
+	}
+
+	/**
+	 * Show Policy Schedule and Mandate documents
+	 * @return {void} 
+	 */
+	async _onReinstatePolicyPopup() {
+
+
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+
+			this.showValidationConfirmDialog = true;
+
+			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+
+			return;
+		}
+
+		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
+
+		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
+		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
+
+		this.showReinstatePolicyAgreementDialog = true;
+
+		if (this.newContractReference.toLowerCase().startsWith(`cf`)) {
+			this.showReinstatePaymentAgreementDocument = true;
+			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
+		}
+	}
+
+	/**
+	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
+	 * @return {void} 
+	 */
+	_acceptReinstatePolicy() {
+		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse, newContractRef: this.newContractReference } }));
+	}
+
+	/**
 	 * Get date of birth from ID number
 	 * 
 	 * @param {String} idNumber idNumber
@@ -1258,9 +1467,11 @@ class UpdatePlan extends Component {
 			birthdate.setFullYear(birthdate.getFullYear() + 100);
 		}
 
-		return birthdate.toISOString();
-
-
+		const month = birthdate.getMonth() + 1;
+		const day = birthdate.getDate();
+		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
+	
+		return birthDateString;
 	}
 
 	/**
@@ -1271,8 +1482,7 @@ class UpdatePlan extends Component {
 	 * @returns {boolean} boolean
 	 */
 	_policyRuleAllowsChange(field, relationship) {
-		return checkPolicyRules(this.policyDetails.policyRule, this.productParams, field, relationship);
-
+		return policyAllowsEditing(this.policyDetails.policyRule, this.productParams, field, relationship);
 	}
 
 	/**
@@ -1302,6 +1512,21 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+
+					if (rolePlayer.beneficiary === true) {
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
+					} else if (rolePlayer.lifeAssured === true) {
+							rolePlayer.coverDetails.idErrorMessageLA = ``;
+					}
+
+					if (rolePlayer.beneficiary === true) {
+						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
+						rolePlayer.coverDetails.dobErrorMessage = ``;
+						if (age < 18) {
+							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary must be 18 years or older`;
+						} 
+					}
+					
 				}
 			});
 		}
@@ -1339,7 +1564,35 @@ class UpdatePlan extends Component {
 		</ul>`;
 	}
 
-	// #endregion
+	/**
+	 * renders the proper DoB field to display
+	 * @param {array} roleplayer roleplayer
+	 * @returns {html} dob html 
+	 */
+	_dateOfBirthRenderer(roleplayer) {
+		if (this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
+			return html`
+				<capitec-text-field label="Date of birth" style="width: 50%" disabled
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+				</capitec-text-field>`;
+		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false) {
+			return html`
+				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
+					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
+					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
+				</capitec-date-time-picker>`;
+		}
+
+		return html`
+			<capitec-text-field label="Date of birth" style="width: 50%" disabled
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+			</capitec-text-field>
+		`;
+
+
+	}
+
+	// #endregion PRIVATE Functions
 
 	// #region RENDERING
 
@@ -1620,7 +1873,8 @@ class UpdatePlan extends Component {
 		${this._renderUpdatePlanAgreementDialog()}
 		${this._renderReinstatePolicyAgreementDialog()}
 		${this._renderValidationConfirmDialog()}
-		${this._renderUpdateValidationDialog()}`;
+		${this._renderUpdateValidationDialog()}
+		${this._renderIneligibleLivesDialog()}`;
 	}
 
 	/**
@@ -2074,7 +2328,7 @@ class UpdatePlan extends Component {
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
-					value="${formatDate(roleplayer?.dateOfBirth)}">
+					value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 				</capitec-text-field>
 			
 				<capitec-text-field 
@@ -2142,24 +2396,9 @@ class UpdatePlan extends Component {
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
-				${this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)
-				? html`
-					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDate(roleplayer?.dateOfBirth)}">
-					</capitec-text-field>`
-				: html``}
 
-				${isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false
-				? html`
-					<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer?.dateOfBirth}" outputType="datetime" maxdate="${this.today}" minDate="1901-01-01" 
-						@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
-					</capitec-date-time-picker>`
-				: html`
-					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${dateFormat(roleplayer?.dateOfBirth)}">
-					</capitec-text-field>`
-			}
+				${this._dateOfBirthRenderer(roleplayer)}
+				
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
@@ -2228,6 +2467,7 @@ class UpdatePlan extends Component {
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
 						date="${roleplayer.dateOfBirth}" outputType="datetime" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
+						error="${roleplayer?.coverDetails?.dobErrorMessage}"
 						?disabled="${this.canReinstate}" 
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
@@ -2436,7 +2676,22 @@ class UpdatePlan extends Component {
 		`;
 	}
 
-	// #endregion RENDERING
+	/**
+	 * Render Dialog for Ineligible lives dialog 
+	 * @returns {html} html content
+	 */
+	_renderIneligibleLivesDialog() {
+		return this.showIneligibleLivesDialog === false ? `` : html`
+			<horizon-insure-ineligible-lives-dialog 
+				.ineligibleRoleplayers = "${this.policyDetails.ineligibleRoleplayers}"
+				@confirmation-click="${() => this.showIneligibleLivesDialog = false}"
+				@cancel-click = "${() => this._backToSummaryPage()}" >
+			</horizon-insure-ineligible-lives-dialog>
+		
+		`;
+	}
+
+	// #endregion
 }
 
 window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);

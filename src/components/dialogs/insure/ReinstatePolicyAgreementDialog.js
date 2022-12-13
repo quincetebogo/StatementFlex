@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
-const ERROR_MESSAGE = `Please select confirmation checkbox`;
-
 /**
  * Reinstate Policy Agreement Dialog component will allow you to view the policy schedule, 
  * view the mandate and to agree to Reinstate the Policy
@@ -42,7 +40,6 @@ class ReinstatePolicyAgreementDialog extends Component {
 			issuePlanAgreementContent: { type: String },
 			paymentAgreementContent: { type: String },
 			contractReference: { type: String },
-			alertBannerMessage: { attribute: false },
 			showReinstatePaymentAgreementDocument: { type: Boolean, state: true }
 		};
 	}
@@ -64,14 +61,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 * @returns {void}
 	 */
 	_agreeClick() {
-		const agreeCheck = this.shadowRoot.getElementById(`reinstate-policy-agree-check`);
-
-		if (!agreeCheck.checked) {
-			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
-			this.alertBannerMessage = ``;
 			this.dispatchEvent(new CustomEvent(`reinstate-agree-click`, {}));
-		}
 	}
 
 	// #endregion EVENT HANDLERS
@@ -115,10 +105,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 				capitec-expander[expanded] {
 					border-bottom: var(--theme-expander-border, 1px solid black);
 				}
-				.alert-banner {
-					padding: 0px 0px 16px 0px;
-				}
-				`
+			`
 		];
 	}
 
@@ -146,17 +133,9 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			<div class="notification">
-				<capitec-toast type="info" header="Notify Client" detail="The full agreement, inclusive of the Policy Schedule, Section 484 summary. Disclosure, terms and conditions,
-														can be emailed to you and available in branch."
-					data-automation-id="insure-reinstate-policy-agreement-dialog-notification">
-				</capitec-toast>
-			</div>
-			
-			${this._renderAlertBanner()}
 			
 			<capitec-expander-group modeset="single">
-				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer"
+				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer" ?expanded="${true}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-view-policy-schedule">
 					<iframe title="ReinstateIssueAgreement" height = "100%" frameborder = "0"
 						src="data:application/pdf;base64,${this.issuePlanAgreementContent}#view=fitH">
@@ -173,10 +152,6 @@ class ReinstatePolicyAgreementDialog extends Component {
 				</div>` : html``}
 			</capitec-expander-group>
 
-			<capitec-content-box class="left-padding-0">
-				<capitec-check id="reinstate-policy-agree-check" label="Please confirm that you agree to these terms and conditions and that you are bound by them?">
-				</capitec-check>
-			</capitec-content-box>
 		`;
 	}
 
@@ -190,27 +165,10 @@ class ReinstatePolicyAgreementDialog extends Component {
 				<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-cancel">
 				</capitec-button>
-				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
+				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-agree">
 				</capitec-button>
 		`;
-	}
-
-	/**
-	 * Render Alert banner for error message.
-	 * @returns {html} The html content of the component. 
-	 */
-	_renderAlertBanner() {
-		if (this.alertBannerMessage) {
-			return html`
-				<capitec-content-box class="alert-banner">
-					<capitec-alert-banner 
-						data-automation-id="insure-reinstate-policy-agreement-dialog-banner"
-						type="unsuccessful-red">
-							${this.alertBannerMessage}
-					</capitec-alert-banner>
-				</capitec-content-box>`;
-		}
 	}
 
 	// #endregion RENDERING

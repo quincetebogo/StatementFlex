@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
 
@@ -80,8 +81,9 @@ class SMSHistory extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	/**
-	 * Get Predefined date ranges
-	 * @return {null} null
+	 * filter sms history when date is changed
+	 * @param {*} e e
+	 * @return {void}
 	 */
 	 getPredefinedDateRanges() {
 		const last7day = new Date(today);
@@ -239,7 +241,7 @@ class SMSHistory extends Component {
 			this.endDate = toDate;
 		}
 
-		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
 		await this._refineSearch();
 
@@ -263,12 +265,12 @@ class SMSHistory extends Component {
 	// #region RENDERING
 
 	/**
-		 * Generates the component stylesheet.
-		 *
-		 * @readonly
-		 * @static
-		 * @returns {css} CSS for the component.
-		 */
+	 * Generates the component stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the component.
+	 */
 	static get styles() {
 		return [
 			super.styles,
@@ -523,7 +525,7 @@ class SMSHistory extends Component {
 					mode="date"
 					inputType="calendar"
 					outputType="string"
-					.predefinedRanges="${this.getPredefinedDateRanges()}"
+					.predefinedRanges="${getPredefinedDateRanges()}"
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="insure-sms-history-date-picker">
 				</capitec-date-time-picker>
@@ -547,9 +549,9 @@ class SMSHistory extends Component {
 	}
 
 	/**
-		 * Clear Date filter
-		 * @returns {html} Render Date chip 
-		 */
+	 * Clear Date filter
+	 * @returns {html} Render Date chip 
+	 */
 	_renderDateChip() {
 		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
 			? html`

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -65,6 +66,8 @@ class ClientClaimsSummary extends Component {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
+
 				.header-label{
 					padding-left: 0px;
 				}
@@ -214,6 +217,7 @@ class ClientClaimsSummary extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Status"
+							class = "${claim?.claimStatus === `Active` ? `active-status` : `inactive-status`}"
 							value="${claim?.claimStatus}">
 						</horizon-label>
 				</capitec-group>

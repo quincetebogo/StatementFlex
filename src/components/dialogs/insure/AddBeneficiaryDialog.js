@@ -98,7 +98,11 @@ class AddBeneficiaryDialog extends Component {
 			gender: `Male`,
 			benefitPayout: 0,
 			coverAmount: 0,
-			recordID: v4()
+			recordID: v4(),
+			coverDetails: {},
+			contactDetails: {
+				cellphone: ``
+			}
 		};
 	}
 
@@ -202,7 +206,7 @@ class AddBeneficiaryDialog extends Component {
 					</div>
 					<div class="add-beneficiary">
 						<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-							@value-changed="${() => this._addNewBeneficiaryChange(`Extended Family`)}">
+							@value-changed="${() => this._addNewBeneficiaryChange(`ExtendedFamily`)}">
 						</capitec-radio>
 					</div>
 					<div class="add-beneficiary">

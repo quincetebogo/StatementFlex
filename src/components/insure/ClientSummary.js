@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, POLICY_OPTIONS, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -65,6 +65,7 @@ class ClientSummary extends Component {
 		this.showPayPremiumAgreementDialog = false;
 		this.showLodgeClaimInfoDialog = false;
 		this.showCFPAgreementDialog = false;
+		this.emailEstimateSuccess = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -136,7 +137,8 @@ class ClientSummary extends Component {
 			selectedContractRef: { type: String, state: true },
 			canReinstate: { type: Boolean, state: true },
 			selectedPolicyItem: { type: Object, state: true },
-			productCode: { type: String, state: true }
+			productCode: { type: String, state: true },
+			emailEstimateSuccess: { type: Boolean, state: true }
 
 		};
 	}
@@ -153,6 +155,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
+		window.setTimeout(() => this.emailEstimateSuccess = false, 2000);
 	}
 
 	async disconnectedCallback() {
@@ -231,7 +234,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES } }));
+		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
 	}
 
 	/**
@@ -286,6 +289,15 @@ class ClientSummary extends Component {
 		this.showCancelPolicyDialog = false;
 		this.cancelPolicyDocumentDetails = undefined;
 	}
+
+	_showEmailPlanDialog(contractRef) {
+		this.emailContractRef = contractRef;
+		this.showEmailPlanDialog = true;
+	}
+
+	// #endregion EVENT HANDLERS
+
+	// #region PRIVATE FUNCTIONS
 
 	/**
 	 * Fire navigate event to Product Enquiry
@@ -465,9 +477,6 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
 		} else {
-			// if (policyItem.status === `Active` && policyItem.arrearDetails?.outstandingAmount > 0) {
-			// policyItem.showOptions.push({ showPayArrears: true });
-			// }
 			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 
 			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
@@ -477,10 +486,10 @@ class ClientSummary extends Component {
 
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
 				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 				policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 			}
 		}
+		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 	}
 
 	/**
@@ -507,7 +516,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this.showEmailPlanDialog = true}">
+				@click="${() => this._showEmailPlanDialog(policyItem.contractReference)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -600,17 +609,79 @@ class ClientSummary extends Component {
 		}
 	}
 
-/**
- * determines the value to display for Total Premium
- * @param {Object} policyItem Policy Item
- * @returns {String} string
- */
+	/**
+	 * displays the CFP disclosure
+	 * @param {String} flow flow
+	 * @param {Object} [policyItem = null] policy item
+	 * @returns {void}
+	 */
+	_displayCFPDisclosure(flow, policyItem = null) {
+
+		this.selectedFlow = flow;
+		this.selectedContractRef = policyItem?.contractReference;
+		this.canReinstate = policyItem?.canReinstate;
+		this.selectedPolicyItem = policyItem;
+
+		if (policyItem === null) {
+			this.productCode = `Capitec`;
+		} else {
+			this.productCode = policyItem.productCode;
+		}
+
+
+		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
+			this.showCFPAgreementDialog = true;
+		} else {
+			this._navigateAfterCFP();
+		}
+	}
+
+	/**
+	 * determines where to navigate after accepting the cfp disclosure
+	 * @returns {void}
+	 */
+	_navigateAfterCFP() {
+
+		this.horizonInsureStore.setCFPStatus(true);
+
+		switch (this.selectedFlow) {
+			case `update`:
+				this.showCFPAgreementDialog = false;
+				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
+				this.horizonInsureStore.setCFPStatus(false);
+				break;
+			case `cancel`:
+				this.showCFPAgreementDialog = false;
+				this._openCancelPolicyDialog(this.selectedContractRef);
+				this.horizonInsureStore.setCFPStatus(false);
+				break;
+			case `adhoc`:
+				this.showCFPAgreementDialog = false;
+				this._openPayPremiumDialog(this.selectedPolicyItem);
+				this.horizonInsureStore.setCFPStatus(false);
+				break;
+			case `estimate`:
+				this.showCFPAgreementDialog = false;
+				this._goToEstimate();
+				this.horizonInsureStore.setCFPStatus(false);
+				break;
+			default:
+				this.showCFPAgreementDialog = false;
+				break;
+		}
+	}
+
+	/**
+	 * determines the value to display for Total Premium
+	 * @param {Object} policyItem Policy Item
+	 * @returns {String} string
+	 */
 	_totalPremiumDisplay(policyItem) {
 		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
 			return `-`;
 		}
 		return isNullorEmpty(policyItem.totalPremium) ? formatCurrency(0) : formatCurrency(policyItem.totalPremium);
-		
+
 	}
 
 	/**
@@ -637,6 +708,29 @@ class ClientSummary extends Component {
 		}
 		return isNullorEmpty(sumArrears) ? formatCurrency(0) : formatCurrency(sumArrears);
 	}
+
+	/**
+	 * Show dialog explaining how to Lodge a Claim
+	 * @returns {void}
+	 */
+	_openClaimInfoDialog() {
+		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
+		this.showLodgeClaimInfoDialog = false;
+	}
+
+	/**
+	 * Status to show on policy
+	 * @param {object} policyItem Current iteration policy
+	 * @returns {string} displayStatus
+	 */
+	_getPolicyDisplayStatus(policyItem) {
+		let displayStatus = policyItem?.displayStatus;
+		if (policyItem?.policyRule !== `Standard`) {
+			displayStatus = POLICY_RULES[policyItem?.policyRule.toUpperCase()];
+		}
+		return displayStatus;
+	}
+
 
 	/**
 	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
@@ -735,6 +829,11 @@ class ClientSummary extends Component {
 				--horizon-option-btn-text-margin-top: 3px;
 				--horizon-option-btn-icon-height: 26px;
 				--horizon-option-btn-icon-width: 26px;
+			}
+
+			.notification {
+				width: 350px;
+				margin: auto;
 			}
 
 			/* Expander header and content styles */
@@ -864,6 +963,21 @@ class ClientSummary extends Component {
 			#policies-container{
 				margin-bottom:20px;
 			}
+
+			capitec-icon.default {
+				width: 44px;
+				height: 38px;
+			}
+
+			.more-options-button{
+				font-size: 16px;
+				font-weight: 500; 
+				margin-bottom: 9px;
+			}
+			
+			.more-options-card{
+				gap: 0px;
+			}
 			`
 		];
 	}
@@ -901,6 +1015,11 @@ class ClientSummary extends Component {
 	 */
 	_renderContent() {
 		return html`
+
+			<div class="notification">
+				${this._renderSuccessAlert()}
+			</div>
+
 			<capitec-card 
 				data-automation-id="insure-landing-screen"
 				class="card" id="policies-container">
@@ -1067,7 +1186,7 @@ class ClientSummary extends Component {
 							data-automation-id="insure-policy-display-status"
 							label="Status"
 							class = "${policyItem.status === `Active` ? `active-status` : `inactive-status`}"
-							value="${policyItem.displayStatus}">
+							value="${this._getPolicyDisplayStatus(policyItem)}">
 						</horizon-label>
 				</capitec-group>
 				<div slot="content">
@@ -1101,11 +1220,11 @@ class ClientSummary extends Component {
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				${policyItem.showOptions?.map((option) => html`${this._getOptions(option, policyItem)}`)}
 				${moreOptions?.length > 0 ? html`
-					<capitec-card class="action-card">
+					<capitec-card class="action-card more-options-card" >
 						<capitec-overflow-menu label="More" data-automation-id = "insure-policy-more-sub-menu">
 							${moreOptions?.map((option) => html`${this._getMoreOptions(option, policyItem)}`)}
 						</capitec-overflow-menu>
-						<capitec-label label="More" class="label-text">
+						<capitec-label label="More" class="label-text more-options-button">
 						</capitec-label>
 					</capitec-card>` : ``}
 			</capitec-group>`;
@@ -1278,7 +1397,7 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<insure-lodge-claim-info-dialog @confirm="${() => this.showLodgeClaimInfoDialog = false}">
+			<insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
 			</insure-lodge-claim-info-dialog>`;
 	}
 
@@ -1303,10 +1422,30 @@ class ClientSummary extends Component {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
 				<horizon-insure-email-dialog 
-					.titleMessage = "${`Email Funeral Plan Estimate`}"
+					.titleMessage = "${`Email Funeral Plan`}"
 					@close-modal="${() => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 				</horizon-insure-email-dialog>`;
+	}
+
+
+	/**
+	 * Renders the Email Success alert
+	 * @returns {html} html content
+	 */
+	_renderSuccessAlert() {
+		return this.emailEstimateSuccess === false ? html``
+			: html`
+		<capitec-toast
+			class="toast"
+			type="success"
+			Header="Successful"
+			layout = "vertical"
+			detail = "Document sent successfully"
+			@click = "${() => this.emailEstimateSuccess = false}">
+		</capitec-toast>
+
+	`;
 	}
 
 	// #endregion RENDERING

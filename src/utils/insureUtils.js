@@ -1,6 +1,7 @@
 import { PRODUCT_ID } from 'app/constants/InsureCommon';
-import { TODAY_DATE } from 'app/constants/InsureTransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+
+export const TODAY_DATE = new Date();
 
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
@@ -11,7 +12,7 @@ import { getMonthName } from 'app/utils/channelServiceUtilities';
  * @param {number} age age
  * @param {boolean} isExtendedFamily isExtendedFamily
  * @param {boolean} isPristine isPristine
- * @returns {object} coverDetails
+ * @returns {object} coverDetails meta data & rules for specified relationship
  */
 export function refreshRelationshipCoverDetails(relationship, productParams, coverAmount = 0, maxAllowedCover = 100000, age = 0, isExtendedFamily = false, isPristine = false) {
 	const coverDetails = { isExtendedFamily: isExtendedFamily };
@@ -225,93 +226,70 @@ export function livesPerPolicy(relationship, productParams) {
 }
 
 /**
- * Extract person age from id number
- * @param {String} southAfricanIDNumber southAfricanIDNumber
- * @returns {Number} age
- */
-export function getAgeFromIDNumber(southAfricanIDNumber) {
-	const birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
-
-	if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
-		birthdate.setFullYear(birthdate.getFullYear() + 100);
-	}
-
-	const ageDifMs = Date.now() - birthdate.getTime();
-	const ageDate = new Date(ageDifMs);
-	return Math.abs(ageDate.getUTCFullYear() - 1970);
-}
-
-/**
- * Extract person gender from id number 
- * @param {string} southAfricanIDNumber southAfricanIDNumber
- * @returns {string} gender 
- */
-export function getGenderFromIDNumber(southAfricanIDNumber) {
-	const genderSubStr = parseInt(southAfricanIDNumber.substring(6, 10), 16);
-	return genderSubStr >= 5000 ? `Male` : `Female`;
-}
-
-/**
  * Check the Policy rules for the Life based on the ruleType
- * 
+ *
+ * @export
  * @param {String} ruleType ruleType
  * @param {String} productParams productParams
  * @param {String} field field
  * @param {String} relationship relationship
- * @returns {String} string
+ * @returns {Boolean} string
  */
-export function checkPolicyRules(ruleType, productParams, field, relationship) {
-
+export function policyAllowsEditing(ruleType, productParams, field, relationship) {
 	if (relationship === `Unknown` || relationship === `MainLife` || relationship === `Spouse` || relationship === `Parent` || relationship === `Child`) {
-
 		const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
-
 		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
-
 		const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === relationship);
-
 		return relationshipRule[field];
-
 	}
 
 	const product = productParams.products.find(products => products.parameters.id === PRODUCT_ID);
-
 	const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === ruleType);
-
 	const relationshipRule = currentRuleType.peopleRulesList.find(role => role.type === `ExtendedFamily`);
-
 	return relationshipRule[field];
 }
 
-/**
- * returns date in format dd/mm/yyyy
- * 
- * @param {*} value value
- * @returns {*} farmatted date
- */
-export function dateFormat(value) {
 
+/**
+ * format the give date to RSA format
+ *  
+ * @export
+ * @param {date} date Date to be formatted 
+ * @return {string} formatted date
+ */
+function _formatDateToDDMMYYYY(date) {
+	const newdate = new Date(Date.parse(date));
+	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+}
+
+/**
+ * format the give date to RSA format with slashes and leading zeros
+ * 
+ * @export
+ * @param {*} value value
+ * @returns {*} formatted date
+ */
+export function formatDateToInsure(value) {
+	let formattedDate = ``;
 	const dateTime = new Date(value);
 	const date = dateTime.getDate();
 	const month = dateTime.getMonth();
 	const year = dateTime.getFullYear();
-	let formattedDate = ``;
 
 	if (year === 0 || isNaN(year)) {
 		return formattedDate;
 	}
-
 	formattedDate = formattedDate = `${`0${date}`.slice(-2)}/${`0${month + 1}`.slice(-2)}/${year}`;
-
 	return formattedDate;
 }
 
 /**
  * Get Predefined date ranges
- * @return {null} null
+ * 
+ * @export
+ * @return {array} valid date ranges for filters
 */
 export function getPredefinedDateRanges() {
-
 	const last7day = new Date(TODAY_DATE);
 	const last30day = new Date(TODAY_DATE);
 	const last60day = new Date(TODAY_DATE);
@@ -331,27 +309,19 @@ export function getPredefinedDateRanges() {
 }
 
 /**
- * format the give date
- * @param {date} date - date to be formatted 
- * @return {null} null
- */
-function _formatDateToddmmyyyy(date) {
-	const newdate = new Date(Date.parse(date));
-	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
-}
-
-/**
- * Get selected date range
+ * Get selected date range display value
+ * 
+ * @export
  * @param {date} startDate The start date of date range.
  * @param {date} endDate The end date of date range.
  * @returns {string} - fromdate to todate
  */
-export function _getDateRange(startDate, endDate) {
-	const fromDate = !startDate ? `dd mm yyyy` : _formatDateToddmmyyyy(startDate);
-	const toDate = !endDate ? `dd mm yyyy` : _formatDateToddmmyyyy(endDate);
+export function getDateRangeDisplayValue(startDate, endDate) {
+	const fromDate = !startDate ? `dd mm yyyy` : _formatDateToDDMMYYYY(startDate);
+	const toDate = !endDate ? `dd mm yyyy` : _formatDateToDDMMYYYY(endDate);
 
 	const preDefinedRanges = getPredefinedDateRanges();
-	const selectedValue = preDefinedRanges.filter(item => _formatDateToddmmyyyy(item.value.startDate) === fromDate && _formatDateToddmmyyyy(item.value.endDate) === toDate);
+	const selectedValue = preDefinedRanges.filter(item => _formatDateToDDMMYYYY(item.value.startDate) === fromDate && _formatDateToDDMMYYYY(item.value.endDate) === toDate);
 
 	if (selectedValue.length > 0) {
 		return selectedValue[0].text;
@@ -361,15 +331,47 @@ export function _getDateRange(startDate, endDate) {
 }
 
 /**
- * Get selected date range
- * @param {date} dob date of birth
- * @returns {number} - 
+ * Get age in years from date of birth
+ * 
+ * @export
+ * @param {date} dateOfBirth live date of birth 
+ * @returns {number} Age in years
  */
-export function getAgeFromDob(dob) {
-	
-	const birthdate = new Date(dob);
-	
+export function getAgeFromDob(dateOfBirth) {
+	const birthdate = new Date(dateOfBirth);
 	const ageDifMs = Date.now() - birthdate.getTime();
 	const ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970).toString();
+}
+
+/**
+ * Get person gender from id number 
+ * 
+ * @export
+ * @param {string} southAfricanIDNumber southAfricanIDNumber
+ * @returns {string} gender derived id
+ */
+export function getGenderFromIDNumber(southAfricanIDNumber) {
+	const genderSubStr = parseInt(southAfricanIDNumber.substring(6, 10), 10);
+	return genderSubStr >= 5000 ? `Male` : `Female`;
+}
+
+/**
+ * Get person age from id number
+ * 
+ * Additional check for client over the age of 100
+ * @export
+ * @param {String} southAfricanIDNumber southAfricanIDNumber
+ * @returns {Number} age
+ */
+export function getAgeFromIDNumber(southAfricanIDNumber) {
+	const birthdate = new Date(southAfricanIDNumber.substring(0, 2), southAfricanIDNumber.substring(2, 4) - 1, southAfricanIDNumber.substring(4, 6));
+
+	if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+		birthdate.setFullYear(birthdate.getFullYear() + 100);
+	}
+
+	const ageDifMs = Date.now() - birthdate.getTime();
+	const ageDate = new Date(ageDifMs);
+	return Math.abs(ageDate.getUTCFullYear() - 1970);
 }

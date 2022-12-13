@@ -6,7 +6,6 @@
  */
 export const BANK_OPTIONS = Object.freeze([
 	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `470010` },
-	{ code: `CAPITEC`, text: `CAPITEC BANK`, branchCode: `470010` },
 	{ code: `20TWENTY`, text: `20TWENTY`, branchCode: `730020` },
 	{ code: `ABN AMRO BANK`, text: `ABN AMRO BANK`, branchCode: `740000` },
 	{ code: `ABSA BANK`, text: `ABSA BANK`, branchCode: `632005` },
@@ -144,8 +143,8 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  * @readonly
  * @enum {Object} CANCELATION_REASONS
  */
- export const CANCELATION_REASONS = Object.freeze([
-	
+export const CANCELATION_REASONS = Object.freeze([
+
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Other_Provider`, text: `Policy with other service provider` },
 	{ code: `Already_Covered`, text: `Already covered` },
@@ -213,7 +212,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * @readonly
  * @enum {Object} INSURE_CALLER_PAGE
  */
- export const DOCUMENT_TYPE = Object.freeze({
+export const DOCUMENT_TYPE = Object.freeze({
 	ISSUE_POLICY_AGREEMENT: `IssuePolicyAgreement`,
 	UPDATE_POLICY_AGREEMENT: `UpdatePolicyAgreement`,
 	CANCEL_POLICY_AGREEMENT: `CancelPolicyAgreement`,
@@ -228,26 +227,26 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * @readonly
  * @enum {Object} PRODUCT_ID
  */
- export const PRODUCT_ID = `SBL`;
+export const PRODUCT_ID = `SBL`;
 
- /**
- * Product types
- * 
- * @readonly
- * @enum {Object} INSURE_PRODUCT_CODE
- */
-  export const INSURE_PRODUCT_CODE = Object.freeze({
+/**
+* Product types
+* 
+* @readonly
+* @enum {Object} INSURE_PRODUCT_CODE
+*/
+export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
 	CAPITEC_SANLAM: `CapitecSanlam`
 });
 
- /**
- * Transaction Status types
- * 
- * @readonly
- * @enum {Object} TRANSACTION_STATUS
- */
-  export const TRANSACTION_STATUS = Object.freeze({
+/**
+* Transaction Status types
+* 
+* @readonly
+* @enum {Object} TRANSACTION_STATUS
+*/
+export const TRANSACTION_STATUS = Object.freeze({
 	FINANCIAL: `Financial`,
 	NONFINANCIAL: `NonFinancial`
 });
@@ -258,7 +257,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * @readonly
  * @enum {Object} INSURE_DISCLOSURE_TYPE
  */
- export const INSURE_DISCLOSURE_TYPE = Object.freeze({
+export const INSURE_DISCLOSURE_TYPE = Object.freeze({
 	CFP_NOTIFICATION: 1,
 	FCP_NOTIFICATION: 2,
 	EACL_NOTIFICATION: 3,
@@ -272,7 +271,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * @readonly
  * @enum {Object} POLICY_OPTIONS
  */
- export const POLICY_OPTIONS = Object.freeze({
+export const POLICY_OPTIONS = Object.freeze({
 	EMAIL_PLAN: `EmailPlan`,
 	REINSTATE: `Reinstate`,
 	PAY_ARREARS: `PayArrears`,
@@ -280,4 +279,17 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	CANCEL_PLAN: `CancelPlan`,
 	TRANSACTION_HISTORY: `TransactionHistory`,
 	SMS_HISTORY: `SMSHistory`
+});
+
+
+/**
+ * List of Policy Rule Display values
+ * 
+ * @readonly
+ * @enum {Object} POLICY_RULES
+ */
+export const POLICY_RULES = Object.freeze({
+	STANDARD: `Standard`,
+	POLICYPAUSE: `Policy Pause`,
+	MATERNITYWAIVER: `New Born Waiver`
 });

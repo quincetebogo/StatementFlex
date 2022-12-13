@@ -4,7 +4,7 @@
  * @readonly
  * @enum {Object} DATE_TYPE_LIST
  */
- export const DATE_TYPE_LIST = Object.freeze([
+export const DATE_TYPE_LIST = Object.freeze([
 	{ code: `TransactionDate`, text: `Date` },
 	{ code: `PremiumDueDate`, text: `Premium Due Date` }
 ]);
@@ -15,7 +15,7 @@
  * @readonly
  * @enum {Object} AUDIT_DATE_TYPE_LIST
  */
- export const AUDIT_DATE_TYPE_LIST = Object.freeze([
+export const AUDIT_DATE_TYPE_LIST = Object.freeze([
 	{ code: `TransactionDate`, text: `Change Actioned Date` }, // TODO: Endpoint doesn't include it in request payload. code: `ActionedDate`
 	{ code: `TransactionDate`, text: `Effective Date` } // code: `EffectiveDate`
 ]);
@@ -59,17 +59,12 @@ export const RENDER_CHIPS = {
 };
 
 /**
- * Current date
- */
-export const TODAY_DATE = new Date();
-
-/**
  * Available activity types code and text {@link InsureTransactionHistory}
  * 
  * @readonly
  * @enum {Object} ACTIVITY_TYPE_LIST
  */
- export const ACTIVITY_TYPE_LIST = Object.freeze([
+export const ACTIVITY_TYPE_LIST = Object.freeze([
 	{ code: `UpdatePolicyQuote`, text: `Premium Change` },
 	{ code: `UpdateBankDetails`, text: `Bank Details Changes` },
 	{ code: `MAINLIFECHANGES`, text: `Main Life Changes` },
@@ -80,13 +75,13 @@ export const TODAY_DATE = new Date();
 	{ code: `CLAIMSLODGESCHANGES`, text: `Claims Lodges and Changes` }
 ]);
 
- /**
- * Activity types key/value pair
- * 
- * @readonly
- * @enum {Object} ACTIVITY_TYPE
- */
- export const ACTIVITY_TYPE = Object.freeze({
+/**
+* Activity types key/value pair
+* 
+* @readonly
+* @enum {Object} ACTIVITY_TYPE
+*/
+export const ACTIVITY_TYPE = Object.freeze({
 	PREMIUM_CHANGE: `UpdatePolicyQuote`,
 	BANKDETAILS_CHANGES: `UpdateBankDetails`,
 	MAINLIFE_CHANGES: `MainLifeChanges`,
@@ -102,7 +97,7 @@ export const TODAY_DATE = new Date();
  * @readonly
  * @enum {Object} ACTIVITY_TYPE_DESCRIPTION
  */
- export const ACTIVITY_TYPE_DESCRIPTION = Object.freeze({
+export const ACTIVITY_TYPE_DESCRIPTION = Object.freeze({
 	UpdatePolicyQuote: `Update Policy Quote`,
 	UpdateBankDetails: `Update Bank Details`,
 	MainLifeChanges: `Main Life Changes`,
@@ -111,4 +106,41 @@ export const TODAY_DATE = new Date();
 	PolicyStatusChanges: `Policy Status Changes`,
 	AddWaiverInfo: `Add Waiver Info`,
 	ClaimsLodgesChanges: `Claims Lodges Changes`
+});
+
+
+/**
+ * Transaction Types display values
+ * @readonly
+ * @enum {Object} ROLE_PLAYER_RELATIONSHIP
+ */
+export const TRANSACTION_TYPE = Object.freeze({
+	SUBMIT: `Submit`,
+	DISBURSEMENT: `Disbursement`,
+	CANCELLATIONOFPOLICY: `Cancellation Of Policy`,
+	ADDLIFE: `Add Life`,
+	REVIVAL: `Revival`,
+	UPDATEBANKDETAILS: `Update Bank Details`,
+	RESETVOLUNTARYPAUSECOUNTER: `Reset Voluntary Pause Counter`,
+	GENERATEBILL: `Generate Bill`,
+	UPDATEREFERENCENUMBER: `Update Reference Number`,
+	ESTIMATE: `Estimate`,
+	INCREASEOFSUMASSURED: `Increase Of Sum Assured`,
+	ACCEPTQUOTE: `Accept Quote`,
+	RELATIONSHIPCHANGE: `Relationship Change`,
+	EXPIREQUOTE: `Expire Quote`,
+	NOTTAKEN: `Not Taken`,
+	VOLUNTARYPAUSE: `Voluntary Pause`,
+	DATEOFBIRTHCHANGE: `Date Of Birth Change`,
+	ADDWAIVERINFO: `Add Waiver Info`,
+	BILLING: `Billing`,
+	SAVEUPDATEQUOTE: `Save Update Quote`,
+	REMOVELIFEASSURED: `Remove Life Assured`,
+	PREMIUMCOLLECTION: `Premium Collection`,
+	PREMIUMREMINDER: `Premium Reminder`,
+	ACCEPTPOLICY: `Accept Policy`,
+	GRACE: `Grace`,
+	DECREASEOFSUMASSURED: `Decrease Of Sum Assured`,
+	UPDATEPOLICYQUOTE: `Update Policy Quote`,
+	UNKNOWN: `Unknown`
 });

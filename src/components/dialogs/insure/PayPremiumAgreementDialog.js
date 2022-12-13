@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { dateFormat } from 'app/utils/insureUtils';
 import { formatCurrency } from '../../../utils/channelServiceUtilities';
+import { formatDateToInsure } from 'app/utils/insureUtils';
 
 
 /**
@@ -201,7 +201,7 @@ class PayPremiumAgreementDialog extends Component {
 				<capitec-label class="font" type="subtitle" label="Declaration">
 				</capitec-label>
 				<capitec-label class="spacing" type="strong" label="By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• ${formatCurrency(this.payAmount)} can be debited from your account on ${dateFormat(Date())} ">
+• ${formatCurrency(this.payAmount)} can be debited from your account on ${formatDateToInsure(Date())} ">
 				</capitec-label>
 			</div>
 
