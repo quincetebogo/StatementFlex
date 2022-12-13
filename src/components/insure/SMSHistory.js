@@ -95,6 +95,13 @@ class SMSHistory extends Component {
 	 * @return {void}
 	 */
 	async _dateChanged(e) {
+
+		if (isNullorEmpty(e.detail.new.startDate)) {
+			this.filteredData = [];
+			this._clearFilter();
+			return;
+		}
+
 		let fromDate = DateTime.fromISO(e.detail.new.startDate === null ? e.detail.old.startDate : e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
