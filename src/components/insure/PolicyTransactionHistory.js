@@ -253,6 +253,7 @@ class PolicyTransactionHistory extends Component {
 			resetForfilters[type]();
 		}
 	}
+	
 	/**
 	 * Initialize component when loaded
 	 * @returns {void}
