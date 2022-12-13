@@ -55,7 +55,7 @@ class PolicyTransactionHistory extends Component {
 	 * @property {Function} getPolicyTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
-	 * @property {Boolean} isBusy 
+	
 	 * 
 	 * @readonly
 	 * @static
@@ -68,8 +68,7 @@ class PolicyTransactionHistory extends Component {
 			policyTransactionHistory: { type: Object },
 			getPolicyTransactionHistory: { type: Object },
 			disposeData: { type: Object },
-			hideLoadMore: { type: Boolean, state: true },
-			isBusy: { type: Boolean, state: true }
+			hideLoadMore: { type: Boolean, state: true }
 		};
 	}
 
