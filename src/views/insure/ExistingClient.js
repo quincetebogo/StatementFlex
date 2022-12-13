@@ -813,32 +813,12 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = newMode;
 	}
 
-	// TODO: delete?
-	/**
-	 * Navigate back from any view to Client Summary
-	 * @returns {null} null
-	 */
-	_backToSummaryPage() {
-		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-	}
-
 	/**
 	 * Prepare and navigate Estimate
 	 * @returns {void} 
 	 */
 	_goToPolicyEstimate() {
 		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
-	}
-
-	// TODO: delete?
-	/**
-	 * Make FIPS call and Prepare and navigate to pay premium success page
-	 * 
-	 * @param {event} e contains the payArrears object
-	 * @returns {void} 
-	 */
-	_goToPayPremiumSuccess(e) {
-		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
 
 	/**
@@ -989,15 +969,6 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
-	// TODO: delete?
-	/**
-	 * Navigate back from any view to Summary
-	 * @returns {null} null
-	 */
-	_backToSummaryPage() {
-		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-	}
-
 	/**
 	 * Prepare and navigate to Transaction history
 	 * @param {event} e e
@@ -1042,32 +1013,6 @@ export class ExistingClient extends InsureViewBase {
 		// Telemetry Here
 		this.contractReference = e.detail.contractReference;
 		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
-	}
-
-	// TODO: delete?
-	/**
-	 * Prepare and navigate Email Success
-	 * @returns {void} 
-	 */
-	_goToEmailPlanSuccess() {
-		// Telemetry Here
-		this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
-	}
-
-	// TODO: delete?
-	/**
-	 * Make FIPS call and Prepare and navigate to pay premium success page
-	 * 
-	 * @param {*} e contains the payArrears object
-	 * @returns {null} null
-	 */
-	_goToPayPremiumSuccess() {
-		// call fips here
-
-		// Telemetry Here
-
-
-		this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 	}
 
 	/**
@@ -1292,8 +1237,9 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
-	/*
+	/**
 	* Open insure product details on Capitec website
+	* @returns {void}
 	*/
 	async _productEnquiry() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);

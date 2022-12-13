@@ -13,7 +13,7 @@ const ERROR_TOAST_DELAY = 10000;
  */
 export class InsureViewBase extends ViewBase {
 
-	// #region  INITIALISATION
+	// #region INITIALISATION
 
 	constructor() {
 		super();
@@ -21,9 +21,9 @@ export class InsureViewBase extends ViewBase {
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
 	}
 
-	// #endregions
+	// #endregions INITIALISATION
 
-	// #region  INITIALISATION
+	// #region PROPERTIES
 
 	/**
 	 * @property {Object} productParams Data & flags for insure product parameters
@@ -39,9 +39,9 @@ export class InsureViewBase extends ViewBase {
 		};
 	}
 
-	// endregion
+	// #endregion PROPERTIES
 
-	// #region  LIFECYCLE OVERRIDES
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -63,6 +63,8 @@ export class InsureViewBase extends ViewBase {
 		super.disconnectedCallback();
 		this.horizonInsureStore.setCFPStatus(false);
 	}
+
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
 
@@ -108,5 +110,5 @@ export class InsureViewBase extends ViewBase {
 		this.insureErrorToastMessage = ``;
 	}
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 }
