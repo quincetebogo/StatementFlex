@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
-const ERROR_MESSAGE = `Please select confirmation checkbox`;
-
 /**
  * Email Estimate Agreement Dialog component will allow you to view the Estimate detail, 
  * and to agree to Send the Estimate details
@@ -28,9 +26,12 @@ class PrintEstimateAgreementDialog extends Component {
 
 	// #region PROPERTIES
 
+	/**
+	 * @property {string} printEstimateAgreementContent doc content for the estimate agreement
+	 */
 	static get properties() {
 		return {
-			printEstimateAgreementContent: { type: String },
+			printEstimateAgreementContent: { type: String }
 		};
 	}
 
@@ -40,17 +41,17 @@ class PrintEstimateAgreementDialog extends Component {
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`print-estimate-close-modal`, {}));
 	}
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onAgreeClick() {
+	_agreeClick() {
 		this.dispatchEvent(new CustomEvent(`print-estimate-agree-click`, {}));
 	}
 
@@ -122,10 +123,10 @@ class PrintEstimateAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
+			<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
 				data-automation-id="print-estimate-agreement-dialog-cancel">
 			</capitec-button>
-			<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
+			<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
 				data-automation-id="print-estimate-agreement-dialog-agree">
 			</capitec-button>
 		`;

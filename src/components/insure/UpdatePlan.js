@@ -79,17 +79,21 @@ class UpdatePlan extends Component {
 		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
+		this.showUpdateValidationDialog = false;
 		this.showIneligibleLivesDialog = false;
 
 		this.agreementFCPAccepted = ``;
 		this.agreementEACLAccepted = ``;
 		this.agreementYBPAccepted = ``;
 		this.agreementYROAAccepted = ``;
+		this.accountNumErrorMsg = ``;
+		this.branchCodeErrorMsg = ``;
 
 		this.policyDetails = {};
 		this.prepareUpdateResponse = {};
 		this.createPolicyResponse = {};
 		this.onUpdateValidationMessage = {};
+		this.disclosureValidationMessage = {};
 
 		// Lookups
 		this.accountTypeOptions = ACCOUNT_TYPES;
@@ -98,14 +102,9 @@ class UpdatePlan extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
 
-		this.accountNumErrorMsg = ``;
-		this.branchCodeErrorMsg = ``;
-		this.disclosureValidationMessage = {};
-		this.showUpdateValidationDialog = false;
-
 	}
 
-	// #endregion
+	// #endregion INITIALISATION
 
 	// #region PROPERTIES
 
@@ -113,10 +112,9 @@ class UpdatePlan extends Component {
 	 * @property {Number} selectedTabIndex stores the index of the current tab being used
 	 * @property {Boolean} showEACLAgreementDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showYBPAgreementDialog determines whether to show the YBP agreement dialog
-	 * @property {Boolean} showCFPAgreementDialog determines whether to show the CFP agreement dialog
 	 * @property {Boolean} showFCPAgreementDialog determines whether to show the FCP agreement dialog
 	 * @property {Boolean} showYROAAgreementDialog determines whether to show the YROA agreement dialog
-	 * @property {String} agreementCFPAccepted determines whether the CFP agreement has been accepted
+	 * @property {Boolean} showValidationConfirmDialog determines whether to show the disclosure validation dialog
 	 * @property {String} agreementFCPAccepted determines whether the FCP agreement has been accepted
 	 * @property {String} agreementEACLAccepted determines whether the EACL agreement has been accepted
 	 * @property {String} agreementYBPAccepted determines whether the YBP agreement has been accepted
@@ -129,12 +127,24 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showUpdatePlanPaymentAgreementDocument determines whether to show the Update Plan Payment agreement document
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
+	 * @property {Number} collectionDay Premium collection day
+	 * @property {String} newTotalPremium new total premium
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update *
 	 * @property {Object} updatePlanQuote Callback function to Quote Calc *
+	 * @property {Object} tempDocContent temporary document content
 	 * @property {Boolean} canReinstate determines whether to show the Reinstate button on the title bar
 	 * @property {Boolean} showReinstatePolicyAgreementDialog determines whether to show the Reinstate Policy agreement dialog
 	 * @property {Boolean} showReinstatePaymentAgreementDocument determines whether to show the Reinstate Payment agreement document
 	 * @property {Object} createPolicyResponse - response Payload of Create Policy
+	 * @property {Object} issuePlanAgreementDocument - Issue Plan Agreement Document
+	 * @property {Object} reinstatePaymentAgreementDocument - reinstate Payment Agreement Document
+	 * @property {number} maxAllowedCover - maximum allowed cover
+	 * @property {string} accountNumErrorMsg - error message for account number
+	 * @property {string} branchCodeErrorMsg - error message for branch code
+	 * @property {Object} disclosureValidationMessage - message for disclosure validation
+	 * @property {boolean} showUpdateValidationDialog - determines whether to show update validation dialog
+	 * @property {boolean} disableBranchCode - determine whether to disable branch code
+	 * @property {Object} onUpdateValidationMessage - message for update validations
 	 * @readonly
 	 * @static
 	 */
@@ -175,7 +185,6 @@ class UpdatePlan extends Component {
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
 
-			dOB: { type: String, state: true },
 			maxAllowedCover: { type: Number, state: true },
 			accountNumErrorMsg: { type: String, state: true },
 			branchCodeErrorMsg: { type: String, state: true },
@@ -187,7 +196,8 @@ class UpdatePlan extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
+
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -200,7 +210,7 @@ class UpdatePlan extends Component {
 		this._initialise();
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region EVENT HANDLERS
 
@@ -239,10 +249,10 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Click event from the beneficiary dialog to add new beficiary and close 
-	 * @param {*} e e
+	 * @param {event} e e
 	 * @return {void} 
 	 */
-	_onAddBeneficiaryClick(e) {
+	_addBeneficiaryClick(e) {
 		if (e.detail.beneficiary.lifeAssured === true) {
 			this.policyDetails.roleplayers.find(ele => {
 				if (ele.rowID === e.detail.beneficiary.rowID) {
@@ -258,7 +268,6 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Click event from remove button on beneficiary list
-	 * @param {Object} event event
 	 * @return {void} 
 	 */
 	_removeBeneficiary() {
@@ -280,7 +289,7 @@ class UpdatePlan extends Component {
 	/**
 	 * Open Remove Beneficiary dialog
 	 * @return {void}
-	 * @param {*} beneficiary beneficiary
+	 * @param {Array} beneficiary beneficiary
 	 * 
 	 */
 	_openRemoveBeneficiaryDialog(beneficiary) {
@@ -299,7 +308,6 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Click event from remove button on life list
-	 * @param {Object} lifeAssured clicked
 	 * @return {void}
 	 */
 	_removeLifeAssured() {
@@ -316,8 +324,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Open Remove Life Assured dialog
-	 * @param {*} roleplayer roleplayer
-	 * @param {*} index index
+	 * @param {object} roleplayer roleplayer
+	 * @param {number} index index
 	 * @return {void} 
 	 */
 	_openRemoveLifeAssuredDialog(roleplayer, index) {
@@ -340,12 +348,12 @@ class UpdatePlan extends Component {
 		this.showRemoveLifeAssuredDialog = false;
 	}
 
-	// Change Handlers
+	// CHANGE HANDLERS
 
 	/**
 	 * Event fired when a life assured COVER AMOUNT value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void}
 	 */
 	_lifeCoverAmountValueChanged(event, recordId) {
@@ -393,8 +401,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured TITLE value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeTitleValueChanged(event, recordId) {
@@ -420,8 +428,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured GENDER value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeGenderValueChanged(event, recordId) {
@@ -443,8 +451,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured FIRSTNAME value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeNameValueChanged(event, recordId) {
@@ -468,8 +476,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured SURNAME value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeSurnameValueChanged(event, recordId) {
@@ -492,8 +500,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured MIDDLENAME value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeMiddleNameValueChanged(event, recordId) {
@@ -508,8 +516,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured ID NUMBER value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeIDValueChanged(event, recordId) {
@@ -563,8 +571,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
-	 * @param {*} event event
-	 * @param {*} recordId event
+	 * @param {event} event event
+	 * @param {string} recordId event
 	 * @return {void} 
 	 */
 	_lifeCellphoneValueChanged(event, recordId) {
@@ -586,8 +594,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_lifeEmailValueChanged(event, recordId) {
@@ -609,8 +617,8 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Beneficiary Change events
-	 * @param {*} event event
-	 * @param {*} recordId recordId
+	 * @param {event} event event
+	 * @param {string} recordId recordId
 	 * @return {void} 
 	 */
 	_beneficiaryPayoutValueChanged(event, recordId) {
@@ -666,7 +674,7 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when the debit order bank value changes
 	 * 
-	 * @param {*} e e
+	 * @param {event} e e
 	 * @returns {void} 
 	 */
 	_selectedBankChange(e) {
@@ -688,22 +696,9 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * change format of the collection day value returned to match the format of the collection day list
-	 * 
-	 *  @returns {String} day text
-	 */
-	_getCollectionDay() {
-
-		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
-
-		return day?.text;
-
-	}
-
-	/**
 	 * Event fired when the debit order day value changes
 	 * 
-	 * @param {*} e e
+	 * @param {event} e e
 	 *  @returns {void} 
 	 */
 	_debitOrderDayChange(e) {
@@ -717,7 +712,7 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when the debit order branch code value changes
 	 * 
-	 * @param {*} e e
+	 * @param {event} e e
 	 *  @returns {void} 
 	 */
 	_branchCodeChange(e) {
@@ -735,7 +730,7 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when the debit order account number value changes
 	 * 
-	 * @param {*} e e
+	 * @param {event} e e
 	 *  @returns {void} 
 	 */
 	_accountNumberChange(e) {
@@ -751,7 +746,7 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Event fired when calculate by Premium override input changed
-	 * @param {*} e event
+	 * @param {event} e event
 	 * @returns {void} 
 	 */
 	_totalPremiumChanged(e) {
@@ -853,7 +848,7 @@ class UpdatePlan extends Component {
 
 	/**
 	 * Tab change to switch between calculate and email plan button
-	 * @param {*} e e
+	 * @param {event} e e
 	 * @return {void} 
 	 */
 	_tabChange(e) {
@@ -930,9 +925,232 @@ class UpdatePlan extends Component {
 		this.showYROAAgreementDialog = false;
 	}
 
-	// #endregion
+	/**
+	 * Navigate back to client policies
+	 * @return {void} 
+	 */
+	_backToSummaryPage() {
+		this.dispatchEvent(new CustomEvent(`navigate-back`, {
+			detail: {
+			}
+		}));
+	}
+
+	/**
+	 * Open Add Life dialog returning select relationship
+	 * @return {void} 
+	 */
+	 _openAddLifeDialog() {
+		this.showAddRelationshipDialog = true;
+	}
+
+	/**
+	 * Close the Add Life dialog
+	 * @return {void} 
+	 */
+	 _closeAddLifeDialog() {
+		this.showAddRelationshipDialog = false;
+	}
+
+	/**
+	 * open add beneficiaries dialog 
+	 * @return {void} 
+	 */
+	_openAddBeneficiariesDialog() {
+		this.showAddBeneficiariesDialog = true;
+	}
+
+	/**
+	 * Close the Add beneficiaries dialog
+	 * @return {void} 
+	 */
+	 _closeAddBeneficiariesDialog() {
+		this.showAddBeneficiariesDialog = false;
+	}
+
+	/**
+	 * Close the Add Life dialog
+	 * @return {void} 
+	 */
+	 _closeUpdatePlanAgreementDialog() {
+		this.showUpdatePlanAgreementDialog = false;
+		this.showUpdatePlanPaymentAgreementDocument = false;
+	}
+
+	/**
+	 * Update Plan button click event
+	 * Invoke API endpoints
+	 * @return {void} 
+	 */
+	 async _updatePlanClick() {
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+
+			this.showValidationConfirmDialog = true;
+
+			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+
+			return;
+		}
+
+		const onUpdateValidations = this._validateOnUpdate();
+
+		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) {
+
+			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
+
+			this.showUpdateValidationDialog = true;
+
+			return;
+		}
+
+		this._calculatePremium();
+
+
+		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
+
+		// This needs to move
+		this.showUpdatePlanAgreementDialog = true;
+
+		// policyScheduleDocContent
+		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
+
+		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+			this.showUpdatePlanPaymentAgreementDocument = true;
+			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
+		} 
+	}
+
+	/**
+	 * event for update plan accept
+	 * @returns {void}
+	 */
+	 _acceptUpdatedPlan() {
+		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
+	}
+
+	/**
+ * Show Policy Schedule and Mandate documents
+ * @return {void} 
+ */
+	async _reinstatePolicyPopup() {
+		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
+
+		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
+		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
+
+		this.showReinstatePolicyAgreementDialog = true;
+
+		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
+			this.showReinstatePaymentAgreementDocument = true;
+			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
+		}
+	}
+
+	/**
+	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
+	 * @return {void} 
+	 */
+	 _acceptReinstatePolicy() {
+		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
+	}
+
+	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
+
+	/**
+	 * Validate required fields on update plan
+	 * @returns {object} onUpdateValidations
+	 */
+	validateUpdatePlanCalculate() {
+
+		const onUpdateValidations = {};
+		onUpdateValidations.lives = [];
+		onUpdateValidations.validated = true;
+		onUpdateValidations.bankingDetailsValid = true;
+		onUpdateValidations.lifeAssured = true;
+
+		this.policyDetails.roleplayers.forEach(ele => {
+			ele.coverDetails.canSubmit = true;
+			// General Checks
+			if (ele.lifeAssured === true) {
+				if (ele.firstName === `` || ele.surname === ``) {
+					ele.coverDetails.canSubmit = false;
+				}
+			}
+
+			// title check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.title)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.titleErrorMessageLA = `Title is a required field`;
+				}
+			}
+
+			// LA Checks
+			if (ele.lifeAssured === true) {
+				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
+					ele.coverDetails.canSubmit = false;
+				}
+			}
+
+			// Banking Details
+			// if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
+			// canSubmit = false;
+
+			// }
+
+			// ID Check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.idNumber)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
+				}
+			}
+
+			// Gender check
+			if (ele.lifeAssured === true) {
+				if (isNullorEmpty(ele.gender)) {
+					ele.coverDetails.canSubmit = false;
+					ele.coverDetails.genderErrorMessageLA = `Gender is a required field`;
+				}
+			}
+
+			// build list for validation dialog
+			if (ele.coverDetails.canSubmit === false) {
+				onUpdateValidations.lives.push({
+					name: ele.firstName,
+					surname: ele.surname
+				});
+				onUpdateValidations.validated = false;
+			}
+
+		});
+		return onUpdateValidations;
+		}
+
+	/**
+	 * change format of the collection day value returned to match the format of the collection day list
+	 * 
+	 *  @returns {String} day text
+	 */
+	_getCollectionDay() {
+
+		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
+
+		return day?.text;
+	
+		}
+
+	/** 
+	 * change format of the bank returned to match the format of banks in the list
+	 * @returns {String} bank text
+	 */
+	_getBank() {
+		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		return bank?.text;
+		}
 
 	/**
 	 * Initialize component
@@ -993,72 +1211,6 @@ class UpdatePlan extends Component {
 			this.showIneligibleLivesDialog = true;
 		}
 		
-	}
-
-	/**
-	 * Navigate back to client policies
-	 * @return {void} 
-	 */
-	_backToSummaryPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, {
-			detail: {
-			}
-		}));
-	}
-
-	/**
-	 * Open Add Life dialog returning select relationship
-	 * @return {void} 
-	 */
-	_openAddLifeDialog() {
-		this.showAddRelationshipDialog = true;
-	}
-
-	/**
-	 * Close the Add Life dialog
-	 * @return {void} 
-	 */
-	_closeAddLifeDialog() {
-		this.showAddRelationshipDialog = false;
-	}
-
-	/**
-	 * open add beneficiaries dialog 
-	 * @return {void} 
-	 */
-	_openAddBeneficiariesDialog() {
-		this.showAddBeneficiariesDialog = true;
-	}
-
-	/**
-	 * Close the Add beneficiaries dialog
-	 * @return {void} 
-	 */
-	_closeAddBeneficiariesDialog() {
-		this.showAddBeneficiariesDialog = false;
-	}
-
-	/**
-	 * Close the Add Life dialog
-	 * @return {void} 
-	 */
-	_closeUpdatePlanAgreementDialog() {
-		this.showUpdatePlanAgreementDialog = false;
-		this.showUpdatePlanPaymentAgreementDocument = false;
-	}
-
-	/**
-	 * Calculate Total Cover for all beneficiaries, including Main Life
-	 * @returns {Number} totalCover 
-	 */
-	_totalCoverAmount() {
-		return this.policyDetails.roleplayers.reduce((accumulator, ele) => {
-			if (ele.lifeAssured === true || ele.relationship === `MainLife`) {
-				return accumulator + parseFloat(ele.coverAmount);
-			}
-			return accumulator;
-
-		}, 0);
 	}
 
 	/**
@@ -1305,7 +1457,7 @@ class UpdatePlan extends Component {
 	/**
 	 * Get date of birth from ID number
 	 * 
-	 * @param {*} idNumber idNumber
+	 * @param {String} idNumber idNumber
 	 * @returns {String} string
 	 */
 	_setDOB(idNumber) {
@@ -1325,29 +1477,18 @@ class UpdatePlan extends Component {
 	/**
 	 * Check Policy rules to see if field may be edited or not
 	 * 
-	 * @param {*} field field
-	 * @param {*} relationship relationship
-	 *  @returns {boolean} boolean
+	 * @param {String} field field
+	 * @param {String} relationship relationship
+	 * @returns {boolean} boolean
 	 */
 	_policyRuleAllowsChange(field, relationship) {
 		return policyAllowsEditing(this.policyDetails.policyRule, this.productParams, field, relationship);
 	}
 
 	/**
-	 * check the policy rules to see if a life assured can be added or not
-	 * 
-	 *  @returns {boolean} boolean
-	 */
-	_canAddLife() {
-		const product = this.productParams.products.find(products => products.parameters.id === `SBL`);
-		const currentRuleType = product.parameters.rulesParams.find(rule => rule.ruleType === this.policyDetails.policyRule);
-		return currentRuleType.addNewLives;
-	}
-
-	/**
 	 * check if roleplayer is a Life Assured as well to deterimine if DoB can be edited
 	 * 
-	 * @param {*} roleplayer roleplayer
+	 * @param {object} roleplayer roleplayer
 	 * @returns {boolean} boolean
 	 */
 	_checkBeneficiaryDobRule(roleplayer) {
@@ -1358,23 +1499,6 @@ class UpdatePlan extends Component {
 		return this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship);
 
 
-	}
-
-	/**
-	 * check that the beneficiary payout amounts add up to the mainlife cover amount 
-	 * 
-	 *  @returns {boolean} boolean
-	 */
-	_isPayoutAmountValid() {
-		let totalPayout = 0;
-		const beneficiaries = this.policyDetails.roleplayers.filter(beneficiary => beneficiary.beneficiary === true);
-		for (let index = 0; index < beneficiaries.length; index++) {
-			totalPayout += parseFloat(beneficiaries[index].benefitPayout);
-		}
-		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -1765,7 +1889,7 @@ class UpdatePlan extends Component {
 			<capitec-spacer></capitec-spacer>
 			${this.canReinstate
 				? html`<capitec-button label="Re-Issue" type="white" class="capitec-button-medium"
-					@click="${() => this._onReinstatePolicyPopup()}"></capitec-button>`
+					@click="${() => this._reinstatePolicyPopup()}"></capitec-button>`
 				: html`
 					${this.selectedTabIndex === 0 ? html`
 					<capitec-button label="Calculate" type="white" class="capitec-button-medium"
@@ -1773,7 +1897,7 @@ class UpdatePlan extends Component {
 					</capitec-button>
 					` : html``}
 					<capitec-button label="Update Plan" type="white" class="capitec-button-medium"
-						@click="${() => this._onUpdatePlan()}">
+						@click="${() => this._updatePlanClick()}">
 					</capitec-button>
 			`}
 		</capitec-title-bar>
@@ -2341,13 +2465,15 @@ class UpdatePlan extends Component {
 					</capitec-text-field>`
 				: html`
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
+						date="${roleplayer.dateOfBirth}" outputType="datetime" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						error="${roleplayer?.coverDetails?.dobErrorMessage}"
 						?disabled="${this.canReinstate}" 
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
 			}
+
+			
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.benefitPayoutErrorMessage === `` ? `` : roleplayer?.coverDetails?.benefitPayoutErrorMessage}"
@@ -2406,8 +2532,8 @@ class UpdatePlan extends Component {
 			: html`
 		<remove-life-assured-dialog 
 			.lifeToRemoveDescription="${this.lifeAssuredToRemoveDescription}"
-			@agree-click="${(e) => this._removeLifeAssured(e)}"
-			@close-modal="${(e) => this._closeRemoveLifeAssuredDialog(e)}">
+			@agree-click="${() => this._removeLifeAssured()}"
+			@close-modal="${() => this._closeRemoveLifeAssuredDialog()}">
 		</remove-life-assured-dialog>
 		`;
 	}
@@ -2437,8 +2563,7 @@ class UpdatePlan extends Component {
 			: html`
 		<add-beneficiary-dialog
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
-			.beneficiaries="${this.policyDetails.roleplayers.filter(ele => ele.beneficiary === true)}"
-			@add-click="${(e) => this._onAddBeneficiaryClick(e)}" 
+			@add-click="${(e) => this._addBeneficiaryClick(e)}" 
 			@close-modal="${() => this._closeAddBeneficiariesDialog()}">
 		</add-beneficiary-dialog>
 		`;

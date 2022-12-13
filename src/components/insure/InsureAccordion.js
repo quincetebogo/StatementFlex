@@ -2,24 +2,24 @@ import { Component, css, html } from 'platform/elements';
 
 class InsureAccordion extends Component {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+	
+	// #region INITIALISATION
 
 	constructor() {
 		super();
 		this.expanded = false;
 	}
 
-	// ----------
-	// PROPERTIES
-	// ----------
+	// #endregion INITIALISATION
+
+	// #region PROPERTIES
 
 	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {Object} policy - Policy details
 	 * @property {Boolean} inArrears - Policy details
+	 * @property {Object} cardOptions - 
 	*/
 	static get properties() {
 		return {
@@ -29,9 +29,9 @@ class InsureAccordion extends Component {
 		};
 	}
 
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+	// #endregion PROPERTIES
+
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -59,10 +59,9 @@ class InsureAccordion extends Component {
 		super.disconnectedCallback();
 	}
 
+	// #endregion LIFECYCLE OVERRIDES
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+	// #region EVENT HANDLERS
 
 	/**
 	 * Handles component click events.
@@ -95,7 +94,7 @@ class InsureAccordion extends Component {
 	 * @param {AnimationEvent} event - The event details.
 	 * @returns {void}
 	 */
-	_animationCompleted(event) {
+	_animationCompleted() {
 		// Remove the expanding animation, if set.
 		if (this.hasAttribute(`expanding`)) {
 			this.removeAttribute(`expanding`);
@@ -109,9 +108,9 @@ class InsureAccordion extends Component {
 		}
 	}
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
+	// #endregion EVENT HANDLERS 
+
+	// #region PUBLIC METHODS
 
 	/**
 	 * Expand the item to show it's content.
@@ -147,22 +146,30 @@ class InsureAccordion extends Component {
 		this.setAttribute(`collapsing`, ``);
 	}
 
+	// #endregion PUBLIC METHODS
 
-	// ---------
-	// PRIVATE METHODS
-	// ---------
+	// #region PRIVATE METHODS
 
-	_onClickPolicyNumber(policyNumber) {
+	/**
+	 * dispatch policy number click event
+	 * @returns {void}
+	 */
+	_clickPolicyNumber() {
 		this.dispatchEvent(new CustomEvent(`clickedViewPlan`, {}));
 	}
-
-	_onClickActionCard(actionCard) {
+	
+	/**
+	 * dispatch event for action card click
+	 * @param {*} actionCard action card
+	 * @returns {void}
+	 */
+	_clickActionCard(actionCard) {
 		this.dispatchEvent(new CustomEvent(`clickedRouteCard`, { detail: { route: actionCard.route } }));
 	}
 
-	// ---------
-	// RENDERING
-	// ---------
+	// #endregion PRIVATE METHODS
+
+	// #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
@@ -343,7 +350,7 @@ class InsureAccordion extends Component {
 			<capitec-group layout="vertical" valign="center" halign="left" gap="none">
 				<capitec-label type="subtitle" label="Policy Number">
 				</capitec-label>
-				<capitec-hyperlink @click="${(e) => this._onClickPolicyNumber(this.policy.policyNumber)}" type="strong" label="${this.policy.policyNumber}"></capitec-hyperlink>
+				<capitec-hyperlink @click="${(e) => this._clickPolicyNumber()}" type="strong" label="${this.policy.policyNumber}"></capitec-hyperlink>
 			</capitec-group>
 		
 			<capitec-group layout="vertical" valign="center" halign="left" gap="none">
@@ -414,7 +421,7 @@ class InsureAccordion extends Component {
 			</capitec-card>`;
 		}
 		return html`
-		<capitec-card elevated class="action-card" @click="${(e) => this._onClickActionCard(actionCard)}" >
+		<capitec-card elevated class="action-card" @click="${() => this._clickActionCard(actionCard)}" >
 			<capitec-icon size="${actionCard.iconSize}" icon="${actionCard.icon}"></capitec-icon>
 			<capitec-label type="Default" label="${actionCard.label}">
 			</capitec-label>
@@ -445,6 +452,8 @@ class InsureAccordion extends Component {
 			</div>
 		`;
 	}
+
+	// #endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-accordion`, InsureAccordion);

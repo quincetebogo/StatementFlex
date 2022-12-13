@@ -4,7 +4,7 @@ import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/ins
 import { DateTime } from 'luxon';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
 
-// #region  CONSTANTS
+// #region CONSTANTS
 
 const FILTER_BY = {
 	DATE: `DATE`
@@ -21,6 +21,9 @@ const today = new Date();
 /**
  * the SMS History page displays the SMS History for the chosen policy
  *  
+ * Events Raised:
+ * --------------
+ * 
  * @export
  * @class SMSHistory
  * @extends {Component}
@@ -58,7 +61,7 @@ class SMSHistory extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -73,11 +76,118 @@ class SMSHistory extends Component {
 		this.filteredData = this.commsHistory?.communications;
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE FUNCTIONS
 
-	// #endregion
+	/**
+	 * filter sms history when date is changed
+	 * @param {*} e e
+	 * @return {void}
+	 */
+	 getPredefinedDateRanges() {
+		const last7day = new Date(today);
+		const last30day = new Date(today);
+		const last60day = new Date(today);
+		const last90day = new Date(today);
+
+		last7day.setDate(today.getDate() - 7);
+		last30day.setDate(today.getDate() - 30);
+		last60day.setDate(today.getDate() - 60);
+		last90day.setDate(today.getDate() - 90);
+
+		return [
+			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+		];
+	}
+
+	/**
+	 * filter the sms history
+	 * @return {void}
+	 */
+	 _refineSearch() {
+
+		this.filteredData = this.commsHistory?.communications;
+
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
+			this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);
+		}
+
+		this.requestUpdate();
+	}
+
+	/**
+	 * Get selected date range
+	 * @returns {string} - fromdate to todate
+	 */
+		 _getDateRange() {
+			const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+			const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+	
+			const preDefinedRanges = this.getPredefinedDateRanges();
+			const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+	
+			if (selectedValue.length > 0) {
+				return selectedValue[0].text;
+			}
+	
+			return `${fromDate} - ${toDate}`;
+		}
+
+	/**
+		 * format the give date
+		 * @param {*} date - date to be formatted 
+		 * @return {String} string
+		 */
+		_formatDate(date) {
+			const newdate = new Date(Date.parse(date));
+			return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	/**
+	 * Clear filter by criteria type
+	 * @param {*} type - filter type
+	 * @return {void}
+	 */
+		_clearFilter(type) {
+			const date = () => this._reset();
+	
+			const resetForfilters = {
+				'DATE': date
+			};
+	
+			RENDER_CHIPS[type] = ``;
+			if (resetForfilters[type]) {
+				resetForfilters[type]();
+			}
+		}
+
+	/**
+	 * reset all filters and load transactions
+	 * @return {void}
+	 */
+	async _reset() {
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+			this.startDate = ``;
+			this.endDate = ``;
+
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
+			await this._refineSearch();
+		}
+	}
+
+
+	// #endregion PRIVATE FUNCTIONS
 
 	// #region EVENT HANDLERS
 
@@ -90,10 +200,10 @@ class SMSHistory extends Component {
 	}
 
 	/**
-	 * filter sms history when date is changed
-	 * @param {*} e e
-	 * @return {void}
-	 */
+		 * filter sms history when date is changed
+		 * @param {event} e e
+		 * @return {void}
+		 */
 	async _dateChanged(e) {
 
 		if (isNullorEmpty(e.detail.new.startDate)) {
@@ -146,24 +256,6 @@ class SMSHistory extends Component {
 	}
 
 	/**
-	 * filter the sms history
-	 * @return {void}
-	 */
-	_refineSearch() {
-
-		this.filteredData = this.commsHistory?.communications;
-
-
-		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(Date.parse(this.startDate));
-			const endDate = new Date(Date.parse(this.endDate));
-			this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);
-		}
-
-		this.requestUpdate();
-	}
-
-	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
 	 * @return {void}
@@ -172,43 +264,6 @@ class SMSHistory extends Component {
 
 		this._clearFilter(type);
 		this._refineSearch();
-	}
-
-	/**
-	 * Clear filter by criteria type
-	 * @param {*} type - filter type
-	 * @return {void}
-	 */
-	_clearFilter(type) {
-		const date = () => this._reset();
-
-		const resetForfilters = {
-			'DATE': date
-		};
-
-		RENDER_CHIPS[type] = ``;
-		if (resetForfilters[type]) {
-			resetForfilters[type]();
-		}
-	}
-
-
-	/**
-	 * reset all filters and load transactions
-	 * @return {void}
-	 */
-	async _reset() {
-		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``;
-			this.endDate = ``;
-
-			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-			if (calendar) {
-				calendar._placeholderEndDate = null;
-				calendar._placeholderStartDate = null;
-			}
-			await this._refineSearch();
-		}
 	}
 
 	// #endregion
@@ -545,7 +600,7 @@ class SMSHistory extends Component {
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 

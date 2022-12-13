@@ -4,7 +4,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 // Dialogs
-import 'app/components/dialogs/insure/EmailPlanDialog';
+
 
 /**
  * Pay Premium Success component that displays once Arrears have been successfully paid.
@@ -261,12 +261,12 @@ _renderAlert() {
 _renderEmailPlanDialog() {
 	return this.showEmailPlanDialog === false ? html`` 
 	: html`
-		<insure-email-dialog
+		<horizon-insure-email-dialog
 			.contractReference = "${this.contractReference}" 
 			.titleMessage = "${this.titleMessage}"
 			@close-modal="${(e) => this.showEmailPlanDialog = false}"
 			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
-		</insure-email-dialog>
+		</horizon-insure-email-dialog>
 	`;
 }
 

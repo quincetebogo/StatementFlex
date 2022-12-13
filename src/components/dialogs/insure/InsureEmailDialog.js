@@ -11,7 +11,16 @@ const ERROR_MESSAGE = {
 };
 
 /**
- * Insure Common Email model 
+ * Email dialog allows you enter your email address and to confirm it 
+ * 
+ * Events Raised 
+ * -------------
+ * close-modal
+ * send-email
+ *  
+ * @export
+ * @class InsureEmailDialog
+ * @extends {Component}
  */
 class InsureEmailDialog extends Component {
 
@@ -25,6 +34,8 @@ class InsureEmailDialog extends Component {
 		this.alertBannerMessage = ``;
 		this.titleMessage = ``;
 	}
+	
+	// #endregion INITIALISATION
 
 	// #region PROPERTIES
 
@@ -46,15 +57,23 @@ class InsureEmailDialog extends Component {
 
 	// #endregion PROPERTIES
 
-	// #endregion INITIALISATION
+	// #region EVENT HANDLERS
 
-	// #region EVENTS
-
-	_onCancelClick() {
+	/**
+	 * Close dialog
+	 * 
+	 * @returns {void}
+	 */
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	_onSendClick() {
+	/**
+	 * Dispatches event to send email
+	 * 
+	 * @returns {void}
+	 */
+	_sendClick() {
 		const isEmailInputValid = this._validateEmailAddress();
 
 		if (!isEmailInputValid) {
@@ -64,10 +83,21 @@ class InsureEmailDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailAddress: this.email } }));
 	}
 
+	/**
+	 * Clear alert banner message 
+	 * 
+	 * @returns {void}
+	 */
 	_clearAlerts() {
 		this.alertBannerMessage = ``;
 	}
 
+	/**
+	 * change event for email address
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
 	_emailValueChanged(e) {
 		this.email = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
@@ -79,10 +109,15 @@ class InsureEmailDialog extends Component {
 		}
 	}
 
-	// #endregion EVENTS
+	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE METHODS
 	
+	/**
+	 * validation checks for email address
+	 * 
+	 * @returns {boolean} boolean for whether the alert banner message is empty or not
+	 */
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
@@ -90,7 +125,7 @@ class InsureEmailDialog extends Component {
 		return isNullorEmpty(this.alertBannerMessage);
 	}
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region RENDERING
 
@@ -119,6 +154,11 @@ class InsureEmailDialog extends Component {
 		];
 	}
 
+	/**
+	 * render the dialog body 
+	 * 
+	 * @returns {html} html content
+	 */
 	_renderBody() {
 		return html`
 
@@ -136,19 +176,29 @@ class InsureEmailDialog extends Component {
 		`;
 	}
 
+	/**
+	 * render the dialog footer
+	 * 
+	 * @returns {html} html content
+	 */
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button data-automation-id="stop-card-confirm-cancel" label="Cancel" 
-					class = "capitec-button-medium" @click="${() => this._onCancelClick()}">
+					class = "capitec-button-medium" @click="${() => this._cancelClick()}">
 				</capitec-button>
 				<capitec-button data-automation-id="stop-card-confirm-confirm" id="id-confirm-button" 
-				class = "capitec-button-medium" type="primary" label="Send" @click="${() => this._onSendClick()}">
+				class = "capitec-button-medium" type="primary" label="Send" @click="${() => this._sendClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
 	}
 
+	/**
+	 * render the alert banner
+	 * 
+	 * @returns {html} html content 
+	 */
 	_renderAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
@@ -166,6 +216,11 @@ class InsureEmailDialog extends Component {
 		: html``;
 	}
 
+	/**
+	 * Generates the component template for web mode
+	 * 
+	 * @returns {html} html content 
+	 */
 	_webTemplate() {
 		return html`
 		<capitec-modal data-automation-id="insure-email-modal" type="form" style="font-weight: bold;" 
@@ -182,4 +237,24 @@ class InsureEmailDialog extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`insure-email-dialog`, InsureEmailDialog);
+window.customElements.define(`horizon-insure-email-dialog`, InsureEmailDialog);
+
+/**
+ * send close modal event to the consuming componant when 'cancel' is clicked
+ *
+ * @example
+ * <horizon-insure-email-dialog ... @close-modal="${this._handler}"></horizon-insure-email-dialog>
+ *
+ * @event InsureEmailDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * send send email event to the consuming componant when agreement is accepted 
+ *
+ * @example
+ * <horizon-insure-email-dialog ... @send-email="${this._handler}"></horizon-insure-email-dialog>
+ *
+ * @event InsureEmailDialog#agreementAccepted
+ * @type {Object} - N/A
+ */

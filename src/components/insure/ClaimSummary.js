@@ -22,11 +22,13 @@ class ClaimSummary extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
+	 * @property {object} claimSummary summary of selected claim
+	 * 
 	 * @readonly
 	 * @static
 	 */
@@ -36,7 +38,9 @@ class ClaimSummary extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
+
+	// #region LIFECYCLE OVERRIDES
 
 	/**
 	 * Setup the component once added to the DOM.
@@ -45,6 +49,8 @@ class ClaimSummary extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 	}
+
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region EVENT HANDLERS 
 
@@ -56,7 +62,7 @@ class ClaimSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -269,7 +275,7 @@ class ClaimSummary extends Component {
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 }
 
 window.customElements.define(`horizon-insure-claim-summary`, ClaimSummary);

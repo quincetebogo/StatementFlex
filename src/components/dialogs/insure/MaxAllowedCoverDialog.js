@@ -20,15 +20,19 @@ class MaxAllowedCoverDialog extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region EVENT HANDLERS
 
+	/**
+	 *  confirm and close modal
+	 * @returns {void}
+	 */
 	_onConfirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirm`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -92,7 +96,7 @@ class MaxAllowedCoverDialog extends Component {
 		`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 

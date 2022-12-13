@@ -10,7 +10,8 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  * 
  * Events Raised 
  * -------------
- * navigate-back
+ * navigate-to-summary
+ * send-email
  *  
  * @export
  * @class CancelPolicySuccess
@@ -33,8 +34,8 @@ class CancelPolicySuccess extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
-	 * @property {String} contractReference
+	 * @property {Boolean} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {String} contractReference - policy contract reference
 	 * @property {String} titleMessage - title of send email popup.
 	 * @readonly
 	 * @static
@@ -44,11 +45,11 @@ class CancelPolicySuccess extends Component {
 
 			showEmailPlanDialog: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
-			titleMessage: { type: String }
+			titleMessage: { type: String, state: true }
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -60,11 +61,11 @@ class CancelPolicySuccess extends Component {
 		super.connectedCallback();
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
 
-	// #endregion
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
@@ -80,14 +81,6 @@ class CancelPolicySuccess extends Component {
 	}
 
 	/**
-	 * Event to close the email plan dialog
-	 * @return {void} 
-	 */
-	_closeEmailPlanDialog() {
-		this.showEmailPlanDialog = false;
-	}
-
-	/**
 	 * Invoke this function when Send button is clicked on Email Popup
 	 * 
 	 * @param {*} emailAddress email address
@@ -99,6 +92,10 @@ class CancelPolicySuccess extends Component {
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: this.callerPage } }));
 	}
 
+	/**
+	 * Navigate to client summary
+	 * @returns {void}
+	 */
 	_navigateToSummary() {
 		this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {
 			detail: {
@@ -106,7 +103,7 @@ class CancelPolicySuccess extends Component {
 		}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
@@ -177,7 +174,6 @@ class CancelPolicySuccess extends Component {
 
 	/**
 	 * Render Dialogs
-	 * 
 	 * @return {html} html
 	 */
 	_renderDialogs() {
@@ -217,12 +213,12 @@ class CancelPolicySuccess extends Component {
 	_renderEmailPlanDialog() {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
-			<insure-email-dialog 
+			<horizon-insure-email-dialog 
 				.contractReference = "${this.contractReference}" 
 				.titleMessage = "${this.titleMessage}"
-				@close-modal="${(e) => this.showEmailPlanDialog = false}"
+				@close-modal="${() => this.showEmailPlanDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
-			</insure-email-dialog>
+			</horizon-insure-email-dialog>
 		`;
 	}
 
@@ -232,10 +228,20 @@ class CancelPolicySuccess extends Component {
 window.customElements.define(`horizon-insure-cancel-policy-success`, CancelPolicySuccess);
 
 /**
- * Navigate back to client policies when 'Issue Policy' is clicked
+ * Navigate back to client policies 
  *
  * @example
- * <horizon-insure-cancel-policy-success ... @navigate-back="${this._handler}"></horizon-insure-cancel-policy-success>
+ * <horizon-insure-cancel-policy-success ... @navigate-to-summary="${this._handler}"></horizon-insure-cancel-policy-success>
+ *
+ * @event CancelPolicySuccess#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * Open email dialog
+ *
+ * @example
+ * <horizon-insure-cancel-policy-success ... @send-email="${this._handler}"></horizon-insure-cancel-policy-success>
  *
  * @event CancelPolicySuccess#navigate-back
  * @type {Object} - N/A

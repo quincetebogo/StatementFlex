@@ -20,12 +20,14 @@ class EmailPlanSuccess extends Component {
 		super();
 	}
 
-// #endregion
+// #endregion INITIALIZE
 
 // #region PROPERTIES
 
 	/**
 	 * @property {Boolean} showSuccessAlert determines whether to show the success alert
+	 * @property {String} contractReference policy contract reference
+	 * @property {Object} confirmedEmail confirmed email
 	 * 
 	 * @readonly
 	 * @static
@@ -38,7 +40,7 @@ class EmailPlanSuccess extends Component {
 		};
 	}
 
-// #endregion
+// #endregion PROPERTIES
 
 // #region LIFECYCLE OVERRIDES
 
@@ -55,7 +57,7 @@ class EmailPlanSuccess extends Component {
 
 // #region PRIVATE METHODS
 
-// #endregion
+// #endregion PRIVATE METHODS
 
 // #region EVENT HANDLERS
 
@@ -63,7 +65,7 @@ class EmailPlanSuccess extends Component {
  * Navigate to Landing
  * @return {void} 
  */
- _onDoneClick() {
+ _doneClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-back`, {
 		detail: {
 		}
@@ -74,13 +76,13 @@ class EmailPlanSuccess extends Component {
  * Navigate to policy summary
  * @return {void} 
  */
- _onViewPlanClick() {
+ _viewPlanClick() {
 	this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
 		detail: { policyContractReference: this.contractReference }
 	}));
 }
 
-// #endregion
+// #endregion EVENT HANDLERS
 
 // #region RENDERING
 
@@ -172,8 +174,8 @@ class EmailPlanSuccess extends Component {
 						<capitec-icon class="icon" size="medium" icon="status/success"></capitec-icon>
 						<capitec-label class="spacing" type="subtitle" label="Your documentation for policy number '${this.contractReference}' has been emailed to ${this.confirmedEmail}"></capitec-label>
 					</div>
-					<capitec-button class="buttons" label="View Plan" type="secondary" @click="${() => this._onViewPlanClick()}"></capitec-button>
-					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._onDoneClick()}"
+					<capitec-button class="buttons" label="View Plan" type="secondary" @click="${() => this._viewPlanClick()}"></capitec-button>
+					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._doneClick()}"
 						data-automation-id="insure-email-plan-success-done">
 					</capitec-button>
 				</div>
@@ -200,7 +202,7 @@ _renderAlert() {
 	`;
 }
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 window.customElements.define(`horizon-insure-email-plan-success`, EmailPlanSuccess);
@@ -210,6 +212,16 @@ window.customElements.define(`horizon-insure-email-plan-success`, EmailPlanSucce
  *
  * @example
  * <horizon-insure-email-plan-success ... @navigate-back="${this._handler}"></horizon-insure-email-plan-success>
+ *
+ * @event EmailPlanSuccess#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * Navigate to policy Summary
+ *
+ * @example
+ * <horizon-insure-email-plan-success ... @navigate-to-policy-summary="${this._handler}"></horizon-insure-email-plan-success>
  *
  * @event EmailPlanSuccess#navigate-back
  * @type {Object} - N/A

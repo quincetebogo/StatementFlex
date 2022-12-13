@@ -8,7 +8,7 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
  * Events Raised 
  * -------------
  * claim-selected
- *  
+ * 
  * @export
  * @class ClientClaimsSummary
  * @extends {Component}
@@ -22,11 +22,13 @@ class ClientClaimsSummary extends Component {
 		super();
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
 	/**
+	 * @property {Object} clientClaims summary of all clients claims
+	 * 
 	 * @readonly
 	 * @static
 	 */
@@ -36,7 +38,7 @@ class ClientClaimsSummary extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region EVENT HANDLERS
 

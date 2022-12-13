@@ -150,19 +150,10 @@ export const CANCELATION_REASONS = Object.freeze([
 	{ code: `Already_Covered`, text: `Already covered` },
 	{ code: `Confidential`, text: `Confidential` },
 	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
-	{ code: `Audit`, text: `Internal Audit Compliance` },
-	{ code: `Invalid`, text: `Invalid Policy` },
-	{ code: ``, text: `Global One Savings Account is Closed` }
+	{ code: `Audit`, text: `Internal audit compliance` },
+	{ code: `Invalid`, text: `Invalid policy` },
+	{ code: ``, text: `Global One savings account is closed` }
 ]);
-
-
-/**
- * List of Accounts to pay from
- * 
- * @readonly
- * @enum {Object} CLIENT_ACCOUNTS
- */
-export const CLIENT_ACCOUNTS = Object.freeze([{ code: `Savings`, text: `Savings Account` }]);
 
 /**
  * List of Role Players
@@ -196,7 +187,7 @@ export const Status = {
 	'PendingInForce': 2,
 	'Cancelled': 3,
 	'Lapsed': 4,
-	'Death Out of Force': 5,
+	'OutOfForce': 5,
 	'NotTakenUp': 6
 };
 

@@ -1,15 +1,34 @@
 
 import { Component, css, html } from 'platform/elements';
 
+/**
+ * Dialog that will display the EACL Agreement
+ * 
+ * Events Raised 
+ * -------------
+ * agreementAccepted
+ * close-modal
+ *  
+ * @export
+ * @class EACLAgreementDialog
+ * @extends {Component}
+ */
+
 export class EACLAgreementDialog extends Component {
+
+	// #region INITIALIZE
 
 	constructor() {
 		super();
 	}
 
+	// #endregion INITIALIZE
+
+	// #region EVENT HANDLERS
+
 	/**
 	 * Accept terms and close dialog 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
 	_acceptAndClose() {
 		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
@@ -17,15 +36,19 @@ export class EACLAgreementDialog extends Component {
 
 	/**
 	 * Cancel dialog 
-	 * @returns {null} null
+	 * @returns {void} 
 	*/
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
 
+	// #endregion EVENT HANDLERS
+
+	// #region RENDERING
+
 	/**
 	 * Generates the component template for web mode
-	 * @returns {null} null
+	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
@@ -65,5 +88,28 @@ export class EACLAgreementDialog extends Component {
 			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
+
+	// #endregion RENDERING
+
 }
 window.customElements.define(`horizon-insure-eacl-agreement-dialog`, EACLAgreementDialog);
+
+/**
+ * send close modal event to the consuming componant when 'cancel' is clicked
+ *
+ * @example
+ * <horizon-insure-eacl-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-eacl-agreement-dialog>
+ *
+ * @event EACLAgreementDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * send agree event to the consuming componant when agreement is accepted 
+ *
+ * @example
+ * <horizon-insure-eacl-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-eacl-agreement-dialog>
+ *
+ * @event EACLAgreementDialog#agreementAccepted
+ * @type {Object} - N/A
+ */

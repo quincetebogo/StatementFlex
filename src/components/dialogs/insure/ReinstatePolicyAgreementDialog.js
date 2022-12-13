@@ -28,6 +28,13 @@ class ReinstatePolicyAgreementDialog extends Component {
 
 	// #region PROPERTIES
 
+	/**
+	 * @property {string} issuePlanAgreementContent doc content for the issue plan agreement
+	 * @property {string} paymentAgreementContent doc content for the payment agreement
+	 * @property {string} contractReference contract reference of the selected policy
+	 * @property {string} alertBannerMessage message for the alert banner
+	 * @property {boolean} showReinstatePaymentAgreementDocument determines whether to show the reinstatement agreement
+	 */
 	static get properties() {
 		return {
 			issuePlanAgreementContent: { type: String },
@@ -43,17 +50,17 @@ class ReinstatePolicyAgreementDialog extends Component {
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`reinstate-close-modal`, {}));
 	}
 
 	/**
 	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
-	 * @returns {null} null
+	 * @returns {void}
 	 */
-	_onAgreeClick() {
+	_agreeClick() {
 			this.dispatchEvent(new CustomEvent(`reinstate-agree-click`, {}));
 	}
 
@@ -158,7 +165,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 				<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-cancel">
 				</capitec-button>
-				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._onAgreeClick()}"
+				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
 					data-automation-id="insure-reinstate-policy-agreement-dialog-agree">
 				</capitec-button>
 		`;

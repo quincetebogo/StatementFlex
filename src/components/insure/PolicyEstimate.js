@@ -725,11 +725,11 @@ class PolicyEstimate extends Component {
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? ``
 			: html`
-			<insure-email-dialog 
+			<horizon-insure-email-dialog 
 				.titleMessage = "${`Email Funeral Plan Estimate`}"
 				@close-modal="${() => this.showEmailPlanDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
-			</insure-email-dialog>`;
+			</horizon-insure-email-dialog>`;
 	}
 
 	/** 

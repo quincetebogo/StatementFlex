@@ -1,11 +1,11 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, html } from 'platform/elements';
 
 /**
  * remove Life Assured dialog allows one to confirm whether they would like to remove the selected Life Assured
  * 
  * Events Raised 
  * -------------
- * navigate-back
+ * close-modal
  * agree-click
  * 
  *  
@@ -17,18 +17,17 @@ class RemoveLifeAssuredDialog extends Component {
 
 	// #region INITIALIZE
 
-	/**
-	 * Initialize
-	 */
 	constructor() {
 		super();
 
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
+
+	// #region PROPERTIES
 
 	/**
-	 * @property {Number} lifeToRemoveDescription 
+	 * @property {String} lifeToRemoveDescription description of the life to remove 
 	 * @readonly
 	 * @static
 	 */
@@ -38,32 +37,34 @@ class RemoveLifeAssuredDialog extends Component {
 		};
 	}
 
+	// #endregion PROPERTIES
+
 
 	// #region EVENT HANDLERS
 
 	/**
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
 	/**
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles 
-	 * @returns {null} null
+	 * @returns {void} 
 	 */
-	_onAgreeClick() {
+	_agreeClick() {
 		this.dispatchEvent(new CustomEvent(`agree-click`, {}));
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
 
 	/**
 	 * Generates the component template for web mode
-	 * @returns {null} null
+	 * @returns {html} html content 
 	 */
 	_webTemplate() {
 		return html`
@@ -109,7 +110,7 @@ class RemoveLifeAssuredDialog extends Component {
 			`;
 	}
 
-	// #endregion
+	// #endregion RENDERING
 
 }
 
@@ -121,7 +122,7 @@ window.customElements.define(`remove-life-assured-dialog`, RemoveLifeAssuredDial
  * @example
  * <remove-life-assured-dialog ... @close-modal="${this._handler}"></remove-life-assured-dialog>
  *
- * @event RemoveLifeAssuredDialog#close-moda
+ * @event RemoveLifeAssuredDialog#close-modal
  * @type {Object} - N/A
  */
 

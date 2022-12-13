@@ -27,7 +27,7 @@ class InsureAccountSelect extends Component {
 		this.insufficient = false;
 	}
 
-	// #endregion
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -37,7 +37,7 @@ class InsureAccountSelect extends Component {
 	 * @property {boolean} displayOptions determines whether to display the account options or not
 	 * @property {Number} selectedIndex contains the index of the account that was selected
 	 * @property {Boolean} optionSelected determines whether an account has been selected or not
-	 * @property {Object} accountDetailscontains the callers account details for savings and savings plan
+	 * @property {Object} accountDetails contains the callers account details for savings and savings plan
 	 * @property {Object} selectorAccounts contains the callers valid accounts
 	 * @property {String} accountType indicates whether the account chosen is a savings account or a savings plan
 	 * @property {integer} selectedAccount contains the account number of the selected account
@@ -60,7 +60,7 @@ class InsureAccountSelect extends Component {
 		};
 	}
 
-	// #endregion
+	// #endregion PROPERTIES
 
 	// #region LIFECYCLE OVERRIDES
 
@@ -74,10 +74,14 @@ class InsureAccountSelect extends Component {
 
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
 
+	/**
+	 * initialisation
+	 * @returns {void}
+	 */
 	_initialise() {
 		
 		this.selectorAccounts.savingsAccount = [];
@@ -102,20 +106,20 @@ class InsureAccountSelect extends Component {
 		}
 	}
 
-	// #endregion
-
-	// #region EVENT HANDLERS
-
 	/**
 	 * event that sets the value of optionSelected and sends it to pay premium dialog
-	 * @param {*} account acount
+	 * @param {String} account selected account
 	 * @return {void} 
 	 */
-	_optionSelected(account) {
+	 _optionSelected(account) {
 		this.optionSelected = true;
 
 		this.dispatchEvent(new CustomEvent(`option-selected`, { detail: { optionSelected: this.optionSelected, accountNumber: this.selectedAccount, accountType: account } }));
 	}
+
+	// #endregion PRIVATE METHODS
+
+	// #region EVENT HANDLERS
 
 	/**
 	 * Event that determins whether to display or hide the select options
@@ -134,8 +138,8 @@ class InsureAccountSelect extends Component {
 	/**
 	 * Event that determines the index of the option that was selected from the options
 	 * 
-	 * @param {*} selected selected
-	 * @param {*} account account
+	 * @param {Boolean} selected selected
+	 * @param {String} account account
 	 * @return {void} 
 	 */
 	_indexChange(selected, account) {
@@ -158,15 +162,6 @@ class InsureAccountSelect extends Component {
 	}
 
 	/**
-	 * Event that flips the chevron depending on whether the select box is open or closed
-	 * 
-	 * @returns {string} selected system icon
-	 */
-	_chevronChange() {
-		return this.displayOptions ? `system/chevron-up-action` : `system/chevron-down-action`;
-	}
-
-	/**
 	 * event that changes the style of the select box depending on if the selected account has sufficient funds
 	 * 
 	 * @returns {string} css class
@@ -175,7 +170,7 @@ class InsureAccountSelect extends Component {
 		return this.insufficient ? `select-header-insufficient` : `select-header`;
 	}
 
-	// #endregion
+	// #endregion EVENT HANDLERS
 
 
 	// #region RENDERING
@@ -410,7 +405,7 @@ _renderOptions() {
 }
 
 
-	// #endregion
+	// #endregion RENDERING
 
 	
 }

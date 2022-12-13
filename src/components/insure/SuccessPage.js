@@ -7,6 +7,10 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
 /**
  * Success page after action (update plan, accept policy, etc...) has been done.
  * 
+ * Events Raised:
+ * --------------
+ * send-email
+ * navigate-back
  *  
  * @export
  * @class SuccessPage
@@ -33,8 +37,8 @@ class SuccessPage extends Component {
 	/**
 	 * @property {String} successMessage - Success message after action is done.
 	 * @property {String} callerPage - caller Page from which success page is invoked.
-	 * @property {String} showEmailPlanDialog - Show flag for email address & send dialog
-	 * @property {String} contractReference
+	 * @property {Boolean} showEmailPlanDialog - Show flag for email address & send dialog
+	 * @property {String} contractReference - policy contract reference
 	 * @property {String} titleMessage - title fo send email popup.
 	 * @readonly
 	 * @static
@@ -50,13 +54,13 @@ class SuccessPage extends Component {
 	}
 	// #endregion PROPERTIES
 
-	// #region EVENTS
+	// #region EVENT HANDLER
 
 	/**
 	 * Display email dialog
 	 * @returns {void}
 	 */
-	_onEmailClick() {
+	_emailClick() {
 		this.showEmailPlanDialog = true;
 
 		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
@@ -70,7 +74,7 @@ class SuccessPage extends Component {
 	 * Navigate back to Landing Page
 	 * @return {void} 
 	 */
-	_onDoneClick() {
+	_doneClick() {
 		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: { navigateBackTo: INSURE_RENDER_MODE.CLIENT_POLICIES } }));
 		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
@@ -87,7 +91,7 @@ class SuccessPage extends Component {
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress } }));
 	}
 
-	// #endregion EVENTS
+	// #endregion EVENT HANDLER
 
 	// #region RENDERING
 
@@ -186,9 +190,9 @@ class SuccessPage extends Component {
 				<capitec-label type ="subtitle" label = "${this.successMessage}"></capitec-label>
 			</div>
 			<div id="button-row">
-				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._onEmailClick()}">
+				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._emailClick()}">
 				</capitec-button>
-				<capitec-button type="primary" class = "capitec-button-medium" label="Done" @click="${() => this._onDoneClick()}">
+				<capitec-button type="primary" class = "capitec-button-medium" label="Done" @click="${() => this._doneClick()}">
 				</capitec-button>
 			</div>
 		</capitec-card>
@@ -212,12 +216,12 @@ class SuccessPage extends Component {
 	_renderInsureEmailDialog() {
 		return this.showEmailPlanDialog === false ? `` 
 		: html`
-				<insure-email-dialog
+				<horizon-insure-email-dialog
 					.contractReference = "${this.contractReference}" 
 					.titleMessage = "${this.titleMessage}"
 					@close-modal="${() => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
-				</insure-email-dialog>`;
+				</horizon-insure-email-dialog>`;
 	}
 
 	// #endregion RENDERING
@@ -233,5 +237,15 @@ window.customElements.define(`horizon-insure-success-page`, SuccessPage);
  * <horizon-insure-success-page ... @navigate-back="${this._handler}"></horizon-insure-success-page>
  *
  * @event SuccessPage#navigate-back
+ * @type {Object} - N/A
+ */
+
+/**
+ * When send email button is clicked
+ *
+ * @example
+ * <horizon-insure-success-page ... @send-email="${this._handler}"></horizon-insure-success-page>
+ *
+ * @event SuccessPage#send-email
  * @type {Object} - N/A
  */

@@ -1,5 +1,4 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { CLIENT_ACCOUNTS } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';

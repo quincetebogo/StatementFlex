@@ -1,16 +1,29 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_PRODUCT_CODE } from 'app/constants/InsureCommon';
 
+/**
+ * Dialog that will display the CFP Agreement
+ * 
+ * Events Raised 
+ * -------------
+ * agreementAccepted
+ * close-modal
+ *  
+ * @export
+ * @class CFPAgreementDialog
+ * @extends {Component}
+ */
 export class CFPAgreementDialog extends Component {
 
-	/**
-	 * Initialize
-	 */
+	// #region INITIALIZE
+
 	constructor() {
 		super();
 
 		this.productCode = ``;
 	}
+
+	// #endregion INITIALIZE
 
 	// #region PROPERTIES
 
@@ -26,7 +39,31 @@ export class CFPAgreementDialog extends Component {
 
 	// #endregion PROPERTIES
 
-		// #region RENDERING
+	// #region EVENT HANDLERS
+
+	/**
+	 * Accept terms and close dialog 
+	 * @returns {void} 
+	 */
+	_acceptAndClose() {
+		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
+	}
+
+	/**
+	 * Cancel dialog 
+	 * @returns {void} 
+	*/
+	_cancelDialog() {
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
+	}
+
+	// #endregion EVENT HANDLERS
+
+	// #region PRIVATE METHODS
+
+	// #endregion PRIVATE METHODS
+
+	// #region RENDERING
 
 	/**
 	 * Generates the view stylesheet.
@@ -44,22 +81,6 @@ export class CFPAgreementDialog extends Component {
 				}
 			`
 		];
-	}
-
-	/**
-	 * Accept terms and close dialog 
-	 * @returns {null} null
-	 */
-	_acceptAndClose() {
-		this.dispatchEvent(new CustomEvent(`agreementAccepted`, { detail: { accepted: true } }));
-	}
-
-	/**
-	 * Cancel dialog 
-	 * @returns {null} null
-	*/
-	_cancelDialog() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
 
 	/**
@@ -136,3 +157,23 @@ export class CFPAgreementDialog extends Component {
 	}
 }
 window.customElements.define(`horizon-insure-cfp-agreement-dialog`, CFPAgreementDialog);
+
+/**
+ * send close modal event to the consuming componant when 'cancel' is clicked
+ *
+ * @example
+ * <horizon-insure-cfp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-cfp-agreement-dialog>
+ *
+ * @event CFPAgreementDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * send agree event to the consuming componant when agreement is accepted 
+ *
+ * @example
+ * <horizon-insure-cfp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-cfp-agreement-dialog>
+ *
+ * @event CFPAgreementDialog#agreementAccepted
+ * @type {Object} - N/A
+ */
