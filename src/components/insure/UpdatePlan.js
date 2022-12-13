@@ -543,7 +543,7 @@ class UpdatePlan extends Component {
 							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
 							rolePlayer.coverDetails.idNumberErrorMessage = ``;
 							if (age < 18) {
-								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary cannot be a minor`;
+								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary must be 18 years or older`;
 							}
 						}
 
@@ -1399,7 +1399,7 @@ class UpdatePlan extends Component {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
 						rolePlayer.coverDetails.dobErrorMessage = ``;
 						if (age < 18) {
-							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary cannot be a minor`;
+							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary must be 18 years or older`;
 						} 
 					}
 					
