@@ -128,7 +128,8 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Number} collectionDay Premium collection day
-	 * @property {String} newTotalPremium new total premium
+	 * @property {String} newTotalPremium new total premium / from calculate by premium input
+	 * @property {String} currentTotalPremium current total premium to show
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update *
 	 * @property {Object} updatePlanQuote Callback function to Quote Calc *
 	 * @property {Object} tempDocContent temporary document content
@@ -172,6 +173,7 @@ class UpdatePlan extends Component {
 			collectionDay: { type: Number, state: true },
 
 			newTotalPremium: { string: `` },
+			currentTotalPremium: { string: `` },
 
 			updatePlanPrepare: { type: Object, state: true },
 			updatePlanQuote: { type: Object, state: true },
@@ -760,11 +762,16 @@ class UpdatePlan extends Component {
 	async _calculatePremium() {
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
 		if (onUpdateValidations.validated === true) {
-			if (this.newTotalPremium !== ``) {
+			if (this.newTotalPremium === ``) {
 				this.policyDetails.totalPremium = this.newTotalPremium;
+			} else {
+				delete this.policyDetails.totalPremium;
 			}
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
-			this.policyDetails.totalPremium = calcQuoteResponse.totalPremium;
+
+			// console.log('calcQuoteResponse :>> ', calcQuoteResponse);
+
+			this.currentTotalPremium = calcQuoteResponse.totalPremium;
 			this.policyDetails.roleplayers = calcQuoteResponse.lifesAssured;
 			this.policyDetails.quoteNumber = calcQuoteResponse.quoteNumber;
 			this.newTotalPremium = ``;
@@ -940,7 +947,7 @@ class UpdatePlan extends Component {
 	 * Open Add Life dialog returning select relationship
 	 * @return {void} 
 	 */
-	 _openAddLifeDialog() {
+	_openAddLifeDialog() {
 		this.showAddRelationshipDialog = true;
 	}
 
@@ -948,7 +955,7 @@ class UpdatePlan extends Component {
 	 * Close the Add Life dialog
 	 * @return {void} 
 	 */
-	 _closeAddLifeDialog() {
+	_closeAddLifeDialog() {
 		this.showAddRelationshipDialog = false;
 	}
 
@@ -964,7 +971,7 @@ class UpdatePlan extends Component {
 	 * Close the Add beneficiaries dialog
 	 * @return {void} 
 	 */
-	 _closeAddBeneficiariesDialog() {
+	_closeAddBeneficiariesDialog() {
 		this.showAddBeneficiariesDialog = false;
 	}
 
@@ -972,7 +979,7 @@ class UpdatePlan extends Component {
 	 * Close the Add Life dialog
 	 * @return {void} 
 	 */
-	 _closeUpdatePlanAgreementDialog() {
+	_closeUpdatePlanAgreementDialog() {
 		this.showUpdatePlanAgreementDialog = false;
 		this.showUpdatePlanPaymentAgreementDocument = false;
 	}
@@ -982,8 +989,8 @@ class UpdatePlan extends Component {
 	 * Invoke API endpoints
 	 * @return {void} 
 	 */
-	 async _updatePlanClick() {
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` && 
+	async _updatePlanClick() {
+		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
 
 			this.showValidationConfirmDialog = true;
@@ -1018,14 +1025,14 @@ class UpdatePlan extends Component {
 		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
 			this.showUpdatePlanPaymentAgreementDocument = true;
 			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
-		} 
+		}
 	}
 
 	/**
 	 * event for update plan accept
 	 * @returns {void}
 	 */
-	 _acceptUpdatedPlan() {
+	_acceptUpdatedPlan() {
 		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
 	}
 
@@ -1051,7 +1058,7 @@ class UpdatePlan extends Component {
 	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
 	 * @return {void} 
 	 */
-	 _acceptReinstatePolicy() {
+	_acceptReinstatePolicy() {
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
 	}
 
@@ -1069,8 +1076,8 @@ class UpdatePlan extends Component {
 		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 
 		return day?.text;
-	
-		}
+
+	}
 
 	/** 
 	 * change format of the bank returned to match the format of banks in the list
@@ -1079,7 +1086,7 @@ class UpdatePlan extends Component {
 	_getBank() {
 		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
 		return bank?.text;
-		}
+	}
 
 	/**
 	 * Initialize component
@@ -1089,6 +1096,7 @@ class UpdatePlan extends Component {
 	 */
 	_initialise() {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+		this.currentTotalPremium = this.policyDetails.totalPremium;
 
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
@@ -1126,9 +1134,9 @@ class UpdatePlan extends Component {
 				}
 			}
 		});
-		
+
 		this._openIneligibleLivesDialog();
-		
+
 	}
 
 	/**
@@ -1139,7 +1147,7 @@ class UpdatePlan extends Component {
 		if (this.canReinstate === true && this.policyDetails.ineligibleRoleplayers.length > 0) {
 			this.showIneligibleLivesDialog = true;
 		}
-		
+
 	}
 
 	/**
@@ -1399,7 +1407,7 @@ class UpdatePlan extends Component {
 		const month = birthdate.getMonth() + 1;
 		const day = birthdate.getDate();
 		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
-	
+
 		return birthDateString;
 	}
 
@@ -1443,9 +1451,9 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
 
 					if (rolePlayer.beneficiary === true) {
-							rolePlayer.coverDetails.idNumberErrorMessage = ``;
+						rolePlayer.coverDetails.idNumberErrorMessage = ``;
 					} else if (rolePlayer.lifeAssured === true) {
-							rolePlayer.coverDetails.idErrorMessageLA = ``;
+						rolePlayer.coverDetails.idErrorMessageLA = ``;
 					}
 
 					if (rolePlayer.beneficiary === true) {
@@ -1453,9 +1461,9 @@ class UpdatePlan extends Component {
 						rolePlayer.coverDetails.dobErrorMessage = ``;
 						if (age < 18) {
 							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary must be 18 years or older`;
-						} 
+						}
 					}
-					
+
 				}
 			});
 		}
@@ -1957,7 +1965,7 @@ class UpdatePlan extends Component {
 				<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label label="Total premium amount"></capitec-label>
-					<capitec-label label="${isNullorEmpty(this.policyDetails.totalPremium) ? formatCurrency(0) : formatCurrency(this.policyDetails.totalPremium)}" class="calc-premium-total">
+					<capitec-label label="${isNullorEmpty(this.currentTotalPremium) ? formatCurrency(0) : formatCurrency(this.currentTotalPremium)}" class="calc-premium-total">
 					</capitec-label>
 					<!-- top -->
 					<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
