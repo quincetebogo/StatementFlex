@@ -610,68 +610,6 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * displays the CFP disclosure
-	 * @param {String} flow flow
-	 * @param {Object} [policyItem = null] policy item
-	 * @returns {void}
-	 */
-	_displayCFPDisclosure(flow, policyItem = null) {
-
-		this.selectedFlow = flow;
-		this.selectedContractRef = policyItem?.contractReference;
-		this.canReinstate = policyItem?.canReinstate;
-		this.selectedPolicyItem = policyItem;
-
-		if (policyItem === null) {
-			this.productCode = `Capitec`;
-		} else {
-			this.productCode = policyItem.productCode;
-		}
-
-
-		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
-			this.showCFPAgreementDialog = true;
-		} else {
-			this._navigateAfterCFP();
-		}
-	}
-
-	/**
-	 * determines where to navigate after accepting the cfp disclosure
-	 * @returns {void}
-	 */
-	_navigateAfterCFP() {
-
-		this.horizonInsureStore.setCFPStatus(true);
-
-		switch (this.selectedFlow) {
-			case `update`:
-				this.showCFPAgreementDialog = false;
-				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
-				this.horizonInsureStore.setCFPStatus(false);
-				break;
-			case `cancel`:
-				this.showCFPAgreementDialog = false;
-				this._openCancelPolicyDialog(this.selectedContractRef);
-				this.horizonInsureStore.setCFPStatus(false);
-				break;
-			case `adhoc`:
-				this.showCFPAgreementDialog = false;
-				this._openPayPremiumDialog(this.selectedPolicyItem);
-				this.horizonInsureStore.setCFPStatus(false);
-				break;
-			case `estimate`:
-				this.showCFPAgreementDialog = false;
-				this._goToEstimate();
-				this.horizonInsureStore.setCFPStatus(false);
-				break;
-			default:
-				this.showCFPAgreementDialog = false;
-				break;
-		}
-	}
-
-	/**
 	 * determines the value to display for Total Premium
 	 * @param {Object} policyItem Policy Item
 	 * @returns {String} string
