@@ -1082,7 +1082,12 @@ class UpdatePlan extends Component {
 	 * @returns {String} bank text
 	 */
 	_getBank() {
-		const bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		let bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+
+		if (isNullorEmpty(bank?.text)) {
+			bank = this.bankOptions.find(banks => banks.branchCode === this.policyDetails.deductionDetails?.bankDetails?.branchCode.toUpperCase().trim());
+		}
+
 		return bank?.text;
 	}
 
