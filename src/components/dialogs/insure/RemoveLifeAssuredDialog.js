@@ -101,10 +101,10 @@ class RemoveLifeAssuredDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<!-- <capitec-group > -->
-			<capitec-button type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+			<capitec-button type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 			</capitec-button>
 			
-			<capitec-button type="clear" label="Confirm" @click="${() => this._onAgreeClick()}">
+			<capitec-button type="clear" label="Confirm" @click="${() => this._agreeClick()}">
 			</capitec-button>
 			<!-- </capitec-group> -->
 			`;
