@@ -868,6 +868,9 @@ export class ExistingClient extends InsureViewBase {
 			}
 		} else {
 			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			const indexOfMainLife = this.policyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
+			const mainLifeElement = this.policyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
+			this.policyDetails.roleplayers.unshift(mainLifeElement);
 		}
 		this._navigateToSubView(INSURE_RENDER_MODE.UPDATE_PLAN);
 	}
@@ -1018,6 +1021,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToPolicySummary(e) {
 		this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		const indexOfMainLife = this.policyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
+		const mainLifeElement = this.policyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
+		this.policyDetails.roleplayers.unshift(mainLifeElement);
+		
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 
