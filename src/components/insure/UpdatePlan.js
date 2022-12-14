@@ -769,8 +769,6 @@ class UpdatePlan extends Component {
 			}
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 
-			// console.log('calcQuoteResponse :>> ', calcQuoteResponse);
-
 			this.currentTotalPremium = calcQuoteResponse.totalPremium;
 			this.policyDetails.roleplayers = calcQuoteResponse.lifesAssured;
 			this.policyDetails.quoteNumber = calcQuoteResponse.quoteNumber;
