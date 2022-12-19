@@ -352,6 +352,10 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
+		
+		if (this.readOnlyMode === true) {
+			return;
+		}
 
 		this.selectedFlow = flow;
 		this.selectedContractRef = policyItem?.contractReference;
@@ -552,7 +556,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Transaction History" 
 				icon="system/transfer-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._goToPolicyTransactionHistory(policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.SMS_HISTORY:
@@ -561,7 +564,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="SMS History" 
 				icon="system/send-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._goToSMSHistory(policyItem)}">
 			</horizon-option-button>`;
 			default:
