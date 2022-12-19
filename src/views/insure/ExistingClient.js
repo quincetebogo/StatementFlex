@@ -255,7 +255,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const docGenerateRequestPayload = {
 			"documentFormat": `PDF`,
-			"saveDocumentToDocumentum": false,
+			"saveDocumentToDocumentum": true,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
@@ -684,7 +684,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.contractReference = prepareUpdateResp.result.contractReference;
 
-		await this._generateDocumentsForUpdatePlan(false);
+		await this._generateDocumentsForUpdatePlan(true);
 
 		// let agreementRequest = {
 		// "documentFormat": "PDF",
