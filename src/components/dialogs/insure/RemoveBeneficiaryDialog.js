@@ -35,7 +35,7 @@ class RemoveBeneficiaryDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			beneficiaryName: { String: ``, state: true }
+			beneficiaryToRemoveDescription: { String: ``, state: true }
 		};
 	}
 
@@ -89,7 +89,7 @@ class RemoveBeneficiaryDialog extends Component {
 	*/
 	_renderDialogBody() {
 		return html`
-			<p>Are you sure you want to remove ${this.beneficiaryName} from your <br>Funeral Plan? </p>
+			<p>Are you sure you want to remove <b>${this.beneficiaryToRemoveDescription}</b> from your <br>Funeral Plan? </p>
 		`;
 	}
 

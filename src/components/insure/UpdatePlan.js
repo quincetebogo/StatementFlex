@@ -64,8 +64,7 @@ class UpdatePlan extends Component {
 		this.selectedTabIndex = 0;
 		this.lifeAssuredToRemove = null;
 		this.lifeAssuredToRemoveDescription = null;
-		this.beneficiaryToRemoveRowID = null;
-		this.beneficiaryToRemoveName = null;
+		this.beneficiaryToRemoveDescription = ``;
 
 		this.showEACLAgreementDialog = false;
 		this.showYBPAgreementDialog = false;
@@ -296,8 +295,13 @@ class UpdatePlan extends Component {
 	 */
 	_openRemoveBeneficiaryDialog(beneficiary) {
 		this.showRemoveBeneficiaryDialog = true;
-		this.beneficiaryToRemoveRowID = beneficiary.rowID;
-		this.beneficiaryToRemoveName = beneficiary.firstName;
+
+		if (!beneficiary.firstName) {
+			this.beneficiaryToRemoveDescription = beneficiary.relationship;
+		} else {
+			this.beneficiaryToRemoveDescription = `${beneficiary.firstName} ${beneficiary?.surname}`;
+		}
+
 	}
 
 	/**
@@ -1052,14 +1056,6 @@ class UpdatePlan extends Component {
 		}
 	}
 
-	/**
-	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
-	 * @return {void} 
-	 */
-	_acceptReinstatePolicy() {
-		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse } }));
-	}
-
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -1075,20 +1071,6 @@ class UpdatePlan extends Component {
 
 		return day?.text;
 
-	}
-
-	/** 
-	 * change format of the bank returned to match the format of banks in the list
-	 * @returns {String} bank text
-	 */
-	_getBank() {
-		let bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
-
-		if (isNullorEmpty(bank?.text)) {
-			bank = this.bankOptions.find(banks => banks.branchCode === this.policyDetails.deductionDetails?.bankDetails?.branchCode.toUpperCase().trim());
-		}
-
-		return bank?.text;
 	}
 
 	/**
@@ -1165,50 +1147,6 @@ class UpdatePlan extends Component {
 			return accumulator;
 
 		}, 0);
-	}
-
-
-	/**
-	 * Update Plan button click event
-	 * Invoke API endpoints
-	 * @return {void} 
-	 */
-	async _onUpdatePlan() {
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
-
-			this.showValidationConfirmDialog = true;
-
-			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
-
-			return;
-		}
-
-		const onUpdateValidations = this._validateOnUpdate();
-
-		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) {
-
-			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
-
-			this.showUpdateValidationDialog = true;
-
-			return;
-		}
-
-		this._calculatePremium();
-
-
-		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
-
-		this.showUpdatePlanAgreementDialog = true;
-
-		// policyScheduleDocContent
-		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
-
-		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
-			this.showUpdatePlanPaymentAgreementDocument = true;
-			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
-		}
 	}
 
 	/**
@@ -1346,14 +1284,6 @@ class UpdatePlan extends Component {
 		`;
 
 
-	}
-
-	/**
-	 * event for update plan accept
-	 * @returns {void}
-	 */
-	_acceptUpdatedPlan() {
-		this.dispatchEvent(new CustomEvent(`updatePlanAccept`, { detail: { prepareUpdate: this.prepareUpdateResponse } }));
 	}
 
 	/**
@@ -2487,8 +2417,8 @@ class UpdatePlan extends Component {
 		return this.showRemoveBeneficiaryDialog === false ? ``
 			: html`
 		<remove-beneficiary-dialog 
-			.beneficiaryName="${this.beneficiaryToRemoveName}"
-			@agree-click="${(e) => this._removeBeneficiary()}"
+			.beneficiaryToRemoveDescription="${this.beneficiaryToRemoveDescription}"
+			@agree-click="${() => this._removeBeneficiary()}"
 			@close-modal="${(e) => this._closeRemoveBeneficiaryDialog(e)}" >
 		</remove-beneficiary-dialog>
 		`;

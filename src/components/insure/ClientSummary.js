@@ -290,14 +290,15 @@ class ClientSummary extends Component {
 		this.cancelPolicyDocumentDetails = undefined;
 	}
 
+	/**
+	 * determines whether to show the email dialog
+	 * @param {String} contractRef Policy contract reference
+	 * @returns {void} 
+	 */
 	_showEmailPlanDialog(contractRef) {
 		this.emailContractRef = contractRef;
 		this.showEmailPlanDialog = true;
 	}
-
-	// #endregion EVENT HANDLERS
-
-	// #region PRIVATE FUNCTIONS
 
 	/**
 	 * Fire navigate event to Product Enquiry
@@ -339,10 +340,10 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem - Policy details 
 	 * @returns {void}
 	 */
-		 _collapsed(policyItem) {
-			policyItem.isExpanded = false;
-			this.requestUpdate();
-		}
+	_collapsed(policyItem) {
+		policyItem.isExpanded = false;
+		this.requestUpdate();
+	}
 
 	/**
 	 * displays the CFP disclosure
@@ -375,32 +376,32 @@ class ClientSummary extends Component {
 	 * determines where to navigate after accepting the cfp disclosure
 	 * @returns {void}
 	 */
-		 _navigateAfterCFP() {
+	_navigateAfterCFP() {
 
-			this.horizonInsureStore.setCFPStatus(true);
-	
-			switch (this.selectedFlow) {
-				case `update`:
-					this.showCFPAgreementDialog = false;
-					this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
-					break;
-				case `cancel`:
-					this.showCFPAgreementDialog = false;
-					this._openCancelPolicyDialog(this.selectedContractRef);
-					break;
-				case `adhoc`:
-					this.showCFPAgreementDialog = false;
-					this._openPayPremiumDialog(this.selectedPolicyItem);
-					break;
-				case `estimate`:
-					this.showCFPAgreementDialog = false;
-					this._goToEstimate();
-					break;
-				default:
-					this.showCFPAgreementDialog = false;
-					break;
-			}
+		this.horizonInsureStore.setCFPStatus(true);
+
+		switch (this.selectedFlow) {
+			case `update`:
+				this.showCFPAgreementDialog = false;
+				this._goToUpdatePlan(this.selectedContractRef, this.canReinstate);
+				break;
+			case `cancel`:
+				this.showCFPAgreementDialog = false;
+				this._openCancelPolicyDialog(this.selectedContractRef);
+				break;
+			case `adhoc`:
+				this.showCFPAgreementDialog = false;
+				this._openPayPremiumDialog(this.selectedPolicyItem);
+				break;
+			case `estimate`:
+				this.showCFPAgreementDialog = false;
+				this._goToEstimate();
+				break;
+			default:
+				this.showCFPAgreementDialog = false;
+				break;
 		}
+	}
 
 	// #endregion EVENT HANDLERS
 
