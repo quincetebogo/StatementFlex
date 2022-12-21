@@ -114,13 +114,13 @@ class RemoveBeneficiaryDialog extends Component {
 
 }
 
-window.customElements.define(`remove-beneficiary-dialog`, RemoveBeneficiaryDialog);
+window.customElements.define(`horizon-insure-remove-beneficiary-dialog`, RemoveBeneficiaryDialog);
 
 /**
  * send aclose modal event to consuming component when 'cancel' is clicked
  *
  * @example
- * <remove-beneficiary-dialog ... @close-modal="${this._handler}"></remove-beneficiary-dialog>
+ * <horizon-insure-remove-beneficiary-dialog ... @close-modal="${this._handler}"></horizon-insure-remove-beneficiary-dialog>
  *
  * @event RemoveBeneficiaryDialog#close-modal
  * @type {Object} - N/A
@@ -130,7 +130,7 @@ window.customElements.define(`remove-beneficiary-dialog`, RemoveBeneficiaryDialo
  * send agree click event to consuming component when 'agree' is clicked
  *
  * @example
- * <remove-beneficiary-dialog ... @agree-click="${this._handler}"></remove-beneficiary-dialog>
+ * <horizon-insure-remove-beneficiary-dialog ... @agree-click="${this._handler}"></horizon-insure-remove-beneficiary-dialog>
  *
  * @event RemoveBeneficiaryDialog#agree-click
  * @type {Object} - N/A

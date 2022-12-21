@@ -114,13 +114,13 @@ class RemoveLifeAssuredDialog extends Component {
 
 }
 
-window.customElements.define(`remove-life-assured-dialog`, RemoveLifeAssuredDialog);
+window.customElements.define(`horizon-insure-remove-life-assured-dialog`, RemoveLifeAssuredDialog);
 
 /**
  * send a close modal event to consuming component when 'cancel' is clicked
  *
  * @example
- * <remove-life-assured-dialog ... @close-modal="${this._handler}"></remove-life-assured-dialog>
+ * <horizon-insure-remove-life-assured-dialog ... @close-modal="${this._handler}"></horizon-insure-remove-life-assured-dialog>
  *
  * @event RemoveLifeAssuredDialog#close-modal
  * @type {Object} - N/A
@@ -130,7 +130,7 @@ window.customElements.define(`remove-life-assured-dialog`, RemoveLifeAssuredDial
  * send agree click event to consuming component when 'agree' is clicked
  *
  * @example
- * <remove-life-assured-dialog ... @agree-click="${this._handler}"></remove-life-assured-dialog>
+ * <horizon-insure-remove-life-assured-dialog ... @agree-click="${this._handler}"></horizon-insure-remove-life-assured-dialog>
  *
  * @event RemoveLifeAssuredDialog#agree-click
  * @type {Object} - N/A

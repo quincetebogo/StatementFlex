@@ -46,7 +46,7 @@ class LodgeClaimInfoDialog extends Component {
 	 * Confirm event from dialog footer, closes modal, no navigation or actions
 	 * @returns {void} 
 	 */
-	_onConfirmClick() {
+	_confirmClick() {
 		this.dispatchEvent(new CustomEvent(`confirm`, {}));
 	}
 
@@ -129,10 +129,10 @@ class LodgeClaimInfoDialog extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-modal type="form" header="How To Claim">
-				<div slot="body" data-automation-id="insure-lodge-claim-info-dialog-body" id="dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-lodge-claim-info-dialog-body" id="dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-lodge-claim-info-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-lodge-claim-info-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -224,8 +224,8 @@ class LodgeClaimInfoDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button class="button" slot="footer" type="primary" label="Done" @click="${() => this._onConfirmClick()}"
-				data-automation-id="insure-lodge-claim-info-dialog-agree">
+			<capitec-button class="button" slot="footer" type="primary" label="Done" @click="${() => this._confirmClick()}"
+				data-automation-id="horizon-insure-lodge-claim-info-dialog-agree">
 			</capitec-button>
 		`;
 	}
@@ -233,13 +233,13 @@ class LodgeClaimInfoDialog extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`insure-lodge-claim-info-dialog`, LodgeClaimInfoDialog);
+window.customElements.define(`horizon-insure-lodge-claim-info-dialog`, LodgeClaimInfoDialog);
 
 /**
  * Send confirm dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-lodge-claim-info-dialog ... @confirm="${this._handler}"></insure-lodge-claim-info-dialog>
+ * <horizon-insure-lodge-claim-info-dialog ... @confirm="${this._handler}"></horizon-insure-lodge-claim-info-dialog>
  *
  * @event LodgeClaimInfoDialog#confirm
  * @type {Object} - N/A

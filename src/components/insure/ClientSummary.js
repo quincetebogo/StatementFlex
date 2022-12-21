@@ -1274,13 +1274,13 @@ class ClientSummary extends Component {
 	_renderCancelPolicyDialog() {
 		return this.showCancelPolicyDialog === false ? ``
 			: html`
-		<insure-cancel-policy-dialog 
+		<horizon-insure-cancel-policy-dialog 
 			.contractReference = ${this.contractReferenceToCancel}
 			.cancelPolicyDocumentDetails = "${this.cancelPolicyDocumentDetails}"
 			.getCancelPolicyDocument="${(contractReference, cancelReason) => this._getCancelPolicyDocument(contractReference, cancelReason)}"
 			@close-modal="${() => this._closeCancelPolicyDialog()}"
 			@agree="${(e) => this._cancelPolicyAgree(e)}" >
-		</insure-cancel-policy-dialog>`;
+		</horizon-insure-cancel-policy-dialog>`;
 	}
 
 	/**
@@ -1290,12 +1290,12 @@ class ClientSummary extends Component {
 	_renderPayPremiumDialog() {
 		return this.showPayPremiumDialog === false ? ``
 			: html`
-			<insure-pay-premium-dialog   
+			<horizon-insure-pay-premium-dialog   
 				.clientArrears = ${this.clientArrears}
 				.accountDetails = ${this.accountDetails} 
 				@pay-arrears = "${(e) => this._payArrears(e)}"
 				@close-modal="${() => this.showPayPremiumDialog = false}" >
-			</insure-pay-premium-dialog>`;
+			</horizon-insure-pay-premium-dialog>`;
 	}
 
 	/**
@@ -1305,13 +1305,13 @@ class ClientSummary extends Component {
 	_renderPayPremiumConfirmationDialog() {
 		return this.showPayPremiumConfirmationDialog === false ? ``
 			: html`
-			<insure-pay-premium-confirmation-dialog 
+			<horizon-insure-pay-premium-confirmation-dialog 
 				.amountToPay = "${this.amountToPay}" 
 				.fromAccount = "${this.fromAccount}"
 				.contractReference = ${this.clientArrears.contractReference}
 				@close-modal="${() => this.showPayPremiumConfirmationDialog = false}" 
 				@confirm-payment="${() => this._openPayPremiumAgreementDialog()}">
-			</insure-pay-premium-confirmation-dialog>`;
+			</horizon-insure-pay-premium-confirmation-dialog>`;
 	}
 
 	/**
@@ -1321,14 +1321,14 @@ class ClientSummary extends Component {
 	_renderPayPremiumAgreementDialog() {
 		return this.showPayPremiumAgreementDialog === false ? ``
 			: html`
-			<insure-pay-premium-agreement-dialog 
+			<horizon-insure-pay-premium-agreement-dialog 
 				.payAmount = "${this.amountToPay}" 
 				.contractReference= ${this.clientArrears.contractReference}
 				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				@close-modal="${() => this.showPayPremiumAgreementDialog = false}"
 				@pay-premium-agree = "${() => this._payPremiumAgree()}">
-			</insure-pay-premium-agreement-dialog>`;
+			</horizon-insure-pay-premium-agreement-dialog>`;
 	}
 
 	/**
@@ -1338,8 +1338,8 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
-			</insure-lodge-claim-info-dialog>`;
+			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
+			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 
 	/**

@@ -28,7 +28,7 @@ class MaxAllowedCoverDialog extends Component {
 	 *  confirm and close modal
 	 * @returns {void}
 	 */
-	_onConfirmationClick() {
+	_confirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirm`, {}));
 	}
 
@@ -59,10 +59,10 @@ class MaxAllowedCoverDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="free" header = "You have reached your maximum allowed funeral cover."> 
-				<div slot="body" data-automation-id="insure-max-allowed-cover-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-max-allowed-cover-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-max-allowed-cover-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-max-allowed-cover-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -90,8 +90,8 @@ class MaxAllowedCoverDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-small"
-				@click="${() => this._onConfirmationClick()}"
-				data-automation-id="insure-confirmation-dialog-confirm">
+				@click="${() => this._confirmationClick()}"
+				data-automation-id="horizon-insure-confirmation-dialog-confirm">
 			</capitec-button>
 		`;
 	}
@@ -100,13 +100,13 @@ class MaxAllowedCoverDialog extends Component {
 
 }
 
-window.customElements.define(`insure-max-allowed-cover-dialog`, MaxAllowedCoverDialog);
+window.customElements.define(`horizon-insure-max-allowed-cover-dialog`, MaxAllowedCoverDialog);
 
  /**
  * Send Confirmation dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-max-allowed-cover-dialog ... @confirm="${this._onConfirmationClick}"></insure-max-allowed-cover-dialog>
+ * <horizon-insure-max-allowed-cover-dialog ... @confirm="${this._confirmationClick}"></horizon-insure-max-allowed-cover-dialog>
  *
  * @event MaxAllowedCoverDialog#confirm
  * @type {Object} - N/A
