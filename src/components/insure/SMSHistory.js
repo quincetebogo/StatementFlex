@@ -596,6 +596,14 @@ class SMSHistory extends Component {
 	 * @returns {html} - message for no results
 	 */
 	_renderNoResults() {
+
+		let noResultsMessage;
+		if (this.startDate) {
+			noResultsMessage = `No policy communications sent during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
+		} else {
+			noResultsMessage = `Adjust filters to see policy communications`;
+		}
+
 		return html`
 			<capitec-group
 				class="no-result-group"
@@ -612,7 +620,7 @@ class SMSHistory extends Component {
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="No SMS History found for ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]} "
+						label="${noResultsMessage}"
 						type="strong">
 					</capitec-label>
 			</capitec-group>
