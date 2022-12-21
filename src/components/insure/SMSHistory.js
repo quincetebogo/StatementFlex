@@ -128,11 +128,14 @@ class SMSHistory extends Component {
 
 		this.filteredData = this.commsHistory?.results;
 
-
-		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(Date.parse(this.startDate));
-			const endDate = new Date(Date.parse(this.endDate));
-			this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);
+		if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
+			if (RENDER_CHIPS[FILTER_BY.DATE]) {
+				const startDate = new Date(Date.parse(this.startDate));
+				const endDate = new Date(Date.parse(this.endDate));
+				this.filteredData = this.filteredData?.filter(item => new Date(item.sentAt) >= startDate && new Date(item.sentAt) <= endDate);
+			}
+		} else {
+			this.filteredData = [];
 		}
 
 		this.requestUpdate();
