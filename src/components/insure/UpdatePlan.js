@@ -1159,6 +1159,19 @@ class UpdatePlan extends Component {
 		onUpdateValidations.validated = true;
 		onUpdateValidations.bankingDetailsValid = true;
 		onUpdateValidations.lifeAssured = false;
+		let payoutsMatch = false;
+
+		let totalPayout;
+
+		this.policyDetails.roleplayers.forEach(ben => {
+			if (ben.beneficiary === true) {
+				totalPayout += parseFloat(ben.benefitPayout);
+			}
+		});
+
+		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
+			payoutsMatch = true;
+		}
 
 		this.policyDetails.roleplayers.forEach(ele => {
 
@@ -1170,6 +1183,11 @@ class UpdatePlan extends Component {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
 				}
+			}
+
+			if (ele.beneficiary === true && payoutsMatch === false) {
+				ele.coverDetails.canUpdate = false;
+				ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
 			}
 
 			// Contact details check
