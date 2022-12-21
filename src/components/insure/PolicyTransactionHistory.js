@@ -180,36 +180,36 @@ class PolicyTransactionHistory extends Component {
 		this._refineSearch();
 	}
 
-		/**
+	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
 	 * @return {void} 
 	 */
-		 _closeChip(type) {
-			this._clearFilter(type);
-			this._refineSearch();
-		}
+	_closeChip(type) {
+		this._clearFilter(type);
+		this._refineSearch();
+	}
 
 	/**
 	 * load more transaction when clicked on load more button
 	 * @return {void} 
 	 */
-		async _loadMoreTransactions() {
-			const oldCount = this.policyTransactionHistory?.transactions?.length;
-			const startDate = this.startDate.toLocaleString().slice(0, 10);
-			const endDate = this.endDate.toLocaleString().slice(0, 10);
+	async _loadMoreTransactions() {
+		const oldCount = this.policyTransactionHistory?.transactions?.length;
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
-			await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
+		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
 
-			// If the old record count and count after load more are same means no more data to populate,
-			// so hiding loadmore button
-			if (oldCount === this.policyTransactionHistory?.transactions?.length) {
-				this.hideLoadMore = true;
-			} else {
-				this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
-			}
-			this._refineSearch();
+		// If the old record count and count after load more are same means no more data to populate,
+		// so hiding loadmore button
+		if (oldCount === this.policyTransactionHistory?.transactions?.length) {
+			this.hideLoadMore = true;
+		} else {
+			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
+		this._refineSearch();
+	}
 
 	// #endregion EVENT HANDLER
 
@@ -219,7 +219,7 @@ class PolicyTransactionHistory extends Component {
 	 * unload the policy transactions
 	 * @return {void}
 	 */
-	 _unloading() {
+	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
@@ -241,7 +241,7 @@ class PolicyTransactionHistory extends Component {
 			resetForfilters[type]();
 		}
 	}
-	
+
 	/**
 	 * Initialize component when loaded
 	 * @returns {void}
@@ -275,7 +275,7 @@ class PolicyTransactionHistory extends Component {
 			await this._refineSearch();
 		}
 	}
-	
+
 	/**
 	 * filter the transactions
 	 * @return {void} 
@@ -300,18 +300,18 @@ class PolicyTransactionHistory extends Component {
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
-	
-		/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
-		 static get styles() {
-			return [
-				super.styles,
-				css`
+
+	/**
+ * Generates the component stylesheet.
+ *
+ * @readonly
+ * @static
+ * @returns {css} CSS for the component.
+ */
+	static get styles() {
+		return [
+			super.styles,
+			css`
 				${INSURE_TRANSACTIONS_CSS}
 
 				/* Header Details Bar styles */
@@ -349,8 +349,8 @@ class PolicyTransactionHistory extends Component {
 					box-shadow: none;
 				}
 				`
-			];
-		}
+		];
+	}
 
 	/**
 	 * 
