@@ -202,7 +202,7 @@
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePrepareUpdate": {
