@@ -49,7 +49,7 @@ class InsureConfirmationDialog extends Component {
 	 * 
 	 * @returns {void}
 	 */
-	_onConfirmationClick() {
+	_confirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirmation-click`, {}));
 	}
 
@@ -80,10 +80,10 @@ class InsureConfirmationDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="free">
-				<div slot="body" data-automation-id="insure-confirmation-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-confirmation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-confirmation-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-confirmation-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -110,8 +110,8 @@ class InsureConfirmationDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-medium"
-				@click="${() => this._onConfirmationClick()}"
-				data-automation-id="insure-confirmation-dialog-confirm">
+				@click="${() => this._confirmationClick()}"
+				data-automation-id="horizon-insure-confirmation-dialog-confirm">
 			</capitec-button>
 		`;
 	}
@@ -120,13 +120,13 @@ class InsureConfirmationDialog extends Component {
 
 }
 
-window.customElements.define(`insure-confirmation-dialog`, InsureConfirmationDialog);
+window.customElements.define(`horizon-insure-confirmation-dialog`, InsureConfirmationDialog);
 
  /**
  * Send Confirmation dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-confirmation-dialog ... @confirmation-click="${this._onConfirmationClick}"></insure-confirmation-dialog>
+ * <horizon-insure-confirmation-dialog ... @confirmation-click="${this._confirmationClick}"></horizon-insure-confirmation-dialog>
  *
  * @event InsureConfirmationDialog#confirm
  * @type {Object} - N/A

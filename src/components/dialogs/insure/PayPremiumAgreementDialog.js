@@ -180,10 +180,10 @@ class PayPremiumAgreementDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})">
-				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-pay-premium-agreement-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-pay-premium-agreement-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -206,7 +206,7 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
 					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent.value}#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
@@ -223,11 +223,11 @@ class PayPremiumAgreementDialog extends Component {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._cancelClick()}"
-					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
+					data-automation-id="horizon-insure-pay-premium-agreement-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._agreeClick()}"
-					data-automation-id="insure-pay-premium-agreement-dialog-agree">
+					data-automation-id="horizon-insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
 		`;
 	}
@@ -237,13 +237,13 @@ class PayPremiumAgreementDialog extends Component {
 
 }
 
-window.customElements.define(`insure-pay-premium-agreement-dialog`, PayPremiumAgreementDialog);
+window.customElements.define(`horizon-insure-pay-premium-agreement-dialog`, PayPremiumAgreementDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <insure-pay-premium-agreement-dialog ... @close-modal="${this._handler}"></insure-pay-premium-agreement-dialog>
+ * <horizon-insure-pay-premium-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-pay-premium-agreement-dialog>
  *
  * @event PayPremiumAgreementDialog#close-modal
  * @type {Object} - N/A
@@ -253,7 +253,7 @@ window.customElements.define(`insure-pay-premium-agreement-dialog`, PayPremiumAg
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <insure-pay-premium-agreement-dialog ... @pay-premium-agree="${this._handler}"></insure-pay-premium-agreement-dialog>
+ * <horizon-insure-pay-premium-agreement-dialog ... @pay-premium-agree="${this._handler}"></horizon-insure-pay-premium-agreement-dialog>
  *
  * @event PayPremiumAgreementDialog#agree
  * @type {Object} - N/A

@@ -97,10 +97,10 @@ class PayPremiumConfirmationDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="result" result="warn" header="Pay">
-				<div slot="body" data-automation-id="insure-pay-premium-confirmation-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-pay-premium-confirmation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-pay-premium-confirmation-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-pay-premium-confirmation-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -132,11 +132,11 @@ class PayPremiumConfirmationDialog extends Component {
 		return html`
 				<capitec-button slot="footer" type="secondary" label="Cancel" class="capitec-button-medium"
 					@click="${() => this._cancelClick()}"
-					data-automation-id="insure-pay-premium-confirmation-dialog-cancel">
+					data-automation-id="horizon-insure-pay-premium-confirmation-dialog-cancel">
 				</capitec-button>
 				<capitec-button slot="footer" type="primary" label="Confirm" class="capitec-button-medium"
 					@click="${() => this._confirmClick()}"
-					data-automation-id="insure-pay-premium-confirmation-dialog-confirm">
+					data-automation-id="horizon-insure-pay-premium-confirmation-dialog-confirm">
 				</capitec-button>
 		`;
 	}
@@ -146,13 +146,13 @@ class PayPremiumConfirmationDialog extends Component {
 
 }
 
-window.customElements.define(`insure-pay-premium-confirmation-dialog`, PayPremiumConfirmationDialog);
+window.customElements.define(`horizon-insure-pay-premium-confirmation-dialog`, PayPremiumConfirmationDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <insure-pay-premium-confirmation-dialog ... @close-modal="${this._handler}"></insure-pay-premium-confirmation-dialog>
+ * <horizon-insure-pay-premium-confirmation-dialog ... @close-modal="${this._handler}"></horizon-insure-pay-premium-confirmation-dialog>
  *
  * @event PayPremiumConfirmationDialog#close-modal
  * @type {Object} - N/A
@@ -162,7 +162,7 @@ window.customElements.define(`insure-pay-premium-confirmation-dialog`, PayPremiu
  * Send Confirm Payment dialog event to consuming componant when 'Confirm' is clicked
  *
  * @example
- * <insure-pay-premium-confirmation-dialog ... @confirm-payment="${this._handler}"></insure-pay-premium-confirmation-dialog>
+ * <horizon-insure-pay-premium-confirmation-dialog ... @confirm-payment="${this._handler}"></horizon-insure-pay-premium-confirmation-dialog>
  *
  * @event PayPremiumConfirmationDialog#confirm-payment
  * @type {Object} - N/A

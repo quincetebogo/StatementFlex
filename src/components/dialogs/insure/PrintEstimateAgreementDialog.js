@@ -92,7 +92,7 @@ class PrintEstimateAgreementDialog extends Component {
 			<div slot="body" data-automation-id="insure-print-estimate-dialog-body">
 				${this._renderDialogBody()}
 			</div>
-			<div slot="footer" data-automation-id="insure-print-estimate-agreement-dialog-footer">
+			<div slot="footer" data-automation-id="insure-horizon-insure-print-estimate-agreement-dialog-footer">
 				${this._renderDialogFooter()}
 			</div>
 		</capitec-modal>`;
@@ -107,7 +107,7 @@ class PrintEstimateAgreementDialog extends Component {
 		return html`
 			<capitec-expander-group modeset="single">
 				<capitec-expander expandbuttonalignment="left" label="View Estimate" class="pdf-viewer" .expanded="${true}"
-					data-automation-id="insure-print-estimate-agreement-dialog-view-estimate">
+					data-automation-id="insure-horizon-insure-print-estimate-agreement-dialog-view-estimate">
 					<iframe title="PrintEstimateAgreement" height = "100%" frameborder = "0"
 						src="data:application/pdf;base64, ${this.printEstimateAgreementContent}#view=fitH">
 					</iframe>
@@ -124,10 +124,10 @@ class PrintEstimateAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
-				data-automation-id="print-estimate-agreement-dialog-cancel">
+				data-automation-id="horizon-insure-print-estimate-agreement-dialog-cancel">
 			</capitec-button>
 			<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
-				data-automation-id="print-estimate-agreement-dialog-agree">
+				data-automation-id="horizon-insure-print-estimate-agreement-dialog-agree">
 			</capitec-button>
 		`;
 	}
@@ -135,13 +135,13 @@ class PrintEstimateAgreementDialog extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`print-estimate-agreement-dialog`, PrintEstimateAgreementDialog);
+window.customElements.define(`horizon-insure-print-estimate-agreement-dialog`, PrintEstimateAgreementDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <print-estimate-agreement-dialog ... @close-modal="${this._handler}"></print-estimate-agreement-dialog>
+ * <horizon-insure-print-estimate-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-print-estimate-agreement-dialog>
  *
  * @event PrintEstimateAgreementDialog#close-modal
  * @type {Object} - N/A
@@ -152,7 +152,7 @@ window.customElements.define(`print-estimate-agreement-dialog`, PrintEstimateAgr
  * Send agree dialog event to consuming component when 'Agree' is clicked
  *
  * @example
- * <print-estimate-agreement-dialog ... @agree="${this._handler}"></print-estimate-agreement-dialog>
+ * <horizon-insure-print-estimate-agreement-dialog ... @agree="${this._handler}"></horizon-insure-print-estimate-agreement-dialog>
  *
  * @event PrintEstimateAgreementDialog#agree
  * @type {Object} - N/A

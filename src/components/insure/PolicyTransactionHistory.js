@@ -181,27 +181,11 @@ class PolicyTransactionHistory extends Component {
 	}
 
 	/**
-	 * Clear all filters
-	 * @return {void} 
-	 */
-	 _clearFilters() {
-		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
-
-		Array.from(activeFilters.children)
-			.filter(field => field.localName === `capitec-chip` && !field.hidden)
-			.forEach(item => {
-				this._clearFilter(item.id);
-			});
-
-		this._refineSearch();
-	}
-
-	/**
 	 * close specified chip
 	 * @param {*} type - filter type 
 	 * @return {void} 
 	 */
-		_closeChip(type) {
+	_closeChip(type) {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
@@ -235,7 +219,7 @@ class PolicyTransactionHistory extends Component {
 	 * unload the policy transactions
 	 * @return {void}
 	 */
-	 _unloading() {
+	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
@@ -257,7 +241,7 @@ class PolicyTransactionHistory extends Component {
 			resetForfilters[type]();
 		}
 	}
-	
+
 	/**
 	 * Initialize component when loaded
 	 * @returns {void}
@@ -291,7 +275,7 @@ class PolicyTransactionHistory extends Component {
 			await this._refineSearch();
 		}
 	}
-	
+
 	/**
 	 * filter the transactions
 	 * @return {void} 
@@ -316,18 +300,18 @@ class PolicyTransactionHistory extends Component {
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
-	
-		/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
-		 static get styles() {
-			return [
-				super.styles,
-				css`
+
+	/**
+ * Generates the component stylesheet.
+ *
+ * @readonly
+ * @static
+ * @returns {css} CSS for the component.
+ */
+	static get styles() {
+		return [
+			super.styles,
+			css`
 				${INSURE_TRANSACTIONS_CSS}
 
 				/* Header Details Bar styles */
@@ -365,8 +349,8 @@ class PolicyTransactionHistory extends Component {
 					box-shadow: none;
 				}
 				`
-			];
-		}
+		];
+	}
 
 	/**
 	 * 
@@ -494,12 +478,6 @@ class PolicyTransactionHistory extends Component {
 					data-automation-id="transaction-history-active-filters">
 						<capitec-label label = "Active filters:"></capitec-label>
 							${this._renderDateChip()}
-						<capitec-button
-							type="clear"
-							label="Clear All"
-							@click = "${() => this._clearFilters()}"
-							data-automation-id="transaction-history-clear-active-filters">
-						</capitec-button>
 				</capitec-action-bar>
 			`;
 		}

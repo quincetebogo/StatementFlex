@@ -10,7 +10,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
  * close-modal
  * update-plan-agree-click
  *  
- * @export_onAgreeClick
+ * @export_agreeClick
  * @class UpdatePlanAgreementDialog
  * @extends {Component}
  */
@@ -124,10 +124,10 @@ class UpdatePlanAgreementDialog extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-modal type="form" header="Funeral Cover Plan (${this.contractReference})">
-				<div slot="body" data-automation-id="insure-pay-premium-agreement-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-pay-premium-agreement-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-pay-premium-agreement-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -145,7 +145,7 @@ class UpdatePlanAgreementDialog extends Component {
 			<capitec-expander-group modeset="single">
 				<div class="expander">
 					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer" ?expanded="${true}"
-						data-automation-id="insure-pay-premium-agreement-dialog-view-policy-schedule">
+						data-automation-id="horizon-insure-pay-premium-agreement-dialog-view-policy-schedule">
 						<iframe title="UpdatePlanAgreement" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64,${this.planAgreementContent}#view=fitH">
 						</iframe>
@@ -155,7 +155,7 @@ class UpdatePlanAgreementDialog extends Component {
 				${this.showUpdatePlanPaymentAgreementDocument === true ? html`
 					<div>
 						<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-							data-automation-id="insure-pay-premium-agreement-dialog-view-mandate">
+							data-automation-id="horizon-insure-pay-premium-agreement-dialog-view-mandate">
 								<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
 									src="data:application/pdf;base64,${this.paymentAgreementContent}#view=fitH">
 								</iframe>
@@ -175,10 +175,10 @@ class UpdatePlanAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
-					data-automation-id="insure-pay-premium-agreement-dialog-cancel">
+					data-automation-id="horizon-insure-pay-premium-agreement-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
-					data-automation-id="insure-pay-premium-agreement-dialog-agree">
+					data-automation-id="horizon-insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
 		`;
 	}
@@ -188,13 +188,13 @@ class UpdatePlanAgreementDialog extends Component {
 
 }
 
-window.customElements.define(`insure-update-plan-agreement-dialog`, UpdatePlanAgreementDialog);
+window.customElements.define(`horizon-insure-update-plan-agreement-dialog`, UpdatePlanAgreementDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <insure-update-plan-agreement-dialog ... @close-modal="${this._handler}"></insure-update-plan-agreement-dialog>
+ * <horizon-insure-update-plan-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-update-plan-agreement-dialog>
  *
  * @event UpdatePlanAgreementDialog#close-modal
  * @type {Object} - N/A
@@ -205,7 +205,7 @@ window.customElements.define(`insure-update-plan-agreement-dialog`, UpdatePlanAg
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <insure-update-plan-agreement-dialog ... @update-plan-agree-click="${this._handler}"></insure-update-plan-agreement-dialog>
+ * <horizon-insure-update-plan-agreement-dialog ... @update-plan-agree-click="${this._handler}"></horizon-insure-update-plan-agreement-dialog>
  *
  * @event UpdatePlanAgreementDialog#agree
  * @type {Object} - N/A

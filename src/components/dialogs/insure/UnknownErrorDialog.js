@@ -120,13 +120,13 @@ class UnknownErrorDialog extends Component {
 
 }
 
-window.customElements.define(`insure-unknown-error-dialog`, UnknownErrorDialog);
+window.customElements.define(`horizon-insure-unknown-error-dialog`, UnknownErrorDialog);
 
  /**
  * Send Confirm Payment dialog event to consuming componant when 'Confirm' is clicked
  *
  * @example
- * <insure-unknown-error-dialog ... @agree="${this._handler}"></insure-unknown-error-dialog>
+ * <horizon-insure-unknown-error-dialog ... @agree="${this._handler}"></horizon-insure-unknown-error-dialog>
  *
  * @event UnknownErrorDialog#confirm-payment
  * @type {Object} - N/A

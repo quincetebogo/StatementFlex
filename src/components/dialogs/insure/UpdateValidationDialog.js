@@ -48,7 +48,7 @@ class UpdateValidationDialog extends Component {
 	 * dispatch confirmation click event
 	 * @returns {void}
 	 */
-	_onConfirmationClick() {
+	_confirmationClick() {
 		this.dispatchEvent(new CustomEvent(`confirmation-click`, {}));
 	}
 
@@ -79,10 +79,10 @@ class UpdateValidationDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="free" header = "Unable to Calculate"> 
-				<div slot="body" data-automation-id="insure-update-validation-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-update-validation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-update-validation-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-update-validation-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -110,8 +110,8 @@ class UpdateValidationDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-medium"
-				@click="${() => this._onConfirmationClick()}"
-				data-automation-id="insure-confirmation-dialog-confirm">
+				@click="${() => this._confirmationClick()}"
+				data-automation-id="horizon-insure-confirmation-dialog-confirm">
 			</capitec-button>
 		`;
 	}
@@ -120,13 +120,13 @@ class UpdateValidationDialog extends Component {
 
 }
 
-window.customElements.define(`insure-update-validation-dialog`, UpdateValidationDialog);
+window.customElements.define(`horizon-insure-update-validation-dialog`, UpdateValidationDialog);
 
  /**
  * Send Confirmation dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-update-validation-dialog ... @confirmation-click="${this._onConfirmationClick}"></insure-update-validation-dialog>
+ * <horizon-insure-update-validation-dialog ... @confirmation-click="${this._confirmationClick}"></horizon-insure-update-validation-dialog>
  *
  * @event InsureUpdateValidationDialog#confirm
  * @type {Object} - N/A

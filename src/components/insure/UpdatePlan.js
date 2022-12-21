@@ -1159,6 +1159,19 @@ class UpdatePlan extends Component {
 		onUpdateValidations.validated = true;
 		onUpdateValidations.bankingDetailsValid = true;
 		onUpdateValidations.lifeAssured = false;
+		let payoutsMatch = false;
+
+		let totalPayout;
+
+		this.policyDetails.roleplayers.forEach(ben => {
+			if (ben.beneficiary === true) {
+				totalPayout += parseFloat(ben.benefitPayout);
+			}
+		});
+
+		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
+			payoutsMatch = true;
+		}
 
 		this.policyDetails.roleplayers.forEach(ele => {
 
@@ -1170,6 +1183,11 @@ class UpdatePlan extends Component {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
 				}
+			}
+
+			if (ele.beneficiary === true && payoutsMatch === false) {
+				ele.coverDetails.canUpdate = false;
+				ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
 			}
 
 			// Contact details check
@@ -2385,12 +2403,12 @@ class UpdatePlan extends Component {
 	_renderLifeAssuredDialog() {
 		return this.showAddRelationshipDialog === false ? ``
 			: html`
-			<insure-add-life-dialog 
+			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.policyDetails.roleplayers}" 
 				.productParams="${this.productParams}"
 				@add-new-life="${(e) => this._addLife(e)}" 
 				@close-modal="${(e) => this._closeAddLifeDialog(e)}">
-			</insure-add-life-dialog>`;
+			</horizon-insure-add-life-dialog>`;
 	}
 
 	/**
@@ -2400,11 +2418,11 @@ class UpdatePlan extends Component {
 	_renderRemoveLifeAssuredDialog() {
 		return this.showRemoveLifeAssuredDialog === false ? ``
 			: html`
-		<remove-life-assured-dialog 
+		<horizon-insure-remove-life-assured-dialog 
 			.lifeToRemoveDescription="${this.lifeAssuredToRemoveDescription}"
 			@agree-click="${() => this._removeLifeAssured()}"
 			@close-modal="${() => this._closeRemoveLifeAssuredDialog()}">
-		</remove-life-assured-dialog>
+		</horizon-insure-remove-life-assured-dialog>
 		`;
 	}
 
@@ -2416,11 +2434,11 @@ class UpdatePlan extends Component {
 	_renderRemoveBeneficiaryDialog() {
 		return this.showRemoveBeneficiaryDialog === false ? ``
 			: html`
-		<remove-beneficiary-dialog 
+		<horizon-insure-remove-beneficiary-dialog 
 			.beneficiaryToRemoveDescription="${this.beneficiaryToRemoveDescription}"
 			@agree-click="${() => this._removeBeneficiary()}"
 			@close-modal="${(e) => this._closeRemoveBeneficiaryDialog(e)}" >
-		</remove-beneficiary-dialog>
+		</horizon-insure-remove-beneficiary-dialog>
 		`;
 	}
 
@@ -2431,11 +2449,11 @@ class UpdatePlan extends Component {
 	_renderAddBeneficiariesDialog() {
 		return this.showAddBeneficiariesDialog === false ? html``
 			: html`
-		<add-beneficiary-dialog
+		<horizon-insure-add-beneficiary-dialog
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
 			@add-click="${(e) => this._addBeneficiaryClick(e)}" 
 			@close-modal="${() => this._closeAddBeneficiariesDialog()}">
-		</add-beneficiary-dialog>
+		</horizon-insure-add-beneficiary-dialog>
 		`;
 	}
 
@@ -2494,14 +2512,14 @@ class UpdatePlan extends Component {
 	 */
 	_renderUpdatePlanAgreementDialog() {
 		return this.showUpdatePlanAgreementDialog === false ? `` : html`
-		<insure-update-plan-agreement-dialog 
+		<horizon-insure-update-plan-agreement-dialog 
 			.planAgreementContent="${this.planAgreementContent}" 
 			.paymentAgreementContent="${this.paymentAgreementContent}"
 			.showUpdatePlanPaymentAgreementDocument = "${this.showUpdatePlanPaymentAgreementDocument}"
 			.contractReference="${this.policyDetails.contractReference}"
 			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" 
 			@close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
-		</insure-update-plan-agreement-dialog>`;
+		</horizon-insure-update-plan-agreement-dialog>`;
 	}
 
 	/** 
@@ -2510,14 +2528,14 @@ class UpdatePlan extends Component {
 	 */
 	_renderReinstatePolicyAgreementDialog() {
 		return this.showReinstatePolicyAgreementDialog === false ? `` : html`
-		<insure-reinstate-policy-agreement-dialog 
+		<horizon-insure-reinstate-policy-agreement-dialog 
 			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" 
 			.contractReference = "${this.newContractReference}"
 			.paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
 			.showReinstatePaymentAgreementDocument = "${this.showReinstatePaymentAgreementDocument}"
 			@reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false}"
 			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" >
-		</insure-reinstate-policy-agreement-dialog>`;
+		</horizon-insure-reinstate-policy-agreement-dialog>`;
 	}
 
 	/**
@@ -2526,10 +2544,10 @@ class UpdatePlan extends Component {
 	*/
 	_renderValidationConfirmDialog() {
 		return this.showValidationConfirmDialog === false ? `` : html`
-		<insure-confirmation-dialog 
+		<horizon-insure-confirmation-dialog 
 			@confirmation-click="${() => this.showValidationConfirmDialog = false}"
 			.confirmationMessage = "${this.disclosureValidationMessage}">
-		</insure-confirmation-dialog>`;
+		</horizon-insure-confirmation-dialog>`;
 	}
 
 	/**
@@ -2538,10 +2556,10 @@ class UpdatePlan extends Component {
 	*/
 	_renderUpdateValidationDialog() {
 		return this.showUpdateValidationDialog === false ? `` : html`
-			<insure-update-validation-dialog 
+			<horizon-insure-update-validation-dialog 
 				.validationMessage = "${this.onUpdateValidationMessage}"
 				@confirmation-click="${() => this.showUpdateValidationDialog = false}">
-			</insure-update-validation-dialog>
+			</horizon-insure-update-validation-dialog>
 		
 		`;
 	}
