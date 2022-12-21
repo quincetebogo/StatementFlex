@@ -1,18 +1,11 @@
 import { Component, css, html } from 'platform/elements';
+import { FILTER_BY, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
 
 // #region CONSTANTS
-
-const FILTER_BY = {
-	DATE: `DATE`
-};
-
-const RENDER_CHIPS = {
-	DATE: ``
-};
 
 const today = new Date();
 
@@ -42,6 +35,8 @@ class SMSHistory extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {String} startDate - String holds Start date of transaction/due date 
+	 * @property {String} endDate - String holds End date of transaction/due date
 	 * @property {String} contractReference contains the policy number
 	 * @property {String} contactNumber contains the callers verified contact number
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
@@ -53,6 +48,8 @@ class SMSHistory extends Component {
 	 */
 	static get properties() {
 		return {
+			startDate: { type: String, state: true },
+			endDate: { type: String, state: true },
 			contractReference: { type: String, state: true },
 			contactNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
@@ -71,9 +68,10 @@ class SMSHistory extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
 
-		RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		this.filteredData = this.commsHistory?.communications;
+		// RENDER_CHIPS[FILTER_BY.DATE] = ``;
+		// this.filteredData = this.commsHistory?.communications;
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -81,11 +79,29 @@ class SMSHistory extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	/**
+	 * Initialize component when loaded
+	 * @returns {void}
+	 */
+	async _initialise() {
+		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
+		this.endDate = new Date().toISOString();
+
+		this.commsHistory = await this.getCommsHistory(this.contractReference);
+		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
+
+		this.filteredData = [];
+		if (!isNullorEmpty(this.commsHistory?.results)) {
+			this.filteredData = this.commsHistory?.results.filter(item => new Date(item.sentAt) >= new Date(this.startDate) && new Date(item.sentAt) <= new Date(this.endDate));
+			// this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		}
+	}
+
+	/**
 	 * filter sms history when date is changed
 	 * @param {*} e e
 	 * @return {void}
 	 */
-	 getPredefinedDateRanges() {
+	getPredefinedDateRanges() {
 		const last7day = new Date(today);
 		const last30day = new Date(today);
 		const last60day = new Date(today);
@@ -108,9 +124,9 @@ class SMSHistory extends Component {
 	 * filter the sms history
 	 * @return {void}
 	 */
-	 _refineSearch() {
+	_refineSearch() {
 
-		this.filteredData = this.commsHistory?.communications;
+		this.filteredData = this.commsHistory?.results;
 
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
@@ -126,28 +142,28 @@ class SMSHistory extends Component {
 	 * Get selected date range
 	 * @returns {string} - fromdate to todate
 	 */
-		 _getDateRange() {
-			const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
-			const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
-	
-			const preDefinedRanges = this.getPredefinedDateRanges();
-			const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
-	
-			if (selectedValue.length > 0) {
-				return selectedValue[0].text;
-			}
-	
-			return `${fromDate} - ${toDate}`;
+	_getDateRange() {
+		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+
+		const preDefinedRanges = this.getPredefinedDateRanges();
+		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+
+		if (selectedValue.length > 0) {
+			return selectedValue[0].text;
 		}
 
+		return `${fromDate} - ${toDate}`;
+	}
+
 	/**
-		 * format the give date
-		 * @param {*} date - date to be formatted 
-		 * @return {String} string
-		 */
-		_formatDate(date) {
-			const newdate = new Date(Date.parse(date));
-			return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	 * format the give date
+	 * @param {*} date - date to be formatted 
+	 * @return {String} string
+	 */
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	/**
@@ -155,18 +171,18 @@ class SMSHistory extends Component {
 	 * @param {*} type - filter type
 	 * @return {void}
 	 */
-		_clearFilter(type) {
-			const date = () => this._reset();
-	
-			const resetForfilters = {
-				'DATE': date
-			};
-	
-			RENDER_CHIPS[type] = ``;
-			if (resetForfilters[type]) {
-				resetForfilters[type]();
-			}
+	_clearFilter(type) {
+		const date = () => this._reset();
+
+		const resetForfilters = {
+			'DATE': date
+		};
+
+		RENDER_CHIPS[type] = ``;
+		if (resetForfilters[type]) {
+			resetForfilters[type]();
 		}
+	}
 
 	/**
 	 * reset all filters and load transactions
@@ -252,7 +268,7 @@ class SMSHistory extends Component {
 
 		await this._refineSearch();
 
-		await this.getCommsHistory(this.startDate, this.endDate);
+		await this.getCommsHistory(this.contractReference);
 	}
 
 	/**
@@ -435,7 +451,7 @@ class SMSHistory extends Component {
 				${this._renderActiveFilters()}
 			</div>
 
-			${this.filteredData.length !== 0 ? html`
+			${this.filteredData?.length !== 0 ? html`
 				${this.filteredData?.map((comms) => this._renderExpander(comms))}
 			` : html`
 				${this._renderNoResults()}
@@ -468,16 +484,16 @@ class SMSHistory extends Component {
 						<div class="vertical-line"></div>
 						<horizon-label
 							label="Contact Details"
-							value="${comms.contactNumber}">
+							value="${isNullorEmpty(comms.contactNumber) ? `-` : comms.contactNumber}">
 						</horizon-label>
 						<horizon-label
 							label="Sent"
 							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
-						<horizon-label
+						<!-- <horizon-label
 							label="Received"
 							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
-						</horizon-label>
+						</horizon-label> -->
 						<horizon-label
 							label="Status"
 							value="${comms.status}">
@@ -507,7 +523,7 @@ class SMSHistory extends Component {
 			<capitec-title-bar type="default" label="Message"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				<capitec-content-box style="height: auto;" >
-					<capitec-label label="${comms.messageContent}">
+					<capitec-label label="${comms.message}">
 					</capitec-label>
 				</capitec-content-box>
 			

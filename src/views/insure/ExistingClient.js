@@ -116,7 +116,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	static get properties() {
 		return {
-			
+
 			productParams: { type: Object, state: true },
 			clientPolicies: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
@@ -170,7 +170,6 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		await this._retrieveClientSummary();
 		this.accountDetails = await this._retrieveAccountDetails();
-		this.commsHistory = await this._retrieveCommsHistory();
 		this.claims = await this._retrieveClaims();
 	}
 
@@ -405,7 +404,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve client summary containing all policies
 	 * @returns {Object} Client policies 
 	 */
-	 async _retrieveClientSummary() {
+	async _retrieveClientSummary() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
@@ -426,7 +425,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {string} idNumber idNumber
 	 * @returns {Object} Policy Summary Details 
 	 */
-	 async _retrievePolicySummary(contractReference, cifNumber, idNumber) {
+	async _retrievePolicySummary(contractReference, cifNumber, idNumber) {
 		const request = {
 			contractReference: contractReference,
 			cifNumber: cifNumber,
@@ -467,7 +466,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve Savings Account Details via Savings Account service
 	 * @returns {Object} Savings Account Details 
 	 */
-	 async _retrieveAccountDetails() {
+	async _retrieveAccountDetails() {
 		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 
@@ -483,7 +482,7 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve Claims list for Client
 	 * @returns {Object} Claims list
 	 */
-	 async _retrieveClaims() {
+	async _retrieveClaims() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
@@ -498,7 +497,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {Object} Estimate response
 	 */
-	 async _printEstimate(e) {
+	async _printEstimate(e) {
 		await this._calculateClientEstimate(e);
 		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
@@ -528,7 +527,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {void}  
 	 */
-	 async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
+	async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
 		this.policyNumber = contractReference;
 		const dob = new Date(this.callerInformation.birthdate);
 		const cancelPolicyAgreementDetails = {
@@ -569,7 +568,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} pageIndex pageIndex
 	 * @returns {null} null
 	 */
-	 async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
+	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
 		const transactionHistoryRequest = {
 			contractReference: this.contractReference,
 			transactionDateType: `TransactionDate`,
@@ -616,7 +615,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} policyToCalc policyToCalc
 	 * @returns {*} result
 	 */
-	 async _updatePlanQuote(policyToCalc) {
+	async _updatePlanQuote(policyToCalc) {
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -654,7 +653,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} policyToUpdate policyToUpdate
 	 * @returns {*} preparePlanResponse
 	 */
-	 async _updatePlanPrepare(policyToUpdate) {
+	async _updatePlanPrepare(policyToUpdate) {
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToUpdate.contractReference,
@@ -739,7 +738,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} policyToReinstate policyToReinstate
 	 * @returns {*} reinstatePolicyResponse
 	 */
-	 async _initiateReinstatePolicy(policyToReinstate) {
+	async _initiateReinstatePolicy(policyToReinstate) {
 		const createPolicyRequest = {
 			"cifNumber": policyToReinstate.cifNumber,
 			"quoteNumber": policyToReinstate.quoteNumber,
@@ -779,7 +778,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {void} 
 	 */
-	 async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
+	async _getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum) {
 		const dob = new Date(this.callerInformation.birthdate);
 		const arrearsPaymentInstructionDetails = {
 			"documentFormat": `PDF`,
@@ -827,7 +826,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {string} navigateBackTo component to navigate too
 	 * @returns {void}
 	 */
-	 async _rerenderClientSummary(navigateBackTo) {
+	async _rerenderClientSummary(navigateBackTo) {
 		await this._retrieveClientSummary();
 		this._navigateToSubView(navigateBackTo);
 	}
@@ -854,7 +853,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void}
 	 */
-	 async _goToUpdatePlan(e) {
+	async _goToUpdatePlan(e) {
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			if (calcResponse !== null) {
@@ -969,25 +968,13 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * retrieve the Communication(SMS) History
-	 * @param {*} startDate startDate
-	 * @param {*} endDate endDate
+	 * @param {string} contractReference contractReference
 	 * @returns {*} result
 	 */
-	async _retrieveCommsHistory(startDate, endDate) {
+	async _retrieveCommsHistory(contractReference) {
 
 		const commsHistoryDetails = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"filters": {
-				"contractReference": ``,
-				"contactNumber": this.callerInformation.verifiedTelephoneNumber,
-				"medium": `SMS`
-			},
-			"fromDate": startDate || COMMUNICATION_HISTORY.START_DATE,
-			"toDate": endDate || COMMUNICATION_HISTORY.END_DATE,
-			"pagniation": {
-				"pageIndex": COMMUNICATION_HISTORY.PAGE_INDEX,
-				"totalPerPage": COMMUNICATION_HISTORY.MAX_RESULTS
-			}
+			"contractReference": contractReference,
 		};
 
 		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
@@ -1024,7 +1011,7 @@ export class ExistingClient extends InsureViewBase {
 		const indexOfMainLife = this.policyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.policyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.policyDetails.roleplayers.unshift(mainLifeElement);
-		
+
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_SUMMARY);
 	}
 
@@ -1044,7 +1031,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToCancelPolicySuccess(e) {
-		// Telemetry Here
 		this.contractReference = e.detail.contractReference;
 		this._navigateToSubView(INSURE_RENDER_MODE.CANCEL_POLICY_SUCCESS);
 	}
@@ -1055,15 +1041,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void}
 	 */
-	_goToSMSHistory(e) {
-
+	async _goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
-
-
-		// call fips here
-
-		// Telemetry Here
-
+		this.commsHistory = await this._retrieveCommsHistory(this.policyNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
 	}
 
@@ -1136,9 +1116,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} event event
 	 * @returns {*}*
 	 */
-	 async _updatePlanAccept(event) {
+	async _updatePlanAccept(event) {
 
-		
+
 		const documents = [];
 		if (!isNullorEmpty(event.detail.prepareUpdate.paymentAgreement.documentDetails)) {
 			documents.push(event.detail.prepareUpdate.paymentAgreement.documentDetails);
@@ -1181,7 +1161,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {object} event - request payload for Accept Policy
 	 * @returns {void} 
 	 */
-	 async _acceptPolicy(event) {
+	async _acceptPolicy(event) {
 
 		let documents = [];
 
@@ -1222,7 +1202,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	  */
-	 async _sendEmail(e) {
+	async _sendEmail(e) {
 		this.confirmedEmail = e.detail.emailId.detail.emailAddress;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
