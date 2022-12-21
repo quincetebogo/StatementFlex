@@ -52,7 +52,7 @@ class AddBeneficiaryDialog extends Component {
 	 * Cancel event from dialog footer button, closes modal & reset toggles
 	 * @returns {void}
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -60,7 +60,7 @@ class AddBeneficiaryDialog extends Component {
 	 * Add Event, Calculate cover details parameter, emit new life object to consuming component & reset toggles
 	 * @returns {void}
 	 */
-	_onAddClick() {
+	_addClick() {
 		const detail = {
 			beneficiary: this.newBeneficiary
 		};
@@ -236,9 +236,9 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-		<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+		<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 		</capitec-button>
-		<capitec-button slot="footer" type="clear" label="Add" @click="${() => this._onAddClick()}">
+		<capitec-button slot="footer" type="clear" label="Add" @click="${() => this._addClick()}">
 		</capitec-button>`;
 	}
 
@@ -246,13 +246,13 @@ class AddBeneficiaryDialog extends Component {
 
 }
 
-window.customElements.define(`add-beneficiary-dialog`, AddBeneficiaryDialog);
+window.customElements.define(`horizon-insure-add-beneficiary-dialog`, AddBeneficiaryDialog);
 
 /**
  * send a close modal event to consuming component when 'cancel' is clicked
  *
  * @example
- * <remove-life-assured-dialog ... @close-modal="${this._handler}"></remove-life-assured-dialog>
+ * <horizon-insure-add-beneficiary-dialog ... @close-modal="${this._handler}"></horizon-insure-add-beneficiary-dialog>
  *
  * @event RemoveLifeAssuredDialog#close-modal
  * @type {Object} - N/A
@@ -262,7 +262,7 @@ window.customElements.define(`add-beneficiary-dialog`, AddBeneficiaryDialog);
  * send agree click event to consuming component when 'agree' is clicked
  *
  * @example
- * <remove-life-assured-dialog ... @agree-click="${this._handler}"></remove-life-assured-dialog>
+ * <horizon-insure-add-beneficiary-dialo ... @agree-click="${this._handler}"></horizon-insure-add-beneficiary-dialo>
  *
  * @event RemoveLifeAssuredDialog#agree-click
  * @type {Object} - N/A

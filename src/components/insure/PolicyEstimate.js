@@ -696,12 +696,12 @@ class PolicyEstimate extends Component {
 	_renderAddLifeDialog() {
 		return this.showAddLifeDialog === false ? ``
 			: html`
-			<insure-add-life-dialog 
+			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}"
 				@add-new-life="${(e) => this._addLife(e)}"
 				@close-modal="${() => this.showAddLifeDialog = false}" >
-			</insure-add-life-dialog>`;
+			</horizon-insure-add-life-dialog>`;
 	}
 
 	/**
@@ -711,11 +711,11 @@ class PolicyEstimate extends Component {
 	_renderPrintEstimateDialog() {
 		return this.showPrintEstimateDialog === false ? ``
 			: html`
-			<print-estimate-agreement-dialog 
+			<horizon-insure-print-estimate-agreement-dialog 
 				.printEstimateAgreementContent="${this.printEstimateDocumentContent}"
 				@print-estimate-close-modal = "${() => this.showPrintEstimateDialog = false}"
 				@print-estimate-agree-click = "${() => this._acceptPrintEstimate()}">
-			</print-estimate-agreement-dialog>`;
+			</horizon-insure-print-estimate-agreement-dialog>`;
 	}
 
 	/** 
@@ -738,9 +738,9 @@ class PolicyEstimate extends Component {
 	 */
 	_renderMaxAllowedCoverDialog() {
 		return this.showMaxAllowedCoverDialog === true ? html`
-			<insure-max-allowed-cover-dialog
+			<horizon-insure-max-allowed-cover-dialog
 				@confirm="${() => this.showMaxAllowedCoverDialog = false}">
-			</insure-max-allowed-cover-dialog>`
+			</horizon-insure-max-allowed-cover-dialog>`
 			: html``;
 	}
 

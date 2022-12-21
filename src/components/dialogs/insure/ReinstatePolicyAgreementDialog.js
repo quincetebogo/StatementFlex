@@ -116,10 +116,10 @@ class ReinstatePolicyAgreementDialog extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-modal type="form" header="Re-Issue Policy Agreement (${this.contractReference})">
-				<div slot="body" data-automation-id="insure-reinstate-policy-agreement-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-reinstate-policy-agreement-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -136,7 +136,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 			
 			<capitec-expander-group modeset="single">
 				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer" ?expanded="${true}"
-					data-automation-id="insure-reinstate-policy-agreement-dialog-view-policy-schedule">
+					data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-view-policy-schedule">
 					<iframe title="ReinstateIssueAgreement" height = "100%" frameborder = "0"
 						src="data:application/pdf;base64,${this.issuePlanAgreementContent}#view=fitH">
 					</iframe>
@@ -144,7 +144,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 		
 				${this.showReinstatePaymentAgreementDocument === true ? html`
 					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-						data-automation-id="insure-reinstate-policy-agreement-dialog-view-mandate">
+						data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-view-mandate">
 						<iframe title="ReinstatePaymentAgreemnt" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64, ${this.paymentAgreementContent}#view=fitH">
 						</iframe>
@@ -162,11 +162,11 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._onCancelClick()}"
-					data-automation-id="insure-reinstate-policy-agreement-dialog-cancel">
+				<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
+					data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-cancel">
 				</capitec-button>
 				<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
-					data-automation-id="insure-reinstate-policy-agreement-dialog-agree">
+					data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-agree">
 				</capitec-button>
 		`;
 	}
@@ -174,13 +174,13 @@ class ReinstatePolicyAgreementDialog extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`insure-reinstate-policy-agreement-dialog`, ReinstatePolicyAgreementDialog);
+window.customElements.define(`horizon-insure-reinstate-policy-agreement-dialog`, ReinstatePolicyAgreementDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <insure-reinstate-policy-agreement-dialog ... @close-modal="${this._handler}"></insure-reinstate-policy-agreement-dialog>
+ * <horizon-insure-reinstate-policy-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-reinstate-policy-agreement-dialog>
  *
  * @event ReinstatePolicyAgreementDialog#close-modal
  * @type {Object} - N/A
@@ -191,7 +191,7 @@ window.customElements.define(`insure-reinstate-policy-agreement-dialog`, Reinsta
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <insure-reinstate-policy-agreement-dialog ... @agree="${this._handler}"></insure-reinstate-policy-agreement-dialog>
+ * <horizon-insure-reinstate-policy-agreement-dialog ... @agree="${this._handler}"></horizon-insure-reinstate-policy-agreement-dialog>
  *
  * @event ReinstatePolicyAgreementDialog#agree
  * @type {Object} - N/A

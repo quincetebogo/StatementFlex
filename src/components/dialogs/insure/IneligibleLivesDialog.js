@@ -127,12 +127,12 @@ class IneligibleLivesDialog extends Component {
 
 			<capitec-button slot="footer" type="secondary" label="Cancel" class="capitec-button-medium"
 				@click="${() => this._cancelClick()}"
-				data-automation-id="insure-confirmation-dialog-confirm">
+				data-automation-id="horizon-insure-confirmation-dialog-confirm">
 			</capitec-button>
 
 			<capitec-button slot="footer" type="primary" label="Ok" class="capitec-button-medium"
 				@click="${() => this._confirmationClick()}"
-				data-automation-id="insure-confirmation-dialog-confirm">
+				data-automation-id="horizon-insure-confirmation-dialog-confirm">
 			</capitec-button>
 		`;
 	}
@@ -147,7 +147,7 @@ window.customElements.define(`horizon-insure-ineligible-lives-dialog`, Ineligibl
  * Send Confirmation dialog event to consuming component when 'Confirm' is clicked
  *
  * @example
- * <insure-update-validation-dialog ... @confirmation-click="${this._onConfirmationClick}"></insure-update-validation-dialog>
+ * <horizon-insure-ineligible-lives-dialog ... @confirmation-click="${this._onConfirmationClick}"></horizon-insure-ineligible-lives-dialog>
  *
  * @event InsureUpdateValidationDialog#confirm
  * @type {Object} - N/A

@@ -216,10 +216,10 @@ class CancelPolicyDialog extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})">
-				<div slot="body" data-automation-id="insure-cancel-policy-dialog-body">
+				<div slot="body" data-automation-id="horizon-insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="insure-cancel-policy-dialog-footer">
+				<div slot="footer" data-automation-id="horizon-insure-cancel-policy-dialog-footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -234,7 +234,7 @@ class CancelPolicyDialog extends Component {
 	_renderDialogBody() {
 		return html`
 
-			<div class="select" data-automation-id="insure-cancel-policy-dialog-cancelation-reason">
+			<div class="select" data-automation-id="horizon-insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
 					label="Cancellation Reason" 
 					.items= "${this.cancelationReasons}"
@@ -260,7 +260,7 @@ class CancelPolicyDialog extends Component {
 				${this.cancelPolicyDocumentDetails === undefined ? html`
 				` : html`
 					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
-						data-automation-id="insure-cancel-policy-dialog-view-cancellation-agreement">
+						data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
 						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent.value}#view=fitH">
 						</iframe>
@@ -279,11 +279,11 @@ class CancelPolicyDialog extends Component {
 		return html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._cancelClick()}"
-					data-automation-id="insure-cancel-policy-dialog-cancel">
+					data-automation-id="horizon-insure-cancel-policy-dialog-cancel">
 				</capitec-button>
 				<capitec-button class="button" slot="footer" type="primary" label="Agree"
 					@click="${() => this._checkSelected()}"
-					data-automation-id="insure-cancel-policy-dialog-agree">
+					data-automation-id="horizon-insure-cancel-policy-dialog-agree">
 				</capitec-button>
 		`;
 	}
@@ -292,13 +292,13 @@ class CancelPolicyDialog extends Component {
 
 }
 
-window.customElements.define(`insure-cancel-policy-dialog`, CancelPolicyDialog);
+window.customElements.define(`horizon-insure-cancel-policy-dialog`, CancelPolicyDialog);
 
 /**
  * send close modal event to the consuming componant when 'cancel' is clicked
  *
  * @example
- * <insure-cancel-policy-dialog ... @close-modal="${this._handler}"></insure-cancel-policy-dialog>
+ * <horizon-insure-cancel-policy-dialog ... @close-modal="${this._handler}"></horizon-insure-cancel-policy-dialog>
  *
  * @event CancelPolicyDialog#close-modal
  * @type {Object} - N/A
@@ -308,7 +308,7 @@ window.customElements.define(`insure-cancel-policy-dialog`, CancelPolicyDialog);
  * send agree event to the consuming componant when 'agree is clicked' is clicked
  *
  * @example
- * <insure-cancel-policy-dialog ... @agree="${this._handler}"></insure-cancel-policy-dialog>
+ * <horizon-insure-cancel-policy-dialog ... @agree="${this._handler}"></horizon-insure-cancel-policy-dialog>
  *
  * @event CancelPolicyDialog#agree
  * @type {Object} - N/A

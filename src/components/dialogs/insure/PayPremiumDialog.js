@@ -143,7 +143,7 @@ class PayPremiumDialog extends Component {
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 * @returns {null} null
 	 */
-	_onCancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -160,7 +160,7 @@ class PayPremiumDialog extends Component {
 	 * pay click event that determines if there is sufficient funds in the clients chosen account to pay the arrears
 	 * @returns {null} null
 	 */
-	_onPayClick() {
+	_payClick() {
 			if (this.accountType === `Savings Account`) {
 				if (this.accountDetails.savingsAccountData?.accountAvailableBalance < this.amount) {
 					this.optionSelected = false;
@@ -267,7 +267,7 @@ class PayPremiumDialog extends Component {
 		if (this.checked === 0) { 
 			this.displayArrearNotSelected = true;
 		} else {
-			this._onPayClick();
+			this._payClick();
 		}
 
 		this.requestUpdate();
@@ -323,11 +323,11 @@ class PayPremiumDialog extends Component {
 			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
 			header-align="left">
 			<div slot="body" class="modal-body">
-				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "insure-pay-premium-dialog-body">
+				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "horizon-insure-pay-premium-dialog-body">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
-			<div slot="footer" data-automation-id="insure-pay-premium-dialog-footer">
+			<div slot="footer" data-automation-id="horizon-insure-pay-premium-dialog-footer">
 				${this._renderDialogFooter()}
 			</div>
 			</capitec-modal>`;
@@ -349,7 +349,7 @@ class PayPremiumDialog extends Component {
 			</capitec-label>
 			
 			<insure-account-select 
-				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="insure-pay-premium-dialog-accounts"
+				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="horizon-insure-pay-premium-dialog-accounts"
 				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}" .label= "${`Please select`}">
 			</insure-account-select>
 
@@ -364,11 +364,11 @@ class PayPremiumDialog extends Component {
 
 					${index === 0 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears" >
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="horizon-insure-pay-premium-dialog-arrears" >
 						</capitec-check>
 					` : html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
-							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="insure-pay-premium-dialog-arrears">
+							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="horizon-insure-pay-premium-dialog-arrears">
 						</capitec-check>
 						`}
 				`)}
@@ -384,12 +384,12 @@ class PayPremiumDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button class="capitec-button-medium" label="Cancel" @click="${() => this._onCancelClick()}"
-				data-automation-id="insure-pay-premium-dialog-cancel">
+				<capitec-button class="capitec-button-medium" label="Cancel" @click="${() => this._cancelClick()}"
+				data-automation-id="horizon-insure-pay-premium-dialog-cancel">
 				</capitec-button>
 			
 				<capitec-button class="capitec-button-medium" id="id-confirm-button" type="primary" label="Pay"
-					@click="${() => this._validateCheck()}" data-automation-id="insure-pay-premium-dialog-pay">
+					@click="${() => this._validateCheck()}" data-automation-id="horizon-insure-pay-premium-dialog-pay">
 				</capitec-button>
 			</capitec-group>`;
 
@@ -398,21 +398,21 @@ class PayPremiumDialog extends Component {
 	_renderInsufficientFunds() {
 		return this.displayInsufficientFunds === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Insufficient funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Insufficient funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderArrearNotSelected() {
 		return this.displayArrearNotSelected === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Select arrears amount to pay" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Select arrears amount to pay" layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderAccountNotSelected() {
 		return this.displayAccountNotSelected === false ? html`` 
 		: html`
-			<capitec-toast class="error" type="error" header="Select an account to pay from" layout="horizontal" data-automation-id="insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
+			<capitec-toast class="error" type="error" header="Select an account to pay from" layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
@@ -421,13 +421,13 @@ class PayPremiumDialog extends Component {
 
 }
 
-window.customElements.define(`insure-pay-premium-dialog`, PayPremiumDialog);
+window.customElements.define(`horizon-insure-pay-premium-dialog`, PayPremiumDialog);
 
 /**
  * Send the selected arrears and chosen account to consuming component when 'Add' is clicked
  *
  * @example
- * <pay-premium-dialog ... @pay-arrears="${this._handler}"></pay-premium-dialog>
+ * <horizon-insure-pay-premium-dialog ... @pay-arrears="${this._handler}"></horizon-insure-pay-premium-dialog>
  *
  * @event PayPremiumDialog#pay-arrears
  * @type {Object} - N/A
@@ -437,7 +437,7 @@ window.customElements.define(`insure-pay-premium-dialog`, PayPremiumDialog);
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <pay-premium-dialog ... @close-modal="${this._handler}"></pay-premium-dialog>
+ * <horizon-insure-pay-premium-dialog ... @close-modal="${this._handler}"></horizon-insure-pay-premium-dialog>
  *
  * @event PayPremiumDialog#close-modal
  * @type {Object} - N/A
