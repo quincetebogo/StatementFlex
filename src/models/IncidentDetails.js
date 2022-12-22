@@ -38,7 +38,7 @@
 		this.incidentState = incidentState;
 		this.feedback = feedback;
 		this.isReassigned = isReassigned;
-		this.incCreated = incCreated;    
+		this.incCreated = incCreated;
 		this.description = description;
 	}
 };

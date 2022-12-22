@@ -404,7 +404,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	 async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
-		
+		const incidentDetails = this.getIncidentDetails();
 
 		if (!this._validIncident(this.currentIncident)) {
 			this.logger.log(`warning`, `Incident manager: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
@@ -493,10 +493,11 @@ export class HorizonIncidentManager {
 			this.primaryIncident,
 			clientNeed,
 			incidentDetails.currentNeed,
-			needStatus: `InProgress`
+			`InProgress`,
 			``,
 			false,
-			incCreated: incidentDetails.incCreated      
+			incidentDetails.incCreated,
+			incidentDetails.description
 		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);

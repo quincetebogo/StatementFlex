@@ -109,17 +109,19 @@ export class CreateIncidentError extends ViewBase {
 
 	_saveIncidentDetails(incCreated = true, incident = null) {
 
+		this.currentIncident = returnValue.result;
+
 		// Set up state for the incident details
 		const incidentDetails = new IncidentDetails(
-			incident ? incident.incidentNumber : `0`,
-			incident ? incident.incidentRecId : `0`,
-			incident ? incident.incidentNumber : `0`,
+			null,
+			this.horizonIncidentManager.primaryIncident,
 			``,
 			this.incomingCallDetails.ivrOptionCode,
 			``,
 			`Not Started`,
 			``,
-			incCreated
+			incCreated,
+			``
 		);
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
