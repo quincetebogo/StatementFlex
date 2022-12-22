@@ -227,10 +227,14 @@ const UNLOCK_OPTIONS = {
 	
 	_confirmUnlock() {
 		this.dispatchEvent(new CustomEvent(`unlock`, { detail: 
-			{ selectedFromAccount: this.selectedFromAccount, 
+			{ 
+				selectedFromAccount: this.selectedFromAccount,
 				unlockAmount: this.partialUnlockAmount,
 				unlockType: this.unlockType,
-				quoteRefNumber: this.quoteRefNumber } }));
+				quoteRefNumber: this.quoteRefNumber,
+				penaltyFee: this.unlockFee,
+				unlockBalance: this.selectedFromAccount.unlockBalance
+			} }));
 	}
 	
 	_verifyClick() {

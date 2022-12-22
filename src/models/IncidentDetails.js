@@ -16,6 +16,7 @@
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
 	 * @param {status} [incidentState = `InProgress`] Status of incident *Internal purpose* [InProgress/ Completed/ Assigned]
 	 * @param {string} [feedback = ``] Feedback of incident (need fulfilled/ assigned/ handed-off)
+	 * @param {string} [description = ``] Incident's description to update on strack
 	 * @memberof IncidentDetails
 	 */
 
@@ -27,7 +28,8 @@
 		incidentState = `Not Started`,
 		feedback = ``,
 		isReassigned = false,
-		incCreated = true    
+		incCreated = true,
+		description = ``
 	) {
 		this.currentIncident = currentIncident;
 		this.primaryIncident = primaryIncident;
@@ -37,5 +39,6 @@
 		this.feedback = feedback;
 		this.isReassigned = isReassigned;
 		this.incCreated = incCreated;    
+		this.description = description;
 	}
 };
