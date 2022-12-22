@@ -3,6 +3,7 @@ import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { SubsequentNeedEvents } from 'app/constants/telemetry/events/SubsequentIncident';
@@ -220,7 +221,8 @@ export class HorizonIncidentManager {
 			incidentRecId: incidentDetails.incidentRecId,
 			reason: reason,
 			resolution: this._formatLineBreaks(resolution),
-			causeCode: causeCode
+			causeCode: causeCode,
+			description: incidentDetails.description
 		};
 
 		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest, errorHandler);
@@ -375,6 +377,12 @@ export class HorizonIncidentManager {
 		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${incidentDetails.primaryIncidentRecID}, correlationId: ${ex.correlationId}`);
+			} 
+			
 			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
 
 			// updating inc creation status to state
