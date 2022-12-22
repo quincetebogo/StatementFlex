@@ -413,10 +413,10 @@ export class Statements extends Component {
 
 				return data;
 			});
-			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, statementDetails);
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
-			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
+			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName);
 		}
 
 		this._updateScreenDetails(request);

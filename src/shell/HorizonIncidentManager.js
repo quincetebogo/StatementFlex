@@ -220,7 +220,8 @@ export class HorizonIncidentManager {
 			incidentRecId: incidentDetails.incidentRecId,
 			reason: reason,
 			resolution: this._formatLineBreaks(resolution),
-			causeCode: causeCode
+			causeCode: causeCode,
+			description: incidentDetails.description
 		};
 
 		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest, errorHandler);
