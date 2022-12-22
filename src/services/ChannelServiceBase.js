@@ -474,7 +474,7 @@ export class ChannelServiceBase extends Service {
 	_logException(exception) {
 		let message = ``;
 
-		if (Object.prototype.hasOwnProperty.call(exception, `message`)) {
+		if (Object.prototype.hasOwnProperty.call(exception, `message`) || Boolean(exception?.message)) {
 			message = `${exception.message}`;
 		}
 
