@@ -13,6 +13,7 @@ import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Statements dialog is used to view/send statements from the Quick transaction & corresponding product screens.
@@ -413,10 +414,10 @@ export class Statements extends Component {
 
 				return data;
 			});
-			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, statementDetails);
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
-			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
+			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName);
 		}
 
 		this._updateScreenDetails(request);
@@ -466,6 +467,7 @@ export class Statements extends Component {
 	// ---------
 	_mobileTemplate() {
 		return _webTemplate();
+		
 	}
 
 	_webTemplate() {
@@ -485,6 +487,7 @@ export class Statements extends Component {
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 			${this._renderCcsModal()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -502,6 +505,14 @@ export class Statements extends Component {
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
 		: html``;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

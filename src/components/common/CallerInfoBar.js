@@ -46,6 +46,10 @@ export class CallerInfoBar extends Component {
 		return this.incidentRefNumber && this.incidentRefNumber > 0 ? this.incidentRefNumber : ``;
 	}
 
+	get incCreated() {
+		return this.incidentDetails.incCreated;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -114,11 +118,7 @@ export class CallerInfoBar extends Component {
 	_webTemplate() {
 		return html`
 			<div class="call-details-bar">
-				<horizon-label
-					data-automation-id="caller-info-bar-incident-reference"
-					label="Reference Number"
-					value = "${this._incidentRefNumber}">
-				</horizon-label>
+				${this._renderIncRefNumber()}
 				<horizon-select
 					data-automation-id="caller-info-bar-need"
 					label="Client Need"
@@ -135,6 +135,37 @@ export class CallerInfoBar extends Component {
 				</horizon-label>
 			</div>
 		`;
+	}
+
+	_renderIncRefNumber() {
+
+		switch (true) {
+			case !this._incRefNumber && !this.incCreated:
+				return html`
+					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
+						<capitec-icon
+							size="medium"
+							icon="status/warning-trans">
+						</capitec-icon>
+						<capitec-label label="Incident not created"></capitec-label>
+					</capitec-content-box>`
+			case !this._incRefNumber && this.incCreated:
+				return html`
+					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
+						<capitec-icon
+							size="medium"
+							icon="status/info-trans">
+						</capitec-icon>
+						<capitec-label label="Incident closed"></capitec-label>
+					</capitec-content-box>`;
+			default:
+				return html`
+					<horizon-label
+						data-automation-id="caller-info-bar-incident-reference"
+						label="Reference Number"
+						value = "${this._incRefNumber}">
+					</horizon-label>`;
+		}
 	}
 }
 

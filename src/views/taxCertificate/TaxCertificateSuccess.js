@@ -5,6 +5,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the selected tax certificates have been successfully sent.
@@ -204,6 +205,8 @@ export class TaxCertificateSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -262,6 +265,14 @@ export class TaxCertificateSuccess extends ViewBase {
 				slot="${slot}">
 					Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 			</section>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

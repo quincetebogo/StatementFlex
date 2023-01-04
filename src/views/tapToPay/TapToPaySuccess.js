@@ -4,6 +4,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions'
 
 export class TapToPaySuccess extends ViewBase {
 
@@ -111,6 +112,7 @@ export class TapToPaySuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderTapToPaySuccess()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -135,6 +137,14 @@ export class TapToPaySuccess extends ViewBase {
 							: `is deactivated`}.
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 }

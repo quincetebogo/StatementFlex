@@ -116,7 +116,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -222,7 +222,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {

@@ -331,7 +331,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -371,7 +371,7 @@ export class SearchCaller extends Component {
 					"client-verified": this.isClientVerifiedInBranch
 				});
 
-				const returnValue = await this.clientProfileService.searchCaller(searchClient);
+				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 				const identifiedClient = returnValue.result;
 
 				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -431,6 +431,12 @@ export class SearchCaller extends Component {
 		callerDetails.nonClientIDNumber = ``;
 		callerDetails.nonClientRelationship = ``;
 
+			if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+				this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
+				this._raiseNonClientCaptured();
+				return;
+			}
+
 		const nonClientDetails = {
 			firstName: this.nameValue,
 			surname: this.surNameValue,
@@ -450,17 +456,7 @@ export class SearchCaller extends Component {
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				nonClient: {
-					firstName: this.nameValue,
-					surname: this.surNameValue,
-					cellphone: this.cellPhoneNumberValue
-				},
-				isBranchConsultant: false
-			}
-		}));
+				this._raiseNonClientCaptured();
 	}
 
 	_onEndCall() {
@@ -699,6 +695,12 @@ export class SearchCaller extends Component {
 	}
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+		
+		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
+			return;
+		}
+
 		// on confirm click, update incident details to be branch incident and not client incident
 		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, branchCode, branchCallerId);
 		if (!returnValue.succeeded) {
@@ -758,6 +760,21 @@ export class SearchCaller extends Component {
 			`cp${this.cpNumber}`, // branch caller id,
 			this.branchCode
 		);
+	}
+
+	_raiseNonClientCaptured() {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				incidentDetails: this.incidentDetails,
+				nonClient: {
+					firstName: this.nameValue,
+					surname: this.surNameValue,
+					cellphone: this.cellPhoneNumberValue
+				},
+				isBranchConsultant: false
+			}
+		}));
 	}
 	// ---------
 	// RENDERING

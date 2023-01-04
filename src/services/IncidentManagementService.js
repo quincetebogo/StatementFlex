@@ -54,7 +54,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			null, 
 			null, 
 			900,
-			null,
+			10000,
 			errorHandler,
 			autoRetries
 		);
@@ -254,6 +254,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 */
 	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+		
 
 		return this.put(
 			`/clientcare-incident-${this._version}/close-incident`,
@@ -262,19 +263,20 @@ export class IncidentManagementService extends ChannelServiceBase {
 			`closeIncident`, 
 			null, 
 			null, 
-			null,
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
 
-	_formatCloseIncidentRequest(incident, reason, resolution, causeCode) {
+	_formatCloseIncidentRequest(incident, reason, resolution, causeCode, description) {
 		return {
 			incident: incident,
 			reason: reason,
 			resolution: resolution,
 			causeCode: causeCode
+      description: description
 		};
 	}
 
