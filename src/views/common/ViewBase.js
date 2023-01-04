@@ -344,9 +344,10 @@ export class ViewBase extends View {
 		return this.showVerifyCallerDialog 
 			? html`
 				<horizon-verify-caller
-					incidentRefNumber="${this.currentIncident.toString()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
+					incidentRefNumber="${this.currentIncident.toString()}"
+					?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -373,6 +374,8 @@ export class ViewBase extends View {
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this.currentIncident.toString()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

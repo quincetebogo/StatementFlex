@@ -82,6 +82,16 @@ export class HorizonIncidentManager {
 	}
 
 	/**
+	 * Gets a value indicating whether an incident has been created yet. All incidents may be closed
+	 * but we may still be in a session where we can create further sub-incidents off the primary incident
+	 * This flag indicates if this is the case
+	 * @returns {boolean} A value indicating if an incident has been created yet
+	 */
+	get isAnIncidentCreated() {
+		return this.incidentDetails.incCreated && this.incidentDetails.incCreated;
+	}
+
+	/**
 	 * Gets the Primary Incident (i.e. the initial incident created to which all other incidents are linked)
 	 * 
 	 * @returns {object} An object containing the primary incident

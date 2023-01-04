@@ -19,8 +19,10 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
-		this.need = null;
+		this.incidentRefNumber = ``;
+		this.incidentCreated = false;
 		this.isNeedSelectable = false;
+		this.need = null;
 	}
 
 	// --------------
@@ -38,16 +40,13 @@ export class CallerInfoBar extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentRefNumber: { type: String },
+			incidentCreated: {type: Boolean },
 			isNeedSelectable: { type: Boolean }
 		};
 	}
 
 	get _incidentRefNumber() {
 		return this.incidentRefNumber && this.incidentRefNumber > 0 ? this.incidentRefNumber : ``;
-	}
-
-	get incCreated() {
-		return this.incidentDetails.incCreated;
 	}
 
 	// -------------------
@@ -140,7 +139,7 @@ export class CallerInfoBar extends Component {
 	_renderIncRefNumber() {
 
 		switch (true) {
-			case !this._incRefNumber && !this.incCreated:
+			case !this._incidentRefNumber && !this.incidentCreated:
 				return html`
 					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-icon
@@ -149,7 +148,7 @@ export class CallerInfoBar extends Component {
 						</capitec-icon>
 						<capitec-label label="Incident not created"></capitec-label>
 					</capitec-content-box>`
-			case !this._incRefNumber && this.incCreated:
+			case !this._incidentRefNumber && this.incidentCreated:
 				return html`
 					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-icon
@@ -163,7 +162,7 @@ export class CallerInfoBar extends Component {
 					<horizon-label
 						data-automation-id="caller-info-bar-incident-reference"
 						label="Reference Number"
-						value = "${this._incRefNumber}">
+						value = "${this._incidentRefNumber}">
 					</horizon-label>`;
 		}
 	}

@@ -402,12 +402,16 @@ export class StopCardSearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="stop-card-search-caller-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.currentIncident.toString()}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${HEADER_LABEL}"
+						incidentRefNumber="${this.currentIncident.toString()}"
+						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable="${true}"
+
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
+						
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}

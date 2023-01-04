@@ -875,10 +875,13 @@ export class SearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="search-caller-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.currentIncident.toString()}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${this.headerLabel}"
+						incidentRefNumber="${this.currentIncident.toString()}"
+						?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${true}
+
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">

@@ -419,6 +419,7 @@ export class LandingPage extends ViewBase {
 					.currentIncident="${this.currentIncident}"
 					.cpNumber="${this.cpNumber}"
 					.clientType="${this.clientType}"
+
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>

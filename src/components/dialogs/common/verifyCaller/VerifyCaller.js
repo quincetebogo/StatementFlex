@@ -78,6 +78,7 @@ export class VerifyCaller extends Component {
 		this.itaRejected = false;
 		this.itaSystemError = false;
 		this.timeLeft = ITA_TIMEOUT_SECS;
+		this.incidentCreated = false;
 
 		this.hasSouthAfricanID = false;
 		this.kbaQuestions = [];
@@ -111,14 +112,14 @@ export class VerifyCaller extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * @property {object} incidentRefNumber Current incident reference number
-	 
-	 * 
+	 * @property {Boolean} incidentCreated - Indicates if an incident has been created yet (ref no can be blank due to closed incident) 
 	 */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			incidentRefNumber: { type: String },
+			incidentCreated: { type: Boolean },
 
 			renderMode: { state: true },
 			hasSouthAfricanID: { state: true },
@@ -885,11 +886,15 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-caller-dialog
 					data-automation-id="verify-caller-dialog"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					incidentRefNumber="${this.incidentRefNumber}"
-					.isNeedSelectable=${false}
+
 					headerLabel="${HEADER_LABEL}"
+					incidentRefNumber="${this.incidentRefNumber}"
+					?incidentCreated="${this.incidentCreateed}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					?isNeedSelectable="${false}"
+
 					@on-end-call="${() => this._endCall()}">
+
 					<div slot="body">
 						${this._renderBody()}
 						${this._renderButtonBar()}
@@ -1059,11 +1064,14 @@ export class VerifyCaller extends Component {
 			? html`
 				<horizon-security-question 
 					data-automation-id="verify-caller-sq-dialog"
+
 					incidentRefNumber="${this.incidentRefNumber}"
+					?incidentCreated="${this.incidentCreated}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.securityQuestions="${this.securityQuestions}"
-					.callerInformation="${this.callerInformation}"
 					?finalAttempt=${this.xdsAttempts === MAX_XDS_ATTEMPTS}
+					.callerInformation="${this.callerInformation}"
+
 					@cancel="${() => this._cancelledSecurityQuestions()}"
 					@skip="${() => this._skippedSecurityQuestions()}"
 					@verified="${() => this._verifiedViaSecurityQuestions()}"
@@ -1109,10 +1117,12 @@ export class VerifyCaller extends Component {
 			<horizon-verify-kba
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this.incidentRefNumber}"
+				?incidentCreated="${this.incidentCreated}"
 				.questions="${this.kbaQuestions}"
-				.cifNumber="${this.callerInformation.cifNumber}"
+				cifNumber="${this.callerInformation.cifNumber}"
+				lastName="${this.callerInformation.lastName}"
 				client-title="${this.callerInformation.title}"
-				.lastName="${this.callerInformation.lastName}"
+
 				@cancel="${() => this._cancelledSecurityQuestions()}"
 				@skip="${() => this._skippedSecurityQuestions()}"
 				@verified="${() => this._verifiedViaSecurityQuestions()}"

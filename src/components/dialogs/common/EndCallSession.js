@@ -707,11 +707,14 @@ export class EndCallSession extends Component {
 		return html`
 			<horizon-caller-dialog
 				data-automation-id="end-call-session-dialog"
-				.incomingCallDetails="${this.incomingCallDetails}"
+
+				headerLabel="${HEADER_LABEL}" 
+				?displayButton="${false}"
 				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
-				.isNeedSelectable=${false}
-						headerLabel="${HEADER_LABEL}" 
-				.displayButton="${false}">
+				?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
+				.incomingCallDetails="${this.incomingCallDetails}"
+				?isNeedSelectable="${false}">
+				
 					<div slot="body">
 						<capitec-content-box
 							id="end-call-content-box"
