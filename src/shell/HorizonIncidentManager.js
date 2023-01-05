@@ -54,7 +54,8 @@ export class HorizonIncidentManager {
 			this.incidentDetails = state.incidentDetails;
 			return;
 		} 
-		this.incidentDetails = null;
+
+		this.incidentDetails = {};
 	}
 
 	// --------------
@@ -97,7 +98,7 @@ export class HorizonIncidentManager {
 	 * @returns {object} An object containing the primary incident
 	 */
 	get primaryIncident() {
-		if (!this.incidentDetails.primaryIncident) {
+		if (!this.incidentDetails?.primaryIncident) {
 			return null;
 		}
 
@@ -115,7 +116,7 @@ export class HorizonIncidentManager {
 	 * @returns {object} An object containing the current incident
 	 */
 	 get currentIncident() {
-			if (!this.incidentDetails.currentIncident) {
+			if (!this.incidentDetails?.currentIncident) {
 				return null;
 			}
 
@@ -132,6 +133,10 @@ export class HorizonIncidentManager {
 	 * @returns {string} A value indicating the state (progress) of the current incident
 	 */
 	get incidentState() {
+		if (!this.incidentDetails?.incidentState) {
+			return null;
+		}
+
 		return this.incidentDetails.incidentState;
 	}
 
@@ -150,6 +155,10 @@ export class HorizonIncidentManager {
 	 * @returns {string} The need associated with the current incident
 	 */
 	getCurrentNeed() {
+		if (!this.incidentDetails?.currentNeed) {
+			return null;
+		}
+
 		return this.incidentDetails.currentNeed;
 	}
 
@@ -171,6 +180,10 @@ export class HorizonIncidentManager {
 	 * @returns {string} Feedback on the current incident
 	 */
 	getFeedback() {
+		if (!this.incidentDetails?.feedback) {
+			return null;
+		}
+
 		return this.incidentDetails.feedback;
 	}
 
@@ -185,6 +198,10 @@ export class HorizonIncidentManager {
 	 * @returns {bool} True if the incident has been re=assigned.
 	 */
 	get isReassigned() {
+		if (!this.incidentDetails?.isReassigned) {
+			return null;
+		}
+
 		return this.incidentDetails.isReassigned;
 	}
 
