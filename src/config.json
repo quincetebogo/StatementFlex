@@ -10,7 +10,7 @@
 		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://csc-incident.platform-dev.int.capinet"	
+		"incidentManagementService": "https://cec-cs-incident.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
