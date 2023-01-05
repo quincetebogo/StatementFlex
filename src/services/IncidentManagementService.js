@@ -275,8 +275,8 @@ export class IncidentManagementService extends ChannelServiceBase {
 			incident: incident,
 			reason: reason,
 			resolution: resolution,
-			causeCode: causeCode
-      description: description
+			causeCode: causeCode,
+			description: description
 		};
 	}
 
@@ -297,7 +297,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			url, 
 			{
 				incident: incident,
-				need: need
+				needAction: need
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 

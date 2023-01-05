@@ -71,6 +71,7 @@
 			}
 		}
 	},
+	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false,
 		"acceptCall": {
@@ -167,6 +168,5 @@
 			"enabled": false,
 			"positiveCase": true
 		}
-	},
-	"searchClientOptionEnabled": true
+	}
 }

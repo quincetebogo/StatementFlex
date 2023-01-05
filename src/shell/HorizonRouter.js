@@ -66,7 +66,7 @@ const HORIZON_ROUTES = Object.freeze({
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
 	WIDGET_HOST: `/widget`,  
-	CREATE_INCIDENT_ERROR: `/error/create-incident`    
+	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`
 });

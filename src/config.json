@@ -71,6 +71,7 @@
 			}
 		}
 	},
+	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
@@ -281,6 +282,6 @@
 		"sendCashVouchers": {
 			"enabled": false,
 			"positiveCase" : true
-		},
-	"searchClientOptionEnabled": true
+		}
+	}
 }

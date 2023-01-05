@@ -70,8 +70,8 @@
 			}
 		}
 	},
+	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false	
-	},
-	"searchClientOptionEnabled": true
+	}
 }

@@ -394,7 +394,13 @@ export class HorizonIncidentManager {
 		 const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
 		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason], manualClassification);
 
-		const returnValue = await this.incidentService.closeIncident(this.currentIncident, reason, this._formatLineBreaks(resolution), causeCode, errorHandler);
+		const returnValue = await this.incidentService.closeIncident(
+			this.currentIncident, 
+			reason, 
+			this._formatLineBreaks(resolution), 
+			causeCode, 
+			errorHandler
+		);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
@@ -411,14 +417,14 @@ export class HorizonIncidentManager {
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @param {Object} incidentCategorization - Object holds category, subcategory & issue that needs to be updated for an incident
 	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {void}
+	 * @returns {Promise<void>} A promise to classify an incident
 	 */
 	 async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
 		const incidentDetails = this.getIncidentDetails();
 
 		if (!this._validIncident(this.currentIncident)) {
 			this.logger.log(`warning`, `Incident manager: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
-			return true;
+			return;
 		}
 
 		let canClassify = !this.checkIncidentStatus;
