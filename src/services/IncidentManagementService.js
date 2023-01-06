@@ -247,13 +247,14 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @param {string} reason The reason for closing
 	 * @param {string} resolution The resolution of the incident
 	 * @param {string} causeCode Cause code for the incident
+	 * @param {string} description Text to add to the description field of the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+	 closeIncident(incident, reason, resolution, causeCode, description, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode, description);
 		
 
 		return this.put(

@@ -394,7 +394,7 @@ export class HorizonIncidentManager {
 			return true;
 		}
 
-		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
+		const incidentInfo = await this._incidentStatus(this.currentIncident);
 
 		if (this._isReassigned(incidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${this.currentIncident.toString()} is reassigned, skipping close incident`, `closeIncident`, null);
@@ -416,6 +416,7 @@ export class HorizonIncidentManager {
 			reason, 
 			this._formatLineBreaks(resolution), 
 			causeCode, 
+			this.incidentDetails.description,
 			errorHandler
 		);
 
@@ -617,7 +618,7 @@ export class HorizonIncidentManager {
 		}
 
 		if (callerInfo.isBranchConsultant) {
-			await this._updateIncidentBranchDetails(incidentDetails.incidentRecId, callerInfo.branchCode, callerInfo.branchCallerID);
+			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
 		}
 	}
 
@@ -647,9 +648,9 @@ export class HorizonIncidentManager {
 		}
 	}
 
-	async _updateIncidentBranchDetails(incidentRecID, branchCode, branchCallerID) {
+	async _updateIncidentBranchDetails(incident, branchCode, branchCallerID) {
 		
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, branchCallerID);
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerID);
 		
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);

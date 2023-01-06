@@ -431,11 +431,11 @@ export class SearchCaller extends Component {
 		callerDetails.nonClientIDNumber = ``;
 		callerDetails.nonClientRelationship = ``;
 
-			if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
-				this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
-				this._raiseNonClientCaptured();
-				return;
-			}
+		if (!this.currentIncident) {
+			this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
+			this._raiseNonClientCaptured();
+			return;
+		}
 
 		const nonClientDetails = {
 			firstName: this.nameValue,
@@ -696,7 +696,7 @@ export class SearchCaller extends Component {
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
 		
-		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+		if (!this.currentIncident) {
 			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
 			return;
 		}
