@@ -24,7 +24,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			`serviceURIs.incidentManagementService`, 
 			`incidentManagementService`, 
 			`v1`,
-			null
+			() => import(`../mocks/IncidentManagementMocks.js`)
 		);
 	}
 
@@ -41,11 +41,15 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`createIncident`)) {
+			return this.mockWithErrorHandler(`createIncident`, errorHandler);
+		}
+
 		const createIncidentRequest = this._formatIncidentRequest(incidentData);
 
 		const url = `/clientcare-incident-${this._version}/create-incident`;
-	
+
 		return this.post(
 			url, 
 			createIncidentRequest, 

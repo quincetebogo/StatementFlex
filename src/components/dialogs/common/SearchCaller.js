@@ -776,6 +776,11 @@ export class SearchCaller extends Component {
 			}
 		}));
 	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -877,7 +882,7 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-dialog"
 
 						headerLabel="${this.headerLabel}"
-						incidentRefNumber="${this.currentIncident.toString()}"
+						incidentRefNumber="${this._currentIncidentRef()}"
 						?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable=${true}

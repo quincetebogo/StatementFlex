@@ -337,6 +337,10 @@ export class StopCardSearchCaller extends Component {
 		return true;
 	}
 
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -404,7 +408,7 @@ export class StopCardSearchCaller extends Component {
 						data-automation-id="stop-card-search-caller-dialog"
 
 						headerLabel="${HEADER_LABEL}"
-						incidentRefNumber="${this.currentIncident.toString()}"
+						incidentRefNumber="${this._currentIncidentRef()}"
 						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable="${true}"

@@ -63,20 +63,28 @@ export class HorizonIncidentManager {
 	// --------------
 
 	/**
-	 * Sets up a new primary incident and persists it to state.
+	 * Sets up a new primary incident and persists it to state. Horizon can continue without an incident
+	 * There is therefore an incidentCreated flag to signal if an incident was not created.
 	 * 
 	 * @param {object} incident A new primary incident
 	 * @param {string} initialNeed The initial need
+	 * @param {Boolean} incidentCreated Flag to indicate if an incident was actually created
 	 * 
 	 * @returns {object} The primary incident object
 	 */
-	setNewPrimaryIncident(incident, initialNeed) {
+	setNewPrimaryIncident(incident, initialNeed, incidentCreated) {
 		this.incidentDetails = new IncidentDetails(
 			incident, // current Incident
-			incident, // primary incident
-			initialNeed // current Need
+			incident, // current Incident
+			initialNeed, // current Need
+			``,
+			`Not Started`,
+			``,
+			false,
+			incidentCreated, // Flag to indicate if an incident was actually created
+			``
 		);
-
+	
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		return this.primaryIncident;

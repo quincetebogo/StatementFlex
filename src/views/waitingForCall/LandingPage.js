@@ -160,15 +160,13 @@ export class LandingPage extends ViewBase {
 			return false;
 		}
 
-		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode);
+		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
 
 		this._acceptCall(newCallInfo, primaryIncident);
 	}
 
 	_initiateAcceptCall() {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		
 		this._acceptCall(this.incomingCallDetails);
 	}
 
@@ -231,7 +229,7 @@ export class LandingPage extends ViewBase {
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		
 		const state = {
-			callStatus: `CALL-IN-PROGRESS`,
+			callStatus: `CALL-IN-PROGRESS`
 		};
 
 		this.horizonStore.saveState(state);

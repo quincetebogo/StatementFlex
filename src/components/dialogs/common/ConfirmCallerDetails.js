@@ -517,6 +517,10 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -613,7 +617,7 @@ export class ConfirmCallerDetails extends Component {
 						data-automation-id="confirm-caller-details-dialog"
 
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
-						incidentRefNumber="${this.currentIncident.toString()}"
+						incidentRefNumber="${this._currentIncidentRef()}"
 						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable=${true}
@@ -805,7 +809,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncident.toString()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
@@ -859,7 +863,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
-				incidentRefNumber="${this.currentIncident.toString()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(event) => this._verificationCancelled(event)}" 

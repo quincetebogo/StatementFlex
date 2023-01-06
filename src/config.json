@@ -74,6 +74,9 @@
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": true,
+		"createIncident": {
+			"enabled" : false
+		},
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
