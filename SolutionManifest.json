@@ -6,7 +6,7 @@
       "name": "Horizon-UI",
       "location": ".",
       "platformType": "ocwp",
-      "cliVersion": "1.16.0"
+      "cliVersion": "1.17.0"
     }
   ]
 }

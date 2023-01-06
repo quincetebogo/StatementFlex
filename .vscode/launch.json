@@ -35,7 +35,7 @@
 			"sourceMaps": true,
 			"trace": true,
 			"env": {
-				"PATH": "${workspaceFolder}/ocwp/1.16.0/node;${env:PATH}"
+				"PATH": "${workspaceFolder}/ocwp/1.17.0/node;${env:PATH}"
 			}
 		}
 	]
