@@ -194,6 +194,31 @@ export class HorizonIncidentManager {
 	}
 
 	/**
+	 * Gets the text on the description field of the incident
+	 * 
+	 * @returns {string} The description field of the incident
+	 */
+	getDescription () {
+		if (!this.incidentDetails?.description) {
+			return null;
+		}
+
+		return this.incidentDetails.description;
+	}
+
+	/**
+	 * Updates the text on the description field of the incident
+	 * 
+	 * @param {string} description Text to store on the description field of the incident
+	 * @returns {string} The description field of the incident
+	 */
+	setDescription (description) {
+		this.incidentDetails.description = description;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		return description;
+	}
+
+	/**
 	 * Indicates if the incident has been re-assigned
 	 * @returns {bool} True if the incident has been re=assigned.
 	 */
