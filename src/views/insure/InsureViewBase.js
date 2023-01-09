@@ -96,7 +96,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {void}
 	 */
 	handleToastError(exception) {
-		this.insureErrorToastMessage = exception.output.ErrorMessage;
+		this.insureErrorToastMessage = exception.output[0].ErrorMessage;
 		this.showInsureErrorToast = true;
 		window.setTimeout(() => this._hideToastDisplay(), ERROR_TOAST_DELAY);
 	}
