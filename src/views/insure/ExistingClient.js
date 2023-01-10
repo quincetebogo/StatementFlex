@@ -891,11 +891,11 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
-			this.estimate = estimateWithCoverDetails;
-		} else {
-			this.handleToastError(resp.exception);
-			return null;
+			return estimateWithCoverDetails;
 		}
+		this.handleToastError(resp.exception);
+		return null;
+
 	}
 
 	/**
@@ -1404,12 +1404,12 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-estimate 
 				.estimate="${this.estimate}"
-				.printEstimate="${(e) => this._printEstimate(e)}" 
+				.printEstimate="${(e) => this._printEstimate(e)}"
+				.calculateEstimate="${(e) => this._calculateClientEstimate(e)}"  
 				.productParams="${this.productParams}" 
 				.mainLifeDefaultAge="${this._getMainLifeAge()}"
 				.mainLifeDefaultGender="${this._getMainLifeGender()}"
 				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
-				@calculate="${(e) => this._calculateClientEstimate(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-estimate>`;
