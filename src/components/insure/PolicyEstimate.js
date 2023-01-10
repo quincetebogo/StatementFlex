@@ -184,9 +184,9 @@ class PolicyEstimate extends Component {
 			};
 
 			if (printOrCalculate === 1) {
-				this.dispatchEvent(new CustomEvent(`calculate`, { detail: request }));
-				this.estimate.totalPremium = 0;
+				this.estimate = await this.calculateEstimate({ detail: request });
 				this.newTotalPremium = ``;
+				this.requestUpdate();
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
@@ -672,7 +672,7 @@ class PolicyEstimate extends Component {
 			
 						<div class="calc-life-list">
 							<capitec-label label="Total premium amount" class="stronger"></capitec-label>
-							<capitec-label label="${formatCurrency(this.estimate.totalPremium)}" class="stronger"
+							<capitec-label label="${!this.estimate.totalPremium ? `R0.00` : formatCurrency(this.estimate.totalPremium)}" class="stronger"
 								data-automation-id="insure-estimate-list-total-premium"></capitec-label>
 						</div>
 					</div>
@@ -756,16 +756,6 @@ window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
  *
  * @event PolicyEstimate#navigate-back
  * @type {Object} - N/A
- */
-
-/**
- * When calculate button is clicked, send estimate calculate event to View with new estimate request
- *
- * @example
- * <horizon-insure-policy-estimate ... @calculate="${this._handler}"></horizon-insure-policy-estimate>
- *
- * @event PolicyEstimate#calculate
- * @type {Object} - Estimate request
  */
 
 /**
