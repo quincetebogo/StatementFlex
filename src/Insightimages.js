@@ -3,17 +3,17 @@ let LOCAL_INSIGHTS = {};
 const CLIENT_INSIGHTS = {
 	"DEV": LOCAL_INSIGHTS = {
 		"34": {
-			"245": {
+			"108": {
 				"header": `Use your card instead of cash`,
 				"image": `/images/insights/Cash-to-electronic.png`,
 				"message": `You've been drawing less cash. Keep it up and \n rather pay with your card`
 			},
-			"246": {
+			"108": {
 				"header": `Get cash at the till`,
 				"image": `/images/insights/Get-cash-at-the-till.png`,
 				"message": `Did you know you could've saved money in \n cash withdrawal fees last month by drawing \n cash at major retailers, rather than an ATM?`
 			},
-			"247": {
+			"39": {
 				"header": `Switch your salary and debit orders`,
 				"image": `/images/insights/Prompt-salary-and-do-switch.png`,
 				"message": `Switch your salary and debit orders to \n Capitec today and save on time and banking  \n fees. Simply WhatsApp us on 0674189565 `
@@ -25,17 +25,17 @@ const CLIENT_INSIGHTS = {
 
 	'INT': {
 		"34": {
-			"245": {
+			"152": {
 				"header": `Use your card instead of cash`,
 				"image": `/images/insights/Cash-to-electronic.png`,
 				"message": `You've been drawing less cash. Keep it up and \n rather pay with your card`
 			},
-			"246": {
+			"152": {
 				"header": `Get cash at the till`,
 				"image": `/images/insights/Get-cash-at-the-till.png`,
 				"message": `Did you know you could've saved money in \n cash withdrawal fees last month by drawing \n cash at major retailers, rather than an ATM?`
 			},
-			"247": {
+			"39": {
 				"header": `Switch your salary and debit orders`,
 				"image": `/images/insights/Prompt-salary-and-do-switch.png`,
 				"message": `Switch your salary and debit orders to \n Capitec today and save on time and banking  \n fees. Simply WhatsApp us on 0674189565 `
