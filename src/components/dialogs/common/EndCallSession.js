@@ -171,7 +171,7 @@ export class EndCallSession extends Component {
 			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
-			if (!currentIncident.incidentReferenceNumber || currentIncident.incidentReferenceNumber === `0`) {
+			if (!currentIncident.incidentReference || currentIncident.incidentReference === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
@@ -435,13 +435,7 @@ export class EndCallSession extends Component {
 		const incident = this.horizonIncidentManager.currentIncident;
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
-			const request = {
-				incident: incident,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction,
-				incidentCategorization: classification
-			};
-			const returnValue = await this.incidentManagementService.classifyIncident(request);
+			const returnValue = await this.incidentManagementService.classifyIncident(incident, needAction, classification);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);

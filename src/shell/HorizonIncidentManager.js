@@ -495,7 +495,7 @@ export class HorizonIncidentManager {
 		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
 
 		if (canClassify && (!isNullorEmpty(needAction) || !isNullorEmpty(incidentCategorization))) {
-			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, errorHandler);
+			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
 	
 			if (!returnValue.succeeded) {
 				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);

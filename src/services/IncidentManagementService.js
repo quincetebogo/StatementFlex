@@ -290,19 +290,21 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 *
 	 * @param {object} incident The incident to classify
 	 * @param {string} [need=null] A need constant that is mapped to a classification
+	 * @param {object} [manualClassification] Object to classify incidents with agent selected values
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	classifyIncident(incident, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	classifyIncident(incident, need, manualClassification, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/classification`;
 	
 		return this.post(
 			url, 
 			{
 				incident: incident,
-				needAction: need
+				needAction: need,
+				manualClassification: manualClassification
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 
