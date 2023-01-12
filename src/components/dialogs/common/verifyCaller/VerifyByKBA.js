@@ -76,6 +76,7 @@ export class VerifyByKBA extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {String} incidentRefNumber Current incident reference number
+	 * @property {Boolean} incidentCreated - Indicates if an incident has been created yet (ref no can be blank due to closed incident)
 	 * @property {object} questions KBA questions
 	 * 
 	 */
@@ -83,13 +84,11 @@ export class VerifyByKBA extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentRefNumber: { type: String },
+			incidentCreated: { type: Boolean },
 			questions: { type: Object },
 			cifNumber: { type: String },
 			lastName: { type: String },
-			title: { 
-				type: String,
-				attribute: `client-title`
-			},
+			title: { type: String, attribute: `client-title` },
 
 			isBusy: { state: true },
 			renderMode: { state: true },
@@ -410,10 +409,12 @@ export class VerifyByKBA extends Component {
 	_renderKBADialog() {
 		return html`
 			<horizon-caller-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.incidentRefNumber}"
-				.isNeedSelectable=${false}
 				headerLabel="Security Questions"
+				incidentRefNumber="${this.incidentRefNumber}"
+				?incidentCreated="${this.incidentCreated}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				?isNeedSelectable="${false}"
+
 				@on-end-call="${() => this._endCall()}">
 				<div slot="body">
 					${this._renderBody()}

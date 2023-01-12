@@ -79,6 +79,7 @@ export class AddCallerDetails extends Component {
 		RegExp();
 
 		this.incomingCallDetails = null;
+		this.incidentCreated = false;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 		this.surnameError = ``;
 		this.cellphoneError = ``;
@@ -106,6 +107,7 @@ export class AddCallerDetails extends Component {
 	/**
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * @property {String} incidentRefNumber - Current incident reference number
+	 * @property {Boolean} incidentCreated - Indicates if an incident has been created yet (ref no can be blank due to closed incident)
 	 * @property {Object} callerInformation - information on incoming caller
 	 *
 	 * @readonly
@@ -116,7 +118,9 @@ export class AddCallerDetails extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentRefNumber: { type: String },
+			incidentCreated: { type: Boolean },
 			callerInformation: { type: Object },
+
 			renderMode: { attribute: false },
 			validationFailed: { attribute: false },
 			nonClientRelationship: { attribute: false }
@@ -358,10 +362,12 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 					<horizon-caller-dialog
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.incidentRefNumber}"
-						.isNeedSelectable=${false}
 						headerLabel="${HEADER_LABEL}" 
+						incidentRefNumber="${this.incidentRefNumber}"
+						?incidentCreated="${this.incidentCreated}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${false}
+						
 						@on-end-call="${() => this._endCall()}">
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}

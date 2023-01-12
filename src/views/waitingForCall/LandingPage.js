@@ -56,6 +56,9 @@ export class LandingPage extends ViewBase {
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
 		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
+		this.incCreatedOnRetry = this.eventAggregator.subscribe(`accept-call`, () => this._initiateAcceptCall());
+		this.continueWithoutInc = this.eventAggregator.subscribe(`continue-without-incident`, () => this._initiateAcceptCall());
+
 		this.desktopAgentDown = false;
 		this.isAuthorised = false;
 
@@ -119,6 +122,8 @@ export class LandingPage extends ViewBase {
 		this.agentUpSub.dispose(); 
 		this.eventSub.dispose();
 		this.callStatusSubscription.unsubscribe();
+		this.incCreatedOnRetry.dispose();
+		this.continueWithoutInc.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -142,21 +147,35 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// Create an incident in STrack for the new incoming call. This was initially planned to happen
+		
+		// 1. Saving incoming call details into state
+		this._saveIncomingCallDetails(newCallInfo);
+
+		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
 
-		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode);
+		if (!incident) {
+			this.horizonRouter.navigateToCreateIncidentError();
+			return false;
+		}
+
+		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
 
 		this._acceptCall(newCallInfo, primaryIncident);
 	}
 
+	_initiateAcceptCall() {
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this._acceptCall(this.incomingCallDetails);
+	}
+
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
 		 const incident = returnValue.result?.incident;
 
 		 if (!returnValue.succeeded || !incident) {
-		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
+		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
 		 }
 
 		if (incident) {
@@ -184,7 +203,7 @@ export class LandingPage extends ViewBase {
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
 		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
-			const returnValue = await this.clientProfileService.acceptCall(newCallInfo);
+			const returnValue = await this.clientProfileService.acceptCall(newCallInfo, null, 1);
 			callerDetails = returnValue.result;
 			forceSearchDialog = !returnValue.succeeded;
 
@@ -208,21 +227,9 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
-		// Set up state for the incoming call
-		this.incomingCallDetails = new IncomingCallDetails(
-			newCallInfo.VDN,
-			newCallInfo.incomingTelephoneNumber,
-			false, 
-			false,
-			newCallInfo.voiceReferenceNumber,
-			newCallInfo.agentTelephoneNumber,
-			newCallInfo.ivrOptionCode
-		);
-
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		
 		const state = {
-			callStatus: `CALL-IN-PROGRESS`,
+			callStatus: `CALL-IN-PROGRESS`
 		};
 
 		this.horizonStore.saveState(state);
@@ -355,6 +362,21 @@ export class LandingPage extends ViewBase {
 		return true;
 	}
 
+	_saveIncomingCallDetails(newCallInfo) {
+
+		// Set up state for the incoming call
+		this.incomingCallDetails = new IncomingCallDetails(
+			newCallInfo.VDN,
+			newCallInfo.incomingTelephoneNumber,
+			false, 
+			false,
+			newCallInfo.voiceReferenceNumber,
+			newCallInfo.agentTelephoneNumber,
+			newCallInfo.ivrOptionCode
+		);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -395,6 +417,7 @@ export class LandingPage extends ViewBase {
 					.currentIncident="${this.currentIncident}"
 					.cpNumber="${this.cpNumber}"
 					.clientType="${this.clientType}"
+
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>

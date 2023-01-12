@@ -39,8 +39,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE);
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -128,8 +127,8 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 				@right-click=${() => this._tryAgain()}>
 					<section id="id-error-msg" slot="detail">
 					${this.screenDetails.unlockType === `Partial`
-							? `${formatCurrency(this.screenDetails.unlockAmount)} Partial transfer from ${this.screenDetails.unlockAccountName} to Main savings account was unsuccessful.`
-							: `Fixed-term savings plan for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
+							? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main Savings Account was unsuccessful.`
+							: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
 					</section>
 			</horizon-error-screen>
 		`;

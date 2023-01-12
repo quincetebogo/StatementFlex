@@ -2,6 +2,7 @@ import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 export class SuccessfulCardLimitUpdate extends ViewBase {
 
@@ -100,6 +101,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderCardLimitsUpdateSuccess()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -139,6 +141,14 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 						? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
 						: `is deactivated`}.
 			</section>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

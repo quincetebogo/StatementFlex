@@ -65,7 +65,8 @@ const HORIZON_ROUTES = Object.freeze({
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
-	WIDGET_HOST: `/widget`,
+	WIDGET_HOST: `/widget`,  
+	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`
 });
@@ -92,6 +93,7 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
+		this._performPostNavigateFunc = null;
 	}
 
 
@@ -141,7 +143,10 @@ export class HorizonRouter {
 	// --------------------
 	// Navigation functions  
 	// --------------------
-	navigateToWaitingForCall() {
+	navigateToWaitingForCall(postNavigateAction = null) {
+		// This is specifically for master incident creation failed scenario
+		this._performPostNavigateFunc = postNavigateAction;
+		
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
 
@@ -451,7 +456,11 @@ export class HorizonRouter {
 	navigateToKBAVerificationFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.KBA_VERIFICATION_FAILED}`);
 	}
-	
+
+	navigateToCreateIncidentError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREATE_INCIDENT_ERROR}`);
+	}
+
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
 	 *
@@ -531,6 +540,16 @@ export class HorizonRouter {
 			layoutByVerifictionMode: setShellLayoutByVerificationMode
 		}[prenavFunc]();
 	}
+
+	static _postNavigate() {
+		const horizonRouter = HorizonRouter.getInstance();
+
+		if (!horizonRouter._performPostNavigateFunc) {
+			return;
+		}
+
+		horizonRouter._performPostNavigateFunc(); // Runtime object
+	}
 }
 
 // -------------------------
@@ -548,6 +567,7 @@ export default horizonRoutes = [
 		load: () => import(`../views/waitingForCall/LandingPage`),
 		guard: () => HorizonRouter._guard(`callWaitingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES),
+		onPostNavigate: () => HorizonRouter._postNavigate(),
 		isDefault: true,
 		isFallback: true
 	},
@@ -1026,6 +1046,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-create-incident-error`,
+		title: `CreateIncidentError`,
+		icon: null,
+		path: HORIZON_ROUTES.CREATE_INCIDENT_ERROR,
+		load: () => import(`../views/waitingForCall/CreateIncidentError`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+	},  
+	{
 		name: `horizon-widget-host`,
 		title: `HorizonWidgetHost`,
 		icon: null,
@@ -1048,5 +1076,5 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
 		load: () => import(`../views/common/WidgetNotFound`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}  
+	}
 ];

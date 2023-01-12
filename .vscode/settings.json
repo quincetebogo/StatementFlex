@@ -36,8 +36,8 @@
 		"npx.cmd": true,
 		"npx": true
 	},
-	"eslint.nodePath": "./ocwp/1.16.0/node_modules",
-	"eslint.runtime": "./ocwp/1.16.0/node_bin/node",
+	"eslint.nodePath": "./ocwp/1.17.0/node_modules",
+	"eslint.runtime": "./ocwp/1.17.0/node_bin/node",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},

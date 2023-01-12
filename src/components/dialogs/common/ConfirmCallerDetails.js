@@ -95,7 +95,7 @@ export class ConfirmCallerDetails extends Component {
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} currentIncident Current incident details
-	 *
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof ConfirmCallerDetails
@@ -105,12 +105,12 @@ export class ConfirmCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			currentIncident: { type: Object },
+			cpNumber: { type: String },
+			clientType: { type: String },
 
-			cpNumber: { attribute: false },
-			clientType: { attribute: false },
-			isBusy: { attribute: false },
-			renderMode: { attribute: false },
-			errorMessage: { attribute: false }
+			isBusy: { state : true },
+			renderMode: { state: true },
+			errorMessage: { state: true }
 		};
 	}
 
@@ -517,6 +517,10 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -611,10 +615,13 @@ export class ConfirmCallerDetails extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="confirm-caller-details-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.currentIncident.toString()}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
+						incidentRefNumber="${this._currentIncidentRef()}"
+						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${true}
+						
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -799,9 +806,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller-details
 				data-automation-id="add-caller-details-modal"
+
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncident.toString()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
@@ -833,10 +843,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-caller
 				data-automation-id="confirm-caller-details-search-caller-modal"
+
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.currentIncident="${this.currentIncident}"
-				.cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
-				.clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
+				cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
+				clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
+				
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"
@@ -848,9 +860,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-verify-caller
 				data-automation-id="confirm-caller-details-veirfy-caller-modal"
+
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncident.toString()}"
 				.callerInformation="${this.callerInformation}"
+				incidentRefNumber="${this._currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(event) => this._verificationCancelled(event)}" 
 				@skip="${(event) => this._verificationSkipped(event)}"
 				@verified="${(event) => this._clientVerified(event)}">

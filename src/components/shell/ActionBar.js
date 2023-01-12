@@ -51,6 +51,10 @@ export class HorizonActionBar extends Component {
 		};
 	}
 
+	get _incRefNumber() {
+		return this.referenceNo && this.referenceNo > 0 ? this.referenceNo : ``;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -76,7 +80,7 @@ export class HorizonActionBar extends Component {
 
 	_stateChanged(state) {
 		if (state) {
-			this.referenceNo = this.horizonIncidentManager.primaryIncident.toString();
+			this.referenceNo = this.horizonIncidentManager.primaryIncident?.toString();
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
@@ -178,6 +182,20 @@ export class HorizonActionBar extends Component {
 			
 				.end-call-icon{
 					margin-left: 12px;
+				}
+				.noIncRef {
+					width: auto;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+				}
+				.noIncRef > capitec-icon {
+					--theme-icon-size-medium: 20px;
+					--theme-layout-gap-spacing: 10px
+				}
+				.noIncRef > capitec-label {
+					--theme-label-default-font-size: 16px;
+					--theme-label-font-color: #DCDCDC;
+					--theme-label-default-font-weight: 600;
 				}`
 		];
 	}
@@ -189,11 +207,7 @@ export class HorizonActionBar extends Component {
 		return html`
 			<capitec-title-bar>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
-					<horizon-label
-						label="Reference Number" 
-						value="${this.referenceNo && this.referenceNo > 0 ? this.referenceNo : ``}"
-						data-automation-id="action-bar-reference-no">
-					</horizon-label>
+					${this._renderIncRefNumber()}
 					<div class="vertical-line"></div>
 					<horizon-label
 						label="Primary Need" 
@@ -237,6 +251,25 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 				</capitec-group>
 			</capitec-title-bar>
+		`;
+	}
+
+	_renderIncRefNumber() {
+		return !this._incRefNumber
+		? html`
+			<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-icon
+					size="medium"
+					icon="status/warning-trans">
+				</capitec-icon>
+				<capitec-label label="Incident not created"></capitec-label>
+			</capitec-content-box>`
+		: html`
+			<horizon-label
+				label="Reference Number" 
+				value="${this._incRefNumber}"
+				data-automation-id="action-bar-reference-no">
+			</horizon-label>
 		`;
 	}
 }

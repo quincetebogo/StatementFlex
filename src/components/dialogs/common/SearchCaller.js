@@ -331,7 +331,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -371,7 +371,7 @@ export class SearchCaller extends Component {
 					"client-verified": this.isClientVerifiedInBranch
 				});
 
-				const returnValue = await this.clientProfileService.searchCaller(searchClient);
+				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 				const identifiedClient = returnValue.result;
 
 				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -431,6 +431,12 @@ export class SearchCaller extends Component {
 		callerDetails.nonClientIDNumber = ``;
 		callerDetails.nonClientRelationship = ``;
 
+		if (!this.currentIncident) {
+			this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
+			this._raiseNonClientCaptured();
+			return;
+		}
+
 		const nonClientDetails = {
 			firstName: this.nameValue,
 			surname: this.surNameValue,
@@ -450,17 +456,7 @@ export class SearchCaller extends Component {
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				nonClient: {
-					firstName: this.nameValue,
-					surname: this.surNameValue,
-					cellphone: this.cellPhoneNumberValue
-				},
-				isBranchConsultant: false
-			}
-		}));
+				this._raiseNonClientCaptured();
 	}
 
 	_onEndCall() {
@@ -699,6 +695,12 @@ export class SearchCaller extends Component {
 	}
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+		
+		if (!this.currentIncident) {
+			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
+			return;
+		}
+
 		// on confirm click, update incident details to be branch incident and not client incident
 		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, branchCode, branchCallerId);
 		if (!returnValue.succeeded) {
@@ -759,6 +761,26 @@ export class SearchCaller extends Component {
 			this.branchCode
 		);
 	}
+
+	_raiseNonClientCaptured() {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				incidentDetails: this.incidentDetails,
+				nonClient: {
+					firstName: this.nameValue,
+					surname: this.surNameValue,
+					cellphone: this.cellPhoneNumberValue
+				},
+				isBranchConsultant: false
+			}
+		}));
+	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -858,10 +880,13 @@ export class SearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="search-caller-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.currentIncident.toString()}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${this.headerLabel}"
+						incidentRefNumber="${this._currentIncidentRef()}"
+						?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${true}
+
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">

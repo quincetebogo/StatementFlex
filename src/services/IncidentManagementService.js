@@ -24,7 +24,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			`serviceURIs.incidentManagementService`, 
 			`incidentManagementService`, 
 			`v1`,
-			null
+			() => import(`../mocks/IncidentManagementMocks.js`)
 		);
 	}
 
@@ -41,11 +41,15 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`createIncident`)) {
+			return this.mockWithErrorHandler(`createIncident`, errorHandler);
+		}
+
 		const createIncidentRequest = this._formatIncidentRequest(incidentData);
 
 		const url = `/clientcare-incident-${this._version}/create-incident`;
-	
+
 		return this.post(
 			url, 
 			createIncidentRequest, 
@@ -54,7 +58,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			null, 
 			null, 
 			900,
-			null,
+			10000,
 			errorHandler,
 			autoRetries
 		);
@@ -247,13 +251,15 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @param {string} reason The reason for closing
 	 * @param {string} resolution The resolution of the incident
 	 * @param {string} causeCode Cause code for the incident
+	 * @param {string} description Text to add to the description field of the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+	 closeIncident(incident, reason, resolution, causeCode, description, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode, description);
+		
 
 		return this.put(
 			`/clientcare-incident-${this._version}/close-incident`,
@@ -262,19 +268,20 @@ export class IncidentManagementService extends ChannelServiceBase {
 			`closeIncident`, 
 			null, 
 			null, 
-			null,
+			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
 
-	_formatCloseIncidentRequest(incident, reason, resolution, causeCode) {
+	_formatCloseIncidentRequest(incident, reason, resolution, causeCode, description) {
 		return {
 			incident: incident,
 			reason: reason,
 			resolution: resolution,
-			causeCode: causeCode
+			causeCode: causeCode,
+			description: description
 		};
 	}
 
@@ -283,19 +290,21 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 *
 	 * @param {object} incident The incident to classify
 	 * @param {string} [need=null] A need constant that is mapped to a classification
+	 * @param {object} [manualClassification] Object to classify incidents with agent selected values
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	classifyIncident(incident, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	classifyIncident(incident, need, manualClassification, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/classification`;
 	
 		return this.post(
 			url, 
 			{
 				incident: incident,
-				need: need
+				needAction: need,
+				manualClassification: manualClassification
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 

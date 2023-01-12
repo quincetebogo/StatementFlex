@@ -168,7 +168,7 @@ export class InternetBankingProfileDetails extends Component {
 
 		this.tokenList = await this.getClientTokens(this.internetBankingDetails.userRegNo);
 
-		if (this.tokenList.tokens !== null) {
+		if (this.tokenList && this.tokenList.tokens) {
 			this.tokenList.tokens.forEach(item => {
 				if (item.tokenType !== `Soft Token`) {
 					const clientToken = {

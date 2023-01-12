@@ -116,7 +116,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -222,7 +222,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.clientProfileService.searchCaller(searchClient);
+			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
@@ -337,6 +337,10 @@ export class StopCardSearchCaller extends Component {
 		return true;
 	}
 
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -402,12 +406,16 @@ export class StopCardSearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="stop-card-search-caller-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						incidentRefNumber="${this.currentIncident.toString()}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${HEADER_LABEL}"
+						incidentRefNumber="${this._currentIncidentRef()}"
+						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable="${true}"
+
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
+						
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
