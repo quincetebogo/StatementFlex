@@ -974,7 +974,7 @@ export class ExistingClient extends InsureViewBase {
 	async _retrieveCommsHistory(contractReference) {
 
 		const commsHistoryDetails = {
-			"contractReference": contractReference,
+			"contractReference": contractReference
 		};
 
 		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);

@@ -143,11 +143,12 @@ class PolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	async _calculateOrPrintEstimate(printOrCalculate) {
-		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_CALCULATE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
 
+		// remove
 		if (this.maxAllowedCover < MAIN_LIFE_MINIMUM_COVER) {
 			this.showMaxAllowedCoverDialog = true;
 			return;
@@ -157,6 +158,11 @@ class PolicyEstimate extends Component {
 
 		// Validate
 		this.estimate.lifesAssured.forEach(life => {
+			if (life.relationship === `MainLife` && (life.coverAmount < MAIN_LIFE_MINIMUM_COVER || life.coverAmount > this.maxAllowedCover)) {
+				life.coverDetails.coverMessage = life.coverDetails.maxCoverMessage.replace(`{0:#,##0}`, life.coverDetails.maxCoverAmount);
+				isValid = false;
+			}
+			
 			if (!life.coverAmount || life.coverAmount === `` || life.coverAmount === 0) {
 				life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace(`{0:#,##0}`, life.coverDetails.minCoverAmount);
 				isValid = false;

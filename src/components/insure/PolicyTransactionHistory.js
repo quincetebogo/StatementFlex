@@ -3,6 +3,9 @@ import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_C
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { TransactionHistoryEvents } from 'app/constants/telemetry/events/Insure';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
@@ -32,6 +35,8 @@ class PolicyTransactionHistory extends Component {
 		this.policyTransactionHistory = {};
 		this.filteredData = [];
 		this.hideLoadMore = true;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALIZATION
@@ -80,8 +85,12 @@ class PolicyTransactionHistory extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		this.telemetryEvents = TransactionHistoryEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.TRANSACTION_HISTORY, {});
+
 		this._initialise();
 	}
 
@@ -89,8 +98,11 @@ class PolicyTransactionHistory extends Component {
 	 * call unload event once the component removed from the DOM.
 	 * @returns {void}
 	 */
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(this.telemetryEvents.TRANSACTION_HISTORY, {});
+
 		this._unloading();
 	}
 
@@ -103,6 +115,10 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void}
 	 */
 	_backToSummaryPage() {
+		this._telemetry.logEvent(this.telemetryEvents.TRANSACTION_HISTORY_BACK, {
+			"screen": TelemetryScreen.INSURE_TRANSACTION_HISTORY,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
+		});
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 

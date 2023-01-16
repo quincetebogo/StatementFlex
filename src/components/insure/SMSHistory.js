@@ -3,7 +3,10 @@ import { FILTER_BY, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransa
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
+import { SMSHistoryEvents } from 'app/constants/telemetry/events/Insure';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 // #region CONSTANTS
 
@@ -27,7 +30,8 @@ class SMSHistory extends Component {
 
 	constructor() {
 		super();
-
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion
@@ -66,8 +70,11 @@ class SMSHistory extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		this.telemetryEvents = SMSHistoryEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.SMS_HISTORY, {});
+
 		this._initialise();
 
 		// RENDER_CHIPS[FILTER_BY.DATE] = ``;
@@ -215,6 +222,10 @@ class SMSHistory extends Component {
 	 * @return {void} 
 	 */
 	_backToSummaryPage() {
+		this._telemetry.logEvent(this.telemetryEvents.SMS_HISTORY_BACK, {
+			"screen": TelemetryScreen.INSURE_SMS_HISTORY,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
+		});
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 

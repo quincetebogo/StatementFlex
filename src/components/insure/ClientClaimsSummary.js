@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LodgeClaimEvents } from 'app/constants/telemetry/events/Insure';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -20,9 +23,34 @@ class ClientClaimsSummary extends Component {
 
 	constructor() {
 		super();
+		this.telemetryEvents = {};
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 	// #endregion INITIALIZE
+
+	// #region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	async connectedCallback() {
+		super.connectedCallback();
+		this.telemetryEvents = LodgeClaimEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.LODGE_CLAIM_INFO, {});
+	}
+
+	/**
+	 * call unload event once the component removed from the DOM.
+	 * @returns {void}
+	 */
+	async disconnectedCallback() {
+		await this._telemetry.endSpan(this.telemetryEvents.LODGE_CLAIM_INFO, {});
+		super.disconnectedCallback();
+	}
+
+	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PROPERTIES
 
@@ -48,6 +76,7 @@ class ClientClaimsSummary extends Component {
 	* @returns {void} 
 	*/
 	navigateToClaimSummary(claim) {
+		this._telemetry.logEvent(this.telemetryEvents.LODGE_CLAIM_INFO_CLAIM_SUMMARY, {});
 		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 

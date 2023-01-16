@@ -1,5 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { PayArrearsEvents } from 'app/constants/telemetry/events/Insure';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 import 'app/components/insure/InsureAccountSelect';
@@ -32,7 +35,8 @@ class PayPremiumDialog extends Component {
 		this.checked = 0;
 		this.displayArrearNotSelected = false;
 		this.displayAccountNotSelected = false;
-
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion
@@ -79,10 +83,19 @@ class PayPremiumDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		this.telemetryEvents = PayArrearsEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.PAY_ARREARS, {});
+
 		this._initialise();
 		this._totalAmountSelected();
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.PAY_ARREARS, {});
 	}
 
 	// #endregion
@@ -144,6 +157,10 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_cancelClick() {
+		this._telemetry.logEvent(this.telemetryEvents.PAY_ARREARS_CANCEL, {
+			"screen": TelemetryScreen.INSURE_PAY_POLICY_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
+		});
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -161,6 +178,12 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_payClick() {
+
+		this._telemetry.logEvent(this.telemetryEvents.PAY_ARREARS_PAY, {
+			"screen": TelemetryScreen.INSURE_PAY_POLICY_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_PAY_POLICY_CONFIRM_DIALOG
+		});
+
 			if (this.accountType === `Savings Account`) {
 				if (this.accountDetails.savingsAccountData?.accountAvailableBalance < this.amount) {
 					this.optionSelected = false;

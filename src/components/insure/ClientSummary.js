@@ -453,7 +453,11 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	 _goToUpdatePlan(contractReference, canReinstate) {
-		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
+		if (canReinstate === false) {
+			this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
+		} else {
+			this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_REINSTATE_PLAN, {});
+		}
 		this.dispatchEvent(new CustomEvent(`navigate-to-update-plan`, {
 			detail: {
 				policyContractReference: contractReference, canReinstate: canReinstate
