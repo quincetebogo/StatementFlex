@@ -2,7 +2,10 @@ import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, I
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { UpdatePlanEvents } from 'app/constants/telemetry/events/Insure';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 // Dialogs
@@ -100,6 +103,9 @@ class UpdatePlan extends Component {
 		this.debitOrderDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 
 	}
 
@@ -206,9 +212,18 @@ class UpdatePlan extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		this.telemetryEvents = PolicyEstimateEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.UPDATE_PLAN, {});
+
 		this._initialise();
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.UPDATE_PLAN, {});
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -764,6 +779,11 @@ class UpdatePlan extends Component {
 	* @returns {void} 
 	*/
 	async _calculatePremium() {
+		this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_CALCULATE, {
+			"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+			"next-screen": null
+		});
+
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
 		if (onUpdateValidations.validated === true) {
 			if (this.newTotalPremium === ``) {
@@ -992,6 +1012,12 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _updatePlanClick() {
+
+		this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_UPDATE, {
+			"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+			"next-screen": null
+		});
+
 		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
 

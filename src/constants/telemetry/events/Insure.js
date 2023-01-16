@@ -57,7 +57,8 @@ export const PolicySummaryEvents = {
 */
 export const LodgeClaimEvents = {
 	LODGE_CLAIM_INFO: `call.fulfill-need.insure.lodge-claim-info?`,
-	LODGE_CLAIM_INFO_BACK: `call.fulfill-need.insure.lodge-claim-info?`
+	LODGE_CLAIM_INFO_BACK: `call.fulfill-need.insure.lodge-claim-info?`,
+	LODGE_CLAIM_INFO_CLAIM_SUMMARY: `call.fulfill-need.insure.lodge-claim-info?`
 };
 
 /**

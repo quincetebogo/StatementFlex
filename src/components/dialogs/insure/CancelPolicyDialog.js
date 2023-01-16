@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
+import { CancelPolicyEvents } from 'app/constants/telemetry/events/Insure';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDateToInsure } from 'app/utils/insureUtils';
 
 // Lookups
@@ -31,6 +34,8 @@ class CancelPolicyDialog extends Component {
 		this.cancelReason = ``;
 		this.contractReference = ``;
 		this.cancelPolicyDocumentDetails = {};
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALIZE
@@ -67,8 +72,15 @@ class CancelPolicyDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		this.telemetryEvents = CancelPolicyEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.CANCEL_POLICY, {});
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
@@ -81,6 +93,10 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_CLOSE, {
+			"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
+		});
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -122,6 +138,10 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	 _agreeClick() {
+		this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_AGREE, {
+			"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_CANCEL_PLAN_SUCCESS
+		});
 		this.dispatchEvent(new CustomEvent(`agree`, { detail: { cancellationReason: this.cancelReason } }));
 	}
 
