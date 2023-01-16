@@ -161,6 +161,9 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
 				}
+				horizon-label[value="Active"] {
+					--horizon-label-value-color: #70AF00;
+				}
 				.transfer-button {
 					--theme-button-font-weight: 600;
 					--theme-button-default-background-color: #e31515;
