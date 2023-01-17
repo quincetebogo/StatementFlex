@@ -2,8 +2,10 @@ import { Component, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { Insightimages } from '../Insightimages';
 import { NBAEvents } from 'app/constants/telemetry/events/AccessMenuBar';
 import { ValueAddedService } from 'app/services/ValueAddedService';
+
 
 import 'platform/components';
 import 'app/productControls/ClientInsights/ClientInsights';
@@ -31,6 +33,7 @@ export class Insights extends Component {
 		this.logger = Logger.getInstance();
 		this._navigationContext = NavigationContext.getInstance();
 		this._telemetry = HorizonTelemetry.getInstance();
+		this._insightimages = Insightimages.getInstance();
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 		this.clientInsightsService = new ClientInsightsService(() => this._toggleBusyFlag(), () => true);
@@ -151,7 +154,7 @@ export class Insights extends Component {
 	async _formatInsights(insights) {
 		
 		this.insights = insights;
-		const insightDetails = await this._configuration.getSetting(`lbb-insight-details`);
+		const insightDetails = await this._insightimages.getInsightDetailsEnv();
 
 		if (insightDetails[insights.parentCategoryId] && insightDetails[insights.parentCategoryId][insights.nbaId]) {
 			

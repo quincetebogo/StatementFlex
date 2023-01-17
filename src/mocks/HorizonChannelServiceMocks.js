@@ -62,7 +62,7 @@ export default class HorizonChannelServiceMocks {
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await this._loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
-		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
+		this.clientInsightsMocks = await this._loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/clientInsightsMocks`).catch(err => logError(err)));
     	this.accessChannelsMocks = await this._loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
     	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await this._loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
