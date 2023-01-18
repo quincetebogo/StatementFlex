@@ -40,7 +40,7 @@ export class CallerInfoBar extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentRefNumber: { type: String },
-			incidentCreated: {type: Boolean },
+			incidentCreated: { type: Boolean },
 			isNeedSelectable: { type: Boolean }
 		};
 	}
@@ -147,7 +147,7 @@ export class CallerInfoBar extends Component {
 							icon="status/warning-trans">
 						</capitec-icon>
 						<capitec-label label="Incident not created"></capitec-label>
-					</capitec-content-box>`
+					</capitec-content-box>`;
 			case !this._incidentRefNumber && this.incidentCreated:
 				return html`
 					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">

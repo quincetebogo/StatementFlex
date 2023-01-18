@@ -457,6 +457,18 @@ export class HorizonProductTile extends Component {
 		return this._webTemplate();
 	}
 
+	_tileState() {
+		if (this.disabled) {
+			return ` disabled`;
+		}
+
+		if (this.selected) {
+			return ` selected`;
+		}
+
+		return ``;
+	}
+
 	/**
 	 * Generates the component template for web mode.
 	 * 
@@ -466,7 +478,7 @@ export class HorizonProductTile extends Component {
 
 		return html`
 			<button 
-				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
+				class="tile ${this.type ? this.type : `transact`}${this._tileState()}"
 				@click="${(e) => this._tileClicked(e)}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">

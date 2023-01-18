@@ -108,7 +108,7 @@ export class ConfirmCallerDetails extends Component {
 			cpNumber: { type: String },
 			clientType: { type: String },
 
-			isBusy: { state : true },
+			isBusy: { state: true },
 			renderMode: { state: true },
 			errorMessage: { state: true }
 		};
@@ -396,15 +396,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-	// 	const insuranceClientInfo = {
-	// 		'idNumber': southAfricanIDNumber,
-	// 		'cifNumber': cifNumber,
-	// 		'isCallerVerified': isCallerVerified
-	// 	};
+	//  const insuranceClientInfo = {
+	//   'idNumber': southAfricanIDNumber,
+	//    'cifNumber': cifNumber,
+	//    'isCallerVerified': isCallerVerified
+	//  };
 
-	// 	const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
+	//  const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
 
-	// 	return returnValue.result.hasInsurance;
+	//  return returnValue.result.hasInsurance;
 	// }
 
 	async _setAvailabilityFlags() {

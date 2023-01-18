@@ -69,8 +69,8 @@ export class SavingsAccount extends Component {
 		this.dispatchEvent(new CustomEvent(`savings-enquiry`, { detail: { enquiry: productEnquiry } }));
 	}
 
-	_accountDetails(){
-		this.dispatchEvent(new CustomEvent(`account-details`,{})); 
+	_accountDetails() {
+		this.dispatchEvent(new CustomEvent(`account-details`, {})); 
 	}
 
 	// --------------
@@ -80,14 +80,14 @@ export class SavingsAccount extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	_validateAmount(amount){
-		if(amount === 0){
-			return '-';
-		}
-		else{
-			return formatCurrency(amount);
-		}
+	_validateAmount(amount) {
+		if (amount === 0) {
+			return `-`;
+		};
+
+		return formatCurrency(amount);
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -275,7 +275,7 @@ export class SavingsAccount extends Component {
 							data-automation-id="savings-Account-info"
 							icon="system/info-action"
 							@click="${() => this._accountDetails()}">
-						</capitec-icon>	
+						</capitec-icon>
 						<horizon-label
 							label="Account number"
 							textOverflow="ellipsis"
@@ -320,7 +320,7 @@ export class SavingsAccount extends Component {
 								${this._renderOptions()}
 						</capitec-group>
 					</div>
-			</horizon-expander>	
+			</horizon-expander>
 		`;
 	}
 

@@ -430,6 +430,7 @@ export class HorizonRouter {
 	navigateToWidget(widgetName) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
 	}
+	
 	navigateToWidgetUnavailable() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
 	}
