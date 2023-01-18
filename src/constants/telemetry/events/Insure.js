@@ -63,6 +63,15 @@ export const LodgeClaimEvents = {
 
 /**
 * @readonly
+* @enum {String} PolicySummaryEvents
+*/
+export const ClaimSummaryEvents = {
+	CLAIM_SUMMARY: `call.fulfill-need.insure.policy-summary?`,
+	CLAIM_SUMMARY_BACK: `call.fulfill-need.insure.policy-summary?`
+};
+
+/**
+* @readonly
 * @enum {String} CancelPolicyEvents
 */
 export const CancelPolicyEvents = {
@@ -97,9 +106,9 @@ export const UpdatePlanEvents = {
 	UPDATE_PLAN: `call.fulfill-need.insure.update-plan?`,
 	UPDATE_PLAN_CALCULATE: `call.fulfill-need.insure.update-plan?`,
 	UPDATE_PLAN_UPDATE: `call.fulfill-need.insure.update-plan?`,
-	UPDATE_PLAN_DISCLOSURE_FPCA: `call.fulfill-need.insure.update-plan?`,
+	UPDATE_PLAN_DISCLOSURE_FCP: `call.fulfill-need.insure.update-plan?`,
 	UPDATE_PLAN_DISCLOSURE_EACL: `call.fulfill-need.insure.update-plan?`,
-	UPDATE_PLAN_DISCLOSURE_YPA: `call.fulfill-need.insure.update-plan?`,
+	UPDATE_PLAN_DISCLOSURE_YBP: `call.fulfill-need.insure.update-plan?`,
 	UPDATE_PLAN_DISCLOSURE_YROA: `call.fulfill-need.insure.update-plan?`
 };
 

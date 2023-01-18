@@ -1,7 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { ClaimSummaryEvents } from 'app/constants/telemetry/events/Insure';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 /**
  * Claim Summary component shows details of a selected claim, including any outstanding documents
@@ -20,6 +23,8 @@ class ClaimSummary extends Component {
 
 	constructor() {
 		super();
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALIZE
@@ -46,8 +51,16 @@ class ClaimSummary extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		this.telemetryEvents = ClaimSummaryEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.CLAIM_SUMMARY, {});
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.CLAIM_SUMMARY, {});
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -59,6 +72,11 @@ class ClaimSummary extends Component {
 	 * @return {void} 
 	 */
 	backToClientPoliciesPage() {
+		this._telemetry.logEvent(this.telemetryEvents.CLAIM_SUMMARY_BACK, {
+			"screen": TelemetryScreen.INSURE_CLAIM_SUMMARY,
+			"next-screen": TelemetryScreen.INSURE_CLIENT_CLAIMS_SUMMARY
+		});
+
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
