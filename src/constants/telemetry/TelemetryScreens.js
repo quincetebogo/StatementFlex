@@ -147,6 +147,8 @@ export const TelemetryScreen = {
 	INSURE_CLIENT_SUMMARY: `Insure Client Summary screen`,
 	INSURE_POLICY_SUMMARY: `Insure Policy Summary screen`,
 	INSURE_ESTIMATE: `Insure Estimate screen`,
+	INSURE_CLIENT_CLAIMS_SUMMARY: `Insure Client Claims Screen`,
+	INSURE_CLAIM_SUMMARY: `Insure Claim Summary screen`,
 
 	INSURE_UPDATE_PLAN: `Insure Update Plan screen`,
 	INSURE_UPDATE_PLAN_AGREEMENT_DIALOG: `Insure Update Plan Agreement dialog`,
