@@ -89,7 +89,6 @@ export class ProductButtonPanel extends Component {
 	// RENDERING
 	// ---------
 
-	// TODO: remove top margin for top most button. 
 	static get styles() {
 		return [
 			super.styles,

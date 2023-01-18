@@ -50,8 +50,6 @@ export class AssignStopCard extends Component {
 
 	static get properties() {
 		return {
-			incidentDetails: { type: Object },
-			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			teamsResponse: { type: Object },
 			isBusy: { type: Boolean },

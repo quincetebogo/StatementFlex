@@ -21,10 +21,10 @@ export class IncidentManagementService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
-			`HorizonChannelService`, 
+			`serviceURIs.incidentManagementService`, 
+			`incidentManagementService`, 
 			`v1`,
-			null
+			() => import(`../mocks/IncidentManagementMocks.js`)
 		);
 	}
 
@@ -41,11 +41,15 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`createIncident`)) {
+			return this.mockWithErrorHandler(`createIncident`, errorHandler);
+		}
+
 		const createIncidentRequest = this._formatIncidentRequest(incidentData);
 
 		const url = `/clientcare-incident-${this._version}/create-incident`;
-	
+
 		return this.post(
 			url, 
 			createIncidentRequest, 
@@ -247,17 +251,18 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 * @param {string} reason The reason for closing
 	 * @param {string} resolution The resolution of the incident
 	 * @param {string} causeCode Cause code for the incident
+	 * @param {string} description Text to add to the description field of the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	 closeIncident(incident, reason, resolution, causeCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const request = _formatCloseIncidentRequest(incident, reason, resolution, causeCode);
+	 closeIncident(incident, reason, resolution, causeCode, description, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = this._formatCloseIncidentRequest(incident, reason, resolution, causeCode, description);
 		
 
 		return this.put(
-			url, 
+			`/clientcare-incident-${this._version}/close-incident`,
 			request, 
 			this.setToken(), 
 			`closeIncident`, 
@@ -270,13 +275,13 @@ export class IncidentManagementService extends ChannelServiceBase {
 		);
 	}
 
-	_formatCloseIncidentRequest(incident, reason, resolution, causeCode) {
+	_formatCloseIncidentRequest(incident, reason, resolution, causeCode, description) {
 		return {
-			incident: closeIncidentRequest.incident,
-			reason: closeIncidentRequest.reason,
-			resolution: closeIncidentRequest.resolution,
-			causeCode: closeIncidentRequest.causeCode,
-      description: closeIncidentRequest.description
+			incident: incident,
+			reason: reason,
+			resolution: resolution,
+			causeCode: causeCode,
+			description: description
 		};
 	}
 
@@ -285,19 +290,21 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 *
 	 * @param {object} incident The incident to classify
 	 * @param {string} [need=null] A need constant that is mapped to a classification
+	 * @param {object} [manualClassification] Object to classify incidents with agent selected values
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	classifyIncident(incident, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	classifyIncident(incident, need, manualClassification, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/classification`;
 	
 		return this.post(
 			url, 
 			{
 				incident: incident,
-				need: need
+				needAction: need,
+				manualClassification: manualClassification
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 
@@ -324,7 +331,9 @@ export class IncidentManagementService extends ChannelServiceBase {
 		
 		return this.post(
 			url,
-			incident,
+			{
+				incident: incident
+			},
 			this.setToken(), 
 			`incidentStatus`,
 			null,

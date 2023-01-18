@@ -89,7 +89,6 @@ export class EndCallSession extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {Object} incidentDetails Incident details
 	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
@@ -99,7 +98,6 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 			callerInformation: { type: Object },
@@ -173,7 +171,7 @@ export class EndCallSession extends Component {
 			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
-			if (!currentIncident.incidentReferenceNumber || currentIncident.incidentReferenceNumber === `0`) {
+			if (!currentIncident.incidentReference || currentIncident.incidentReference === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
@@ -416,7 +414,7 @@ export class EndCallSession extends Component {
 		if (this.callerInformation.isBranchConsultant &&
 			Boolean(this.callerInformation.branchCallerID) &&
 			isNullorEmpty(strackIncidentInfo.branchID)) {
-				const returnValue = await this.incidentManagementService.UpdateIncidentBranchDetailsRequest(incidentDetails.incidentRecId, this.callerInformation.branchCode, this.callerInformation.branchCallerID);
+				const returnValue = await this.incidentManagementService.UpdateIncidentBranchDetailsRequest(currentIncident, this.callerInformation.branchCode, this.callerInformation.branchCallerID);
 	
 				if (!returnValue.succeeded) {
 					this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
@@ -434,15 +432,10 @@ export class EndCallSession extends Component {
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		const classification = this._getClassification();
+		const incident = this.horizonIncidentManager.currentIncident;
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
-			const request = {
-				incident: this.horizonIncidentManager.currentIncident,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction,
-				incidentCategorization: classification
-			};
-			const returnValue = await this.incidentManagementService.classifyIncident(request);
+			const returnValue = await this.incidentManagementService.classifyIncident(incident, needAction, classification);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
@@ -450,7 +443,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+			this.logger.log(`info`, `Incident:${incident.toString()} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 
 		if (this._preventCloseOfIncident()) {
@@ -708,11 +701,14 @@ export class EndCallSession extends Component {
 		return html`
 			<horizon-caller-dialog
 				data-automation-id="end-call-session-dialog"
+
+				headerLabel="${HEADER_LABEL}" 
+				?displayButton="${false}"
+				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
+				?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
-				.isNeedSelectable=${false}
-						headerLabel="${HEADER_LABEL}" 
-				.displayButton="${false}">
+				?isNeedSelectable="${false}">
+				
 					<div slot="body">
 						<capitec-content-box
 							id="end-call-content-box"

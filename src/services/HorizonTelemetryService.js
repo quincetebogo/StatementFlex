@@ -131,6 +131,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
 	async startSpan(eventName, baggage = null, systemTriggered = true) {
@@ -177,6 +178,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @param {boolean} closeParentSpan Flag tells to close parent span or not
 	 * @param {boolean} closeChildSpans Flag tells to close its child spans or not
+	 * @param {string} originatingSystem Name of system triggering end span
 	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
 	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
@@ -193,7 +195,7 @@ export class HorizonTelemetry extends Telemetry {
 		if (this.traceId && spanId) {
 
 			if (closeChildSpans) {
-				await this.closeChildSpans(eventName);
+				await this.closeChildSpans(eventName, baggage?.widget);
 			}
 
 			await super.spanEnd({
@@ -226,6 +228,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
 	 * @param {boolean} systemTriggered Flag to determin telemetry event type
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A promise for logging the event
 	 */
 	async logEvent(eventName, baggage = null, systemTriggered = false) {
@@ -256,13 +259,21 @@ export class HorizonTelemetry extends Telemetry {
 	 * Closes all the child spans of an event
 	 * 
 	 * @param {*} parentEvent The parent event.
+	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A promise to class all child spans of the parent event
 	 */
-	async closeChildSpans(parentEvent) {
+	async closeChildSpans(parentEvent, originatingSystem = null) {
 
 		if (!parentEvent) {
 			return;
 		}
+
+		const baggage = originatingSystem 
+			? { "info": `Closing span, as commanded by parent span` }
+			: {
+				"info": `Closing span, as commanded by parent span`,
+				"widget": originatingSystem
+			};
 
 		const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
 
@@ -271,9 +282,7 @@ export class HorizonTelemetry extends Telemetry {
 			// The first iteration uses an already resolved Promise
 			// so, it will immediately continue.
 			await promise;
-			await this.endSpan(span.event, {
-				"info": `Closing span, as commanded by parent span`
-			});
+			await this.endSpan(span.event, baggage, true, false, false);
 		}, Promise.resolve());
 	}
 

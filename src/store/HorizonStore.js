@@ -231,6 +231,12 @@ export class HorizonStore extends Store {
 		this.setState(stateToSave, `SAVE-STATE`);
 	}
 
+	/**
+	 * 
+	 * @param {Object} newLandingPageInfo - Landing information
+	 * @returns {undefined}
+	 * @deprecated - This method has been deprecated in order to separate the updating of the landing information from the left bar information 
+	 */
 	setProductButtonState(newLandingPageInfo) {
 
 		if (!newLandingPageInfo) {
@@ -273,5 +279,41 @@ export class HorizonStore extends Store {
 		};
 
 		this.setState({ leftBarButtonConfig: updatedLeftBarButtonConfig, landingPageInfo: updatedLandingPageInfo });
+	}
+
+	/**
+	 * 
+	 * @param {Object} newLandingPageInfo - Landing page info
+	 * @return {void}
+	 */
+	setLandingInfoPageState(newLandingPageInfo) {
+		
+		if (!newLandingPageInfo) {
+			return;
+		}
+		
+		const updatedLandingPageInfo = {
+			savingsAccountProductDescription: newLandingPageInfo.savingsAccountProductDescription ? newLandingPageInfo.savingsAccountProductDescription : this.state.landingPageInfo?.savingsAccountProductDescription,
+			liveBetterBankingProductDescription: newLandingPageInfo.liveBetterBankingProductDescription ? newLandingPageInfo.liveBetterBankingProductDescription : this.state.landingPageInfo?.liveBetterBankingProductDescription,
+			savingsPlanProductDescription: newLandingPageInfo.savingsPlanProductDescription ? newLandingPageInfo.savingsPlanProductDescription : this.state.landingPageInfo?.savingsPlanProductDescription,
+			insureProductDescription: newLandingPageInfo.insureProductDescription ? newLandingPageInfo.insureProductDescription : this.state.landingPageInfo?.insureProductDescription,
+			creditProductDescription: newLandingPageInfo.creditProductDescription ? newLandingPageInfo.creditProductDescription : this.state.landingPageInfo?.creditProductDescription,
+			savingsAccountProductAmount: newLandingPageInfo.savingsAccountProductAmount ? newLandingPageInfo.savingsAccountProductAmount : this.state.landingPageInfo?.savingsAccountProductAmount,
+			liveBetterBankingProductAmount: newLandingPageInfo.liveBetterBankingProductAmount ? newLandingPageInfo.liveBetterBankingProductAmount : this.state.landingPageInfo?.liveBetterBankingProductAmount,
+			savingsPlanProductAmount: newLandingPageInfo.savingsPlanProductAmount ? newLandingPageInfo.savingsPlanProductAmount : this.state.landingPageInfo?.savingsPlanProductAmount,
+			insureProductAmount: newLandingPageInfo.insureProductAmount ? newLandingPageInfo.insureProductAmount : this.state.landingPageInfo?.insureProductAmount,
+			creditProductAmount: newLandingPageInfo.creditProductAmount ? newLandingPageInfo.creditProductAmount : this.state.landingPageInfo?.creditProductAmount
+		};
+
+		this.setState({ landingPageInfo: updatedLandingPageInfo });
+	}
+
+	/**
+	 * Used to update the left bar product tile info in state.
+	 * @param {Object} updatedProductButtonInfo - Updated subtitles and details for left bar product tiles
+	 * @return {void}
+	 */
+	setLeftBarProductTilesInfoState(updatedProductButtonInfo) {
+		this.setState({ leftBarButtonConfig: updatedProductButtonInfo });
 	}
 }

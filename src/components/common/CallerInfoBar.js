@@ -19,9 +19,10 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
-		this.incidentDetails = null;
-		this.need = null;
+		this.incidentRefNumber = ``;
+		this.incidentCreated = false;
 		this.isNeedSelectable = false;
+		this.need = null;
 	}
 
 	// --------------
@@ -32,25 +33,20 @@ export class CallerInfoBar extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails for layout)
-	 * @property {object} incidentDetails - Incident details
+	 * @property {string} incidentRefNumber - Current incident reference number
 	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
 	*/
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
+			incidentCreated: { type: Boolean },
 			isNeedSelectable: { type: Boolean }
 		};
 	}
 
-	get _incRefNumber() {
-		return this.incidentReferenceNumber && this.incidentReferenceNumber > 0
-				? this.incidentReferenceNumber
-				: ``;
-	}
-
-	get incCreated() {
-		return this.incidentDetails.incCreated;
+	get _incidentRefNumber() {
+		return this.incidentRefNumber && this.incidentRefNumber > 0 ? this.incidentRefNumber : ``;
 	}
 
 	// -------------------
@@ -95,7 +91,6 @@ export class CallerInfoBar extends Component {
 		this.possibleNeedValues = this.incomingCallDetails.ivrOption.possibleValues;
 
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-		this.incidentReferenceNumber = this.incidentDetails.currentIncident.toString();
 	}
 
 
@@ -144,7 +139,7 @@ export class CallerInfoBar extends Component {
 	_renderIncRefNumber() {
 
 		switch (true) {
-			case !this._incRefNumber && !this.incCreated:
+			case !this._incidentRefNumber && !this.incidentCreated:
 				return html`
 					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-icon
@@ -152,8 +147,8 @@ export class CallerInfoBar extends Component {
 							icon="status/warning-trans">
 						</capitec-icon>
 						<capitec-label label="Incident not created"></capitec-label>
-					</capitec-content-box>`
-			case !this._incRefNumber && this.incCreated:
+					</capitec-content-box>`;
+			case !this._incidentRefNumber && this.incidentCreated:
 				return html`
 					<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-icon
@@ -167,7 +162,7 @@ export class CallerInfoBar extends Component {
 					<horizon-label
 						data-automation-id="caller-info-bar-incident-reference"
 						label="Reference Number"
-						value = "${this._incRefNumber}">
+						value = "${this._incidentRefNumber}">
 					</horizon-label>`;
 		}
 	}

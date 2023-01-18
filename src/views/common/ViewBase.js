@@ -127,6 +127,10 @@ export class ViewBase extends View {
 		super.disconnectedCallback();
 	}
 
+	get currentIncident() {
+		return this.horizonIncidentManager.currentIncident;
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -167,7 +171,7 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
+		this.horizonRouter.navigateToStrack(this.currentIncident);
 	}
 
 	_endCallClick() {
@@ -228,7 +232,7 @@ export class ViewBase extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		const currentIncident = this.horizonIncidentManager.currentIncident;
+		const currentIncident = this.currentIncident;
 
 		if (!currentIncident) {
 			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
@@ -292,12 +296,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
-	_getIncidentDetails() {
-		return this.horizonIncidentManager.getIncidentDetails();
-	}
-
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
+	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncidentRef() : ``;
 	}
 
 	// ---------
@@ -344,9 +348,10 @@ export class ViewBase extends View {
 		return this.showVerifyCallerDialog 
 			? html`
 				<horizon-verify-caller
-					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
+					incidentRefNumber="${this._currentIncidentRef()}"
+					?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -358,7 +363,6 @@ export class ViewBase extends View {
 		return this.showEndCall
 			? html`
 				<horizon-end-call-session
-					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this._isIncidentReassigned()}"
 					.callerInformation="${this.callerInformation}"
@@ -373,7 +377,9 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.this._isIncidentReassigned()}"
+				incidentRefNumber="${this.currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

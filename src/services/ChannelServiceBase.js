@@ -195,7 +195,7 @@ export class ChannelServiceBase extends Service {
 				this._logger.log(`info`, `Mocking class does not contain an initialise function`, `_mockEnabled`);
 			}
 			
-			await this._mock.initialise(this._mocking);
+			await this._mock.initialise(this._mocking, (mockObj, mockFuncName, doImport) => this._loadMockModule(mockObj, mockFuncName, doImport));
 		}
 
 
@@ -256,6 +256,28 @@ export class ChannelServiceBase extends Service {
 		return this._configuration.config.runtime.environment !== `LOCAL`;
 	}
 	
+	/**
+	 * Load a mocking module if it has not yet been loaded
+	 *
+	 * @param {object} mockObj A module object, if undefined or falsy a new module object will be returned
+	 * @param {string} mockName A name of a mock in the config.json file
+	 * @param {function} doImport function for importing the mocking module
+	 * @returns {object} The loaded module
+	 * @memberof HorizonChannelServiceMocks
+	 */
+	_loadMockModule(mockObj, mockName, doImport) {
+		if (!mockObj) {
+			if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+				if (this._mocking[mockName].enabled) {
+					return doImport();
+				}
+			} else {
+				this._mocking[mockName] = { enabled: false };
+			}
+		}
+		return mockObj;
+	}
+
 	/**
 	 *
 	 *
