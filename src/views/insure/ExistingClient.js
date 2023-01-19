@@ -661,7 +661,6 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToUpdate.totalPremium,
 			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
-		console.log(quoteCalcRequest);
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			this.handleToastError(calculateQuoteResp.exception);
@@ -1291,10 +1290,7 @@ export class ExistingClient extends InsureViewBase {
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
 			this.handleToastError(requestCallbackResp.exception);
-			return;
 		}
-
-		console.log(`requestCallbackResp :>> `, requestCallbackResp);
 
 	}
 
