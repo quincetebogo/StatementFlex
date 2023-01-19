@@ -1082,6 +1082,42 @@ class UpdatePlan extends Component {
 		}
 	}
 
+	_openAgreement(type) {
+
+		if (type === `YROA`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_YROA, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showYROAAgreementDialog = true;
+		}
+		
+		if (type === `FCP`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_FCP, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showFCPAgreementDialog = true;
+		}
+
+		if (type === `EACL`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_EACL, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showEACLAgreementDialog = true;
+		}
+
+		if (type === `YBP`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_YBP, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showYBPAgreementDialog = true;
+		}
+
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -2167,7 +2203,7 @@ class UpdatePlan extends Component {
 		 */
 	_renderYROANotification() {
 		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showYROAAgreementDialog = true}"
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`YROA`)}"
 			type="${this._getAlertBannerType(this.agreementYROAAccepted)}" header="Disclosure:"
 			label="I agree to Your Responsibility & Our Accountability agreement disclosure">
 		</capitec-alert-banner>`;
@@ -2179,7 +2215,7 @@ class UpdatePlan extends Component {
 	 */
 	_renderFCPNotification() {
 		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showFCPAgreementDialog = true}"
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`FCP`)}"
 			type="${this._getAlertBannerType(this.agreementFCPAccepted)}" header="Disclosure:"
 			label="I agree to Funeral cover plan agreement disclosure">
 		</capitec-alert-banner>`;
@@ -2192,7 +2228,7 @@ class UpdatePlan extends Component {
 	 */
 	_renderEACLNotification() {
 		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showEACLAgreementDialog = true}"
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`EACL`)}"
 			type="${this._getAlertBannerType(this.agreementEACLAccepted)}" header="Disclosure:"
 			label="I agree to Entry Ages and Child Limits agreement disclosure">
 		</capitec-alert-banner>`;
@@ -2204,7 +2240,7 @@ class UpdatePlan extends Component {
 	 */
 	_renderYBPNotification() {
 		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this.showYBPAgreementDialog = true}"
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`YBP`)}"
 			type="${this._getAlertBannerType(this.agreementYBPAccepted)}" header="Disclosure:"
 			label="I agree to You/your beneficiary are paid agreement disclosure">
 		</capitec-alert-banner>`;

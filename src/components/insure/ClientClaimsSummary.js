@@ -76,7 +76,10 @@ class ClientClaimsSummary extends Component {
 	* @returns {void} 
 	*/
 	navigateToClaimSummary(claim) {
-		this._telemetry.logEvent(this.telemetryEvents.LODGE_CLAIM_INFO_CLAIM_SUMMARY, {});
+		this._telemetry.logEvent(this.telemetryEvents.LODGE_CLAIM_INFO_CLAIM_SUMMARY, {
+			"screen": TelemetryScreen.INSURE_CLIENT_CLAIMS_SUMMARY,
+			"next-screen": TelemetryScreen.INSURE_CLAIM_SUMMARY
+		});
 		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 

@@ -108,7 +108,7 @@ class PolicyEstimate extends Component {
 		await this._telemetry.endSpan(this.telemetryEvents.ESTIMATE, {});
 	}
 
-	//  #endregion
+	//  #endregion LIFECYCLE OVERRIDES
 
 	//  #region EVENT HANDLERS
 

@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { EmailPlanEvents } from 'app/constants/telemetry/events/Insure';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonEmailInput';
 
@@ -33,6 +36,8 @@ class InsureEmailDialog extends Component {
 		this.confirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.titleMessage = ``;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetryEvents = {};
 	}
 	
 	// #endregion INITIALISATION
@@ -57,6 +62,27 @@ class InsureEmailDialog extends Component {
 
 	// #endregion PROPERTIES
 
+//  #region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	async connectedCallback() {
+		super.connectedCallback();
+		this.telemetryEvents = EmailPlanEvents;
+		await this._telemetry.startSpan(this.telemetryEvents.SEND_EMAIL, {});
+
+		this._initialise();
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+		await this._telemetry.endSpan(this.telemetryEvents.SEND_EMAIL, {});
+	}
+
+	//  #endregion LIFECYCLE OVERRIDES
+
 	// #region EVENT HANDLERS
 
 	/**
@@ -65,6 +91,10 @@ class InsureEmailDialog extends Component {
 	 * @returns {void}
 	 */
 	_cancelClick() {
+		this._telemetry.logEvent(this.telemetryEvents.SEND_EMAIL_CANCEL, {
+			"screen": TelemetryScreen.INSURE_SEND_EMAIL_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_SUCCESS
+		});
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -74,6 +104,12 @@ class InsureEmailDialog extends Component {
 	 * @returns {void}
 	 */
 	_sendClick() {
+
+		this._telemetry.logEvent(this.telemetryEvents.SEND_EMAIL_SEND, {
+			"screen": TelemetryScreen.INSURE_SEND_EMAIL_DIALOG,
+			"next-screen": TelemetryScreen.INSURE_SUCCESS
+		});
+
 		const isEmailInputValid = this._validateEmailAddress();
 
 		if (!isEmailInputValid) {
