@@ -661,7 +661,6 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToUpdate.totalPremium,
 			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
-		console.log(quoteCalcRequest);
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			this.handleToastError(calculateQuoteResp.exception);
@@ -1281,6 +1280,20 @@ export class ExistingClient extends InsureViewBase {
 		window.open(`${globalOneUrl}/insure/`);
 	}
 
+	async _requestCallback(e) {
+		
+		const requestCallbackRequest = {
+			name: e.detail.name,
+			cellphoneNumber: e.detail.cellphoneNumber
+		};
+
+		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
+		if (!requestCallbackResp.succeeded) {
+			this.handleToastError(requestCallbackResp.exception);
+		}
+
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -1392,7 +1405,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				@send-email = "${(e) => this._sendEmail(e)}">
+				@send-email = "${(e) => this._sendEmail(e)}"
+				@request-callback = "${(e) => this._requestCallback(e)}">
 			</horizon-insure-client-summary>`;
 	}
 

@@ -460,6 +460,21 @@ export class InsureService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Provides a summary breakdown of all claims for a given client
+	 *
+	 * @param {requestCallbackRequest} [requestCallbackRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async requestCallback(requestCallbackRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureRequestCallback`)) {
+			return this.mock(`insureRequestCallback`);
+		}
+
+	}
+
 	// #endregion
 
 	// #region Documents
