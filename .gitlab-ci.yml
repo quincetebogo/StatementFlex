@@ -1,0 +1,8 @@
+variables:
+  Platform: "ocwp" # The specific Platform used.
+  TeamName: "cec" # Name of the team managing this project
+  MODIFY_ALIAS: "false" # True to update alias to route to CKS
+ 
+include:
+  - project: 'platform/pipeline-utils/deployment-scripts'
+    file: '.platform-ci.yml'
