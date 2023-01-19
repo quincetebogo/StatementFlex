@@ -62,6 +62,7 @@ export default class InsureChannelServiceMocks {
 
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
+		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 	}
 
 	/**
@@ -273,6 +274,13 @@ export default class InsureChannelServiceMocks {
 	insurePolicyPay() {
 		if (this._mockSettings.insurePolicyPay.positiveCase) {
 			return this.policyPayMocks.InsureCancelPolicyMockData;
+		}
+		return null;
+	}
+
+	insureRequestCallback() {
+		if (this._mockSettings.insureRequestCallback.positiveCase) {
+			return this.requestCallbackMocks.insureRequestCallback;
 		}
 		return null;
 	}

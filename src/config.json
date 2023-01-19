@@ -336,6 +336,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureRequestCallback": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true

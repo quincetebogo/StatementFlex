@@ -17,6 +17,7 @@ import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/insure/ClientClaimsSummary';
 import 'app/components/dialogs/insure/CFPAgreementDialog';
+import 'app/components/dialogs/insure/RequestCallbackDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -66,6 +67,8 @@ class ClientSummary extends Component {
 		this.showLodgeClaimInfoDialog = false;
 		this.showCFPAgreementDialog = false;
 		this.emailEstimateSuccess = false;
+		this.showRequestCallbackDialog = false;
+		this.requestCallbackSuccess = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -132,13 +135,15 @@ class ClientSummary extends Component {
 			showPayPremiumAgreementDialog: { type: Boolean, state: true },
 			showLodgeClaimInfoDialog: { type: Boolean, state: true },
 			showCFPAgreementDialog: { type: Boolean, state: true },
+			showRequestCallbackDialog: { type: Boolean, state: true },
 
 			selectedFlow: { type: String, state: true },
 			selectedContractRef: { type: String, state: true },
 			canReinstate: { type: Boolean, state: true },
 			selectedPolicyItem: { type: Object, state: true },
 			productCode: { type: String, state: true },
-			emailEstimateSuccess: { type: Boolean, state: true }
+			emailEstimateSuccess: { type: Boolean, state: true },
+			requestCallbackSuccess: { type: Boolean, state: true }
 
 		};
 	}
@@ -156,6 +161,8 @@ class ClientSummary extends Component {
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
 		window.setTimeout(() => this.emailEstimateSuccess = false, 2000);
+		
+		
 	}
 
 	async disconnectedCallback() {
@@ -405,6 +412,14 @@ class ClientSummary extends Component {
 				this.showCFPAgreementDialog = false;
 				break;
 		}
+	}
+
+	_requestCallback(e) {
+		this.showRequestCallbackDialog = false;
+		this.requestCallbackSuccess = true;
+		window.setTimeout(() => this.requestCallbackSuccess = false, 2000);
+
+		this.dispatchEvent(new CustomEvent(`request-callback`, { detail: { name: e.detail.name, cellphoneNumber: e.detail.cellphoneNumber } }));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -951,6 +966,7 @@ class ClientSummary extends Component {
 			${this._renderCancelPolicyDialog()}
 			${this._renderCFPAgreementDialog()}
 			${this._renderInsureEmailDialog()}
+			${this._renderRequestCallbackDialog()}
 		`;
 	}
 
@@ -963,6 +979,7 @@ class ClientSummary extends Component {
 
 			<div class="notification">
 				${this._renderSuccessAlert()}
+				${this._renderRequestCallbackAlert()}
 			</div>
 
 			<capitec-card 
@@ -972,13 +989,24 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.clientPolicies?.summaryDetails?.policies.length === 0 ? `` : html`
+					${this.clientPolicies?.summaryDetails?.policies.length === 0 || this.readOnlyMode === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this.showLodgeClaimInfoDialog = true}">
 						</capitec-button>
 					`}
 					
 					${this._renderGetEstimateButton()}
+
+					${this.readOnlyMode === true ? html`` 
+						: html`
+							<capitec-overflow-menu label="Menu" icon="system/more-white">
+								<capitec-overflow-menu-item icon="system/phone-call-action" label="Request callback" 
+									@click="${() => this.showRequestCallbackDialog = true}">
+								</capitec-overflow-menu-item>
+							</capitec-overflow-menu>
+						`}
+					
+
 				</capitec-title-bar>
 
 				${this.clientPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResults()}` : html`${this._renderPoliciesLandingContent()}`}
@@ -1381,14 +1409,39 @@ class ClientSummary extends Component {
 	_renderSuccessAlert() {
 		return this.emailEstimateSuccess === false ? html``
 			: html`
-		<capitec-toast
-			class="toast"
-			type="success"
-			Header="Successful"
-			layout = "vertical"
-			detail = "Document sent successfully"
-			@click = "${() => this.emailEstimateSuccess = false}">
-		</capitec-toast>
+				<capitec-toast
+					class="toast"
+					type="success"
+					Header="Successful"
+					layout = "vertical"
+					detail = "Document sent successfully"
+					@click = "${() => this.emailEstimateSuccess = false}">
+				</capitec-toast>
+
+	`;
+	}
+
+	_renderRequestCallbackDialog() {
+		return this.showRequestCallbackDialog === false ? html``
+		: html`
+			<horizon-insure-request-callback-dialog
+			@cancel-click="${() => this.showRequestCallbackDialog = false}"
+			@request-callback-click="${(e) => this._requestCallback(e)}">
+			</horizon-insure-request-callback-dialog>
+		`;
+	}
+
+	_renderRequestCallbackAlert() {
+		return this.requestCallbackSuccess === false ? html``
+			: html`
+				<capitec-toast
+					class="toast"
+					type="success"
+					Header="Successful"
+					layout = "vertical"
+					detail = "Callback request was succesfull"
+					@click = "${() => this.requestCallbackSuccess = false}">
+				</capitec-toast>
 
 	`;
 	}

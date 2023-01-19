@@ -215,7 +215,7 @@ class UpdatePlan extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.telemetryEvents = PolicyEstimateEvents;
+		this.telemetryEvents = UpdatePlanEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.UPDATE_PLAN, {});
 
 		this._initialise();
