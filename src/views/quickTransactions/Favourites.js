@@ -3,6 +3,7 @@ import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } fro
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -20,6 +21,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/SendCashLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
@@ -31,6 +33,8 @@ import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 const SAVINGS_ACCOUNT_TYPE = 300;
+
+const today = new Date();
 
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
@@ -54,7 +58,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.agreementResult = ``;
 		// private properites
-		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+	
 
 		this.isLoading = true;
 
@@ -69,6 +73,7 @@ export class Favourites extends SavingsAccountBase {
 		this.accountsInfo = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
+		this.sendCashVouchers = [];
 		this.updateStrackClick = false;
 		this.hasTaxCertificate = false;
 		this.taxCertificateDetails = null;
@@ -108,6 +113,7 @@ export class Favourites extends SavingsAccountBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		
 
@@ -128,6 +134,7 @@ export class Favourites extends SavingsAccountBase {
 			const searchOtherNeed = () => this._searchOtherNeed();
 			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts();
+			const sendCash = () => this._sendCash();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -139,7 +146,8 @@ export class Favourites extends SavingsAccountBase {
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
-				'paid-up-accounts': paidUpAccounts
+				'paid-up-accounts': paidUpAccounts,
+				'send-cash': sendCash
 			};
 
 			if (actions[option]) {
@@ -165,6 +173,36 @@ export class Favourites extends SavingsAccountBase {
 	// EVENT HANDLERS
 	// --------------
 
+	_showConfirmPlaceHoldModal(event) {
+		this.voucherNumber = event.detail;
+		this.renderMode = RENDER_MODE.PLACE_HOLD_MODAL;
+	}
+
+	async _onConfirmPlaceHold(event) {
+		const sendCashVoucherHoldRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			voucherNumber: this.voucherNumber,
+			reason: event.detail.selectedReason.reason
+		};
+
+		this._saveToState(event.detail.selectedReason);
+
+		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToSendCashSuccess();
+			return;
+		}
+
+		this.horizonRouter.navigateToSendCashFailure();
+	}
+
+	_saveToState(selectedReason) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.sendCashSelectedReason = selectedReason.value;
+		this.horizonStore.setScreenDetails(screenDetails);
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -186,7 +224,7 @@ export class Favourites extends SavingsAccountBase {
 			endCallReason: selectedOption
 		};
 
-		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag());
+		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag(), () => this._errorHandler());
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
@@ -319,7 +357,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		this._updateNeedToState(`category`, event.detail.category);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+		if (!currentIncident) {
+			await super.createAndClassifySubIncident();
+		}
+		
+		this._updateNeedToState(event.detail.category);
+		
 		await this.getSubCategories(event);
 	}
 
@@ -328,16 +372,6 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
-	async _getSubCategories(event) {
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
-		if (incidentRecId === `0`) {
-			await super.createAndClassifySubsIncident();
-		}
-		
-		this._updateNeedToState(event.detail.category);
-		
-		await this.getSubCategories(event);
-	}
 
 	async _getIssues(event) {
 		
@@ -439,7 +473,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 
@@ -462,9 +496,9 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, incidentRecId);
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, currentIncident);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -620,6 +654,30 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _sendCash() {
+		const sendCashVouchersRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			fromDateTime: this.get30DaysBefore(today),
+			toDateTime: today.toISOString(),
+			offset: 0
+		};
+
+		const returnValue = await this.sendCashService.getVouchers(sendCashVouchersRequest);
+
+		if (returnValue.succeeded) {
+			this.sendCashVouchers = returnValue.result;
+
+			this.renderMode = RENDER_MODE.SEND_CASH;
+		}
+	}
+
+	
+	get30DaysBefore(date) {
+		const result = new Date(date);
+		result.setDate(result.getDate() - 30);
+		return result.toISOString();
+	}
+
 	_formatCreditOverviewResponse() {
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
@@ -676,7 +734,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
@@ -690,15 +748,15 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (isNullorEmpty(incidentRecId) || incidentRecId === `0`) {
+		if (!currentIncident) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentInfo = await this.incidentStatus(incidentRecId) || {};
+		const incidentInfo = await this.incidentStatus(currentIncident) || {};
 
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
@@ -741,9 +799,10 @@ export class Favourites extends SavingsAccountBase {
 		});
 		await this._classifyIncident(event);
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 	
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(currentIncident);
+		
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
@@ -768,7 +827,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 		return true;
 	}
 
@@ -885,6 +944,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
+			${this._renderSendCash()}
+			${this._renderConfirmPlaceHoldModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1048,6 +1109,27 @@ export class Favourites extends SavingsAccountBase {
 			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
+		: html``;
+	}
+
+	_renderSendCash() {
+		return this.renderMode === RENDER_MODE.SEND_CASH || this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
+			? html`
+				<horizon-send-cash-landing
+					.sendCashVouchers="${this.sendCashVouchers}"
+					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
+					@back="${() => this._backToLandingPage()}">
+				</horizon-send-cash-landing>`
+			: html``;
+	}
+
+	_renderConfirmPlaceHoldModal() {
+		return this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
+		? html`
+			<horizon-confirm-place-hold
+				@on-confirm="${(e) => this._onConfirmPlaceHold(e)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEND_CASH}">
+			</horizon-confirm-place-hold>`
 		: html``;
 	}
 }

@@ -83,7 +83,7 @@ export class SavingsPlan extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;	
 	
 		// private properites
 		this.selectedAccountNumber = ``;
@@ -188,7 +188,7 @@ export class SavingsPlan extends ViewBase {
 
 		if (saveProducts[this.accountViewType]) {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident();
+			await super.createAndClassifySubIncident();
 			
 			return saveProducts[this.accountViewType]();
 		}
@@ -237,7 +237,7 @@ export class SavingsPlan extends ViewBase {
 				}
 				
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 			} 
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
@@ -285,6 +285,7 @@ export class SavingsPlan extends ViewBase {
 		});
 
 		const fixedSavingsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.accountStatus !== `CLOSED`).map(item => {
+			item.unlockBalance = item.currentBalance;
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
@@ -351,7 +352,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.getCurrentIncidentState();
+		const incidentState = this.horizonIncidentManager.incidentState;
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
@@ -408,7 +409,7 @@ export class SavingsPlan extends ViewBase {
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 		this.savePlanDetails = savePlanDetails;
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -496,6 +497,7 @@ export class SavingsPlan extends ViewBase {
 		this._setIncidentDone();
 	}
 
+	// #region FTSP
 	async _unlockFtsp(accountNumber) {
 		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_FTSP_UNLOCK, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
@@ -534,6 +536,7 @@ export class SavingsPlan extends ViewBase {
 											'accountName': formatStringAsPascalCase(item.planName),
 											'availableBalance': formatCurrency(item.currentBalance),
 											'accountType': item.accountType,
+											'unlockBalance': item.unlockBalance,
 											'icon': productInfo.icon,
 											'order': productInfo.order
 										};
@@ -604,7 +607,7 @@ export class SavingsPlan extends ViewBase {
 		const request = {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: accNumber,
-				partialUnlockAmount: Number(partialUnlockAmount * 100), // Convert rands to cents
+				partialUnlockAmount: parseInt(partialUnlockAmount * 100, 10), // Convert rands to cents
 				unlockType: UNLOCK_TYPE[unlockType],
 				channel: `HORIZON`
 			};
@@ -615,7 +618,7 @@ export class SavingsPlan extends ViewBase {
 			const quoteDetails = returnValue.result;
 
 			// Convert cents to rands
-			quoteDetails.unlockFee = Number(quoteDetails.unlockFee) / 100;
+			quoteDetails.unlockFee = parseInt(quoteDetails.unlockFee, 10) / 100;
 			return quoteDetails;
 		} 
 
@@ -677,6 +680,11 @@ export class SavingsPlan extends ViewBase {
 		screenDetails.unlockAccountNumber = event.detail.selectedFromAccount.accountNumber;
 		screenDetails.unlockType = UNLOCK_TYPE[event.detail.unlockType];
 		screenDetails.unlockAmount = event.detail.unlockAmount;
+		screenDetails.penaltyFee = event.detail.penaltyFee;
+		screenDetails.unlockBalance = event.detail.unlockBalance;
+		screenDetails.balancePostUnlock = screenDetails.unlockType === `Full`
+											? 0
+											: event.detail.unlockBalance - event.detail.unlockAmount - event.detail.penaltyFee;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 
@@ -734,6 +742,7 @@ export class SavingsPlan extends ViewBase {
 	_cancelTransferTelemetry() {
 		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER);
 	}
+	// #endregion
 
 	// ---------
 	// RENDERING

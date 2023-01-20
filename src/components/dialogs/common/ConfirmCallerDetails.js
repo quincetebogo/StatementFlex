@@ -10,7 +10,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { InsureService } from 'app/services/InsureService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
@@ -73,7 +72,6 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.itaChannelService = new ITAChannelService(() => this._toggleBusyFlag(), () => true);
@@ -96,8 +94,8 @@ export class ConfirmCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {Object} incidentDetails Incident details
-	 *
+	 * @property {Object} currentIncident Current incident details
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof ConfirmCallerDetails
@@ -106,13 +104,13 @@ export class ConfirmCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			currentIncident: { type: Object },
+			cpNumber: { type: String },
+			clientType: { type: String },
 
-			cpNumber: { attribute: false },
-			clientType: { attribute: false },
-			isBusy: { attribute: false },
-			renderMode: { attribute: false },
-			errorMessage: { attribute: false }
+			isBusy: { state: true },
+			renderMode: { state: true },
+			errorMessage: { state: true }
 		};
 	}
 
@@ -382,7 +380,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			
-			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.currentIncident);
 
 			if (!returnValue.succeeded) {
 				// The error handler will take over. We don't need to do anything more in this routine
@@ -397,17 +395,17 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-		const insuranceClientInfo = {
-			'idNumber': southAfricanIDNumber,
-			'cifNumber': cifNumber,
-			'isCallerVerified': isCallerVerified
-		};
+	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
+	//  const insuranceClientInfo = {
+	//   'idNumber': southAfricanIDNumber,
+	//    'cifNumber': cifNumber,
+	//    'isCallerVerified': isCallerVerified
+	//  };
 
-		const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
+	//  const returnValue = await this.insureService.hasInsuranceProducts(insuranceClientInfo);
 
-		return returnValue.result.hasInsurance;
-	}
+	//  return returnValue.result.hasInsurance;
+	// }
 
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
@@ -491,15 +489,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _updateClientNonClientDetails() {
-		const currentIncident = this.horizonIncidentManager.getCurrentIncident();
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (!currentIncident.incidentRecId || currentIncident.incidentRecId === `0`) {
+		if (!currentIncident) {
 			this.logger.log(`error`, `There is no incident available against which to record the client/ non-client details`, `_updateClientNonClientDetails`);
 			return;
 		}
 
 		// Updating client details to Incident at Strack
-		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -508,19 +506,21 @@ export class ConfirmCallerDetails extends Component {
 		// Updating non-client details to Incident at Strack
 		if (this.callerInformation.is3rdParty) {
 			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.callerInformation.nonClientFirstName,
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
 
-			returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			returnValue = await this.incidentService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
 			}
 		}
+	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
 	// ---------
@@ -617,10 +617,13 @@ export class ConfirmCallerDetails extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="confirm-caller-details-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
+						incidentRefNumber="${this._currentIncidentRef()}"
+						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${true}
+						
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -805,9 +808,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller-details
 				data-automation-id="add-caller-details-modal"
+
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				incidentRefNumber="${this._currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
@@ -818,7 +824,6 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-end-call-session 
 				data-automation-id="confirm-caller-details-end-call-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
@@ -830,7 +835,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-stop-card-search-caller
 				data-automation-id="confirm-caller-details-stop-card-search-modal"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
+				.currentIncident="${this.currentIncident}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 			</horizon-stop-card-search-caller>`;
@@ -840,10 +845,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-caller
 				data-automation-id="confirm-caller-details-search-caller-modal"
+
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
-				.cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
-				.clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
+				.currentIncident="${this.currentIncident}"
+				cpNumber="${this.callerInformation.isBranchConsultant ? this.cpNumber : ``}"
+				clientType="${this.callerInformation.isBranchConsultant ? this.clientType : ``}"
+				
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@branch-captured="${(event) => this._branchCaptured(event)}"
@@ -855,9 +862,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-verify-caller
 				data-automation-id="confirm-caller-details-veirfy-caller-modal"
+
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
+				incidentRefNumber="${this._currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(event) => this._verificationCancelled(event)}" 
 				@skip="${(event) => this._verificationSkipped(event)}"
 				@verified="${(event) => this._clientVerified(event)}">

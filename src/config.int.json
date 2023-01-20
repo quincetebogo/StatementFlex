@@ -1,13 +1,16 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet",
+		"channelServiceUrl": "https://cec-cs-main.platform-int.int.capinet",
 		"clientInsightsUrl": "https://cec-insights.platform-int.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-int.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-int.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-int.int.capinet",
 		"cardServiceUrl": "https://horizon-cs-card-v1.platform-int.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet"
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet",
+		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-int.int.capinet",
+		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
+		"incidentManagementService": "https://cec-cs-incident.platform-int.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-int.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-int.int.capinet",
@@ -68,8 +71,8 @@
 			}
 		}
 	},
+	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false	
-	},
-	"searchClientOptionEnabled": true
+	}
 }

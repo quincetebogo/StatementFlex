@@ -158,7 +158,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
                 this.landingPageInfo = returnValue.result;
 
                 await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-                await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 
                 // Now we can update the information on the product buttons
                 this._updateLeftBar();
@@ -185,7 +185,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             "next-screen": TelemetryScreen.TRANSACTION_HISTORY
         });
 
-        await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
         await this._getTransactionHistory();
     }
 
@@ -294,7 +294,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
         this.savingsDetails = {
             "accountNumber": savingsLandingDetails.accountNumber,
@@ -405,12 +405,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				label="Description"
 				field="description"
 				size="410px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Transaction Status"
-				field="transactionStatus"
-				size="144px;"
-				.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"

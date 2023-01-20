@@ -272,10 +272,6 @@ export class StopCard extends Component {
 	_updateLeftBar() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
-
-	_getIncidentDetails() {
-		return this.horizonIncidentManager.getIncidentDetails();
-	}
 	
 	// ---------
 	// RENDERING
@@ -566,8 +562,6 @@ export class StopCard extends Component {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.incidentDetails="${this._getIncidentDetails()}"
-					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
