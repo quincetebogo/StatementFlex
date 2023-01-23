@@ -1091,7 +1091,7 @@ class UpdatePlan extends Component {
 			});
 			this.showYROAAgreementDialog = true;
 		}
-		
+
 		if (type === `FCP`) {
 			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_FCP, {
 				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
@@ -1130,7 +1130,6 @@ class UpdatePlan extends Component {
 	_getCollectionDay() {
 
 		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
-
 		return day?.text;
 
 	}
