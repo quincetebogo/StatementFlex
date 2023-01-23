@@ -127,7 +127,17 @@ export const relatedOptions = {
 		]
 	},
 	'full-ftsp-unlock': CREDIT_RO,
-	'partial-ftsp-unlock': CREDIT_RO
+	'partial-ftsp-unlock': CREDIT_RO,
+	'send-cash': {
+		Success: [
+			`transaction-history`,
+			`statements`
+		],
+		Failure: [
+			`transaction-history`,
+			`statements`
+		]
+	}  
 };
 
 /**

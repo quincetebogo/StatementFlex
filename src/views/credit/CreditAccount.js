@@ -241,7 +241,7 @@ export class CreditAccount extends ViewBase {
 		};
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -414,7 +414,8 @@ export class CreditAccount extends ViewBase {
 			emailAddress: ``,
 			firstname: this.callerInformation.firstName,
 			surname: this.callerInformation.lastName,
-			idNumber: this.callerInformation.southAfricanIDNumber
+			idNumber: this.callerInformation.southAfricanIDNumber,
+			title: this.callerInformation.title
 		};
 		const returnValue = await this.creditService.settleAndClose(settleAndClose);
 
@@ -538,7 +539,7 @@ export class CreditAccount extends ViewBase {
 			this.creditBalance = returnValue.result;
 
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -608,7 +609,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-	    await super.createAndClassifySubsIncident(null, false);
+	    await super.createAndClassifySubIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -791,7 +792,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
 		const successfullServiceResponse = returnValue.succeeded;
@@ -1249,6 +1250,8 @@ export class CreditAccount extends ViewBase {
 			? html`
 			<horizon-statements
 				.cifNumber="${this.callerInformation.cifNumber}"
+				.title="${this.callerInformation.title}"
+				.lastName="${this.callerInformation.lastName}"
 				.clientProducts="${this.clientProducts}"
 				type="${ACCOUNT_TYPES.CREDIT}"
 				registeredEmailId="${this.callerInformation.emailId}"
