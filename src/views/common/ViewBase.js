@@ -127,6 +127,10 @@ export class ViewBase extends View {
 		super.disconnectedCallback();
 	}
 
+	get currentIncident() {
+		return this.horizonIncidentManager.currentIncident;
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -167,7 +171,7 @@ export class ViewBase extends View {
 	}
 
 	_assignIncidentClick() {
-		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.getCurrentIncident().incidentRecId);
+		this.horizonRouter.navigateToStrack(this.currentIncident);
 	}
 
 	_endCallClick() {
@@ -228,27 +232,28 @@ export class ViewBase extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
+		const currentIncident = this.currentIncident;
 
-		if (incidentRecId && incidentRecId !== ``) {
-			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				firstName: this.callerInformation.nonClientFirstName,
-				surname: this.callerInformation.nonClientSurName,
-				cellPhone: this.callerInformation.nonClientCellPhone
-			};
-			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails);
-
-			if (returnValue.succeeded) {
-				this.horizonStore.setCallerInformation(this.callerInformation);
-				this.showAddCallerDetails = !this.showAddCallerDetails;
-			} else {
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-			}
-		} else {
+		if (!currentIncident) {
 			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+			return;
 		}
+
+		const nonClientDetails = {
+			firstName: this.callerInformation.nonClientFirstName,
+			surname: this.callerInformation.nonClientSurName,
+			cellPhone: this.callerInformation.nonClientCellPhone
+		};
+
+		const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			return;
+		}
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	_telemetryStartSpan(eventName, screenName) {
@@ -267,8 +272,8 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubsIncident(incidentCategorization, classify) {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
+	async createAndClassifySubIncident(incidentCategorization, classify) {
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	_performReturnToScreen() {
@@ -291,12 +296,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
-	_getIncidentDetails() {
-		return this.horizonIncidentManager.getIncidentDetails();
-	}
-
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
+	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncidentRef() : ``;
 	}
 
 	// ---------
@@ -343,9 +348,10 @@ export class ViewBase extends View {
 		return this.showVerifyCallerDialog 
 			? html`
 				<horizon-verify-caller
-					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
+					incidentRefNumber="${this._currentIncidentRef()}"
+					?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -357,7 +363,6 @@ export class ViewBase extends View {
 		return this.showEndCall
 			? html`
 				<horizon-end-call-session
-					.incidentDetails="${this._getIncidentDetails()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this._isIncidentReassigned()}"
 					.callerInformation="${this.callerInformation}"
@@ -372,7 +377,9 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.this._isIncidentReassigned()}"
+				incidentRefNumber="${this.currentIncidentRef()}"
+				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

@@ -175,7 +175,7 @@ export class ValueAddedServices extends Component {
 					--theme-toast-icon-margin: 8px 9px 0px 15px;
 					--theme-alert-banner-warning-font-color: #3A3A3A;
 					--theme-toast-detail-font-weight: 600;
-					--theme-toast-width: 777px;
+					--theme-toast-width: 850px;
 				}
 
 				capitec-label[type="title"] {
@@ -256,13 +256,12 @@ export class ValueAddedServices extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Value Added Services">
+			<capitec-modal type="free" header-align="left" header="Data privacy consent management">
 				<div slot="body">
 					<capitec-content-box class="main-container">
 						${this._renderErrorAlertBanner()}
 						${this._renderAlertBanner()}
 						${this._renderPermissions()}
-						${this._renderThirdParty()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer" class="footer-class">
@@ -288,7 +287,7 @@ export class ValueAddedServices extends Component {
 			<horizon-alert-banner
 				type="info"
 				layout="vertical">
-					<strong>Notify:</strong>
+					<strong>Note:</strong>
 					<section class="alert-message">If a client indicates they want to opt out of a specific service, the impact of their decision must be explained to them to ensure they make an informed decision.</section>
 			</horizon-alert-banner>
 		`;
@@ -307,60 +306,75 @@ export class ValueAddedServices extends Component {
 		return html`
 			${this._renderInsights()}
 			${this._renderBehavioral()}
-			${this._renderPreAssessment()}
-			${this._renderAnalysis()}
 		`;
 	}
 
-	_renderInsights() {
-		return html`
-			<capitec-group layout="vertical">
-				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may analyse the type of transactions you perform to give you benefit in using your account to your best interest <strong>(Insights and Next Best Actions)</strong></p>
 
-					<capitec-toggle
+_renderInsights() {
+	return html`
+			<capitec-group layout="horizontal">
+			<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you?</p>
+			<capitec-radio-group layout="horizontal" >
+			<capitec-radio 
 							id="insights"
-							data-automation-id="value-added-services-insights-toggle"
-							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${!this.optOutInsights}">
-					</capitec-toggle>
-				</capitec-group>
-				${this._renderInsightsAlert()}
-			</capitec-group>
-		`;
-	}
+							label="Yes"
+							@value-change="${() => this._toggleValue(e)}"
+							@click="${() => this._insightsStatusChanged()}"
+							?checked = "${this.optOutInsights}">
+						</capitec-radio>
+						<capitec-radio
+						id="insights"
+						label="No"
+							@value-change="${() => this._toggleValue(e)}"
+							@click="${() => this._insightsStatusChanged()}"
+							?checked = "${!this.optOutInsights}">
+						</capitec-radio>
+						</capitec-radio-group>
+						
+						</capitec-group>
+						${this._renderInsightsAlert()}
+	`;
+}
+
 
 	_renderInsightsAlert() {
-		return this.optOutInsights
+		return !this.optOutInsights
 		? html`
 			<horizon-alert-banner 
 				data-automation-id="value-added-services-insights-alert-banner"
 				type="warning"
-				label="Notify client: We will no longer give you personalised insights to bank better by paying less in fees and earning more in interest.">
+				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
 			</horizon-alert-banner>`
 		: html``;
 	}
 
 	_renderBehavioral() {
 		return html`
-			<capitec-group layout="vertical">
-				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may analyse your information to provide you with personalised information relating to products and services that will benefit your needs based on how you use your account. <strong>(Behavioural/Marketing)</strong> </p>
-
-					<capitec-toggle 
-							data-automation-id="value-added-services-behavioral-toggle"
+				<capitec-group layout="horizontal">
+				<p class="permission-message">Receive the latest offers and products by means of electronic communication <strong>(direct marketing)</strong> </p>
+				<capitec-radio-group layout="horizontal" >
+				<capitec-radio 
+								id="behavioural"
+								label="Yes"
+								@value-change="${() => this._toggleValue(e)}"
+								@click="${() => this._behavioralStatusChanged()}"
+								?checked = "${this.optOutBehaviouralMarketing}">
+							</capitec-radio>
+							<capitec-radio
 							id="behavioural"
-							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${!this.optOutBehaviouralMarketing}">
-					</capitec-toggle>
-				</capitec-group>
-				${this._renderBehavioralAlert()}
-			</capitec-group>
+							label="No"
+								@value-change="${() => this._toggleValue(e)}"
+								@click="${() => this._behavioralStatusChanged()}"
+								?checked = "${!this.optOutBehaviouralMarketing}">
+							</capitec-radio>
+							</capitec-radio-group>
+							</capitec-group>
+							${this._renderBehavioralAlert()}
 		`;
 	}
 
 	_renderBehavioralAlert() {
-		return this.optOutBehaviouralMarketing
+		return !this.optOutBehaviouralMarketing
 		? html`
 			<horizon-alert-banner 
 				data-automation-id="value-added-services-behavioral-alert-banner"
@@ -369,96 +383,7 @@ export class ValueAddedServices extends Component {
 			</horizon-alert-banner>`
 		: html``;
 	}
-
-	_renderPreAssessment() {
-		return html`
-			<capitec-group layout="vertical">
-				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may pre-assess you in order to give you further access to products and services, limit changes, discounts and incentives <strong>(Pre-assessments)</strong> </p>
-
-					<capitec-toggle 
-							data-automation-id="value-added-services-pre-assessment-toggle"
-							id="preAssessment"
-							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${!this.optOutPreAssessments}">
-					</capitec-toggle>
-				</capitec-group>
-				${this._renderPreAssessmentAlert()}
-			</capitec-group>
-		`;
-	}
-
-	_renderPreAssessmentAlert() {
-		return this.optOutPreAssessments
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-insights-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer give you personalised information on increased credit offers, discounts and incentives that may save you money in order to live better.">
-			</horizon-alert-banner>`
-		: html``;
-	}
-
-	_renderAnalysis() {
-		return html`
-			<capitec-group layout="vertical">
-				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may do statistical and other analysis to evaluate and improve existing and new personalised products and services to your benefit. <strong>(Analysis)</strong></p>
-
-					<capitec-toggle 
-							data-automation-id="value-added-services-analysis-toggle"
-							id="analysis"
-							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${!this.optOutAnalysis}">
-					</capitec-toggle>
-				</capitec-group>
-				${this._renderAnalysisAlert()}
-			</capitec-group>
-		`;
-	}
-
-	_renderAnalysisAlert() {
-		return this.optOutAnalysis
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-analysis-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer use your personalised information to improve our products to suit your needs and to help you to improve your financial life.">
-			</horizon-alert-banner>`
-		: html``;
-	}
-
-	_renderThirdParty() {
-		return html`
-		<capitec-group layout="vertical">
-			<capitec-label class="header-label" label="Collection and/or Sharing with Third-Parties"></capitec-label>
-
-			<capitec-group class="final-permission-group" layout="horizontal">
-				<p class="permission-message">We may process your personal information collected from or shared with our approved Third-Parties, locally and outside the country, as well as within the Capitec Group to provide you with new/improved products and services, and/or personalised offers to your benefit. Approved Third-Parties must comply with our privacy policies and applicable law.</p>
-
-				<capitec-toggle
-						data-automation-id="value-added-services-third-party-toggle"
-						id="thirdParty"
-						@value-change=${(e) => this._toggleValue(e)}
-						?checked="${!this.optOutThirdParties}">
-				</capitec-toggle>
-			</capitec-group>
-			${this._renderThirdPartyAlert()}
-			</capitec-group>
-		`;
-	}
-
-	_renderThirdPartyAlert() {
-		return this.optOutThirdParties
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-third-party-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer share your information with Third Parties or within the Capitec Group to provide you with new/improved products and services, and/or personalised offers that may help you to improve your financial life">
-			</horizon-alert-banner>`
-		: html``;
-	}
-
+	
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">

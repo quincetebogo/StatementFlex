@@ -1,13 +1,16 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cec-cs-main.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
 		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet"
+		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
+		"widgetRegistryService": "http://localhost:6001",
+		"incidentManagementService": "https://cec-cs-incident.platform-dev.int.capinet"
 	},
 	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
@@ -68,14 +71,18 @@
 			}
 		}
 	},
+	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": true,
+		"createIncident": {
+			"enabled" : false
+		},
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -83,7 +90,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -168,7 +175,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -260,22 +267,24 @@
 			"positiveCase": false
 		},
 		"ftspUnlockOptions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlock": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"sendCashVouchers": {
+			"enabled": false,
+			"positiveCase" : true
 		}
-
-	},
-	"searchClientOptionEnabled": true
+	}
 }

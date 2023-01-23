@@ -33,7 +33,7 @@ export class SystemError extends ViewBase {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.endCallContext = `SystemError`;
 		this._updateIncidentState();

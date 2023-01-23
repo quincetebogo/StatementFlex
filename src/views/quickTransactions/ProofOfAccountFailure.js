@@ -79,10 +79,8 @@ import 'app/components/common/RelatedOptions';
 
 
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
-		const incidentRecId = this.horizonIncidentManager.getCurrentIncident().incidentRecId;
-
-		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	// ---------

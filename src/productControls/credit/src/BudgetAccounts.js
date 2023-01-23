@@ -471,7 +471,7 @@ import 'app/components/common/HorizonLabel';
 					type="clear"
 					label="Transfer"
 					@click="${() => this._transferClick(budgetAccount)}"
-					?disabled="${this.shouldDisable(`pay-budget`)}"
+					?disabled="${this.shouldDisable(`pay-budget`)}">
 				</capitec-button>
 			</capitec-group>`;
 	}

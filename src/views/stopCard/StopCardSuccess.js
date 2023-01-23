@@ -97,7 +97,11 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails(), (ex) => this._stopCardErrorHandler());
+		const returnValue = await this.cardService.identifyCaller(
+			this.callerInformation, 
+			this.horizonIncidentManager.currentIncident, 
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
