@@ -853,14 +853,15 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToUpdatePlan(e) {
-		const policyResponse = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
+			const policyResponse = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 			if (calcResponse !== null) {
 				this.policyDetails = calcResponse;
 				this.policyDetails.roleplayers = calcResponse.eligibleRoleplayers;
 				this.policyDetails.canReinstate = true;
-				this.policyDetails.policyRule = `Standard`;
+				this.policyDetails.policyRule = policyResponse.policyRule;
 				this.policyDetails.deductionDetails = policyResponse.deductionDetails;
 				delete this.policyDetails.eligibleRoleplayers;
 			} else {
@@ -868,7 +869,7 @@ export class ExistingClient extends InsureViewBase {
 				return;
 			}
 		} else {
-			// this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			this.policyDetails = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 			const indexOfMainLife = this.policyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 			const mainLifeElement = this.policyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 			this.policyDetails.roleplayers.unshift(mainLifeElement);
