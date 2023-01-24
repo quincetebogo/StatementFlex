@@ -1128,7 +1128,9 @@ class UpdatePlan extends Component {
 	 *  @returns {String} day text
 	 */
 	_getCollectionDay() {
-
+		if (!this.collectionDay){
+			return ``
+		}
 		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 		return day?.text;
 
@@ -2351,7 +2353,7 @@ class UpdatePlan extends Component {
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
-					error="${roleplayer?.coverDetails.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}"
+					error="${roleplayer?.coverDetails?.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
 				</capitec-text-field>
 			</div>
