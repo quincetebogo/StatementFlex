@@ -80,7 +80,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 			null, 
 			null, 
 			900,
-			null,
+			10000,
 			errorHandler,
 			autoRetries
 		);
@@ -254,10 +254,14 @@ export class IncidentManagementService extends ChannelServiceBase {
 			`Reason=${closeIncidentRequest.reason}&` +
 			`Resolution=${closeIncidentRequest.resolution}&` +
 			`CauseCode=${closeIncidentRequest.causeCode}`;
+		
+		const updateIncDescReq = {
+			description: closeIncidentRequest.description
+		};
 	
 		return this.put(
 			url, 
-			null, 
+			updateIncDescReq, 
 			this.setToken(), 
 			`closeIncident`, 
 			null, 
