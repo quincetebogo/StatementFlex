@@ -1,8 +1,8 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cec-cs-main.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-cs-accesschannels.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
 		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
 		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
@@ -114,7 +114,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -170,7 +170,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -246,7 +246,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -260,6 +260,22 @@
 		"emailPaidUpLetter": {
 			"enabled": false,
 			"positiveCase": false
+		},
+		"ftspUnlockOptions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"ftspUnlockQuote": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"ftspUnlockAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"ftspUnlock": {
+			"enabled": true,
+			"positiveCase": true
 		},
 		"sendCashVouchers": {
 			"enabled": false,

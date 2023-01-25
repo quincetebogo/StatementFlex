@@ -2,16 +2,16 @@
   "name": "Horizon-UI-2",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "2.13.14",
+  "version": "2.16.10",
   "alias": "horizon",
-  "release": "221101",
+  "release": "221201",
   "contractVersion": "v1",
   "serviceType": "Hosting",
   "resourceSize": "medium",
   "redundancySize": "custom",
   "redundancySizes": {
     "NP": 3,
-    "PROD": 5
+    "PROD": 6
   },
   "port": 6001,
   "client": {

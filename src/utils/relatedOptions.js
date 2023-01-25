@@ -135,7 +135,9 @@ export const relatedOptions = {
 			`transaction-history`,
 			`statements`
 		]
-	}
+	},
+	'full-ftsp-unlock': CREDIT_RO,
+	'partial-ftsp-unlock': CREDIT_RO
 };
 
 /**

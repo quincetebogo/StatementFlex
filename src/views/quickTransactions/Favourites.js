@@ -225,7 +225,7 @@ export class Favourites extends SavingsAccountBase {
 			endCallReason: selectedOption
 		};
 
-		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag());
+		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag(), () => this._errorHandler());
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
