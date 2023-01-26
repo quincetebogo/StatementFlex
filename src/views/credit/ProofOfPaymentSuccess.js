@@ -126,6 +126,7 @@ export class ProofOfPaymentSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -148,6 +149,14 @@ export class ProofOfPaymentSuccess extends ViewBase {
 							Proof of payment for <b>${this.accountName}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 }

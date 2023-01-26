@@ -11,7 +11,7 @@
   "redundancySize": "custom",
   "redundancySizes": {
     "NP": 3,
-    "PROD": 5
+    "PROD": 6
   },
   "port": 6001,
   "client": {

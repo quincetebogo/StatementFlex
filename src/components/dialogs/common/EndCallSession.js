@@ -51,8 +51,6 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
-		this.incidentRefNumber = ``;
-		this.incidentRecId = ``;
 
 		// Private Variables
 		this.category = ``;
@@ -91,7 +89,6 @@ export class EndCallSession extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {Object} incidentDetails Incident details
 	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
@@ -101,7 +98,6 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 			callerInformation: { type: Object },
@@ -130,10 +126,6 @@ export class EndCallSession extends Component {
 		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
-		// Subsequent incident might be created, so retrieving refNo & recID always from state
-		this.incidentRefNumber = this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
-
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
 		this._loading();
@@ -176,10 +168,10 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
-			const currentIncident = this.horizonIncidentManager.getCurrentIncident();
+			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
-			if (!currentIncident.incidentReferenceNumber || currentIncident.incidentReferenceNumber === `0`) {
+			if (!currentIncident.incidentReference || currentIncident.incidentReference === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
@@ -376,7 +368,7 @@ export class EndCallSession extends Component {
 		return true;
 	}
 
-	async _updateClientNonclientDetails(strackIncidentInfo, incidentDetails) {
+	async _updateClientNonclientDetails(strackIncidentInfo, currentIncident) {
 
 		/*
 		 * Update client details to STrack when the caller is a capitec client or 3rd party/beneficiary client.
@@ -389,7 +381,7 @@ export class EndCallSession extends Component {
 			isNullorEmpty(strackIncidentInfo.clientDetails.cif) &&
 			isNullorEmpty(strackIncidentInfo.clientDetails.southAfricanIDNumber)) {
 
-			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, incidentDetails.incidentRecId);
+			const returnValue = await this.incidentManagementService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
 		
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
@@ -408,13 +400,11 @@ export class EndCallSession extends Component {
 			Boolean(this.callerInformation.nonClientSurName)) {
 				
 			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.callerInformation.nonClientFirstName,
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(incidentDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(currentIncident, nonClientDetails);
 	
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
@@ -424,7 +414,7 @@ export class EndCallSession extends Component {
 		if (this.callerInformation.isBranchConsultant &&
 			Boolean(this.callerInformation.branchCallerID) &&
 			isNullorEmpty(strackIncidentInfo.branchID)) {
-				const returnValue = await this.incidentManagementService.UpdateIncidentBranchDetailsRequest(incidentDetails.incidentRecId, this.callerInformation.branchCode, this.callerInformation.branchCallerID);
+				const returnValue = await this.incidentManagementService.UpdateIncidentBranchDetailsRequest(currentIncident, this.callerInformation.branchCode, this.callerInformation.branchCallerID);
 	
 				if (!returnValue.succeeded) {
 					this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
@@ -437,20 +427,15 @@ export class EndCallSession extends Component {
 		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 
-		await this._updateClientNonclientDetails(strackIncidentInfo, this.incidentDetails);
+		await this._updateClientNonclientDetails(strackIncidentInfo, this.horizonIncidentManager.currentIncident);
 
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		const classification = this._getClassification();
+		const incident = this.horizonIncidentManager.currentIncident;
 
 		if (!isNullorEmpty(needAction) && continueUpdate) {
-			const request = {
-				incidentRecId: this.incidentRecId,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction,
-				incidentCategorization: classification
-			};
-			const returnValue = await this.incidentManagementService.classifyIncident(request);
+			const returnValue = await this.incidentManagementService.classifyIncident(incident, needAction, classification);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
@@ -458,7 +443,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`info`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+			this.logger.log(`info`, `Incident:${incident.toString()} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 
 		if (this._preventCloseOfIncident()) {
@@ -484,13 +469,14 @@ export class EndCallSession extends Component {
 	}
 
 	async _incidentStatus() {
-		
-		if (isNullorEmpty(this.incidentRecId) || this.incidentRecId === `0`) {
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+
+		if (!currentIncident) {
 			this.logger.log(`info`, `No active incident to get status`, `_incidentStatus`, null);
 			return null;
 		}
 
-		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
+		const returnValue = await this.incidentManagementService.incidentStatus(currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
@@ -518,7 +504,7 @@ export class EndCallSession extends Component {
 		 * Temp solution to know, if incident is assigned at strack directly
 		 * and to fit in current stop card flow logic
 		 */
-		const incidentInfo = await this._incidentStatus(this.incidentRecId);
+		const incidentInfo = await this._incidentStatus();
 		
 		if (incidentInfo) {
 			this.isReassigned = this.isReassigned || (incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username);
@@ -715,11 +701,14 @@ export class EndCallSession extends Component {
 		return html`
 			<horizon-caller-dialog
 				data-automation-id="end-call-session-dialog"
+
+				headerLabel="${HEADER_LABEL}" 
+				?displayButton="${false}"
+				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
+				?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
-				.isNeedSelectable=${false}
-						headerLabel="${HEADER_LABEL}" 
-				.displayButton="${false}">
+				?isNeedSelectable="${false}">
+				
 					<div slot="body">
 						<capitec-content-box
 							id="end-call-content-box"

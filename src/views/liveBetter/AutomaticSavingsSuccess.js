@@ -110,6 +110,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -165,6 +166,14 @@ export class AutomaticSavingsSuccess extends ViewBase {
 					<span>Interest sweep settings switched ${this.updatedLBSADetails.accountInterestSweepActive ? `on` : `off`}.</span>
 				</section>
 			`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

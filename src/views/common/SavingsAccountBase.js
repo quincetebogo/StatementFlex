@@ -7,6 +7,7 @@ import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsService } from 'app/services/SavingsService';
+import { SendCashService } from 'app/services/SendCashService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
@@ -58,6 +59,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.navigationContext = NavigationContext.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
+		this.sendCashService = new SendCashService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.debiCheckService = new DebiCheckService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -201,7 +203,7 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.VIEWINFO
 		});
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.isPending = event.detail.isPending;
 		this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;

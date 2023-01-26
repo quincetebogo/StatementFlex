@@ -34,8 +34,6 @@ export class InitialSystemError extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.incidentRecId = this.horizonIncidenManager.getCurrentIncident().incidentRecId;
 	}
 
 	// --------------
@@ -43,8 +41,7 @@ export class InitialSystemError extends View {
 	// --------------
 
 	_assignClick() {
-        console.log(`Assign is still to be developed`);
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+        this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	// ---------

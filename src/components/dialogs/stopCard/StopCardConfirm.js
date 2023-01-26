@@ -36,8 +36,6 @@ export class StopCardConfirm extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} incidentDetails Incident details
-	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} cardsToStop List of cards to stop
 	 * @property {string} cifNumber The client's CIF number
 	 * @property {string} title client's title (Mr/ Mrs)
@@ -49,8 +47,6 @@ export class StopCardConfirm extends Component {
 	 */
 	static get properties() {
 		return {
-			incidentDetails: { type: Object },
-			incomingCallDetails: { type: Object },
 			cardsToStop: { type: Array },
 			cifNumber: { type: String },
 			lastName: { type: String },
@@ -88,9 +84,9 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		await this.horizonIncidentManager.createAndClassifySubsIncident(this._toggleBusyFlag);
-		const incidentDetails = this.horizonIncidentManager.getIncidentDetails();
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, incidentDetails, this.cifNumber, this.title, this.lastName);
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, currentIncident, this.cifNumber, this.title, this.lastName);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {

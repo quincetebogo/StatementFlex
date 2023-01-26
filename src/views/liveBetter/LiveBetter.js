@@ -153,7 +153,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
@@ -370,7 +370,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this._updateLeftBar();
 
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 
 			} else if (returnValue.succeeded) {
 
@@ -400,7 +400,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
