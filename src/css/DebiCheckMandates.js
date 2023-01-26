@@ -88,7 +88,7 @@ export const TABLE_ROW_CELL_CSS = {
  */
 export function getFontColor(key, value) {
 	
-	if (key !== `Secondary status`) {
+	if (key !== `Status`) {
 		return ``;
 	}
 
@@ -96,7 +96,7 @@ export function getFontColor(key, value) {
 		return cellColorOrange;
 	} else if (value === `Accepted`) {
 		return cellColorGreen;
-	} else if (value === `Expired` || value === `Updated` || value === `Cancelled` || value === `Rejected` || value === `Duplicate`) {
+	} else if (value === `Expired` || value === `Updated` || value === `Cancelled` || value === `Rejected` || value === `Duplicate` || value === `Declined`) {
 		return cellColorRed;
 	}
 		return cellColorBlack;
