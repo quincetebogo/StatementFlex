@@ -30,7 +30,11 @@ class RequestCallbackDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} validationMessage - validation message
+	 * @property {String} nameError - name error message
+	 * @property {String} cellphoneError - cellphone number error message
+	 * @property {String} name - name of person to call back
+	 * @property {String} cellphoneNumber - cellphone number of person to call back
+	 * @property {Function} requestCallback - callback function to request a callback
 	 * 
 	 * @readonly
 	 * @static
@@ -40,7 +44,9 @@ class RequestCallbackDialog extends Component {
 			nameError: { type: String, state: true },
 			cellphoneError: { type: String, state: true },
 			name: { type: String, state: true },
-			cellphoneNumber: { type: String, state: true }
+			cellphoneNumber: { type: String, state: true },
+			requestCallback: { type: Object, state: true }
+
 		};
 	}
 
@@ -56,12 +62,12 @@ class RequestCallbackDialog extends Component {
 	 * dispatch confirmation click event
 	 * @returns {void}
 	 */
-	_requestCallbackClick() {
+	async _requestCallbackClick() {
 
 		const isValid = this._validate();
 
 		if (isValid === true) {
-			this.dispatchEvent(new CustomEvent(`request-callback-click`, { detail: { name: this.name, cellphoneNumber: this.cellphoneNumber } }));
+			await this.requestCallback(this.name, this.cellphoneNumber);
 		}
 		
 	}

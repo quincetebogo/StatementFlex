@@ -105,6 +105,7 @@ class ClientSummary extends Component {
 	 * @property {boolean} canReinstate determines whether a policy can be reinstated
 	 * @property {Object} selectedPolicyItem selected policy item
 	 * @property {String} productCode policy product code
+	 * @property {Function} requestCallback policy product code
 	 * 
 	 * @readonly
 	 * @static
@@ -143,7 +144,8 @@ class ClientSummary extends Component {
 			selectedPolicyItem: { type: Object, state: true },
 			productCode: { type: String, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
-			requestCallbackSuccess: { type: Boolean, state: true }
+			requestCallbackSuccess: { type: Boolean, state: true },
+			requestCallback: { type: Object, state: true }
 
 		};
 	}
@@ -414,12 +416,14 @@ class ClientSummary extends Component {
 		}
 	}
 
-	_requestCallback(e) {
+	async _requestCallback(name, cellphoneNumber) {
+		
+		await this.requestCallback(name, cellphoneNumber);
+
+
 		this.showRequestCallbackDialog = false;
 		this.requestCallbackSuccess = true;
 		window.setTimeout(() => this.requestCallbackSuccess = false, 2000);
-
-		this.dispatchEvent(new CustomEvent(`request-callback`, { detail: { name: e.detail.name, cellphoneNumber: e.detail.cellphoneNumber } }));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -1425,8 +1429,8 @@ class ClientSummary extends Component {
 		return this.showRequestCallbackDialog === false ? html``
 		: html`
 			<horizon-insure-request-callback-dialog
-			@cancel-click="${() => this.showRequestCallbackDialog = false}"
-			@request-callback-click="${(e) => this._requestCallback(e)}">
+			.requestCallback ="${(name, cellphoneNumber) => this._requestCallback(name, cellphoneNumber)}"
+			@cancel-click="${() => this.showRequestCallbackDialog = false}">
 			</horizon-insure-request-callback-dialog>
 		`;
 	}
