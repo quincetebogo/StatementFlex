@@ -154,7 +154,7 @@ export class Insights extends Component {
 	async _formatInsights(insights) {
 		
 		this.insights = insights;
-		const insightDetails = await this._insightimages.getInsightDetailsEnv();
+		const insightDetails = this._insightimages.getInsightDetails();
 
 		if (insightDetails[insights.parentCategoryId] && insightDetails[insights.parentCategoryId][insights.nbaId]) {
 			
