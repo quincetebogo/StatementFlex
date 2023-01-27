@@ -583,7 +583,7 @@ export class DebiCheckMandates extends Component {
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
-					${this._renderCell(`Secondary status`, formatStringAsPascalCase(rowData.secondaryStatus))}
+					${this._renderCell(`Status`, formatStringAsPascalCase(rowData.secondaryStatus === `NOTAPPLICABLE` ? `PENDING` : rowData.secondaryStatus))}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center" style="width: 190px;">
 					${this._renderButtons(rowData.mandateStatus, rowData)}
