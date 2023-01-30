@@ -41,6 +41,7 @@ export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
 export const GENERATE_DOCUMENT_REQUEST_PAYLOAD = {
 	"documentFormat": `PDF`,
 	"saveDocumentToDocumentum": false,
+	"markDocumentsAsAccepted": false,
 	"returnDocumentContent": true,
 	"emailDocumentToClient": false,
 	"wetsignBarcode": false,

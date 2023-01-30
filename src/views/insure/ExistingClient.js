@@ -208,6 +208,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.markDocumentsAsAccepted = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
@@ -249,12 +250,14 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.markDocumentsAsAccepted = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
 		const docGenerateRequestPayload = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": true,
+			"markDocumentsAsAccepted": true,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
@@ -533,6 +536,7 @@ export class ExistingClient extends InsureViewBase {
 		const cancelPolicyAgreementDetails = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
+			"markDocumentsAsAccepted": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
@@ -782,6 +786,7 @@ export class ExistingClient extends InsureViewBase {
 		const arrearsPaymentInstructionDetails = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveToDocumentum,
+			"markDocumentsAsAccepted": saveToDocumentum,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
