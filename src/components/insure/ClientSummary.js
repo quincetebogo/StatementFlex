@@ -517,6 +517,7 @@ class ClientSummary extends Component {
 				policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 			}
 		}
+		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 	}
 
