@@ -1128,8 +1128,8 @@ class UpdatePlan extends Component {
 	 *  @returns {String} day text
 	 */
 	_getCollectionDay() {
-		if (!this.collectionDay){
-			return ``
+		if (!this.collectionDay) {
+			return ``;
 		}
 		const day = this.debitOrderDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 		return day?.text;
@@ -1224,7 +1224,7 @@ class UpdatePlan extends Component {
 		onUpdateValidations.lifeAssured = false;
 		let payoutsMatch = false;
 
-		let totalPayout;
+		let totalPayout = 0;
 
 		this.policyDetails.roleplayers.forEach(ben => {
 			if (ben.beneficiary === true) {
@@ -1526,7 +1526,7 @@ class UpdatePlan extends Component {
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
 				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 				</capitec-text-field>`;
-		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails.disableDoB === false) {
+		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails?.disableDoB === false) {
 			return html`
 				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
