@@ -37,6 +37,8 @@ import 'app/components/common/TransactionHistory';
 
 const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
 
+const DATE_FORMAT = `dd mmm yyyy`;
+
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const NINETY_DAYS = 7777000000;
@@ -275,15 +277,15 @@ export class CreditAccount extends ViewBase {
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
 			budgetSequence: selectedAccountDetails.budgetSequence,
 			budgetDetails: {
-				"Monthly repayment": formatCurrency(selectedAccountDetails.budgetInstalment),
+				"Budget status": formatStringAsPascalCase(selectedAccountDetails.status),
+				"Open date": formatDate(selectedAccountDetails.budgetDateTaken, DATE_FORMAT),
 				"Purchase amount": formatCurrency(selectedAccountDetails.originalAmount),
-				"Outstanding balance": formatCurrency(selectedAccountDetails.budgetBalance),
-				"Opening date": this._formatDate(selectedAccountDetails.budgetDateTaken),
 				"Interest rate": `${selectedAccountDetails.interestRate}%`,
-				"Term (months)": selectedAccountDetails.originalTerm,
-				"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount),
+				"Remaining term (months)": selectedAccountDetails.termRemaining,
 				"Settlement amount": formatCurrency(selectedAccountDetails.settlementAmount),
-				"Remaining term (months)": selectedAccountDetails.termRemaining
+				"Current instalment": formatCurrency(selectedAccountDetails.budgetInstalment),
+				"Current balance": formatCurrency(selectedAccountDetails.budgetBalance),
+				"Payment made": formatCurrency(selectedAccountDetails.repaymentAmount)
 			}
 		};
 
@@ -817,12 +819,6 @@ export class CreditAccount extends ViewBase {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}credit/get-credit-for-all-your-needs/`);
 
-	}
-
-	// Formating date in the form 'DD MMM YYYY'
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${this.getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	// Get month name using month as a number (0 = Jan, 1 = Feb,... )
