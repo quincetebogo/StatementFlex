@@ -138,6 +138,7 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	 _agreeClick() {
+		console.log(`1.3 Agree button clicked on cancel dialog`);
 		this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_AGREE, {
 			"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
 			"next-screen": TelemetryScreen.INSURE_CANCEL_PLAN_SUCCESS
@@ -164,7 +165,9 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void}
 	 */
 	 async _getCancelAgreement(cancelReason) {
+		console.log(`1.1 Fetching cancel doc(cancel dialog)`);
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
+		console.log(`1.2 cancelPolicyDocumentDetails :>> `, this.cancelPolicyDocumentDetails);
 	}
 
 	//  #endregion PRIVATE METHODS
