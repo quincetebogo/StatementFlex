@@ -531,6 +531,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}  
 	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum) {
+		console.log(`3.1 fectching cancel doc (existing client)`);
 		this.policyNumber = contractReference;
 		const dob = new Date(this.callerInformation.birthdate);
 		const cancelPolicyAgreementDetails = {
@@ -557,6 +558,8 @@ export class ExistingClient extends InsureViewBase {
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.cancelPolicyDocumentDetails = resp.result;
+			console.log(`3.2 fetching cancel doc success(existing client)`);
+			console.log(`3.3 this.cancelPolicyDocumentDetails :>> `, this.cancelPolicyDocumentDetails);
 		} else {
 			this.handleToastError(resp.exception);
 			return;
@@ -912,7 +915,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _cancelPolicy(e) {
-
+		console.log(`3.4 canceling policy (existing)`);
 		this.cancellationReason = e.detail.cancellationReason;
 
 		const cancelPolicyDetails = {
@@ -932,7 +935,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
+			console.log(`3.5 canceling success (existing)`);
 			this._getCancelPolicyDocument(e.detail.contractReference, e.detail.cancellationReason, true);
 			this._goToCancelPolicySuccess(e);
 
@@ -1051,7 +1054,9 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
+		console.log(`this.policyNumber :>> `, this.policyNumber);
 		this.commsHistory = await this._retrieveCommsHistory(this.policyNumber);
+		console.log(`this.commsHistory existing client:>> `, this.commsHistory);
 		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
 	}
 
