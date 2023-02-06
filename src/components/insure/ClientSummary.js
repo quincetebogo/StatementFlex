@@ -221,7 +221,6 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_cancelPolicyAgree(e) {
-		console.log(`2.3 cancel policy agree(client summary)`);
 		this.dispatchEvent(new CustomEvent(`cancel-policy`, {
 			detail: { contractReference: this.contractReferenceToCancel, cancellationReason: e.detail.cancellationReason }
 		}));
@@ -279,9 +278,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	async _getCancelPolicyDocument(contractReference, cancelReason) {
-		console.log(`2.1 Fetching Cancel doc(Client Summary)`);
 		await this.getCancelPolicyDocument(contractReference, cancelReason, false);
-		console.log(`2.2 getCancelPolicyDocument :>> `, this.getCancelPolicyDocument);
 	}
 
 	/**

@@ -165,9 +165,7 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void}
 	 */
 	 async _getCancelAgreement(cancelReason) {
-		console.log(`1.1 Fetching cancel doc(cancel dialog)`);
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
-		console.log(`1.2 cancelPolicyDocumentDetails :>> `, this.cancelPolicyDocumentDetails);
 	}
 
 	//  #endregion PRIVATE METHODS
