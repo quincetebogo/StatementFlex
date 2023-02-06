@@ -13,13 +13,6 @@
   "secrets": [],
   "environmentVariables": [
     "LogLevel",
-    "MetricsLogLevel",
-    "DatabusSourceSystem",
-    "DatabusResponsibleTeam",
-    "TelemetryApiKeySecretName",
-    "TelemetryApiId",
-    "TelemetryApiUrl",
-    "TelemetryOAuthUsernameSecretName",
-    "TelemetryOAuthPasswordSecretName"
+    "MetricsLogLevel"
   ]
 }
