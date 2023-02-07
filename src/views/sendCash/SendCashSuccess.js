@@ -95,7 +95,7 @@ import 'app/components/common/SuccessScreen';
 		return html`
 			<horizon-success-screen
 				header="Send Cash Hold Successful" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				right="Done"
 				toast="${this.primaryToast}"
 				@right-click=${() => this._doneClick()}>

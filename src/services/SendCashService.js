@@ -67,7 +67,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			return this.mock(`sendCashVoucherHold`);
 		}
 
-		const url = `clientcare-sendcash-${this._version}/voucher/hold`;
+		const url = `/clientcare-sendcash-${this._version}/voucher/hold`;
 
 		return this.post(
 			url,
