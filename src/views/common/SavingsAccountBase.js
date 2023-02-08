@@ -302,7 +302,6 @@ export class SavingsAccountBase extends ViewBase {
 	async _confirmAgreement(accepted) {
 		const name = this.callerInformation.name.split(` `);
 		
-		// TODO: CHECK HERE!
 		const agreementInfo = {
 			cifNumber: this.callerInformation.cifNumber,
 			mandateRef: this.debiCheckDetails.mandateReference,
@@ -321,7 +320,7 @@ export class SavingsAccountBase extends ViewBase {
 			contractReference: this.debiCheckDetails.contractReference,
 			instalmentAmount: this.mandateInfo.amount,
 			frequency: this.mandateInfo.collectionDate.frequency.toString(),
-			firstCollectionDate: this.debiCheckDetails.firstCollectionDate, // TODO: This looks to be coming from the initialize date from the PS; check CS
+			firstCollectionDate: this.debiCheckDetails.firstCollectionDate,
 			collectionDayFrequencyWording: this.mandateInfo.collectionDayFrequency,
 			ultimateDebtorName: this.clientDetails.accountShortName,
 			debitAccountName: this.clientDetails.accountShortName,
