@@ -67,7 +67,10 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Auto limit increase': `${this.accessFacilityDetails.autoIncreaseLimitOption ? `Yes` : `No`}`,
 				'Account status': this.accessFacilityDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.accessFacilityDetails.accountStatusDescription)
 			},
-			'arrears': null,
+			'arrears': {
+				'Total arrears amount': formatCurrency(this.accessFacilityDetails.totalArrearsPayable || `0`),
+				'Last arrears date': this.accessFacilityDetails.lastArrearsDate ? formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`) : `-`
+			},
 			'repayment': {
 				'Repayment amount': `${formatCurrency(this.accessFacilityDetails.repaymentValue)}`,
 				'Repayment date': `${this.accessFacilityDetails.repaymentDay}${getDateOrdinal(this.accessFacilityDetails.repaymentDay)} of every month`,
@@ -83,13 +86,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Waiting period expiry date': formatDate(this.accessFacilityDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
 			}
 		};
-
-		if (this.accessFacilityDetails.arrearsStatus) {
-			this.accountDetails.arrears = {
-				'Total arrears amount': formatCurrency(this.accessFacilityDetails.totalArrearsPayable),
-				'Last arrears date': formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`)
-			};
-		}
 	}
 
 	// ---------------
