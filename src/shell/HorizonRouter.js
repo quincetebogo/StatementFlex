@@ -65,7 +65,7 @@ const HORIZON_ROUTES = Object.freeze({
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
 	UNLOCK_FTSP_SUCCESS: `/success/unlock-fixed-term-savings-plan`,
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
-	CREATE_INCIDENT_ERROR: `/error/create-incident`
+	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`
 });
