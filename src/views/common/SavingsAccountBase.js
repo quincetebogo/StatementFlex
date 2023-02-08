@@ -474,6 +474,7 @@ export class SavingsAccountBase extends ViewBase {
 				<debi-check-mandates
 					.debiCheckMandates = "${this.debiCheckMandates}"
 					.debicheckAction="${(action, mandateInfo, isPending) => this._mandateActionClick(action, mandateInfo, isPending)}"
+					.callerInformation = "${this.callerInformation}"
 					@back="${() => this._exitDebiCheck()}"
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}"
 					@unloading="${() => this._unloadDebiCheck()}"

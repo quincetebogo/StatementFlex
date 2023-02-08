@@ -18,6 +18,7 @@ export class ViewInfoDebiCheck extends Component {
 	constructor() {
 		super();
 		this.debiCheckDetails = {};
+		this.callerInformation = {};
 		this.isPending = false;
 
 		this.mandateDetails = {};
@@ -40,7 +41,8 @@ export class ViewInfoDebiCheck extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckDetails: { type: Object }
+			debiCheckDetails: { type: Object },
+			callerInformation: { type: Object }
 		};
 	}
 
@@ -99,18 +101,16 @@ export class ViewInfoDebiCheck extends Component {
 			"Tracking allowed": this.debiCheckDetails.tracking ? `Yes` : `No`,
 			"Collector contact number": this.debiCheckDetails.collectorContact,
 			"Collector email address": this.debiCheckDetails.collectorEmail,
-			"Collector account number": this.debiCheckDetails.debtorAccountNumber,
 			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
 			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
-			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti // TODO: Dupilcate of MRTI field in creditor details?
+			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti
 		};
 		
 		this.installmentDetails = {
 			"Installment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.amount)),
 			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
 			"Tracking allowed": this.debiCheckDetails.tracking ? `Yes` : `No`,
-			"Max collection amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.maxCollectionAmount)),
-			"Adjusted rate": `${this.debiCheckDetails.adjustmentRate}%` // TODO: This information is not being returned
+			"Max collection amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.maxCollectionAmount))
 		};
 
 		this.dateDetails = {
@@ -125,24 +125,21 @@ export class ViewInfoDebiCheck extends Component {
 			"Creditor name": this.debiCheckDetails.creditorName,
 			"Mandate status": formatStringAsPascalCase(this.debiCheckDetails.mandateStatus),
 			"Contract reference": this.debiCheckDetails.contractReference,
-			"Creditor telephone number": this.debiCheckDetails.creditorContractNumber,
+			"Creditor telephone number": this.debiCheckDetails.collectorContact,
 			"Creditor short name": this.debiCheckDetails.creditorShortName,
 			"Mandate reference": this.debiCheckDetails.mandateReference,
 			"Ultimate creditor name": this.debiCheckDetails.ultimateCreditorName,
 			"Creditor email": this.debiCheckDetails.collectorEmail,
 			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
-			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti // TODO: Duplicate of "Mandate request transaction identifier" field in Mandate details
+			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti
 		};
 
-		// TODO: Check state for this information
 		this.payerDetails = {
-			"Payer ID": this.debiCheckDetails.payerID, // TODO: Get from caller info store
-			"Debtor telephone number": this.debiCheckDetails.debtorTelephoneNumber, // TODO: Get from caller info store; home or work?
-			"Payer account": this.debiCheckDetails.debtorAccountNumber, // TODO: We get the debtor account from the PS
-			"Ultimate debtor name": this.debiCheckDetails.ultimateDebtorName, // TODO: Client's name or account name?
-			"Debtor email": this.debiCheckDetails.debtorEmail, 
-			"CIF number": this.debiCheckDetails.cifNumber, // TODO: Get from caller info store
-			"Entry class": this.debiCheckDetails.entryClass // TODO: This information is not being returned
+			"Payer ID": this.callerInformation.southAfricanIDNumber,
+			"Debtor telephone number": this.callerInformation.verifiedTelephoneNumber,
+			"Payer account": this.debiCheckDetails.debtorAccountNumber,
+			"Debtor email": this.callerInformation.emailId, 
+			"CIF number": this.callerInformation.cifNumber
 		};
 	}
 
