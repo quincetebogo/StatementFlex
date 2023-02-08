@@ -53,6 +53,7 @@ export class DebiCheckMandates extends Component {
 		this.declinedMandates = [];
 		this.filterBy = 0;
 		this.noMandatesError = `No DebiCheck mandates on the account`;
+		this.callerInformation = {};
 
 		this.mandateDetails = {};
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
@@ -75,7 +76,7 @@ export class DebiCheckMandates extends Component {
 			debiCheckMandates: { type: Array },
 			filterBy: { attribute: false },
 			renderMode: { attribute: false },
-
+			callerInformation: { type: Object },
 			debicheckAction: { type: Object }
 		};
 	}
@@ -673,6 +674,7 @@ export class DebiCheckMandates extends Component {
 			? html`
 				<horizon-viewinfo-debicheck
 					.debiCheckDetails=${this.mandateDetails}
+					.callerInformation=${this.callerInformation}
 					@back="${() => this._backFromMandateDetails()}"
 					@approve="${(event) => this._approve(event.detail.mandateInfo)}"
 					@decline="${(event) => this._decline(event.detail.mandateInfo)}"

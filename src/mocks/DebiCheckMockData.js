@@ -102,10 +102,8 @@ export const mockMandates = {
 
 export const mandateInfo = {
 		"adjustmentAmount": 500,
-		"secondaryStatus": `DECLINED`,
 		"mandateName": "DISCLIFE 5130111776-21",
 		"mandateStatus": "DECLINED",
-		"adjustmentRate": 6,
 		"frequency": "Monthly",
 		"firstCollectionDate": "2022-07-28T00:00:00+00:00",
 		"tracking": true,
@@ -118,20 +116,10 @@ export const mandateInfo = {
 		"canBeAuthenticated": true,
 		"dateAmended": "2022-07-28T11:16:18.937+00:00",
 		"ultimateCreditorName": "NUPAY",
-		"mandateRequestTransactionIdentifier": null,
-		"payerAccount": 1324124,
-		"cifNumber": 289739225,
-		"entryClass": `-`,
-		"payerID": "T02898475357773659",
-		"ultimateDebtorName": "Capitec Bank LTD",
-		"creditorContactNumber": "0112322455",
-		"creditorTelephoneNo": "021034440344",
 		"creditorUltimateName": "Vodacom",
 		"creditorName": "ALTECH NUPAY A DIVISION OF ALTRON",
 		"creditorShortName": "NPSTIFIN",
-		"debtorEmail": null,
 		"installmentAmount": 46010,
-		"debtorTelephoneNumber": null,
 		"initiationDate": "2022-07-28T00:00:00+00:00"
 	};
 
