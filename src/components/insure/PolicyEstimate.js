@@ -158,14 +158,16 @@ class PolicyEstimate extends Component {
 
 		// Validate
 		this.estimate.lifesAssured.forEach(life => {
-			if (life.relationship === `MainLife` && (life.coverAmount < MAIN_LIFE_MINIMUM_COVER || life.coverAmount > this.maxAllowedCover)) {
-				life.coverDetails.coverMessage = life.coverDetails.maxCoverMessage.replace(`{0:#,##0}`, life.coverDetails.maxCoverAmount);
-				isValid = false;
-			}
-			
-			if (!life.coverAmount || life.coverAmount === `` || life.coverAmount === 0) {
-				life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace(`{0:#,##0}`, life.coverDetails.minCoverAmount);
-				isValid = false;
+			if (isNullorEmpty(this.newTotalPremium)) {
+				if (life.relationship === `MainLife` && (life.coverAmount < MAIN_LIFE_MINIMUM_COVER || life.coverAmount > this.maxAllowedCover)) {
+					life.coverDetails.coverMessage = life.coverDetails.maxCoverMessage.replace(`{0:#,##0}`, life.coverDetails.maxCoverAmount);
+					isValid = false;
+				}
+				
+				if (!life.coverAmount || life.coverAmount === `` || life.coverAmount === 0) {
+					life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace(`{0:#,##0}`, life.coverDetails.minCoverAmount);
+					isValid = false;
+				}
 			}
 			if (isNullorEmpty(life.age)) {
 				life.coverDetails.ageMessage = AGE_REQUIRED_MESSAGE;
@@ -191,7 +193,6 @@ class PolicyEstimate extends Component {
 
 			if (printOrCalculate === 1) {
 				this.estimate = await this.calculateEstimate({ detail: request });
-				this.newTotalPremium = ``;
 				this.requestUpdate();
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
