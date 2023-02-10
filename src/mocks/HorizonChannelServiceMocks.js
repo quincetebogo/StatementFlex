@@ -570,6 +570,9 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	ftspUnlockQuote() {
+		if (this._mockSettings.ftspUnlockQuote.positiveCase) {
+			return this.unlockFTSPMocks.unlockQuote;
+		}
 		return null;
 	}
 	
