@@ -133,7 +133,6 @@ class UpdatePlan extends Component {
 	 * @property {Boolean} showConfirmPlanUpdateDialog Show flag for Conformation dialog, to confirm Update Plan agreement
 	 * @property {Object} policyDetails Current Policy Summary Object
 	 * @property {Number} collectionDay Premium collection day
-	 * @property {String} newTotalPremium new total premium / from calculate by premium input
 	 * @property {String} currentTotalPremium current total premium to show
 	 * @property {Object} updatePlanPrepare Callback function to Prepare Update *
 	 * @property {Object} updatePlanQuote Callback function to Quote Calc *
@@ -177,7 +176,6 @@ class UpdatePlan extends Component {
 			policyDetails: { type: Object, state: true },
 			collectionDay: { type: Number, state: true },
 
-			newTotalPremium: { string: `` },
 			currentTotalPremium: { string: `` },
 
 			updatePlanPrepare: { type: Object, state: true },
@@ -339,7 +337,6 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers[index].rowID = index;
 		}
 		this._closeRemoveLifeAssuredDialog();
-		this.newTotalPremium = ``;
 		this.requestUpdate();
 	}
 
@@ -383,7 +380,6 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.recordID === recordId) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
-					this.newTotalPremium = ``;
 
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
@@ -766,15 +762,6 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Event fired when calculate by Premium override input changed
-	 * @param {event} e event
-	 * @returns {void} 
-	 */
-	_totalPremiumChanged(e) {
-		this.newTotalPremium = e.detail.new;
-	}
-
-	/**
 	* Calculate Button event / Calculate by life assured
 	* @returns {void} 
 	*/
@@ -786,17 +773,12 @@ class UpdatePlan extends Component {
 
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
 		if (onUpdateValidations.validated === true) {
-			if (this.newTotalPremium === ``) {
-				this.policyDetails.totalPremium = this.newTotalPremium;
-			} else {
 				delete this.policyDetails.totalPremium;
-			}
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 
 			this.currentTotalPremium = calcQuoteResponse.totalPremium;
 			this.policyDetails.roleplayers = calcQuoteResponse.lifesAssured;
 			this.policyDetails.quoteNumber = calcQuoteResponse.quoteNumber;
-			this.newTotalPremium = ``;
 		} else {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
 			this.showUpdateValidationDialog = true;
@@ -1590,6 +1572,7 @@ class UpdatePlan extends Component {
 				background-color: #f5f5f5;
 				border-radius: 5px;
 				padding: 10px;
+				max-height: 660px;
 			}
 			
 			.calc-summary-card{
@@ -1993,15 +1976,6 @@ class UpdatePlan extends Component {
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
 					<hr>`)}
-				</div>
-		
-				<!-- bottom -->
-				<div>
-					<capitec-label label="Specify a premium you are willing to pay" class="stronger"></capitec-label>
-					<br>
-					<capitec-text-field @value-change="${(e) => this._totalPremiumChanged(e)}" .value="${this.newTotalPremium}"
-						label="Premium Amount" type="numeric" ?disabled = "${Boolean(this.canReinstate)}">
-					</capitec-text-field>
 				</div>
 			</div>
 		</div>
