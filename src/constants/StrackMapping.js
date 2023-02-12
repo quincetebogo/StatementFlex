@@ -21,6 +21,8 @@
 	"proof-of-account": `PROOF_OF_ACCOUNT`,
 	"settlement-quote": `SETTLEMENT_QUOTE`,
 	"paid-up-accounts": `PAID_UP_LETTER`,
+	"send-cash": `SEND_CASH`,
+	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
 
 	// Savings account
 	"transaction-history": `TRANSACTION_HISTORY`,

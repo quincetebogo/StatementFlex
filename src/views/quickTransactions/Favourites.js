@@ -188,6 +188,9 @@ export class Favourites extends SavingsAccountBase {
 
 		this._saveToState(event.detail.selectedReason);
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.currentNeed = `send-cash-place-hold`;
+
 		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
 
 		if (returnValue.succeeded) {
