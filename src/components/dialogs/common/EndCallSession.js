@@ -651,7 +651,7 @@ export class EndCallSession extends Component {
 				--theme-layout-gap-spacing: 16px;
 			  }
 
-			capitec-select {
+			capitec-select, capitec-text-box {
 				width: 100%;
 
 				--theme-layout-gap-spacing: 18px;
@@ -719,6 +719,7 @@ export class EndCallSession extends Component {
 							gap="clear">
 								${this._renderAlertBanner()}
 								${this._renderChooseEndCallReason()}
+								${this.renderEndcallDescription()}
 								${this._renderUnderstandNeed()}
 								${this._renderLoadingIndicator()}
 						</capitec-content-box>
@@ -750,6 +751,20 @@ export class EndCallSession extends Component {
 				select-mode="single"
 				error="${this.errors.endCallReason}">
 			</capitec-select>
+		`;
+	}
+
+	_renderEndcallDescription() {
+		return html`
+			<capitec-label
+				type="default"
+				label="Add Description (optional)">
+			</capitec-label>
+			
+			<capitec-text-box
+				id="endCallDescriptionId"
+				value="Add description">
+			</capitec-text-box>
 		`;
 	}
 
