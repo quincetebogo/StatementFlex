@@ -894,7 +894,8 @@ const UNLOCK_OPTIONS = {
 						label="Updated Balance"
 						type="currency"
 						value="${this.balanceAfterUnlock}"
-						?disabled=${true}>
+						?disabled=${true}
+						?hidden=${this.unlockType !== `Partial unlock`}>
 					</capitec-text-field>
 					
 				</capitec-group>
