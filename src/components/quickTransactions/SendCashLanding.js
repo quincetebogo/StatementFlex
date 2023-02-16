@@ -96,6 +96,7 @@ export class SendCashLanding extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._unloading();
 	}
 
 	// --------------
@@ -104,6 +105,10 @@ export class SendCashLanding extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`, {}));
 	}
 
 	_searchTextChange(event) {

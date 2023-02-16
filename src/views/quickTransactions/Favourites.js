@@ -667,7 +667,7 @@ export class Favourites extends SavingsAccountBase {
 	async _sendCash() {
 		this.sendCashVouchers = await this._getSendCashVouchers();
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubsIncident(null, false);
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
@@ -862,6 +862,25 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this._backToLandingPage();
+	}
+
+	async _onExitSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+
+	async _onUnloadingSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
 	}
 
 	_limitsRandsToCents(cardDetails) {
@@ -1134,7 +1153,8 @@ export class Favourites extends SavingsAccountBase {
 					.disposeData="${() => this.sendCashVouchers = []}"
 
 					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
-					@back="${() => this._backToLandingPage()}">
+					@back="${() => this._onExitSendCash()}"
+					@unloading="${() => this._onUnloadingSendCash()}">
 				</horizon-send-cash-landing>`
 			: html``;
 	}
