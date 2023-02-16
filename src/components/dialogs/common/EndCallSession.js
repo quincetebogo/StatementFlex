@@ -20,6 +20,7 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
+import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
@@ -51,6 +52,9 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
+		this.numberOfCharacters = 0;
+		this.endCallDescription = ``;
+		this.validNumberOfChars = true;
 
 		// Private Variables
 		this.category = ``;
@@ -108,7 +112,10 @@ export class EndCallSession extends Component {
 			category: { attribute: false },
 			need: { attribute: false },
 			issue: { attribute: false },
-			understandNeed: { attribute: false }
+			understandNeed: { attribute: false },
+			numberOfCharacters: {attribute: false},
+			endCallDescription: {attribute: false},
+			validNumberOfChars: {attribute: false},
 		};
 	}
 
@@ -168,6 +175,11 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
+			// This is to set the description for the incident which is optional
+			if(this.endCallDescription !== null) {
+				this.horizonIncidentManager.setDescription(this.endCallDescription);
+			}
+
 			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
@@ -191,6 +203,31 @@ export class EndCallSession extends Component {
 
 			this._prepopulateNeed();
 		}
+	}
+
+	_countNumberOfCharacters(event) {
+		if(event.detail.new !== null) {
+			this.numberOfCharacters = event.detail.new.length;
+			this.endCallDescription = event.detail.new;
+
+			this.validNumberOfChars = this._validateCharacters(event);
+		}
+	}
+
+	_validateCharacters(chars) {
+		if(chars.detail.new.length > 0)
+			return false;
+		return true;
+	}	
+
+	_charValidationColor() {
+		if(!this.validNumberOfChars)
+			return super.styles,
+			css`
+				.borderColor {
+					border-color: red;
+				}
+			`;
 	}
 
 	async _categoryChanged(e) {
@@ -684,6 +721,20 @@ export class EndCallSession extends Component {
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 12px;
 			}
+
+			.descriptionGroup {
+				width: 100%;
+			}
+
+			.descriptionCharValidation {
+				color: red;
+			}
+
+			.descriptionValidation {
+				color: red;
+				font-size: xx-large;
+				border-color: red;
+			}
 			
 			horizon-alert-banner {
 				width: 100%;
@@ -719,8 +770,8 @@ export class EndCallSession extends Component {
 							gap="clear">
 								${this._renderAlertBanner()}
 								${this._renderChooseEndCallReason()}
-								${this.renderEndcallDescription()}
 								${this._renderUnderstandNeed()}
+								${this._renderEndcallDescription()}
 								${this._renderLoadingIndicator()}
 						</capitec-content-box>
 					</div>
@@ -756,14 +807,28 @@ export class EndCallSession extends Component {
 
 	_renderEndcallDescription() {
 		return html`
-			<capitec-label
-				type="default"
-				label="Add Description (optional)">
-			</capitec-label>
-			
+			<capitec-group class="descriptionGroup" layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-label
+					type="default"
+					class=${!this.validNumberOfChars ? 'descriptionCharValidation' : '' }
+					label="Add Description (optional)">
+				</capitec-label>
+				<capitec-spacer></capitec-spacer>
+				
+				<capitec-label
+					type="default"
+					class=${!this.validNumberOfChars ? 'descriptionCharValidation' : '' }
+					label="${this.numberOfCharacters}/5000">
+				</capitec-label>
+			</capitec-group>
+
 			<capitec-text-box
 				id="endCallDescriptionId"
-				value="Add description">
+				label="Add description"
+				class=${!this.validNumberOfChars ? "descriptionValidation" : "" }
+				error=${!this.validNumberOfChars ? ' ' : '' }
+				?displayForLabel=${false}
+				@key-input="${(e)=> this._countNumberOfCharacters(e)}">
 			</capitec-text-box>
 		`;
 	}
