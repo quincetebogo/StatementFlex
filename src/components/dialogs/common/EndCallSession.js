@@ -176,7 +176,7 @@ export class EndCallSession extends Component {
 			});
 
 			// This is to set the description for the incident which is optional
-			if(this.endCallDescription !== null) {
+			if(!isNullorEmpty(this.endCallDescription)) {
 				this.horizonIncidentManager.setDescription(this.endCallDescription);
 			}
 
@@ -215,19 +215,9 @@ export class EndCallSession extends Component {
 	}
 
 	_validateCharacters(chars) {
-		if(chars.detail.new.length > 0)
+		if(chars.detail.new.length > 15)
 			return false;
 		return true;
-	}	
-
-	_charValidationColor() {
-		if(!this.validNumberOfChars)
-			return super.styles,
-			css`
-				.borderColor {
-					border-color: red;
-				}
-			`;
 	}
 
 	async _categoryChanged(e) {
@@ -722,18 +712,20 @@ export class EndCallSession extends Component {
 				--theme-button-padding-left: 12px;
 			}
 
+			.errorDescriptionTexBox {
+				--theme-input-focussed-border-color: #cc706d;
+			}
+
+			.descriptionTexBox {
+				--theme-input-focussed-border-color: #E1E1E1;
+			}
+
 			.descriptionGroup {
 				width: 100%;
 			}
 
 			.descriptionCharValidation {
 				color: red;
-			}
-
-			.descriptionValidation {
-				color: red;
-				font-size: xx-large;
-				border-color: red;
 			}
 			
 			horizon-alert-banner {
@@ -743,9 +735,6 @@ export class EndCallSession extends Component {
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
-	}
-
-	_mobileTemplate() {
 	}
 
 	_webTemplate() {
@@ -825,8 +814,7 @@ export class EndCallSession extends Component {
 			<capitec-text-box
 				id="endCallDescriptionId"
 				label="Add description"
-				class=${!this.validNumberOfChars ? "descriptionValidation" : "" }
-				error=${!this.validNumberOfChars ? ' ' : '' }
+				class=${!this.validNumberOfChars ? 'errorDescriptionTexBox' : 'descriptionTexBox' }
 				?displayForLabel=${false}
 				@key-input="${(e)=> this._countNumberOfCharacters(e)}">
 			</capitec-text-box>
