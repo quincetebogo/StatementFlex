@@ -236,7 +236,7 @@ class PolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	_removeLife(lifeToRemove) {
-		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIVE, {
+		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_REMOVE_LIFE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
