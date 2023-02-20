@@ -1,5 +1,6 @@
 import { Component, html } from 'platform/elements';
 import { AccessMenuBarEvents } from 'app/constants/telemetry/events/AccessMenuBar';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ValueAddedService } from 'app/services/ValueAddedService';
@@ -29,6 +30,7 @@ export class ValueAddedServices extends Component {
 		this.isBusy = false;
 		this._telemetry = HorizonTelemetry.instance;
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// -----------
@@ -102,7 +104,7 @@ export class ValueAddedServices extends Component {
 	// ---------------
 
 	async _updateValueAddedServices(valueAddedServices) {
-		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(valueAddedServices);
+		const returnValue = await this.clientProfileService.putClientConsent(valueAddedServices);
 
 		if (returnValue.succeeded) {
 
@@ -111,10 +113,9 @@ export class ValueAddedServices extends Component {
 				"next-screen": TelemetryScreen.FAVOURITES,
 				"capitec-entity-id": valueAddedServices.capitecEntityId,
 				"insights": valueAddedServices.optOutInsights,
-				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing,
-				"pre-assessments": valueAddedServices.optOutPreAssessments,
-				"analysis": valueAddedServices.optOutAnalysis,
-				"third-parties": valueAddedServices.optOutThirdParties
+				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing
+				
+				
 			});
 		}
 

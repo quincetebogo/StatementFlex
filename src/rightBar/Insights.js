@@ -1,6 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { ClientInsightsService } from 'app/services/ClientInsightsService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NBAEvents } from 'app/constants/telemetry/events/AccessMenuBar';
 import { ValueAddedService } from 'app/services/ValueAddedService';
@@ -34,6 +35,7 @@ export class Insights extends Component {
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 		this.clientInsightsService = new ClientInsightsService(() => this._toggleBusyFlag(), () => true);
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -111,7 +113,7 @@ export class Insights extends Component {
 	}
 
 	async _valueAddedService() {
-		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
+		const returnValue = await this.clientProfileService.getClientConsent(this.cifNumber);
 
 		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS = returnValue.result;
