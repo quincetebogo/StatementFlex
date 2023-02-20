@@ -211,11 +211,14 @@ export class EndCallSession extends Component {
 			this.endCallDescription = event.detail.new;
 
 			this.validNumberOfChars = this._validateCharacters(event);
+
+			if(!this.validNumberOfChars)
+				return;
 		}
 	}
 
 	_validateCharacters(chars) {
-		if(chars.detail.new.length > 15)
+		if(!isNullorEmpty(chars) && chars.detail.new.length > 15)
 			return false;
 		return true;
 	}
