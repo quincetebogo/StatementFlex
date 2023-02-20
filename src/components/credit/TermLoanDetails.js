@@ -66,7 +66,12 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Take-up date': formatDate(this.termLoanDetails.approvedDate, `dd mmm yyyy`),
 				'Account status': this.termLoanDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.termLoanDetails.accountStatusDescription)
 			},
-			'arrears': null,
+			'arrears': {
+				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable || `0`),
+				'Last arrears date': this.termLoanDetails.lastArrearsDate ? formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`) : `-`,
+				'December arrears': formatCurrency(this.termLoanDetails.decemberArrears || `0`),
+				'Arrears excluding December arrears': formatCurrency(this.termLoanDetails.arrearsExcludingDecemberArrears || `0`)
+			},
 			'repayment': {
 				'Repayment date': `${this.termLoanDetails.salaryDate}${getDateOrdinal(this.termLoanDetails.salaryDate)} of every month`,
 				'Repayment amount': `${formatCurrency(this.termLoanDetails.nextInstalmentDueAmount)}`,
@@ -80,15 +85,6 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Waiting period expiry date': formatDate(this.termLoanDetails.waitingPeriodExpiryDate, `dd mmm yyyy`)
 			}
 		};
-
-		if (this.termLoanDetails.arrearsStatus) {
-			this.accountDetails.arrears = {
-				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable),
-				'Last arrears date': formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`),
-				'Decemeber arrears': formatCurrency(this.termLoanDetails.decemberArrears),
-				'Arrears excluding Decemeber arrears': formatCurrency(this.termLoanDetails.arrearsExcludingDecemberArrears)
-			};
-		}
 	}
 
 	// ---------------
