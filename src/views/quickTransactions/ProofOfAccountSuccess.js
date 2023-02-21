@@ -33,6 +33,10 @@ export class ProofOfAccountSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	get incidentDescription() {
+		return `Recipient EmailID: ${this.screenDetails.emailAddress}`;
+	}
 	
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -87,6 +91,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.description = this.incidentDescription;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 

@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { ACCOUNT_TYPES } from 'app/constants/common';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -15,14 +16,27 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.accNumber = ``;
-		this.accType = ``;
+		this.accName = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.productName = ``;
+		this.productType = ``;
+		this.period = ``;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 	
+	get incidentDescription() {
+		let accountName = ``;
+		
+		if (this.productType === ACCOUNT_TYPES.SAVINGS_PLAN) {
+			accountName = `Account Name: ${this.accName}\n`;
+		}
+
+		return `Type: ${this.productName}\n${accountName}Period: ${this.period}\nRecipient EmailID: ${this.mailId}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -34,8 +48,11 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.accNumber = screenDetails && screenDetails.accountNumber;
-		this.accType = screenDetails && screenDetails.accountType;
+		this.accName = screenDetails && screenDetails.accountName;
 		this.telemetryEvent = screenDetails?.telemetryEvent ?? {};
+		this.productName = screenDetails && screenDetails.productName;
+		this.period = screenDetails && screenDetails.period;
+		this.productType = screenDetails && screenDetails.productType;
 
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_SUCCESS);
 		this._updateIncidentState();
@@ -79,6 +96,7 @@ export class StatementsSuccess extends ViewBase {
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.description = this.incidentDescription;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
@@ -123,7 +141,7 @@ export class StatementsSuccess extends ViewBase {
 					<section 
 						id="id-error-msg" 
 						slot="detail">
-							The statement for ${this.accType} <b>${this.accNumber}</b> was emailed to <b>${this.mailId}</b>
+							The statement for ${this.accName} <b>${this.accNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
 		`;
