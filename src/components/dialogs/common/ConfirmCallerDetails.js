@@ -39,6 +39,20 @@ const RENDER_MODE = {
 	VERIFY_CALLER: 5
 };
 
+const LANGUAGE_LIST = [
+	`English`, 
+	`Afrikaans`, 
+	`Zulu`,
+	`Xhosa`, 
+	`Tsonga`, 
+	`Swati`,
+	`Ndebele`, 
+	`Xitsonga`, 
+	`Tshivenda`,
+	`Sepedi`,
+	`Sesotho`
+];
+
 const branchBannerMessage = ` Branch calling in on behalf of the client`;
 
 /**
@@ -85,6 +99,7 @@ export class ConfirmCallerDetails extends Component {
 		this.errorCount = 0;
 		this.cpNumber = ``;
 		this.clientType = -1;
+		this.languagePreference = `-`;
 	}
 
 	// ----------
@@ -110,7 +125,8 @@ export class ConfirmCallerDetails extends Component {
 
 			isBusy: { state: true },
 			renderMode: { state: true },
-			errorMessage: { state: true }
+			errorMessage: { state: true },
+			languagePreference: { state: true }
 		};
 	}
 
@@ -127,6 +143,7 @@ export class ConfirmCallerDetails extends Component {
 			"initial-client-cif": this.confirmedCaller.cifNumber
 		});
 		this._initCallerInformation();
+		this._getLanguagePreference();
 	}
 
 	disconnectedCallback() {
@@ -320,6 +337,14 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	_onLanguageUpdate(e) {
+		// TO DO: Make service call to update language preference
+		// Dynamically send toast details for success or failure cases
+		this.dispatchEvent(new CustomEvent(`display-toast`, { detail: { displayToast: true } }));
+		
+		this.languagePreference = e.detail.new;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -445,12 +470,11 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_getLanguagePreference() {
-		let languagePreference = this.confirmedCaller.languagePreference;
+		this.languagePreference = this.confirmedCaller.languagePreference;
 
-		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
-			languagePreference = `-`;
+		if (!this.languagePreference || this.languagePreference === `NOT_DEFINED`) {
+			this.languagePreference = `-`;
 		}
-		return languagePreference;
 	}
 
 	_getVerifiedTelephoneNumber() {
@@ -577,7 +601,22 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
+
+					--horizon-select-outer-wrapper-margin-left: 0px;
+					--theme-label-default-font-weight: 500;
+					--horizon-select-label-text-color: #3A3A3A;
+					--horizon-select-label-text-line-height: 24px;
+					--horizon-select-icon-margin-top: 12px;
+					--horizon-select-options-width: 200px;
+					--horizon-select-options-margin-top: 0px;
+					--horizon-select-options-max-height: 270px;
+					--horizon-select-options-position-top: 408px;
+					--horizon-select-options-position-left: 816px;
+					--horizon-select-option-height: 45px;
+					--horizon-select-options-margin-bottom: 106px;
+					--horizon-select-options-margin-left: 40px;
 				}
+
 				capitec-tooltip {
 					display: none;
 					height: 27px;
@@ -605,6 +644,7 @@ export class ConfirmCallerDetails extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderLoadingIndicator()}
+			
 			${this._renderContent()}
 		`;
 	}
@@ -734,11 +774,16 @@ export class ConfirmCallerDetails extends Component {
 						label="Lives In" 
 						value="${this.confirmedCaller.livesIn}">
 					</horizon-label>
-					<horizon-label class="client-info-row" row="3" columun="2" 
+					<horizon-select
+						row="3" columun="2" 
 						data-automation-id="confirm-caller-details-language-preference"
+						class="client-info-row"
 						label="Language Preference"
-						value="${this._getLanguagePreference()}">
-					</horizon-label>
+						display-field="value"
+						.items="${LANGUAGE_LIST}"
+						.value="${this.languagePreference}"
+						@value-changed="${(e) => this._onLanguageUpdate(e)}">
+					</horizon-select>
 					<horizon-label class="client-info-row" row="4" columun="1" 
 						data-automation-id="confirm-caller-details-birthday"
 						label="Birthday"
@@ -872,6 +917,8 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-verify-caller>
 		`;
 	}
+
+	
 }
 
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

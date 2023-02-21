@@ -68,7 +68,8 @@ const HORIZON_ROUTES = Object.freeze({
 	WIDGET_HOST: `/widget`,  
 	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
-	WIDGET_HOST_NOTFOUND: `/widget/notfound`
+	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
+	VIEW_PROFILE: `/view-profile`
 });
 
 
@@ -460,6 +461,10 @@ export class HorizonRouter {
 
 	navigateToCreateIncidentError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREATE_INCIDENT_ERROR}`);
+	}
+
+	navigateToViewProfileDetails() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_PROFILE}`);
 	}
 
 	/**
@@ -1076,6 +1081,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
 		load: () => import(`../views/common/WidgetNotFound`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-view-profile-details`,
+		title: `ProfileDetails`,
+		icon: null,
+		path: HORIZON_ROUTES.VIEW_PROFILE,
+		load: () => import(`../views/common/ViewProfileDetails`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

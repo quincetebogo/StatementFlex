@@ -78,6 +78,7 @@ export class LandingPage extends ViewBase {
 		});
 
 		this.employeeId = ``;
+		this.displayToast = false;
 	}
 
 	// ----------
@@ -87,7 +88,8 @@ export class LandingPage extends ViewBase {
 	static get properties() {
 		return {
 			desktopAgentDown: { state: true },
-			isAuthorised: { state: true }
+			isAuthorised: { state: true },
+			displayToast: { state: true }
 		};
 	}
 
@@ -327,6 +329,18 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
+	
+	_showOrHideToast(e) {
+		this.displayToast = e.detail.displayToast;
+
+		if (this.displayToast) {
+			window.setTimeout(() => this._toggleToastDisplay(), 3000);
+		}
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = false;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -385,9 +399,17 @@ export class LandingPage extends ViewBase {
 		return [
 			super.styles,
 			css`
-				.wait-for-call{
+				.wait-for-call {
 					width:100%;
 					height:100%;
+				}
+				capitec-toast {
+					width: 406px;
+					position: absolute;
+					top : var(--toast-top, 56px);
+					--theme-toast-padding: 12px;
+					--theme-toast-close-size: 24px;
+					margin-left: var(--toast-margin-left, 382px);
 				}
 				`
 		];
@@ -398,6 +420,7 @@ export class LandingPage extends ViewBase {
 		${this._renderMiddleSection()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
+		${this._renderToast()}
 		${super._webTemplate()}
 		`;
 	}
@@ -420,7 +443,8 @@ export class LandingPage extends ViewBase {
 
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
-					@non-client-captured=${event => this._nonClientCaptured(event)}>
+					@non-client-captured=${event => this._nonClientCaptured(event)}
+					@display-toast="${(e) => this._showOrHideToast(e)}">
 				</horizon-confirm-caller-details>`;
 		}
 	}
@@ -445,6 +469,20 @@ export class LandingPage extends ViewBase {
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}
+	}
+
+	_renderToast() {
+		return this.displayToast
+		? html`
+			<capitec-toast 
+				?hidden="${!this.displayToast}"
+				type="success" 
+				header="Success" 
+				detail="Preferred language updated." 
+				@click="${() => this.displayToast = false}"
+				closable >
+			</capitec-toast>`
+		: html``;
 	}
 }
 

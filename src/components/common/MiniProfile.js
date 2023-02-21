@@ -63,7 +63,7 @@ export class MiniProfile extends Component {
 	}
 
 	_onViewProfileClick() {
-		this.eventAggregator.publish(`horizon-view-profile-click`, {});
+		this.dispatchEvent(new CustomEvent(`view-profile`, {}));
 	}
 
 	_onVerifyNowClick() {
@@ -348,7 +348,7 @@ export class MiniProfile extends Component {
 	}
 
 	_renderActionButtons() {
-		this.miniProfile.showButtons = false; // Force to false for now
+		// this.miniProfile.showButtons = false; // Force to false for now
 		if (!this.miniProfile.showButtons) {
 			return html``;
 		}
