@@ -104,6 +104,7 @@ export class ValueAddedServices extends Component {
 	// ---------------
 
 	async _updateValueAddedServices(valueAddedServices) {
+		
 		const returnValue = await this.clientProfileService.putClientConsent(valueAddedServices);
 
 		if (returnValue.succeeded) {

@@ -119,7 +119,12 @@ export class Insights extends Component {
 		const returnValue = await this.clientProfileService.getClientConsent(this.cifNumber);
 
 		if (returnValue.succeeded && returnValue.result !== ``) {
-			this.statusVAS = returnValue.result;
+			this.statusVAS =
+			{
+				cifNumber : this.cifNumber,
+				insights : returnValue.result.insights,
+				marketing : returnValue.result.marketing
+			};
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 			return;
 		};

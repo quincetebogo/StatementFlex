@@ -48,7 +48,7 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"searchCaller": {
@@ -56,7 +56,7 @@
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -169,7 +169,7 @@
 			"positiveCase": true
 		},
 		"getClientInsights": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"accessChannel": {
@@ -254,6 +254,14 @@
 		},
 		"sendCashVouchers": {
 			"enabled": false,
+			"positiveCase" : true
+		},
+		"getClientConsent": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"putClientConsent": {
+			"enabled": true,
 			"positiveCase" : true
 		}
 	},

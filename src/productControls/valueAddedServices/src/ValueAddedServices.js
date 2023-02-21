@@ -45,7 +45,7 @@ export class ValueAddedServices extends Component {
 		return {
 			statusVAS: { type: Object },
 			updateValueAddedServicesCallback: { type: Object },
-
+			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
 			optOutInsights: { state: true },
 			optOutBehaviouralMarketing: { state: true }
@@ -60,8 +60,9 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 		
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.optOutInsights;
-		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
+		this.optOutInsights = this.statusVAS.insights;
+		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
+		this.cifnumber = this.statusVAS.cifNumber;
 	}
 
 	// --------------
@@ -88,10 +89,10 @@ export class ValueAddedServices extends Component {
 
 	async _accept() {
 		const valueAddedServices = {
-			capitecEntityId: this.capitecEntityId,
+			cifnumber: this.cifnumber,
 			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
-			
+						
 		};
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
