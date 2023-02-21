@@ -53,6 +53,7 @@ export class EndCallSession extends Component {
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
 		this.numberOfCharacters = 0;
+		this.allowedCharacters = 5000;
 		this.endCallDescription = ``;
 		this.validNumberOfChars = true;
 
@@ -114,6 +115,7 @@ export class EndCallSession extends Component {
 			issue: { attribute: false },
 			understandNeed: { attribute: false },
 			numberOfCharacters: { attribute: false },
+			allowedCharacters: {attribute: false },
 			endCallDescription: { attribute: false },
 			validNumberOfChars: { attribute: false }
 		};
@@ -215,7 +217,7 @@ export class EndCallSession extends Component {
 	}
 
 	_validateCharacters(chars) {
-		if (!isNullorEmpty(chars) && chars.detail.new.length > 10) {
+		if (!isNullorEmpty(chars) && chars.detail.new.length > this.numberOfCharacters) {
  			return false; 
 		}
 		return true;
@@ -808,7 +810,7 @@ export class EndCallSession extends Component {
 				id="endCallDescriptionId"
 				label="Add description"
 				?hideForLabel=${true}
-				maxLength="${10}"
+				maxLength="${this.allowedCharacters}"
 				@key-input="${(e) => this._countNumberOfCharacters(e)}">
 			</horizon-text-box>
 		`;

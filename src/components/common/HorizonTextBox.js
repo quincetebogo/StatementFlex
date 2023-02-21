@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { TextBox } from 'platform/components/inputs';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export class HorizonTextBox extends TextBox {
 
@@ -62,21 +61,6 @@ export class HorizonTextBox extends TextBox {
 	// ---------
 	// RENDERING
 	// ---------
-
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				.errorDescriptionTexBox {
-					--theme-input-focussed-border-color: #cc706d;
-				}
-
-				.descriptionTexBox {
-					--theme-input-focussed-border-color: #E1E1E1;
-				}
-			`
-		];
-	};
 
 	_mobileTemplate() {
 		super._mobileTemplate();
