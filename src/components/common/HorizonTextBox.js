@@ -1,5 +1,6 @@
-import { html, ifDefined } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { TextBox } from 'platform/components/inputs';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export class HorizonTextBox extends TextBox {
 
@@ -11,6 +12,7 @@ export class HorizonTextBox extends TextBox {
 		super();
 
 		this.displayForLabel = true;
+		this.exceedsMaxLength = false;
 	}
 
 	// --------------
@@ -22,11 +24,12 @@ export class HorizonTextBox extends TextBox {
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof HorizonTextField
+	 * @memberof HorizonTextBox
 	 */
 	 static get properties() {
 		return {
-			displayForLabel: { type: Boolean }
+			displayForLabel: { type: Boolean },
+			exceedsMaxLength: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -41,49 +44,63 @@ export class HorizonTextBox extends TextBox {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
+	_keyInput(event) {
+		super._keyInput(event);
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
 	// ---------------
 	// PRIVATE METHODS
-	// ---------------
+	// // ---------------
 
 	// ---------
 	// RENDERING
 	// ---------
 
 	static get styles() {
-		return [super.styles];
+		return [
+			super.styles,
+			css`
+				.errorDescriptionTexBox {
+					--theme-input-focussed-border-color: #cc706d;
+				}
+
+				.descriptionTexBox {
+					--theme-input-focussed-border-color: #E1E1E1;
+				}
+			`
+		];
 	};
 
 	_mobileTemplate() {
 		super._mobileTemplate();
 	}
 
-	render() {
+	_renderLabel() {
+		return this.displayForLabel ? html`
+		<label
+			class="label${this.focussed ? ` blue` : ``}${this.error ? ` red` : ``}"
+			for="inputField"
+			@click="${() => this.focus()}">${this.label}</label>
+		` : ``;
+	}
 
+	render() {
 		return html`
 			<div class="container${this.value ? ` completed` : ``}${this.error ? ` error` : ``}${this.focussed ? ` focussed` : ``}${this.disabled ? ` disabled` : ``}">
-			${this.displayForLabel ? html`
-			<label
-					class="label${this.focussed ? ` blue` : ``}${this.error ? ` red` : ``}"
-					for="inputField"
-					@click="${() => this.focus()}">${this.label}</label>
-			` : ``
-			}
-				<div
-					class="field"
-					id="inputField"
-					contenteditable="${!this.disabled}"
-					?readonly="${this.disabled}"
-					tabindex="${this.disabled ? `` : 0}"
-					@input="${this._keyInput}">
-				</div>
-				
-				${this.hint && !this.error ? html`<div class="hint">${this.hint}</div>` : ``}
-				${this.error ? html`<div class="error">${this.error}</div>` : ``}
+				${this._renderLabel()}
+					<div
+						class="field"
+						id="inputField"
+						contenteditable="${!this.disabled}"
+						?readonly="${this.disabled}"
+						tabindex="${this.disabled ? `` : 0}"
+						@input="${this._keyInput}"> Whats going on?
+					</div>
+					
+					${this.hint && !this.error ? html`<div class="hint">${this.hint}</div>` : ``}
 			</div>
 		`;
 	}

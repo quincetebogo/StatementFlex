@@ -113,9 +113,9 @@ export class EndCallSession extends Component {
 			need: { attribute: false },
 			issue: { attribute: false },
 			understandNeed: { attribute: false },
-			numberOfCharacters: {attribute: false},
-			endCallDescription: {attribute: false},
-			validNumberOfChars: {attribute: false},
+			numberOfCharacters: { attribute: false },
+			endCallDescription: { attribute: false },
+			validNumberOfChars: { attribute: false }
 		};
 	}
 
@@ -176,7 +176,7 @@ export class EndCallSession extends Component {
 			});
 
 			// This is to set the description for the incident which is optional
-			if(!isNullorEmpty(this.endCallDescription)) {
+			if (!isNullorEmpty(this.endCallDescription)) {
 				this.horizonIncidentManager.setDescription(this.endCallDescription);
 			}
 
@@ -206,20 +206,18 @@ export class EndCallSession extends Component {
 	}
 
 	_countNumberOfCharacters(event) {
-		if(event.detail.new !== null) {
+		if (event.detail.new !== null) {
 			this.numberOfCharacters = event.detail.new.length;
 			this.endCallDescription = event.detail.new;
 
 			this.validNumberOfChars = this._validateCharacters(event);
-
-			if(!this.validNumberOfChars)
-				return;
 		}
 	}
 
 	_validateCharacters(chars) {
-		if(!isNullorEmpty(chars) && chars.detail.new.length > 15)
-			return false;
+		if (!isNullorEmpty(chars) && chars.detail.new.length > 10) {
+ 			return false; 
+		}
 		return true;
 	}
 
@@ -715,15 +713,7 @@ export class EndCallSession extends Component {
 				--theme-button-padding-left: 12px;
 			}
 
-			.errorDescriptionTexBox {
-				--theme-input-focussed-border-color: #cc706d;
-			}
-
-			.descriptionTexBox {
-				--theme-input-focussed-border-color: #E1E1E1;
-			}
-
-			.descriptionGroup {
+			.descriptionGroup, horizon-text-box {
 				width: 100%;
 			}
 
@@ -802,25 +792,25 @@ export class EndCallSession extends Component {
 			<capitec-group class="descriptionGroup" layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-label
 					type="default"
-					class=${!this.validNumberOfChars ? 'descriptionCharValidation' : '' }
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
 					label="Add Description (optional)">
 				</capitec-label>
 				<capitec-spacer></capitec-spacer>
 				
 				<capitec-label
 					type="default"
-					class=${!this.validNumberOfChars ? 'descriptionCharValidation' : '' }
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
 					label="${this.numberOfCharacters}/5000">
 				</capitec-label>
 			</capitec-group>
 
-			<capitec-text-box
+			<horizon-text-box
 				id="endCallDescriptionId"
 				label="Add description"
-				class=${!this.validNumberOfChars ? 'errorDescriptionTexBox' : 'descriptionTexBox' }
 				?displayForLabel=${false}
-				@key-input="${(e)=> this._countNumberOfCharacters(e)}">
-			</capitec-text-box>
+				maxLength="${10}"
+				@key-input="${(e) => this._countNumberOfCharacters(e)}">
+			</horizon-text-box>
 		`;
 	}
 
