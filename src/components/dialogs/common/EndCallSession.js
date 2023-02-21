@@ -807,7 +807,7 @@ export class EndCallSession extends Component {
 			<horizon-text-box
 				id="endCallDescriptionId"
 				label="Add description"
-				?displayForLabel=${false}
+				?hideForLabel=${true}
 				maxLength="${10}"
 				@key-input="${(e) => this._countNumberOfCharacters(e)}">
 			</horizon-text-box>

@@ -11,7 +11,7 @@ export class HorizonTextBox extends TextBox {
 	constructor() {
 		super();
 
-		this.displayForLabel = true;
+		this.hideForLabel = false;
 		this.exceedsMaxLength = false;
 	}
 
@@ -28,9 +28,13 @@ export class HorizonTextBox extends TextBox {
 	 */
 	 static get properties() {
 		return {
-			displayForLabel: { type: Boolean },
+			hideForLabel: { type: Boolean },
 			exceedsMaxLength: { type: Boolean, attribute: false }
 		};
+	}
+
+	get labelVisibility() {
+		return !this.hideForLabel ? true : this.hideForLabel && !this.value && !this.focussed;
 	}
 
 	// -------------------
@@ -79,12 +83,14 @@ export class HorizonTextBox extends TextBox {
 	}
 
 	_renderLabel() {
-		return this.displayForLabel ? html`
-		<label
-			class="label${this.focussed ? ` blue` : ``}${this.error ? ` red` : ``}"
-			for="inputField"
-			@click="${() => this.focus()}">${this.label}</label>
-		` : ``;
+		return this.labelVisibility
+		? html`
+			<label
+				class="label${this.focussed ? ` blue` : ``}${this.error ? ` red` : ``}"
+				for="inputField"
+				@click="${() => this.focus()}">${this.label}
+			</label>`
+		: html``;
 	}
 
 	render() {
