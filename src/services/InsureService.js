@@ -640,7 +640,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	async Arrears(ArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureArrears`)) {
-			return this.mock(`insureArrears`, ArrearsRequest);
+			return this.mock(`insureArrears`);
 		}
 		return this.post(
 			`/horizon-insurance/client/Arrears`,

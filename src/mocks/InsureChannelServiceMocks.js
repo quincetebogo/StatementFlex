@@ -288,7 +288,7 @@ export default class InsureChannelServiceMocks {
 	
 	insureArrears() {
 		if (this._mockSettings.insureArrears.positiveCase) {
-			return this.arrearsMocks.insureArrears;
+			return this.arrearsMocks.InsureArrears;
 		}
 		return null;
 	}
