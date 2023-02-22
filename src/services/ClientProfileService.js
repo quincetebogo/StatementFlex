@@ -125,7 +125,7 @@ export class ClientProfileService extends ChannelServiceBase {
 
 
 		const request = {
-			"cif": cifNumber
+			"cifNumber": cifNumber
 		};
 	
 		const url = `/client/preferences/consent`;
@@ -144,16 +144,16 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-	async putClientConsent(cifNumber,insight,marketing ,errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async putClientConsent(cifNumber, insight, marketing, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`putClientConsent`)) {
 			return this.mock(`putClientConsent`);
 		}
 
 		const request = {
-			"cif": cifNumber,
+			"cifNumber": cifNumber,
 			"optInInsights": insight,
-  			"optInMarketing":marketing
+  			"optInMarketing": marketing
 		};
 		const url = `/client/preferences/consent`;
 			
