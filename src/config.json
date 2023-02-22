@@ -169,7 +169,7 @@
 			"positiveCase": true
 		},
 		"getClientInsights": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"accessChannel": {
@@ -257,11 +257,11 @@
 			"positiveCase" : true
 		},
 		"getClientConsent": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		},
 		"putClientConsent": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		}
 	},
