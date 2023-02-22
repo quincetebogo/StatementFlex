@@ -89,10 +89,10 @@ export class ValueAddedServices extends Component {
 
 	async _accept() {
 		const valueAddedServices = {
+			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
 			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
-						
 		};
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
