@@ -44,6 +44,8 @@ export default class HorizonChannelServiceMocks {
 		
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await this._loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = await this._loadMockModule(this.callMocks, `getClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = await this._loadMockModule(this.callMocks, `putClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
@@ -100,6 +102,18 @@ export default class HorizonChannelServiceMocks {
 	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
 			return this.callMocks.searchCaller;
+		}
+	}
+
+	getClientConsent() {
+		if (this._mockSettings.getClientConsent.positiveCase) {
+			return this.callMocks.getClientConsent;
+		}
+	}
+	
+	putClientConsent() {
+		if (this._mockSettings.putClientConsent.positiveCase) {
+			return this.callMocks.putClientConsent;
 		}
 	}
 
