@@ -330,8 +330,16 @@ export class LandingPage extends ViewBase {
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
 	
-	_showOrHideToast(e) {
-		this.displayToast = e.detail.displayToast;
+	async _updatePreferredLanguage(e) {
+		// CS call to update preferred language [e.detail.languagePreference] 
+		const returnValue = await this._updatePreferences();
+
+		// show success or failure toast based on the outcome
+		this._showOrHideToast(true);
+	}
+
+	_showOrHideToast(show) {
+		this.displayToast = show;
 
 		if (this.displayToast) {
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
@@ -444,7 +452,7 @@ export class LandingPage extends ViewBase {
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}
-					@display-toast="${(e) => this._showOrHideToast(e)}">
+					@update-language="${(e) => this._updatePreferredLanguage(e)}">
 				</horizon-confirm-caller-details>`;
 		}
 	}

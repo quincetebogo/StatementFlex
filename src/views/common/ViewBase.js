@@ -304,6 +304,10 @@ export class ViewBase extends View {
 		return this.currentIncident ? this.currentIncidentRef() : ``;
 	}
 
+	_updatePreferences() {
+
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------

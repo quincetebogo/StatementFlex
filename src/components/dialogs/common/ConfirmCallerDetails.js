@@ -10,6 +10,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { LANGUAGE_LIST } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
@@ -38,20 +39,6 @@ const RENDER_MODE = {
 	SEARCH_CALLER: 4,
 	VERIFY_CALLER: 5
 };
-
-const LANGUAGE_LIST = [
-	`English`, 
-	`Afrikaans`, 
-	`Zulu`,
-	`Xhosa`, 
-	`Tsonga`, 
-	`Swati`,
-	`Ndebele`, 
-	`Xitsonga`, 
-	`Tshivenda`,
-	`Sepedi`,
-	`Sesotho`
-];
 
 const branchBannerMessage = ` Branch calling in on behalf of the client`;
 
@@ -338,9 +325,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onLanguageUpdate(e) {
-		// TO DO: Make service call to update language preference
-		// Dynamically send toast details for success or failure cases
-		this.dispatchEvent(new CustomEvent(`display-toast`, { detail: { displayToast: true } }));
+		this.dispatchEvent(new CustomEvent(`update-language`, { detail: { languagePreference: e.detail.new } }));
 		
 		this.languagePreference = e.detail.new;
 	}

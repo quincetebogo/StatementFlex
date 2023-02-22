@@ -1,9 +1,15 @@
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
 const DETAILS_TAB = {
 	0: `Client Details`
+};
+
+const CLIENT_DETAILS = {
+	PREFERRED_LANGUAGE: `Preferred Language`,
+	NOTIFICATION_TYPE: `Notification Type`
 };
 
 /**
@@ -13,7 +19,7 @@ const DETAILS_TAB = {
  * @class WidgetNotFound
  * @extends {View}
  */
-export class ViewProfileDetails extends View {
+export class ViewProfileDetails extends ViewBase {
 
 
 	// --------------
@@ -23,6 +29,7 @@ export class ViewProfileDetails extends View {
 	constructor() {
 		super();
 		this.showUpdatePreferenceModal = false;
+		this.clientDetails = {};
 		this.selectedTab = DETAILS_TAB[0];
 	}
 
@@ -32,6 +39,11 @@ export class ViewProfileDetails extends View {
 	
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.clientDetails = {
+			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: `English`,
+			[CLIENT_DETAILS.NOTIFICATION_TYPE]: `SMS`
+		};
 	}
 
 	disconnectedCallback() {
@@ -44,7 +56,7 @@ export class ViewProfileDetails extends View {
 
 	static get properties() {
 		return {
-			showUpdatePreferenceModal: { state: true, attribute: false }
+			showUpdatePreferenceModal: { attribute: false }
 		};
 	}
 
@@ -58,6 +70,14 @@ export class ViewProfileDetails extends View {
 	
 	_getSelectedTab(e) {
 		this.selectedTab = DETAILS_TAB[e.detail.selectedIndex];
+	}
+
+	async _updateClientPreferences(e) {
+		// CS call to update client preferences
+		const returnValue = await this._updatePreferences();
+		this.showUpdatePreferenceModal = false;
+
+		this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = e.detail.preferredlanguage;
 	}
 
 	// --------------
@@ -146,9 +166,6 @@ export class ViewProfileDetails extends View {
 					--theme-buttonbar-padding: 6px 16px 6px 24px;
 					--theme-buttonbar-item-gap: 0px;
 				}
-				capitec-button-bar > capitec-button {
-					width: 164px;
-				}
 				capitec-button {
 					height: 48px;
 					margin-left: 16px;
@@ -201,10 +218,6 @@ export class ViewProfileDetails extends View {
 	}
 
 	_renderClientDetails() {
-		const clientDetails = {
-			'Prefered Language': `Zulu`,
-			'Notification Type': `Email`
-		};
 		return html`
 			<capitec-tab
 					data-automation-id="view-profile-client-details-tab"
@@ -220,7 +233,7 @@ export class ViewProfileDetails extends View {
 							halign="left"
 							valign="top"
 							wrap>
-								${this._renderFields(clientDetails)}
+								${this._renderFields(this.clientDetails)}
 						</capitec-group>
 			</capitec-tab>
 		`;
@@ -256,7 +269,9 @@ export class ViewProfileDetails extends View {
 		? html`
 			<horizon-update-profile-details
 				header="${this.selectedTab}"
-				@cancel="${() => this.showUpdatePreferenceModal = false}">
+				.clientDetails="${this.clientDetails}"
+				@cancel="${() => this.showUpdatePreferenceModal = false}"
+				@update-preference="${(e) => this._updateClientPreferences(e)}">
 			</horizon-update-profile-details>`
 		: html``;
 	}

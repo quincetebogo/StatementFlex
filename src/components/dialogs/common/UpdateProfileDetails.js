@@ -1,7 +1,13 @@
 import { Component, css, html } from 'platform/elements';
+import { LANGUAGE_LIST } from 'app/constants/Common';
 
 const MENU_ITEMS = {
 	PREFERENCE: `Preference`
+};
+
+const CLIENT_DETAILS = {
+	PREFERRED_LANGUAGE: `Preferred Language`,
+	NOTIFICATION_TYPE: `Notification Type`
 };
 
 export class UpdateProfileDetails extends Component {
@@ -22,7 +28,10 @@ export class UpdateProfileDetails extends Component {
 
 	static get properties() {
 		return {
-			header: { type: String }
+			header: { type: String },
+			clientDetails: { type: Object },
+			preferredLanguage: { attribute: false },
+			preferredNotificationType: { attribute: false }
 		};
 	}
 
@@ -32,6 +41,8 @@ export class UpdateProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.preferredNotificationType = this.clientDetails[CLIENT_DETAILS.NOTIFICATION_TYPE];
+		this.preferredLanguage = this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE];
 	}
 
 	// --------------
@@ -42,9 +53,22 @@ export class UpdateProfileDetails extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_saveChanges() {}
-
-	_onValueChanged() {}
+	_saveChanges() {
+		this.dispatchEvent(new CustomEvent(`update-preference`, { detail: {
+			preferredlanguage: this.preferredLanguage,
+			preferredNotificationType: this.preferredNotificationType 
+		} }));
+	}
+	
+	_selectPreferredLanguage(e) {
+		this.preferredLanguage = e.detail.new;
+	}
+	
+	_notificationTypeChanged(e) {
+		if (e.detail.new) {
+			this.preferredNotificationType = e.target.label;
+		}
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -53,6 +77,12 @@ export class UpdateProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_isSaveDisabled() {
+		const isSaveDisabled = this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] === this.preferredLanguage &&
+								this.clientDetails[CLIENT_DETAILS.NOTIFICATION_TYPE] === this.preferredNotificationType;
+		return isSaveDisabled;
+	}
 
 	// ---------
 	// RENDERING
@@ -97,6 +127,18 @@ export class UpdateProfileDetails extends Component {
 				--theme-menu-item-font-size: 18px;
 				--theme-menu-item-selected-indicator-width: 2px;
 				--theme-menu-item-selected-indicator-border-radius: 0px;
+				--theme-menu-item-selected-background-color: #FFFFFF;
+			}
+
+			.details-group {
+				width: auto;
+				padding: 24px 16px;
+				max-width: 600px;
+			}
+
+			capitec-select {
+				width: 568px;
+				margin-bottom: 16px;
 			}
 
 			#id-cancel-button {
@@ -130,7 +172,7 @@ export class UpdateProfileDetails extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left" header="${this.header}">
 				<div slot="body">
-					<capitec-content-box class="body-box" noPadding>
+					<capitec-content-box class="body-box" layout="horizontal" gap="none" halign="top" valign="left" noPadding>
 					<capitec-menu hideFooter>
 						<capitec-menu-item label=${MENU_ITEMS.PREFERENCE} ?selected=${this.selectedMenuItem === MENU_ITEMS.PREFERENCE}></capitec-menu-item>
 						<capitec-menu-separator></capitec-menu-separator>
@@ -147,11 +189,11 @@ export class UpdateProfileDetails extends Component {
 
 	_renderMenuDetails() {
 		return html`
-		<capitec-group layout="horizontal"
+		<capitec-group layout="vertical"
 						gap="none"
 						halign="top"
 						valign="left"
-						class="">
+						class="details-group">
 						${this._renderPreferenceDetails()}
 		</capitec-group>`;
 	}
@@ -160,16 +202,28 @@ export class UpdateProfileDetails extends Component {
 		return this.selectedMenuItem === MENU_ITEMS.PREFERENCE
 		? html`
 			<capitec-select
-				id=""
-				data-automation-id=""
+				data-automation-id="update-profile-language-preference"
 				label="Preferred language"
 				display-field="value"
-				.items=${this.endCallReasons}
-				@value-changed="${(e) => this._valueChanged(e)}"
+				.items=${LANGUAGE_LIST}
+				@value-changed="${(e) => this._selectPreferredLanguage(e)}"
 				tabindex=3
-				value="${this.endCallReason.value || ``}"
+				value="${this.preferredLanguage || this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE]}"
 				select-mode="single">
 			</capitec-select>
+
+			<capitec-radio-group label="Notification Type" layout="horizontal">
+				<capitec-radio
+					label="Email"
+					@value-changed="${(e) => this._notificationTypeChanged(e)}"
+					?checked="${this.preferredNotificationType === `Email`}">
+				</capitec-radio>
+				<capitec-radio
+					label="SMS"
+					@value-changed="${(e) => this._notificationTypeChanged(e)}"
+					?checked="${this.preferredNotificationType === `SMS`}">
+				</capitec-radio>
+			</capitec-radio-group>
 		`
 		: html``;
 	}
@@ -188,6 +242,7 @@ export class UpdateProfileDetails extends Component {
 					id="id-save-button"
 					type="primary"
 					label="Save Changes"
+					?disabled=${this._isSaveDisabled()}
 					@click="${() => this._saveChanges()}">
 				</capitec-button>
 			</capitec-group>
