@@ -48,7 +48,7 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"searchCaller": {
@@ -56,7 +56,7 @@
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -253,6 +253,14 @@
 			"positiveCase": true
 		},
 		"sendCashVouchers": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"getClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"putClientConsent": {
 			"enabled": false,
 			"positiveCase" : true
 		}

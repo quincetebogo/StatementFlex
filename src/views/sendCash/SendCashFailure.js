@@ -34,6 +34,9 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {

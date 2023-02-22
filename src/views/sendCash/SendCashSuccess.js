@@ -42,6 +42,8 @@ import 'app/components/common/SuccessScreen';
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.selectedReason = screenDetails.sendCashSelectedReason;
+
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -64,6 +66,12 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
