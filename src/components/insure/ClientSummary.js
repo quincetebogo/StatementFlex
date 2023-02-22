@@ -106,6 +106,7 @@ class ClientSummary extends Component {
 	 * @property {Object} selectedPolicyItem selected policy item
 	 * @property {String} productCode policy product code
 	 * @property {Function} requestCallback policy product code
+	 * @property {Function} getArrears Callback function to fetch arrears and payable accounts
 	 * 
 	 * @readonly
 	 * @static
@@ -119,10 +120,11 @@ class ClientSummary extends Component {
 
 			payArrears: { type: Object, state: true },
 			fromAccount: { type: Number, state: true },
-			accountDetails: { type: Object, state: true },
+			// accountDetails: { type: Object, state: true },
 			amountToPay: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object },
+			getArrears: { type: Object, state: true },
 
 			contractReferenceToCancel: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
@@ -437,11 +439,14 @@ class ClientSummary extends Component {
 	 */
 	 _openPayPremiumDialog(policyItem) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
-		this.clientArrears = {
-			contractReference: policyItem.contractReference,
-			arrears: policyItem.arrearDetails?.arrears
-		};
+
+		this._getArrears();
+		console.log(this.clientArrears);
 		this.showPayPremiumDialog = true;
+	}
+
+	async _getArrears() {
+		await this.getArrears();
 	}
 
 	/**
@@ -1328,7 +1333,6 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-pay-premium-dialog   
 				.clientArrears = ${this.clientArrears}
-				.accountDetails = ${this.accountDetails} 
 				@pay-arrears = "${(e) => this._payArrears(e)}"
 				@close-modal="${() => this.showPayPremiumDialog = false}" >
 			</horizon-insure-pay-premium-dialog>`;

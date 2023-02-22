@@ -630,6 +630,33 @@ export class InsureService extends ChannelServiceBase {
 
 	}
 
+	/**
+	 * get client arrears
+	 *
+	 * @param {ArrearsRequest} [ArrearsRequest=null]  Request data to generate Cancel Policy Agreement
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async Arrears(ArrearsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureArrears`)) {
+			return this.mock(`insureArrears`, ArrearsRequest);
+		}
+		return this.post(
+			`/horizon-insurance/client/Arrears`,
+			ArrearsRequest,
+			this._setInsureHeaders(),
+			`arrears`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+	}
+
 	// #endregion Documents
 
 	// #region OLD
