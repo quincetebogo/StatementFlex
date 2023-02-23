@@ -1,5 +1,5 @@
-import { css, html } from 'platform/elements';
 import { TextBox } from 'platform/components/inputs';
+import { html } from 'platform/elements';
 
 export class HorizonTextBox extends TextBox {
 
@@ -87,7 +87,7 @@ export class HorizonTextBox extends TextBox {
 						contenteditable="${!this.disabled}"
 						?readonly="${this.disabled}"
 						tabindex="${this.disabled ? `` : 0}"
-						@input="${this._keyInput}"> Whats going on?
+						@input="${this._keyInput}">
 					</div>
 					
 					${this.hint && !this.error ? html`<div class="hint">${this.hint}</div>` : ``}

@@ -53,7 +53,7 @@ export class EndCallSession extends Component {
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
 		this.numberOfCharacters = 0;
-		this.allowedCharacters = 5000;
+		this.allowedCharacters = 10000;
 		this.endCallDescription = ``;
 		this.validNumberOfChars = true;
 
@@ -215,14 +215,21 @@ export class EndCallSession extends Component {
 			this.numberOfCharacters = event.detail.new.length;
 			this.endCallDescription = event.detail.new;
 
-			this.validNumberOfChars = this._validateCharacters(event);
+			const chars = event.detail.new.length;
+
+			this.validNumberOfChars = this._validateCharacters(chars);
 		}
 	}
 
 	_validateCharacters(chars) {
-		if (!isNullorEmpty(chars) && chars.detail.new.length > this.numberOfCharacters) {
+
+		if (!isNullorEmpty(chars) && chars > this.allowedCharacters) {
+
+			this.alertBannerMessage = `You can only have ${this.allowedCharacters} characters in the description.`;
  			return false; 
 		}
+
+		this.alertBannerMessage = ``;
 		return true;
 	}
 
@@ -756,9 +763,9 @@ export class EndCallSession extends Component {
 							valign="top"
 							gap="clear">
 								${this._renderAlertBanner()}
+								${this._renderEndcallDescription()}
 								${this._renderChooseEndCallReason()}
 								${this._renderUnderstandNeed()}
-								${this._renderEndcallDescription()}
 								${this._renderLoadingIndicator()}
 						</capitec-content-box>
 					</div>
@@ -805,7 +812,7 @@ export class EndCallSession extends Component {
 				<capitec-label
 					type="default"
 					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
-					label="${this.numberOfCharacters}/5000">
+					label="${this.numberOfCharacters}/10000">
 				</capitec-label>
 			</capitec-group>
 
@@ -813,7 +820,7 @@ export class EndCallSession extends Component {
 				id="endCallDescriptionId"
 				label="Add description"
 				?hideForLabel=${true}
-				maxLength="${this.allowedCharacters}"
+				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
 				@key-input="${(e) => this._countNumberOfCharacters(e)}">
 			</horizon-text-box>
 		`;
