@@ -94,9 +94,18 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
+	 * Callback function to update client's preferred language {@link ConfirmCallerDetails}.
+	 * 
+	 * @callback updateLanguage
+	 * @returns {Boolean} return is preferred language is updated or not 
+	 */
+
+	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} currentIncident Current incident details
+	 * 
+	 * @property {Function} updateLanguage update client's preferred language
 	 * 
 	 * @readonly
 	 * @static
@@ -109,6 +118,7 @@ export class ConfirmCallerDetails extends Component {
 			currentIncident: { type: Object },
 			cpNumber: { type: String },
 			clientType: { type: String },
+			updateLanguage: { type: Object },
 
 			isBusy: { state: true },
 			renderMode: { state: true },
@@ -324,10 +334,14 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_onLanguageUpdate(e) {
-		this.dispatchEvent(new CustomEvent(`update-language`, { detail: { languagePreference: e.detail.new } }));
+	async _onLanguageUpdate(e) {
+	 	this.languagePreference = e.detail.new;
+
+		const isLanguageUpdated = await this.updateLanguage(e.detail.new);
 		
-		this.languagePreference = e.detail.new;
+		if (!isLanguageUpdated) {
+			this.languagePreference = e.detail.old;
+		}
 	}
 
 	// --------------
@@ -600,6 +614,8 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-select-option-height: 45px;
 					--horizon-select-options-margin-bottom: 106px;
 					--horizon-select-options-margin-left: 40px;
+					--horizon-select-label-value-font-size: 16px;
+					--horizon-select-label-value-color: #3E4547;
 				}
 
 				capitec-tooltip {

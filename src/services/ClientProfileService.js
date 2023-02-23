@@ -114,12 +114,39 @@ export class ClientProfileService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+	
+	/**
+	 * Updates the preferred language with selected language 
+	 * 
+	 * @param {string} preferredLanguage selected value to update clients preferred language
+	 * @param {string} cif client's CIF number
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof ClientProfileService
+	 */
+	updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/clientcare-clientprofile-${this._version}/client-${this._version}/preferences/language`;
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+		const request = {
+			'language': preferredLanguage
+		};
 
-	// ---------
-	// RENDERING
-	// ---------
+		const customHeaders = { ...this.setToken(), cifNumber: cif };
+
+		return this.post(
+			url,
+			request,
+			customHeaders, 
+			`acceptCall`,
+			null,
+			null,
+			1000,
+			5000,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

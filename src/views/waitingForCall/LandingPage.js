@@ -79,6 +79,7 @@ export class LandingPage extends ViewBase {
 
 		this.employeeId = ``;
 		this.displayToast = false;
+		this.preferenceToastDetails = {};
 	}
 
 	// ----------
@@ -330,20 +331,23 @@ export class LandingPage extends ViewBase {
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
 	
-	async _updatePreferredLanguage(e) {
-		// CS call to update preferred language [e.detail.languagePreference] 
-		const returnValue = await this._updatePreferences();
+	async _updatePreferredLanguage(preferredLanguage) {
+		// CS call to update preferred language
+		const returnValue = await this._updatePreferences(preferredLanguage);
 
-		// show success or failure toast based on the outcome
-		this._showOrHideToast(true);
+		this._displayToast(returnValue);
+		return returnValue;
 	}
 
-	_showOrHideToast(show) {
-		this.displayToast = show;
-
-		if (this.displayToast) {
-			window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	_displayToast(success) {
+		if (success) {
+			this.preferenceToastDetails = { type: `success`, header: `Success`, detail: `Preferred language updated.` };
+		} else {
+			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language not update failed.` };
 		}
+		
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	_toggleToastDisplay() {
@@ -448,11 +452,11 @@ export class LandingPage extends ViewBase {
 					.currentIncident="${this.currentIncident}"
 					.cpNumber="${this.cpNumber}"
 					.clientType="${this.clientType}"
+					.updateLanguage="${(languagePreference) => this._updatePreferredLanguage(languagePreference)}"
 
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
-					@non-client-captured=${event => this._nonClientCaptured(event)}
-					@update-language="${(e) => this._updatePreferredLanguage(e)}">
+					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
 	}
@@ -484,9 +488,9 @@ export class LandingPage extends ViewBase {
 		? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
-				type="success" 
-				header="Success" 
-				detail="Preferred language updated." 
+				type="${this.preferenceToastDetails.type}" 
+				header="${this.preferenceToastDetails.header}" 
+				detail="${this.preferenceToastDetails.detail}" 
 				@click="${() => this.displayToast = false}"
 				closable >
 			</capitec-toast>`

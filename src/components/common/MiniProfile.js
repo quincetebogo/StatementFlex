@@ -355,7 +355,6 @@ export class MiniProfile extends Component {
 	}
 
 	_renderActionButtons() {
-		// this.miniProfile.showButtons = false; // Force to false for now
 		if (!this.miniProfile.showButtons) {
 			return html``;
 		}
@@ -376,7 +375,8 @@ export class MiniProfile extends Component {
 						label="Document"
 						icon="system/documents-action"
 						iconSize="default"
-						@click=${() => this._onDocumentClick()}>
+						@click=${() => this._onDocumentClick()}
+						?disabled="${true}">
 					</horizon-option-button>
 				</capitec-tooltip>
 			</capitec-content-box>

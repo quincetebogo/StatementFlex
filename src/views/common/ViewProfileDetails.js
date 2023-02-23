@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase.js';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -8,8 +9,7 @@ const DETAILS_TAB = {
 };
 
 const CLIENT_DETAILS = {
-	PREFERRED_LANGUAGE: `Preferred Language`,
-	NOTIFICATION_TYPE: `Notification Type`
+	PREFERRED_LANGUAGE: `Preferred Language`
 };
 
 /**
@@ -31,6 +31,8 @@ export class ViewProfileDetails extends ViewBase {
 		this.showUpdatePreferenceModal = false;
 		this.clientDetails = {};
 		this.selectedTab = DETAILS_TAB[0];
+		this.displayToast = false;
+		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	// -------------------
@@ -41,8 +43,7 @@ export class ViewProfileDetails extends ViewBase {
 		super.connectedCallback();
 
 		this.clientDetails = {
-			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: `English`,
-			[CLIENT_DETAILS.NOTIFICATION_TYPE]: `SMS`
+			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: formatStringAsPascalCase(this.callerInformation.languagePreference)
 		};
 	}
 
@@ -56,7 +57,8 @@ export class ViewProfileDetails extends ViewBase {
 
 	static get properties() {
 		return {
-			showUpdatePreferenceModal: { attribute: false }
+			showUpdatePreferenceModal: { state: true },
+			displayToast: { state: true }
 		};
 	}
 
@@ -75,9 +77,26 @@ export class ViewProfileDetails extends ViewBase {
 	async _updateClientPreferences(e) {
 		// CS call to update client preferences
 		const returnValue = await this._updatePreferences();
+		
+		this._showHideToast(returnValue);
 		this.showUpdatePreferenceModal = false;
-
+		
 		this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = e.detail.preferredlanguage;
+	}
+
+	_showHideToast(success) {
+		if (success) {
+			this.preferenceToastDetails = { type: `success`, header: `Success`, detail: `Preferred language updated.` };
+		} else {
+			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language update failed.` };
+		}
+
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = false;
 	}
 
 	// --------------
@@ -171,6 +190,14 @@ export class ViewProfileDetails extends ViewBase {
 					margin-left: 16px;
 					--theme-button-font-weight: 600;
 					--theme-button-line-height: 20px;
+				}
+				capitec-toast {
+					width: 406px;
+					position: absolute;
+					top: var(--toast-top, 56px);
+					--theme-toast-padding: 12px;
+					--theme-toast-close-size: 24px;
+					margin-left: var(--toast-margin-left, 382px);
 				}`
 		];
 	}
@@ -196,6 +223,7 @@ export class ViewProfileDetails extends ViewBase {
 		<capitec-card 
 			data-automation-id="view-profile-details-screen"
 			class="card">
+				${this._renderToast()}
 				<capitec-title-bar 
 					data-automation-id="view-profile-details-title"
 					type="default">
@@ -273,6 +301,20 @@ export class ViewProfileDetails extends ViewBase {
 				@cancel="${() => this.showUpdatePreferenceModal = false}"
 				@update-preference="${(e) => this._updateClientPreferences(e)}">
 			</horizon-update-profile-details>`
+		: html``;
+	}
+	
+	_renderToast() {
+		return this.displayToast
+		? html`
+			<capitec-toast 
+				?hidden="${!this.displayToast}"
+				type="${this.preferenceToastDetails.type}" 
+				header="${this.preferenceToastDetails.header}" 
+				detail="${this.preferenceToastDetails.detail}" 
+				@click="${() => this.displayToast = false}"
+				closable >
+			</capitec-toast>`
 		: html``;
 	}
 

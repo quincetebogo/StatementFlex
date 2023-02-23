@@ -6,8 +6,7 @@ const MENU_ITEMS = {
 };
 
 const CLIENT_DETAILS = {
-	PREFERRED_LANGUAGE: `Preferred Language`,
-	NOTIFICATION_TYPE: `Notification Type`
+	PREFERRED_LANGUAGE: `Preferred Language`
 };
 
 export class UpdateProfileDetails extends Component {
@@ -26,12 +25,17 @@ export class UpdateProfileDetails extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * @property {Object} header update profile details modal header .
+	 * @property {Object} clientDetails client details
+	 */
+
 	static get properties() {
 		return {
 			header: { type: String },
 			clientDetails: { type: Object },
-			preferredLanguage: { attribute: false },
-			preferredNotificationType: { attribute: false }
+
+			preferredLanguage: { attribute: false }
 		};
 	}
 
@@ -41,7 +45,6 @@ export class UpdateProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.preferredNotificationType = this.clientDetails[CLIENT_DETAILS.NOTIFICATION_TYPE];
 		this.preferredLanguage = this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE];
 	}
 
@@ -55,8 +58,7 @@ export class UpdateProfileDetails extends Component {
 
 	_saveChanges() {
 		this.dispatchEvent(new CustomEvent(`update-preference`, { detail: {
-			preferredlanguage: this.preferredLanguage,
-			preferredNotificationType: this.preferredNotificationType 
+			preferredlanguage: this.preferredLanguage
 		} }));
 	}
 	
@@ -64,12 +66,6 @@ export class UpdateProfileDetails extends Component {
 		this.preferredLanguage = e.detail.new;
 	}
 	
-	_notificationTypeChanged(e) {
-		if (e.detail.new) {
-			this.preferredNotificationType = e.target.label;
-		}
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -79,9 +75,7 @@ export class UpdateProfileDetails extends Component {
 	// ---------------
 
 	_isSaveDisabled() {
-		const isSaveDisabled = this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] === this.preferredLanguage &&
-								this.clientDetails[CLIENT_DETAILS.NOTIFICATION_TYPE] === this.preferredNotificationType;
-		return isSaveDisabled;
+		return this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] === this.preferredLanguage;
 	}
 
 	// ---------
@@ -211,18 +205,6 @@ export class UpdateProfileDetails extends Component {
 				value="${this.preferredLanguage || this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE]}"
 				select-mode="single">
 			</capitec-select>
-
-			<capitec-radio-group label="Notification Type" layout="horizontal">
-				<capitec-radio
-					label="Email"
-					@value-changed="${(e) => this._notificationTypeChanged(e)}"
-					?checked="${this.preferredNotificationType === `Email`}">
-				</capitec-radio>
-				<capitec-radio
-					label="SMS"
-					@value-changed="${(e) => this._notificationTypeChanged(e)}"
-					?checked="${this.preferredNotificationType === `SMS`}">
-				</capitec-radio>
 			</capitec-radio-group>
 		`
 		: html``;
