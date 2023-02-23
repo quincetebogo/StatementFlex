@@ -115,8 +115,6 @@ export class ValueAddedServices extends Component {
 				"capitec-entity-id": valueAddedServices.capitecEntityId,
 				"insights": valueAddedServices.optOutInsights,
 				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing
-				
-				
 			});
 		}
 
