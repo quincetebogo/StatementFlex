@@ -625,5 +625,56 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	flexibleStatementSpecificDates(accnum, fromDate, toDate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const flexibleStatementSpecificDatesRequest = {
+			"accountNumber": accnum,
+			"emailAddress": ``,
+			"fromDate": fromDate,
+			"toDate": toDate,
+			"setDates": ``,
+			"xDevice": ``
+		  };
+		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/specifieddates`;
 
+		  return this.post(
+			url,
+			flexibleStatementSpecificDatesRequest,
+			this.setToken(),
+			`flexibleStatementSpecificDates`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	flexibleStatementSpecificDatesEmail (accnum, email, fromDate, toDate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const flexibleStatementSpecificDatesEmailRequest = {
+			"accountNumber": accnum,
+			"emailAddress": email,
+			"fromDate": fromDate,
+			"toDate": toDate,
+			"setDates": ``,
+			"xDevice": ``
+		  };
+
+		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email/specifieddates`;
+
+		  return this.post(
+			url,
+			flexibleStatementSpecificDatesEmailRequest,
+			this.setToken(),
+			`flexibleStatementSpecificDatesEmail`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+	}
 }
