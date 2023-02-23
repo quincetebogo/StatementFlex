@@ -144,20 +144,20 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-	async putClientConsent(cifNumber, insight, marketing, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async putClientConsent(vasRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`putClientConsent`)) {
 			return this.mock(`putClientConsent`);
 		}
 
 		const request = {
-			"cifNumber": cifNumber,
-			"optInInsights": insight,
-  			"optInMarketing": marketing
+			"cifNumber": vasRequest.cifnumber,
+			"optInInsights": vasRequest.optOutInsights,
+  			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
-		const url = `/client/preferences/consent`;
-			
 
+		const url = `/client/preferences/consent`;
+		
 		return this.put(
 			url, 
 			request, 
