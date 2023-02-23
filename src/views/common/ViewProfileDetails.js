@@ -76,12 +76,15 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _updateClientPreferences(e) {
 		// CS call to update client preferences
-		const returnValue = await this._updatePreferences();
+		const isUpdateSuccess = await this._updatePreferences();
 		
-		this._showHideToast(returnValue);
+		this._showHideToast(isUpdateSuccess);
 		this.showUpdatePreferenceModal = false;
 		
-		this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = e.detail.preferredlanguage;
+		if (isUpdateSuccess) {
+			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = e.detail.preferredlanguage;
+		}
+		
 	}
 
 	_showHideToast(success) {

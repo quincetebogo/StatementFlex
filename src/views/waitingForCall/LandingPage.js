@@ -333,10 +333,10 @@ export class LandingPage extends ViewBase {
 	
 	async _updatePreferredLanguage(preferredLanguage) {
 		// CS call to update preferred language
-		const returnValue = await this._updatePreferences(preferredLanguage);
+		const isUpdateSuccess = await this._updatePreferences(preferredLanguage);
 
-		this._displayToast(returnValue);
-		return returnValue;
+		this._displayToast(isUpdateSuccess);
+		return isUpdateSuccess;
 	}
 
 	_displayToast(success) {
