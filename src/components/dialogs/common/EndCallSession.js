@@ -115,7 +115,7 @@ export class EndCallSession extends Component {
 			issue: { attribute: false },
 			understandNeed: { attribute: false },
 			numberOfCharacters: { attribute: false },
-			allowedCharacters: {attribute: false },
+			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
 			validNumberOfChars: { attribute: false }
 		};
@@ -177,11 +177,6 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
-			// This is to set the description for the incident which is optional
-			if (!isNullorEmpty(this.endCallDescription)) {
-				this.horizonIncidentManager.setDescription(this.endCallDescription);
-			}
-
 			const currentIncident = this.horizonIncidentManager.currentIncident;
 
 			// Ignoring the abandon or not started need action
@@ -191,6 +186,14 @@ export class EndCallSession extends Component {
 				this._stopCardEndCall();
 			} else {
 				this._classifyAndClose();
+			}
+			
+			// This is to set the description for the incident which is optional
+			if (!isNullorEmpty(this.endCallDescription)) {
+				
+				const getDesc = this.horizonIncidentManager.getDescription();
+				const description = `${getDesc} + \n + ${this.endCallDescription}`;
+				this.horizonIncidentManager.setDescription(description);
 			}
 		}
 	}
