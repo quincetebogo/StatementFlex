@@ -209,6 +209,7 @@ export class MonthPeriodSelector extends Component {
 				}
 				capitec-date-time-picker{
 					width:320px;
+					height:320px;
 				}
 				.line{
 					width: 100%;
