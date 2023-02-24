@@ -62,6 +62,7 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this.selectedPeriodLabel = ``;
 	}
 
 	// ----------
@@ -164,6 +165,7 @@ export class StatementsDialog extends Component {
 		this.periodSelected = TIME_PERIOD[range].value;
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label}`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
+		this.selectedPeriodLabel = TIME_PERIOD[range].label;
 
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.errorMessage = ``;
@@ -244,7 +246,8 @@ export class StatementsDialog extends Component {
 			"dateInterval": this.periodSelected,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
-			"monthInterval": this.selectedMonths // This is specifically for month period
+			"monthInterval": this.selectedMonths, // This is specifically for month period
+			"dateIntervalLabel": this.selectedPeriodLabel
 		};
 
 		await this.sendStatement(request);

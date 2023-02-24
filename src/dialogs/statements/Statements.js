@@ -439,9 +439,9 @@ export class Statements extends Component {
 
 		// Inc description
 		screenDetails.productName = this.selectedProduct.name;
-		screenDetails.period = !request.startDate && !request.endDate ? `${request.dateInterval}` : `${request.startDate} to ${request.endDate}`;
+		screenDetails.period = !request.startDate && !request.endDate ? `${request.dateIntervalLabel}` : `${request.startDate} to ${request.endDate}`;
 		screenDetails.productType = this.selectedProduct.category;
-		screenDetails.monthRange = request.monthInterval.join(`,`);
+		screenDetails.monthRange = !request.dateIntervalLabel ? request.monthInterval.join(`,`) : `${request.dateIntervalLabel}`;
 		screenDetails.emailAddress = request.emailAddress;
 		screenDetails.accountNumber = request.accountNumber;
 		screenDetails.accountName = request.accountName;
