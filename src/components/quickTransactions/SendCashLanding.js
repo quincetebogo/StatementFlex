@@ -13,7 +13,7 @@ const DATE_FORMAT = `dd mmm yyyy`;
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const DEFAULTS = { 
-	SEARCH_TEXT_LABEL: `Search for amount, account no.`,
+	SEARCH_TEXT_LABEL: `Search for amount or account no.`,
 	CALENDAR_LABEL: `Choose a date`
 };
 
