@@ -370,9 +370,20 @@ export class StatementsDialog extends Component {
 		} else if (this.monthCalendarRanges.length >= 2) {
 			this.errorMessage = ERRORS.OnlyOneSelection;
 			return false;
+		} else if (this._under90(this.monthCalendarRanges[0].range)) {
+			this.errorMessage = ERRORS.CALENDER_RANGE;
 		}
 
 		return true;
+	}
+
+	_under90(dateranges) {
+		const fromDate = new Date(dateranges[0]);
+		const toDate = new Date(dateranges[1]);
+		if (calculateDays(fromDate, toDate) > 90) {
+			return true;
+		}
+		return false;
 	}
 
 	_validateEmailAddress() {
