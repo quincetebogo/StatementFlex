@@ -198,7 +198,7 @@ export class ViewBase extends View {
 
 	_toastVAS() {
 		this._toggleVASToastDisplay();
-		this.toastDetailVAS = `Value added services complete, you can update anytime.`;
+		this.toastDetailVAS = `Consent management services complete, you can update anytime.`;
 		window.setTimeout(() => this._toggleVASToastDisplay(), 3000);
 	}
 
