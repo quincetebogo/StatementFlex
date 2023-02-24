@@ -737,7 +737,8 @@ export class EndCallSession extends Component {
 			}
 
 			.descriptionCharValidation {
-				color: red;
+				color: #ff0000;
+				--theme-label-subtitle-font-weight: 600;
 			}
 			
 			horizon-alert-banner {
@@ -810,7 +811,7 @@ export class EndCallSession extends Component {
 		return html`
 			<capitec-group class="descriptionGroup" layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-label
-					type="default"
+					type="subtitle"
 					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
 					label="Add Description (optional)">
 				</capitec-label>
@@ -825,7 +826,7 @@ export class EndCallSession extends Component {
 
 			<horizon-text-box
 				id="endCallDescriptionId"
-				label="Add description"
+				label="Please NOTE: Additional notes here are optional.."
 				?hideForLabel=${true}
 				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
 				@key-input="${(e) => this._countNumberOfCharacters(e)}">
