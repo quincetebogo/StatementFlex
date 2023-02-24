@@ -771,9 +771,9 @@ export class EndCallSession extends Component {
 							valign="top"
 							gap="clear">
 								${this._renderAlertBanner()}
-								${this._renderEndcallDescription()}
 								${this._renderChooseEndCallReason()}
 								${this._renderUnderstandNeed()}
+								${this._renderEndcallDescription()}
 								${this._renderLoadingIndicator()}
 						</capitec-content-box>
 					</div>
@@ -826,7 +826,7 @@ export class EndCallSession extends Component {
 
 			<horizon-text-box
 				id="endCallDescriptionId"
-				label="Please NOTE: Additional notes here are optional.."
+				label="Is there additional information you would like to capture?"
 				?hideForLabel=${true}
 				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
 				@key-input="${(e) => this._countNumberOfCharacters(e)}">
