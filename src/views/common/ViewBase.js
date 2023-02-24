@@ -306,8 +306,8 @@ export class ViewBase extends View {
 		return this.currentIncident ? this.currentIncidentRef() : ``;
 	}
 
-	async _updatePreferences(language) {
-		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, this.callerInformation.cifNumber);
+	async _updatePreferences(language, cif) {
+		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
 		
 		return returnValue.succeeded;
 	}

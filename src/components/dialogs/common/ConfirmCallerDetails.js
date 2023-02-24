@@ -341,6 +341,8 @@ export class ConfirmCallerDetails extends Component {
 		
 		if (!isLanguageUpdated) {
 			this.languagePreference = e.detail.old;
+		} else {
+			this.callerInformation.languagePreference = this.languagePreference;
 		}
 	}
 

@@ -74,15 +74,17 @@ export class ViewProfileDetails extends ViewBase {
 		this.selectedTab = DETAILS_TAB[e.detail.selectedIndex];
 	}
 
-	async _updateClientPreferences(e) {
+	async _updateClientPreferences(preferredlanguage) {
 		// CS call to update client preferences
-		const isUpdateSuccess = await this._updatePreferences();
+		const isUpdateSuccess = await this._updatePreferences(preferredlanguage, this.callerInformation.cifNumber);
 		
 		this._showHideToast(isUpdateSuccess);
 		this.showUpdatePreferenceModal = false;
 		
 		if (isUpdateSuccess) {
-			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = e.detail.preferredlanguage;
+			this.callerInformation.languagePreference = preferredlanguage;
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = preferredlanguage;
 		}
 		
 	}
@@ -302,7 +304,7 @@ export class ViewProfileDetails extends ViewBase {
 				header="${this.selectedTab}"
 				.clientDetails="${this.clientDetails}"
 				@cancel="${() => this.showUpdatePreferenceModal = false}"
-				@update-preference="${(e) => this._updateClientPreferences(e)}">
+				@update-preference="${(e) => this._updateClientPreferences(e.detail.preferredlanguage)}">
 			</horizon-update-profile-details>`
 		: html``;
 	}

@@ -135,18 +135,6 @@ export class UpdateProfileDetails extends Component {
 				margin-bottom: 16px;
 			}
 
-			#id-cancel-button {
-				height: 48px;
-				width: 94px;
-				margin-right: 19px;
-				--theme-button-padding-top: 14px;
-				--theme-button-padding-right: 23px;
-				--theme-button-padding-bottom: 14px;
-				--theme-button-padding-left: 23px;
-				--theme-button-clear-border-width: 0px;
-				--theme-button-line-height: 20px;
-			}
-
 			#id-save-button {
 				height: 48px;
 				--theme-button-padding-top: 14px;
@@ -214,8 +202,6 @@ export class UpdateProfileDetails extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-					id="id-cancel-button"
-					type="clear"
 					label="Cancel"
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
