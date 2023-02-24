@@ -771,9 +771,9 @@ export class EndCallSession extends Component {
 							valign="top"
 							gap="clear">
 								${this._renderAlertBanner()}
+								${this._renderEndcallDescription()}
 								${this._renderChooseEndCallReason()}
 								${this._renderUnderstandNeed()}
-								${this._renderEndcallDescription()}
 								${this._renderLoadingIndicator()}
 						</capitec-content-box>
 					</div>
