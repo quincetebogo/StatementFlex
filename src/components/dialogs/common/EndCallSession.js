@@ -192,7 +192,14 @@ export class EndCallSession extends Component {
 			if (!isNullorEmpty(this.endCallDescription)) {
 				
 				const getDesc = this.horizonIncidentManager.getDescription();
-				const description = `${getDesc} + \n + ${this.endCallDescription}`;
+				let description = ``;
+				
+				if (getDesc) {
+					description = `${getDesc} + \n + ${this.endCallDescription}`;
+				} else {
+					description = `${this.endCallDescription}`;
+				}
+
 				this.horizonIncidentManager.setDescription(description);
 			}
 		}
