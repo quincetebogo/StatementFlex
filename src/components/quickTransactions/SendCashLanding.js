@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { convertCentsToRand, formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatDate, formatStringAsPascalCase, isNullorEmpty, maskString } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -13,7 +13,7 @@ const DATE_FORMAT = `dd mmm yyyy`;
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const DEFAULTS = { 
-	SEARCH_TEXT_LABEL: `Search for amount, voucher/account no.`,
+	SEARCH_TEXT_LABEL: `Search for amount or account no.`,
 	CALENDAR_LABEL: `Choose a date`
 };
 
@@ -225,8 +225,8 @@ export class SendCashLanding extends Component {
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					return this.filteredSendCashVouchers.filter(item => item.voucherNumber.toString().includes(key) ||
-																		item.amount.toString().startsWith(key) ||
+					// Removed search by voucher number - item.voucherNumber.toString().includes(key)
+					return this.filteredSendCashVouchers.filter(item => item.amount.toString().startsWith(key) ||
 																		item.sourceAccount.toString().startsWith(key));
 				}
 				return [];
@@ -675,7 +675,7 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="voucher-number-label"
 								label="Voucher Number"
-								value="${item.voucherNumber}">
+								value="${maskString(item.voucherNumber)}">
 							</horizon-label>
 							<horizon-label
 								class="amount-sent-label"
