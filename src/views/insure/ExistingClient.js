@@ -1320,7 +1320,6 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
-		console.log(`arrearsResp :>> `, arrearsResp);
 		this.clientArrears = arrearsResp?.result;
 	}
 

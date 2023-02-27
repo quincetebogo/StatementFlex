@@ -406,7 +406,7 @@ class ClientSummary extends Component {
 				break;
 			case `adhoc`:
 				this.showCFPAgreementDialog = false;
-				this._openPayPremiumDialog(this.selectedPolicyItem);
+				this._openPayPremiumDialog();
 				break;
 			case `estimate`:
 				this.showCFPAgreementDialog = false;
@@ -437,11 +437,9 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem policy item
 	 * @returns {void}
 	 */
-	 _openPayPremiumDialog(policyItem) {
+	 async _openPayPremiumDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
-
-		this._getArrears();
-		console.log(this.clientArrears);
+		await this._getArrears();
 		this.showPayPremiumDialog = true;
 	}
 
@@ -1333,6 +1331,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-pay-premium-dialog   
 				.clientArrears = ${this.clientArrears}
+				.currentContractRef = "${this.selectedContractRef}"
 				@pay-arrears = "${(e) => this._payArrears(e)}"
 				@close-modal="${() => this.showPayPremiumDialog = false}" >
 			</horizon-insure-pay-premium-dialog>`;
@@ -1348,7 +1347,7 @@ class ClientSummary extends Component {
 			<horizon-insure-pay-premium-confirmation-dialog 
 				.amountToPay = "${this.amountToPay}" 
 				.fromAccount = "${this.fromAccount}"
-				.contractReference = ${this.clientArrears.contractReference}
+				.contractReference = ${this.selectedContractRef}
 				@close-modal="${() => this.showPayPremiumConfirmationDialog = false}" 
 				@confirm-payment="${() => this._openPayPremiumAgreementDialog()}">
 			</horizon-insure-pay-premium-confirmation-dialog>`;
@@ -1363,7 +1362,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-pay-premium-agreement-dialog 
 				.payAmount = "${this.amountToPay}" 
-				.contractReference= ${this.clientArrears.contractReference}
+				.contractReference= ${this.selectedContractRef}
 				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				@close-modal="${() => this.showPayPremiumAgreementDialog = false}"

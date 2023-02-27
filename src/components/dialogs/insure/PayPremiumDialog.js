@@ -53,6 +53,7 @@ class PayPremiumDialog extends Component {
 	 * @property {String} accountType contains the type of the selected account
 	 * @property {Boolean} displayInsufficientFunds determins whether to display the insufficient funds notification
 	 * @property {Boolean} insufficient determines whether there is sufficient funds in the selected account
+	 * @property {String} currentContractRef contains the contract ref of the selected policy
 	 * 
 	 * @readonly
 	 * @static
@@ -71,7 +72,8 @@ class PayPremiumDialog extends Component {
 			insufficient: { type: Boolean, state: true },
 			checked: { type: Number, state: true },
 			displayAccountNotSelected: { type: Boolean, state: true },
-			displayArrearNotSelected: { type: Boolean, state: true }
+			displayArrearNotSelected: { type: Boolean, state: true },
+			currentContractRef: { type: String, state: true }
 		};
 	}
 
@@ -109,23 +111,26 @@ class PayPremiumDialog extends Component {
 	_initialise() {
 		this.payArrears = {};
 		this.payArrears.arrears = [];
-		this.payArrears.contractReference = this.clientArrears.contractReference;
-		this._sortArrears();
+		this.payArrears.contractReference = this.currentContractRef;
 
+		const index = this.clientArrears.policies.map(object => object.contractReference).indexOf(this.currentContractRef);
+
+		this._sortArrears(index);
+
+		this.clientArrears.arrears = this.clientArrears.policies[index].arrears;
 
 		for (let i = 0; i < this.clientArrears.arrears.length; i++) {
 			this.totalAmount += this.clientArrears.arrears[i].amount;
 		}
-		
-
 	}
 
 	/**
 	 * sort the Arrears from oldest to newest
+	 * @param {number} index index
 	 * @returns {null} null
 	 */
-	_sortArrears() {
-		this.clientArrears.arrears = this.clientArrears.arrears.sort((a, b) => {
+	_sortArrears(index) {
+		this.clientArrears.policies[index].arrears = this.clientArrears.policies[index].arrears.sort((a, b) => {
 			if (a.dueDate < b.dueDate) {
 				return -1;
 			} else if (a.dueDate > b.dueDate) {
@@ -185,7 +190,8 @@ class PayPremiumDialog extends Component {
 		});
 
 			if (this.accountType === `Savings Account`) {
-				if (this.accountDetails.savingsAccountData?.accountAvailableBalance < this.amount) {
+				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
+				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
@@ -195,9 +201,9 @@ class PayPremiumDialog extends Component {
 					this._PayArrears();
 				}
 			} else {
-				const index = this.accountDetails.savingsPlanData.savingsPlans.map(object => object.accountNumber).indexOf(this.accountNumber);
+				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
 
-				if (this.accountDetails.savingsPlanData.savingsPlans[index]?.availableBalance < this.amount) {
+				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
 					this.optionSelected = false;
 					this.displayInsufficientFunds = true;
 					this.insufficient = true;
@@ -229,6 +235,9 @@ class PayPremiumDialog extends Component {
 			this.checked += 1;
 			this.displayArrearNotSelected = false;
 		} else if (e.detail.new === false) {
+			this.insufficient = false;
+			this.displayInsufficientFunds = false;
+			this.optionSelected = true;
 			this.amount -= outstanding.amount;
 			this.checked -= 1;
 		}
@@ -343,7 +352,7 @@ class PayPremiumDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.clientArrears.contractReference})"
+			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.currentContractRef})"
 			header-align="left">
 			<div slot="body" class="modal-body">
 				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "horizon-insure-pay-premium-dialog-body">
@@ -373,7 +382,7 @@ class PayPremiumDialog extends Component {
 			
 			<insure-account-select 
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="horizon-insure-pay-premium-dialog-accounts"
-				.accountDetails = "${this.accountDetails}" .insufficient = "${this.insufficient}" .label= "${`Please select`}">
+				.accountDetails = "${this.clientArrears.payableAccounts}" .insufficient = "${this.insufficient}" .label= "${`Please select`}">
 			</insure-account-select>
 
 			
@@ -384,7 +393,6 @@ class PayPremiumDialog extends Component {
 			
 			<capitec-check-group>
 				${this.clientArrears.arrears.map((outstanding, index) => html`
-
 					${index === 0 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
 							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="horizon-insure-pay-premium-dialog-arrears" >

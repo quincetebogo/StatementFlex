@@ -348,7 +348,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"searchCallerAdvanced": {
