@@ -4,7 +4,7 @@
   "group": "G_CKS_CEC_HORIZON_DEVELOPER",
   "version": "3.0.0",
   "alias": "HorizonAWS",
-  "release": "alpha",
+  "release": "beta",
   "contractVersion": "v1",
   "serviceType": "Channel",
   "resourceSize": "small",

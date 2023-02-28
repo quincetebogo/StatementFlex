@@ -115,6 +115,50 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
+	// consent management methods
+
+	getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = {
+			"cif": cifNumber
+		};
+	
+		const url = `/clientcare-clientprofile-${this._version}/client/preferences/consent`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getClientConsent`, 
+			null, 
+			null, 
+			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	putClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const request = {
+			"cif": cifNumber
+		};
+		const url = `/clientcare-clientprofile-${this._version}/client/preferences/consent`;
+			
+
+		return this.put(
+			url, 
+			request, 
+			this.setToken(), 
+			`putClientConsent`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
