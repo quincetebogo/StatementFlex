@@ -101,7 +101,7 @@ class InsureAccountSelect extends Component {
 					// accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
 					accountNumber: account.accountNumber,
 					availableBalance: account.availableBalance,
-					planName: `Savings Plan`
+					planName: account.accountName
 				});
 			}
 
