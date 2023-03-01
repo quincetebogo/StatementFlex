@@ -294,9 +294,7 @@ export class RelatedOptions extends Component {
 	}
 
 	_transactionHistory(option) {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		
-		screenDetails.returnToOption = option || ``;
+		this.horizonStore.setReturnScreen(null, option);
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
 	}
 
