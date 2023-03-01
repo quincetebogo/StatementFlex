@@ -122,8 +122,6 @@ class PayPremiumDialog extends Component {
 		for (let i = 0; i < this.clientArrears.arrears.length; i++) {
 			this.totalAmount += this.clientArrears.arrears[i].amount;
 		}
-
-		console.log('this.clientArrears :>> ', this.clientArrears);
 	}
 
 	/**
@@ -185,7 +183,6 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_payClick() {
-
 		this._telemetry.logEvent(this.telemetryEvents.PAY_ARREARS_PAY, {
 			"screen": TelemetryScreen.INSURE_PAY_POLICY_DIALOG,
 			"next-screen": TelemetryScreen.INSURE_PAY_POLICY_CONFIRM_DIALOG
@@ -298,7 +295,9 @@ class PayPremiumDialog extends Component {
 
 	_validateCheck() {
 
-		if (this.checked === 0) { 
+		if (this.optionSelected === false) {
+			this.displayAccountNotSelected = true;
+		} else if (this.checked === 0) { 
 			this.displayArrearNotSelected = true;
 		} else {
 			this._payClick();
@@ -394,7 +393,7 @@ class PayPremiumDialog extends Component {
 			</div>
 			
 			<capitec-check-group>
-				${this.clientArrears.arrears.map((outstanding, index) => html`
+				${this.clientArrears?.arrears?.map((outstanding, index) => html`
 					${index === 0 ? html`
 						<capitec-check class="checkbox" label="${formatDate(outstanding.dueDate, `MM yyyy`)} | ${formatCurrency(outstanding.amount)}"
 							@value-change="${(e) => this._checkedChange(outstanding, index, e)}" data-automation-id="horizon-insure-pay-premium-dialog-arrears" >
