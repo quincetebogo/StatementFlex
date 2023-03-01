@@ -106,6 +106,7 @@ class ClientSummary extends Component {
 	 * @property {Object} selectedPolicyItem selected policy item
 	 * @property {String} productCode policy product code
 	 * @property {Function} requestCallback policy product code
+	 * @property {Function} getArrears Callback function to fetch arrears and payable accounts
 	 * 
 	 * @readonly
 	 * @static
@@ -119,10 +120,11 @@ class ClientSummary extends Component {
 
 			payArrears: { type: Object, state: true },
 			fromAccount: { type: Number, state: true },
-			accountDetails: { type: Object, state: true },
+			// accountDetails: { type: Object, state: true },
 			amountToPay: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object },
+			getArrears: { type: Object, state: true },
 
 			contractReferenceToCancel: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
@@ -404,7 +406,7 @@ class ClientSummary extends Component {
 				break;
 			case `adhoc`:
 				this.showCFPAgreementDialog = false;
-				this._openPayPremiumDialog(this.selectedPolicyItem);
+				this._openPayPremiumDialog();
 				break;
 			case `estimate`:
 				this.showCFPAgreementDialog = false;
@@ -435,13 +437,14 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem policy item
 	 * @returns {void}
 	 */
-	 _openPayPremiumDialog(policyItem) {
+	 async _openPayPremiumDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
-		this.clientArrears = {
-			contractReference: policyItem.contractReference,
-			arrears: policyItem.arrearDetails?.arrears
-		};
+		await this._getArrears();
 		this.showPayPremiumDialog = true;
+	}
+
+	async _getArrears() {
+		await this.getArrears();
 	}
 
 	/**
@@ -1328,7 +1331,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-pay-premium-dialog   
 				.clientArrears = ${this.clientArrears}
-				.accountDetails = ${this.accountDetails} 
+				.currentContractRef = "${this.selectedContractRef}"
 				@pay-arrears = "${(e) => this._payArrears(e)}"
 				@close-modal="${() => this.showPayPremiumDialog = false}" >
 			</horizon-insure-pay-premium-dialog>`;
@@ -1344,7 +1347,7 @@ class ClientSummary extends Component {
 			<horizon-insure-pay-premium-confirmation-dialog 
 				.amountToPay = "${this.amountToPay}" 
 				.fromAccount = "${this.fromAccount}"
-				.contractReference = ${this.clientArrears.contractReference}
+				.contractReference = ${this.selectedContractRef}
 				@close-modal="${() => this.showPayPremiumConfirmationDialog = false}" 
 				@confirm-payment="${() => this._openPayPremiumAgreementDialog()}">
 			</horizon-insure-pay-premium-confirmation-dialog>`;
@@ -1359,7 +1362,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-pay-premium-agreement-dialog 
 				.payAmount = "${this.amountToPay}" 
-				.contractReference= ${this.clientArrears.contractReference}
+				.contractReference= ${this.selectedContractRef}
 				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				@close-modal="${() => this.showPayPremiumAgreementDialog = false}"

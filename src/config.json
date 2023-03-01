@@ -176,7 +176,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -345,6 +345,10 @@
 		},
 		"insureRequestCallback": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureArrears": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"searchCallerAdvanced": {

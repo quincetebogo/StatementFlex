@@ -110,6 +110,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} renderMode contains which flow to render
 	 * @property {Object} claims contains client claims
 	 * @property {Boolean} emailEstimateSuccess determin whether to show a success alert for estimate email
+	 * @property {Object} clientArrears contains client arrears and payable accounts
 	 * 
 	 * @readonly
 	 * @static
@@ -131,7 +132,7 @@ export class ExistingClient extends InsureViewBase {
 			updatePaymentAgreementDocument: { type: Object, state: true },
 			cancellationReason: { type: String, state: true },
 			cancelPolicyDocumentDetails: { type: Object, state: true },
-			accountDetails: { type: Object, state: true },
+			// accountDetails: { type: Object, state: true },
 			policyNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
 			readOnly: { type: Object, state: true },
@@ -139,7 +140,8 @@ export class ExistingClient extends InsureViewBase {
 			confirmedEmail: { type: Object, state: true },
 			renderMode: { type: Number },
 			claims: { type: Object, state: true },
-			emailEstimateSuccess: { type: Boolean, state: true }
+			emailEstimateSuccess: { type: Boolean, state: true },
+			clientArrears: { type: Object, state: true }
 
 		};
 	}
@@ -169,7 +171,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _initialise() {
 		await this._retrieveClientSummary();
-		this.accountDetails = await this._retrieveAccountDetails();
+		// this.accountDetails = await this._retrieveAccountDetails();
 		this.claims = await this._retrieveClaims();
 	}
 
@@ -469,17 +471,17 @@ export class ExistingClient extends InsureViewBase {
 	 * Retrieve Savings Account Details via Savings Account service
 	 * @returns {Object} Savings Account Details 
 	 */
-	async _retrieveAccountDetails() {
-		const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
-		const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+	// async _retrieveAccountDetails() {
+	// const savingsAccountData = await this.savingsAccountService.savingsAccountLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
+	// const savingsPlanData = await this.savingsAccountService.savingsPlanLanding(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, true);
 
-		const resp = {
-			savingsAccountData: savingsAccountData?.result,
-			savingsPlanData: savingsPlanData?.result
-		};
+	// const resp = {
+	// avingsAccountData: savingsAccountData?.result,
+	// savingsPlanData: savingsPlanData?.result
+	// 	};
 
-		return resp;
-	}
+	// 	return resp;
+	// }
 
 	/**
 	 * Retrieve Claims list for Client
@@ -1301,6 +1303,26 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	/**
+	 * gets clients arrears and payable accounts
+	 * 
+	 * @returns {void} 
+	 */
+	async _getArrears() {
+		const arrearsRequest =
+		{
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const arrearsResp = await this.insureService.Arrears(arrearsRequest);
+		if (!arrearsResp.succeeded) {
+			this.handleToastError(acceptPlanResp.exception);
+			return;
+		}
+		this.clientArrears = arrearsResp?.result;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -1404,6 +1426,8 @@ export class ExistingClient extends InsureViewBase {
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
 				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				.requestCallback = "${(name, cellphoneNumber) => this._requestCallback(name, cellphoneNumber)}"
+				.getArrears = "${() => this._getArrears()}"
+				.clientArrears = "${this.clientArrears}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"

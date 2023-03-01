@@ -83,27 +83,29 @@ class InsureAccountSelect extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
-		
-		this.selectorAccounts.savingsAccount = [];
-		this.selectorAccounts.savingsAccount.push({
-			accountNumber: this.accountDetails.savingsAccountData.accountNumber,
-			availableBalance: this.accountDetails.savingsAccountData.accountAvailableBalance,
-			accountStatus: this.accountDetails.savingsAccountData.accountStatus
-		});
-		this.selectorAccounts.savingsPlan = [];
-		for (let i = 0; i < this.accountDetails.savingsPlanData.savingsPlans.length; i++) {
-			if (this.accountDetails.savingsPlanData.savingsPlans[i].accountType === 200) {
-				this.selectorAccounts.savingsPlan.push({
-				accountType: this.accountDetails.savingsPlanData.savingsPlans[i].accountType,
-				accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
-				accountNumber: this.accountDetails.savingsPlanData.savingsPlans[i].accountNumber,
-				availableBalance: this.accountDetails.savingsPlanData.savingsPlans[i].availableBalance,
-				planName: this.accountDetails.savingsPlanData.savingsPlans[i].planName
-				});
 
+		this.selectorAccounts.savingsAccount = [];
+		this.selectorAccounts.savingsPlan = [];
+
+		this.accountDetails.map((account) => {
+			if (account.accountName === `SAVINGS ACCOUNT`) {
+				this.selectorAccounts.savingsAccount.push({
+					accountNumber: account.accountNumber,
+					availableBalance: account.availableBalance
+					// accountStatus: this.accountDetails.savingsAccountData.accountStatus
+				});
 			}
-			
-		}
+			if (account.accountName !== `SAVINGS ACCOUNT`) {
+				this.selectorAccounts.savingsPlan.push({
+					accountType: account.accountType,
+					// accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
+					accountNumber: account.accountNumber,
+					availableBalance: account.availableBalance,
+					planName: account.accountName
+				});
+			}
+
+		});
 	}
 
 	/**
