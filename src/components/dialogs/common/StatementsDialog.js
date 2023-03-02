@@ -217,7 +217,9 @@ export class StatementsDialog extends Component {
 			"dateInterval": this.periodSelected,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
-			"month": month // This is specifically for month period
+			"month": month, // This is specifically for month period
+			"subCategory": this.productSelected.subCategory // This is specifically for month period cc or af
+
 		};
 
 		const encodedPDF = await this.viewStatement(request);
@@ -246,7 +248,8 @@ export class StatementsDialog extends Component {
 			"dateInterval": this.periodSelected,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
-			"monthInterval": this.monthCalendarRanges // This is specifically for month period
+			"monthInterval": this.monthCalendarRanges, // This is specifically for month period,
+			"subCategory": this.productSelected.subCategory // This is specifically for month period cc or af
 		};
 
 		await this.sendStatement(request);

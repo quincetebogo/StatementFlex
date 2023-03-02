@@ -625,15 +625,14 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementSpecificDates(accnum, fromDate, toDate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	flexibleStatementSpecificDates(creditType, accnum, fromDate, toDate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
 		const flexibleStatementSpecificDatesRequest = {
 			"accountNumber": accnum,
 			"emailAddress": ``,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDates": ``,
-			"xDevice": ``
+			"credittype": creditType
 		  };
 		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/specifieddates`;
 
@@ -651,17 +650,16 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementSpecificDatesEmail (accnum, email, fromDate, toDate, callerinfo , errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	flexibleStatementSpecificDatesEmail (accnum, email, fromDate, toDate, callerinfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const flexibleStatementSpecificDatesEmailRequest = {
 			"accountNumber": accnum,
 			"emailAddress": email,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"setDates": ``,
-			"xDevice": ``,
 			"cifNumber": callerinfo.cifNumber,
 			"title": callerinfo.title,
-			"surname": callerinfo.lastName
+			"surname": callerinfo.lastName,
+			"credittype": callerinfo.creditType
 		  };
 
 		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email/specifieddates`;
@@ -678,6 +676,5 @@ export class CreditService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
-
 	}
 }

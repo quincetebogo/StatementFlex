@@ -618,6 +618,7 @@ export class SavingsPlan extends ViewBase {
 
 			// Convert cents to rands
 			quoteDetails.unlockFee = parseInt(quoteDetails.unlockFee, 10) / 100;
+			quoteDetails.balanceAfterUnlock = parseInt(quoteDetails.balanceAfterUnlock, 10) / 100;
 			return quoteDetails;
 		} 
 
