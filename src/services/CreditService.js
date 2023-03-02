@@ -632,7 +632,7 @@ export class CreditService extends ChannelServiceBase {
 			"emailAddress": ``,
 			"fromDate": fromDate,
 			"toDate": toDate,
-			"CreditType": creditType
+			"credittype": creditType
 		  };
 		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/specifieddates`;
 
@@ -659,7 +659,7 @@ export class CreditService extends ChannelServiceBase {
 			"cifNumber": callerinfo.cifNumber,
 			"title": callerinfo.title,
 			"surname": callerinfo.lastName,
-			"CreditType": callerinfo.creditType
+			"credittype": callerinfo.creditType
 		  };
 
 		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email/specifieddates`;

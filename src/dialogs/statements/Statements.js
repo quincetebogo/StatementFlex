@@ -289,7 +289,7 @@ export class Statements extends Component {
 	async _viewCreditStatement(request) {
 
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
-			let creditType;
+			let creditType = ``;
 			if (request.subCategory === `credit-card`) {
 				creditType = `CreditCard`;
 			} else if (request.subCategory === `access-facility`) {
@@ -415,7 +415,7 @@ export class Statements extends Component {
 
 				const fromDate = request.monthInterval[0].range[0];
 				const toDate = request.monthInterval[0].range[1];
-				let creditType;
+				let creditType = ``;
 			if (request.subCategory === `credit-card`) {
 				creditType = `CreditCard`;
 			} else if (request.subCategory === `access-facility`) {
