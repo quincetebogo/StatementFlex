@@ -138,7 +138,6 @@ class CancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	 _agreeClick() {
-		console.log(`1.3 Agree button clicked on cancel dialog`);
 		this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_AGREE, {
 			"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
 			"next-screen": TelemetryScreen.INSURE_CANCEL_PLAN_SUCCESS

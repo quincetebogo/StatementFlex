@@ -63,6 +63,7 @@ export default class InsureChannelServiceMocks {
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
+		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/InsureArrears`).catch(err => logError(err)));
 	}
 
 	/**
@@ -281,6 +282,13 @@ export default class InsureChannelServiceMocks {
 	insureRequestCallback() {
 		if (this._mockSettings.insureRequestCallback.positiveCase) {
 			return this.requestCallbackMocks.insureRequestCallback;
+		}
+		return null;
+	}
+	
+	insureArrears() {
+		if (this._mockSettings.insureArrears.positiveCase) {
+			return this.arrearsMocks.InsureArrears;
 		}
 		return null;
 	}
