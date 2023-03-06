@@ -187,8 +187,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this._saveToState(event.detail.selectedReason);
 
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.currentNeed = `send-cash-place-hold`;
+		this.horizonIncidentManager.setCurrentNeed(`send-cash-place-hold`);
 
 		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
 
@@ -868,9 +867,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	async _onUnloadingSendCash() {

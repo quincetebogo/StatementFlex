@@ -418,6 +418,7 @@ export class HorizonRouter {
 	navigateToUnlockFTSPFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_FAILURE}`);
 	}
+	
 	navigateToSendCashSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
 	}
@@ -1052,7 +1053,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CREATE_INCIDENT_ERROR,
 		load: () => import(`../views/waitingForCall/CreateIncidentError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
-	},  
+	},
+	{
 		name: `horizon-widget-host`,
 		title: `HorizonWidgetHost`,
 		icon: null,
