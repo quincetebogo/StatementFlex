@@ -600,7 +600,7 @@ export class HorizonIncidentManager {
 			const ex = returnValue.exception;
 
 			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${incidentDetails.primaryIncidentRecID}, correlationId: ${ex.correlationId}`);
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
 			} 
 			
 			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubIncident`, returnValue.correlationId);
