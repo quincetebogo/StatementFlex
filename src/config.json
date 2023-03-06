@@ -261,6 +261,14 @@
 		"sendCashVouchers": {
 			"enabled": false,
 			"positiveCase" : true
+		},
+		"getClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"putClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
 		}
 	}
 }

@@ -43,6 +43,8 @@ import 'app/components/common/RelatedOptions';
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.selectedReason = screenDetails.sendCashSelectedReason;
+
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -65,6 +67,12 @@ import 'app/components/common/RelatedOptions';
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -97,7 +105,7 @@ import 'app/components/common/RelatedOptions';
 		return html`
 			<horizon-success-screen
 				header="Send Cash Hold Successful" 
-				image="/images/statements/senddocuments.svg"
+				image="/images/statements/send-documents.svg"
 				right="Done"
 				toast="${this.primaryToast}"
 				@right-click=${() => this._doneClick()}>

@@ -187,6 +187,9 @@ export class Favourites extends SavingsAccountBase {
 
 		this._saveToState(event.detail.selectedReason);
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.currentNeed = `send-cash-place-hold`;
+
 		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
 
 		if (returnValue.succeeded) {
@@ -655,19 +658,25 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _sendCash() {
+		this.sendCashVouchers = await this._getSendCashVouchers();
+
+		await super.createAndClassifySubsIncident(null, false);
+		this.renderMode = RENDER_MODE.SEND_CASH;
+	}
+
+	async _getSendCashVouchers(startDate, endDate) {
+
 		const sendCashVouchersRequest = {
 			cifNumber: this.callerInformation.cifNumber,
-			fromDateTime: this.get30DaysBefore(today),
-			toDateTime: today.toISOString(),
+			fromDateTime: startDate || this.get30DaysBefore(today),
+			toDateTime: endDate || today.toISOString(),
 			offset: 0
 		};
 
 		const returnValue = await this.sendCashService.getVouchers(sendCashVouchersRequest);
 
 		if (returnValue.succeeded) {
-			this.sendCashVouchers = returnValue.result;
-
-			this.renderMode = RENDER_MODE.SEND_CASH;
+			return returnValue.result;
 		}
 	}
 
@@ -849,6 +858,25 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this._backToLandingPage();
+	}
+
+	async _onExitSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+
+	async _onUnloadingSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
 	}
 
 	_limitsRandsToCents(cardDetails) {
@@ -1117,8 +1145,12 @@ export class Favourites extends SavingsAccountBase {
 			? html`
 				<horizon-send-cash-landing
 					.sendCashVouchers="${this.sendCashVouchers}"
+					.getSendCashVouchers="${(startDate, endDate) => this._getSendCashVouchers(startDate, endDate)}"
+					.disposeData="${() => this.sendCashVouchers = []}"
+
 					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
-					@back="${() => this._backToLandingPage()}">
+					@back="${() => this._onExitSendCash()}"
+					@unloading="${() => this._onUnloadingSendCash()}">
 				</horizon-send-cash-landing>`
 			: html``;
 	}

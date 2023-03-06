@@ -18,6 +18,7 @@ export class MonthPeriodSelector extends Component {
 		this.selectedCustomMonths = [];
 		this.checkedAll = false;
 		this.maxDate = ``;
+		this.CalendarDateRange = [];
 	}
 
 	// ----------
@@ -139,10 +140,45 @@ export class MonthPeriodSelector extends Component {
 	_dispatchValueChanged() {
 		this.dispatchEvent(new CustomEvent(`value-changed`, {
 			detail: {
-				months: [...new Set([...this.selectedPredefinedMonths, ...this.selectedCustomMonths])]
+				months: [...new Set([...this.selectedPredefinedMonths, ...this.selectedCustomMonths])],
+				dateRange: this.CalendarDateRange
 			}
 		}));
 	}
+
+	getPredefinedDateRanges() {
+
+		const today = new Date();
+		const last07day = new Date(today);
+		const last30day = new Date(today);
+		const last60day = new Date(today);
+		const last90day = new Date(today);
+	
+		last07day.setDate(today.getDate() - 7).toString();
+		last30day.setDate(today.getDate() - 30).toString();
+		last60day.setDate(today.getDate() - 60).toString();
+		last90day.setDate(today.getDate() - 90).toString();
+		
+		const seven = last07day;
+		console.log(seven);
+		return [
+			{ text: `Last 7 Days`, value: { startDate: last07day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 30 Days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 60 Days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 90 Days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+		];
+	
+		}
+
+		_getDateRange (e) {
+			this.fromDate = e.detail.new.startDate.slice(0, 10);
+			this.toDate = e.detail.new.endDate.slice(0, 10);
+			this.CalendarDateRange = [this.fromDate, this.toDate];
+
+			this._dispatchValueChanged();
+			this.requestUpdate();
+		}
+
 	
 	// ---------
 	// RENDERING
@@ -170,6 +206,10 @@ export class MonthPeriodSelector extends Component {
 
 					--theme-layout-gap-spacing: 15px;
 					--theme-expander-header-height: 56px;
+				}
+				capitec-date-time-picker{
+					width:320px;
+					height:320px;
 				}
 				.line{
 					width: 100%;
@@ -247,15 +287,16 @@ export class MonthPeriodSelector extends Component {
 				label="Choose other dates">
 			</capitec-label>
 
-			<horizon-month-calendar
-				type="single"
+			<capitec-date-time-picker
+				type="range"
 				mode="date"
 				inputType="calendar"
 				outputType="string"
 				minDate="${this.accountOpenDate.toString()}"
 				maxDate="${this.maxDate}"
-				@value-changed="${e => this._customMonthSelected(e)}">
-			</horizon-month-calendar>
+				@apply-click="${e => this._getDateRange(e)}"
+				.predefinedRanges="${this.getPredefinedDateRanges()}">
+			</capitec-date-time-picker>
 
 			${this._renderSelectedCustomMonths()}
 		`;

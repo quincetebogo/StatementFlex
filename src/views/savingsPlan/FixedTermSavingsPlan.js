@@ -253,9 +253,7 @@ export class FixedTermSavingsPlan extends Component {
 				valign="top"
 				wrap>
 				${this._renderFields()}
-			</capitec-group>
-			
-			${this._renderInterestRateTable()}`;
+			</capitec-group>`;
 	}
 	
 	_renderFields() {

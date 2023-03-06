@@ -62,6 +62,7 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this.monthCalendarRanges = [];
 	}
 
 	// ----------
@@ -138,7 +139,7 @@ export class StatementsDialog extends Component {
 					'periodSelected': this.periodSelected,
 					'fromDate': this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 					'toDate': this.toDate === `dd mm yyyy` ? `` : this.toDate,
-					'selectedMonths': this.selectedMonths
+					'selectedMonths': this.monthCalendarRanges
 				}
 			}));
 
@@ -155,8 +156,9 @@ export class StatementsDialog extends Component {
 	_back() {
 		this.errorMessage = ``;
 		this.currentStep--;
+		this.monthCalendarRanges = [];
+		this.selectedMonths = [];
 		this.renderMode = this.STEPPER_STEPS[this.currentStep].renderMode;
-
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
@@ -244,7 +246,7 @@ export class StatementsDialog extends Component {
 			"dateInterval": this.periodSelected,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
-			"monthInterval": this.selectedMonths // This is specifically for month period
+			"monthInterval": this.monthCalendarRanges // This is specifically for month period
 		};
 
 		await this.sendStatement(request);
@@ -269,9 +271,51 @@ export class StatementsDialog extends Component {
 	}
 
 	_monthPeriodSelected(event) {
-		this.selectedMonths = event.detail.months;
+
+		if (event.detail.months.length > 0) {
+			this.monthCalendarRanges = [];
+			this.selectedMonths = event.detail.months;
+			this._addSelectedMonthsToCalendarList(this.selectedMonths);
+		}
+
+		if (event.detail.dateRange.length > 0) {
+			if (event.detail.months.length === 0) {
+				this.monthCalendarRanges = [];
+			}
+			this.monthCalendarRanges.push(this._getCalendarRange(event.detail.dateRange));
+		}
+
+
 		this.errorMessage = ``;
 	}
+
+	_getCalendarRange(dateranges) {
+		const fromDate = new Date(dateranges[0]);
+		const toDate = new Date(dateranges[1]);
+
+		const _summary = {
+			dateRangeLabel: `Selected Date Range`,
+			detail: `${fromDate.getDate()} ${this._getFullMonthName(fromDate)} - 
+			${toDate.getDate()} ${this._getFullMonthName(toDate)}
+			(${calculateDays(fromDate, toDate)} days)`,
+			range: dateranges
+		};
+		return _summary;
+	}
+
+	_addSelectedMonthsToCalendarList(months) {
+		for (let i = 0; i < months.length; i++) {
+			const monthDetails = months[i].split(`/`);
+			const month = parseInt(monthDetails[0], 10) - 1;
+
+			const stdate = new Date(monthDetails[1], month, 2).toISOString();
+			const endDate = new Date(monthDetails[1], monthDetails[0], 0).toISOString();
+			const CalendarDateRange = [stdate.slice(0, 10), endDate.slice(0, 10)];
+			const sum = this._getCalendarRange(CalendarDateRange);
+			this.monthCalendarRanges.push(sum);
+		}
+	}
+
 
 	// ---------------
 	// PRIVATE METHODS
@@ -319,12 +363,27 @@ export class StatementsDialog extends Component {
 	}
 
 	_validateMonthPeriod() {
-		if (this.selectedMonths.length === 0) {
+
+		if (this.monthCalendarRanges.length === 0) {
 			this.errorMessage = ERRORS.REQUIRED_PERIOD;
 			return false;
+		} else if (this.monthCalendarRanges.length >= 2) {
+			this.errorMessage = ERRORS.OnlyOneSelection;
+			return false;
+		} else if (this._under90(this.monthCalendarRanges[0].range)) {
+			this.errorMessage = ERRORS.CALENDER_RANGE;
 		}
 
 		return true;
+	}
+
+	_under90(dateranges) {
+		const fromDate = new Date(dateranges[0]);
+		const toDate = new Date(dateranges[1]);
+		if (calculateDays(fromDate, toDate) > 90) {
+			return true;
+		}
+		return false;
 	}
 
 	_validateEmailAddress() {
@@ -946,17 +1005,18 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSelectedMonthsView() {
-		return this.selectedMonths.map(month => {
-			const [first, second] = month.split(`/`); // first as month & second as year
+		return this.monthCalendarRanges.map(summary => {
+			const info = summary;
+
 
 			return html`
 				<horizon-product-tile
 					data-automation-id="statements-dialog-view-document"
 					class="view-document"
 					type="default"
-					label="${formatDate(`${first}/01/${second}`, `MM yyyy`)}"
-					subtitle="${this._getDaysinMonth(first, second)} days">
-						${this._renderViewDocumnetLink(month)}
+					label="${info.dateRangeLabel}"
+					subtitle="${info.detail}">
+						${this._renderViewDocumnetLink(info.range)}
 				</horizon-product-tile>`;
 		});
 	}

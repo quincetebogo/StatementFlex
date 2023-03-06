@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { convertCentsToRand, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+
 
 import 'platform/components/popups/Modal';
 
@@ -15,7 +18,14 @@ export class ViewInfoDebiCheck extends Component {
 	constructor() {
 		super();
 		this.debiCheckDetails = {};
+		this.callerInformation = {};
 		this.isPending = false;
+
+		this.mandateDetails = {};
+		this.installmentDetails = {};
+		this.dateDetails = {};
+		this.creditorDetails = {};
+		this.payerDetails = {};
 	}
 
 	// ----------
@@ -32,7 +42,7 @@ export class ViewInfoDebiCheck extends Component {
 	static get properties() {
 		return {
 			debiCheckDetails: { type: Object },
-			isPending: { type: Boolean }
+			callerInformation: { type: Object }
 		};
 	}
 
@@ -42,18 +52,20 @@ export class ViewInfoDebiCheck extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+		this.isPending = this.debiCheckDetails.mandateStatus === `PENDING` && this.debiCheckDetails.canBeAuthenticated;
+
+		this._initialise();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_gotItClick() {
-		this.dispatchEvent(new CustomEvent(`viewed`));
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`));
 	}
 
-	_formartCollectionDate(collectionDate) {
+	_formartDate(collectionDate) {
 
 		const date = collectionDate instanceof Date ? collectionDate : new Date(collectionDate);
 
@@ -65,6 +77,14 @@ export class ViewInfoDebiCheck extends Component {
 		return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 	}
 
+	_decline() {
+		this.dispatchEvent(new CustomEvent(`decline`, { detail: { mandateInfo: this.debiCheckDetails } }));
+	}
+
+	_approve() {
+		this.dispatchEvent(new CustomEvent(`approve`, { detail: { mandateInfo: this.debiCheckDetails } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -72,6 +92,56 @@ export class ViewInfoDebiCheck extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	_initialise() {
+		this.mandateDetails = {
+			"First collection date": this._formartDate(this.debiCheckDetails.firstCollectionDate),
+			"Contract reference number": this.debiCheckDetails.contractReference,
+			"Mandate reference": this.debiCheckDetails.mandateReference,
+			"Tracking allowed": this.debiCheckDetails.tracking ? `Yes` : `No`,
+			"Collector contact number": this.debiCheckDetails.collectorContact,
+			"Collector email address": this.debiCheckDetails.collectorEmail,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
+			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
+			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti
+		};
+		
+		this.installmentDetails = {
+			"Installment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.amount)),
+			"Adjustment amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.adjustmentAmount)),
+			"Tracking allowed": this.debiCheckDetails.tracking ? `Yes` : `No`,
+			"Max collection amount": formatCurrency(convertCentsToRand(this.debiCheckDetails.maxCollectionAmount))
+		};
+
+		this.dateDetails = {
+			"Collection day": this.debiCheckDetails.collectionDate.day,
+			"Initiation date": this._formartDate(this.debiCheckDetails.initiationDate),
+			"Date amended": this._formartDate(this.debiCheckDetails.dateAmended),
+			"Frequency": this.debiCheckDetails.frequency,
+			"First collection date": this._formartDate(this.debiCheckDetails.firstCollectionDate)
+		};
+
+		this.creditorDetails = {
+			"Creditor name": this.debiCheckDetails.creditorName,
+			"Mandate status": formatStringAsPascalCase(this.debiCheckDetails.mandateStatus),
+			"Contract reference": this.debiCheckDetails.contractReference,
+			"Creditor telephone number": this.debiCheckDetails.collectorContact,
+			"Creditor short name": this.debiCheckDetails.creditorShortName,
+			"Mandate reference": this.debiCheckDetails.mandateReference,
+			"Ultimate creditor name": this.debiCheckDetails.ultimateCreditorName,
+			"Creditor email": this.debiCheckDetails.collectorEmail,
+			"Secondary status": formatStringAsPascalCase(this.debiCheckDetails.secondaryStatus),
+			"Mandate request transaction identifier (MRTI)": this.debiCheckDetails.mrti
+		};
+
+		this.payerDetails = {
+			"Payer ID": this.callerInformation.southAfricanIDNumber,
+			"Debtor telephone number": this.callerInformation.verifiedTelephoneNumber,
+			"Payer account": this.debiCheckDetails.debtorAccountNumber,
+			"Debtor email": this.callerInformation.emailId, 
+			"CIF number": this.callerInformation.cifNumber
+		};
+	}
 
 	// ---------
 	// RENDERING
@@ -82,16 +152,52 @@ export class ViewInfoDebiCheck extends Component {
 			super.styles,
 			css`
 
-			capitec-modal {
-				height: auto;
-				width: 690px;
-				border-radius: 5px;
-				--theme-modal-header-padding-top: 32px;
-				--theme-modal-header-padding-bottom: 32px;
-				--theme-modal-header-padding-right: 31px;
-				--theme-modal-header-padding-left: 31px;
-				--theme-modal-header-background-color:#F7F7F7;
-				--theme-modal-footer-padding: 0px 18px 18px 0px;
+			.card {
+				width: 100%;
+				height: 888px;
+			}
+			/* Title Bar styles */
+			capitec-title-bar {
+				--theme-titlebar-padding: 12px 16px;
+				margin-bottom: 0px;
+				border-bottom-width: 0px;
+			}
+			capitec-title-bar > capitec-label {
+				--theme-label-title-font-size: 22px;
+				--theme-label-title-font-weight: 600;
+			}
+			capitec-title-bar > capitec-icon {
+				--theme-icon-size-medium: 24px;
+				cursor: pointer;
+			}
+			capitec-tab-group {
+				--theme-tab-min-width: 168px;
+				--theme-container-padding-top: 4px;
+				--theme-tab-border-bottom: 1px solid #E1E1E1;
+			}
+			horizon-label[value ="Pending"], [value = "Notapplicable"] {
+				--horizon-label-value-color: #D4781C;
+			}
+			horizon-label[value ="Active"], [value="Accepted"]{
+				--horizon-label-value-color: #70AF00;
+			}
+			horizon-label[value ="Inactive"], [value="Updated"], [value="Cancelled"], [value="Rejected"], [value="Expired"], [value="Duplicate"] {
+				--horizon-label-value-color: #A5132A;
+			}
+			horizon-label {
+				height: 64px;
+				width: 341px;
+				padding: 12px 24px 12px 0px;
+
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-line-height: 12px;
+				--horizon-label-text-font-size: 14px;
+				--horizon-label-text-color: #3A3A3A;
+
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-line-height: 20px;
+				--horizon-label-value-font-size: 16px;
+				--horizon-label-value-color: #3A3A3A;
 			}
 			
 			horizon-alert-banner{
@@ -99,55 +205,21 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-alert-banner-font-size: 13.7px;
 			}
 
-			div[slot="header"] {
-				width: 690px;
-				--theme-modal-header-height: 64px;
-				position: absolute;
-				display: flex;
-				align-items: center;
-				left: -758px;
-				top: -11px;
-			}
-
-			div[slot="header"] > span {
-				width: 690px;
-				background-color: #F7F7F7;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				padding-left: 15px;
-				align-self: left;
-			}
-
-			.header-title {
-				height: 24px;
-				width: auto;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-			}
-			
-			div[slot="body"] {
-				width: 780px;
-				height: 583px;
-			}
 			.image {
 				align-items: left;
 				width: 128px;
 				margin-top: 16px;
 				margin-bottom: 18px;
 			}
-
+			capitec-button-bar {
+			--theme-buttonbar-padding: 8px 16px;
+			--theme-buttonbar-item-gap: 16px;
+			}
 			capitec-button {
 				height: 48px;
+				width: 156px;
 				border-radius: 5px;
 				--theme-button-height: 20px;
-				--theme-button-width: 41px;
 				--theme-button-color: #FFFFFF;
 				--theme-button-font-family: "Hind Vadodara";
 				--theme-button-font-size: 16px;
@@ -160,15 +232,6 @@ export class ViewInfoDebiCheck extends Component {
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 22px;
 				}
-				#label-value {
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 20px;
-				}
-
 				capitec-label {
 					--theme-label-font-family: "Hind Vadodara";
 					--theme-label-font-weight: 500;
@@ -176,10 +239,6 @@ export class ViewInfoDebiCheck extends Component {
 					--theme-label-font-color: #3A3A3A;
 					--theme-label-letter-spacing: 0;
 					--theme-label-line-height: 20px;
-				}
-				.group-layout { 
-					width: 500px;
-					--theme-layout-grid-gap-row: 5.2px;
 				}
 				`
 		];
@@ -191,58 +250,70 @@ export class ViewInfoDebiCheck extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left">
-				<div slot="header">
-					<span>
-						<capitec-label class="header-title" label="View DebiCheck Mandate Details"></capitec-label>
-					</span>
-				</div>
-				<div slot="body">
-					<capitec-content-box class="body-box">
-						${this._renderDebiCheckDetails()}
-					</capitec-content-box>
-				</div>
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
-			</capitec-modal>`;
+			<capitec-card 
+				data-automation-id="viewinfo-debicheck-screen"
+				class="card">
+					<capitec-title-bar 
+						data-automation-id="viewinfo-debicheck-title">
+							<capitec-icon size="medium" 
+								icon="system/back-action" 
+								@click="${() => this._back()}">
+							</capitec-icon>
+							<capitec-label label="${this.debiCheckDetails.mandateName}" type="Title"></capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<img class="image" src="/images/debi-check/debi-check-logo-banner-1024x256.svg"/>
+					</capitec-title-bar>
+				${this._renderDebiCheckDetails()}
+				${this._renderFooter()}
+			</capitec-card>`;
 	}
 
 	_renderDebiCheckDetails() {
 		return html`
-				<img class="image" src="/images/debi-check/debi-check-logo-banner-1024x256.svg"/>
-				${this._renderError()}
-				<capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" row-gap="clear" >
-					<capitec-label type="subtitle" label="Ultimate Creditor Name" row="1" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.ultimateCreditorName ? this.debiCheckDetails.ultimateCreditorName : `-`}" row="1" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="First collection date" row="2" column="1"></capitec-label>
-					<capitec-label id="label-value"
-						type="subtitle" 
-						label="${this.debiCheckDetails.firstCollectionDate ? this._formartCollectionDate(this.debiCheckDetails.firstCollectionDate) : `-`}" row="2" column="2"></capitec-label>
+			<capitec-tab-group>
+				<capitec-tab label="Mandate" layout="vertical" type="Dafault" halign="left">
+				${this._renderTabContent(this.mandateDetails)}
+				</capitec-tab>
 
-					<capitec-label type="subtitle" label="Tracking allowed" row="3" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.tracking ? `Yes` : `No`}" row="3" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Contract reference" row="4" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.contractReference ? this.debiCheckDetails.contractReference : `-`}" row="4" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Collector contact number" row="5" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.collectorContact ? this.debiCheckDetails.collectorContact : `-`}" row="5" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Mandate reference" row="6" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.mandateReference ? this.debiCheckDetails.mandateReference : `-`}" row="6" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Collector email address" row="7" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.collectorEmail ? this.debiCheckDetails.collectorEmail : `-`}" row="7" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Mandate request transaction identifier" row="8" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.mrti ? this.debiCheckDetails.mrti : `-`}" row="8" column="2"></capitec-label>
-					
-					<capitec-label type="subtitle" label="Date Amended" row="9" column="1"></capitec-label>
-					<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.dateAmended ? this._formartCollectionDate(this.debiCheckDetails.dateAmended) : `-`}" row="9" column="2"></capitec-label>
-				</capitec-group>
+				<capitec-tab label="Installment value" layout="vertical" halign="left">
+				${this._renderTabContent(this.installmentDetails)}
+				</capitec-tab>
+	
+				<capitec-tab label="Date details" layout="vertical" halign="left">
+				${this._renderTabContent(this.dateDetails)}
+				</capitec-tab>
+
+				<capitec-tab label="Creditor details" layout="vertical" halign="left">
+				${this._renderTabContent(this.creditorDetails)}
+				</capitec-tab>
+	
+				<capitec-tab label="Payer details" layout="vertical" halign="left">
+				${this._renderTabContent(this.payerDetails)}
+				</capitec-tab>
+			</capitec-tab-group>
 		`;
+	}
+
+	_renderTabContent(details) {
+		return html`
+			<capitec-group 
+				class="details-horizontal"
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="top"
+				wrap>
+					${Object.entries(details).map(item => {
+						const [key, value] = item;
+						return html`
+							<horizon-label
+								label="${key}"
+								value="${isNullorEmpty(value) ? `-` : value}"
+								data-automation-id="viewinfo-debicheck-${key.toLowerCase().split(` `).join(`-`)}">
+							</horizon-label>
+						`;
+					})}
+			</capitec-group>`;
 	}
 
 	_renderError() {
@@ -256,16 +327,23 @@ export class ViewInfoDebiCheck extends Component {
 			: html``;
 	}
 
-
 	_renderFooter() {
-		return html`
-				<capitec-button
-							id="id-submit-button"
-							type="primary"
-							label="Got it"
-							@click="${() => this._gotItClick()}">
-				</capitec-button>
-			`;
+		return this.isPending
+		? html`
+			<capitec-button-bar
+				?hidden="${this.showNoActiveAccounts}">
+					<capitec-spacer></capitec-spacer>
+					<capitec-button
+						label="Decline"
+						@click="${() => this._decline()}">
+					</capitec-button>
+					<capitec-button 
+						type="primary"
+						label="Approve"
+						@click="${() => this._approve()}">
+					</capitec-button>
+			</capitec-button-bar>`
+		: html``;
 	}
 
 }

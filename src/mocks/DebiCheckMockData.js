@@ -7,19 +7,7 @@
 
 export const mockMandates = {
     "mandateSummaryList": [
-        {
-            "mandateId": 8,
-            "registerId": 2,
-            "amount": 65600,
-            "collectionDate": {
-                "day": "1",
-                "frequency": "Month"
-            },
-            "maxCollectionAmount": 65600,
-            "mandateName": "DISCLIFE 5130111776-21",
-            "mandateStatus": "PENDING",
-            "collectionDayFrequency": "1st of Month"
-        },
+
         {
             "mandateId": 1,
             "registerId": 1,
@@ -31,6 +19,7 @@ export const mockMandates = {
             "maxCollectionAmount": 565600,
             "mandateName": "DISCLIFE 5130111776-21",
             "mandateStatus": "ACTIVE",
+			"secondaryStatus": "ACCEPTED",
             "collectionDayFrequency": "23rd of Month"
         },
         {
@@ -44,7 +33,9 @@ export const mockMandates = {
             "maxCollectionAmount": 29900,
             "mandateName": "TELKOMMOB15922277090232",
             "mandateStatus": "PENDING",
-            "collectionDayFrequency": "11th of Month"
+			"secondaryStatus": "NOTAPPLICABLE",
+            "collectionDayFrequency": "11th of Month",
+            "canBeAuthenticated": true
         },
         {
             "mandateId": 3,
@@ -57,6 +48,7 @@ export const mockMandates = {
             "maxCollectionAmount": 129900,
             "mandateName": "VODACOM 0340833372 1000",
             "mandateStatus": "INACTIVE",
+			"secondaryStatus": "DECLINED",
             "collectionDayFrequency": "22nd of Month",
             "canBeAuthenticated": true
         },
@@ -71,6 +63,7 @@ export const mockMandates = {
             "maxCollectionAmount": 345000,
             "mandateName": "BMWFINANCE 989800101333",
             "mandateStatus": "SUSPENDED",
+			"secondaryStatus": "NOTAPPLICABLE",
             "collectionDayFrequency": "1st of Month",
             "canBeAuthenticated": true
         },
@@ -84,7 +77,8 @@ export const mockMandates = {
             },
             "maxCollectionAmount": 120000,
             "mandateName": "FNBRVLLOAN4000069539246",
-            "mandateStatus": "PENDING",
+            "mandateStatus": "INACTIVE",
+			"secondaryStatus": "DECLINED",
             "collectionDayFrequency": "30th of Month",
             "canBeAuthenticated": true
         },
@@ -98,60 +92,36 @@ export const mockMandates = {
             },
             "maxCollectionAmount": 120000,
             "mandateName": "MTN",
-            "mandateStatus": "PENDING",
+            "mandateStatus": "INACTIVE",
+			"secondaryStatus": "EXPIRED",
             "collectionDayFrequency": "8th of Month",
             "canBeAuthenticated": true
         }
     ]
 };
 
-export const mandateInfo = [
-    {
-        mandateId: 8,
-        registerId: 2,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-09T17:05:32.909Z",
-            "tracking": "Yes",
-            "contractReference": "12345678010",
-            "collectorContact": "021 101 0810",
-            "mandateReference": "2201709170000000000",
-            "collectorEmail": "mandate1@collector.bank",
-            "mrti": "4573",
-            "debtorAccountNumber": "123456789",
-            "canBeAuthenticated": true
-        }
-    },
-    {
-        mandateId: 1,
-        registerId: 1,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-10T17:05:32.909Z",
-            "tracking": "No",
-            "contractReference": "6586854658",
-            "collectorContact": "021 101 0810",
-            "mandateReference": "JFGJ457487",
-            "collectorEmail": "mandate2@collector.bank",
-            "mrti": "547452",
-            "debtorAccountNumber": "123456798",
-            "canBeAuthenticated": true
-        }
-    },
-    {
-        mandateId: 5,
-        registerId: 5,
-        mandateInfo: {
-            "firstCollectionDate": "2021-02-08T17:05:32.909Z",
-            "tracking": "Yes",
-            "contractReference": "65498569",
-            "collectorContact": "021 101 1111",
-            "mandateReference": "kgyh85698",
-            "collectorEmail": "mandate3@collector.bank",
-            "mrti": "780780",
-            "debtorAccountNumber": "132456789",
-            "canBeAuthenticated": true
-        }
-    }
-];
+export const mandateInfo = {
+		"adjustmentAmount": 500,
+		"mandateName": "DISCLIFE 5130111776-21",
+		"mandateStatus": "DECLINED",
+		"frequency": "Monthly",
+		"firstCollectionDate": "2022-07-28T00:00:00+00:00",
+		"tracking": true,
+		"contractReference": "HorizonT120",
+		"collectorContact": "+27-116171700",
+		"mandateReference": "001020220728DAF85BBF64",
+		"collectorEmail": "creditor@nupay.co.za",
+		"mrti": "001020220728DAF85BBF64",
+		"debtorAccountNumber": "1648842540",
+		"canBeAuthenticated": true,
+		"dateAmended": "2022-07-28T11:16:18.937+00:00",
+		"ultimateCreditorName": "NUPAY",
+		"creditorUltimateName": "Vodacom",
+		"creditorName": "ALTECH NUPAY A DIVISION OF ALTRON",
+		"creditorShortName": "NPSTIFIN",
+		"installmentAmount": 46010,
+		"initiationDate": "2022-07-28T00:00:00+00:00"
+	};
 
 export const agreement = [
     {
