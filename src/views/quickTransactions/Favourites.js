@@ -660,7 +660,7 @@ export class Favourites extends SavingsAccountBase {
 	async _sendCash() {
 		this.sendCashVouchers = await this._getSendCashVouchers();
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 

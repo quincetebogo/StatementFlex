@@ -481,7 +481,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async confirmBudgetTransfer(transferDetails, callerInformation, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`confirmBudgetTransfer`)) {
 			return this.mock(`confirmBudgetTransfer`, transferDetails);
@@ -541,7 +541,7 @@ export class CreditService extends ChannelServiceBase {
 	}
 
 	async settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const settleAndClose =
 		{
