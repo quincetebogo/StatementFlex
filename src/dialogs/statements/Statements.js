@@ -289,13 +289,8 @@ export class Statements extends Component {
 	async _viewCreditStatement(request) {
 
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
-			let creditType = ``;
-			if (request.subCategory === `credit-card`) {
-				creditType = `CreditCard`;
-			} else if (request.subCategory === `access-facility`) {
-				creditType = `AccessFacility`;
-			}
-			const returnValue = await this.creditService.flexibleStatementSpecificDates(creditType, request.accountNumber, request.month[0], request.month[1]);
+		
+			const returnValue = await this.creditService.flexibleStatementSpecificDates(request.accountNumber, request.month[0], request.month[1]);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewCreditStatement`, returnValue.correlationId);
@@ -415,19 +410,12 @@ export class Statements extends Component {
 
 				const fromDate = request.monthInterval[0].range[0];
 				const toDate = request.monthInterval[0].range[1];
-				let creditType = ``;
-			if (request.subCategory === `credit-card`) {
-				creditType = `CreditCard`;
-			} else if (request.subCategory === `access-facility`) {
-				creditType = `AccessFacility`;
-			}
 				const statement = {
 					"cifNumber": this.cifNumber,
 					"title": this.title,
-					"lastName": this.lastName,
-					"creditType": creditType
+					"lastName": this.lastName
 				};
-				returnValue = await this.creditService.flexibleStatementSpecificDatesEmail(request.accountNumber, request.emailAddress, fromDate, toDate, statement);
+				returnValue = await this.creditService.flexibleStatementSpecificDatesEmail(request.accountNumber, request.emailAddress, fromDate, toDate ,statement);
 
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
