@@ -424,7 +424,8 @@ export class HorizonRouter {
 
 	navigateToSendCashFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
-  
+	}
+	  
 	navigateToWidget(widgetName) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
 	}

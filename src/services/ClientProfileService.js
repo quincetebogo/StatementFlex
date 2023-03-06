@@ -117,6 +117,7 @@ export class ClientProfileService extends ChannelServiceBase {
 
 	// consent management methods
 
+	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`getClientConsent`)) {
 			return this.mock(`getClientConsent`);
@@ -155,7 +156,7 @@ export class ClientProfileService extends ChannelServiceBase {
   			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
 
-		
+		const url = `/client/preferences/consent`;
 
 		return this.put(
 			url, 
@@ -170,12 +171,4 @@ export class ClientProfileService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	// ---------
-	// RENDERING
-	// ---------
 }
