@@ -410,12 +410,7 @@ export class Statements extends Component {
 
 				const fromDate = request.monthInterval[0].range[0];
 				const toDate = request.monthInterval[0].range[1];
-				const statement = {
-					"cifNumber": this.cifNumber,
-					"title": this.title,
-					"lastName": this.lastName
-				};
-				returnValue = await this.creditService.flexibleStatementSpecificDatesEmail(request.accountNumber, request.emailAddress, fromDate, toDate ,statement);
+				returnValue = await this.creditService.flexibleStatementSpecificDatesEmail(request.accountNumber, request.emailAddress, fromDate, toDate);
 
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 

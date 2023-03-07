@@ -651,17 +651,14 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	flexibleStatementSpecificDatesEmail (accnum, email, fromDate, toDate, callerinfo , errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	flexibleStatementSpecificDatesEmail (accnum, email, fromDate, toDate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const flexibleStatementSpecificDatesEmailRequest = {
 			"accountNumber": accnum,
 			"emailAddress": email,
 			"fromDate": fromDate,
 			"toDate": toDate,
 			"setDates": ``,
-			"xDevice": ``,
-			"cifNumber": callerinfo.cifNumber,
-			"title": callerinfo.title,
-			"surname": callerinfo.lastName
+			"xDevice": ``
 		  };
 
 		  const url = `/clientcare-credit-${this._version}/credit/flexible/statement/email/specifieddates`;
