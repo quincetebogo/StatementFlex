@@ -290,14 +290,10 @@ export class Statements extends Component {
 
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
 		
-			const returnValue = await this.creditService.flexibleStatementSpecificDates(request.accountNumber, request.month[0], request.month[1]);
+			const statementInfo = this.findStatement(request.month);
+			const result = await this.getflexStatement(this.creditProducts[this.selectedProduct.name], statementInfo);
 
-			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewCreditStatement`, returnValue.correlationId);
-				return null;
-			}
-			return base64ToBlobUrl(returnValue.result.content.data);
-
+			return result;
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
 			const returnValue = await this.creditService.fixedStatement(request.accountNumber, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval]);
@@ -408,10 +404,16 @@ export class Statements extends Component {
 
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
 
-				const fromDate = request.monthInterval[0].range[0];
-				const toDate = request.monthInterval[0].range[1];
-				returnValue = await this.creditService.flexibleStatementSpecificDatesEmail(request.accountNumber, request.emailAddress, fromDate, toDate);
+			const statementDetails = request.monthInterval.map(item => this.findStatement(item))
+														  .filter(item => item);
+			statementDetails.map(item => {
+				const data = {};
+				data.statementId = item.statementId;
+				data.statementDate = item.statementDate;
 
+				return data;
+			});
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
 			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName);

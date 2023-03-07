@@ -175,6 +175,5 @@ export const ERRORS = Object.freeze({
 	SYSTEM_ERROR: `System error. Please try again`,
 	REQUIRED_PERIOD: `You must choose an option in order to continue`,
 	DATE_RANGE: `Out of range, please select the correct range up to 90 days`,
-	CALENDER_RANGE: `Date range up to 90 days only`,
-	OnlyOneSelection: `You can only select one range at a time`
+	CALENDER_RANGE: `Date range up to 90 days only`
 });
