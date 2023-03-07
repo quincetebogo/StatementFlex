@@ -172,10 +172,7 @@ export default class HorizonChannelServiceMocks {
 
 	debiCheckDetails(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.debiCheckDetails.positiveCase) {
-			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
-			if (mandateDetails) {
-				return mandateDetails.mandateInfo;
-			}
+			return this.mandatesMocks.mandateInfo;
 		}
 
 		return null;
