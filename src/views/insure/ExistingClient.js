@@ -27,9 +27,11 @@ import 'app/components/insure/SuccessPage';
 import 'app/components/insure/SMSHistory';
 import 'app/components/insure/ClaimSummary';
 
+const INSURE_PRODUCT_START_DATE = `2001/01/01`;
+
 const POLICY_TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	START_DATE: new Date(INSURE_PRODUCT_START_DATE).toISOString().substr(0, 10),
 	PAGE_INDEX: 0,
 	MAX_RESULTS: MAX_RESULTS
 };
@@ -599,7 +601,7 @@ export class ExistingClient extends InsureViewBase {
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement`).map((item) => {
+				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement` || ele.transactionType === `Submit`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
 					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
 					item.formatedDate = formatedDate;
