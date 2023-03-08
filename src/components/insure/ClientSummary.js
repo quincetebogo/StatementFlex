@@ -1446,7 +1446,7 @@ class ClientSummary extends Component {
 					type="success"
 					Header="Successful"
 					layout = "vertical"
-					detail = "Callback request was succesfull"
+					detail = "Callback request was successful"
 					@click = "${() => this.requestCallbackSuccess = false}">
 				</capitec-toast>
 
