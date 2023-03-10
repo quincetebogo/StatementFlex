@@ -677,6 +677,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateRequest = {
 			"contractReference": policyToUpdate.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": calculateQuoteResp.result.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails
