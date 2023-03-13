@@ -117,12 +117,18 @@ export class ClientProfileService extends ChannelServiceBase {
 
 	// consent management methods
 
-	getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`getClientConsent`)) {
+			return this.mock(`getClientConsent`);
+		}
+
+
 		const request = {
-			"cif": cifNumber
+			"cifNumber": cifNumber
 		};
 	
-		const url = `/clientcare-clientprofile-${this._version}/client/preferences/consent`;
+		const url = `/client/preferences/consent`;
 
 		return this.post(
 			url, 
@@ -138,12 +144,19 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-	putClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async putClientConsent(vasRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`putClientConsent`)) {
+			return this.mock(`putClientConsent`);
+		}
+
 		const request = {
-			"cif": cifNumber
+			"cifNumber": vasRequest.cifnumber,
+			"optInInsights": vasRequest.optOutInsights,
+  			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
-		const url = `/clientcare-clientprofile-${this._version}/client/preferences/consent`;
-			
+
+		const url = `/client/preferences/consent`;
 
 		return this.put(
 			url, 
@@ -158,12 +171,4 @@ export class ClientProfileService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	// ---------
-	// RENDERING
-	// ---------
 }

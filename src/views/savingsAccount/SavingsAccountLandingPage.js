@@ -120,12 +120,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     // PUBLIC METHODS
     // --------------
 
-    async _exitTransactionHistory() {
-        await super.classifyIncident(() => this._toggleBusyFlag());
-
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
-
     async _unloadTransactionHistory() {
         this.endCallContext = `LandingPage`;
         this.transactionHistory = [];

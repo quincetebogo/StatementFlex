@@ -1,41 +1,18 @@
 {
   "name": "Horizon-UI",
-  "product": "BSC-Horizon",
-  "group": "G_PL_HZN_DEV",
-  "version": "2.17.6",
-  "alias": "horizon",
+  "product": "Horizon",
+  "group": "G_CKS_CEC_HORIZON_DEVELOPER",
+  "version": "2.13.14",
+  "alias": "HorizonAWS",
   "release": "230101",
   "contractVersion": "v1",
-  "serviceType": "Hosting",
-  "resourceSize": "medium",
-  "redundancySize": "custom",
-  "redundancySizes": {
-    "NP": 3,
-    "PROD": 6
-  },
+  "serviceType": "Channel",
+  "resourceSize": "small",
+  "redundancySize": "tiny",
   "port": 6001,
-  "client": {
-    "clientName": "Platform",
-    "clientDescription": null,
-    "isUserInterface": false,
-    "flow": "password",
-    "extraScopes": "",
-    "roles": null
-  },
-  "secrets": [
-    "telemetrydatabussecret",
-    "axoncs_t_ch_password",
-    "axoncs_t_ch_username"
-  ],
+  "secrets": [],
   "environmentVariables": [
     "LogLevel",
-    "MetricsLogLevel",
-    "DatabusSourceSystem",
-    "DatabusResponsibleTeam",
-    "TelemetryApiKeySecretName",
-    "TelemetryApiId",
-    "TelemetryApiUrl",
-    "TelemetryOAuthUsernameSecretName",
-    "TelemetryOAuthPasswordSecretName"
+    "MetricsLogLevel"
   ]
 }
