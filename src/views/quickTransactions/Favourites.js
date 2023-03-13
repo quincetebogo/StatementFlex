@@ -3,6 +3,7 @@ import { QuickTransactionEvents, SETTLEMENT_QUOTE_EVENTS, STATEMENT_EVENTS } fro
 import { css, html } from 'platform/elements';
 import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
+import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -20,6 +21,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/SendCashLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
@@ -31,6 +33,8 @@ import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
 const SAVINGS_ACCOUNT_TYPE = 300;
+
+const today = new Date();
 
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
@@ -69,6 +73,7 @@ export class Favourites extends SavingsAccountBase {
 		this.accountsInfo = [];
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
+		this.sendCashVouchers = [];
 		this.updateStrackClick = false;
 		this.hasTaxCertificate = false;
 		this.taxCertificateDetails = null;
@@ -129,6 +134,7 @@ export class Favourites extends SavingsAccountBase {
 			const searchOtherNeed = () => this._searchOtherNeed();
 			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts();
+			const sendCash = () => this._sendCash();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -140,7 +146,8 @@ export class Favourites extends SavingsAccountBase {
 				'proof-of-account': proofOfAccount,
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
-				'paid-up-accounts': paidUpAccounts
+				'paid-up-accounts': paidUpAccounts,
+				'send-cash': sendCash
 			};
 
 			if (actions[option]) {
@@ -166,6 +173,39 @@ export class Favourites extends SavingsAccountBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_showConfirmPlaceHoldModal(event) {
+		this.voucherNumber = event.detail;
+		this.renderMode = RENDER_MODE.PLACE_HOLD_MODAL;
+	}
+
+	async _onConfirmPlaceHold(event) {
+		const sendCashVoucherHoldRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			voucherNumber: this.voucherNumber,
+			reason: event.detail.selectedReason.reason
+		};
+
+		this._saveToState(event.detail.selectedReason);
+
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.currentNeed = `send-cash-place-hold`;
+
+		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToSendCashSuccess();
+			return;
+		}
+
+		this.horizonRouter.navigateToSendCashFailure();
+	}
+
+	_saveToState(selectedReason) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.sendCashSelectedReason = selectedReason.value;
+		this.horizonStore.setScreenDetails(screenDetails);
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -624,6 +664,36 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _sendCash() {
+		this.sendCashVouchers = await this._getSendCashVouchers();
+
+		await super.createAndClassifySubsIncident(null, false);
+		this.renderMode = RENDER_MODE.SEND_CASH;
+	}
+
+	async _getSendCashVouchers(startDate, endDate) {
+
+		const sendCashVouchersRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			fromDateTime: startDate || this.get30DaysBefore(today),
+			toDateTime: endDate || today.toISOString(),
+			offset: 0
+		};
+
+		const returnValue = await this.sendCashService.getVouchers(sendCashVouchersRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	
+	get30DaysBefore(date) {
+		const result = new Date(date);
+		result.setDate(result.getDate() - 30);
+		return result.toISOString();
+	}
+
 	_formatCreditOverviewResponse() {
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
@@ -794,6 +864,25 @@ export class Favourites extends SavingsAccountBase {
 		this._backToLandingPage();
 	}
 
+	async _onExitSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+
+	async _onUnloadingSendCash() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+	}
+
 	_limitsRandsToCents(cardDetails) {
  
 		// Converting limits from rands to cents before updating
@@ -887,6 +976,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSettlementQuote()}
 			${this._renderSettlementQuoteDialog()}
 			${this._renderCcsModal()}
+			${this._renderSendCash()}
+			${this._renderConfirmPlaceHoldModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1050,6 +1141,31 @@ export class Favourites extends SavingsAccountBase {
 			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this._backToLandingPage()}">
 		</horizon-paid-up-accounts>`
+		: html``;
+	}
+
+	_renderSendCash() {
+		return this.renderMode === RENDER_MODE.SEND_CASH || this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
+			? html`
+				<horizon-send-cash-landing
+					.sendCashVouchers="${this.sendCashVouchers}"
+					.getSendCashVouchers="${(startDate, endDate) => this._getSendCashVouchers(startDate, endDate)}"
+					.disposeData="${() => this.sendCashVouchers = []}"
+
+					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
+					@back="${() => this._onExitSendCash()}"
+					@unloading="${() => this._onUnloadingSendCash()}">
+				</horizon-send-cash-landing>`
+			: html``;
+	}
+
+	_renderConfirmPlaceHoldModal() {
+		return this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
+		? html`
+			<horizon-confirm-place-hold
+				@on-confirm="${(e) => this._onConfirmPlaceHold(e)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEND_CASH}">
+			</horizon-confirm-place-hold>`
 		: html``;
 	}
 }

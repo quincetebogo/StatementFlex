@@ -327,6 +327,15 @@ export class StatementsDialog extends Component {
 		return true;
 	}
 
+	_under90(dateranges) {
+		const fromDate = new Date(dateranges[0]);
+		const toDate = new Date(dateranges[1]);
+		if (calculateDays(fromDate, toDate) > 90) {
+			return true;
+		}
+		return false;
+	}
+
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
 			this.errorMessage = ERROR_MESSAGE.EMAIL_REQUIRED;

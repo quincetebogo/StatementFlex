@@ -126,6 +126,26 @@ export const relatedOptions = {
 			`proof-of-account`
 		]
 	},
+	'send-cash': {
+		Success: [
+			`transaction-history`,
+			`statements`
+		],
+		Failure: [
+			`transaction-history`,
+			`statements`
+		]
+	},
+	'send-cash-place-hold': {
+		Success: [
+			`transaction-history`,
+			`statements`
+		],
+		Failure: [
+			`transaction-history`,
+			`statements`
+		]
+	},
 	'full-ftsp-unlock': CREDIT_RO,
 	'partial-ftsp-unlock': CREDIT_RO
 };

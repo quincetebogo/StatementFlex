@@ -65,7 +65,9 @@ const HORIZON_ROUTES = Object.freeze({
 	PAID_UP_LETTER_FAILURE: `/error/paid-up-letter`,
 	UNLOCK_FTSP_SUCCESS: `/success/unlock-fixed-term-savings-plan`,
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
-	CREATE_INCIDENT_ERROR: `/error/create-incident`
+	CREATE_INCIDENT_ERROR: `/error/create-incident`,
+	SEND_CASH_SUCCESS: `/success/send-cash`,
+	SEND_CASH_FAILURE: `/error/send-cash`
 });
 
 
@@ -422,6 +424,14 @@ export class HorizonRouter {
 
 	navigateToUnlockFTSPFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_FAILURE}`);
+	}
+
+	navigateToSendCashSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
+	}
+
+	navigateToSendCashFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
 	}
 
 	/**
@@ -1046,5 +1056,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CREATE_INCIDENT_ERROR,
 		load: () => import(`../views/waitingForCall/CreateIncidentError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+	},
+	{
+		name: `horizon-send-cash-success`,
+		title: `SendCashSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_SUCCESS,
+		load: () => import(`../views/sendCash/SendCashSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-send-cash-failure`,
+		title: `SendCashFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
+		load: () => import(`../views/sendCash/SendCashFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
