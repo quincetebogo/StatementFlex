@@ -5,27 +5,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch Edge",
-			"request": "launch",
-			"type": "pwa-chrome",
-			"url": "http://localhost:62000",
-			"webRoot": "${workspaceFolder}",
-			"preLaunchTask": "run",
-			"sourceMaps": true,
-			"trace": true,
-			"env": {
-				"PATH": "${workspaceFolder}/ocwp/1.14.1/node;${env:PATH}"
-			}
-		},
-		{
-			"type": "firefox",
-			"request": "launch",
-			"name": "Run: Firefox",
-			"url": "http://localhost:62000",
-			"webRoot": "${workspaceFolder}/",
-			"preLaunchTask": "run"
-		},
-		{
 			"type": "msedge",
 			"request": "launch",
 			"name": "Run: Edge",
