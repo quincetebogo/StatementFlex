@@ -1031,22 +1031,6 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-send-cash-success`,
-		title: `SendCashSuccess`,
-		icon: null,
-		path: HORIZON_ROUTES.SEND_CASH_SUCCESS,
-		load: () => import(`../views/sendCash/SendCashSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-send-cash-failure`,
-		title: `SendCashFailure`,
-		icon: null,
-		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
-		load: () => import(`../views/sendCash/SendCashFailure`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
 		name: `horizon-create-incident-error`,
 		title: `CreateIncidentError`,
 		icon: null,
