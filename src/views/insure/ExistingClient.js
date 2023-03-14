@@ -480,9 +480,9 @@ export class ExistingClient extends InsureViewBase {
 	// const resp = {
 	// avingsAccountData: savingsAccountData?.result,
 	// savingsPlanData: savingsPlanData?.result
-	// 	};
+	// };
 
-	// 	return resp;
+	// return resp;
 	// }
 
 	/**
@@ -1209,7 +1209,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Navigate so specific subview
+	 * Send email from caller page
 	 * @param {event} e e
 	 * @returns {void} 
 	  */
@@ -1240,7 +1240,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-
+		
 		if (!emailResponse.succeeded) {
 			this.handleToastError(emailResponse.exception);
 			return;

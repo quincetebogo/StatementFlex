@@ -246,6 +246,7 @@ class ClientSummary extends Component {
 	 */
 	_sendEmail(emailAddress) {
 		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
+		this.showEmailPlanDialog = false;
 	}
 
 	/**
