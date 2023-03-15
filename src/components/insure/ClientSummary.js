@@ -164,8 +164,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
-		window.setTimeout(() => this.emailEstimateSuccess = false, 2000);
-		
+		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 		
 	}
 

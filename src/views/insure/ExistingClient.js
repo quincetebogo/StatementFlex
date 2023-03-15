@@ -846,6 +846,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} void
 	  */
 	_navigateToSubView(newMode) {
+		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE) {
+			this.emailEstimateSuccess = false;
+		}
 		this.renderMode = newMode;
 	}
 
