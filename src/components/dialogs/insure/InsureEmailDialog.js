@@ -72,8 +72,6 @@ class InsureEmailDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = EmailPlanEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.SEND_EMAIL, {});
-
-		this._initialise();
 	}
 
 	async disconnectedCallback() {
