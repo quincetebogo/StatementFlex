@@ -396,7 +396,7 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 					false
 				);
-
+				
 				if (isNullorEmpty(rolePlayer.idNumber)) {
 					rolePlayer.coverDetails.disableDoB = false;
 				} else {
@@ -1141,7 +1141,7 @@ class UpdatePlan extends Component {
 				this.productParams,
 				this.policyDetails.roleplayers[index].coverAmount,
 				index === 0 ? this.maxAllowedCover : 0,
-				this.policyDetails.roleplayers[index].age,
+				getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
 				isExtendedFamily,
 				false
 			);
@@ -1451,12 +1451,23 @@ class UpdatePlan extends Component {
 					} else if (rolePlayer.lifeAssured === true) {
 						rolePlayer.coverDetails.idErrorMessageLA = ``;
 					}
+					
+					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+						this.policyDetails.roleplayers[index].relationship,
+						this.productParams,
+						this.policyDetails.roleplayers[index].coverAmount,
+						index === 0 ? this.maxAllowedCover : 0,
+						getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
+						// this.policyDetails.roleplayers[index].age,
+						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+						false
+					);
+					console.log(`this.policyDetails :>> `, this.policyDetails);
 
 					if (rolePlayer.beneficiary === true) {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
-						rolePlayer.coverDetails.dobErrorMessage = ``;
 						if (age < 18) {
-							rolePlayer.coverDetails.dobErrorMessage = `Beneficiary must be 18 years or older`;
+							rolePlayer.coverDetails.ageMessage = `Beneficiary must be 18 years or older`;
 						}
 					}
 
@@ -1512,7 +1523,7 @@ class UpdatePlan extends Component {
 			return html`
 				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
-					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
+					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}" error="${roleplayer?.coverDetails?.ageMessage}">
 				</capitec-date-time-picker>`;
 		}
 
@@ -2389,10 +2400,11 @@ class UpdatePlan extends Component {
 						value="${formatDate(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html`
+					
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
 						date="${roleplayer.dateOfBirth}" outputType="datetime" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
-						error="${roleplayer?.coverDetails?.dobErrorMessage}"
+						error="${roleplayer?.coverDetails?.ageMessage}"
 						?disabled="${this.canReinstate}" 
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
