@@ -384,33 +384,32 @@ class UpdatePlan extends Component {
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
-				}
 
-				// Cover Details
-				this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
-					this.policyDetails.roleplayers[index].relationship,
-					this.productParams,
-					this.policyDetails.roleplayers[index].coverAmount,
-					index === 0 ? this.maxAllowedCover : 0,
-					age,
-					this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
-					false
-				);
+					// Cover Details
+					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+						this.policyDetails.roleplayers[index].relationship,
+						this.productParams,
+						this.policyDetails.roleplayers[index].coverAmount,
+						index === 0 ? this.maxAllowedCover : 0,
+						age,
+						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+						false
+					);
 				
-				if (isNullorEmpty(rolePlayer.idNumber)) {
-					rolePlayer.coverDetails.disableDoB = false;
-				} else {
-					const birthYear = rolePlayer.idNumber.substring(0, 2);
-					const fullCurrentYear = new Date().getFullYear();
-					const currentYear = fullCurrentYear.toString().substring(2);
-
-					if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
-						rolePlayer.coverDetails.disableDoB = true;
+						const birthYear = rolePlayer.idNumber.substring(0, 2);
+						const fullCurrentYear = new Date().getFullYear();
+						const currentYear = fullCurrentYear.toString().substring(2);
+	
+						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+							rolePlayer.coverDetails.disableDoB = false;
+						} else {
+							rolePlayer.coverDetails.disableDoB = true;
+						}
 					}
 				}
-
 			});
 		}
 		this.requestUpdate();
@@ -1517,7 +1516,7 @@ class UpdatePlan extends Component {
 		if (this.canReinstate === true || !this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
 			return html`
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
-				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}" error="${roleplayer?.coverDetails?.ageMessage}">
 				</capitec-text-field>`;
 		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails?.disableDoB === false) {
 			return html`
@@ -1529,7 +1528,7 @@ class UpdatePlan extends Component {
 
 		return html`
 			<capitec-text-field label="Date of birth" style="width: 50%" disabled
-				value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
+				value="${formatDateToInsure(roleplayer?.dateOfBirth)}" error="${roleplayer?.coverDetails?.ageMessage}">
 			</capitec-text-field>
 		`;
 
@@ -2409,35 +2408,38 @@ class UpdatePlan extends Component {
 						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
 					</capitec-date-time-picker>`
 			}
+			
+			<capitec-text-field label="ID" style="width: 50%" 
+				value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" type="numeric" maxlength="13"
+				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
+				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}"
+				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}" >
+			</capitec-text-field>
+		</div>
 
+		<div class="expander-options">
 			
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.benefitPayoutErrorMessage === `` ? `` : roleplayer?.coverDetails?.benefitPayoutErrorMessage}"
 				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
-		</div>
-
-		<div class="expander-options">
+		
 			<capitec-text-field label="Email Address" style="width: 50%" 
 				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}"
 				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
 			</capitec-text-field>
+
+		</div>
+		<div class="expander-options">
+
 			<capitec-text-field label="Cellphone number" style="width: 50%" type="numeric" maxlength="10"
 				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.cellphoneNumberErrorMessage}"
 				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
-			</capitec-text-field>
-		</div>
-		<div class="expander-options">
-			<capitec-text-field label="ID" style="width: 50%" 
-				value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" type="numeric" maxlength="13"
-				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
-				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}"
-				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}" >
 			</capitec-text-field>
 			
 		</div>`;
