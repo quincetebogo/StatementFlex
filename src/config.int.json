@@ -1,19 +1,19 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-int.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-int.int.capinet",
-		"accessChannelServiceUrl": "https://cec-cs-accesschannels.platform-int.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-int.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-int.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-int.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-int.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-int.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-int.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-int.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-int.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-int.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-int.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-int.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-int.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-int.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
-		"incidentManagementService": "https://cec-cs-incident.platform-int.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-int.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-int.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-int.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
