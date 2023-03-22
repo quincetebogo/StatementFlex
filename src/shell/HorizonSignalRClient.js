@@ -17,6 +17,7 @@ export class HorizonSignalRClient extends SignalRClient {
 		super({
 			baseUrlKey: `signalRUrl`,
 			hubName: `itahub`,
+			hubType: `eks`,
 			useAuthentication: true,
 			keepAlive: false
 		});
