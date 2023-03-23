@@ -377,7 +377,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncidentRef()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
