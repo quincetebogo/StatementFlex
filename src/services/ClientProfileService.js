@@ -127,23 +127,22 @@ export class ClientProfileService extends ChannelServiceBase {
 	 */
 	updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
-		const url = `/clientcare-clientprofile-${this._version}/client-${this._version}/preferences/language`;
+		const url = `/client-${this._version}/preferences/language`;
 
 		const request = {
-			'language': preferredLanguage
+			'language': preferredLanguage,
+			'cifNumber': cif
 		};
 
-		const customHeaders = { ...this.setToken(), cifNumber: cif };
-
-		return this.post(
+		return this.put(
 			url,
 			request,
-			customHeaders, 
-			`acceptCall`,
+			this.setToken(),
+			`updatePreferredLanguage`,
 			null,
 			null,
 			1000,
-			5000,
+			null,
 			errorHandler,
 			autoRetries
 		);
