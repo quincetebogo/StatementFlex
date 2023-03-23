@@ -110,16 +110,15 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
  */
 
 export const LANGUAGE_LIST = Object.freeze([
-	`Afrikaans`, 
 	`English`, 
-	`Ndebele`, 
+	`Afrikaans`, 
+	`isiZulu`,
+	`isiXhosa`, 
+	`Xitsonga`, 
+	`siSwati`,
+	`isiNdebele`, 
+	`Tshivenda`,
 	`Sepedi`,
 	`Sesotho`,
-	`Swati`,
-	`Tshivenda`,
-	`Tsonga`, 
-	`Xhosa`, 
-	`Xitsonga`, 
-	`Zulu`
+	`Setswana`
 ]);
- 

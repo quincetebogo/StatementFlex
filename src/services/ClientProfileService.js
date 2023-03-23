@@ -113,7 +113,8 @@ export class ClientProfileService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
-	
+	}
+
 	/**
 	 * Updates the preferred language with selected language 
 	 * 

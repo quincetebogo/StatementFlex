@@ -220,6 +220,7 @@ export class ViewProfileDetails extends ViewBase {
 		return html`
 			${this._renderViewProfileDetails()}
 			${this._renderUpdateProfileDetailsModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -321,6 +322,12 @@ export class ViewProfileDetails extends ViewBase {
 				closable >
 			</capitec-toast>`
 		: html``;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
+			: html``;
 	}
 
 }
