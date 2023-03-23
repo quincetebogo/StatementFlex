@@ -83,11 +83,11 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	budgetFacility(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async budgetFacility(budgetFacilityRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
-		const budgetFacilityRequest = {
-			"accountnumber": accountNumber
-		};
+		if (await this.isMockEnabled(`budgetAccounts`)) {
+			return this.mock(`budgetAccounts`, budgetFacilityRequest.status);
+		}
 
 		const url = `/clientcare-credit-${this._version}/credit/budgetaccounts/details`;
 
