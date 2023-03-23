@@ -112,6 +112,10 @@ export class EndCallSession extends Component {
 		};
 	}
 
+	get currentIncidentRef() {
+		return this.horizonIncidentManager.currentIncident ? this.horizonIncidentManager.currentIncident.toString() : ``;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -704,7 +708,7 @@ export class EndCallSession extends Component {
 
 				headerLabel="${HEADER_LABEL}" 
 				?displayButton="${false}"
-				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
+				incidentRefNumber="${this.currentIncidentRef}"
 				?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
 				.incomingCallDetails="${this.incomingCallDetails}"
 				?isNeedSelectable="${false}">
