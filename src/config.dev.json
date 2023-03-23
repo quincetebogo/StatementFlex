@@ -20,7 +20,7 @@
 	"otherSystemsURL": {
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
@@ -47,30 +47,6 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"lbb-insight-details": {
-		"34": {
-			"155": {
-				"header": "Live Better alert!",
-				"image": "/images/insights/lbb-alert.png",
-				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
-			},
-			"134": {
-				"header": "Live Better savings",
-				"image": "/images/insights/lbb-savings.png",
-				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
-			},
-			"114": {
-				"header": "Switch on Round-up",
-				"image": "/images/insights/lbb-roundup.png",
-				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
-			},
-			"243": {
-				"header": "Switch on Interest Sweep",
-				"image": "/images/insights/lbb-interest-sweep.png",
-				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
-			}
-		}
-	},
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false,

@@ -113,7 +113,6 @@ export class ClientProfileService extends ChannelServiceBase {
 			errorHandler,
 			autoRetries
 		);
-	}
 	
 	/**
 	 * Updates the preferred language with selected language 
@@ -148,4 +147,60 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
+	// consent management methods
+
+	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`getClientConsent`)) {
+			return this.mock(`getClientConsent`);
+		}
+
+
+		const request = {
+			"cifNumber": cifNumber
+		};
+	
+		const url = `/client/preferences/consent`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getClientConsent`, 
+			null, 
+			null, 
+			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async putClientConsent(vasRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`putClientConsent`)) {
+			return this.mock(`putClientConsent`);
+		}
+
+		const request = {
+			"cifNumber": vasRequest.cifnumber,
+			"optInInsights": vasRequest.optOutInsights,
+  			"optInMarketing": vasRequest.optOutBehaviouralMarketing
+		};
+
+		const url = `/client/preferences/consent`;
+
+		return this.put(
+			url, 
+			request, 
+			this.setToken(), 
+			`putClientConsent`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
