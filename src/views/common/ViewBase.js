@@ -301,7 +301,7 @@ export class ViewBase extends View {
 	}
 
 	_currentIncidentRef() {
-		return this.currentIncident ? this.currentIncidentRef() : ``;
+		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
 	// ---------
