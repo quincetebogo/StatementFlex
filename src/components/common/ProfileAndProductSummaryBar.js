@@ -249,9 +249,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	_setIncidentDone() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed)) {
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed) && 
+				incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
+					incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+					this.horizonStore.setIncidentDetails(incidentDetails);
 		}
 	}
 
