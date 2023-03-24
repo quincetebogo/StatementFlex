@@ -167,7 +167,7 @@ import 'app/components/common/HorizonLabel';
 				horizon-label[value="Settled"] {
 					--horizon-label-value-color:#d4781c;
 				}
-				horizon-label[value="Closed"] {
+				horizon-label[value="Close"] {
 					--horizon-label-value-color:#7C7C7C;
 				}
 				.transfer-button {

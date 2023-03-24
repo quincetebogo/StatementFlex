@@ -53,8 +53,8 @@ const TRANSACTION_HISTORY = {
 };
 
 const BUDGET_FACILITY = {
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	END_DATE: ``,
+	START_DATE: ``,
 	STATUS: `Active`
 };
 
@@ -278,7 +278,7 @@ export class CreditAccount extends ViewBase {
 			"budget-open-date": selectedAccountDetails.budgetDateTaken
 		});
 
-		this.budgetStatus = selectedAccountDetails.status;
+		this.budgetStatus = selectedAccountDetails.status === `CLOSE` ? `Closed` : formatStringAsPascalCase(selectedAccountDetails.status);
 		this.budgetAccountDetails = {
 			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),

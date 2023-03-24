@@ -32,14 +32,6 @@ const RENDER_CHIPS = {
 	'Closed': `closedCreditCardBudgetList`
  };
 
- const NINETY_DAYS = 7777000000;
-
- const BUDGET_FACILITY = {
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-	STATUS: `Active`
-};
-
 const today = new Date();
 
 /**
@@ -188,12 +180,13 @@ const today = new Date();
 	async _statusValueChange(e) {
 		this.filterByStatus = e.currentTarget.label;
 
+		// Make sure not to hit CS when the status is selected for second time or more
 		if (!this[BUDGET_TYPE[this.filterByStatus]]) {
 			const request = {
 				accountNumber: this.budgetFacilityAccounts.creditCardNumber,
 				status: this.filterByStatus,
-				startDateTime: BUDGET_FACILITY.START_DATE,
-				endDateTime: BUDGET_FACILITY.END_DATE
+				startDateTime: ``,
+				endDateTime: ``
 			};
 			const response = await this.getBudgetFacilities(request);
 			if (response) {
@@ -313,13 +306,17 @@ const today = new Date();
 	}
 
 	_loadBudgetLists() {
+		// Set status to previous selection when coming back from details screen else by default Active 
 		this.filterByStatus = this.budgetStatus || FILTER_BY_STATUS.ACTIVE;
 
 		Object.values(FILTER_BY_STATUS).forEach(status => {
-			if (!isNullorEmpty(this.budgetFacilityAccounts[BUDGET_TYPE[status]])) {
+			if (this.budgetFacilityAccounts[BUDGET_TYPE[status]] && this.budgetFacilityAccounts[BUDGET_TYPE[status]].length > 0) {
 
 				// Grouping budget accounts available based on total number of term months.
 				this[BUDGET_TYPE[status]] = Utilities.groupBy(this.budgetFacilityAccounts[BUDGET_TYPE[status]], `originalTerm`);
+			} else if (this.budgetFacilityAccounts[BUDGET_TYPE[status]] && !this[BUDGET_TYPE[status]]) {
+				// Loading null when array is empty, provided there is no CS call yet made with particular status
+				this[BUDGET_TYPE[status]] = null;
 			}
 		});
 
@@ -484,7 +481,7 @@ const today = new Date();
 				horizon-label[value="Settled"] {
 					--horizon-label-value-color:#d4781c;
 				}
-				horizon-label[value="Closed"] {
+				horizon-label[value="Close"] {
 					--horizon-label-value-color:#7C7C7C;
 				}
 				#budget-name-label {
