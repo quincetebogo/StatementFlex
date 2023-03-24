@@ -164,7 +164,6 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
-		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 		
 	}
 
@@ -1424,8 +1423,12 @@ class ClientSummary extends Component {
 					detail = "Document sent successfully"
 					@click = "${() => this.emailEstimateSuccess = false}">
 				</capitec-toast>
-
+				${this._startTimer()}
 	`;
+	}
+
+	_startTimer() {
+		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 	}
 
 	_renderRequestCallbackDialog() {
