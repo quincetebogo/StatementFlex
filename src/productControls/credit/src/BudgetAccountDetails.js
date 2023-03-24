@@ -168,7 +168,7 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-color:#d4781c;
 				}
 				horizon-label[value="Closed"] {
-					--horizon-label-value-color:#a5132a;
+					--horizon-label-value-color:#7C7C7C;
 				}
 				.transfer-button {
 					--theme-button-font-weight: 600;

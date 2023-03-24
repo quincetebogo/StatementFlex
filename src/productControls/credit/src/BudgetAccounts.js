@@ -79,11 +79,7 @@ const today = new Date();
 	connectedCallback() {
 		super.connectedCallback();
 		
-		// Grouping budget accounts available based on total number of term months.
-		this.activeCreditCardBudgetList = Utilities.groupBy(this.budgetFacilityAccounts.activeCreditCardBudgetList, `originalTerm`);
-		
-		this.filterByStatus = this.budgetStatus || FILTER_BY_STATUS.ACTIVE;
-		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+		this._loadBudgetLists();
 
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
@@ -103,16 +99,25 @@ const today = new Date();
 	/**
 	 * @typedef {Object} renderAlertBanner Display alter banner based on verification status
 	*/
-
 	/**
 	 * @callback renderAlterBannerCallback
 	 * @returns {html}
 	*/
 
 	/**
+	 * @typedef {Object} getBudgetFacilities  Callback function to get budgets facilities with the selected status
+	*/
+	/**
+	 * @callback getBudgetFacilitiesCallback
+	 * @returns {object}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
+	 * @property {budgetFacilityAccounts} shouldDisable Indicates if Transfer button needs to be disabled based on ITA verification
+	 * @property {budgetFacilityAccounts} budgetStatus Budget status captured when clicked on budget account details, helps to return to the same status list 
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 * @property {getBudgetFacilitiesCallback} getBudgetFacilities Callback function to get budgets facilities with the selected status
 	 *
@@ -121,8 +126,8 @@ const today = new Date();
 		return {
 			budgetFacilityAccounts: { type: Object },
 			shouldDisable: { type: Object },
-			renderAlertBanner: { type: Object, attribute: false },
 			budgetStatus: { type: String },
+			renderAlertBanner: { type: Object, attribute: false },
 			getBudgetFacilities: { type: Object, attribute: false },
       
 			filteredAccounts: { state: true },
@@ -193,6 +198,7 @@ const today = new Date();
 			const response = await this.getBudgetFacilities(request);
 			if (response) {
 				this[BUDGET_TYPE[this.filterByStatus]] = Utilities.groupBy(response[BUDGET_TYPE[this.filterByStatus]], `originalTerm`);
+				this.budgetFacilityAccounts[BUDGET_TYPE[this.filterByStatus]] = response[BUDGET_TYPE[this.filterByStatus]];
 			}
 		}
 
@@ -240,31 +246,6 @@ const today = new Date();
 		
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
 		this._refineSearch();
-	}
-
-	_refineSearch() {
-		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
-
-		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-			const searchText = RENDER_CHIPS[FILTER_BY.TEXT];
-			Object.keys(this.filteredAccounts).forEach(term => {
-				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(searchText) !== -1 ||
-																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(searchText) ||
-																						parseFloat(item.originalAmount).toFixed(2).startsWith(searchText) ||
-																						parseFloat(item.budgetBalance).toFixed(2).startsWith(searchText));
-			});
-		}
-
-		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const fromDate = new Date(Date.parse(this.startDate));
-			const toDate = new Date(Date.parse(this.endDate));
-			Object.keys(this.filteredAccounts).forEach(term => {
-				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => new Date(Date.parse(item.budgetDateTaken)) >= fromDate &&
-																						new Date(Date.parse(item.budgetDateTaken)) <= toDate);
-			});
-		}
-
-		this.requestUpdate();
 	}
 
 	_clearAllFilters() {
@@ -330,7 +311,21 @@ const today = new Date();
 	_onLoading() {
 		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
 	}
-	
+
+	_loadBudgetLists() {
+		this.filterByStatus = this.budgetStatus || FILTER_BY_STATUS.ACTIVE;
+
+		Object.values(FILTER_BY_STATUS).forEach(status => {
+			if (!isNullorEmpty(this.budgetFacilityAccounts[BUDGET_TYPE[status]])) {
+
+				// Grouping budget accounts available based on total number of term months.
+				this[BUDGET_TYPE[status]] = Utilities.groupBy(this.budgetFacilityAccounts[BUDGET_TYPE[status]], `originalTerm`);
+			}
+		});
+
+		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+	}
+
 	getPredefinedDateRanges() {
 		const last7day = new Date(today);
 		const last30day = new Date(today);
@@ -367,6 +362,31 @@ const today = new Date();
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	_refineSearch() {
+		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+
+		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT];
+			Object.keys(this.filteredAccounts).forEach(term => {
+				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(searchText) !== -1 ||
+																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(searchText) ||
+																						parseFloat(item.originalAmount).toFixed(2).startsWith(searchText) ||
+																						parseFloat(item.budgetBalance).toFixed(2).startsWith(searchText));
+			});
+		}
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const fromDate = new Date(Date.parse(this.startDate));
+			const toDate = new Date(Date.parse(this.endDate));
+			Object.keys(this.filteredAccounts).forEach(term => {
+				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => new Date(Date.parse(item.budgetDateTaken)) >= fromDate &&
+																						new Date(Date.parse(item.budgetDateTaken)) <= toDate);
+			});
+		}
+
+		this.requestUpdate();
 	}
 
 	// ---------
@@ -430,12 +450,15 @@ const today = new Date();
 				/* Busget Accounts content styles */
 				capitec-content-box {
 					width: 1062px;
-					height: 642px;
+					height: 693px;
 					
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-bottom: 0px;
+				}
+				.budget-content {
+					height: 647px;
 				}
 				horizon-label {
 					height: 100%;
@@ -462,7 +485,7 @@ const today = new Date();
 					--horizon-label-value-color:#d4781c;
 				}
 				horizon-label[value="Closed"] {
-					--horizon-label-value-color:#a5132a;
+					--horizon-label-value-color:#7C7C7C;
 				}
 				#budget-name-label {
 					width: 253px;
@@ -626,7 +649,7 @@ const today = new Date();
 					${this._renderFilterBar()}
 					${this._renderFilterChipsBar()}
 					
-					<capitec-content-box>
+					<capitec-content-box class="${RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` ? `budget-content` : ``}">
 						${this.renderAlertBanner()}
 						${this._renderBudgetAccounts()}
 					</capitec-content-box>
@@ -664,7 +687,7 @@ const today = new Date();
 		return html`
 		<capitec-group class= "account-details-bar" layout="horizontal" gap="none" halign="left" valign="center">
 			<capitec-search-field
-				data-automation-id="budget-facility-search-bar"
+				data-automation-id="budget-facility-search-filter"
 				label="Search for amount or budget name" 
 				value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 				@key-input="${(event) => this._searchValueChange(event)}"
@@ -672,6 +695,7 @@ const today = new Date();
 			</capitec-search-field>
 			
 			<capitec-date-time-picker
+				data-automation-id="budget-facility-date-range-filter"
 				id="calendarRange"
 				label="Choose a date range"
 				startDate='${this.startDate}'
@@ -682,21 +706,23 @@ const today = new Date();
 				inputType="calendar"
 				outputType="string"
 				.predefinedRanges="${this.getPredefinedDateRanges()}"
-				@apply-clicked="${(e) => this._dateChanged(e)}"
-				data-automation-id="send-cash-landing-date-filter">
+				@apply-clicked="${(e) => this._dateChanged(e)}">
 			</capitec-date-time-picker>
 
 			<capitec-chip 
+				data-automation-id="budget-facility-active-status-filter"
 				label="Active" 
 				class="${this.filterByStatus === FILTER_BY_STATUS.ACTIVE ? `type-selected` : `type-normal`}" 
 				@click="${(e) => this._statusValueChange(e)}">
 			</capitec-chip>
 			<capitec-chip 
+				data-automation-id="budget-facility-settled-status-filter"
 				label="Settled" 
 				class="${this.filterByStatus === FILTER_BY_STATUS.SETTLED ? `type-selected` : `type-normal`}" 
 				@click="${(e) => this._statusValueChange(e)}">
 			</capitec-chip>
 			<capitec-chip 
+				data-automation-id="budget-facility-closed-status-filter"
 				label="Closed" 
 				class="${this.filterByStatus === FILTER_BY_STATUS.CLOSED ? `type-selected` : `type-normal`}" 
 				@click="${(e) => this._statusValueChange(e)}">
@@ -712,7 +738,7 @@ const today = new Date();
 				<capitec-action-bar
 					id="active-filters"
 					class="filter-bar"
-					data-automation-id="">
+					data-automation-id="budget-facility-active-filters-bar">
 						<capitec-label label = "Active filters:"></capitec-label>
 							${this._renderChip(FILTER_BY.TEXT)}
 							${this._renderChip(FILTER_BY.DATE)}
@@ -720,7 +746,7 @@ const today = new Date();
 							type="clear"
 							label="Clear All"
 							@click = "${() => this._clearAllFilters()}"
-							data-automation-id="">
+							data-automation-id="budget-facility-clear-all-filters">
 						</capitec-button>
 				</capitec-action-bar>
 			`;
@@ -731,6 +757,7 @@ const today = new Date();
 		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY[type]])
 			? html`
 				<capitec-chip
+					data-automation-id="budget-facility-clear-filter-chip"
 					id="${FILTER_BY[type]}"
 					label="${RENDER_CHIPS[FILTER_BY[type]]}"
 					@remove="${() => this._closeChip(FILTER_BY[type])}"
