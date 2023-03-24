@@ -20,6 +20,9 @@
 	ACCESS_CHANNELS_APP_SUSPEND: `call.fulfill-need.access-channels.app.suspend`,
 	ACCESS_CHANNELS_APP_SUSPEND_CANCEL: `call.fulfill-need.access-channels.app.suspend.cancel`,
 	ACCESS_CHANNELS_APP_SUSPEND_CONFIRM: `call.fulfill-need.access-channels.app.suspend.confirm`,
+	ACCESS_CHANNELS_APP_SUSPEND_OUTCOME: `call.fulfill-need.access-channels.app.suspend.outcome`,
+
+	
 	ACCESS_CHANNELS_APP_UNSUSPEND: `call.fulfill-need.access-channels.app.unsuspend`,
 
 	// Internet banking details
