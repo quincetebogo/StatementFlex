@@ -63,7 +63,7 @@ export class MiniProfile extends Component {
 	}
 
 	_onViewProfileClick() {
-		this.eventAggregator.publish(`horizon-view-profile-click`, {});
+		this.dispatchEvent(new CustomEvent(`view-profile`, {}));
 	}
 
 	_onVerifyNowClick() {
@@ -183,6 +183,7 @@ export class MiniProfile extends Component {
 					--theme-label-strong-font-weight: 600;
 				}
 				.client-wrapper-cb{
+					overflow: unset;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 16px;
 					--theme-container-padding-left: 16px;
@@ -249,6 +250,12 @@ export class MiniProfile extends Component {
 					--theme-tooltip-line-height: 20px;
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 4px;
+					--theme-tooltip-margin-top: 16px;
+					--theme-tooltip-margin-bottom: 16px;
+				}
+				.document-tooltip {
+					display: block;
+					--theme-tooltip-border-radius: 4px;
 				}
 				img {
 					height: 158px;
@@ -348,7 +355,6 @@ export class MiniProfile extends Component {
 	}
 
 	_renderActionButtons() {
-		this.miniProfile.showButtons = false; // Force to false for now
 		if (!this.miniProfile.showButtons) {
 			return html``;
 		}
@@ -362,14 +368,17 @@ export class MiniProfile extends Component {
 					iconSize="default"
 					@click="${() => this._onViewProfileClick()}">
 				</horizon-option-button>
-		
-				<horizon-option-button
-					data-automation-id="mini-profile-view-documents"
-					label="Document"
-					icon="system/documents-action"
-					iconSize="default"
-					@click=${() => this._onDocumentClick()}>
-				</horizon-option-button>
+
+				<capitec-tooltip message="Feature coming soon" class="document-tooltip" position="left-edge">
+					<horizon-option-button
+						data-automation-id="mini-profile-view-documents"
+						label="Document"
+						icon="system/documents-action"
+						iconSize="default"
+						@click=${() => this._onDocumentClick()}
+						?disabled="${true}">
+					</horizon-option-button>
+				</capitec-tooltip>
 			</capitec-content-box>
 		`;
 	}
