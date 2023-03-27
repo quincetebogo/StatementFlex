@@ -136,6 +136,16 @@ export class HorizonIncidentManager {
 			}
 		};
 	};
+	
+	/**
+	 * Updates the state of the current incident
+	 * 
+	 * @param {Object} currentIncident An object containing incidentId & incidentReference of the current incident.
+	 */
+	set currentIncident(currentIncident) {
+		this.incidentDetails.currentIncident = currentIncident;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	/**
 	 * 
@@ -614,7 +624,7 @@ export class HorizonIncidentManager {
 		
 		this.checkIncidentStatus = false;
 
-		this.currentIncident = returnValue.result;
+		this.currentIncident = returnValue.result?.incident;
 		
 		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
 			"parent-incident-reference": this.primaryIncident.toString(),
