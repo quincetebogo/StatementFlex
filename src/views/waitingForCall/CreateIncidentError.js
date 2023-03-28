@@ -74,7 +74,7 @@ export class CreateIncidentError extends ViewBase {
 		this._saveRetries(); 
 
 		const returnValue = await this.incidentManagementService.createIncident(this.incomingCallDetails, () => true, 1);
-		const incident = returnValue.result;
+		const incident = returnValue.result?.incident;
 		
 		if (!returnValue.succeeded || !incident) {
 			const ex = returnValue.exception;
