@@ -179,6 +179,7 @@ export class ItaCallerVerification {
 			this.logger.log(`error`, `ConnectionID is not macthing to process ITA response.`, `_signalRPostEventAction`);
 			this.verificationStatusCallback(`system-failed`);
 			await this.close();
+			return;
 		}
 
 		switch (true) {
