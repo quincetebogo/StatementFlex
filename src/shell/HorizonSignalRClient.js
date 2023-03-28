@@ -1,4 +1,4 @@
-import { SignalRClient } from 'platform/core';
+import { Logger, SignalRClient } from 'platform/core';
 
 /**
  * Horizon signalR client
@@ -24,6 +24,8 @@ export class HorizonSignalRClient extends SignalRClient {
 
 		this.version = `v1`;
 		this._connectionId = ``;
+
+		this.logger = Logger.getInstance();
 	}
 
 	startConnection() {
@@ -50,15 +52,18 @@ export class HorizonSignalRClient extends SignalRClient {
 
 		// If connection id retrieved from hub connector is empty get from server
 		if (!this._connectionId) {
-			console.log(`Invoking ITA Hub`);
 			this._connectionId = await super.invoke(`GetConnectionId`);
-			console.log(`connectionID: ${this._connectionId}:`);
 		}
 
 		return this._connectionId;
 	}
 
 	_onConnected(callback = null) {
+
+		if (this._connectionId) {
+			this.logger.log(`warn`, `SignalR reconnection detected. Clearing old id:${this._connectionId}`, `_onConnected`);
+		}
+
 		// Delete local value for id.
 		delete this._connectionId;
 

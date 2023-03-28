@@ -172,6 +172,15 @@ export class ItaCallerVerification {
 		const authStatus = callbackRes?.AuthorisationRequestStatus;
 		const [reqChannel] = callbackRes?.AuthorisationRequestChannels;
 		const channelStatus = reqChannel?.ChannelStatus;
+		const curConnectionID = await this.horizonSignalRClient.getConnectionId();
+		
+		// Checking if incoming connection id & hub connector connection id are same
+		if (curConnectionID !== callbackRes?.ConnectionId) {
+			this.logger.log(`error`, `ConnectionID is not macthing to process ITA response.`, `_signalRPostEventAction`);
+			this.verificationStatusCallback(`system-failed`);
+			await this.close();
+		}
+
 		switch (true) {
 			case this._isApproved(authStatus, channelStatus):
 				this.verificationStatusCallback(`verified`);
