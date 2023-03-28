@@ -63,11 +63,14 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async putVoucherHold(sendCashHoldVoucherRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`sendCashVoucherHold`)) {
 			return this.mock(`sendCashVoucherHold`);
 		}
 
-		const url = `clientcare-sendcash-${this._version}/voucher/hold`;
+		const url = `/clientcare-sendcash-${this._version}/voucher/hold`;
 
 		return this.post(
 			url,

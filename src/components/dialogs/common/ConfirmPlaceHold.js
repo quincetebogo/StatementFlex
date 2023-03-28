@@ -82,11 +82,14 @@ export class ConfirmPlaceHold extends Component {
 		return [
 			super.styles,
 			css`
+				capitec-modal {
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-color: #354D54;
+				}
 				capitec-alert-banner {
-					width: 540px;
+					--theme-alert-banner-width: 540px;
 					--theme-alert-banner-height: 68px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 16px;
+					--theme-toast-content-margin-left: 16px;
 				}
 				div[slot="body"] {
 					width: auto;
@@ -100,6 +103,8 @@ export class ConfirmPlaceHold extends Component {
 				}
 				capitec-content-box {
 					--theme-layout-gap-spacing: 15px;
+					--theme-container-padding-left: 14px;
+					--theme-container-padding-right: 14px;
 				}
 				capitec-select {
 					--theme-input-font-weight: 600;
@@ -129,9 +134,8 @@ export class ConfirmPlaceHold extends Component {
 	_renderBodyContent() {
 		return html`
 			<capitec-content-box>
-				<capitec-alert-banner type="info">
-					<capitec-label label="Notify client:"></capitec-label>
-					<p>The voucher will be placed on <strong>'Hold'</strong>, the client won't be able</p>
+				<capitec-alert-banner type="info" layout="vertical">
+					<p><strong>Notify client:</strong> The voucher will be placed on <strong>'Hold'</strong>, the client won't be able</p>
 					<p>to redeem it from any partner merchant(s) or Capitec ATMs.</p>
 				</capitec-alert-banner>
 

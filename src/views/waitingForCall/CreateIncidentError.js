@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -76,6 +77,12 @@ export class CreateIncidentError extends ViewBase {
 		const incident = returnValue.result;
 		
 		if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+			} 
+			
 			this.logger.log(`error`, `Retry create incident failed`, `_retryCreateIncident`, returnValue.correlationId);
 		}
 

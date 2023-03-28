@@ -1195,3 +1195,12 @@ export const searchCallerList =
 		{ "name": `Ms OOF Sanlam`, "southAfricanIDNumber": `6505070836087`, "verifiedTelephoneNumber": `0744444444`, "livesIn": `CAPETOWN`, "languagePreference": `ENGLISH`, "birthdate": `Friday, 07 May 1965`, "cifNumber": `210378182`, "title": `Ms`, "firstName": `OOF`, "lastName": `Sanlam`, "middleName1": ``, "middleName2": ``, "middleName3": ``, "initials": `O`, "profilePhoto": `` },
 		{ "name": `MR PolPause Sanlam`, "southAfricanIDNumber": `7901145325082`, "verifiedTelephoneNumber": `0744444444`, "livesIn": `CAPETOWN`, "languagePreference": `ENGLISH`, "birthdate": `Sunday, 14 Jan 1979`, "cifNumber": `172741858`, "title": `Mr`, "firstName": `PolPause`, "lastName": `Sanlam`, "middleName1": ``, "middleName2": ``, "middleName3": ``, "initials": `P`, "profilePhoto": `` }
 	];
+  
+export const putClientConsent = {
+	
+};
+
+export const getClientConsent = {
+		"insights": true,
+		"marketing": true
+};
