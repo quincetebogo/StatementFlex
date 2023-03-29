@@ -417,9 +417,9 @@ class ClientSummary extends Component {
 		}
 	}
 
-	async _requestCallback(name, cellphoneNumber) {
+	async _requestCallback(firstName, lastName, cellphoneNumber) {
 		
-		await this.requestCallback(name, cellphoneNumber);
+		await this.requestCallback(firstName, lastName, cellphoneNumber);
 
 
 		this.showRequestCallbackDialog = false;
@@ -1435,7 +1435,7 @@ class ClientSummary extends Component {
 		return this.showRequestCallbackDialog === false ? html``
 		: html`
 			<horizon-insure-request-callback-dialog
-			.requestCallback ="${(name, cellphoneNumber) => this._requestCallback(name, cellphoneNumber)}"
+			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 			@cancel-click="${() => this.showRequestCallbackDialog = false}">
 			</horizon-insure-request-callback-dialog>
 		`;

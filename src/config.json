@@ -344,7 +344,7 @@
 			"positiveCase": true
 		},
 		"insureRequestCallback": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureArrears": {
