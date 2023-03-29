@@ -1295,12 +1295,17 @@ export class ExistingClient extends InsureViewBase {
 		window.open(`${globalOneUrl}/insure/`);
 	}
 
-	async _requestCallback(name, cellphoneNumber) {
+	async _requestCallback(firstName, lastName, cellphoneNumber) {
+		
 		
 		const requestCallbackRequest = {
-			name: name,
-			cellphoneNumber: cellphoneNumber
+			"firstName": firstName,
+			"lastName": lastName,
+			"cifNumber": this.callerInformation.cifNumber,
+			"contactNumber": cellphoneNumber
 		};
+
+		console.log(`requestCallbackRequest :>> `, requestCallbackRequest);
 
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
@@ -1431,7 +1436,7 @@ export class ExistingClient extends InsureViewBase {
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
 				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
-				.requestCallback = "${(name, cellphoneNumber) => this._requestCallback(name, cellphoneNumber)}"
+				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 				.getArrears = "${() => this._getArrears()}"
 				.clientArrears = "${this.clientArrears}"
 				@product-enquiry="${() => this._productEnquiry()}"

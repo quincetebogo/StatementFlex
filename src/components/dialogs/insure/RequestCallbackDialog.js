@@ -20,7 +20,7 @@ class RequestCallbackDialog extends Component {
 	constructor() {
 		super();
 
-		this.nameError = ``;
+		this.firstNameError = ``;
 		this.cellphoneError = ``;
 		
 	}
@@ -30,9 +30,11 @@ class RequestCallbackDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} nameError - name error message
+	 * @property {String} firstNameError - first name error message
 	 * @property {String} cellphoneError - cellphone number error message
-	 * @property {String} name - name of person to call back
+	 * @property {String} firstName - First name of person to call back
+	 * @property {String} lastName - last name of person to call back
+	 * @property {String} lastNameError - last name error messages
 	 * @property {String} cellphoneNumber - cellphone number of person to call back
 	 * @property {Function} requestCallback - callback function to request a callback
 	 * 
@@ -41,11 +43,13 @@ class RequestCallbackDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			nameError: { type: String, state: true },
+			firstNameError: { type: String, state: true },
 			cellphoneError: { type: String, state: true },
-			name: { type: String, state: true },
+			firstName: { type: String, state: true },
 			cellphoneNumber: { type: String, state: true },
-			requestCallback: { type: Object, state: true }
+			requestCallback: { type: Object, state: true },
+			lastName: { type: String, state: true },
+			lastNameError: { type: String, state: true }
 
 		};
 	}
@@ -65,9 +69,8 @@ class RequestCallbackDialog extends Component {
 	async _requestCallbackClick() {
 
 		const isValid = this._validate();
-
 		if (isValid === true) {
-			await this.requestCallback(this.name, this.cellphoneNumber);
+			await this.requestCallback(this.firstName, this.lastName, this.cellphoneNumber);
 		}
 		
 	}
@@ -77,24 +80,37 @@ class RequestCallbackDialog extends Component {
 	}
 
 	_cellphoneChange(e) {
-
 		if (e.detail.old !== e.detail.new) {
 			if (e.detail.new.length === 10) {
 				this.cellphoneError = ``;
-			}
 				this.cellphoneNumber = e.detail.new;
+			} else {
+				this.cellphoneError = `Cellphone number invalid`;
 			}
+		}
 		this.requestUpdate();
 		}
 
-	_nameChange(e) {
+	_firstNameChange(e) {
 
 		if (e.detail.old !== e.detail.new) {
 			if (isNullorEmpty(e.detail.new)) {
-				this.nameError = `Name invalid`;
+				this.firstNameError = `First name invalid`;
 			} else {
-				this.nameError = ``;
-				this.name = e.detail.new;
+				this.firstNameError = ``;
+				this.firstName = e.detail.new;
+			}
+		}
+		this.requestUpdate();
+	}
+
+	_lastNameChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			if (isNullorEmpty(e.detail.new)) {
+				this.lastNameError = `Last name invalid`;
+			} else {
+				this.lastNameError = ``;
+				this.lastName = e.detail.new;
 			}
 		}
 		this.requestUpdate();
@@ -104,8 +120,13 @@ class RequestCallbackDialog extends Component {
 
 		let isValid = true;
 
-		if (isNullorEmpty(this.name)) {
-			this.nameError = `Name invalid`;
+		if (isNullorEmpty(this.firstName)) {
+			this.firstNameError = `First name invalid`;
+			isValid = false;
+		}
+
+		if (isNullorEmpty(this.lastName)) {
+			this.lastNameError = `Last name invalid`;
 			isValid = false;
 		}
 
@@ -143,9 +164,9 @@ class RequestCallbackDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="free" header = "Request a callback"> 
+			<capitec-modal header = "Request a callback" style="--theme-modal-alert-m-l-xl-width: 500px;"> 
 				<div slot="body" data-automation-id="horizon-insure-update-validation-dialog-body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box style="padding: 0px">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 				</div>
@@ -164,17 +185,23 @@ class RequestCallbackDialog extends Component {
 	 _renderDialogBody() {
 		return html` 
 			<div style="padding-bottom: 10px;">
-				<p><strong>Funeral support (incl. transportation of the deceased)</strong></p>
+				<strong>Funeral support (incl. transportation of the deceased)</strong>
 				
-				You can request funeral support, for transportation of the deceased, by calling 0860 77 75 54, or we can log a request <br>
-				for the service provider to contact you. The place of death must be at least 50 kilometres from the place of burial. <br>
-				To log a request for the service provider to contact you, please provide the following information:
+				<p>You can request funeral support, for transportation of the deceased, by calling 0860 77 75 54, or we can log a request for the service provider to contact you.</p>
+				<p>The place of death must be at least 50 kilometres from the place of burial. <br>
+				To log a request for the service provider to contact you, please provide the following information:</p>
 
 			</div>
 
 			<div>
-				<capitec-text-field label="Name" @value-change="${(e) => this._nameChange(e)}"
-					error="${this.nameError === undefined ? `` : this.nameError}">
+				<capitec-text-field label="First name" @value-change="${(e) => this._firstNameChange(e)}"
+					error="${this.firstNameError === undefined ? `` : this.firstNameError}">
+				</capitec-text-field>
+			</div>
+
+			<div>
+				<capitec-text-field label="Last name" @value-change="${(e) => this._lastNameChange(e)}"
+					error="${this.lastNameError === undefined ? `` : this.lastNameError}">
 				</capitec-text-field>
 			</div>
 
