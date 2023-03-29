@@ -472,7 +472,18 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureRequestCallback`)) {
 			return this.mock(`insureRequestCallback`);
 		}
-
+		return this.post(
+			`/horizon-insurance/fms-callback`,
+			requestCallbackRequest,
+			this._setInsureHeaders(),
+			`requestCallback`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
 	}
 
 	// #endregion
