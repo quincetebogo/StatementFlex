@@ -576,6 +576,22 @@ class UpdatePlan extends Component {
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
 						}
+
+						// Cover Details
+						this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+							this.policyDetails.roleplayers[index].relationship,
+							this.productParams,
+							this.policyDetails.roleplayers[index].coverAmount,
+							index === 0 ? this.maxAllowedCover : 0,
+							getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber),
+							this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+							false
+						);
+
+						if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverDetails?.ageMessage)) {
+							rolePlayer.coverDetails.disableDoB = false;
+						}
+
 					}
 				}
 			});
@@ -1470,6 +1486,7 @@ class UpdatePlan extends Component {
 						}
 					}
 
+					rolePlayer.idNumber = ``;
 				}
 			});
 		}
