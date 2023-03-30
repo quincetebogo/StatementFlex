@@ -104,6 +104,15 @@ export class CreditAccountLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
 
+	_CheckTermLoanBalanceSettleAndClose(amount)
+	{
+		let balance = parseFloat(amount.substring(1));
+		if (balance <= 0) {
+			return true;
+		}
+		return false;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -677,6 +686,7 @@ export class CreditAccountLanding extends Component {
 					label="Settle Loan"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
+					?hidden="${this._CheckTermLoanBalanceSettleAndClose(selectedAccountDetails.currentBalance)}"
 					?disabled="${this.shouldDisable(`settle-close`)}">
 			</horizon-option-button>
 		`;
