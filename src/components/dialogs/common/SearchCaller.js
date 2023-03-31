@@ -593,8 +593,8 @@ export class SearchCaller extends Component {
 			this.alertBannerMessage = regexValidation.ALERT_BANNER;
 			return false;
 		}
-
-		if (this.searchType.value === `Account number`) {
+		
+		if (this.searchType.key === `2`) {
 			if (!validateAccountNumber(this.searchValue)) {
 				this.errMessage.searchValue = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
 				this.alertBannerMessage = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.ALERT_BANNER;
