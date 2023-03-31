@@ -65,8 +65,8 @@ const ERROR_MESSAGES = {
 		}
 	},
 	INVALID_ACCOUNT_NUMBER: {
-		ALERT_BANNER: `Invalid Account number`,
-		FIELD_ERROR: `Account number must be valid`
+		ALERT_BANNER: `Invalid account number`,
+		FIELD_ERROR: `Please enter a valid account number`
 	}
 };
 
