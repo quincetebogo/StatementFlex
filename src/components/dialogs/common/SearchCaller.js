@@ -14,6 +14,7 @@ import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { validateAccountNumber } from 'app/utils/accountNumberValidator';
 
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/CallerDialog';
@@ -62,6 +63,10 @@ const ERROR_MESSAGES = {
 			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
+	},
+	INVALID_ACCOUNT_NUMBER: {
+		ALERT_BANNER: `Invalid Account number`,
+		FIELD_ERROR: `Account number must be valid`
 	}
 };
 
@@ -587,6 +592,14 @@ export class SearchCaller extends Component {
 			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
 			this.alertBannerMessage = regexValidation.ALERT_BANNER;
 			return false;
+		}
+
+		if (this.searchType.value === `Account number`) {
+			if (!validateAccountNumber(this.searchValue)) {
+				this.errMessage.searchValue = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.ALERT_BANNER;
+				return false;
+			}
 		}
 
 		return true;
