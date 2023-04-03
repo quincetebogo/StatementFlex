@@ -302,11 +302,11 @@ export class HorizonMonthCalendar extends Component {
 					margin-right: 90px;
 				}
 				.leftArrow{
-					margin-left:32px;
+					margin-left:12px;
 				}
 
 				.rightArrow{
-					margin-right:32px;
+					margin-right:12px;
 				}
 
 				.calendarContainer{
