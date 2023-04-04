@@ -25,6 +25,14 @@ export class CreditStatementsSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
+	static get properties() {
+		return {
+			mailId: { state: false, attribute: false },
+			acNumber: { state: false, attribute: false },
+			accountName: { state: false, attribute: false }
+		};
+	}
+
 	// N/A
 
 	// -------------------
