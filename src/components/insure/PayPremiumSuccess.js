@@ -221,11 +221,11 @@ _viewPlan() {
 				 
 				<div class="button-row">
 					<capitec-button data-automation-id="insure-pay-premium-success-view-plan" 
-						class = "capitec-button-medium" label="View Plan" 
+						class = "capitec-button-medium" label="View Plan" type="secondary"
 						@click= "${() => this._viewPlan()}">
 					</capitec-button>
 
-					<capitec-button  label="Email" class = "capitec-button-medium" 
+					<capitec-button  label="Email" class = "capitec-button-medium" type="secondary"
 						@click= "${() => this._openEmailPlanDialog()}">
 					</capitec-button>
 

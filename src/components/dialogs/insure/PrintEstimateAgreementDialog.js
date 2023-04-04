@@ -126,7 +126,7 @@ class PrintEstimateAgreementDialog extends Component {
 			<capitec-button class = "capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}"
 				data-automation-id="horizon-insure-print-estimate-agreement-dialog-cancel">
 			</capitec-button>
-			<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Agree" @click="${() => this._agreeClick()}"
+			<capitec-button class = "capitec-button-medium" slot="footer" type="primary" label="Next" @click="${() => this._agreeClick()}"
 				data-automation-id="horizon-insure-print-estimate-agreement-dialog-agree">
 			</capitec-button>
 		`;
