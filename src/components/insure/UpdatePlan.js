@@ -309,6 +309,8 @@ class UpdatePlan extends Component {
 	_openRemoveBeneficiaryDialog(beneficiary) {
 		this.showRemoveBeneficiaryDialog = true;
 
+		this.beneficiaryToRemoveRowID = beneficiary.rowID;
+
 		if (!beneficiary.firstName) {
 			this.beneficiaryToRemoveDescription = beneficiary.relationship;
 		} else {
@@ -1179,7 +1181,6 @@ class UpdatePlan extends Component {
 				}
 			}
 		});
-
 		this._openIneligibleLivesDialog();
 
 	}
@@ -1477,7 +1478,6 @@ class UpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
-					console.log(`this.policyDetails :>> `, this.policyDetails);
 
 					if (rolePlayer.beneficiary === true) {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);

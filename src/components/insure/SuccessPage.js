@@ -190,7 +190,7 @@ class SuccessPage extends Component {
 				<capitec-label type ="subtitle" label = "${this.successMessage}"></capitec-label>
 			</div>
 			<div id="button-row">
-				<capitec-button label="Email" class = "capitec-button-medium" @click="${() => this._emailClick()}">
+				<capitec-button type="secondary" label="Email" class = "capitec-button-medium" @click="${() => this._emailClick()}">
 				</capitec-button>
 				<capitec-button type="primary" class = "capitec-button-medium" label="Done" @click="${() => this._doneClick()}">
 				</capitec-button>
