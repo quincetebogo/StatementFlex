@@ -162,7 +162,7 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 					</span>
 				</div>
 				<div slot="body">
-					${this._renderInformation()}
+				${this.creditType === CREDIT_TYPE.FIXED ? this._renderFixedInformation() : this._renderInformation()}
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
@@ -176,6 +176,16 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 			<capitec-content-box>
 				<capitec-label label="If you settle ${this.creditType === CREDIT_TYPE.FIXED ? `` : `and close `}your ${this.productType.toLowerCase()}, the balance will be zero and the account will be closed. You will not be able to transact on this account in the future."></capitec-label>
 				<capitec-label label="If you wish to have this facility again, you will have to reapply subject to a credit assessment and terms and conditions."></capitec-label>
+				<capitec-label label="Do you want to continue with settling and closing the ${this.productType.toLowerCase()}?"></capitec-label>
+			</capitec-content-box>
+		`;
+	}
+	_renderFixedInformation()
+	{
+		return html`
+			<capitec-content-box>
+				<capitec-label label="If you settle your ${this.productType.toLowerCase()}, the balance will be zero and the term loan will be closed. You will not be able to use the same term loan again."></capitec-label>
+				<capitec-label label="If you wish to have another fixed term loan again, you will have to reapply subject to a credit assessment and terms and conditions."></capitec-label>
 				<capitec-label label="Do you want to continue with settling and closing the ${this.productType.toLowerCase()}?"></capitec-label>
 			</capitec-content-box>
 		`;
