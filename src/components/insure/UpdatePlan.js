@@ -1599,7 +1599,8 @@ class UpdatePlan extends Component {
 				background-color: #f5f5f5;
 				border-radius: 5px;
 				padding: 10px;
-				max-height: 660px;
+				max-height: 1045px;
+				height: fit-content;
 			}
 			
 			.calc-summary-card{
