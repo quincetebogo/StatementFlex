@@ -129,16 +129,16 @@ class EmailPlanSuccess extends Component {
 				margin: auto;
 			}
 
-			.icon{
-				display: inline-block;
-				position: relative;
-				left: 60px;
-				top: 9px;
-			}
 			.buttons {
 				width: 150px;
 				margin-left:5px;
 				margin-right: 5px;
+			}
+
+			.success-message {
+				display: flex;
+				align-items: flex-start;
+				justify-content: center;
 			}
 
 			`
@@ -170,10 +170,12 @@ class EmailPlanSuccess extends Component {
 					<capitec-image src="platform/illustrations/send-documents.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="Documentation sent"></capitec-label>
-					<div>
-						<capitec-icon class="icon" size="medium" icon="status/success"></capitec-icon>
+
+					<div class="success-message">
+						<capitec-icon size="medium" icon="status/success"></capitec-icon>
 						<capitec-label class="spacing" type="subtitle" label="Your documentation for policy number '${this.contractReference}' has been emailed to ${this.confirmedEmail}"></capitec-label>
 					</div>
+
 					<capitec-button class="buttons" label="View Plan" type="secondary" @click="${() => this._viewPlanClick()}"></capitec-button>
 					<capitec-button class="buttons" label="Done" type="primary" @click="${() => this._doneClick()}"
 						data-automation-id="insure-email-plan-success-done">
