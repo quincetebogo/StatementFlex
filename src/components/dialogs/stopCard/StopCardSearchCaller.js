@@ -323,7 +323,7 @@ export class StopCardSearchCaller extends Component {
 			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
 		}
-		// Why are we using stop card search caller when taking a call????
+		
 		if (this.identificationMethods.key === `2`) {
 			if (!validateAccountNumber(this.searchFieldText)) {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
