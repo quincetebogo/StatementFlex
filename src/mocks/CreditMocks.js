@@ -117,7 +117,7 @@ export const creditCardDetails = {
  * @export
  * @constant {Object} accessFacilityDetails
  */
- export const accessFacilityDetails = {
+export const accessFacilityDetails = {
 	"accountNumber": `1633823410`,
 	"accountDescription": `Access facility`,
 	"currentBalance": -15000,
@@ -151,7 +151,7 @@ export const creditCardDetails = {
  * @export
  * @constant {Object} termLoanDetails
  */
- export const termLoanDetails = {
+export const termLoanDetails = {
 	"accountNumber": `9873493849`,
 	"accountDescription": `56 Month Term Loan`,
 	"accountStatusDescription": `Active`,
@@ -177,36 +177,36 @@ export const creditCardDetails = {
  * @export
  * @constant {Object} SettleAndCloseQuote
  */
- export const settleAndCloseQuote = {
-		"accountNumber": `1657155046`,
-		"currentBalance": 49018.14,
-		"interestNotCapatalised": 0,
-		"expectedInterestFees": 0,
-		"settlementAmount": 0.1,
-		"savingAccountsList": [
-			{
-				"accountNumber": `1295723953`,
-				"accountType": `210`,
-				"availableBalance": `5.69`,
-				"savingsPermissionStatus": `DENIED`,
-				"statusReasonList": [`HOLDS_ON_ACCOUNTS`]
-			},
-			{
-				"accountNumber": `1123799863`,
-				"accountType": `210`,
-				"availableBalance": `0`,
-				"savingsPermissionStatus": `DENIED`,
-				"statusReasonList": [`ACCOUNT_TYPE_DISALLOWS_OPERATION`]
-			},
-			{
-				"accountNumber": `1295723954`,
-				"accountType": `200`,
-				"availableBalance": `0.41`,
-				"savingsPermissionStatus": `GRANTED`,
-				"statusReasonList": null
-			}
-		]
-	};
+export const settleAndCloseQuote = {
+	"accountNumber": `1657155046`,
+	"currentBalance": 49018.14,
+	"interestNotCapatalised": 0,
+	"expectedInterestFees": 0,
+	"settlementAmount": 0.1,
+	"savingAccountsList": [
+		{
+			"accountNumber": `1295723953`,
+			"accountType": `210`,
+			"availableBalance": `5.69`,
+			"savingsPermissionStatus": `DENIED`,
+			"statusReasonList": [`HOLDS_ON_ACCOUNTS`]
+		},
+		{
+			"accountNumber": `1123799863`,
+			"accountType": `210`,
+			"availableBalance": `0`,
+			"savingsPermissionStatus": `DENIED`,
+			"statusReasonList": [`ACCOUNT_TYPE_DISALLOWS_OPERATION`]
+		},
+		{
+			"accountNumber": `1295723954`,
+			"accountType": `200`,
+			"availableBalance": `0.41`,
+			"savingsPermissionStatus": `GRANTED`,
+			"statusReasonList": null
+		}
+	]
+};
 
 /**
  * Credit permissions details mocks
@@ -214,40 +214,40 @@ export const creditCardDetails = {
  * @export
  * @constant {Object} creditPermissions
  */
-export const creditPermissions = 
+export const creditPermissions =
 {
-    "permissionsResultsList": [
-        {
-            "operationIdentifier": `Settle`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        },
-        {
-            "operationIdentifier": `SettleAndClose`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        },
-        {
-            "operationIdentifier": `SendViewTransactionHistory`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        },
-        {
-            "operationIdentifier": `SendViewStatements`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        },
-        {
-            "operationIdentifier": `SettlementQuote`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        },
-        {
-            "operationIdentifier": `PaidUp`,
-            "permissionResult": `Granted`,
-            "declineReasons": `None`
-        }
-    ]
+	"permissionsResultsList": [
+		{
+			"operationIdentifier": `Settle`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		},
+		{
+			"operationIdentifier": `SettleAndClose`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		},
+		{
+			"operationIdentifier": `SendViewTransactionHistory`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		},
+		{
+			"operationIdentifier": `SendViewStatements`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		},
+		{
+			"operationIdentifier": `SettlementQuote`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		},
+		{
+			"operationIdentifier": `PaidUp`,
+			"permissionResult": `Granted`,
+			"declineReasons": `None`
+		}
+	]
 };
 
 export const settlementQuoteDetails = [
@@ -284,5 +284,12 @@ export const settlementQuoteDetails = [
 		creditType: `Flexible credit`
 	}
 ];
+
+export const creditStatement = {
+	"referenceId": `2f7be738-f8ba-430d-8e14-06f8bf33d222`, 
+	"statementType": `Monthly Credit Card Statement`, 
+	"sentMethod": `EMAIL`, 
+	"chargeFeeErrors": { }
+};
 
 export const emailPaidUpLetter = {};

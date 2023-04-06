@@ -220,6 +220,10 @@ export class CreditService extends ChannelServiceBase {
 	async flexibleStatementEmail(creditType, accountNumber, emailAddress, cif, title, lastName, statementDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
+		if (await this.isMockEnabled(`creditStatement`)) {
+			return this.mock(`creditStatement`);
+		}
+
 		const flexibleStatementEmailRequest = {
 			"creditType": creditType,
 			"accountNumber": accountNumber,

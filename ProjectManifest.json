@@ -1,9 +1,9 @@
 {
-  "name": "cec-ui-horizon",
+  "name": "Horizon-UI-2",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
   "version": "2.21.8",
-  "alias": "cec-horizon",
+  "alias": "horizon2",
   "release": "230401",
   "contractVersion": "v1",
   "serviceType": "Channel",

@@ -67,7 +67,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -83,24 +83,24 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -256,7 +256,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -357,6 +357,10 @@
 		},
 		"putClientConsent": {
 			"enabled": false,
+			"positiveCase" : true
+		},
+		"creditStatement": {
+			"enabled": true,
 			"positiveCase" : true
 		}
 	}

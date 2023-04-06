@@ -89,7 +89,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 				"workPhone": ``,
 				"email": ``
 			},
-			"primaryNeedIncident": incidentData.primaryIncident
+			"primaryNeedIncident": incidentData.primaryNeedIncident
 		};
 	}
 
