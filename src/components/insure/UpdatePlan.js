@@ -615,14 +615,16 @@ class UpdatePlan extends Component {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
-					console.log(this.policyDetails.roleplayers[index]);
+
+					if (isNullorEmpty(this.policyDetails.roleplayers[index]?.contactDetails)) {
+						this.policyDetails.roleplayers[index].contactDetails = {};
+					}
+
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
-					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
-						console.log("ERR")
+					
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
-						console.log(this.policyDetails.roleplayers[index]);
 					} else {
-						console.log("NO ERR")
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
 					}
 				}
@@ -641,6 +643,11 @@ class UpdatePlan extends Component {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
+
+					if (isNullorEmpty(this.policyDetails.roleplayers[index]?.contactDetails)) {
+						this.policyDetails.roleplayers[index].contactDetails = {};
+					}
+
 					this.policyDetails.roleplayers[index].contactDetails.email = event.detail.new;
 
 					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
