@@ -229,3 +229,71 @@ export const savingsPlanDetails = {
 		
 	]
 };
+
+export const disputeQuestions = [
+	{
+		cueSheetId: `1001045`,
+		caseId: `47E5572C-4187-4AFA-92F4-5753A1176A42`,
+		clientQuestionWording: `Did you transact with the merchant, or give permission to someone else to transact with this merchant?`,
+		agentQuestionWording: ``,
+		answers: [
+		  {
+			answerId: `1000001`,
+			clientAnswerWording: `Yes`,
+			agentAnswerWording: ``
+		  },
+		  {
+			answerId: `1000002`,
+			clientAnswerWording: `No`,
+			agentAnswerWording: ``
+		  }
+		]
+	},
+	{
+		cueSheetId: `1001047`,
+		caseId: `47E5572C-4187-4AFA-92F4-5753A1176A42`,
+		clientQuestionWording: `Did you contact or attempt to contact the merchant?`,
+		agentQuestionWording: ``,
+		answers: [
+		  {
+			answerId: `1000007`,
+			clientAnswerWording: `Yes`,
+			agentAnswerWording: ``
+		  },
+		  {
+			answerId: `1000008`,
+			clientAnswerWording: `No`,
+			agentAnswerWording: ``
+		  }
+		]
+	},
+	{
+		cueSheetId: `1001058`,
+		caseId: `47E5572C-4187-4AFA-92F4-5753A1176A42`,
+		clientQuestionWording: `Please select one of the following:`,
+		agentQuestionWording: ``,
+		answers: [
+		  {
+			answerId: `1000015`,
+			clientAnswerWording: `Accomodation or Booking related.`,
+			agentAnswerWording: ``
+		  },
+		  {
+			answerId: `1000016`,
+			clientAnswerWording: `Debited for another amount after original transaction.`,
+			agentAnswerWording: ``
+		  },
+		  {
+			answerId: `1000017`,
+			clientAnswerWording: `Charged more than once for the same transaction`,
+			agentAnswerWording: ``
+		  },
+		  {
+			answerId: `1000018`,
+			clientAnswerWording: `Transaction/Debit amount different`,
+			agentAnswerWording: ``
+		  }
+		],
+		finalCue: true
+	}
+];
