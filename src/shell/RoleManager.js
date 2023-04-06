@@ -38,7 +38,6 @@ import { Configuration, SecurityContext } from 'platform/core';
 	}
 
 	get isInsureAgent() {
-		return true;
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
