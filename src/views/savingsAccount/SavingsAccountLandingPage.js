@@ -8,12 +8,14 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { disputeQuestions } from 'app/mocks/SavingsAccountMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/TransactionHistory';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/MainSavingsAccountDetails';
+import 'app/components/disputes/Disputes';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -61,6 +63,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         // private properites
         this._loading = true;
 		this.tranToDispute = {};
+		this.disputeQuestions = [];
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
     }
@@ -321,7 +324,31 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 	_disputeTransaction(item) {
 		this.tranToDispute = item;
+		this._getFirstQusToDispute();
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
+	}
+
+	_getFirstQusToDispute() {
+		const frstQus = disputeQuestions[0];
+		this.disputeQuestions.push(frstQus);
+	}
+
+	_getNextQusToDispute() {
+		const len = this.disputeQuestions.length;
+		const nxtQus = disputeQuestions[len];
+		
+		this.disputeQuestions.push(nxtQus);
+		return nxtQus;
+	}
+
+	_cancelDisputeTrans() {
+		this.disputeQuestions = [];
+		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+	}
+
+	_confirmDispute() {
+		this.disputeQuestions = [];
+		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
     // ---------
@@ -342,55 +369,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			.savingsaccount{
 				width: 100%;
 				height: var(--horizon-panel-height, 888px);
-			}
-			capitec-modal {
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-modal-header-padding-top: 32px;
-				--theme-modal-header-padding-bottom: 32px;
-			}
-			capitec-modal > div[slot="header"] {
-				width: 1026px;
-				margin-top: -12px;
-
-				--theme-label-default-font-size: 16px;
-				--theme-label-default-font-weight: 600;
-				--theme-layout-gap-spacing: 7px;
-			}
-			div[slot="header"] > capitec-group > capitec-icon {
-				--theme-icon-size-small: 20px;
-				margin-top: 3px;
-			}
-			capitec-modal > div[slot="body"] {
-				width: 1064px;
-			}
-			capitec-stepper {
-				--theme-stepper-step-content-container-padding-left: 16px;
-				--theme-stepper-step-container-height: 64px;
-			}
-			capitec-tab-group {
-				width: 1032px;
-				--theme-tab-border-bottom: 1px solid #e1e1e1;
-			}
-			.dispute-tran-info > horizon-label {
-				width: 164px;
-				--horizon-label-value-font-size: 16px;
-				--horizon-label-value-color: #3A3A3A;
-			}
-			.dispute-tran-info > horizon-label:nth-child(2) {
-				width: 264px;
-			}
-			capitec-label[type="subtitle"] {
-				--theme-label-font-color: #3A3A3A; 
-			}
-			capitec-card {
-				border-left: 2px solid #009DE0;
-				--theme-card-min-height: 72px;
-			}
-			.question-box {
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
-				--theme-container-padding-right: 34px;
-				--theme-container-padding-bottom: 16px;
 			}`
 		];
 	}
@@ -618,7 +596,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			<horizon-disputes
 				.transactionDetails="${this.tranToDispute}"
 				.disputeQuestions="${this.disputeQuestions}"
-				.getNextQuestion="${() => this._getNextQusToDispute()}">
+				.getNextQuestion="${() => this._getNextQusToDispute()}"
+				@cancel="${() => this._cancelDisputeTrans()}"
+				@dispute-confirm="${() => this._confirmDispute()}">
 			</horizon-disputes>
 			`
 		: html``;
