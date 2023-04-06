@@ -141,7 +141,7 @@ class UpdatePlanSuccess extends Component {
 				</p>
 			</div>
 			<div id="button-row">
-				<capitec-button label="Email" @click="${() => this.showEmailPlanDialog = true}">
+				<capitec-button type="secondary" label="Email" @click="${() => this.showEmailPlanDialog = true}">
 				</capitec-button>
 				<capitec-button type="primary" label="Done" @click="${() => this._backToSummaryPage()}">
 				</capitec-button>

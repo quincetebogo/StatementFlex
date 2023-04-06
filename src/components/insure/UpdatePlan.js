@@ -309,6 +309,8 @@ class UpdatePlan extends Component {
 	_openRemoveBeneficiaryDialog(beneficiary) {
 		this.showRemoveBeneficiaryDialog = true;
 
+		this.beneficiaryToRemoveRowID = beneficiary.rowID;
+
 		if (!beneficiary.firstName) {
 			this.beneficiaryToRemoveDescription = beneficiary.relationship;
 		} else {
@@ -371,14 +373,14 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured COVER AMOUNT value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void}
 	 */
-	_lifeCoverAmountValueChanged(event, recordId) {
+	_lifeCoverAmountValueChanged(event, rowID) {
 		let age = ``;
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
 
 					if (rolePlayer.dateOfBirth !== undefined) {
@@ -418,13 +420,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured TITLE value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeTitleValueChanged(event, recordId) {
+	_lifeTitleValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].title = event.detail.new.code;
 
 					if (rolePlayer.beneficiary === true) {
@@ -445,13 +447,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured GENDER value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeGenderValueChanged(event, recordId) {
+	_lifeGenderValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].gender = event.detail.new.code;
 
 					if (rolePlayer.lifeAssured === true) {
@@ -468,13 +470,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured FIRSTNAME value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID`
 	 * @return {void} 
 	 */
-	_lifeNameValueChanged(event, recordId) {
+	_lifeNameValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].firstName = event.detail.new;
 
 					if (isNullorEmpty(event.detail.new)) {
@@ -493,13 +495,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured SURNAME value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeSurnameValueChanged(event, recordId) {
+	_lifeSurnameValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].surname = event.detail.new;
 
 					if (isNullorEmpty(event.detail.new)) {
@@ -517,13 +519,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured MIDDLENAME value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeMiddleNameValueChanged(event, recordId) {
+	_lifeMiddleNameValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].middleName = event.detail.new;
 				}
 			});
@@ -533,13 +535,13 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured ID NUMBER value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeIDValueChanged(event, recordId) {
+	_lifeIDValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
 					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
@@ -576,6 +578,24 @@ class UpdatePlan extends Component {
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
 						}
+
+						// Cover Details
+						this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+							this.policyDetails.roleplayers[index].relationship,
+							this.productParams,
+							this.policyDetails.roleplayers[index].coverAmount,
+							index === 0 ? this.maxAllowedCover : 0,
+							getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber),
+							this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+							false
+						);
+
+						if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverDetails?.ageMessage)) {
+							rolePlayer.coverDetails.disableDoB = false;
+						}
+
+					} else {
+						rolePlayer.coverDetails.idNumberErrorMessage = `ID Number not valid`;
 					}
 				}
 			});
@@ -588,19 +608,24 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
 	 * @param {event} event event
-	 * @param {string} recordId event
+	 * @param {string} rowID event
 	 * @return {void} 
 	 */
-	_lifeCellphoneValueChanged(event, recordId) {
+	_lifeCellphoneValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
-					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
+				if (rolePlayer.rowID === rowID) {
 
-					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
-						this.policyDetails.roleplayers[index].cellphoneNumberErrorMessage = REGEX_CELLPHONE.ERR_MESSAGE;
+					if (isNullorEmpty(this.policyDetails.roleplayers[index]?.contactDetails)) {
+						this.policyDetails.roleplayers[index].contactDetails = {};
+					}
+
+					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
+					
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
+						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
 					} else {
-						this.policyDetails.roleplayers[index].cellphoneNumberErrorMessage = ``;
+						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
 					}
 				}
 			});
@@ -611,13 +636,18 @@ class UpdatePlan extends Component {
 	/**
 	 * Event fired when a life assured CELLPHONE NUMBER value changes
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_lifeEmailValueChanged(event, recordId) {
+	_lifeEmailValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordId) {
+				if (rolePlayer.rowID === rowID) {
+
+					if (isNullorEmpty(this.policyDetails.roleplayers[index]?.contactDetails)) {
+						this.policyDetails.roleplayers[index].contactDetails = {};
+					}
+
 					this.policyDetails.roleplayers[index].contactDetails.email = event.detail.new;
 
 					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
@@ -634,15 +664,15 @@ class UpdatePlan extends Component {
 	/**
 	 * Beneficiary Change events
 	 * @param {event} event event
-	 * @param {string} recordId recordId
+	 * @param {string} rowID rowID
 	 * @return {void} 
 	 */
-	_beneficiaryPayoutValueChanged(event, recordId) {
+	_beneficiaryPayoutValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			let totalPayout = 0;
 
 			this.policyDetails.roleplayers.forEach(ele => {
-				if (ele.recordID === recordId) {
+				if (ele.rowID === rowID) {
 					ele.benefitPayout = event.detail.new;
 				}
 				if (ele.beneficiary === true) {
@@ -1163,7 +1193,6 @@ class UpdatePlan extends Component {
 				}
 			}
 		});
-
 		this._openIneligibleLivesDialog();
 
 	}
@@ -1436,13 +1465,13 @@ class UpdatePlan extends Component {
 	/**
 	 * on change event for life DoB
 	 * @param {*} e e
-	 * @param {string} recordID record ID
+	 * @param {string} rowID rowID
 	 * @returns {void}
 	 */
-	_lifeDobValueChange(e, recordID) {
+	_lifeDobValueChange(e, rowID) {
 		if (e.detail.old !== e.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-				if (rolePlayer.recordID === recordID) {
+				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
 
 					if (rolePlayer.beneficiary === true) {
@@ -1461,7 +1490,6 @@ class UpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
-					console.log(`this.policyDetails :>> `, this.policyDetails);
 
 					if (rolePlayer.beneficiary === true) {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
@@ -1470,6 +1498,7 @@ class UpdatePlan extends Component {
 						}
 					}
 
+					rolePlayer.idNumber = ``;
 				}
 			});
 		}
@@ -1522,7 +1551,7 @@ class UpdatePlan extends Component {
 			return html`
 				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
-					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}" error="${roleplayer?.coverDetails?.ageMessage}">
+					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.rowID)}" error="${roleplayer?.coverDetails?.ageMessage}">
 				</capitec-date-time-picker>`;
 		}
 
@@ -1582,7 +1611,8 @@ class UpdatePlan extends Component {
 				background-color: #f5f5f5;
 				border-radius: 5px;
 				padding: 10px;
-				max-height: 660px;
+				max-height: 1045px;
+				height: fit-content;
 			}
 			
 			.calc-summary-card{
@@ -2272,7 +2302,7 @@ class UpdatePlan extends Component {
 					?disabled = "${Boolean(this.canReinstate) || !this._policyRuleAllowsChange(`editLifeAssuredValues`, roleplayer.relationship)}"
 					hint="R${this.maxAllowedCover < 5000 ? this.maxAllowedCover : roleplayer?.coverDetails?.minCoverAmount} - R${this.maxAllowedCover}"
 					error="${roleplayer?.coverDetails?.coverMessage}"
-					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			</div>
 		`;
@@ -2290,27 +2320,27 @@ class UpdatePlan extends Component {
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editTitle`, roleplayer.relationship)}"
 					error="${roleplayer?.coverDetails?.titleErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.titleErrorMessageLA}"
 					.items="${this.titleOptions}" 
-					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeTitleValueChanged(e, roleplayer.rowID)}">
 				</capitec-select>
 
 				<capitec-select label="Gender"  display-field="text" id-field="code" style="width: 50%" 
 					value="${roleplayer?.gender}" ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
 					error="${roleplayer?.coverDetails?.genderErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.genderErrorMessageLA}"
 					.items="${this.genderOptions}"
-					@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.rowID)}">
 				</capitec-select>
 			</div>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field type="text" label="Name" style="width: 50%" value="${roleplayer?.firstName}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}"
+					@value-changed="${(e) => this._lifeNameValueChanged(e, roleplayer.rowID)}"
 					error="${roleplayer?.coverDetails?.firstNameErrorMessage === undefined ? `` : roleplayer?.coverDetails.firstNameErrorMessage}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" value="${roleplayer?.surname}"
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}"
+					@value-changed="${(e) => this._lifeSurnameValueChanged(e, roleplayer.rowID)}"
 					error="${roleplayer?.coverDetails?.surnameErrorMessage === undefined ? `` : roleplayer?.coverDetails.surnameErrorMessage}">
 				</capitec-text-field>
 			</div>
@@ -2318,13 +2348,13 @@ class UpdatePlan extends Component {
 				<capitec-text-field label="Middle Names" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.middleName) ? `` : roleplayer?.middleName}"
 					?disabled="${this.canReinstate}"
-					@value-changed="${(e) => this._lifeMiddleNameValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeMiddleNameValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Cover amount" style="width: 50%" type="currency" 
 					value="${roleplayer?.coverAmount <= 0 ? `` : roleplayer?.coverAmount}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editLifeAssuredValues`, roleplayer.relationship)}" 
-					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.recordID)}"
+					@value-changed="${(e) => this._lifeCoverAmountValueChanged(e, roleplayer.rowID)}"
 					hint="R${roleplayer?.coverDetails?.minCoverAmount} - R${roleplayer?.coverDetails?.maxCoverAmount}"
 					error="${roleplayer?.coverDetails?.coverMessage}"
 					>
@@ -2338,21 +2368,22 @@ class UpdatePlan extends Component {
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
 					error="${roleplayer?.coverDetails?.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}"
-					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			</div>
 			<div class="expander-options">
 				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength = "10" type="numeric"
 					value="${isNullorEmpty(roleplayer?.contactDetails?.cellphone) ? `` : roleplayer?.contactDetails?.cellphone}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
+					error="${roleplayer?.coverDetails?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.cellphoneNumberErrorMessage}"
+					@value-changed="${(e) => this._lifeCellphoneValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email Address" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 					error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}"
-					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
+					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			</div>
 		`;
@@ -2370,25 +2401,25 @@ class UpdatePlan extends Component {
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editTitle`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.titleErrorMessage === undefined ? `` : roleplayer?.coverDetails.titleErrorMessage}"
 				.items="${this.titleOptions}"
-				@value-changed= "${(e) => this._lifeTitleValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeTitleValueChanged(e, roleplayer.rowID)}">
 			</capitec-select>
 			
 			<capitec-select label="Gender" display-field="text" id-field="code" style="width: 50%" value=${roleplayer.gender}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editGender`, roleplayer.relationship)}"
 				.items="${this.genderOptions}"
-				@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.recordID)}">
+				@value-changed="${(e) => this._lifeGenderValueChanged(e, roleplayer.rowID)}">
 			</capitec-select>
 		</div>
 		<div class="expander-options">
 			<capitec-text-field label="Name" style="width: 50%" value=${roleplayer.firstName}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editFirstName`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.firstNameErrorMessage === undefined ? `` : roleplayer?.coverDetails.firstNameErrorMessage}"
-				@value-changed= "${(e) => this._lifeNameValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeNameValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 			<capitec-text-field label="Surname" style="width: 50%" value=${roleplayer.surname}
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editSurname`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.surnameErrorMessage === undefined ? `` : roleplayer?.coverDetails.surnameErrorMessage}"
-				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 	
 		</div>
@@ -2405,7 +2436,7 @@ class UpdatePlan extends Component {
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						error="${roleplayer?.coverDetails?.ageMessage}"
 						?disabled="${this.canReinstate}" 
-						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.recordID)}">
+						@value-changed="${(e) => this._lifeDobValueChange(e, roleplayer.rowID)}">
 					</capitec-date-time-picker>`
 			}
 			
@@ -2413,7 +2444,7 @@ class UpdatePlan extends Component {
 				value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" type="numeric" maxlength="13"
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
 				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}"
-				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.recordID)}" >
+				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}" >
 			</capitec-text-field>
 		</div>
 
@@ -2422,14 +2453,14 @@ class UpdatePlan extends Component {
 			<capitec-text-field type="currency" label="Payout amount" style="width: 50%" 
 				value=${roleplayer?.benefitPayout <= 0 ? `` : roleplayer?.benefitPayout} ?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editBeneficiaryValues`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.benefitPayoutErrorMessage === `` ? `` : roleplayer?.coverDetails?.benefitPayoutErrorMessage}"
-				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.recordID)}">
+				@value-changed="${(e) => this._beneficiaryPayoutValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 		
 			<capitec-text-field label="Email Address" style="width: 50%" 
 				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}"
-				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 
 		</div>
@@ -2439,7 +2470,7 @@ class UpdatePlan extends Component {
 				value=${isNullorEmpty(roleplayer.contactDetails?.cellphone) ? `` : roleplayer.contactDetails?.cellphone} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
 				error="${roleplayer?.coverDetails?.cellphoneNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.cellphoneNumberErrorMessage}"
-				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.recordID)}">
+				@value-changed= "${(e) => this._lifeCellphoneValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 			
 		</div>`;

@@ -194,7 +194,7 @@ class CancelPolicySuccess extends Component {
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="The policy has been cancelled"></capitec-label>
 					<div class="button-row">
-						<capitec-button label="Done" class="capitec-button-medium" type="primary" @click="${() => this._navigateToSummary()}"
+						<capitec-button label="Done" class="capitec-button-medium" type="secondary" @click="${() => this._navigateToSummary()}"
 							data-automation-id="">
 						</capitec-button>
 						<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._openEmailPlanDialog()}"
