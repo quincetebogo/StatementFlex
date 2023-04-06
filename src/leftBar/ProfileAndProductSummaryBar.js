@@ -103,6 +103,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		super.connectedCallback();
 
 		this._updateProductTileInfo();
+		this._setActivePageTitle();
 	}
 
 	disconnectedCallback() {
@@ -167,6 +168,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_onNavigationContextUpdated() {
+		this._setActivePageTitle();
+	};
+
+	_setActivePageTitle() {
 		const activePage = this.horizonRouter.getCurrentRoute(); 
 
 		// Initialise activePage properly if the current route is not yet readable
@@ -181,7 +186,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		if (this.activePageTitle === `ProductInfo`) {
 			this.activePageTitle = this.product;
 		}
-	};
+	}
 
 	async _productButtonClick(event) {
 		await this._clearPrevProductSpans(this.product, event.detail.productButton);
@@ -200,7 +205,13 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit`)) {
+		if (this.product !== `Insure` && this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToUnavaliableForRole();
+			return;
+		}
+
+		if (this.callerInformation.verificationStatus === `unverified` 
+				&& (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit` || this.product === `SavingsAccount` || this.product === `Insure`)) {
 			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
@@ -219,6 +230,12 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.product = ``;
 		this.horizonStore.clearReturnScreen();
+
+		if (this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToUnavaliableForRole();
+			return;
+		}
+
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -366,7 +383,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		<section class="left-card">
 			<horizon-mini-profile 
 				.miniProfile="${this.miniProfile}"
-				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}">
+				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
+				?isInsureAgent="${this.roleManager.isInsureAgent}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}
