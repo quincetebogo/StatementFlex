@@ -95,7 +95,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -219,7 +219,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -271,6 +271,10 @@
 			"positiveCase" : true
 		},
 		"creditStatement": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"settleAndClose": {
 			"enabled": true,
 			"positiveCase" : true
 		}

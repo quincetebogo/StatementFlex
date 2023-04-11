@@ -547,6 +547,10 @@ export class CreditService extends ChannelServiceBase {
 	async settleAndClose(settleAndCloseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
+		if (await this.isMockEnabled(`settleAndClose`)) {
+			return this.mock(`settleAndClose`, settleAndCloseRequest);
+		}
+
 		const settleAndClose =
 		{
 				creditType: settleAndCloseRequest.creditType,
