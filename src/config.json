@@ -271,11 +271,11 @@
 			"positiveCase" : true
 		},
 		"creditStatement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		},
 		"settleAndClose": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		}
 	}
