@@ -285,16 +285,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
 
-		if (docGenerateRequestPayload.contractReference.toLowerCase().startsWith(`cf`)) {
-			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-
-			if (!updatePaymentAgreementResponse.succeeded) {
-				this.handleToastError(updatePaymentAgreementResponse.exception);
-				return;
-			}
-
-			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
-		}
 	}
 
 	/**

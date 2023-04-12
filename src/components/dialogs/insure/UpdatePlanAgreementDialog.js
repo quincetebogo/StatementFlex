@@ -30,17 +30,13 @@ class UpdatePlanAgreementDialog extends Component {
 
 	/**
 	 * @property {String} planAgreementContent doc content for the plan agreement
-	 * @property {String} paymentAgreementContent doc content for the payment agreement
 	 * @property {String} contractReference contract reference for the selected policy 
 	 * @property {String} alertBannerMessage message for the alert banner
-	 * @property {Boolean} showUpdatePlanPaymentAgreementDocument determines whether to show the update plan payment agreement 
 	 */
 	static get properties() {
 		return {
 			planAgreementContent: { type: String, state: true },
-			paymentAgreementContent: { type: String, state: true },
-			contractReference: { type: String },
-			showUpdatePlanPaymentAgreementDocument: { type: Boolean, state: true }
+			contractReference: { type: String }
 		};
 	}
 
@@ -151,16 +147,6 @@ class UpdatePlanAgreementDialog extends Component {
 						</iframe>
 					</capitec-expander>
 				</div>
-			
-				${this.showUpdatePlanPaymentAgreementDocument === true ? html`
-					<div>
-						<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-							data-automation-id="horizon-insure-pay-premium-agreement-dialog-view-mandate">
-								<iframe title="UpdatePaymentAgreement" height = "100%" frameborder = "0"
-									src="data:application/pdf;base64,${this.paymentAgreementContent}#view=fitH">
-								</iframe>
-						</capitec-expander>
-					</div>` : html``}
 				 
 			</capitec-expander-group>
 

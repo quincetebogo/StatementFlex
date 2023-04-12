@@ -76,7 +76,6 @@ class UpdatePlan extends Component {
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
 		this.showUpdatePlanAgreementDialog = false;
-		this.showUpdatePlanPaymentAgreementDocument = false;
 		this.showReinstatePolicyAgreementDialog = false;
 		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
@@ -622,7 +621,7 @@ class UpdatePlan extends Component {
 
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
 					
-					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
@@ -1014,7 +1013,6 @@ class UpdatePlan extends Component {
 	 */
 	_closeUpdatePlanAgreementDialog() {
 		this.showUpdatePlanAgreementDialog = false;
-		this.showUpdatePlanPaymentAgreementDocument = false;
 	}
 
 	/**
@@ -1061,10 +1059,6 @@ class UpdatePlan extends Component {
 		// policyScheduleDocContent
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
 
-		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
-			this.showUpdatePlanPaymentAgreementDocument = true;
-			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
-		}
 	}
 
 	/**
@@ -2596,8 +2590,6 @@ class UpdatePlan extends Component {
 		return this.showUpdatePlanAgreementDialog === false ? `` : html`
 		<horizon-insure-update-plan-agreement-dialog 
 			.planAgreementContent="${this.planAgreementContent}" 
-			.paymentAgreementContent="${this.paymentAgreementContent}"
-			.showUpdatePlanPaymentAgreementDocument = "${this.showUpdatePlanPaymentAgreementDocument}"
 			.contractReference="${this.policyDetails.contractReference}"
 			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" 
 			@close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
