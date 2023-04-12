@@ -41,7 +41,8 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			lifesAssured: { type: Array, state: true }
+			lifesAssured: { type: Array, state: true },
+			roleplayerLength: { type: Number, state: true }
 		};
 	}
 
@@ -99,7 +100,7 @@ class AddBeneficiaryDialog extends Component {
 			gender: `Male`,
 			benefitPayout: 0,
 			coverAmount: 0,
-			recordID: v4(),
+			rowID: this.roleplayerLength,
 			coverDetails: {},
 			contactDetails: {
 				cellphone: ``
@@ -223,7 +224,7 @@ class AddBeneficiaryDialog extends Component {
 				<capitec-label label="Add new beneficiary" type="title"></capitec-label>
 				<div class="new-beneficiary-radio-row" >
 					<div class="add-new-beneficiary">
-						<capitec-radio label="Not related" hint="A friend or acquaintance"
+						<capitec-radio label="Other" hint="A friend or acquaintance"
 							@value-changed="${() => this._addNewBeneficiaryChange(`BeneficiaryOnly`)}">
 						</capitec-radio>
 					</div>

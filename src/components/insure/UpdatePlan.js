@@ -107,6 +107,8 @@ class UpdatePlan extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
 
+		this.roleplayerLength = 0;
+
 	}
 
 	// #endregion INITIALISATION
@@ -175,6 +177,7 @@ class UpdatePlan extends Component {
 			showConfirmPlanUpdateDialog: { type: Boolean, state: true },
 			policyDetails: { type: Object, state: true },
 			collectionDay: { type: Number, state: true },
+			roleplayerLength: { type: Number, state: true },
 
 			currentTotalPremium: { string: `` },
 
@@ -543,11 +546,11 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
+					
 					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
 						const fullCurrentYear = new Date().getFullYear();
 						const currentYear = fullCurrentYear.toString().substring(2);
-
 						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
 							rolePlayer.coverDetails.disableDoB = false;
 						} else {
@@ -564,6 +567,18 @@ class UpdatePlan extends Component {
 								rolePlayer.coverDetails.idErrorMessageLA = ``;
 							}
 						}
+						if (rolePlayer.lifeAssured === true) {
+							// Cover Details
+							this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+								this.policyDetails.roleplayers[index].relationship,
+								this.productParams,
+								this.policyDetails.roleplayers[index].coverAmount,
+								index === 0 ? this.maxAllowedCover : 0,
+								getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber),
+								this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+								false
+							);
+						}
 
 						if (rolePlayer.beneficiary === true) {
 							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
@@ -573,22 +588,12 @@ class UpdatePlan extends Component {
 							}
 						}
 
-
 						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
+							this.policyDetails.roleplayers[index].coverDetails.ageMessage = ``;
 						}
-
-						// Cover Details
-						this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
-							this.policyDetails.roleplayers[index].relationship,
-							this.productParams,
-							this.policyDetails.roleplayers[index].coverAmount,
-							index === 0 ? this.maxAllowedCover : 0,
-							getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber),
-							this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
-							false
-						);
+						
 
 						if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverDetails?.ageMessage)) {
 							rolePlayer.coverDetails.disableDoB = false;
@@ -622,7 +627,7 @@ class UpdatePlan extends Component {
 
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
 					
-					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
@@ -651,9 +656,9 @@ class UpdatePlan extends Component {
 					this.policyDetails.roleplayers[index].contactDetails.email = event.detail.new;
 
 					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
-						this.policyDetails.roleplayers[index].emailAddressErrorMessage = REGEX_EMAIL.ERR_MESSAGE;
+						this.policyDetails.roleplayers[index].coverDetails.emailAddressErrorMessage = REGEX_EMAIL.ERR_MESSAGE;
 					} else {
-						this.policyDetails.roleplayers[index].emailAddressErrorMessage = ``;
+						this.policyDetails.roleplayers[index].coverDetails.emailAddressErrorMessage = ``;
 					}
 				}
 			});
@@ -998,6 +1003,7 @@ class UpdatePlan extends Component {
 	 */
 	_openAddBeneficiariesDialog() {
 		this.showAddBeneficiariesDialog = true;
+		this.roleplayerLength = this.policyDetails.roleplayers.length;
 	}
 
 	/**
@@ -1479,7 +1485,8 @@ class UpdatePlan extends Component {
 					} else if (rolePlayer.lifeAssured === true) {
 						rolePlayer.coverDetails.idErrorMessageLA = ``;
 					}
-					
+
+					if (rolePlayer.lifeAssured === true) {
 					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
 						this.policyDetails.roleplayers[index].relationship,
 						this.productParams,
@@ -1490,11 +1497,14 @@ class UpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
+					}
 
 					if (rolePlayer.beneficiary === true) {
 						const age = getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth);
 						if (age < 18) {
 							rolePlayer.coverDetails.ageMessage = `Beneficiary must be 18 years or older`;
+						} else {
+							rolePlayer.coverDetails.ageMessage = ``;
 						}
 					}
 
@@ -2382,7 +2392,7 @@ class UpdatePlan extends Component {
 				<capitec-text-field label="Email Address" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.contactDetails?.email) ? `` : roleplayer?.contactDetails?.email}" 
 					?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-					error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}"
+					error="${roleplayer?.coverDetails?.emailAddressErrorMessage === undefined ? `` : roleplayer?.coverDetails?.emailAddressErrorMessage}"
 					@value-changed="${(e) => this._lifeEmailValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			</div>
@@ -2459,7 +2469,7 @@ class UpdatePlan extends Component {
 			<capitec-text-field label="Email Address" style="width: 50%" 
 				value=${isNullorEmpty(roleplayer.contactDetails?.email) ? `` : roleplayer.contactDetails?.email} 
 				?disabled="${this.canReinstate || !this._policyRuleAllowsChange(`editContactDetails`, roleplayer.relationship)}"
-				error="${roleplayer?.emailAddressErrorMessage === undefined ? `` : roleplayer?.emailAddressErrorMessage}"
+				error="${roleplayer?.coverDetails?.emailAddressErrorMessage === undefined ? `` : roleplayer?.coverDetails?.emailAddressErrorMessage}"
 				@value-changed= "${(e) => this._lifeEmailValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
 
@@ -2532,6 +2542,7 @@ class UpdatePlan extends Component {
 		return this.showAddBeneficiariesDialog === false ? html``
 			: html`
 		<horizon-insure-add-beneficiary-dialog
+			.roleplayerLength="${this.roleplayerLength}"
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
 			@add-click="${(e) => this._addBeneficiaryClick(e)}" 
 			@close-modal="${() => this._closeAddBeneficiariesDialog()}">
