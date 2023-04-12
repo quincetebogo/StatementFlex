@@ -622,7 +622,7 @@ class UpdatePlan extends Component {
 
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
 					
-					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_EMAIL.PATTERN, `g`).test(event.detail.new)) {
+					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
