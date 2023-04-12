@@ -50,7 +50,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -234,10 +234,6 @@
 			"positiveCase": true
 		},
 		"insureClaims": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"searchCallerAdvanced": {
 			"enabled": true,
 			"positiveCase": true
 		}
