@@ -77,17 +77,9 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	searchCaller(clientInfo) {
+	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			let mockedCaller = this.callMocks.searchCaller;
-
-			if (this._mockSettings.searchCallerAdvanced.enabled) {
-				const specificMockedCaller = this.callMocks.searchCallerList.find((caller) => caller.southAfricanIDNumber === clientInfo.searchValue);
-				if (specificMockedCaller) {
-					mockedCaller = { callerInformation: specificMockedCaller };
-				}
-			}
-			return mockedCaller;
+			return mockedCaller = this.callMocks.searchCaller;
 		}
 	}
 

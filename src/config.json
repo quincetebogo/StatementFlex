@@ -74,7 +74,7 @@
 	},
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -124,7 +124,7 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -349,10 +349,6 @@
 		},
 		"insureArrears": {
 			"enabled": false,
-			"positiveCase": true
-		},
-		"searchCallerAdvanced": {
-			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {
