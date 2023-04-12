@@ -60,6 +60,7 @@ export default class HorizonChannelServiceMocks {
 		  this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -598,6 +599,13 @@ export default class HorizonChannelServiceMocks {
 	creditStatement() {
 		if (this._mockSettings.creditStatement.positiveCase) {
 			return this.creditMocks.creditStatement;
+		}
+		return null;
+	}
+	
+	settleAndClose() {
+		if (this._mockSettings.settleAndClose.positiveCase) {
+			return this.creditMocks.settleAndClose;
 		}
 		return null;
 	}
