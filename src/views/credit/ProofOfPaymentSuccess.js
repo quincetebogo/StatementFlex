@@ -100,7 +100,7 @@ export class ProofOfPaymentSuccess extends ViewBase {
 	}
 
 	_leftButtonText() {
-		currentNeed = this.horizonIncidentManager.getCurrentNeed();
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 		return currentNeed === `pay-budget-credit-card` ? `Pay Another` : ``;
 	}
 
