@@ -1,20 +1,20 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-dev.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-dev.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-dev.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -48,30 +48,6 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"lbb-insight-details": {
-		"34": {
-			"155": {
-				"header": "Live Better alert!",
-				"image": "/images/insights/lbb-alert.png",
-				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
-			},
-			"134": {
-				"header": "Live Better savings",
-				"image": "/images/insights/lbb-savings.png",
-				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
-			},
-			"114": {
-				"header": "Switch on Round-up",
-				"image": "/images/insights/lbb-roundup.png",
-				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
-			},
-			"243": {
-				"header": "Switch on Interest Sweep",
-				"image": "/images/insights/lbb-interest-sweep.png",
-				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
-			}
-		}
-	},
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false,
@@ -83,15 +59,15 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -107,20 +83,20 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -280,7 +256,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -356,21 +332,32 @@
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlockAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlock": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"sendCashVouchers": {
 			"enabled": false,
 			"positiveCase" : true
+		},
+		"getClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"putClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"creditStatement": {
+			"enabled": true,
+			"positiveCase" : true
 		}
-	},
-	"searchClientOptionEnabled": true
+	}
 }

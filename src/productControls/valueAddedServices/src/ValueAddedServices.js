@@ -24,9 +24,6 @@ export class ValueAddedServices extends Component {
 		super();
 		this.optOutInsights = false;
 		this.optOutBehaviouralMarketing = false;
-		this.optOutPreAssessments = false;
-		this.optOutAnalysis = false;
-		this.optOutThirdParties = false;
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
 		this.updateValueAddedServicesCallback = null;
@@ -48,13 +45,10 @@ export class ValueAddedServices extends Component {
 		return {
 			statusVAS: { type: Object },
 			updateValueAddedServicesCallback: { type: Object },
-
+			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
 			optOutInsights: { state: true },
-			optOutBehaviouralMarketing: { state: true },
-			optOutPreAssessments: { state: true },
-			optOutAnalysis: { state: true },
-			optOutThirdParties: { state: true }
+			optOutBehaviouralMarketing: { state: true }
 		};
 	}
 	
@@ -66,32 +60,24 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 		
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.optOutInsights;
-		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
-		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
-		this.optOutAnalysis = this.statusVAS.optOutAnalysis;
-		this.optOutThirdParties = this.statusVAS.optOutThirdParties;
+		this.optOutInsights = this.statusVAS.insights;
+		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
+		this.cifnumber = this.statusVAS.cifNumber;
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_toggleValue(e) {
+	_toggleValue(e, value) {
 		this.alertBannerMessage = ``;
-
-		const insights = () => this._insightsStatusChanged();
-		const behavioural = () => this._behavioralStatusChanged();
-		const preAssessment = () => this._preAssessmentStatusChanged();
-		const analysis = () => this._analysisStatusChanged();
-		const thirdParty = () => this._thirdPartyStatusChanged();
+		
+		const insights = () => this._insightsStatusChanged(value);
+		const behavioural = () => this._behavioralStatusChanged(value);
 
 		const toggleSwitched = {
 			'insights': insights,
-			'behavioural': behavioural,
-			'preAssessment': preAssessment,
-			'analysis': analysis,
-			'thirdParty': thirdParty
+			'behavioural': behavioural
 		};
 
 		toggleSwitched[e.currentTarget.id]();
@@ -104,11 +90,10 @@ export class ValueAddedServices extends Component {
 	async _accept() {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
+			cifnumber: this.cifnumber,
 			optOutInsights: this.optOutInsights,
-			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing,
-			optOutPreAssessments: this.optOutPreAssessments,
-			optOutAnalysis: this.optOutAnalysis,
-			optOutThirdParties: this.optOutThirdParties
+			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
+			
 		};
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
@@ -123,24 +108,12 @@ export class ValueAddedServices extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_insightsStatusChanged() {
-		this.optOutInsights = !this.optOutInsights;
+	_insightsStatusChanged(value) {
+		this.optOutInsights = value;
 	}
 
-	_behavioralStatusChanged() {
-		this.optOutBehaviouralMarketing = !this.optOutBehaviouralMarketing;
-	}
-
-	_preAssessmentStatusChanged() {
-		this.optOutPreAssessments = !this.optOutPreAssessments;
-	}
-
-	_analysisStatusChanged() {
-		this.optOutAnalysis = !this.optOutAnalysis;
-	}
-
-	_thirdPartyStatusChanged() {
-		this.optOutThirdParties = !this.optOutThirdParties;
+	_behavioralStatusChanged(value) {
+		this.optOutBehaviouralMarketing = value;
 	}
 
 	// ---------------
@@ -174,7 +147,6 @@ export class ValueAddedServices extends Component {
 					--theme-toast-padding: 11px 16px 11px 0px;
 					--theme-toast-icon-margin: 8px 9px 0px 15px;
 					--theme-alert-banner-warning-font-color: #3A3A3A;
-					--theme-toast-detail-font-weight: 600;
 					--theme-toast-width: 850px;
 				}
 
@@ -185,8 +157,8 @@ export class ValueAddedServices extends Component {
 				}
 
 				.main-container {
-					height: 754px;
-					width: auto;
+					height: 600px;
+					width: 700px;
 					border-bottom: 1px solid #E1E1E1;
 
 					--theme-container-padding-top: 15px;
@@ -198,11 +170,11 @@ export class ValueAddedServices extends Component {
 
 				.alert-message {
 					margin: 0px;
-					width: 696px;
+					width: 550px;
 				}
 
 				.permission-alert {
-					width: 712px;
+					width: 650px;
 				}
 
 				.header-label {
@@ -214,13 +186,13 @@ export class ValueAddedServices extends Component {
 				.communication-message {
 					margin: 0px 0px 12px 0px;
 					line-height: 20px;
-					font-size: 15px;
-					width: 756px;
+					font-size: 13px;
+					width: 650px;
 				}
 
 				.permission-group {
 					height: 64px;
-					width: 776px;
+					width: 500px;
 					padding: 8px 16px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
@@ -242,8 +214,8 @@ export class ValueAddedServices extends Component {
 
 				.permission-message {
 					margin: 0px 15px 0px 0px;
-					width: 689px;
-					font-size: 15px;
+					width: 450px;
+					font-size: 12px;
 				}
 			`
 		];
@@ -312,27 +284,29 @@ export class ValueAddedServices extends Component {
 
 _renderInsights() {
 	return html`
+			<capitec-group gap="none">
+			<capitec-title-bar>
 			<capitec-group layout="horizontal">
-			<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you?</p>
+			<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you? <strong>(personalised offers)</strong></p>
 			<capitec-radio-group layout="horizontal" >
 			<capitec-radio 
 							id="insights"
 							label="Yes"
-							@value-change="${() => this._toggleValue(e)}"
-							@click="${() => this._insightsStatusChanged()}"
+							@value-change="${(e) => this._toggleValue(e, true)}"
 							?checked = "${this.optOutInsights}">
 						</capitec-radio>
 						<capitec-radio
 						id="insights"
 						label="No"
-							@value-change="${() => this._toggleValue(e)}"
-							@click="${() => this._insightsStatusChanged()}"
+							@value-change="${(e) => this._toggleValue(e, false)}"
 							?checked = "${!this.optOutInsights}">
 						</capitec-radio>
 						</capitec-radio-group>
 						
 						</capitec-group>
+						</capitec-title-bar>
 						${this._renderInsightsAlert()}
+						</capitec-group>
 	`;
 }
 
@@ -350,26 +324,28 @@ _renderInsights() {
 
 	_renderBehavioral() {
 		return html`
+				<capitec-group gap="none">
+				<capitec-title-bar>
 				<capitec-group layout="horizontal">
-				<p class="permission-message">Receive the latest offers and products by means of electronic communication <strong>(direct marketing)</strong> </p>
+				<p class="permission-message">Receive the latest offers and products by means of electronic communication <br><strong>(direct marketing)</strong> </p>
 				<capitec-radio-group layout="horizontal" >
 				<capitec-radio 
 								id="behavioural"
 								label="Yes"
-								@value-change="${() => this._toggleValue(e)}"
-								@click="${() => this._behavioralStatusChanged()}"
+								@value-change="${(e) => this._toggleValue(e, true)}"
 								?checked = "${this.optOutBehaviouralMarketing}">
 							</capitec-radio>
 							<capitec-radio
 							id="behavioural"
 							label="No"
-								@value-change="${() => this._toggleValue(e)}"
-								@click="${() => this._behavioralStatusChanged()}"
+								@value-change="${(e) => this._toggleValue(e, false)}"
 								?checked = "${!this.optOutBehaviouralMarketing}">
 							</capitec-radio>
 							</capitec-radio-group>
 							</capitec-group>
+							</capitec-title-bar>
 							${this._renderBehavioralAlert()}
+							</capitec-group>
 		`;
 	}
 

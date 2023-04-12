@@ -126,8 +126,6 @@ export const relatedOptions = {
 			`proof-of-account`
 		]
 	},
-	'full-ftsp-unlock': CREDIT_RO,
-	'partial-ftsp-unlock': CREDIT_RO,
 	'send-cash': {
 		Success: [
 			`transaction-history`,
@@ -137,7 +135,19 @@ export const relatedOptions = {
 			`transaction-history`,
 			`statements`
 		]
-	}  
+	},
+	'send-cash-place-hold': {
+		Success: [
+			`transaction-history`,
+			`statements`
+		],
+		Failure: [
+			`transaction-history`,
+			`statements`
+		]
+	},
+	'full-ftsp-unlock': CREDIT_RO,
+	'partial-ftsp-unlock': CREDIT_RO
 };
 
 /**

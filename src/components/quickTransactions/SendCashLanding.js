@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatDate, formatStringAsPascalCase, isNullorEmpty, maskString } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -13,7 +13,7 @@ const DATE_FORMAT = `dd mmm yyyy`;
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 
 const DEFAULTS = { 
-	SEARCH_TEXT_LABEL: `Search for amount, voucher/account no.`,
+	SEARCH_TEXT_LABEL: `Search for amount or account no.`,
 	CALENDAR_LABEL: `Choose a date`
 };
 
@@ -30,7 +30,7 @@ const RENDER_CHIPS = {
 	STATUS: ``
 };
 
-const HOLD_RESTRICTION_SET = new Set([`REDEEMABLE`, `PARTIAL REDEEMED`]);
+const HOLD_RESTRICTION_SET = new Set([`Redeemable`, `Partial Redeemed`]);
 
 /**
  * This component shows the send cash landing page.
@@ -69,10 +69,14 @@ export class SendCashLanding extends Component {
 	static get properties() {
 		return {
 			filteredSendCashVouchers: { state: true },
-			startDate: { type: String, state: true },
-			endDate: { type: String, state: true },
 			searchTextLabel: { state: true },
-			showConfirmPlaceHoldModal: { state: true }
+			showConfirmPlaceHoldModal: { state: true },
+
+			getSendCashVouchers: { type: Object },
+			disposeData: { type: Object },
+
+			startDate: { type: String, state: true },
+			endDate: { type: String, state: true }
 		};
 	}
 
@@ -92,6 +96,7 @@ export class SendCashLanding extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._unloading();
 	}
 
 	// --------------
@@ -100,6 +105,10 @@ export class SendCashLanding extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`, {}));
 	}
 
 	_searchTextChange(event) {
@@ -135,7 +144,7 @@ export class SendCashLanding extends Component {
 		];
 	}
 
-	_dateChanged(e) {
+	async _dateChanged(e) {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
@@ -172,6 +181,17 @@ export class SendCashLanding extends Component {
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
 
+		await this._loadFilteredVouchers();
+
+	}
+
+	async _loadFilteredVouchers() {
+		const startDate = DateTime.fromISO(this.startDate);
+		const endDate = DateTime.fromISO(this.endDate);
+
+		this.disposeData();
+		this.sendCashVouchers = await this.getSendCashVouchers(startDate, endDate);
+
 		this._refineSearch();
 	}
 
@@ -205,8 +225,8 @@ export class SendCashLanding extends Component {
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					return this.filteredSendCashVouchers.filter(item => item.voucherNumber.toString().includes(key) ||
-																		item.amount.toString().startsWith(key) ||
+					// Removed search by voucher number - item.voucherNumber.toString().includes(key)
+					return this.filteredSendCashVouchers.filter(item => item.amount.toString().startsWith(key) ||
 																		item.sourceAccount.toString().startsWith(key));
 				}
 				return [];
@@ -232,7 +252,7 @@ export class SendCashLanding extends Component {
 			if (status === `ALL`) {
 				return this.filteredSendCashVouchers;
 			}
-			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus === status);
+			this.filteredSendCashVouchers = this.filteredSendCashVouchers.filter(item => item.voucherStatus.replace(`_`, ` `) === status);
 		}
 
 		this.requestUpdate();
@@ -293,6 +313,17 @@ export class SendCashLanding extends Component {
 
 	_onPlaceHoldClick(item) {
 		this.dispatchEvent(new CustomEvent(`on-place-hold`, { detail: item.voucherNumber }));
+	}
+
+	_displayTooltip(e) {
+
+		const tooltip = this.shadowRoot.getElementById(`tooltip-action`);
+		const actionLabel = this.shadowRoot.getElementById(`action-label`);
+
+		if (e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			actionLabel.style.display = `none`;
+		}
 	}
 
 	// --------------
@@ -387,9 +418,10 @@ export class SendCashLanding extends Component {
 					height: auto;
 					width: 1030px;
 					--theme-expander-header-height: 64px;
+					--theme-expander-indicator-right-margin: 0px;
 				}
 				horizon-label {
-					width: 150px;
+					width: 145px;
 
 					--theme-layout-gap-spacing: 0px;
 					--horizon-label-text-height: 20px;
@@ -401,20 +433,23 @@ export class SendCashLanding extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-				horizon-label[value="REDEEMABLE"] {
+				horizon-label[value="Redeemable"] {
 					--horizon-label-value-color: #70AF00;
 				}
-				horizon-label[value="ON HOLD"] {
+				horizon-label[value="On Hold"] {
 					--horizon-label-value-color: #C83B37;
 				}
-				horizon-label[value="REDEMPTION AUTHORISED"] {
+				horizon-label[value="Redemption Authorised"] {
 					--horizon-label-value-color: #D4781C;
 				}
+				horizon-label[value="Partial Redeemed"] {
+					--horizon-label-value-color: #909090;
+				}
 				.sent-from-label {
-					width: 130px;
+					width: 170px;
 				}
 				.status-label {
-					width: 204px;
+					width: 195px;
 				}
 				.expander-content {
 					height: auto;
@@ -438,12 +473,19 @@ export class SendCashLanding extends Component {
 					padding-bottom: 30px;
 				}
 				.headerRow {
-					width: 150px;
+					width: 145px;
 					--theme-label-default-font-weight: 600;
 				}
 				.actionRow {
 					width: 130px;
 					--theme-label-default-font-weight: 600;
+				}
+				.detailsRow {
+					width: 135px;
+					margin-right: 10px;
+				}
+				.actionDesc {
+					width: 430px;
 				}
 				.footer {
 					width: 1029px;
@@ -463,6 +505,13 @@ export class SendCashLanding extends Component {
 				capitec-label[label="Payout from merchant"] {
 					padding-left: 16px;
 					--theme-label-default-font-weight: 600;
+				}
+				.tooltip {
+					display: inline-block;
+					width: 135px; 
+					white-space: nowrap; 
+					overflow: hidden;
+					text-overflow: ellipsis; 
 				}
 			`
 		];
@@ -626,12 +675,12 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="voucher-number-label"
 								label="Voucher Number"
-								value="${item.voucherNumber}">
+								value="${maskString(item.voucherNumber)}">
 							</horizon-label>
 							<horizon-label
 								class="amount-sent-label"
 								label="Amount Sent"
-								value="${formatCurrency(item.amount)}">
+								value="${formatCurrency(convertCentsToRand(item.amount))}">
 							</horizon-label>
 							<horizon-label
 								class="from-account-label"
@@ -641,12 +690,12 @@ export class SendCashLanding extends Component {
 							<horizon-label
 								class="sent-from-label"
 								label="Sent From"
-								value="${item.sourceSystem}">
+								value="${item.sourceSystem.replace(`_`, ` `)}">
 							</horizon-label>
 							<horizon-label
 								class="status-label"
 								label="Status"
-								value="${item.voucherStatus}">
+								value="${formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `))}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -704,11 +753,32 @@ export class SendCashLanding extends Component {
 
 	_renderVoucherInfo(element, index) {
 		return html`
-			<capitec-label label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
-			<capitec-label label="${formatCurrency(element.eventAmount)}" row="${index}" column="2"></capitec-label>
-			<capitec-label label="${formatCurrency(element.remainingOrderAmount)}" row="${index}" column="3"></capitec-label>
-			<capitec-label label="${element.action ? formatStringAsPascalCase(element.action) : `-`}" row="${index}" column="4"></capitec-label>
-			<capitec-label label="${element.actionDescription ? formatStringAsPascalCase(element.actionDescription) : `-`}" row="${index}" column="5"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatDate(element.changeDateTime, DATE_TIME_FORMAT)}" row="${index}" column="1"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(convertCentsToRand(element.eventAmount))}" row="${index}" column="2"></capitec-label>
+			<capitec-label class="detailsRow" label="${formatCurrency(convertCentsToRand(element.remainingOrderAmount))}" row="${index}" column="3"></capitec-label>
+
+			<capitec-label 
+				id="action-label"
+				class="detailsRow tooltip"
+				label="${element.action ? formatStringAsPascalCase(element.action) : `-`}"
+				@mouseover="${(e) => this._displayTooltip(e)}"
+				row="${index}" 
+				column="4">
+			</capitec-label>
+			<capitec-tooltip
+						id="tooltip-action"
+						message="${element.action ? formatStringAsPascalCase(element.action) : `-`}"
+						position="bottom"
+						row="${index}" 
+						column="4"
+						width="200px">
+				<capitec-label 
+						class="tooltip" 
+						label="${element.action ? formatStringAsPascalCase(element.action) : `-`}">
+				</capitec-label>
+			</capitec-tooltip>
+
+			<capitec-label class="actionDesc" label="${element.actionDescription ? formatStringAsPascalCase(element.actionDescription) : `-`}" row="${index}" column="5"></capitec-label>
 		`;
 	}
 
@@ -740,19 +810,19 @@ export class SendCashLanding extends Component {
 			<capitec-label label="${element.city}" row="${index}" column="3"></capitec-label>
 			<capitec-label label="${element.merchantName}" row="${index}" column="4"></capitec-label>
 			<capitec-label label="${element.merchantId}" row="${index}" column="5"></capitec-label>
-			<capitec-label label="${formatCurrency(element.merchantAmount)}" row="${index}" column="6"></capitec-label>
+			<capitec-label label="${formatCurrency(convertCentsToRand(element.merchantAmount))}" row="${index}" column="6"></capitec-label>
 			<capitec-label label="${element.country}" row="${index}" column="7"></capitec-label>
 		`;
 	}
 
 	_renderFooter(item) {
-		if (HOLD_RESTRICTION_SET.has(item.voucherStatus)) {
+		if (HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))) {
 			return html`
 				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
 					<capitec-button
 							type="primary" 
 							label="Place hold"
-							?hidden="${!HOLD_RESTRICTION_SET.has(item.voucherStatus)}"
+							?hidden="${!HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))}"
 							@click="${() => this._onPlaceHoldClick(item)}">
 					</capitec-button>
 				</capitec-content-box>

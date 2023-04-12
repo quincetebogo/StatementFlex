@@ -22,6 +22,7 @@ export class MiniProfile extends Component {
 		super();
 		this.miniProfile = null;
 		this.isHelpDeskAgent = false;
+		this.isInsureAgent = false;
 
 		this.configuration = Configuration.getInstance();
 	}
@@ -37,7 +38,8 @@ export class MiniProfile extends Component {
 	static get properties() {
 		return {
 			miniProfile: { type: Object },
-			isHelpDeskAgent: { type: Boolean }
+			isHelpDeskAgent: { type: Boolean },
+			isInsureAgent: { type: Boolean}
 		};
 	}
 
@@ -380,7 +382,8 @@ export class MiniProfile extends Component {
 							// eslint-disable-next-line no-extra-parens
 							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts) ||
 							// eslint-disable-next-line no-extra-parens
-							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts);
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.sqAttempts >= this.maxAttempts) ||
+							this.isInsureAgent;
 
 		if (noBanner) {
 			return html``;
