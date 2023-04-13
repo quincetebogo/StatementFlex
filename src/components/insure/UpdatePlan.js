@@ -551,11 +551,7 @@ class UpdatePlan extends Component {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
 						const fullCurrentYear = new Date().getFullYear();
 						const currentYear = fullCurrentYear.toString().substring(2);
-						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
-							rolePlayer.coverDetails.disableDoB = false;
-						} else {
-							rolePlayer.coverDetails.disableDoB = true;
-						}
+						
 
 						// validations
 						if (rolePlayer.beneficiary === true) {
@@ -580,6 +576,12 @@ class UpdatePlan extends Component {
 							);
 						}
 
+						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
+							rolePlayer.coverDetails.disableDoB = false;
+						} else {
+							rolePlayer.coverDetails.disableDoB = true;
+						}
+
 						if (rolePlayer.beneficiary === true) {
 							const age = getAgeFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
 							rolePlayer.coverDetails.idNumberErrorMessage = ``;
@@ -602,6 +604,7 @@ class UpdatePlan extends Component {
 					} else {
 						rolePlayer.coverDetails.idNumberErrorMessage = `ID Number not valid`;
 					}
+
 				}
 			});
 		}
@@ -1289,6 +1292,17 @@ class UpdatePlan extends Component {
 					ele.coverDetails.canUpdate = false;
 				}
 			}
+
+			// dobCheck
+			
+			if (ele.beneficiary === true) {
+				const age = getAgeFromDob(ele.dateOfBirth);
+				if (age < 18) {
+					ele.coverDetails.canUpdate = false;
+					ele.coverDetails.ageMessage = `Beneficiary must be 18 years or older`;
+				}
+			}
+
 
 			// id check
 			if (ele.beneficiary === true) {
