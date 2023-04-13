@@ -316,11 +316,12 @@ export class HorizonRouter {
 	navigateToInsureLanding() {
 		// TODO: Navigation to the correct insure page
 		if (this.roleManager.isInsureAgent) {
-			this.navigateToInsureExistingClient();
+			this.navigateToInsureUnverifiedClient();
 			return;
 		}
+		this.navigateToInsureExistingClient();
 
-		this.navigateToProductInfo(`Insure`);
+		// this.navigateToProductInfo(`Insure`);
 	}
 
 	navigateToReturnPage() {
