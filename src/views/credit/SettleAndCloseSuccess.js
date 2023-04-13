@@ -1,5 +1,5 @@
+import { CREDIT_TYPE, PRODUCTS } from 'app/constants/Credit';
 import { css, html } from 'platform/elements';
-import { CREDIT_TYPE } from 'app/constants/Credit';
 import { OutcomeBase } from '../common/OutcomeBase';
 import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -33,6 +33,13 @@ import 'app/components/common/SuccessScreen';
 		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
 
+	get incidentDescription() {
+		const settleAccDetails = this.type === PRODUCTS.TERM_LOAN
+								? `Loan Account: ${this.creditCardNumber}`
+								: `Credit Card Account Number: ${this.creditCardNumber}`;
+		return `From Account Number: ${this.fromAccountNumber}\n${settleAccDetails}\nSettlement Amount Paid: ${this.settlementAmount}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -57,6 +64,9 @@ import 'app/components/common/SuccessScreen';
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
 		this.accountName = screenDetails.accountName;
+		this.type = screenDetails.type;
+		this.settlementAmount = screenDetails.settlementAmount;
+		this.fromAccountNumber = screenDetails.fromAccountNumber;
 		
 		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account settled`;
 		this.settleAndCloseTelemetryEvents = SETTLE_AND_CLOSE[this.creditType];
@@ -102,6 +112,7 @@ import 'app/components/common/SuccessScreen';
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.description = this.incidentDescription;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 	
