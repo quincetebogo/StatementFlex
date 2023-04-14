@@ -197,7 +197,7 @@ export class ViewBase extends View {
 
 	_toastVAS() {
 		this._toggleVASToastDisplay();
-		this.toastDetailVAS = `Value added services complete, you can update anytime.`;
+		this.toastDetailVAS = `Consent management update complete. You can change the settings anytime.`;
 		window.setTimeout(() => this._toggleVASToastDisplay(), 3000);
 	}
 
@@ -301,7 +301,7 @@ export class ViewBase extends View {
 	}
 
 	_currentIncidentRef() {
-		return this.currentIncident ? this.currentIncidentRef() : ``;
+		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
 	// ---------
@@ -377,7 +377,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncidentRef()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"

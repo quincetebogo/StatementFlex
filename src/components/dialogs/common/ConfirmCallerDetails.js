@@ -163,6 +163,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _confirmClick() {
+		// TODO: Should this be updated to indicate next screen to be insure?
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -170,6 +171,12 @@ export class ConfirmCallerDetails extends Component {
 			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
 			"confirmed-client-cif": this.callerInformation.cifNumber
 		});
+
+		// TODO: If insure role then navigate to Insure landing page.
+		if (this.roleManager.isInsureAgent) {
+			this._navigateToInsureLandingPage();
+			return;
+		}
 		
 		await this._updateClientNonClientDetails();
 
@@ -380,7 +387,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			
-			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.currentIncident);
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.currentIncident);
 
 			if (!returnValue.succeeded) {
 				// The error handler will take over. We don't need to do anything more in this routine
@@ -393,6 +400,11 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
+	async _navigateToInsureLandingPage() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {

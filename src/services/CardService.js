@@ -40,7 +40,7 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
 
 		const model = {
-			'incident': incident,
+			'incidentRecId': incident?.incidentId || `0`,
 			'idNumber': callerInformation.southAfricanIDNumber,
 			'nonClientFullName': callerInformation.nonClientFullName,
 			'nonClientCellPhone': callerInformation.nonClientCellPhone,
@@ -76,7 +76,7 @@ export class CardService extends ChannelServiceBase {
 				reason: card.cardStopReason.key,
 				cardDisplayName: card.cardDisplayName
 			})),
-			incident: incident,
+			incidentRecId: incident?.incidentId || `0`,
 			title: title,
 			lastName: lastName,
 			cif: cif

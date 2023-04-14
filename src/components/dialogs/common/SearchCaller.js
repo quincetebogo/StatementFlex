@@ -12,6 +12,7 @@ import { Logger } from 'platform/core';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { Utilities } from 'platform/Utilities';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
@@ -38,6 +39,8 @@ const ERROR_MESSAGES = {
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	INVALID_BRANCH: `Invalid branch code`,
+	CP_NUMBER_NOT_FOUND: `CP Number not found`,
+	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
@@ -216,6 +219,7 @@ export class SearchCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			currentIncident: { type: Object },
+			errMessage: { type: Object },
 
 			cpNumber: { attribute: false },
 			clientType: { attribute: false },
@@ -302,17 +306,35 @@ export class SearchCaller extends Component {
 	}
 
 	async _getBranchConsultantDetails(cpNumber) {
-		if (cpNumber.length === 6) {
-			const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
-			if (consultantInfo.status === `Active`) {
-				this.consultantName = `${consultantInfo.firstName} ${consultantInfo.lastName}`;
-				this.branchCode = consultantInfo.branchId;
-				this.branchName = `${consultantInfo.branchId} - ${consultantInfo.branchName}`;
-			}
-		} else {
-			this.consultantName = ``;
-			this.branchName = ``;
+		if (cpNumber.length !== 6) {
+			return;
 		}
+
+		const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
+
+		if (!consultantInfo) {
+			// Service Consultant information not found in database.
+			this.errMessage.cpNumber = ERROR_MESSAGES.CP_NUMBER_NOT_FOUND;
+			this._deepCopyErrMessage();
+			return;
+		}
+
+		if (consultantInfo.status !== `Active`) {
+			// Service Consultant not active
+			this.errMessage.cpNumber = ERROR_MESSAGES.CONSULTANT_INACTIVE;
+			this._deepCopyErrMessage();
+			return;
+		}
+
+		if (consultantInfo.status === `Active`) {
+			this.consultantName = `${consultantInfo.firstName} ${consultantInfo.lastName}`;
+			this.branchCode = consultantInfo.branchId;
+			this.branchName = `${consultantInfo.branchId} - ${consultantInfo.branchName}`;
+			return;
+		}
+
+		this.consultantName = ``;
+		this.branchName = ``;
 	}
 
 	async _onSearchClient() {
@@ -694,7 +716,7 @@ export class SearchCaller extends Component {
 		}));
 	}
 
-	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+	async _updateIncidentBranchDetails(branchCode, branchCallerId) {
 		
 		if (!this.currentIncident) {
 			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
@@ -779,6 +801,12 @@ export class SearchCaller extends Component {
 
 	_currentIncidentRef() {
 		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
+
+	_deepCopyErrMessage() {
+		// Creates and returns a deep copy of an Object this.errMessage
+		this.errMessage = Utilities.deepCopy(this.errMessage);
 	}
 
 	// ---------
@@ -935,7 +963,8 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-non-client"
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="2">
+						column="2"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 					<capitec-radio 
 						id="branch" 
@@ -943,7 +972,8 @@ export class SearchCaller extends Component {
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3"
-						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
+						?checked="${this.clientType === CLIENT_TYPE.BRANCH}"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 
 			</capitec-radio-group>`;

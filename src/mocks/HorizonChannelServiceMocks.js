@@ -23,6 +23,8 @@ export default class HorizonChannelServiceMocks {
 		
 		this.callMocks = await loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = await loadMockModule(this.callMocks, `getClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = await loadMockModule(this.callMocks, `putClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
 		this.cardLimitsMocks = await loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
@@ -53,10 +55,11 @@ export default class HorizonChannelServiceMocks {
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
-		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockQuote`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
-		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockAgreement`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
-		this.sendCashMocks = await loadMockModule(this.sendCashMocks, `sendCashVouchers`, () => import(`../mocks/SendCashMocks`).catch(err => logError(err)));    
-		this.widgetRegistryMocks = await loadMockModule(this.widgetRegistryMocks, `getWidgetById`, () => import(`../mocks/WidgetRegistryMocks`).catch(err => logError(err)));    
+    	this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		  this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		  this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -77,17 +80,21 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	searchCaller(clientInfo) {
+	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			let mockedCaller = this.callMocks.searchCaller;
+			return mockedCaller = this.callMocks.searchCaller;
+		}
+	}
 
-			if (this._mockSettings.searchCallerAdvanced.enabled) {
-				const specificMockedCaller = this.callMocks.searchCallerList.find((caller) => caller.southAfricanIDNumber === clientInfo.searchValue);
-				if (specificMockedCaller) {
-					mockedCaller = { callerInformation: specificMockedCaller };
-				}
-			}
-			return mockedCaller;
+	getClientConsent() {
+		if (this._mockSettings.getClientConsent.positiveCase) {
+			return this.callMocks.getClientConsent;
+		}
+	}
+	
+	putClientConsent() {
+		if (this._mockSettings.putClientConsent.positiveCase) {
+			return this.callMocks.putClientConsent;
 		}
 	}
 
@@ -167,10 +174,7 @@ export default class HorizonChannelServiceMocks {
 
 	debiCheckDetails(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.debiCheckDetails.positiveCase) {
-			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
-			if (mandateDetails) {
-				return mandateDetails.mandateInfo;
-			}
+			return this.mandatesMocks.mandateInfo;
 		}
 
 		return null;
@@ -578,12 +582,22 @@ export default class HorizonChannelServiceMocks {
 	}
 
 	ftspUnlockQuote() {
+		if (this._mockSettings.ftspUnlockQuote.positiveCase) {
+			return this.unlockFTSPMocks.unlockQuote;
+		}
 		return null;
 	}
 	
 	ftspUnlockAgreement() {
 		if (this._mockSettings.ftspUnlockAgreement.positiveCase) {
 			return this.unlockFTSPMocks.unlockAgreement;
+		}
+		return null;
+	}
+
+	creditStatement() {
+		if (this._mockSettings.creditStatement.positiveCase) {
+			return this.creditMocks.creditStatement;
 		}
 		return null;
 	}

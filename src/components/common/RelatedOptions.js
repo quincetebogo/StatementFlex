@@ -213,7 +213,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.currentIncident);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 
@@ -290,9 +290,7 @@ export class RelatedOptions extends Component {
 	}
 
 	_transactionHistory(option) {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		
-		screenDetails.returnToOption = option || ``;
+		this.horizonStore.setReturnScreen(null, option);
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
 	}
 

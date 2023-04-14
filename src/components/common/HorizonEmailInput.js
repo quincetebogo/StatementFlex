@@ -294,6 +294,7 @@ export class HorizonEmailInput extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.emailLabel[type="subtitle"] {
+					margin-bottom:8px;
 					line-height: 24px;
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;

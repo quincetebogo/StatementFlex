@@ -1,9 +1,9 @@
 {
-  "product": "BSC-Horizon",
-  "groupName": "G_PL_HZN_DEV",
+  "product": "horizon",
+  "groupName": "G_CKS_CEC_HORIZON_ADMIN",
   "projects": [
     {
-      "name": "Horizon-UI-2",
+      "name": "cec-ui-horizon",
       "location": ".",
       "platformType": "ocwp",
       "cliVersion": "1.17.0"

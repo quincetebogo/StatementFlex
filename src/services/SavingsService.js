@@ -368,7 +368,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	async ftspUnlock(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`ftspUnlock`)) {
 			return this.mock(`ftspUnlock`);

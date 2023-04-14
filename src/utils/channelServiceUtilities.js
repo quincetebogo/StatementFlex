@@ -295,3 +295,16 @@ export function capitalizeString(str) {
 	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
 	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
 }
+
+/**
+ * Masks the input string
+ * EX: 0123456789 => ******6789
+ * @param {string} str Input string
+ * @param {number} num how many last chars should be unmasked
+ * @param {string} maskChar char value to be replaced
+ * 
+ * @returns {string} masked string
+ */
+export function maskString(str, num = 4, maskChar = `*`) {
+	return str.slice(0, -num).replace(/./g, maskChar) + str.slice(-num);
+}

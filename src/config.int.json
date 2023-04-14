@@ -1,19 +1,20 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-int.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-int.int.capinet",
-		"accessChannelServiceUrl": "https://hzn-accesschannelscs-v1.platform-int.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-int.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-int.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-int.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-int.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-int.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-int.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-int.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-int.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-int.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-int.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-int.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-int.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-int.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-int.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-int.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
-		"incidentManagementService": "https://cec-cs-incident.platform-int.int.capinet"
+		"incidentManagementService": "https://cec-cs-incident.platform-int.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-int.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-int.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-int.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -47,30 +48,6 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"lbb-insight-details": {
-		"34": {
-			"1576": {
-				"header": "Live Better alert!",
-				"image": "/images/insights/lbb-alert.png",
-				"message": "You're missing out on cash backs, automatic savings and higher interest. Do you want to activate your Live Better savings account on the app now?"
-			},
-			"1577": {
-				"header": "Live Better savings",
-				"image": "/images/insights/lbb-savings.png",
-				"message": "Grow your Live Better savings! Just switch on the automatic savings tools on our app.\nCan I help you switch it on?"
-			},
-			"1578": {
-				"header": "Switch on Round-up",
-				"image": "/images/insights/lbb-roundup.png",
-				"message": "You're missing out on automatic savings\nevery time you spend! Switch on Round-up and watch your Live Better savings grow\nevery time you spend."
-			},
-			"1579": {
-				"header": "Switch on Interest Sweep",
-				"image": "/images/insights/lbb-interest-sweep.png",
-				"message": "Did you know you can earn more interest on your interest with Live Better savings?\nCan I help you switch on Interest Sweep on the app now?"
-			}
-		}
-	},
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false	
