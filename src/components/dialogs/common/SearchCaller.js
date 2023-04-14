@@ -31,6 +31,13 @@ const CLIENT_TYPE = Object.freeze({
 	BRANCH: 2
 });
 
+const ERROR_CODE = Object.freeze({
+	2401: `UNABLE_TO_SIGN_IN`,
+	2402: `BANCS_ERROR`,
+	2403: `TELLER_NOT_FOUND`,
+	2404: `CAPABILITY_LEVELS` 
+});
+
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
@@ -41,6 +48,10 @@ const ERROR_MESSAGES = {
 	INVALID_BRANCH: `Invalid branch code`,
 	CP_NUMBER_NOT_FOUND: `CP Number not found`,
 	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
+	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found.`,
+	BANCS_ERROR: `The response indicates Bancs error.`,
+	TELLER_NOT_FOUND: `Unknown or Invalid teller.`,
+	CAPABILITY_LEVELS: `Teller capability not sufficient for this action.`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
@@ -364,6 +375,8 @@ export class SearchCaller extends Component {
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+				this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
 			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
@@ -404,6 +417,8 @@ export class SearchCaller extends Component {
 					this.errMessage.searchValue = errMessages.FIELD_ERROR;
 				} else if (this.currentIncident === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+					this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				}

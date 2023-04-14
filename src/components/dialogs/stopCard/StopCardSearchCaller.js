@@ -20,9 +20,20 @@ const RENDER_MODE = Object.freeze({
 
 const HEADER_LABEL = `Search Caller Details`;
 
+const ERROR_CODE = Object.freeze({
+	2401: `UNABLE_TO_SIGN_IN`,
+	2402: `BANCS_ERROR`,
+	2403: `TELLER_NOT_FOUND`,
+	2404: `CAPABILITY_LEVELS` 
+});
+
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
+	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found.`,
+	BANCS_ERROR: `The response indicates Bancs error.`,
+	TELLER_NOT_FOUND: `Unknown or Invalid teller.`,
+	CAPABILITY_LEVELS: `Teller capability not sufficient for this action.`,
 	REQUIRED_FIELDS_EMPTY: {
 		ALERT_BANNER: `All fields are required`,
 		SEARCH_TEXT: `This is a Required field`,
@@ -233,9 +244,11 @@ export class StopCardSearchCaller extends Component {
 				return true;
 			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-				} else {
+			} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+				this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
+			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-				}
+			}
 		}
 	}
 
