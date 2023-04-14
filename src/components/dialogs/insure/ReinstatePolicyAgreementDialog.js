@@ -30,17 +30,13 @@ class ReinstatePolicyAgreementDialog extends Component {
 
 	/**
 	 * @property {string} issuePlanAgreementContent doc content for the issue plan agreement
-	 * @property {string} paymentAgreementContent doc content for the payment agreement
 	 * @property {string} contractReference contract reference of the selected policy
 	 * @property {string} alertBannerMessage message for the alert banner
-	 * @property {boolean} showReinstatePaymentAgreementDocument determines whether to show the reinstatement agreement
 	 */
 	static get properties() {
 		return {
 			issuePlanAgreementContent: { type: String },
-			paymentAgreementContent: { type: String },
-			contractReference: { type: String },
-			showReinstatePaymentAgreementDocument: { type: Boolean, state: true }
+			contractReference: { type: String }
 		};
 	}
 
@@ -141,15 +137,6 @@ class ReinstatePolicyAgreementDialog extends Component {
 						src="data:application/pdf;base64,${this.issuePlanAgreementContent}#view=fitH">
 					</iframe>
 				</capitec-expander>
-		
-				${this.showReinstatePaymentAgreementDocument === true ? html`
-					<capitec-expander expandbuttonalignment="left" label="View Mandate" class="pdf-viewer"
-						data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-view-mandate">
-						<iframe title="ReinstatePaymentAgreemnt" height = "100%" frameborder = "0"
-							src="data:application/pdf;base64, ${this.paymentAgreementContent}#view=fitH">
-						</iframe>
-					</capitec-expander>
-				</div>` : html``}
 			</capitec-expander-group>
 
 		`;

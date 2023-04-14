@@ -76,7 +76,6 @@ class UpdatePlan extends Component {
 		this.showRemoveLifeAssuredDialog = false;
 		this.showRemoveBeneficiaryDialog = false;
 		this.showUpdatePlanAgreementDialog = false;
-		this.showUpdatePlanPaymentAgreementDocument = false;
 		this.showReinstatePolicyAgreementDialog = false;
 		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
@@ -1023,7 +1022,6 @@ class UpdatePlan extends Component {
 	 */
 	_closeUpdatePlanAgreementDialog() {
 		this.showUpdatePlanAgreementDialog = false;
-		this.showUpdatePlanPaymentAgreementDocument = false;
 	}
 
 	/**
@@ -1070,10 +1068,6 @@ class UpdatePlan extends Component {
 		// policyScheduleDocContent
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
 
-		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
-			this.showUpdatePlanPaymentAgreementDocument = true;
-			this.paymentAgreementContent = this.prepareUpdateResponse.paymentAgreement?.documentContent?.value;
-		}
 	}
 
 	/**
@@ -1096,10 +1090,6 @@ class UpdatePlan extends Component {
 
 		this.showReinstatePolicyAgreementDialog = true;
 
-		if (this.policyDetails.contractReference.toLowerCase().startsWith(`cf`)) {
-			this.showReinstatePaymentAgreementDocument = true;
-			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
-		}
 	}
 
 	_openAgreement(type) {
@@ -1421,10 +1411,6 @@ class UpdatePlan extends Component {
 
 		this.showReinstatePolicyAgreementDialog = true;
 
-		if (this.newContractReference.toLowerCase().startsWith(`cf`)) {
-			this.showReinstatePaymentAgreementDocument = true;
-			this.reinstatePaymentAgreementContent = this.createPolicyResponse.paymentAgreement?.documentContent?.value;
-		}
 	}
 
 	/**
@@ -2621,8 +2607,6 @@ class UpdatePlan extends Component {
 		return this.showUpdatePlanAgreementDialog === false ? `` : html`
 		<horizon-insure-update-plan-agreement-dialog 
 			.planAgreementContent="${this.planAgreementContent}" 
-			.paymentAgreementContent="${this.paymentAgreementContent}"
-			.showUpdatePlanPaymentAgreementDocument = "${this.showUpdatePlanPaymentAgreementDocument}"
 			.contractReference="${this.policyDetails.contractReference}"
 			@update-plan-agree-click="${() => this._acceptUpdatedPlan()}" 
 			@close-modal="${() => this._closeUpdatePlanAgreementDialog()}">
@@ -2638,8 +2622,6 @@ class UpdatePlan extends Component {
 		<horizon-insure-reinstate-policy-agreement-dialog 
 			.issuePlanAgreementContent="${this.issuePlanAgreementContent}" 
 			.contractReference = "${this.newContractReference}"
-			.paymentAgreementContent="${this.reinstatePaymentAgreementContent}"
-			.showReinstatePaymentAgreementDocument = "${this.showReinstatePaymentAgreementDocument}"
 			@reinstate-close-modal = "${() => this.showReinstatePolicyAgreementDialog = false}"
 			@reinstate-agree-click = "${() => this._acceptReinstatePolicy()}" >
 		</horizon-insure-reinstate-policy-agreement-dialog>`;

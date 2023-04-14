@@ -225,16 +225,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 
-		if (this.contractReference.toLowerCase().startsWith(`cf`)) {
-			const paymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
-
-			if (!paymentAgreementResponse.succeeded) {
-				this.handleToastError(paymentAgreementResponse.exception);
-				return;
-			}
-
-			this.reinstatePaymentAgreementDocument = paymentAgreementResponse.result;
-		}
 	}
 
 	/**
@@ -285,16 +275,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
 
-		if (docGenerateRequestPayload.contractReference.toLowerCase().startsWith(`cf`)) {
-			const updatePaymentAgreementResponse = await this.insureService.generateFuneralPolicyPaymentAgreement(docGenerateRequestPayload);
-
-			if (!updatePaymentAgreementResponse.succeeded) {
-				this.handleToastError(updatePaymentAgreementResponse.exception);
-				return;
-			}
-
-			this.updatePaymentAgreementDocument = updatePaymentAgreementResponse.result;
-		}
 	}
 
 	/**
@@ -771,7 +751,6 @@ export class ExistingClient extends InsureViewBase {
 		await this._generateDocumentsForReinstate(false);
 		const resinstatePolicyResponse = {
 			issuePlanAgreement: this.issuePlanAgreementDocument,
-			paymentAgreement: this.reinstatePaymentAgreementDocument,
 			policyResponse: createPolicyResponse.result
 		};
 		return resinstatePolicyResponse;
@@ -1481,7 +1460,7 @@ export class ExistingClient extends InsureViewBase {
 				.maxAllowedCover="${this.clientPolicies.checkInsuranceDetails[0].maxAllowedCover}"
 				.updatePlanQuote="${(policyToCalc) => this._updatePlanQuote(policyToCalc)}"
 				.updatePlanPrepare="${(policyToUpdate) => this._updatePlanPrepare(policyToUpdate)}"
-				.policyDetails="${this.policyDetails}" 
+				.policyDetails="${this.policyDetails}"
 				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
