@@ -1123,7 +1123,7 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
 							label="Cancellation date"
-							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
