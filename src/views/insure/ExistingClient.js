@@ -1287,7 +1287,7 @@ export class ExistingClient extends InsureViewBase {
 		this.clientArrears = arrearsResp?.result;
 	}
 
-	// #endregion EVENT HANDLERS
+	// #endregion EVENT HANDLER
 
 	// #region RENDERING
 
