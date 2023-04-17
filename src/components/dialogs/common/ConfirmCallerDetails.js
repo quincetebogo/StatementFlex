@@ -404,7 +404,7 @@ export class ConfirmCallerDetails extends Component {
 
 	async _navigateToInsureLandingPage() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonRouter.navigateToInsureExistingClient();
+		this.horizonRouter.navigateToInsureUnverifiedClient();
 	}
 
 	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {

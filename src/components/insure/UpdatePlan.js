@@ -314,7 +314,7 @@ class UpdatePlan extends Component {
 		this.beneficiaryToRemoveRowID = beneficiary.rowID;
 
 		if (!beneficiary.firstName) {
-			this.beneficiaryToRemoveDescription = beneficiary.relationship;
+			this.beneficiaryToRemoveDescription = formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[beneficiary.relationship?.toUpperCase()]);
 		} else {
 			this.beneficiaryToRemoveDescription = `${beneficiary.firstName} ${beneficiary?.surname}`;
 		}
