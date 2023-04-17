@@ -5,6 +5,7 @@ import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/SuccessScreen';
 
 /**
@@ -37,7 +38,7 @@ import 'app/components/common/SuccessScreen';
 		const settleAccDetails = this.type === PRODUCTS.TERM_LOAN
 								? `Loan Account: ${this.creditCardNumber}`
 								: `Credit Card Account Number: ${this.creditCardNumber}`;
-		return `From Account Number: ${this.fromAccountNumber}\n${settleAccDetails}\nSettlement Amount Paid: ${this.settlementAmount}`;
+		return `From Account Number: ${this.fromAccountNumber}\n${settleAccDetails}\nSettlement Amount Paid: ${formatCurrency(this.settlementAmount)}`;
 	}
 
 	// -------------------
