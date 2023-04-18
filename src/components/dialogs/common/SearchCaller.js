@@ -48,10 +48,10 @@ const ERROR_MESSAGES = {
 	INVALID_BRANCH: `Invalid branch code`,
 	CP_NUMBER_NOT_FOUND: `CP Number not found`,
 	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
-	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found.`,
-	BANCS_ERROR: `The response indicates Bancs error.`,
-	TELLER_NOT_FOUND: `Unknown or Invalid teller.`,
-	CAPABILITY_LEVELS: `Teller capability not sufficient for this action.`,
+	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found. Contact UAA`,
+	BANCS_ERROR: `BANCS error`,
+	TELLER_NOT_FOUND: `Unknown or Invalid teller. Contact UAA`,
+	CAPABILITY_LEVELS: `Capability level too low. Contact UAA`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,

@@ -30,10 +30,10 @@ const ERROR_CODE = Object.freeze({
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
-	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found.`,
-	BANCS_ERROR: `The response indicates Bancs error.`,
-	TELLER_NOT_FOUND: `Unknown or Invalid teller.`,
-	CAPABILITY_LEVELS: `Teller capability not sufficient for this action.`,
+	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found. Contact UAA`,
+	BANCS_ERROR: `BANCS error`,
+	TELLER_NOT_FOUND: `Unknown or Invalid teller. Contact UAA`,
+	CAPABILITY_LEVELS: `Capability level too low. Contact UAA`,
 	REQUIRED_FIELDS_EMPTY: {
 		ALERT_BANNER: `All fields are required`,
 		SEARCH_TEXT: `This is a Required field`,
