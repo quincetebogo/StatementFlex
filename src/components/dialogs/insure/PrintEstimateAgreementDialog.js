@@ -78,7 +78,12 @@ class PrintEstimateAgreementDialog extends Component {
 			}
 			capitec-expander[expanded] {
 				border-bottom: var(--theme-expander-border, 1px solid black);
-			}`
+			}
+			
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+			`
 		];
 	}
 
@@ -88,7 +93,7 @@ class PrintEstimateAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Email Estimate">
+		<capitec-modal type="form" header="Email Estimate" style="--theme-modal-header-color: black;">
 			<div slot="body" data-automation-id="insure-print-estimate-dialog-body">
 				${this._renderDialogBody()}
 			</div>

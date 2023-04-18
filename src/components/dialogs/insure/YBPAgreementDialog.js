@@ -1,5 +1,5 @@
 
-import { Component, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 /**
  * Dialog that will display the YBP Agreement
@@ -47,12 +47,32 @@ export class YBPAgreementDialog extends Component {
 	// #region RENDERING
 
 	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+
+		`
+		];
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Disclosure">
+		<capitec-modal type="form" header="You/Your beneficiary are paid" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -70,22 +90,19 @@ export class YBPAgreementDialog extends Component {
 		return html`
 		<strong>You/your beneficiary are paid:</strong>
 		<ul>
-			<li>The cover amount in the Schedule when a Life Assured dies only AFTER 6 months from the Cover Start Date;
-			</li>
-			<li>Double the Funeral Benefit cover amount in the Schedule when a Life Assured dies due to an accident any
-				time after the Cover Start Date. </li>
+			<li>The cover amount in the Schedule when a life covered dies only AFTER 6 months from the Cover Start Date;</li>
+			<li>Double the cover amount (except for children) in the Schedule when a life covered dies due to an accident any
+				 time after the Cover Start Date. </li>
 		</ul>
-		A Waiting Period will not be applicable on the Funeral Benefit if:
+		A Waiting Period will not be applicable if:
 		<ul>
-			<li>the Lives Assured were covered on a previous funeral policy with another Licensed Insurer within 31
-				(thirty-one) days before the Cover Start Date or covered on a previous Capitec Funeral Cover Plan within
-				2 (two) months before the Cover Start Date (“the previous policy”); and </li>
-			<li>the previous policy has lapsed or was cancelled; and </li>
-			<li>the waiting period expired in respect of that previous policy for the Life Assured.</li>
+			<li>the Lives Assured were covered  on a previous funeral policy with another Licensed Insurer
+				 within 31 days before the Cover Start Date and that waiting period has expired and</li>
+			<li>the previous policy is inactive;</li>
 		</ul>
-		<strong>Burial Repatriation:</strong> We will transport the deceased to the funeral home of the claimant’s
-		choice from within the Republic of South Africa, Namibia, Zimbabwe, Botswana, Swaziland, Lesotho and Mozambique
-		to the closest place of burial anywhere in South Africa.`;
+		<p><strong>Funeral Support:</strong> We will transport the deceased to the funeral home of the claimant’s choice 
+		from within the Republic of South Africa, Namibia, Zimbabwe, Botswana, Swaziland, Lesotho and Mozambique to 
+		the closest place of burial anywhere in South Africa.</p>`;
 	}
 
 	/**
@@ -94,9 +111,9 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
 			</capitec-button>
-			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
+			<capitec-button slot="footer" type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
 

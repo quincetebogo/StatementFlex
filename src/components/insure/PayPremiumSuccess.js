@@ -176,6 +176,37 @@ _viewPlan() {
 				align-items: center;
 			}
 
+			.options-group {
+				height: 80px; 
+				margin: 17px 0px 15px 0px;
+				width: auto;
+			}
+			.options-group > horizon-option-button {
+				width: 184px;
+				height: 80px;
+				margin-left: 16px;
+				padding: 0px;
+
+				--horizon-option-btn-text-margin-top: 3px;
+				--horizon-option-btn-icon-height: 26px;
+				--horizon-option-btn-icon-width: 26px;
+			}
+
+			capitec-group > capitec-title-bar {
+				--theme-titlebar-min-height: 32px;
+				--theme-titlebar-padding: 0px 16px 0px 16px;
+				--theme-type-default-background: rgb(244, 244, 244);
+				--theme-label-title-font-size: 15px;
+				--theme-label-title-font-weight: 600;
+				--theme-type-default-font-color: #3A3A3A;
+				--theme-label-title-font-size: 14px;
+				--theme-titlebar-shadow: 0px;
+				--theme-titlebar-item-gap: 0px;
+
+				border-top: 1px solid #E1E1E1;
+				border-bottom: 1px solid #E1E1E1;
+			}
+
 			`
 			];
 	}
@@ -208,7 +239,7 @@ _viewPlan() {
 		${this._renderAlert()}
 		<capitec-card class="card">
 			
-			<div>
+			<div style="margin-bottom: 95px;">
 			
 				<capitec-image src="platform/illustrations/transfer.svg"
 					style="width: 300px; margin-left: auto; margin-right: auto;">
@@ -216,14 +247,10 @@ _viewPlan() {
 				<label class="label">Arrears paid</label>
 				<div style= "justify-content: center;">
 					<capitec-icon size="medium" icon="status/success-trans" style="position: relative; left: 304px; top: 42px;"></capitec-icon>
-					<p>You've paid <b>${formatCurrency(this.amountToPay)}</b> towards Funeral Plan (<b>${this.contractReference}</b>)</p>
+					<p>You've paid <b>${formatCurrency(this.amountToPay)}</b> towards Funeral Plan <b>${this.contractReference}</b></p>
 				</div>
 				 
 				<div class="button-row">
-					<capitec-button data-automation-id="insure-pay-premium-success-view-plan" 
-						class = "capitec-button-medium" label="View Plan" type="secondary"
-						@click= "${() => this._viewPlan()}">
-					</capitec-button>
 
 					<capitec-button  label="Email" class = "capitec-button-medium" type="secondary"
 						@click= "${() => this._openEmailPlanDialog()}">
@@ -235,9 +262,28 @@ _viewPlan() {
 					</capitec-button>
 				</div>
 			</div>
-
+			${this._renderFooter()}
 		</capitec-card>
 		
+		`;
+	}
+
+	_renderFooter() {
+		return html`
+			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
+				<capitec-title-bar
+					type="default"
+					label="More Options">
+				</capitec-title-bar>
+				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+					<horizon-option-button
+							data-automation-id="insure-policy-product-enquiry"
+							label="View Plan"
+							icon="system/view-action"
+							@click="${() => this._viewPlan()}">
+					</horizon-option-button>
+				</capitec-group>
+			</capitec-group>
 		`;
 	}
 

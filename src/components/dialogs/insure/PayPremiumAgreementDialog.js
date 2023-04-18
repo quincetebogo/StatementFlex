@@ -168,6 +168,10 @@ class PayPremiumAgreementDialog extends Component {
 					font-weight: bolder;
 				}
 
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
+
 				`
 		];
 	}
@@ -179,7 +183,7 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})">
+			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})" style="--theme-modal-header-color: black;">
 				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>

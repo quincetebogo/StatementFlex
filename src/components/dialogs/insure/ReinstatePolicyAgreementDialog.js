@@ -101,6 +101,10 @@ class ReinstatePolicyAgreementDialog extends Component {
 				capitec-expander[expanded] {
 					border-bottom: var(--theme-expander-border, 1px solid black);
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -111,7 +115,7 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Re-Issue Policy Agreement (${this.contractReference})">
+			<capitec-modal type="form" header="Re-Issue Policy Agreement (${this.contractReference})" style="--theme-modal-header-color: black;">
 				<div slot="body" data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>

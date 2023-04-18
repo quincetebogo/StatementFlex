@@ -1,4 +1,5 @@
-import { Component, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
  * remove Life Assured dialog allows one to confirm whether they would like to remove the selected Life Assured
@@ -63,12 +64,34 @@ class RemoveLifeAssuredDialog extends Component {
 	// #region RENDERING
 
 	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+		
+			${INSURE_CSS}
+
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+
+		`
+		];
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {html} html content 
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="warn" header="Remove Family Member">
+		<capitec-modal type="free" header="Remove Family Member" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -101,10 +124,10 @@ class RemoveLifeAssuredDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			<!-- <capitec-group > -->
-			<capitec-button type="clear" label="Cancel" @click="${() => this._cancelClick()}">
+			<capitec-button type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 			</capitec-button>
 			
-			<capitec-button type="clear" label="Confirm" @click="${() => this._agreeClick()}">
+			<capitec-button type="primary" label="Confirm" @click="${() => this._agreeClick()}">
 			</capitec-button>
 			<!-- </capitec-group> -->
 			`;
