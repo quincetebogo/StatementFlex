@@ -47,12 +47,32 @@ export class EACLAgreementDialog extends Component {
 	// #region RENDERING
 
 	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+
+		`
+		];
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/your beneficiary are paid Agreement Disclosure">
+		<capitec-modal type="form" header="Entry Ages and Child Limits" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -71,9 +91,9 @@ export class EACLAgreementDialog extends Component {
 		In deciding who to include, please note:
 		<ul>
 			<li>Entry Age is how old the Life Assured is on the Cover Start Date and is used to calculate the premium
-				and cover. Once on the plan, there are no age restrictions; </li>
+				and cover.</li>
 			<li>By law the total amount that can be paid out for a child’s death is limited. These limits apply across
-				all our plans, benefit types and bind Insurers.</li>
+				all our plans and benefit types.</li>
 		</ul>`;
 	}
 
@@ -83,9 +103,9 @@ export class EACLAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
 			</capitec-button>
-			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
+			<capitec-button slot="footer" type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
 

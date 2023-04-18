@@ -79,6 +79,10 @@ export class CFPAgreementDialog extends Component {
 				.no-margin{
 					margin-top: 0;
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -89,7 +93,7 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Capitec Funeral Plan Agreement Disclosure">
+		<capitec-modal type="form" header="Capitec Funeral Plan" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -109,8 +113,9 @@ export class CFPAgreementDialog extends Component {
 				<ul class="no-margin">
 					<li>is a licensed financial services provider;</li>
 					<li>earns a commission of 3.25% from the Insurer;</li>
+					<li>holds preference shares in Centriq and may receive a dividend</li>
 				</ul>
-				<p>This plan is underwritten by Capitec Life Insurance Company Limited.</p>
+				<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
 				<p><strong>I:</strong></p>
 
 				<ul class="no-margin">
@@ -150,9 +155,9 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
 			</capitec-button>
-			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
+			<capitec-button slot="footer" type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
 }

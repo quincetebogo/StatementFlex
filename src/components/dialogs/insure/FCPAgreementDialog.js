@@ -47,12 +47,32 @@ export class FCPAgreementDialog extends Component {
 	// #region RENDERING
 
 	/**
+		 * Generates the component stylesheet.
+		 *
+		 * @readonly
+		 * @static
+		 * @returns {css} CSS for the component.
+		 */
+	static get styles() {
+		return [
+			super.styles,
+			css`
+
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+
+		`
+		];
+	}
+
+	/**
 	 * Generates the component template for web mode
 	 * @returns {html} html content
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Funeral cover plan Agreement Disclosure">
+		<capitec-modal type="form" header="Funeral Plan start and end" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -69,23 +89,18 @@ export class FCPAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 		<strong>The Funeral Plan: </strong>
-		<p><strong>Starts: </strong></p>
+		<strong>Starts: </strong>
 		<ul>
-			<li>Immediately on the date of signature of this agreement, and certain benefits are payable from the
-				Cover
-				Start Date </li>
+			<li>On the date of signature of this agreement, and certain benefits are payable from the Cover Start Date </li>
 		</ul>
 		<strong>Ends if: </strong>
 		<ul>
 			<li>You or Capitec cancel your Funeral Cover Plan;</li>
 			<li>You cancel in the cooling off period of 31 days from the Cover Start Date without claim, and you
-				will
-				receive a full refund of premiums paid; </li>
-			<li>You cancel at any other time with no refund of premiums already paid; </li>
+				will receive a full refund of premiums paid; </li>
 			<li>Your Capitec savings account is closed; </li>
 			<li>You are in arrears with 3 premiums. Your Funeral Cover Plan will then be terminated with effect from
-				the
-				date of the last premium received by Us. </li>
+				the date of the last premium received. </li>
 			<li>You as the policyholder dies and the Death Premium Waiver benefit ends; </li>
 			<li>Fraud is confirmed.</li>
 		</ul>`;
@@ -97,9 +112,9 @@ export class FCPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="clear" label="Cancel" @click="${() => this._cancelDialog()}">
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
 			</capitec-button>
-			<capitec-button slot="footer" type="clear" label="Accept" @click="${() => this._acceptAndClose()}">
+			<capitec-button slot="footer" type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
 			</capitec-button>`;
 	}
 

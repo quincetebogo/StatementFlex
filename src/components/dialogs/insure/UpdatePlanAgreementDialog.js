@@ -109,6 +109,10 @@ class UpdatePlanAgreementDialog extends Component {
 				.full-length-banner > capitec-toast{
 					width: 100%;
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 				`
 		];
 	}
@@ -119,7 +123,7 @@ class UpdatePlanAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Funeral Cover Plan (${this.contractReference})">
+			<capitec-modal type="form" header="Funeral Cover Plan (${this.contractReference})" style="--theme-modal-header-color: black;">
 				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>

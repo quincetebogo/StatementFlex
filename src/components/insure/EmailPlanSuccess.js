@@ -172,8 +172,8 @@ class EmailPlanSuccess extends Component {
 					<capitec-label class="label" type="title" label="Documentation sent"></capitec-label>
 
 					<div class="success-message">
-						<capitec-icon size="medium" icon="status/success"></capitec-icon>
-						<capitec-label class="spacing" type="subtitle" label="Your documentation for policy number '${this.contractReference}' has been emailed to ${this.confirmedEmail}"></capitec-label>
+						<capitec-icon size="medium" icon="status/success" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
+						<p>Your documentation for policy number <b>${this.contractReference}</b> has been emailed to <b>${this.confirmedEmail}</b></p>
 					</div>
 
 					<capitec-button class="buttons" label="View Plan" type="secondary" @click="${() => this._viewPlanClick()}"></capitec-button>

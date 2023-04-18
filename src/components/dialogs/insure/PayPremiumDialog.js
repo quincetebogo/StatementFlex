@@ -326,6 +326,7 @@ class PayPremiumDialog extends Component {
 				border: 1px solid #e1e1e1;
 				border-radius: 5px;
 				padding: 10px;
+				margin-bottom: 10px;
 			}
 
 			.modal-body-label{
@@ -382,7 +383,7 @@ class PayPremiumDialog extends Component {
 			</insure-account-select>
 
 			
-			<div style="display: flex; justify-content: space-between;">
+			<div style="display: flex; justify-content: space-between; margin-top: 30px">
 				<capitec-label type="subtitle" label="Arrears amount payable"></capitec-label>
 				<capitec-label type="subtitle" label="Total arrears amount: ${formatCurrency(this.totalAmount)}"></capitec-label>
 			</div>
