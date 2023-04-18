@@ -1252,7 +1252,6 @@ class ClientSummary extends Component {
 						</tr>
 						<tr>
 							<td>Funeral support</td>
-							<td>Maximum entry age</td>
 							<td>
 								<div>Our Funeral Support service will guide you step-by-step through this difficult time.</div>
 								<div>•Legal assistance regarding the funeral procedures, e.g. removal of the body, etc.</div>

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatDate, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClaimSummaryEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -194,7 +194,7 @@ class ClaimSummary extends Component {
 						value="${this.claimSummary?.claimsReference}">
 					</horizon-label>
 					<horizon-label label="Task reference" class="row-item"
-						value="${this.claimSummary?.taskReference}">
+						value="${!this.claimSummary?.taskReference ? `-` : this.claimSummary?.taskReference}">
 					</horizon-label>
 					<horizon-label label="Claim type" class="row-item"
 						value="${this.claimSummary?.claimType}">
@@ -210,7 +210,7 @@ class ClaimSummary extends Component {
 						value="${formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Incident number" class="row-item"
-						value="${this.claimSummary?.incidentNumber}">
+						value="${!this.claimSummary?.incidentNumber ? `-` : this.claimSummary?.incidentNumber}">
 					</horizon-label>
 					<horizon-label label="Policy number" class="row-item"
 						value="${this.claimSummary?.policyNumber}">
@@ -232,10 +232,10 @@ class ClaimSummary extends Component {
 				</div>
 
 				<div class="doc-container">
-					<capitec-label class="label-text" label="${this.claimSummary.outstandingDocs.length !== 0 ? `Outstanding documents` : `No outstanding documents`}" type="default">
+					<capitec-label class="label-text" label="${!isNullorEmpty(this.claimSummary?.outstandingDocs) ? `Outstanding documents` : `No outstanding documents`}" type="default">
 					</capitec-label>
 					<ul id="doc-item-list">
-						${this.claimSummary.outstandingDocs.map(doc => html`
+						${this.claimSummary?.outstandingDocs?.map(doc => html`
 							<li class="doc-item">${doc.documentName}</li>
 						`)}
 					</ul>

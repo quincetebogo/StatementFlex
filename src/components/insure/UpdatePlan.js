@@ -399,14 +399,14 @@ class UpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
-				
+
 					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
 						const fullCurrentYear = new Date().getFullYear();
 						const currentYear = fullCurrentYear.toString().substring(2);
-	
+
 						if (parseInt(birthYear, 10) >= 0 && parseInt(birthYear, 10) <= parseInt(currentYear, 10)) {
 							rolePlayer.coverDetails.disableDoB = false;
 						} else {
@@ -545,12 +545,12 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
-					
+
 					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
 						const fullCurrentYear = new Date().getFullYear();
 						const currentYear = fullCurrentYear.toString().substring(2);
-						
+
 
 						// validations
 						if (rolePlayer.beneficiary === true) {
@@ -594,7 +594,7 @@ class UpdatePlan extends Component {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
 							this.policyDetails.roleplayers[index].coverDetails.ageMessage = ``;
 						}
-						
+
 
 						if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverDetails?.ageMessage)) {
 							rolePlayer.coverDetails.disableDoB = false;
@@ -628,7 +628,7 @@ class UpdatePlan extends Component {
 					}
 
 					this.policyDetails.roleplayers[index].contactDetails.cellphone = event.detail.new;
-					
+
 					if (!isNullorEmpty(event.detail.new) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = `Incorrect cellphone number`;
 					} else {
@@ -809,7 +809,7 @@ class UpdatePlan extends Component {
 
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
 		if (onUpdateValidations.validated === true) {
-				delete this.policyDetails.totalPremium;
+			delete this.policyDetails.totalPremium;
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 
 			this.currentTotalPremium = calcQuoteResponse.totalPremium;
@@ -857,12 +857,6 @@ class UpdatePlan extends Component {
 					ele.coverDetails.canSubmit = false;
 				}
 			}
-
-			// Banking Details
-			// if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
-			// canSubmit = false;
-
-			// }
 
 			// ID/DoB Check
 			if (ele.lifeAssured === true) {
@@ -1038,36 +1032,26 @@ class UpdatePlan extends Component {
 
 		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
-
 			this.showValidationConfirmDialog = true;
-
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
-
 			return;
 		}
 
 		const onUpdateValidations = this._validateOnUpdate();
 
 		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) {
-
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
-
 			this.showUpdateValidationDialog = true;
-
 			return;
 		}
 
-		this._calculatePremium();
-
-
+		await this._calculatePremium();
 		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
-
-		// This needs to move
+		if (this.prepareUpdateResponse === undefined) {
+			return;
+		}
 		this.showUpdatePlanAgreementDialog = true;
-
-		// policyScheduleDocContent
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
-
 	}
 
 	/**
@@ -1278,13 +1262,21 @@ class UpdatePlan extends Component {
 
 			// Name check
 			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.firstName) || isNullorEmpty(ele.surname)) {
+				if (isNullorEmpty(ele.firstName)) {
+
+					ele.coverDetails.firstNameErrorMessage = `First name is a required field`;
+					ele.coverDetails.canUpdate = false;
+				}
+
+				if (isNullorEmpty(ele.surname)) {
+
+					ele.coverDetails.surnameErrorMessage = `Surname is a required field`;
 					ele.coverDetails.canUpdate = false;
 				}
 			}
 
 			// dobCheck
-			
+
 			if (ele.beneficiary === true) {
 				const age = getAgeFromDob(ele.dateOfBirth);
 				if (age < 18) {
@@ -1487,16 +1479,16 @@ class UpdatePlan extends Component {
 					}
 
 					if (rolePlayer.lifeAssured === true) {
-					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
-						this.policyDetails.roleplayers[index].relationship,
-						this.productParams,
-						this.policyDetails.roleplayers[index].coverAmount,
-						index === 0 ? this.maxAllowedCover : 0,
-						getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
-						// this.policyDetails.roleplayers[index].age,
-						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
-						false
-					);
+						this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+							this.policyDetails.roleplayers[index].relationship,
+							this.productParams,
+							this.policyDetails.roleplayers[index].coverAmount,
+							index === 0 ? this.maxAllowedCover : 0,
+							getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
+							// this.policyDetails.roleplayers[index].age,
+							this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+							false
+						);
 					}
 
 					if (rolePlayer.beneficiary === true) {
