@@ -205,27 +205,27 @@ class AddLifeDialog extends Component {
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams)}" 
+					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
 					hint="Only one allowed between the ages of 18 - 64 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Child" id="Child" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams)}" 
+					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 25 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Parent" id="Parent" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams)}" 
+					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Extended Family" data-automation-id="horizon-insure-add-life-dialog-extended" id="ExtendedFamily"
-					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams)}" 
+					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._showExtendedFamilyList(e)}">
 				</capitec-radio>

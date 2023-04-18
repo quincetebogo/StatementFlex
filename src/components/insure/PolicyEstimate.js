@@ -163,7 +163,7 @@ class PolicyEstimate extends Component {
 					life.coverDetails.coverMessage = life.coverDetails.maxCoverMessage.replace(`{0:#,##0}`, life.coverDetails.maxCoverAmount);
 					isValid = false;
 				}
-				
+
 				if (!life.coverAmount || life.coverAmount === `` || life.coverAmount === 0) {
 					life.coverDetails.coverMessage = life.coverDetails.minCoverMessage.replace(`{0:#,##0}`, life.coverDetails.minCoverAmount);
 					isValid = false;
@@ -193,7 +193,6 @@ class PolicyEstimate extends Component {
 
 			if (printOrCalculate === 1) {
 				this.estimate = await this.calculateEstimate({ detail: request });
-				this.requestUpdate();
 			} else {
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
@@ -363,6 +362,10 @@ class PolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
+		let ageMessage = ``;
+		if (this.mainLifeDefaultAge < 18 || this.mainLifeDefaultAge > 64) {
+			ageMessage = `Only Main Life between the ages of 18 and 64 are allowed`;
+		}
 		this.estimate.lifesAssured = [];
 		this.estimate.lifesAssured.push({
 			relationship: `MainLife`,
@@ -377,7 +380,7 @@ class PolicyEstimate extends Component {
 				minCoverAmount: MAIN_LIFE_MINIMUM_COVER,
 				maxAge: 64,
 				minAge: 18,
-				ageMessage: ``,
+				ageMessage: ageMessage,
 				coverMessage: ``,
 				genderMessage: ``,
 				maxCoverMessage: `Only cover up to {0:#,##0} on main life assured is allowed.`,

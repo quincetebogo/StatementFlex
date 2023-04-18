@@ -164,7 +164,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
-		
+
 	}
 
 	async disconnectedCallback() {
@@ -314,7 +314,7 @@ class ClientSummary extends Component {
 	 * Fire navigate event to Product Enquiry
 	 * @returns {void}
 	 */
-	 _productEnquiry() {
+	_productEnquiry() {
 		this.dispatchEvent(new CustomEvent(`product-enquiry`, { detail: {} }));
 	}
 
@@ -323,7 +323,7 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem - Policy details 
 	 * @returns {void}
 	 */
-	 _expanded(policyItem) {
+	_expanded(policyItem) {
 		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference &&
 			x.isExpanded === true);
 
@@ -362,7 +362,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
-		
+
 		if (this.readOnlyMode === true) {
 			return;
 		}
@@ -418,7 +418,7 @@ class ClientSummary extends Component {
 	}
 
 	async _requestCallback(firstName, lastName, cellphoneNumber) {
-		
+
 		await this.requestCallback(firstName, lastName, cellphoneNumber);
 
 
@@ -436,7 +436,7 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem policy item
 	 * @returns {void}
 	 */
-	 async _openPayPremiumDialog() {
+	async _openPayPremiumDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		await this._getArrears();
 		this.showPayPremiumDialog = true;
@@ -451,7 +451,7 @@ class ClientSummary extends Component {
 	 * @param {string} contractReference contract reference
 	 * @returns {void} 
 	 */
-	 _openCancelPolicyDialog(contractReference) {
+	_openCancelPolicyDialog(contractReference) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
@@ -462,7 +462,7 @@ class ClientSummary extends Component {
 	 * @param {event} e event
 	 * @returns {void}
 	 */
-	 _goToClaimSummary(e) {
+	_goToClaimSummary(e) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CLAIM_DETAILS, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-claim-summary`, { detail: e.detail.claim }));
 	}
@@ -473,7 +473,7 @@ class ClientSummary extends Component {
 	 * @param {string} canReinstate canReinstate
 	 * @returns {void}
 	 */
-	 _goToUpdatePlan(contractReference, canReinstate) {
+	_goToUpdatePlan(contractReference, canReinstate) {
 		if (canReinstate === false) {
 			this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
 		} else {
@@ -490,7 +490,7 @@ class ClientSummary extends Component {
 	 * Fire navigate event to Estimate
 	 * @returns {void}
 	 */
-	 _goToEstimate() {
+	_goToEstimate() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_GET_ESTIMATE, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-estimate`));
 	}
@@ -1003,8 +1003,8 @@ class ClientSummary extends Component {
 					
 					${this._renderGetEstimateButton()}
 
-					${this.readOnlyMode === true ? html`` 
-						: html`
+					${this.readOnlyMode === true ? html``
+				: html`
 							<capitec-overflow-menu label="Menu" icon="system/more-white">
 								<capitec-overflow-menu-item icon="system/phone-call-action" label="Request callback" 
 									@click="${() => this.showRequestCallbackDialog = true}">
@@ -1123,7 +1123,7 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
 							label="Cancellation date"
-							value="${formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.effectiveCancellationDate, `dd mmm yyyy`)}">
+							value="${formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
@@ -1218,16 +1218,8 @@ class ClientSummary extends Component {
 			: html`
 			<capitec-content-box id="no-results-box">
 				<div id="no-results-box-inner">
-					<capitec-label label="Features of a Funeral Plan" class="strong-label"></capitec-label>
+					<capitec-label label="Features of Funeral Cover" class="strong-label"></capitec-label>
 					<table id='benefits-table'>
-						<tr>
-							<td>Origin</td>
-							<td>Leaflet</td>
-						</tr>
-						<tr>
-							<td>Date of service update</td>
-							<td>12/03/2023</td>
-						</tr>
 						<tr>
 							<td>Maximum cover</td>
 							<td>
@@ -1242,7 +1234,9 @@ class ClientSummary extends Component {
 						</tr>
 						<tr>
 							<td>Waiting period</td>
-							<td>6 month waiting period. However, if you have cover with an existing insurer, we will waive your waiting period up to your current cover amount</td>
+							<td>
+								6-month waiting period for natural death. However, we’ll waive your waiting period for natural death for the same lives assured and related cover amounts if you have cover with an existing insurer.
+							</td>
 						</tr>
 						<tr>
 							<td>Maximum entry age</td>
@@ -1257,24 +1251,40 @@ class ClientSummary extends Component {
 							<td>22</td>
 						</tr>
 						<tr>
-							<td>Funeral support (incl. transportation of the deceased)</td>
-							<td>Request funeral support, for transportation of the deceased, by calling 0860 777 554 or log a request via our remote banking app or WhatsApp for the service provider to contact you. The place of death must be at least 50 kilometres from the place of burial</td>
+							<td>Funeral support</td>
+							<td>
+								<div>Our Funeral Support service will guide you step-by-step through this difficult time.</div>
+								<div>•Legal assistance regarding the funeral procedures, e.g. removal of the body, etc.</div>
+								<div>•Help with obtaining a death certificate for your loved one</div>
+								<div>•Help with the arrangement of a burial or cremation (all funeral costs are for your account and not Capitec's)</div>
+								<div>
+									•This service allows the transport of your or a loved one’s body from the place of death within South Africa and neighbouring countries to the funeral home of choice closest to the place of burial in South Africa. The place of death must be at least 50km from the place of burial
+								</div>
+								<div>
+									•If you need help to transport the deceased, you can contact our Funeral Support directly on 0860 77 75 54 or request a call back on our app or WhatsApp us on 067 418 9565.
+								</div>
+								<div>
+									Note: Referrals to a pathologist, psychologist, psychiatrist or special counselling is limited to referral only; all costs will be for your account (the policyholder). 
+								</div>
+							</td>
 						</tr>
 						<tr>
 							<td>Death Premium Waiver</td>
-							<td>Premiums paid by insurer on death of policyholder – 6 months, allowing your family time to re-organize their financial lives</td>
+							<td>Premiums paid by insurer on death of policyholder – 6 months, allowing your family time to reassess their financial lives. This waiver is automatically activated on registration of your (the policyholder’s) death.</td>
 						</tr>
 						<tr>
 							<td>Voluntary Policy Pause benefit</td>
-							<td>Pause premiums and benefits – 6 months. Allows you to retain your product pricing based on entry age</td>
+							<td>
+							Pause premiums and benefits for up to 6 months. You won’t pay monthly premiums and there will be no cover, but you can reactivate your cover and premium anytime in the 6-month period. Once reactivated, monthly premium payments will remain the same.
+							</td>
 						</tr>
 						<tr>
 							<td>Double Accident benefit</td>
-							<td>Payment of an additional benefit amount equal to your cover amount if lives assured die in an accident</td>
+							<td>Payment of an extra benefit amount equal to your cover amount if lives assured die in an accident.</td>
 						</tr>
 						<tr>
 							<td>Newborn premium waiver</td>
-							<td>Premiums paid by insurer on your behalf – 6 months (natural birth or adoption)</td>
+							<td>Full cover for up to 6 months without monthly premium payments (natural birth or adoption).</td>
 						</tr>
 					</table>
 				</div>
@@ -1433,7 +1443,7 @@ class ClientSummary extends Component {
 
 	_renderRequestCallbackDialog() {
 		return this.showRequestCallbackDialog === false ? html``
-		: html`
+			: html`
 			<horizon-insure-request-callback-dialog
 			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 			@cancel-click="${() => this.showRequestCallbackDialog = false}">

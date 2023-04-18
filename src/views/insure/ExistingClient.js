@@ -295,14 +295,6 @@ export class ExistingClient extends InsureViewBase {
 							"type": `PDF`,
 							"value": this.issuePlanAgreementDocument?.documentContent.value
 						}
-					},
-					{
-						"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-						"documentGuid": this.reinstatePaymentAgreementDocument?.documentDetails?.guid,
-						"content": {
-							"type": `PDF`,
-							"value": this.reinstatePaymentAgreementDocument?.documentContent.value
-						}
 					}
 				];
 			} else {
@@ -326,14 +318,6 @@ export class ExistingClient extends InsureViewBase {
 						"content": {
 							"type": `PDF`,
 							"value": this.updatePlanAgreementDocument?.documentContent.value
-						}
-					},
-					{
-						"documentType": DOCUMENT_TYPE.PAYMENT_MANDATE_AGREEMENT,
-						"documentGuid": this.updatePaymentAgreementDocument?.documentDetails?.guid,
-						"content": {
-							"type": `PDF`,
-							"value": this.updatePaymentAgreementDocument?.documentContent?.value
 						}
 					}
 				];
@@ -775,13 +759,12 @@ export class ExistingClient extends InsureViewBase {
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
 			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber, // 363291555
-				// "primarySavingsAccountNumber": this.accountDetails?.savingsAccountData.accountNumber, // 1952898232
-				"policyContractReference": contractReference, // "FP00001590"
-				"firstName": this.callerInformation.firstName, // `DUBE`
-				"surname": this.callerInformation.lastName, // `TDIL`
-				"idNumber": this.callerInformation.southAfricanIDNumber, // "0011262112193"
-				"dateOfBirth": dob.toISOString() // "2000-11-25T22:00:00.000Z"
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.lastName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": dob.toISOString()
 			},
 			"input": {
 				"policyContractReference": contractReference,
@@ -789,7 +772,7 @@ export class ExistingClient extends InsureViewBase {
 					"contractReference": contractReference,
 					"arrears": payArrears.arrears,
 					"fromAccount": fromAccount,
-					"cifNumber": this.callerInformation.cifNumber // 363291555
+					"cifNumber": this.callerInformation.cifNumber
 				}
 			}
 		};
@@ -944,11 +927,8 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
-
 			this.contractReference = e.detail.payArrears.contractReference;
-
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
-
 			this.amountToPay = sumArrears;
 
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
@@ -1275,22 +1255,16 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _requestCallback(firstName, lastName, cellphoneNumber) {
-		
-		
 		const requestCallbackRequest = {
 			"firstName": firstName,
 			"lastName": lastName,
 			"cifNumber": this.callerInformation.cifNumber,
 			"contactNumber": cellphoneNumber
 		};
-
-		console.log(`requestCallbackRequest :>> `, requestCallbackRequest);
-
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
 			this.handleToastError(requestCallbackResp.exception);
 		}
-
 	}
 
 	/**
@@ -1313,7 +1287,7 @@ export class ExistingClient extends InsureViewBase {
 		this.clientArrears = arrearsResp?.result;
 	}
 
-	// #endregion EVENT HANDLERS
+	// #endregion EVENT HANDLER
 
 	// #region RENDERING
 
