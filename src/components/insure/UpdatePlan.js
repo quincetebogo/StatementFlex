@@ -2535,6 +2535,7 @@ class UpdatePlan extends Component {
 			: html`
 		<horizon-insure-add-beneficiary-dialog
 			.roleplayerLength="${this.roleplayerLength}"
+			.rolePlayers="${this.policyDetails.roleplayers}"
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
 			@add-click="${(e) => this._addBeneficiaryClick(e)}" 
 			@close-modal="${() => this._closeAddBeneficiariesDialog()}">

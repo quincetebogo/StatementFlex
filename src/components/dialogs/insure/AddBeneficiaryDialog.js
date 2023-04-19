@@ -29,6 +29,7 @@ class AddBeneficiaryDialog extends Component {
 		this.newBeneficiary = {};
 		this.showExtendedRelationships = false;
 		this.canAdd = false;
+		this.selectedRelationship = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -49,7 +50,10 @@ class AddBeneficiaryDialog extends Component {
 			lifesAssured: { type: Array, state: true },
 			roleplayerLength: { type: Number, state: true },
 			showExtendedRelationships: { type: Boolean, state: true },
-			canAdd: { type: Boolean, state: true }
+			canAdd: { type: Boolean, state: true },
+			selectedRelationship: { type: String, state: true },
+			rolePlayers: { type: Array, state: true }
+
 		};
 	}
 
@@ -81,7 +85,9 @@ class AddBeneficiaryDialog extends Component {
 	 * @returns {void}
 	 */
 	_showExtendedRelationships() {
+		this.selectedRelationship = ``;
 		this.showExtendedRelationships = true;
+		this.canAdd = false;
 	}
 
 	/**
@@ -90,6 +96,7 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	_backClick() {
 		this.showExtendedRelationships = false;
+		this.canAdd = false;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -115,6 +122,7 @@ class AddBeneficiaryDialog extends Component {
 	 * @returns {void}
 	 */
 	_addNewBeneficiaryChange(relationship) {
+		this.selectedRelationship = relationship;
 
 			this.newBeneficiary = {
 				relationship: relationship,
@@ -197,6 +205,27 @@ class AddBeneficiaryDialog extends Component {
 			#dialog-body{ 
 				height: 370px;
 			}
+
+			.choose-period > horizon-product-tile {
+				width: 263px;
+				padding-right: 20px;
+				--theme-layout-gap-spacing: 16px;
+				--theme-product-tile--height: 81px;
+			}
+
+			horizon-product-tile {
+				--theme-product-tile--height: 64px;
+				--theme-product-tile-title-height: 20px;
+				--theme-product-tile-title-font-size: 14px;
+				--theme-product-tile-subtitle-height: 20px;
+				--theme-product-tile-subtitle-font-size: 12px;
+				--theme-product-tile-heading-margin-left: 16px;
+				--theme-product-tile-heading-margin-left: 6px;
+				--theme-layout-gap-spacing: 8px;
+				--theme-product-tile-title-font-weight: 600;
+				--theme-radio-disabled-border-color: #E1E1E1;
+				--theme-radio-disabled-background-color: #F7F7F7;
+			}
 			`
 		];
 	}
@@ -250,32 +279,53 @@ class AddBeneficiaryDialog extends Component {
 						</capitec-content-box>
 			
 						<capitec-label label="Add a beneficiary relation" type="title"></capitec-label>
-						<div class="beneficiary-radio-row">
-							<div class="add-beneficiary">
-								<capitec-radio label="Child" hint="Up to 8 allowed for ages 25 and younger"
-									@value-changed="${() => this._addNewBeneficiaryChange(`Child`)}">
-								</capitec-radio>
-							</div>
-							<div class="add-beneficiary">
-								<capitec-radio label="Extended Family" hint="Up to 8 allowed for ages 85 and younger"
-									@value-changed="${() => this._showExtendedRelationships()}">
-								</capitec-radio>
-							</div>
-							<div class="add-beneficiary">
-								<capitec-radio label="Parent" hint="Up to 4 allowed for ages 85 and younger"
-									@value-changed="${() => this._addNewBeneficiaryChange(`Parent`)}">
-								</capitec-radio>
-							</div>
-						</div>
+						<capitec-group class="choose-period" layout="horizontal">
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Child"
+								subtitle="Up to 8 allowed for ages 25 and younger"
+								detail=""
+								@click="${(e) => this._addNewBeneficiaryChange(`Child`)}"
+								?selected="${this.selectedRelationship === `Child`}"
+								>
+							</horizon-product-tile>
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Extended Family"
+								subtitle="Up to 8 allowed for ages 85 and younger"
+								detail=""
+								@click="${(e) => this._showExtendedRelationships()}"
+								>
+							</horizon-product-tile>
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Parent"
+								subtitle="Up to 4 allowed for ages 85 and younger"
+								detail=""
+								@click="${(e) => this._addNewBeneficiaryChange(`Parent`)}"
+								?selected="${this.selectedRelationship === `Parent`}"
+								>
+							</horizon-product-tile>
+						</capitec-group>
 
+						${this._renderSpouse()}
 						<capitec-label label="Add new beneficiary" type="title"></capitec-label>
-						<div class="new-beneficiary-radio-row" >
-							<div class="add-new-beneficiary">
-								<capitec-radio label="Other" hint="A friend or acquaintance"
-									@value-changed="${() => this._addNewBeneficiaryChange(`BeneficiaryOnly`)}">
-								</capitec-radio>
-							</div>
-						</div>
+						<capitec-group class="choose-period" layout="horizontal">
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Other"
+								subtitle="A friend or acquaintance"
+								detail=""
+								@click="${(e) => this._addNewBeneficiaryChange(`BeneficiaryOnly`)}"
+								?selected="${this.selectedRelationship === `BeneficiaryOnly`}"
+								>
+							</horizon-product-tile>
+						</capitec-group>
+
 
 					</capitec-radio-group>
 				</div>
@@ -284,6 +334,43 @@ class AddBeneficiaryDialog extends Component {
 				</div>
 			</capitec-modal>
 		`;
+	}
+
+	_renderSpouse() {
+
+		const foundSpouse = this.rolePlayers.find((life) => life.relationship === `Spouse`);
+
+			if (isNullorEmpty(foundSpouse)) {
+				return html`
+					<capitec-group class="choose-period" layout="horizontal">
+						<horizon-product-tile
+							data-automation-id="statements-dialog-one-month-period"
+							type="radio-button"
+							label="Spouse"
+							subtitle="Only one allowed between the ages of 18 - 64 years."
+							detail=""
+							@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
+							?selected="${this.selectedRelationship === `Spouse`}"
+							>
+						</horizon-product-tile>
+					</capitec-group>
+				`;
+			}
+			return html`
+				<capitec-group class="choose-period" layout="horizontal">
+					<horizon-product-tile
+						data-automation-id="statements-dialog-one-month-period"
+						type="radio-button"
+						label="Spouse"
+						subtitle="Only one allowed between the ages of 18 - 64 years."
+						detail=""
+						?disabled= "${true}"
+						@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
+						?selected="${this.selectedRelationship === `Spouse`}"
+						>
+					</horizon-product-tile>
+				</capitec-group>
+			`;
 	}
 
 	/**
