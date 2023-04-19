@@ -1089,12 +1089,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
-
-
 		const documents = [];
-		if (!isNullorEmpty(event.detail.prepareUpdate.paymentAgreement.documentDetails)) {
-			documents.push(event.detail.prepareUpdate.paymentAgreement.documentDetails);
-		}
 		if (!isNullorEmpty(event.detail.prepareUpdate.planAgreement.documentDetails)) {
 			documents.push(event.detail.prepareUpdate.planAgreement.documentDetails);
 		}
@@ -1138,10 +1133,7 @@ export class ExistingClient extends InsureViewBase {
 		let documents = [];
 
 		if (event.detail.newContractRef.substring(0, 2) === `CF`) {
-			documents = [
-				event.detail.policyResponse.issuePlanAgreement.documentDetails,
-				event.detail.policyResponse.paymentAgreement.documentDetails
-			];
+			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		} else {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
@@ -1206,8 +1198,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
-
-		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.emailEstimateSuccess = true;
