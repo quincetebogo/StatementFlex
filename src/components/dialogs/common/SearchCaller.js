@@ -48,9 +48,9 @@ const ERROR_MESSAGES = {
 	INVALID_BRANCH: `Invalid branch code`,
 	CP_NUMBER_NOT_FOUND: `CP Number not found`,
 	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
-	UNABLE_TO_SIGN_IN: `Teller account is suspended or not found. Contact UAA`,
+	UNABLE_TO_SIGN_IN: `Teller account is suspended. Contact UAA`,
 	BANCS_ERROR: `BANCS error`,
-	TELLER_NOT_FOUND: `Unknown or Invalid teller. Contact UAA`,
+	TELLER_NOT_FOUND: `Inactive/Invalid teller. Contact UAA`,
 	CAPABILITY_LEVELS: `Capability level too low. Contact UAA`,
 	NOT_FOUND: {
 		0: {
