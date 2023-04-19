@@ -206,7 +206,7 @@ class AddBeneficiaryDialog extends Component {
 				height: 370px;
 			}
 
-			.choose-period > horizon-product-tile {
+			.relationships > horizon-product-tile {
 				width: 263px;
 				padding-right: 20px;
 				--theme-layout-gap-spacing: 16px;
@@ -279,7 +279,7 @@ class AddBeneficiaryDialog extends Component {
 						</capitec-content-box>
 			
 						<capitec-label label="Add a beneficiary relation" type="title"></capitec-label>
-						<capitec-group class="choose-period" layout="horizontal">
+						<capitec-group class="relationships" layout="horizontal">
 							<horizon-product-tile
 								data-automation-id="statements-dialog-one-month-period"
 								type="radio-button"
@@ -313,7 +313,7 @@ class AddBeneficiaryDialog extends Component {
 
 						${this._renderSpouse()}
 						<capitec-label label="Add new beneficiary" type="title"></capitec-label>
-						<capitec-group class="choose-period" layout="horizontal">
+						<capitec-group class="relationships" layout="horizontal">
 							<horizon-product-tile
 								data-automation-id="statements-dialog-one-month-period"
 								type="radio-button"
@@ -342,7 +342,7 @@ class AddBeneficiaryDialog extends Component {
 
 			if (isNullorEmpty(foundSpouse)) {
 				return html`
-					<capitec-group class="choose-period" layout="horizontal">
+					<capitec-group class="relationships" layout="horizontal">
 						<horizon-product-tile
 							data-automation-id="statements-dialog-one-month-period"
 							type="radio-button"
@@ -357,7 +357,7 @@ class AddBeneficiaryDialog extends Component {
 				`;
 			}
 			return html`
-				<capitec-group class="choose-period" layout="horizontal">
+				<capitec-group class="relationships" layout="horizontal">
 					<horizon-product-tile
 						data-automation-id="statements-dialog-one-month-period"
 						type="radio-button"
