@@ -828,7 +828,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToUpdatePlan(e) {
-		
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -931,7 +930,7 @@ export class ExistingClient extends InsureViewBase {
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 			this.amountToPay = sumArrears;
 
-			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
+			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
 			this.handleToastError(resp.exception);
@@ -1090,12 +1089,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*}*
 	 */
 	async _updatePlanAccept(event) {
-
-
 		const documents = [];
-		if (!isNullorEmpty(event.detail.prepareUpdate.paymentAgreement.documentDetails)) {
-			documents.push(event.detail.prepareUpdate.paymentAgreement.documentDetails);
-		}
 		if (!isNullorEmpty(event.detail.prepareUpdate.planAgreement.documentDetails)) {
 			documents.push(event.detail.prepareUpdate.planAgreement.documentDetails);
 		}
@@ -1139,10 +1133,7 @@ export class ExistingClient extends InsureViewBase {
 		let documents = [];
 
 		if (event.detail.newContractRef.substring(0, 2) === `CF`) {
-			documents = [
-				event.detail.policyResponse.issuePlanAgreement.documentDetails,
-				event.detail.policyResponse.paymentAgreement.documentDetails
-			];
+			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		} else {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
@@ -1202,14 +1193,12 @@ export class ExistingClient extends InsureViewBase {
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		
 		if (!emailResponse.succeeded) {
 			this.handleToastError(emailResponse.exception);
 			return;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
-
-		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.emailEstimateSuccess = true;

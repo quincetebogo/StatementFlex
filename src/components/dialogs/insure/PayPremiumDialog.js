@@ -174,7 +174,6 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_PayArrears() {
-
 		this.dispatchEvent(new CustomEvent(`pay-arrears`, { detail: { payArrears: this.payArrears, amountToPay: this.amount, fromAccount: this.accountNumber } }));
 	}
 
@@ -260,9 +259,7 @@ class PayPremiumDialog extends Component {
 			this.payArrears.arrears.push({
 				dueDate: selected.dueDate,
 				amount: selected.amount,
-				objectID: selected.objectID,
-				shouldBeChecked: selected.shouldBeChecked,
-				shouldBeDisabled: selected.shouldBeDisabled
+				objectID: selected.objectID
 			});
 		} else {
 			const index = this.payArrears.arrears.map(object => object.objectID).indexOf(selected.objectID);
@@ -279,13 +276,9 @@ class PayPremiumDialog extends Component {
 	 */
 	_optionSelected(e) {
 		this.optionSelected = e.detail.optionSelected;
-
 		this.insufficient = false;
-
 		this.errorMessage = ``;
-
 		this.accountNumber = e.detail.accountNumber;
-
 		this.accountType = e.detail.accountType;
 	}
 
