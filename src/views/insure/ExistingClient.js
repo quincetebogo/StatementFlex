@@ -828,7 +828,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToUpdatePlan(e) {
-		
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reinstateQuoteCalc(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrievePolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -931,7 +930,7 @@ export class ExistingClient extends InsureViewBase {
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 			this.amountToPay = sumArrears;
 
-			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears.arrears, e.detail.fromAccount, true);
+			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
 			this.handleToastError(resp.exception);
@@ -1202,7 +1201,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
-		
 		if (!emailResponse.succeeded) {
 			this.handleToastError(emailResponse.exception);
 			return;
