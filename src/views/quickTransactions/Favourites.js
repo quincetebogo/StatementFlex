@@ -22,6 +22,7 @@ import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/SendCashLanding';
+import 'app/components/quickTransactions/PayShapLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
@@ -135,6 +136,7 @@ export class Favourites extends SavingsAccountBase {
 			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts();
 			const sendCash = () => this._sendCash();
+			const payShap = () => this._payShap();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -147,7 +149,8 @@ export class Favourites extends SavingsAccountBase {
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
 				'paid-up-accounts': paidUpAccounts,
-				'send-cash': sendCash
+				'send-cash': sendCash,
+				'payshap': payShap
 			};
 
 			if (actions[option]) {
@@ -663,6 +666,10 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
+	_payShap() {
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
 	async _getSendCashVouchers(startDate, endDate) {
 
 		const sendCashVouchersRequest = {
@@ -876,6 +883,10 @@ export class Favourites extends SavingsAccountBase {
 		this._setIncidentDone();
 	}
 
+	_onExitPayShap() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	_limitsRandsToCents(cardDetails) {
  
 		// Converting limits from rands to cents before updating
@@ -971,6 +982,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderCcsModal()}
 			${this._renderSendCash()}
 			${this._renderConfirmPlaceHoldModal()}
+			${this._renderPayShap()}
 
 			${super._webTemplate()}
 		`;
@@ -1161,6 +1173,16 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-confirm-place-hold>`
 		: html``;
 	}
+
+	_renderPayShap() {
+		return this.renderMode === RENDER_MODE.PAYSHAP 
+			? html`
+				<horizon-payshap-landing
+					@back="${() => this._onExitPayShap()}">
+				</horizon-payshap-landing>`
+			: html``;
+	}
+
 }
 
 customElements.define(`horizon-favourites`, Favourites);
