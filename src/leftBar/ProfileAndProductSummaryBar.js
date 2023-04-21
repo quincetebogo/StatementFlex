@@ -222,6 +222,10 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
+	_viewProfileDetails() {
+		this.horizonRouter.navigateToViewProfileDetails();
+	}
+
 	// --------- 
 	// PRIVATE
 	// ---------
@@ -366,7 +370,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		<section class="left-card">
 			<horizon-mini-profile 
 				.miniProfile="${this.miniProfile}"
-				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}">
+				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
+				@view-profile="${() => this._viewProfileDetails()}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}

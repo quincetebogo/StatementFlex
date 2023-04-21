@@ -2,6 +2,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
 import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
@@ -57,6 +58,7 @@ export class ViewBase extends View {
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -301,9 +303,15 @@ export class ViewBase extends View {
 	}
 
 	_currentIncidentRef() {
-		return this.currentIncident ? this.currentIncidentRef() : ``;
+		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
+	async _updatePreferences(language, cif) {
+		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
+		
+		return returnValue.succeeded;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
@@ -377,7 +385,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncidentRef()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"

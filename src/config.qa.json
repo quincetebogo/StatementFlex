@@ -1,26 +1,26 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-qa.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-qa.int.capinet",
-		"accessChannelServiceUrl": "https://cec-cs-accesschannels.platform-qa.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-qa.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-qa.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-qa.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-qa.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-qa.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-qa.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-qa.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-qa.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-qa.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-qa.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-qa.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-qa.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-qa.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-qa.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-qa.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
-		"incidentManagementService": "https://cec-cs-incident.platform-qa.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-qa.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-qa.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3qa.int.capinet:8080/",
 		"cds": "https://clientdocsearchqa.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-qa.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",

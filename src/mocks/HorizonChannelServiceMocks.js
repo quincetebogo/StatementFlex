@@ -44,7 +44,7 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
+		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelsDetails`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -57,8 +57,8 @@ export default class HorizonChannelServiceMocks {
 		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		  this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		  this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 	}
 

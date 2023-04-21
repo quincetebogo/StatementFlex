@@ -1,26 +1,26 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-dev.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://cec-cs-accesschannels.platform-dev.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-dev.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
