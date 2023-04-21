@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform.int.capinet",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform.int.capinet",

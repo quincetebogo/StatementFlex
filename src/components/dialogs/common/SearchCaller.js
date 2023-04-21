@@ -717,7 +717,7 @@ export class SearchCaller extends Component {
 		}));
 	}
 
-	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+	async _updateIncidentBranchDetails(branchCode, branchCallerId) {
 		
 		if (!this.currentIncident) {
 			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);

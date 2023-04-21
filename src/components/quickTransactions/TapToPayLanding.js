@@ -226,6 +226,8 @@ export class TapToPayLanding extends Component {
 				.content-body {
 					width: 1064px;
 					height: 100%;
+
+					--theme-container-padding-right: 0px;
 				}
 
 				.alert-banner {
@@ -272,6 +274,7 @@ export class TapToPayLanding extends Component {
 				.primary-card-label{
 					height: fit-content;
 					width: 300px;
+					margin: 6px 0px;
 					--theme-label-title-font-size: 18px;
 					--theme-label-font-color: #3E4547;
 					--theme-label-title-font-family: "Hind Vadodara";
@@ -279,20 +282,19 @@ export class TapToPayLanding extends Component {
 					--theme-label-letter-spacing: 40;
 					--theme-label-line-height: 24px;
 					--theme-layout-gap-spacing: 18px;
-					padding-left: 8px;
 				}
 
 				.supplementary-card-label{
 					height: fit-content;
 					font-size: 18px;
 					width: 300px;
+					margin: 6px 0px;
 					--theme-label-font-color: #3E4547;
 					--theme-label-title-font-family: "Hind Vadodara";
 					--theme-label-title-font-weight: 600;
 					--theme-label-letter-spacing: 0;
 					--theme-label-line-height: 24px;
 					--theme-layout-gap-spacing: 18px;
-					padding-left: 8px;
 				}
 
 				capitec-title-bar {
@@ -300,7 +302,6 @@ export class TapToPayLanding extends Component {
 				}
 
 				horizon-card-art {
-					margin-bottom: 24px;
 					--horizon-card-art-box-shadow:none!important;
 				}
 
@@ -322,7 +323,7 @@ export class TapToPayLanding extends Component {
 					cursor: pointer;
 				}
 
-				capitec-content-box > capitec-label[type="title"] {
+				.no-cards-available {
 					margin: 15px 0px 16px;
 					text-align: center;
 
@@ -380,7 +381,7 @@ export class TapToPayLanding extends Component {
 			${this._renderSupplementaryCards()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
-			<capitec-label type="title" label="Client has no cards to fulfill this transaction"></capitec-label>
+			<capitec-label type="title" class="no-cards-available" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
 	}
 
