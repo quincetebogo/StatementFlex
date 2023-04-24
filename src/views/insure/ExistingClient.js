@@ -941,12 +941,16 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * retrieve the Communication(SMS) History
 	 * @param {string} contractReference contractReference
+	 * @param {string} fromDate fromDate
+	 * @param {string} toDate toDate
 	 * @returns {*} result
 	 */
-	async _retrieveCommsHistory(contractReference) {
-
+	async _retrieveCommsHistory(contractReference, fromDate, toDate) {
+		
 		const commsHistoryDetails = {
-			"contractReference": contractReference
+			"contractReference": contractReference,
+			"fromDate": fromDate,
+			"toDate": toDate
 		};
 
 		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
@@ -1013,9 +1017,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void}
 	 */
-	async _goToSMSHistory(e) {
+	_goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
-		this.commsHistory = await this._retrieveCommsHistory(this.policyNumber);
 		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
 	}
 
@@ -1515,8 +1518,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-sms-history-page
 				.contractReference=${this.policyNumber} 
 				.contactNumber=${this.callerInformation.verifiedTelephoneNumber}
-				.commsHistory="${this.commsHistory}"
-				.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}"
+				.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-sms-history-page>`;
 	}
