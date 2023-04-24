@@ -13,7 +13,7 @@ import 'app/components/dialogs/insure/AddLifeDialog';
 import 'app/components/dialogs/insure/FCPAgreementDialog';
 import 'app/components/dialogs/insure/YROAAgreementDialog';
 import 'app/components/dialogs/insure/YBPAgreementDialog';
-import 'app/components/dialogs/insure/EACLAgreementDialog';
+
 import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
 import 'app/components/dialogs/insure/AddBeneficiaryDialog';
@@ -22,6 +22,9 @@ import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
 import 'app/components/dialogs/insure/UpdateValidationDialog';
 import 'app/components/dialogs/insure/IneligibleLivesDialog';
+import 'app/components/dialogs/insure/LAAgreementDialog';
+import 'app/components/dialogs/insure/YWNBPAgreementDialog';
+import 'app/components/dialogs/insure/YPAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -69,7 +72,6 @@ class UpdatePlan extends Component {
 		this.lifeAssuredToRemoveDescription = null;
 		this.beneficiaryToRemoveDescription = ``;
 
-		this.showEACLAgreementDialog = false;
 		this.showYBPAgreementDialog = false;
 		this.showFCPAgreementDialog = false;
 		this.showYROAAgreementDialog = false;
@@ -83,8 +85,15 @@ class UpdatePlan extends Component {
 		this.showUpdateValidationDialog = false;
 		this.showIneligibleLivesDialog = false;
 
+		this.showLAAgreementDialog = false;
+		this.agreementLAAccepted = ``;
+		this.showYWNBPAgreementDialog = false;
+		this.agreementYWNBPAccepted = ``;
+		this.showYPAgreementDialog = false;
+		this.agreementYPAccepted = ``;
+		
+
 		this.agreementFCPAccepted = ``;
-		this.agreementEACLAccepted = ``;
 		this.agreementYBPAccepted = ``;
 		this.agreementYROAAccepted = ``;
 		this.accountNumErrorMsg = ``;
@@ -116,13 +125,11 @@ class UpdatePlan extends Component {
 
 	/**
 	 * @property {Number} selectedTabIndex stores the index of the current tab being used
-	 * @property {Boolean} showEACLAgreementDialog determines whether to show the EACL agreement dialog
 	 * @property {Boolean} showYBPAgreementDialog determines whether to show the YBP agreement dialog
 	 * @property {Boolean} showFCPAgreementDialog determines whether to show the FCP agreement dialog
 	 * @property {Boolean} showYROAAgreementDialog determines whether to show the YROA agreement dialog
 	 * @property {Boolean} showValidationConfirmDialog determines whether to show the disclosure validation dialog
 	 * @property {String} agreementFCPAccepted determines whether the FCP agreement has been accepted
-	 * @property {String} agreementEACLAccepted determines whether the EACL agreement has been accepted
 	 * @property {String} agreementYBPAccepted determines whether the YBP agreement has been accepted
 	 * @property {String} agreementYROAAccepted determines whether the YROA agreement has been accepted
 	 * @property {Boolean} showAddRelationshipDialog determines whether to show the add relationship agreement dialog
@@ -157,14 +164,18 @@ class UpdatePlan extends Component {
 	static get properties() {
 		return {
 			selectedTabIndex: { type: Number, state: true },
-			showEACLAgreementDialog: { type: Boolean, state: true },
 			showYBPAgreementDialog: { type: Boolean, state: true },
 			showFCPAgreementDialog: { type: Boolean, state: true },
 			showYROAAgreementDialog: { type: Boolean, state: true },
+			showLAAgreementDialog: { type: Boolean, state: true },
+			showYWNBPAgreementDialog: { type: Boolean, state: true },
+			showYPAgreementDialog: { type: Boolean, state: true },
 			showValidationConfirmDialog: { type: Boolean, state: true },
 
+			agreementYPAccepted: { type: String, state: true },
+			agreementYWNBPAccepted: { type: String, state: true },
+			agreementLAAccepted: { type: String, state: true },
 			agreementFCPAccepted: { type: String, state: true },
-			agreementEACLAccepted: { type: String, state: true },
 			agreementYBPAccepted: { type: String, state: true },
 			agreementYROAAccepted: { type: String, state: true },
 			showAddRelationshipDialog: { type: Boolean, state: true },
@@ -908,11 +919,6 @@ class UpdatePlan extends Component {
 				this.showFCPAgreementDialog = false;
 				break;
 			}
-			case INSURE_DISCLOSURE_TYPE.EACL_NOTIFICATION: {
-				this.agreementEACLAccepted = `no`;
-				this.showEACLAgreementDialog = false;
-				break;
-			}
 			case INSURE_DISCLOSURE_TYPE.YBP_NOTIFICATION: {
 				this.agreementYBPAccepted = `no`;
 				this.showYBPAgreementDialog = false;
@@ -921,6 +927,21 @@ class UpdatePlan extends Component {
 			case INSURE_DISCLOSURE_TYPE.YROA_NOTIFICATION: {
 				this.agreementYROAAccepted = `no`;
 				this.showYROAAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.LA_NOTIFICATION: {
+				this.agreementLAAccepted = `no`;
+				this.showLAAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.YWNBP_NOTIFICATION: {
+				this.agreementYWNBPAccepted = `no`;
+				this.showYWNBPAgreementDialog = false;
+				break;
+			}
+			case INSURE_DISCLOSURE_TYPE.YP_NOTIFICATION: {
+				this.agreementYPAccepted = `no`;
+				this.showYPAgreementDialog = false;
 				break;
 			}
 			default:
@@ -940,12 +961,30 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Close EACL (Entry Ages and Child Limits) agreement dialog
+	 * Accept the LA (Lives Assured) Agreement
 	 * @return {void} 
 	 */
-	_acceptEACLAgreement() {
-		this.agreementEACLAccepted = `yes`;
-		this.showEACLAgreementDialog = false;
+	_acceptLAAgreement() {
+		this.agreementLAAccepted = `yes`;
+		this.showLAAgreementDialog = false;
+	}
+
+	/**
+	 * Accept the YWNBP (You will not be paid) Agreement
+	 * @return {void} 
+	 */
+	_acceptYWNBPAgreement() {
+		this.agreementYWNBPAccepted = `yes`;
+		this.showYWNBPAgreementDialog = false;
+	}
+
+	/**
+	 * Accept the YP (You Pay) Agreement
+	 * @return {void} 
+	 */
+	_acceptYPAgreement() {
+		this.agreementYPAccepted = `yes`;
+		this.showYPAgreementDialog = false;
 	}
 
 	/**
@@ -1030,8 +1069,10 @@ class UpdatePlan extends Component {
 			"next-screen": null
 		});
 
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+
+		if (!(this.agreementFCPAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
+			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
 			return;
@@ -1102,20 +1143,36 @@ class UpdatePlan extends Component {
 			this.showFCPAgreementDialog = true;
 		}
 
-		if (type === `EACL`) {
-			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_EACL, {
-				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
-				"next-screen": null
-			});
-			this.showEACLAgreementDialog = true;
-		}
-
 		if (type === `YBP`) {
 			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_YBP, {
 				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
 				"next-screen": null
 			});
 			this.showYBPAgreementDialog = true;
+		}
+
+		if (type === `LA`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_LA, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showLAAgreementDialog = true;
+		}
+
+		if (type === `YWNBP`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_YWNBP, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showYWNBPAgreementDialog = true;
+		}
+
+		if (type === `YP`) {
+			this._telemetry.logEvent(this.telemetryEvents.UPDATE_PLAN_DISCLOSURE_YP, {
+				"screen": TelemetryScreen.INSURE_UPDATE_PLAN,
+				"next-screen": null
+			});
+			this.showYPAgreementDialog = true;
 		}
 
 	}
@@ -1393,14 +1450,11 @@ class UpdatePlan extends Component {
 	 */
 	async _onReinstatePolicyPopup() {
 
-
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
-
+		if (!(this.agreementFCPAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
+			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
-
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
-
 			return;
 		}
 
@@ -1540,9 +1594,11 @@ class UpdatePlan extends Component {
 		return html`<strong>Please accept the following disclosure (s):</strong>
 		<ul>
 			${this.agreementFCPAccepted !== `yes` ? html`<li>Funeral Cover Plan agreement</li>` : ``}
-			${this.agreementEACLAccepted !== `yes` ? html`<li>Entry Ages and Child Limits agreement</li>` : ``}
 			${this.agreementYBPAccepted !== `yes` ? html`<li>Beneficiary Paid agreement</li>` : ``}
 			${this.agreementYROAAccepted !== `yes` ? html`<li>Responsibility & Accountability agreement</li>` : ``}
+			${this.agreementLAAccepted !== `yes` ? html`<li>Lives Assured agreement</li>` : ``}
+			${this.agreementYWNBPAccepted !== `yes` ? html`<li>You will not be paid agreement</li>` : ``}
+			${this.agreementYPAccepted !== `yes` ? html`<li>You Pay agreement</li>` : ``}
 		</ul>`;
 	}
 
@@ -1848,10 +1904,12 @@ class UpdatePlan extends Component {
 		return html`
 		${this._renderLifeAssuredDialog()}
 		${this._renderAddBeneficiariesDialog()}
-		${this._renderEACLAgreementDialog()}
 		${this._renderYBPAgreementDialog()}
 		${this._renderFCPAgreementDialog()}
 		${this._renderYROAAgreementDialog()}
+		${this._renderYWNBPAgreementDialog()}
+		${this._renderYPAgreementDialog()}
+		${this._renderLAAgreementDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
 		${this._renderRemoveBeneficiaryDialog()}
 		${this._renderUpdatePlanAgreementDialog()}
@@ -1923,6 +1981,8 @@ class UpdatePlan extends Component {
 			<div class="insure-calc-column-left">
 				<div class="left-card">
 					${this._renderFCPNotification()}
+					<capitec-spacer></capitec-spacer>
+					${this._renderLANotification()}
 					<capitec-spacer></capitec-spacer>
 			
 					<!-- Main Life -->
@@ -2044,10 +2104,11 @@ class UpdatePlan extends Component {
 						<div class="left-card">
 			
 							<!-- Notifications -->
-							${this._renderEACLNotification()}
-							<capitec-spacer></capitec-spacer>
 							${this._renderYBPNotification()}
 							<capitec-spacer></capitec-spacer>
+							${this._renderYWNBPNotification()}
+							<capitec-spacer></capitec-spacer>
+							
 			
 							<!--Beneficiaries -->
 							<div class="calc-card-row" style="margin-top: 15px;">
@@ -2128,6 +2189,9 @@ class UpdatePlan extends Component {
 					<div class="left-card">
 						<!-- notifications -->
 						${this._renderYROANotification()}
+						<capitec-spacer></capitec-spacer>
+						${this._renderYPNotification()}
+						<capitec-spacer></capitec-spacer>
 		
 						<!-- Collection account card -->
 						<div class="calc-card">
@@ -2246,16 +2310,15 @@ class UpdatePlan extends Component {
 		</capitec-alert-banner>`;
 	}
 
-
 	/**
-	 * Render notification component for 'Entry Ages and Child Limits'
+	 * Render notification component for 'Lives Assured'
 	 * @returns {html} html content
 	 */
-	_renderEACLNotification() {
+	_renderLANotification() {
 		return html`
-		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`EACL`)}"
-			type="${this._getAlertBannerType(this.agreementEACLAccepted)}" header="Disclosure:"
-			label="I agree to Entry Ages and Child Limits agreement disclosure">
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`LA`)}"
+			type="${this._getAlertBannerType(this.agreementLAAccepted)}" header="Disclosure:"
+			label="I agree to Lives Assured agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -2268,6 +2331,30 @@ class UpdatePlan extends Component {
 		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`YBP`)}"
 			type="${this._getAlertBannerType(this.agreementYBPAccepted)}" header="Disclosure:"
 			label="I agree to You/your beneficiary are paid agreement disclosure">
+		</capitec-alert-banner>`;
+	}
+
+	/**
+	 * Render notification component for 'You will not be paid'
+	 * @returns {html} html content
+	 */
+	_renderYWNBPNotification() {
+		return html`
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`YWNBP`)}"
+			type="${this._getAlertBannerType(this.agreementYWNBPAccepted)}" header="Disclosure:"
+			label="I agree to You will not be paid agreement disclosure">
+		</capitec-alert-banner>`;
+	}
+
+	/**
+	 * Render notification component for 'You will not be paid'
+	 * @returns {html} html content
+	 */
+	_renderYPNotification() {
+		return html`
+		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`YP`)}"
+			type="${this._getAlertBannerType(this.agreementYPAccepted)}" header="Disclosure:"
+			label="I agree to You Pay agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -2552,18 +2639,6 @@ class UpdatePlan extends Component {
 	}
 
 	/**
-	 * Render Dialog for EACL Agreement
-	 * @returns {html} html content
-	 */
-	_renderEACLAgreementDialog() {
-		return this.showEACLAgreementDialog === false ? `` : html`
-		<horizon-insure-eacl-agreement-dialog 
-			@agreementAccepted="${() => this._acceptEACLAgreement()}"
-			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.EACL_NOTIFICATION)}">
-		</horizon-insure-eacl-agreement-dialog>`;
-	}
-
-	/**
 	 * render Dialog for YBP Agreement
 	 * @returns {html} html content
 	 */
@@ -2586,6 +2661,42 @@ class UpdatePlan extends Component {
 			@agreementAccepted="${() => this._acceptFCPAgreement()}"
 			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.FCP_NOTIFICATION)}">
 		</horizon-insure-fcp-agreement-dialog>`;
+	}
+
+	/**
+	 * render Dialog for LA Agreement
+	 * @returns {html} html content
+	 */
+	_renderLAAgreementDialog() {
+		return this.showLAAgreementDialog === false ? `` : html`
+		<horizon-insure-la-agreement-dialog 
+			@agreementAccepted="${() => this._acceptLAAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.LA_NOTIFICATION)}">
+		</horizon-insure-la-agreement-dialog>`;
+	}
+
+	/**
+	 * render Dialog for YWNBP Agreement
+	 * @returns {html} html content
+	 */
+	_renderYWNBPAgreementDialog() {
+		return this.showYWNBPAgreementDialog === false ? `` : html`
+		<horizon-insure-ywnbp-agreement-dialog 
+			@agreementAccepted="${() => this._acceptYWNBPAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.YWNBP_NOTIFICATION)}">
+		</horizon-insure-ywnbp-agreement-dialog>`;
+	}
+
+	/**
+	 * render Dialog for YWNBP Agreement
+	 * @returns {html} html content
+	 */
+	_renderYPAgreementDialog() {
+		return this.showYPAgreementDialog === false ? `` : html`
+		<horizon-insure-yp-agreement-dialog 
+			@agreementAccepted="${() => this._acceptYPAgreement()}"
+			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.YP_NOTIFICATION)}">
+		</horizon-insure-yp-agreement-dialog>`;
 	}
 
 	/**
