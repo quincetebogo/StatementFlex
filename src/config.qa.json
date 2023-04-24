@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform-qa.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-qa.int.capinet",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-qa.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-qa.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-qa.int.capinet",
@@ -21,7 +22,7 @@
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3qa.int.capinet:8080/",
 		"cds": "https://clientdocsearchqa.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-qa.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",

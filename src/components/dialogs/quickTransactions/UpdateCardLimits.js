@@ -409,17 +409,9 @@ export class UpdateCardLimits extends Component {
 	_getAlertMessage() {
 
 		if (this._getErrorsCount() > 1) {
-			return html`
-				<capitec-label
-					label="Maximum limits have been exceeded"
-					type="strong">
-				</capitec-label>`;
+			return `Maximum limits have been exceeded`;
 		}
-		return html`
-			<div>
-				Maximum limit for ${this.errorField} is <strong>${formatCurrency(this.maxValue, 0)}</strong>
-			</div>
-		`;
+		return `Maximum limit for ${this.errorField} is ${formatCurrency(this.maxValue, 0)}`;
 	}
 
 	_getFieldError(value) { 
@@ -1200,7 +1192,7 @@ export class UpdateCardLimits extends Component {
 				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
-						data-automation-id="update-card-limits-accepted-agreement-expander"							
+						data-automation-id="update-card-limits-accepted-agreement-expander"
 						id="accepted${type}"
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
