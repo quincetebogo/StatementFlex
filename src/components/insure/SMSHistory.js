@@ -32,6 +32,7 @@ class SMSHistory extends Component {
 		super();
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this.commsHistory = [];
 	}
 
 	// #endregion
@@ -93,9 +94,8 @@ class SMSHistory extends Component {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 
-		this.commsHistory = await this.getCommsHistory(this.contractReference);
+		this.commsHistory = await this.getCommsHistory(this.contractReference, this.startDate, this.endDate);
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
-
 		this.filteredData = [];
 		if (!isNullorEmpty(this.commsHistory?.results)) {
 			this.filteredData = this.commsHistory?.results.filter(item => new Date(item.sentAt) >= new Date(this.startDate) && new Date(item.sentAt) <= new Date(this.endDate));
@@ -132,9 +132,7 @@ class SMSHistory extends Component {
 	 * @return {void}
 	 */
 	_refineSearch() {
-
 		this.filteredData = this.commsHistory?.results;
-
 		if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
 			if (RENDER_CHIPS[FILTER_BY.DATE]) {
 				const startDate = new Date(Date.parse(this.startDate));
@@ -155,7 +153,6 @@ class SMSHistory extends Component {
 	_getDateRange() {
 		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
 		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
-
 		const preDefinedRanges = this.getPredefinedDateRanges();
 		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
 
@@ -280,9 +277,8 @@ class SMSHistory extends Component {
 
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
+		this.commsHistory = await this.getCommsHistory(this.contractReference, this.startDate, this.endDate);
 		await this._refineSearch();
-
-		await this.getCommsHistory(this.contractReference);
 	}
 
 	/**
@@ -360,11 +356,6 @@ class SMSHistory extends Component {
 		}
 		.expander-content > capitec-title-bar {
 			border-top: 0px;
-		}
-		.expander-header > horizon-label[label="Status"] {
-			--horizon-label-value-color: #70AF00;
-			width: 200px;
-			text-overflow: ellipsis;
 		}
 		horizon-label {
 			width: 189px;
