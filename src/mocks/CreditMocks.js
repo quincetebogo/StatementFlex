@@ -286,10 +286,15 @@ export const settlementQuoteDetails = [
 ];
 
 export const creditStatement = {
-	"referenceId": `2f7be738-f8ba-430d-8e14-06f8bf33d222`, 
-	"statementType": `Monthly Credit Card Statement`, 
-	"sentMethod": `EMAIL`, 
-	"chargeFeeErrors": { }
+	"referenceId": `2f7be738-f8ba-430d-8e14-06f8bf33d222`,
+	"statementType": `Monthly Credit Card Statement`,
+	"sentMethod": `EMAIL`,
+	"chargeFeeErrors": {}
+};
+
+export const settleAndClose = {
+	"result": `NotStarted`,
+	"documentData": null
 };
 
 export const emailPaidUpLetter = {};

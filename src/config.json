@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
@@ -21,7 +22,7 @@
 	"otherSystemsURL": {
 		"sbl": "http://SBLDEV01.int.capinet:8102/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
@@ -96,7 +97,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -248,7 +249,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -356,7 +357,11 @@
 			"positiveCase" : true
 		},
 		"creditStatement": {
-			"enabled": true,
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"settleAndClose": {
+			"enabled": false,
 			"positiveCase" : true
 		}
 	}
