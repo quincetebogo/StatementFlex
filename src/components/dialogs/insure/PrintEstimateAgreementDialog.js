@@ -93,7 +93,7 @@ class PrintEstimateAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Email Estimate" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Email Estimate" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto;">
 			<div slot="body" data-automation-id="insure-print-estimate-dialog-body">
 				${this._renderDialogBody()}
 			</div>

@@ -42,6 +42,8 @@ export const INSURE_CSS = css`
 		--theme-container-padding-right: 0px;
 		--theme-container-padding-top: 0px;
 		--theme-container-padding-bottom: 0px;
+		width: 800px;
+		height: 530px;
 	}
 	.active-status{
 		--horizon-label-value-color: #70AF00;
