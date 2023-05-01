@@ -30,6 +30,7 @@ import 'app/productControls/credit/src/BudgetAccounts';
 import 'app/productControls/credit/src/BudgetAccountDetails';
 import 'app/productControls/credit/src/CreditAccountLanding';
 import 'app/productControls/credit/src/CreditUnverifiedLanding';
+import 'app/productControls/credit/src/OpenBudgetFacility';
 import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
@@ -188,6 +189,11 @@ export class CreditAccount extends ViewBase {
 			showPayBudgetWarning: { state: false },
 			showTooltip: { state: false }
 		};
+	}
+
+	get ccAccNumber() {
+		const ccDetails = this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
+		return ccDetails?.accountNumber;
 	}
 
 	// --------------
@@ -1048,6 +1054,16 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
+	_openBudget() {
+		// service call to check if client can open budget comes here
+		this.renderMode = RENDER_MODE.OPEN_BUDGET;
+	}
+
+	_calculateBudget(ccAccNumber, budgetAmount) {
+		// service call to calculate budget comes here
+		return this.creditService.calculateBudget(ccAccNumber, budgetAmount);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1107,6 +1123,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPendingClosure()}
 			${this._renderPayBudgetWarning()}
 			${this._renderTransactionHistory()}
+			${this._renderOpenBudget()}
 		`;
 	}
 
@@ -1169,7 +1186,8 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderBudgetFacilityAccounts() {
-		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW
+		return this.renderMode === RENDER_MODE.BUDGET_ACCOUNTS_VIEW ||
+			   this.renderMode === RENDER_MODE.OPEN_BUDGET
 			? html`
 				<capitec-pc-budget-facility-accounts
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
@@ -1179,7 +1197,8 @@ export class CreditAccount extends ViewBase {
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
 					@transfer-click="${(event) => this._transferFromBudgetAccounts(event.detail.selectedAccountDetails)}"
-					@fiter-changed="${(event) => this._filterChanged(event)}">
+					@fiter-changed="${(event) => this._filterChanged(event)}"
+					@open-budget-click="${(event) => this._openBudget()}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -1536,6 +1555,19 @@ export class CreditAccount extends ViewBase {
 						</capitec-label>
 				</capitec-tooltip>
 			</capitec-group>`;
+	}
+
+	_renderOpenBudget() {
+		return this.renderMode === RENDER_MODE.OPEN_BUDGET
+		? html`
+			<capitec-pc-open-budget-facility
+				ccAccNumber="${this.ccAccNumber}"
+				revolvingBalance="${this.budgetFacilityAccounts.revolvingBalance}"
+				.calculateBudget="${(ccAccNumber, budgetAmount) => this._calculateBudget(ccAccNumber, budgetAmount)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}"
+				@add-budget="${() => this._confirmOpenBudget()}">
+			</capitec-pc-open-budget-facility>`
+		: html``;
 	}
 }
 

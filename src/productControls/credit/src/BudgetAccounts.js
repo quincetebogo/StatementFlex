@@ -146,6 +146,14 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
+	_openBudgetClick() {
+		this.dispatchEvent(new CustomEvent(`open-budget-click`, {
+			detail: {
+				option: `open-budget`
+			}
+		}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -181,13 +189,22 @@ import 'app/components/common/HorizonLabel';
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
-					width: 900px;
-					margin-bottom: 16px;
-					height: 32px;
 				}
 				.left-arrow {
 					cursor: pointer;
-					margin: 0px 15px 8px 0px;
+					margin: 0px 15px 0px 0px;
+				}
+				capitec-title-bar > capitec-spacer {
+					width: 100px;
+				}
+				.add-budget-btn {
+					--theme-button-default-background-color: linear-gradient(90deg, #B62825 0%, #E61414 100%);
+					--theme-button-default-border-color: #FFFFFF;
+					--theme-button-default-font-color: #FFFFFF;
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+					--theme-button-padding-right: 16px;
+					--theme-button-padding-left: 16px;
 				}
 
 				/* Account details bar styles */
@@ -333,12 +350,22 @@ import 'app/components/common/HorizonLabel';
 					<capitec-title-bar 
 						data-automation-id="budget-facility-title"
 						type="credit">
-							<img
+							<capitec-icon
 								data-automation-id="budget-facility-back-button"
-								src="/images/liveBetter/left-arrow.svg"
+								size="medium"
+								icon="system/arrow-left-white"
 								@click="${() => this._back()}"
-								class="left-arrow"/>
+								class="left-arrow">
+							</capitec-icon>
 							<capitec-label label="Budget Facility" type="Title"></capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-button
+								class="add-budget-btn"
+								icon="system/add-white"
+								icon-placement="right"
+								label="Add Budget Facility"
+								@click="${() => this._openBudgetClick()}">
+							</capitec-button>
 						
 							${this._renderAccountDetailsBar()}
 				
