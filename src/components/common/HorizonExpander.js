@@ -154,9 +154,8 @@ export class Expander extends Component {
 	 * @returns {void}
 	 */
 	_click(event) {
-		// commented out below code as overflow menu does not disappear when it is clicked.
 		// Prevent the event from bubbling up.
-		// event.stopPropagation();
+		event.stopPropagation();
 
 		// Ignore the click event if the item is disabled.
 		if (this.disabled) {

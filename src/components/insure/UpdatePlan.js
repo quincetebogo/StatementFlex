@@ -1109,8 +1109,9 @@ class UpdatePlan extends Component {
  */
 	async _reinstatePolicyPopup() {
 
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+		if (!(this.agreementFCPAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
+			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
 			return;
@@ -1444,28 +1445,6 @@ class UpdatePlan extends Component {
 
 	}
 
-	/**
-	 * Show Policy Schedule and Mandate documents
-	 * @return {void} 
-	 */
-	async _onReinstatePolicyPopup() {
-
-		if (!(this.agreementFCPAccepted === `yes` && 
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
-			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
-			this.showValidationConfirmDialog = true;
-			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
-			return;
-		}
-
-		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
-
-		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
-		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
-
-		this.showReinstatePolicyAgreementDialog = true;
-
-	}
 
 	/**
 	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
@@ -1533,6 +1512,13 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+					const wrongTimeZone = this.policyDetails.roleplayers[index].dateOfBirth.includes(`+02:00`);
+					if (wrongTimeZone === true) {
+						let dob = this.policyDetails.roleplayers[index].dateOfBirth;
+						const timezone = `+02:00`;
+						dob = dob.replace(timezone, ``);
+						this.policyDetails.roleplayers[index].dateOfBirth = dob;
+					}
 
 					if (rolePlayer.beneficiary === true) {
 						rolePlayer.coverDetails.idNumberErrorMessage = ``;
@@ -2529,7 +2515,7 @@ class UpdatePlan extends Component {
 				: html`
 					
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer.dateOfBirth}" outputType="datetime" maxdate="${this.today}"  minDate="1901-01-01"
+						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						error="${roleplayer?.coverDetails?.ageMessage}"
 						?disabled="${this.canReinstate}" 
