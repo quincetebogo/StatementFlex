@@ -622,6 +622,13 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	canOpenBudget() {
+		if (this._mockSettings.canOpenBudget.positiveCase) {
+			return this.budgetFacility.canOpenBudget;
+		}
+		return null;
+	}
+
 	calculateBudget() {
 		if (this._mockSettings.calculateBudget.positiveCase) {
 			return this.budgetFacility.calculateBudget;

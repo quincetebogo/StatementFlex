@@ -33,6 +33,8 @@ import 'app/components/common/HorizonLabel';
 		this.groupAccountsByTerm = null;
 		this.filteredAccounts = null;
 		this.searchText = ``;
+		this.canOpenBudget = true;
+		this.openBudgetDeclineReason = ``;
 	}
 
 	// -------------------
@@ -67,10 +69,16 @@ import 'app/components/common/HorizonLabel';
 	*/
 
 	/**
+	 * @callback canOpenBudgetCallback
+	 * @returns {Object}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {canOpenBudgetCallback} canOpenBudget Callback function to get open budget permissions
 	 *
 	 */
 	static get properties() {
@@ -78,9 +86,12 @@ import 'app/components/common/HorizonLabel';
 			budgetFacilityAccounts: { type: Object },
 			shouldDisable: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
+			canOpenBudget: { type: Object, attribute: false },
       
 			groupAccountsByTerm: { state: true },
-			filteredAccounts: { state: true }
+			filteredAccounts: { state: true },
+			canOpenBudget: { state: true },
+			openBudgetDeclineReason: { state: true }
 		};
 	}
 	
@@ -146,12 +157,29 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
-	_openBudgetClick() {
-		this.dispatchEvent(new CustomEvent(`open-budget-click`, {
-			detail: {
-				option: `open-budget`
-			}
-		}));
+	async _openBudgetClick() {
+		const returnValue = await this.canOpenBudget();
+		let result = returnValue?.result;
+
+		if (!returnValue.succeeded) {
+			// mimicking the result to false with reason System Failure
+			result = {
+				canAdd: false,
+				declineReason: `System error, try again later` 
+			};
+		}
+
+		this.canOpenBudget = result?.canAdd;
+		this.openBudgetDeclineReason = result?.declineReason;
+
+		if (this.canOpenBudget) {
+			this.dispatchEvent(new CustomEvent(`open-budget-click`, {
+				detail: {
+					option: `open-budget`
+				}
+			}));
+		}
+		this.requestUpdate();
 	}
 
 	// --------------
@@ -224,6 +252,12 @@ import 'app/components/common/HorizonLabel';
 				.verificatoin-status {
 					width: 1030px;
 					margin: 16px 0px 8px 16px;
+				}
+				capitec-alert-banner {
+					--theme-toast-box-shadow: none;
+					--theme-toast-padding: 12px 16px 12px 16px;
+					--theme-toast-width: 100%;
+					margin-bottom: 0px;
 				}
 
 				/* Search bar styles */
@@ -364,7 +398,8 @@ import 'app/components/common/HorizonLabel';
 								icon="system/add-white"
 								icon-placement="right"
 								label="Add Budget Facility"
-								@click="${() => this._openBudgetClick()}">
+								@click="${() => this._openBudgetClick()}"
+								?disabled="${!this.canOpenBudget}">
 							</capitec-button>
 						
 							${this._renderAccountDetailsBar()}
@@ -374,6 +409,7 @@ import 'app/components/common/HorizonLabel';
 					<capitec-content-box>
 						${this.renderAlertBanner()}
 						${this._renderSearchBar()}
+						${this._renderErrorBanner()}
 						${this._renderBudgetAccounts()}
 					</capitec-content-box>
 
@@ -422,6 +458,17 @@ import 'app/components/common/HorizonLabel';
 				@focusout="${(event) => this._focusOut(event)}">
 			</capitec-search-field>
 		`;
+	}
+
+	_renderErrorBanner() {
+		return !this.canOpenBudget
+		? html`
+			<capitec-alert-banner
+				type="error"
+				header="Notify client:"
+				label="${this.openBudgetDeclineReason}">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderBudgetAccounts() {

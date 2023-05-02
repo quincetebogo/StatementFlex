@@ -625,6 +625,12 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	async canOpenBudget() {
+		if (await this.isMockEnabled(`canOpenBudget`)) {
+			return this.mock(`canOpenBudget`);
+		}
+	}
+
 	async calculateBudget(ccAccNumber, budgetAmount) {
 		if (await this.isMockEnabled(`calculateBudget`)) {
 			return this.mock(`calculateBudget`);

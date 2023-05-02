@@ -132,6 +132,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
+			const openBudget = () => this.renderMode = RENDER_MODE.OPEN_BUDGET;
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 			const actions = {
@@ -141,7 +142,8 @@ export class CreditAccount extends ViewBase {
 				'statements': statements,
 				'settlement-quote': settlementQuote,
 				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose
+				'settle-close': settleAndClose,
+				'open-budget': openBudget
 			};
 
 			if (actions[option]) {
@@ -1054,14 +1056,32 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
-	_openBudget() {
-		// service call to check if client can open budget comes here
-		this.renderMode = RENDER_MODE.OPEN_BUDGET;
+	async _canOpenBudget() {
+		const returnValue = await this.creditService.canOpenBudget(this.ccAccNumber);
+		return returnValue;
+	}
+
+	_openBudgetDialog() {
+		const ccDetails = this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
+		this._optionClick(`open-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, ccDetails);
 	}
 
 	_calculateBudget(ccAccNumber, budgetAmount) {
 		// service call to calculate budget comes here
 		return this.creditService.calculateBudget(ccAccNumber, budgetAmount);
+	}
+
+	_confirmOpenBudget(event) {
+		// service call to confirm open budget comes here
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		screenDetails.narrative = event.detail.budgetName;
+		screenDetails.budgetAmount = event.detail.budgetAmount;
+		screenDetails.term = event.detail.selectedTermInfo.term;
+		screenDetails.instalment = event.detail.selectedTermInfo.instalment;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonRouter.navigateToOpenBudgetSuccess();
 	}
 
 	// ---------
@@ -1193,12 +1213,13 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.canOpenBudget=${() => this._canOpenBudget()}
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
 					@transfer-click="${(event) => this._transferFromBudgetAccounts(event.detail.selectedAccountDetails)}"
 					@fiter-changed="${(event) => this._filterChanged(event)}"
-					@open-budget-click="${(event) => this._openBudget()}">
+					@open-budget-click="${() => this._openBudgetDialog()}">
 				</capitec-pc-budget-facility-accounts>`
 			: html``;
 	}
@@ -1565,7 +1586,7 @@ export class CreditAccount extends ViewBase {
 				revolvingBalance="${this.budgetFacilityAccounts.revolvingBalance}"
 				.calculateBudget="${(ccAccNumber, budgetAmount) => this._calculateBudget(ccAccNumber, budgetAmount)}"
 				@cancel="${() => this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW}"
-				@add-budget="${() => this._confirmOpenBudget()}">
+				@add-budget="${(event) => this._confirmOpenBudget(event)}">
 			</capitec-pc-open-budget-facility>`
 		: html``;
 	}

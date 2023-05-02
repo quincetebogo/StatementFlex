@@ -33,7 +33,9 @@ export class OpenBudgetFacility extends Component {
 		this.formattedBudgetAmount = ``;
 		this.paymentPlans = [];
 		this.selectedTerm = {};
-		this.errorBannerMsg = ``;
+
+		this._budgetNameErrBanner = ``;
+		this._budgetAmountErrBanner = ``;
 
 		this.logger = Logger.getInstance();
 	}
@@ -57,7 +59,8 @@ export class OpenBudgetFacility extends Component {
 			budgetName: { type: String, state: true },
 			budgetAmount: { type: Number, state: true },
 			budgetAmountErr: { type: String, state: true },
-			errorBannerMsg: { type: String, state: true },
+			_budgetNameErrBanner: { type: String, state: true },
+			_budgetAmountErrBanner: { type: String, state: true },
 			formattedBudgetAmount: { type: String, state: true }
 		};
 	}
@@ -72,6 +75,18 @@ export class OpenBudgetFacility extends Component {
 			instalment: `${formatCurrency(instalment)}`,
 			interest: `${interest}%`
 		};
+	}
+
+	get addBtnDisabled() {
+		const hasEmptyFields = !this.budgetName || this.budgetAmount === 0 || !this.selectedTerm.term;
+		return Boolean(this.errorBannerMsg) || hasEmptyFields;
+	}
+
+	get errorBannerMsg() {
+		if (Boolean(this._budgetNameErrBanner) && Boolean(this._budgetAmountErrBanner)) {
+			return `You must complete all fields to add budget`;
+		}
+		return this._budgetNameErrBanner || this._budgetAmountErrBanner;
 	}
 
 	// -------------------
@@ -96,7 +111,27 @@ export class OpenBudgetFacility extends Component {
 	}
 
 	_onAddBudgetClick() {
-		this.dispatchEvent(new CustomEvent(`add-budget`, {}));
+		this.dispatchEvent(new CustomEvent(`add-budget`, {
+			detail: {
+				budgetName: this.budgetName,
+				budgetAmount: this.budgetAmount,
+				selectedTermInfo: this.selectedTerm
+			}
+		}));
+	}
+
+	_onBudgetNameInput() {
+		this.budgetNameErr = ``;
+		this._budgetNameErrBanner = ``;
+	}
+
+	_onBudgetNameChanged(event) {
+		this.budgetName = event.detail.new?.trim();
+
+		if (!RegExp(/^[A-Za-z0-9 ]+$/, `g`).test(this.budgetName)) {
+			this.budgetNameErr = `Budget name cannot have special characters.`;
+			this._budgetNameErrBanner = `Invalid Special Character(s)`;
+		}
 	}
 
 	_onBudgetAmountFocus() {
@@ -144,15 +179,15 @@ export class OpenBudgetFacility extends Component {
 	async _validateBudgetAmount() {
 		switch (true) {
 			case this.budgetAmount < minAmount:
-				this.errorBannerMsg = `Budget amount cannot be less than the minimum amount.`;
+				this._budgetAmountErrBanner = `Budget amount cannot be less than the minimum amount.`;
 				this.budgetAmountErr = `Min budget amount ${formatCurrency(minAmount)}`;
 				break;
 			case this.budgetAmount > this.revolvingBalance:
-				this.errorBannerMsg = `Budget amount cannot be more than the avaiable budget.`;
+				this._budgetAmountErrBanner = `Budget amount cannot be more than the avaiable budget.`;
 				this.budgetAmountErr = `Max available budget amount ${formatCurrency(this.revolvingBalance)}`;
 				break;
 			default:
-				this.errorBannerMsg = ``;
+				this._budgetAmountErrBanner = ``;
 				this.budgetAmountErr = ``;
 				break;
 		}
@@ -328,9 +363,10 @@ export class OpenBudgetFacility extends Component {
 				label="Enter budget name"
 				value="${this.budgetName}"
 				type="alpha-numeric"
-				error=""
+				error="${this.budgetNameErr}"
 				keyboardMode="alpha-numeric"
-				@value-change="${(event) => this.budgetName = event.detail.new}">
+				@input="${() => this._onBudgetNameInput()}"
+				@value-change="${(event) => this._onBudgetNameChanged(event)}">
 			</capitec-text-field>
 			<capitec-text-field
 				label="Available for budget"
@@ -406,7 +442,8 @@ export class OpenBudgetFacility extends Component {
 			<capitec-button
 				label="Add budget"
 				type="primary"
-				@click="${() => this._onAddBudgetClick()}">
+				@click="${() => this._onAddBudgetClick()}"
+				?disabled="${this.addBtnDisabled}">
 			</capitec-button>
 		`;
 	}
