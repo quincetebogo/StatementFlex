@@ -220,9 +220,6 @@ export function formatDate(value, format) {
 
 	let formattedDate = ``;
 
-	if(year === 0 || isNaN(year))
-		return formattedDate;
-
 	// cases would be extended, based on our need in future
 	switch (format) {
 		case `dd-mmm`:
@@ -246,7 +243,7 @@ export function formatDate(value, format) {
 			formattedDate = `${date} ${monthName} ${year} ${time}`;
 			break;
 		default:
-			formattedDate = `${date}-${month + 1}-${year}`;
+			formattedDate = `${date}-${month}-${year}`;
 			break;
 	}
 
