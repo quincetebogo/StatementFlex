@@ -11,7 +11,7 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
-		"incidentManagementService": "https://cec-cs-incident.platform.int.capinet",
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
