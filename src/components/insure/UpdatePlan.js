@@ -1109,8 +1109,9 @@ class UpdatePlan extends Component {
  */
 	async _reinstatePolicyPopup() {
 
-		if (!(this.agreementFCPAccepted === `yes` && this.agreementEACLAccepted === `yes` &&
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes`)) {
+		if (!(this.agreementFCPAccepted === `yes` && 
+			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
+			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
 			return;
@@ -1444,28 +1445,6 @@ class UpdatePlan extends Component {
 
 	}
 
-	/**
-	 * Show Policy Schedule and Mandate documents
-	 * @return {void} 
-	 */
-	async _onReinstatePolicyPopup() {
-
-		if (!(this.agreementFCPAccepted === `yes` && 
-			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
-			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
-			this.showValidationConfirmDialog = true;
-			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
-			return;
-		}
-
-		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
-
-		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
-		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
-
-		this.showReinstatePolicyAgreementDialog = true;
-
-	}
 
 	/**
 	 * Invoke this function when Agree button is clicked on Reinstate Policy Popup
