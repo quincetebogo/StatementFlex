@@ -1533,6 +1533,14 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
+					
+					const wrongTimeZone = this.policyDetails.roleplayers[index].dateOfBirth.toLowerCase().includes(`+02:00`);
+					if (wrongTimeZone === true) {
+						let dob = this.policyDetails.roleplayers[index].dateOfBirth;
+						const timezone = `+02:00`;
+						dob = dob.replace(timezone, ``);
+						this.policyDetails.roleplayers[index].dateOfBirth = dob;
+					}
 
 					if (rolePlayer.beneficiary === true) {
 						rolePlayer.coverDetails.idNumberErrorMessage = ``;

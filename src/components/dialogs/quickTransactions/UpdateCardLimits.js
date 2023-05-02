@@ -301,7 +301,12 @@ export class UpdateCardLimits extends Component {
 		}
 
 		const compare = (obj, source) => Object.keys(source).every(key => Object.prototype.hasOwnProperty.call(obj, key) && obj[key] === source[key]);
-		if (compare(this.cardLimits, this.cardDetails.cardLimits)) {
+		
+		const noChangeInLimits = (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) 
+								? compare(this.linkedCardLimits, this.cardDetails.linkedCardLimits)
+								: compare(this.cardLimits, this.cardDetails.cardLimits);
+								
+		if (noChangeInLimits) {
 			this._limitHasNotChanged();
 		} else {
 			this._limitHasChanged();

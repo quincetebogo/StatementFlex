@@ -232,7 +232,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})">
+			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})" style="--theme-modal-alert-m-l-xl-width: 848px;">
 				<div slot="body" data-automation-id="horizon-insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>
