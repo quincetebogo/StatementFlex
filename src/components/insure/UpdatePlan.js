@@ -1512,8 +1512,7 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].dateOfBirth = e.detail.new.date;
-					
-					const wrongTimeZone = this.policyDetails.roleplayers[index].dateOfBirth.toLowerCase().includes(`+02:00`);
+					const wrongTimeZone = this.policyDetails.roleplayers[index].dateOfBirth.includes(`+02:00`);
 					if (wrongTimeZone === true) {
 						let dob = this.policyDetails.roleplayers[index].dateOfBirth;
 						const timezone = `+02:00`;
@@ -2516,7 +2515,7 @@ class UpdatePlan extends Component {
 				: html`
 					
 					<capitec-date-time-picker label="Date of Birth" type="single" mode="date" inputType="calendar"
-						date="${roleplayer.dateOfBirth}" outputType="datetime" maxdate="${this.today}"  minDate="1901-01-01"
+						date="${roleplayer.dateOfBirth}" outputType="string" maxdate="${this.today}"  minDate="1901-01-01"
 						value=${formatDate(roleplayer.dateOfBirth)} style="width: 50%"
 						error="${roleplayer?.coverDetails?.ageMessage}"
 						?disabled="${this.canReinstate}" 
