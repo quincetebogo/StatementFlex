@@ -83,6 +83,10 @@ class IneligibleLivesDialog extends Component {
 			super.styles,
 			css`
 				${INSURE_CSS}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -93,7 +97,7 @@ class IneligibleLivesDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="free" header = "Ineligible roleplayers"> 
+			<capitec-modal type="free" header = "Ineligible roleplayers" style="--theme-modal-header-color: black"> 
 				<div slot="body" data-automation-id="">
 					${this._renderDialogBody()}
 				</div>
