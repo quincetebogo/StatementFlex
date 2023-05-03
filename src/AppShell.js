@@ -1,7 +1,9 @@
 import { Configuration, EventAggregator, ExecutionContext, Logger, NavigationContext, Platform, Router, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { Shell, css, html } from 'platform/elements';
+import { Instana } from 'app/services/instana';
 
+// eslint-disable-next-line sort-imports
 import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -16,6 +18,7 @@ import 'platform/components/navigation/AppRouter';
 import 'app/components/shell/HorizonStatusBar';
 
 import 'app/components/common/AlertBanner';
+
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -67,6 +70,9 @@ export class AppShell extends Shell {
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 		this.eventAggregator.subscribe(`horizon-status-bar-update`, (event) => this._onUpdateStatusBar(event));
 
+		// instana properties
+		this._InstanaHelper = Instana.getInstance();
+
 		// Property defaults.
 		this.isBusy = false;
 		this.isAuthenticating = true;
@@ -111,7 +117,10 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._casperScript(); 
+		// this._casperScript(); 
+		
+		this._InstanaHelper._instanaScript();
+		this._InstanaHelper._instanaScripts();
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
@@ -121,6 +130,8 @@ export class AppShell extends Shell {
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
+		
+		
 	}
 
 	disconnectedCallback() {
@@ -195,6 +206,7 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
+
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		
@@ -215,11 +227,42 @@ export class AppShell extends Shell {
 			script.setAttribute(`type`, `text/javascript`);
 			script.setAttribute(`id`, `CASPerScript`);
 			script.setAttribute(`title`, `CASPer Widget`);
-
 			body.appendChild(script);
 		}
 	  }
 
+	  _instanaScrip() {
+		const body = document.body || document.getElementsByTagName(`body`)[0];
+		const script = document.createElement(`script`);
+		script.innerHTML = `(function (s, t, a, n) { s[t] || (s[t] = a, n = s[a] = function () 
+			{ n.q.push(arguments) }, n.q = [], n.v = 2, n.l = 1 * new Date) })(window, "InstanaEumObject", "ineum"); 
+			ineum('reportingUrl', 'https://eum-green-saas.instana.io');
+			ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q');
+			ineum('trackSessions');
+			ineum('page', 'horizon-startup');`;
+		body.appendChild(script);
+	  }
+
+	  _instanaScript() {
+		const body = document.body || document.getElementsByTagName(`body`)[0];
+		const script = document.createElement(`script`);
+		script.setAttribute(`defer`, ``);
+		script.setAttribute(`crossorigin`, `anonymous`);
+		script.src = `https://eum.instana.io/eum.min.js`;
+		body.appendChild(script);
+	  }
+
+	  _instanaScripts() {
+		const body = document.body || document.getElementsByTagName(`body`)[0];
+		const script = document.createElement(`script`);
+		script.innerHTML = `(function (s, t, a, n) { s[t] || (s[t] = a, n = s[a] = function () 
+			{ n.q.push(arguments) }, n.q = [], n.v = 2, n.l = 1 * new Date) })(window, "InstanaEumObject", "ineum"); 
+			ineum('reportingUrl', 'https://eum-green-saas.instana.io');
+			ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q');
+			ineum('trackSessions');
+			ineum('page', 'horizon-startup');`;
+		body.appendChild(script);
+	  }
 	// ---------
 	// RENDERING
 	// ---------
@@ -385,6 +428,7 @@ export class AppShell extends Shell {
 							${this.horizonViewManager.renderLeftBar(this.currentView)}
 						</div>
 						<div class="middle">
+						<script> (function (s, t, a, n) { s[t] || (s[t] = a, n = s[a] = function () { n.q.push(arguments) }, n.q = [], n.v = 2, n.l = 1 * new Date) })(window, "InstanaEumObject", "ineum"); ineum('reportingUrl', 'https://eum-green-saas.instana.io'); ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q'); ineum('trackSessions'); </script><script defer crossorigin="anonymous" src="https://eum.instana.io/eum.min.js"></script>
 							<capitec-app-router></capitec-app-router>
 						</div>
 						<div class="right">

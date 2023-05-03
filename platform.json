@@ -8,10 +8,7 @@
 		},
 		"csp": {
 			"script-src": [
-				"https://casper-widget.platform-dev.int.capinet",
-				"https://casper-widget.platform-int.int.capinet",
-				"https://casper-widget.platform-qa.int.capinet",
-				"https://casper-widget.platform.int.capinet"
+				"https://eum.instana.io/eum.min"
 			],
 			"connect-src": [
 				"http://localhost:8889"
