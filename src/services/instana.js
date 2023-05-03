@@ -19,10 +19,9 @@ export class Instana {
 		script.setAttribute(`defer`, ``);
 		script.setAttribute(`crossorigin`, `anonymous`);
 		script.setAttribute(`src`, `https://eum.instana.io/eum.min.js`);
-		// script.src = `https://eum.instana.io/eum.min.js`;
 		body.appendChild(script);
 	  }
-
+	
 	  _instanaScripts() {
 		const body = document.body || document.getElementsByTagName(`body`)[0];
 		const script = document.createElement(`script`);
@@ -31,7 +30,8 @@ export class Instana {
 			ineum('reportingUrl', 'https://eum-green-saas.instana.io');
 			ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q');
 			ineum('trackSessions');
-			ineum('page', 'horizon-startup');`;
+			ineum('page', '/');`;
 		body.appendChild(script);
 	  }
+	  
 };

@@ -8,7 +8,7 @@
 		},
 		"csp": {
 			"script-src": [
-				"https://eum.instana.io/eum.min"
+				"https://eum.instana.io/eum.min.js"
 			],
 			"connect-src": [
 				"http://localhost:8889"
