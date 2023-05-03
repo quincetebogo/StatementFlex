@@ -154,6 +154,10 @@ class RequestCallbackDialog extends Component {
 			super.styles,
 			css`
 				${INSURE_CSS}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -164,7 +168,7 @@ class RequestCallbackDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal header = "Request a callback" style="--theme-modal-alert-m-l-xl-width: 500px;"> 
+			<capitec-modal header = "Request a callback" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
 				<div slot="body" data-automation-id="horizon-insure-update-validation-dialog-body">
 				<capitec-content-box style="padding: 0px">
 					${this._renderDialogBody()}

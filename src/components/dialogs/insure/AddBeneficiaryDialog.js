@@ -226,6 +226,10 @@ class AddBeneficiaryDialog extends Component {
 				--theme-radio-disabled-border-color: #E1E1E1;
 				--theme-radio-disabled-background-color: #F7F7F7;
 			}
+			
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
 			`
 		];
 	}
@@ -259,7 +263,7 @@ class AddBeneficiaryDialog extends Component {
 	*/
 	_renderAddBeneficiary() {
 		return html`
-			<capitec-modal type="alert" header="Add Beneficiary" style="--theme-modal-alert-m-l-xl-width: 840px;">
+			<capitec-modal type="alert" header="Add Beneficiary" style="--theme-modal-alert-m-l-xl-width: 840px; --theme-modal-header-color: black">
 				<div slot="body">
 					<capitec-label label="Life assured" type="title"></capitec-label>
 					<capitec-label label="Choose from clients policy members" type="default"></capitec-label>

@@ -332,6 +332,10 @@ class PayPremiumDialog extends Component {
 
 			}
 
+			capitec-modal {
+				--theme-modal-header-background-color: #f7f7f7;
+			}
+
 		`
 		];
 	}
@@ -343,7 +347,7 @@ class PayPremiumDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.currentContractRef})"
+			<capitec-modal type="form" class="modal-body-label" header="Pay Arrears (${this.currentContractRef})" style="--theme-modal-header-color: black;"
 			header-align="left">
 			<div slot="body" class="modal-body">
 				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear" data-automation-id = "horizon-insure-pay-premium-dialog-body">

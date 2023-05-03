@@ -118,6 +118,10 @@ class LodgeClaimInfoDialog extends Component {
 					margin: 0px;
 					margin-bottom: 5px;
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 				`
 		];
 	}
@@ -128,7 +132,7 @@ class LodgeClaimInfoDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="How To Claim">
+			<capitec-modal type="form" header="How To Claim" style="--theme-modal-header-color: black;">
 				<div slot="body" data-automation-id="horizon-insure-lodge-claim-info-dialog-body" id="dialog-body">
 					${this._renderDialogBody()}
 				</div>

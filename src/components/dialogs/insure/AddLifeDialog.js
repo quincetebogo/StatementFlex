@@ -160,6 +160,10 @@ class AddLifeDialog extends Component {
 				.relationship-card{
 					padding: 10px; min-height: inherit; width: 100%;
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 				`
 		];
 	}
@@ -171,7 +175,7 @@ class AddLifeDialog extends Component {
 	_webTemplate() {
 		return html`
 		<capitec-modal type="form" class="modal-body-label" header="Add Life Assured"
-			data-automation-id="horizon-insure-add-life-dialog" header-align="left">
+			data-automation-id="horizon-insure-add-life-dialog" header-align="left" style="--theme-modal-header-color: black">
 			<div slot="body" class="modal-body">
 				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear"
 					data-automation-id="horizon-insure-add-life-dialog-body">

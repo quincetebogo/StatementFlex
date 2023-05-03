@@ -382,7 +382,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-last-arrears-payment-amount">
 				</horizon-label>
 				<horizon-label label="Last arrears payment date"
-					value="${formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
+					value="${isNullorEmpty(paymentSchedule?.previousArrearsPaymentDate) ? `-` : formatDate(paymentSchedule?.previousArrearsPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-arrears-payment-date">
 				</horizon-label>
 				<horizon-label label="Months outstanding" value="${isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths}"

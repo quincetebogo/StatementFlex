@@ -68,6 +68,10 @@ class UpdateValidationDialog extends Component {
 			super.styles,
 			css`
 				${INSURE_CSS}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -78,7 +82,7 @@ class UpdateValidationDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="free" header = "Unable to Calculate"> 
+			<capitec-modal type="free" header="Unable to Calculate" style="--theme-modal-header-color: black"> 
 				<div slot="body" data-automation-id="horizon-insure-update-validation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
