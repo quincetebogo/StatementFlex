@@ -219,9 +219,23 @@ class CancelPolicyDialog extends Component {
 				capitec-expander > capitec-content-box {
 					padding: 0 !important;
 				}
+
 				.cancel-policy-modal{
 					--theme-modal-alert-m-l-xl-width: 840px;
 				}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
+
+				.cancel-pdf-viewer{
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					width: 800px;
+				}
+
 				`
 		];
 	}
@@ -232,7 +246,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})" style="--theme-modal-alert-m-l-xl-width: 848px;">
+			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 848px;">
 				<div slot="body" data-automation-id="horizon-insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -276,7 +290,7 @@ class CancelPolicyDialog extends Component {
 
 				${this.cancelPolicyDocumentDetails === undefined ? html`
 				` : html`
-					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="pdf-viewer"
+					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="cancel-pdf-viewer"
 						data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
 						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent.value}#view=fitH">

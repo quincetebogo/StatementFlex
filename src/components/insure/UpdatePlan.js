@@ -847,42 +847,38 @@ class UpdatePlan extends Component {
 
 		this.policyDetails.roleplayers.forEach(ele => {
 			ele.coverDetails.canSubmit = true;
-			// General Checks
+			
+
 			if (ele.lifeAssured === true) {
+
+				// Name and surname
 				if (ele.firstName === `` || ele.surname === ``) {
 					ele.coverDetails.canSubmit = false;
 				}
-			}
 
-			// title check
-			if (ele.lifeAssured === true) {
+				// Title
 				if (isNullorEmpty(ele.title)) {
 					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.titleErrorMessageLA = `Title is a required field`;
 				}
-			}
 
-			// LA Checks
-			if (ele.lifeAssured === true) {
+				// Cover amount
 				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
 					ele.coverDetails.canSubmit = false;
 				}
-			}
 
-			// ID/DoB Check
-			if (ele.lifeAssured === true) {
+				// ID and Date of Birth
 				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
 				}
-			}
 
-			// Gender check
-			if (ele.lifeAssured === true) {
+				// Gender
 				if (isNullorEmpty(ele.gender)) {
 					ele.coverDetails.canSubmit = false;
 					ele.coverDetails.genderErrorMessageLA = `Gender is a required field`;
 				}
+
 			}
 
 			// build list for validation dialog
@@ -1296,28 +1292,58 @@ class UpdatePlan extends Component {
 		}
 
 		this.policyDetails.roleplayers.forEach(ele => {
-
 			ele.coverDetails.canUpdate = true;
-
-			// Benefit payout Check
 			if (ele.beneficiary === true) {
+
+				// Benefit payout Check
 				if (ele.benefitPayout === ``) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
 				}
-			}
 
-			if (ele.beneficiary === true && payoutsMatch === false) {
-				ele.coverDetails.canUpdate = false;
-				ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
-			}
-
-			// Contact details check
-			if (ele.beneficiary === true) {
+				// Contact details
 				if (isNullorEmpty(ele.contactDetails?.cellphone) && isNullorEmpty(ele.contactDetails?.email)) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.cellphoneNumberErrorMessage = `Please enter a cellphone number`;
 				}
+
+				// First name
+				if (isNullorEmpty(ele.firstName)) {
+					ele.coverDetails.firstNameErrorMessage = `First name is a required field`;
+					ele.coverDetails.canUpdate = false;
+				}
+
+				// Surname
+				if (isNullorEmpty(ele.surname)) {
+					ele.coverDetails.surnameErrorMessage = `Surname is a required field`;
+					ele.coverDetails.canUpdate = false;
+				}
+
+				// Minor check
+				const age = getAgeFromDob(ele.dateOfBirth);
+				if (age < 18) {
+					ele.coverDetails.canUpdate = false;
+					ele.coverDetails.ageMessage = `Beneficiary must be 18 years or older`;
+				}
+
+				// ID and DoB
+				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
+					ele.coverDetails.canUpdate = false;
+					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
+				}
+
+				// Title
+				if (isNullorEmpty(ele.title)) {
+					ele.coverDetails.canUpdate = false;
+					ele.coverDetails.titleErrorMessage = `Title is a required field`;
+				}
+
+			}
+
+			// Payouts match
+			if (ele.beneficiary === true && payoutsMatch === false) {
+				ele.coverDetails.canUpdate = false;
+				ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
 			}
 
 			// Banking Details
@@ -1326,50 +1352,7 @@ class UpdatePlan extends Component {
 				this.accountNumErrorMsg = `Account number is a required field`;
 			}
 
-			// Name check
-			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.firstName)) {
-
-					ele.coverDetails.firstNameErrorMessage = `First name is a required field`;
-					ele.coverDetails.canUpdate = false;
-				}
-
-				if (isNullorEmpty(ele.surname)) {
-
-					ele.coverDetails.surnameErrorMessage = `Surname is a required field`;
-					ele.coverDetails.canUpdate = false;
-				}
-			}
-
-			// dobCheck
-
-			if (ele.beneficiary === true) {
-				const age = getAgeFromDob(ele.dateOfBirth);
-				if (age < 18) {
-					ele.coverDetails.canUpdate = false;
-					ele.coverDetails.ageMessage = `Beneficiary must be 18 years or older`;
-				}
-			}
-
-
-			// id check
-			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
-					ele.coverDetails.canUpdate = false;
-					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
-				}
-			}
-
-
-			// title check
-			if (ele.beneficiary === true) {
-				if (isNullorEmpty(ele.title)) {
-					ele.coverDetails.canUpdate = false;
-					ele.coverDetails.titleErrorMessage = `Title is a required field`;
-				}
-			}
-
-			// build list for validation dialog
+			// Build list for validation dialog
 			if (ele.coverDetails.canUpdate === false) {
 				onUpdateValidations.lives.push({
 					name: ele.firstName,

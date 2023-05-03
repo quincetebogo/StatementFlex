@@ -69,6 +69,10 @@ class InsureConfirmationDialog extends Component {
 			super.styles,
 			css`
 				${INSURE_CSS}
+
+				capitec-modal {
+					--theme-modal-header-background-color: #f7f7f7;
+				}
 			`
 		];
 	}
@@ -79,7 +83,7 @@ class InsureConfirmationDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="free">
+			<capitec-modal type="free" style="--theme-modal-header-color: black">
 				<div slot="body" data-automation-id="horizon-insure-confirmation-dialog-body">
 					${this._renderDialogBody()}
 				</div>
