@@ -525,8 +525,6 @@ export class CardLimitsLanding extends Component {
 
 		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
 			return `Not set`;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && limitType !== LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT) {
-			return `Not set`;
 		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
 			return `Not set`;
 		}
@@ -547,8 +545,6 @@ export class CardLimitsLanding extends Component {
 		const type = card.cardDisplayType;
 		
 		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT)) {
-			return ``;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(limitType === LIMIT_VALUE_TYPE.PERMANENT_CNP_AMOUNT)) {
 			return ``;
 		} else if ((limitType === LIMIT_VALUE_TYPE.TEMPORARY_CASH_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_PURCHASE_AMOUNT || limitType === LIMIT_VALUE_TYPE.TEMPORARY_CNP_AMOUNT) && isNullorEmpty(value)) {
 			return ``;
@@ -736,7 +732,7 @@ export class CardLimitsLanding extends Component {
 					border-bottom: none;
 				}
 				.limits-content {
-					border-bottom: 1px;
+					border-bottom: 1px solid #cc4646
 				}
 				horizon-label{
 					width: 182px;
@@ -815,7 +811,7 @@ export class CardLimitsLanding extends Component {
 		return this.hasCardsAvailable
 		? html`
 			${this.renderAlertBanner()}
-			<capitec-tab-group class='limits-content'>
+			<capitec-tab-group>
 				<capitec-tab label="Cards" layout="vertical" halign="left">
 					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
