@@ -12,6 +12,7 @@ import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
 import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
+import 'app/components/common/HorizonTab';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -602,8 +603,9 @@ export class CardLimitsLanding extends Component {
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 0px 16px 4px;
-					--theme-label-strong-font-size: 18px;
+					margin: 18px 16px 0px;
+					font-size: 18px;
+					
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3E4547;
 					--theme-layout-gap-spacing: 16px;
@@ -812,14 +814,20 @@ export class CardLimitsLanding extends Component {
 		? html`
 			${this.renderAlertBanner()}
 			<capitec-tab-group>
-				<capitec-tab label="Cards" layout="vertical" halign="left">
+				<capitec-tab 
+					label="Cards" 
+					layout="vertical" 
+					halign="left">
 					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 					</capitec-expander-group>
 				</capitec-tab>
 				
-				<capitec-tab label="Virtual Card" layout="vertical" halign="left">
+				<capitec-tab 
+					label="Virtual Card" 
+					layout="vertical" 
+					halign="left">
 					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() 
 						: html`
