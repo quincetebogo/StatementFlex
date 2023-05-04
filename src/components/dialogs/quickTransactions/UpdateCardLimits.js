@@ -1043,7 +1043,6 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cashAmountLimit]) || this.tempError[cashAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.cashAmountLimit)}"
-				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
@@ -1058,7 +1057,6 @@ export class UpdateCardLimits extends Component {
 				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit]) || this.tempError[purchaseAmountLimit]}"
 				hint="${this._getTextFieldHint(limits.purchaseAmountLimit)}"
 				@blur="${() => this.fieldFocused = ``}"
-				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxPurchaseAmountLimit)}">
 			</capitec-text-field>
