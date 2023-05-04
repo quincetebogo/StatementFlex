@@ -8,10 +8,14 @@
 		},
 		"csp": {
 			"script-src": [
-				"https://eum.instana.io/eum.min.js"
+				"*.instana.io"
+			],
+			"img-src":[
+				"*.instana.io"
 			],
 			"connect-src": [
-				"http://localhost:8889"
+				"http://localhost:8889",
+				"*.instana.io"
 			],
 			"default-src": [
 				"blob:",

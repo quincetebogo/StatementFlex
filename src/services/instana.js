@@ -22,7 +22,7 @@ export class Instana {
 		body.appendChild(script);
 	  }
 	
-	  _instanaScripts() {
+	  _instanaScripts(secContext) {
 		const body = document.body || document.getElementsByTagName(`body`)[0];
 		const script = document.createElement(`script`);
 		script.innerHTML = `(function (s, t, a, n) { s[t] || (s[t] = a, n = s[a] = function () 
@@ -30,7 +30,13 @@ export class Instana {
 			ineum('reportingUrl', 'https://eum-green-saas.instana.io');
 			ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q');
 			ineum('trackSessions');
-			ineum('page', '/');`;
+			ineum('user', '${secContext.username}', '${secContext.fullName}', '${secContext.email}');
+			ineum('page', '${window.location.pathname}');
+			ineum('captureHeaders', [/./i]);
+			ineum('wrapEventHandlers', true);
+			ineum('wrapTimers', true);
+			ineum('allowedOrigins', [/(.*).int.capinet/i]);
+			`;
 		body.appendChild(script);
 	  }
 	  

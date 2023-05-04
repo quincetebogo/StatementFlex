@@ -1,6 +1,7 @@
-import { Configuration, EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Instana } from 'app/services/instana';
 import { Router } from 'platform/Router';
 
 /**
@@ -85,6 +86,11 @@ export class HorizonRouter {
 		this.router = Router.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		
+		// instana properties
+		this._InstanaHelper = Instana.getInstance();
+		this._InstanaHelper._instanaScript();
+		this._securityContext = SecurityContext.getInstance();
 
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 
@@ -120,6 +126,7 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
+		this._InstanaHelper._instanaScripts(this._securityContext);
 	}
 
 	/**
