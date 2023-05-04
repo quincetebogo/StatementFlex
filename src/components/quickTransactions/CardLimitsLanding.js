@@ -12,7 +12,6 @@ import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
 import 'app/components/dialogs/common/ConfirmSelection';
 import 'app/components/common/MultiLineLabel';
-import 'app/components/common/HorizonTab';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -601,6 +600,9 @@ export class CardLimitsLanding extends Component {
 					--theme-layout-gap-spacing: 2px;
 					--theme-label-font-color: #3A3A3A;
 				}
+				capitec-tab-group {
+					--theme-tab-border-bottom: 2px solid #F3F3F3;
+				}
 				.card-title {
 					line-height: 24px;
 					margin: 18px 16px 0px;
@@ -665,7 +667,6 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					border-top: 0px;
 				}
-				
 				horizon-expander{
 					margin: 16px;
 					width: 1030px;
@@ -732,9 +733,6 @@ export class CardLimitsLanding extends Component {
 				}
 				.title-bar {
 					border-bottom: none;
-				}
-				.limits-content {
-					border-bottom: 1px solid #cc4646
 				}
 				horizon-label{
 					width: 182px;
@@ -812,13 +810,13 @@ export class CardLimitsLanding extends Component {
 	_renderCardsLimitsContent() {
 		return this.hasCardsAvailable
 		? html`
-			${this.renderAlertBanner()}
 			<capitec-tab-group>
 				<capitec-tab 
 					label="Cards" 
 					layout="vertical" 
 					halign="left">
 					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
+						${this.renderAlertBanner()}
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 					</capitec-expander-group>
@@ -829,6 +827,7 @@ export class CardLimitsLanding extends Component {
 					layout="vertical" 
 					halign="left">
 					<capitec-expander-group modeset="multiple" class="${this.verificationMethod === `ITA` ? `m-t-16` : ``}">
+						${this.renderAlertBanner()}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() 
 						: html`
 							<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
