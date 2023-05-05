@@ -605,7 +605,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 18px 16px 0px;
+					margin: 4px 16px 0px;
 					font-size: 18px;
 					
 					--theme-label-strong-font-weight: 600;
@@ -668,7 +668,7 @@ export class CardLimitsLanding extends Component {
 					border-top: 0px;
 				}
 				horizon-expander{
-					margin: 16px;
+					margin: 6px 16px 16px 16px;
 					width: 1030px;
 					height: auto;
 					animation-timing-function: linear;
@@ -895,7 +895,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<!-- Virtual Card title -->
 			<capitec-label
-				label="Virtual card(s)"
+				label="Virtual card"
 				type="strong"
 				class="card-title">
 			</capitec-label>
