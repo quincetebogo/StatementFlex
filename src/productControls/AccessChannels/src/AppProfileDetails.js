@@ -1,4 +1,4 @@
-import { ACCESS_CHANNEL_STATUS, parseHTMLtoDOM } from './Constants';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -6,11 +6,48 @@ import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
 
+const SUSPEND_OUTCOME_DETAILS = {
+	'success': {
+		action: `Suspend App`,
+		type: `success`,
+		label: `App is suspended`,
+		header: `Successful!`,
+		message: `Successfully suspended App.`,
+		image: null
+	},
+	'error': {
+		action: `Suspend App`,
+		type: `error`,
+		label: `App was not suspended`,
+		header: `Unsuccessful!`,
+		message: `Unable to suspend App. Please try again later.`,
+		image: null
+	}
+};
+
+const UNSUSPEND_OUTCOME_DETAILS = {
+	'success': {
+		action: `Unsuspend App`,
+		type: `success`,
+		label: `App was unsuspended`,
+		header: `Successful!`,
+		message: `Successfully unsuspended App.`,
+		image: null
+	},
+	'error': {
+		action: `Unsuspend App`,
+		type: `error`,
+		label: `Unable to unsuspended App`,
+		header: `Unsuccessful!`,
+		message: `Unable to unsuspend App. Please try again later.`,
+		image: null
+	}
+};
 /**
  * App profile Details component is used to show client's information and Suspend/Unsuspend app.
  * This component is envoked from Access Channels component
  * 
- * Events Raised 
+ * Events Raised
  * -------------
  * close-side-sheet
  *  
@@ -34,6 +71,15 @@ export class AppProfileDetails extends Component {
 		this.selectedSuspendReason = ``;
 		this.showValidationBanner = false;
 		this.isVerifiedClient = false;
+		this.showOutcomeSlide = false;
+		this.outcomeDetails = {
+			action: null,
+			type: null,
+			label: null,
+			header: null,
+			message: null,
+			image: null
+		};
 	}
 
 	// --------------
@@ -73,20 +119,9 @@ export class AppProfileDetails extends Component {
 
 			showSuspendReasons: { state: true },
 			selectedSuspendReason: { state: true },
-			showValidationBanner: { state: true }
+			showValidationBanner: { state: true },
+			showOutcomeSlide: { state: true }
 		};
-	}
-
-	get successToast() {
-		return `<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}" type="subtitle"></capitec-label>`;
-	}
-
-	get unSuccessToast() {
-		return `<capitec-label label="App was not suspended"></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="Try again"></capitec-label>`;
 	}
 
 	// -------------------
@@ -129,26 +164,29 @@ export class AppProfileDetails extends Component {
 
 		const returnValue = await this.suspendApp(this.selectedSuspendReason, this.appDetails.userRegNo);
 		this.showSuspendReasons = !this.showSuspendReasons;
-	
+		this._toggleOutcomePanel();
+
 		if (!returnValue) {
-			this._displayAndCloseToast(`app-unsuccess-toast`, this.unSuccessToast);
-			return false;
+			this.outcomeDetails = SUSPEND_OUTCOME_DETAILS[`error`];
+			return;
 		}
-
+		this.outcomeDetails = SUSPEND_OUTCOME_DETAILS[`success`];
 		this.appDetails.status = `Suspended`;
-		this._displayAndCloseToast(`app-success-toast`, this.successToast);
-
+		
 		this.showValidationBanner = false;
 	}
 
 	async _onUnsuspendAppClick() {
 	
 		const returnValue = await this.unsuspendApp();
-		
+		this._toggleOutcomePanel();
+
 		if (returnValue) {
 			this.appDetails.status = `Active`;
-			this._displayAndCloseToast(`app-success-toast`, this.successToast);
+			this.outcomeDetails = UNSUSPEND_OUTCOME_DETAILS[`success`];
 		}
+		
+		this.outcomeDetails = UNSUSPEND_OUTCOME_DETAILS[`error`];
 	}
 
 	_onReasonSelected(event) {
@@ -161,27 +199,6 @@ export class AppProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_displayAndCloseToast(elementId, toastDetail) {
-
-		const elementToast = this.shadowRoot.getElementById(elementId);
-		elementToast.style.display = `block`;
-		elementToast.style.animation = `slideDown 0.6s`;
-
-		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
-		detailLabel.innerHTML = parseHTMLtoDOM(toastDetail);
-
-		window.setTimeout(() => {
-				elementToast.style.animation = `slideUp 0.6s`;
-				
-				window.setTimeout(() => elementToast.style.display = `none`, 600);
-			}, 3000);
-	}
-
-	_closeToast(e) {
-		const elementToast = this.shadowRoot.getElementById(e.target.id);
-		elementToast.style.display = `none`;
-	}
 
 	_formatDate(dateToFormat) {
 		if (!dateToFormat) {
@@ -201,6 +218,10 @@ export class AppProfileDetails extends Component {
 
 	_getFormattedDateTime(datetime) {
 		return !datetime ? `-` : `${this._formatDate(datetime)}, ${this._formatTime(datetime)}`;
+	}
+
+	_toggleOutcomePanel() {
+		this.showOutcomeSlide = !this.showOutcomeSlide;
 	}
 
 	// ---------
@@ -257,7 +278,7 @@ export class AppProfileDetails extends Component {
 				.content-box > horizon-label[value="Suspended"] {
 					--horizon-label-value-color: #a5132a;
 				}
-				.content-box > capitec-button {
+				capitec-button {
 					width: 296px;
 					margin-top: 24px;
 					--theme-button-font-weight: 600;
@@ -273,50 +294,18 @@ export class AppProfileDetails extends Component {
 				.validate-reasons {
 					--theme-alert-banner-height: 64px;
 				}
-				capitec-toast {
-					animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
-					animation-fill-mode: forwards;
-
-					--theme-toast-max-width: 315px;
-					--theme-toast-height: 106px;
-					--theme-icon-size-default: 24px;
-					--theme-toast-success-color: #3A3A3A;
-					--theme-toast-detail-line-height: 20px;
-					--theme-label-subtitle-font-size: 14px;
-					--theme-label-subtitle-font-weight: 600;
-
-					padding: 12px 0px 0px 16px;
-					position: absolute;
-					z-index: 100;
-					display: none;
-				}
-				@keyframes slideDown {
-					0% {
-						transform: translateY(-50%);
-					};
-					100% {
-						transform: translateY(100%);
-					}
-				}
-				@keyframes slideUp{
-					0% {
-						transform: translateY(0%);
-					}
-					100% {
-						transform: translateY(-50%);
-					}
-				}
 
 				/* Suspend App reasons styles */
 				.suspend-reasons {
-					--theme-side-sheet-top: 104px;
+					--theme-side-sheet-top: 96px;
 					--theme-modal-screen-background-color: transparent;
 				}
-				.header-group-suspend{
+				.header-group {
 					height: 56px;
     				padding: 0px 24px;
 					border-start-start-radius: 4px;
-				;
+				}
+				.header-group-suspend{
 					background-color: rgba(212, 120, 28, 0.15);
 				}
 				.header-suspend-error{
@@ -339,7 +328,9 @@ export class AppProfileDetails extends Component {
 				.content-box > capitec-button[label="Cancel"] {
 					margin-top: 16px;
 				}
-
+				.hide-label {
+					display: none;
+				}
 				/* Service unavailable stylings */
 				.service-unavilable-group{
 					text-align: center;
@@ -371,6 +362,7 @@ export class AppProfileDetails extends Component {
 		return html`
 			${this._renderAppPanel()}
 			${this._renderSuspendAppReason()}
+			${this._renderSuspendOutcome()}
 		`;
 	}
 
@@ -408,8 +400,6 @@ export class AppProfileDetails extends Component {
 		}
 
 		return html`
-			${this._renderSuccessToast()}
-			${this._renderUnsuccessToast()}
 			${this._renderNotificationBanner()}
 			
 			<capitec-content-box
@@ -534,6 +524,62 @@ export class AppProfileDetails extends Component {
 		`;
 	}
 
+	_renderSuspendOutcome() {
+		return this.showOutcomeSlide 
+		? html`
+			<capitec-side-sheet
+				data-automation-id="app-profile-details-outcome-side-sheet"
+				class="suspend-reasons"
+				.expanded="${this.showOutcomeSlide}"
+				alignment="right">
+
+				<capitec-group
+					class="header-group"
+					layout="horizontal"
+					halign="left"
+					valign="center"
+					gap="none"
+					data-automation-id="app-profile-details-outcome-header">
+					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
+					<capitec-label class="header-label" type="Strong" label="${this.outcomeDetails.action}"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class="icon-close" size="medium" icon="system/close-action" @click="${() => this._toggleOutcomePanel()}"></capitec-icon>
+				</capitec-group>
+
+				<horizon-alert-banner
+					data-automation-id="app-profile-details-outcome-banner"
+					class="unavailable-alert-banner"
+					type="${this.outcomeDetails.type}"
+					header="${this.outcomeDetails.header}"
+					label="${this.outcomeDetails.label}"
+					layout="vertical">
+				</horizon-alert-banner>
+			
+				<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
+				
+					<capitec-image src="platform/illustrations/no-connection.svg"></capitec-image>
+
+					<capitec-label 
+							class="unavailable-header"
+							label="${this.outcomeDetails.message}">
+					</capitec-label>
+
+					<capitec-label 
+						class="${this.outcomeDetails.type === `error` ? `hide-label` : ``}"
+						label="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}" 
+						type="strong">
+					</capitec-label>
+
+					<capitec-button 
+						data-automation-id="app-profile-details-outcome-okay-button"
+						label="Okay" 
+						@click="${() => this._toggleOutcomePanel()}">
+					</capitec-button>
+				</capitec-group>
+			</capitec-side-sheet>`
+		: html``;
+	}
+
 	_renderSuspendAppReason() {
 		return this.showSuspendReasons 
 		? html`
@@ -543,7 +589,7 @@ export class AppProfileDetails extends Component {
 				.expanded="${this.showSuspendReasons}"
 				alignment="right">
 					<capitec-group
-						class="header-group-suspend ${this.showValidationBanner ? `header-suspend-error` : ``}"
+						class="header-group header-group-suspend ${this.showValidationBanner ? `header-suspend-error` : ``}"
 						layout="horizontal"
 						halign="left"
 						valign="center"
@@ -635,45 +681,6 @@ export class AppProfileDetails extends Component {
 		: html``;
 	}
 
-	_renderSuccessToast() {
-
-		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
-		as content inside slot will be effective.*/
-
-		return html`
-			<capitec-toast 
-				data-automation-id="app-profile-details-success-toast"
-				id="app-success-toast"
-				type="success" 
-				header="Successful!"
-				detail=""
-				@click="${(e) => this._closeToast(e)}"
-				closable>
-					<capitec-label label="Successful!" type="strong"></capitec-label>
-					<capitec-label label="App was ${this.appDetails.status === `Active` ? `unsuspended` : `suspended`}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-label label="${this._getFormattedDateTime(this.appDetails.dateLastUpdated)}" type="strong"></capitec-label>
-			</capitec-toast>`;
-	}
-
-	_renderUnsuccessToast() {
-
-		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
-		as content inside slot will be effective.*/
-
-		return html`
-			<capitec-toast 
-				data-automation-id="app-profile-details-unsuccess-toast"
-				id="app-unsuccess-toast"
-				type="error" 
-				header="Unsuccessful!"
-				detail=""
-				@click="${(e) => this._closeToast(e)}"
-				closable>
-					<capitec-label label="Unsuccessful!" type="strong"></capitec-label>
-					<capitec-label label="App was not suspended"></capitec-label>
-			</capitec-toast>`;
-	}
 }
 
 customElements.define(`capitec-pc-app-profile-details`, AppProfileDetails);
