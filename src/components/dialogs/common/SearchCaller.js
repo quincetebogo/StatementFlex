@@ -48,10 +48,10 @@ const ERROR_MESSAGES = {
 	INVALID_BRANCH: `Invalid branch code`,
 	CP_NUMBER_NOT_FOUND: `CP Number not found`,
 	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
-	UNABLE_TO_SIGN_IN: `Teller account is suspended. Contact UAA`,
-	BANCS_ERROR: `BANCS error`,
-	TELLER_NOT_FOUND: `Inactive/Invalid teller. Contact UAA`,
-	CAPABILITY_LEVELS: `Capability level too low. Contact UAA`,
+	UNABLE_TO_SIGN_IN: `Your teller account is suspended. Log a request on the service desk to resolve.`,
+	BANCS_ERROR: `There is an error on our core system (BANCS). Log a ticket to escalate this`,
+	TELLER_NOT_FOUND: `Your teller number is inactive or invalid. Log a request on the service desk to resolve.`,
+	CAPABILITY_LEVELS: `Your teller access level is too low. Log a request on the service desk to resolve.`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
@@ -366,8 +366,8 @@ export class SearchCaller extends Component {
 
 			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
-
-			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+			
+		    if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
