@@ -184,6 +184,7 @@ export class AppProfileDetails extends Component {
 		if (returnValue) {
 			this.appDetails.status = `Active`;
 			this.outcomeDetails = UNSUSPEND_OUTCOME_DETAILS[`success`];
+			return;
 		}
 		
 		this.outcomeDetails = UNSUSPEND_OUTCOME_DETAILS[`error`];
@@ -349,6 +350,13 @@ export class AppProfileDetails extends Component {
 				}
 				.unavailable-alert-banner{
 					--theme-alert-banner-height: 64px;
+				}
+				.outcome-banner {
+					margin: 32px 16px;
+				}
+				.outcome-icon {
+					--theme-icon-size-large: 64px;
+					margin-bottom: 32px;
 				}
 				`
 		];
@@ -533,22 +541,9 @@ export class AppProfileDetails extends Component {
 				.expanded="${this.showOutcomeSlide}"
 				alignment="right">
 
-				<capitec-group
-					class="header-group"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none"
-					data-automation-id="app-profile-details-outcome-header">
-					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="${this.outcomeDetails.action}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="medium" icon="system/close-action" @click="${() => this._toggleOutcomePanel()}"></capitec-icon>
-				</capitec-group>
-
 				<horizon-alert-banner
 					data-automation-id="app-profile-details-outcome-banner"
-					class="unavailable-alert-banner"
+					class="unavailable-alert-banner outcome-banner"
 					type="${this.outcomeDetails.type}"
 					header="${this.outcomeDetails.header}"
 					label="${this.outcomeDetails.label}"
@@ -557,7 +552,7 @@ export class AppProfileDetails extends Component {
 			
 				<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
-					<capitec-image src="platform/illustrations/no-connection.svg"></capitec-image>
+					<capitec-icon class="outcome-icon" size="large" icon="status/${this.outcomeDetails.type}-trans"></capitec-icon>
 
 					<capitec-label 
 							class="unavailable-header"

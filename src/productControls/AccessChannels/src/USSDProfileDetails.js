@@ -390,6 +390,11 @@ export class USSDProfileDetails extends Component {
 				margin-top: 24px;
 				--theme-button-font-weight: 600;
 			}
+			.service-unavilable-group{
+				text-align: center;
+				align-items: center;
+				padding: 14px 36px;
+			}
 			.content-box > capitec-button[label="Cancel"] {
 				margin-top: 16px;
 			}
@@ -455,6 +460,13 @@ export class USSDProfileDetails extends Component {
 			.hide-label {
 				display: none;
 			}
+			.outcome-banner {
+				margin: 32px 16px;
+			}
+			.outcome-icon {
+				--theme-icon-size-large: 64px;
+				margin: 16px 0px 32px;
+			}
 			`
 		];
 	}
@@ -489,22 +501,9 @@ export class USSDProfileDetails extends Component {
 				.expanded="${this.showOutcomeSlide}"
 				alignment="right">
 
-				<capitec-group
-					data-automation-id="ussd-profile-details-outcome-header"
-					class="header-group-app"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="icon-app" size="medium" icon="system/cellphone"></capitec-icon>
-					<capitec-label class="header-label" type="Strong" label="${this.outcomeDetails.action}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="icon-close" size="medium" icon="system/close-action" @click="${() => this.showOutcomeSlide = false}"></capitec-icon>
-				</capitec-group>
-
 				<horizon-alert-banner
 					data-automation-id="ussd-profile-details-outcome-banner"
-					class="unavailable-alert-banner"
+					class="outcome-banner"
 					type="${this.outcomeDetails.type}"
 					header="${this.outcomeDetails.header}"
 					label="${this.outcomeDetails.label}"
@@ -513,7 +512,7 @@ export class USSDProfileDetails extends Component {
 			
 				<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
-					<capitec-image src="platform/illustrations/no-connection.svg"></capitec-image>
+					<capitec-icon class="outcome-icon" size="large" icon="status/${this.outcomeDetails.type}-trans"></capitec-icon>
 
 					<capitec-label 
 							class="header-label outcome-label"

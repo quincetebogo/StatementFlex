@@ -282,7 +282,7 @@ export class InternetBankingProfileDetails extends Component {
 				this.internetBankingDetails.statusReason = this.selectedReason;
 				this.internetBankingDetails.dateLastUpdated = new Date().toISOString();
 				this.outcomeDetails = SUSPEND_OUTCOME_DETAILS[`success`];
-		} else {
+			} else {
 				this.outcomeDetails = SUSPEND_OUTCOME_DETAILS[`error`];
 			}
 		} else {
@@ -727,6 +727,13 @@ export class InternetBankingProfileDetails extends Component {
 				.hide-label {
 					display: none;
 				}
+				.outcome-banner {
+					margin: 32px 16px;
+				}
+				.outcome-icon {
+					--theme-icon-size-large: 64px;
+					margin-bottom: 16px;
+				}
 			`
 		];
 	}
@@ -1167,22 +1174,9 @@ export class InternetBankingProfileDetails extends Component {
 				.expanded="${this.showOutcomeSlide}"
 				alignment="right">
 
-				<capitec-group
-					data-automation-id="internet-banking-outcome-header"
-					class="side-panel-sheet-header"
-					layout="horizontal"
-					halign="left"
-					valign="center"
-					gap="none">
-					<capitec-icon class="side-panel-header-icon" size="medium" icon="system/access"></capitec-icon>
-					<capitec-label class="side-panel-header-label" type="Strong" label="${this.outcomeDetails.action}"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon class="side-panel-close-icon" size="medium" icon="system/close-action" @click="${() => this._toggleOutcomePanel()}"></capitec-icon>
-				</capitec-group>
-
 				<horizon-alert-banner
 					data-automation-id="internet-banking-outcome-banner"
-					class="choose-reason"
+					class="choose-reason outcome-banner"
 					type="${this.outcomeDetails.type}"
 					header="${this.outcomeDetails.header}"
 					label="${this.outcomeDetails.label}"
@@ -1191,7 +1185,7 @@ export class InternetBankingProfileDetails extends Component {
 			
 				<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
 				
-					<capitec-image src="platform/illustrations/no-connection.svg"></capitec-image>
+					<capitec-icon class="outcome-icon" size="large" icon="status/${this.outcomeDetails.type}-trans"></capitec-icon>
 
 					<capitec-label 
 							class="unavailable-header"
