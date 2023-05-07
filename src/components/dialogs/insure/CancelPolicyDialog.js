@@ -288,6 +288,13 @@ class CancelPolicyDialog extends Component {
 
 			<capitec-content-box class="no-padding">
 
+			<horizon-product-tile data-automation-id="statements-dialog-view-document" class="view-document" type="default" label="1 month" subtitle="Last 30 days" detail="" icon="">
+					<!--?lit$3400641537$-->
+				<capitec-label slot="detail" type="strong" label="View Document">
+				</capitec-label>
+		
+			</horizon-product-tile>
+
 				${this.cancelPolicyDocumentDetails === undefined ? html`
 				` : html`
 					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="cancel-pdf-viewer"
