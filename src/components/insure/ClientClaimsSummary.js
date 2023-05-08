@@ -236,7 +236,7 @@ class ClientClaimsSummary extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Date of event"
-							value="${formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(claim?.dateOfEvent) ? '-' : formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							label="Policy number"
