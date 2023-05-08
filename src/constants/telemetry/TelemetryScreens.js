@@ -142,5 +142,30 @@ export const TelemetryScreen = {
     PAID_UP_LETTER_ACCOUNTS: `Paid Up Letter Account Selection`,
     CREDIT_PAID_UP_LETTER: `Credit Paid Up Letter Screen`,
     CREDIT_PAID_UP_LETTER_SUCCESS: `Credit Paid Up Letter Success`,
-    CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`
+    CREDIT_PAID_UP_LETTER_FAILURE: `Credit Paid Up Letter Failure`,
+
+	INSURE_CLIENT_SUMMARY: `Insure Client Summary screen`,
+	INSURE_POLICY_SUMMARY: `Insure Policy Summary screen`,
+	INSURE_ESTIMATE: `Insure Estimate screen`,
+	INSURE_CLIENT_CLAIMS_SUMMARY: `Insure Client Claims Screen`,
+	INSURE_CLAIM_SUMMARY: `Insure Claim Summary screen`,
+
+	INSURE_UPDATE_PLAN: `Insure Update Plan screen`,
+	INSURE_UPDATE_PLAN_AGREEMENT_DIALOG: `Insure Update Plan Agreement dialog`,
+	INSURE_UPDATE_PLAN_SUCCESS: `Insure Update Plan Success screen`,
+
+	INSURE_CANCEL_PLAN_AGREEMENT_DIALOG: `Insure Cancel Plan Agreement dialog`,
+	INSURE_CANCEL_PLAN_CONFIRM_DIALOG: `Insure Cancel Plan Confirm dialog`,
+	INSURE_CANCEL_PLAN_SUCCESS: `Insure Cancel Plan Success screen`,
+
+	INSURE_PAY_POLICY_DIALOG: `Insure Pay Policy dialog`,
+	INSURE_PAY_POLICY_CONFIRM_DIALOG: `Insure Pay Policy Confirm dialog`,
+	INSURE_PAY_POLICY_SUCCESS: `Insure Pay Policy Success`,
+	
+	INSURE_AUDIT_TRANSACTION_HISTORY: `Insure Audit Transaction History screen`,
+	INSURE_TRANSACTION_HISTORY: `Insure Transaction History screen`,
+	INSURE_SMS_HISTORY: `Insure SMS History screen`,
+
+	INSURE_SUCCESS: `Insure Successful Transaction screen`,
+	INSURE_SEND_EMAIL_DIALOG: `Send Email dialog`
 };
