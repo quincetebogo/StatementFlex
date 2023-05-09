@@ -207,7 +207,7 @@ class ClaimSummary extends Component {
 
 				<div class="summary-row">
 					<horizon-label label="Date of event" class="row-item"
-						value="${isNullorEmpty(this.claimSummary?.dateOfEvent) ? '-' : formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
+						value="${formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Incident number" class="row-item"
 						value="${!this.claimSummary?.incidentNumber ? `-` : this.claimSummary?.incidentNumber}">
@@ -222,7 +222,7 @@ class ClaimSummary extends Component {
 
 				<div class="summary-row">
 					<horizon-label label="Date of claim" class="row-item"
-						value="${isNullorEmpty(this.claimSummary?.dateOfClaim) ? '-' : formatDate(this.claimSummary?.dateOfClaim, `dd mmm yyyy`)}">
+						value="${formatDate(this.claimSummary?.dateOfClaim, `dd mmm yyyy`)}">
 					</horizon-label>
 					${this.claimSummary?.claimType.toUpperCase() === `DEATH` ? html`
 						<horizon-label label="Cause of death" class="row-item"
@@ -277,7 +277,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="Date of birth"
 									textOverflow="ellipsis"
-									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.dateOfBirth) ? '-' : formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
+									value="${formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
 								</horizon-label>
 								<horizon-label
 									class="fixed-label"

@@ -99,6 +99,7 @@ static get properties() {
 	 */
 	 async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.commsHistory = await this._retrieveCommsHistory();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -151,26 +152,23 @@ static get properties() {
 		/**
 	 * retrieve the communication history for the specific policy
 	 * Map metadata (coverDetails) back when response is received
-	 * @param {*} contractReference startDate
-	 * @param {*} fromDate startDate
-	 * @param {*} toDate endDate
+	 * @param {*} startDate startDate
+	 * @param {*} endDate endDate
 	 * @returns {Object} Communication history response
 	 */
-		async _retrieveCommsHistory(contractReference, fromDate, toDate) {
+		 async _retrieveCommsHistory(startDate, endDate) {
 		
 			const commsHistoryDetails = {
-				"contractReference": contractReference,
-				"fromDate": fromDate,
-				"toDate": toDate
-			};
-	
+				"contractReference": this.contractReference
+			  };
+			  
 			const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
 			if (resp.succeeded === true && resp.result !== null) {
 				return resp.result;
-			}
-			this.handleToastError(resp.exception);
-			return null;
-	
+			} 
+				// Do error message
+				return null;
+			
 		}
 
 	/**
@@ -198,10 +196,6 @@ static get properties() {
 	 async _goToPolicyTransactionHistory(e) {
 		// Telemetry Here
 		this.contractReference = e.detail.policyNumber;
-		this.bankName = e.detail.bankName;
-		this.accountNumber = e.detail.accountNumber;
-		this.arrearsAmount = e.detail.arrearsAmount;
-
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
@@ -217,7 +211,7 @@ static get properties() {
 	}
 
 	_goToSMSHistory(e) {
-	this.policyNumber = e.detail.policyItem.contractReference;
+	this.policyNumber = e.detail.policyNumber;
 	
 	// call fips here
 
@@ -249,10 +243,7 @@ static get properties() {
 		this.transactions = [];
 
 		this.policyTransactionHistory = {
-			contractReference: this.contractReference,
-			bankName: this.bankName,
-			accountNumber: this.accountNumber,
-			arrearsAmount: this.arrearsAmount
+			contractReference: this.contractReference
 		};
 
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
@@ -408,12 +399,11 @@ static get properties() {
 	_renderSMSHistory() {
 		return this.renderMode === INSURE_RENDER_MODE.SMS_HISTORY
 		? html`
-		<horizon-insure-sms-history-page 
-			.contractReference = ${this.policyNumber} 
-			.contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
-			.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
-			.readOnlyMode="${this.readOnlyMode}"
-			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		<horizon-insure-sms-history-page @navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+		.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
+		.commsHistory = "${this.commsHistory}"
+		.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}"
+		.readOnlyMode="${this.readOnlyMode}">
 		</horizon-insure-sms-history-page>`
 		: html``;
 	}
