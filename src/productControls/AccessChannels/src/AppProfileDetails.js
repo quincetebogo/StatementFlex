@@ -8,39 +8,31 @@ import 'platform/components';
 
 const SUSPEND_OUTCOME_DETAILS = {
 	'success': {
-		action: `Suspend App`,
 		type: `success`,
-		label: `App is suspended`,
+		label: `Suspension was successful.`,
 		header: `Successful!`,
-		message: `Successfully suspended App.`,
-		image: null
+		message: `Suspension was successful.`
 	},
 	'error': {
-		action: `Suspend App`,
 		type: `error`,
-		label: `App was not suspended`,
+		label: `Suspension was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `Unable to suspend App. Please try again later.`,
-		image: null
+		message: `Suspension was unsuccessful - System fault. Please try again later.`
 	}
 };
 
 const UNSUSPEND_OUTCOME_DETAILS = {
 	'success': {
-		action: `Unsuspend App`,
 		type: `success`,
-		label: `App was unsuspended`,
+		label: `Unsuspension was Successful.`,
 		header: `Successful!`,
-		message: `Successfully unsuspended App.`,
-		image: null
+		message: `Unsuspension was Successful. App is now active.`
 	},
 	'error': {
-		action: `Unsuspend App`,
 		type: `error`,
-		label: `Unable to unsuspended App`,
+		label: `Unsuspension was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `Unable to unsuspend App. Please try again later.`,
-		image: null
+		message: `Unsuspension was unsuccessful- System fault. Please try again later.`
 	}
 };
 /**
@@ -73,12 +65,10 @@ export class AppProfileDetails extends Component {
 		this.isVerifiedClient = false;
 		this.showOutcomeSlide = false;
 		this.outcomeDetails = {
-			action: null,
 			type: null,
 			label: null,
 			header: null,
-			message: null,
-			image: null
+			message: null
 		};
 	}
 

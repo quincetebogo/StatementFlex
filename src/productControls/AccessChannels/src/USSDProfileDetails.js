@@ -8,58 +8,46 @@ import 'platform/components';
 
 const UNBLOCK_SIM_OUTCOME = {
 	'success': {
-		action: `Unblock SIM`,
 		type: `success`,
-		label: `SIM was unblocked`,
+		label: `SIM unblocking was successfully.`,
 		header: `Successful!`,
-		message: ``,
-		image: null
+		message: ``
 	},
 	'error': {
-		action: `Unblock SIM`,
 		type: `error`,
-		label: `SIM was not unblocked.`,
+		label: `SIM unblocking has failed.`,
 		header: `Unsuccessful!`,
-		message: ``,
-		image: null
+		message: ``
 	}
 };
 
 const CANCEL_USSD_OUTCOME = {
 	'success': {
-		action: `Cancel USSD`,
 		type: `success`,
-		label: `USSD was cancelled.`,
+		label: `USSD cancellation was successful.`,
 		header: `Successful!`,
-		message: `USSD has been cancelled successfully. You will need to visit branch to reactivate USSD.`,
-		image: null
+		message: `USSD cancellation was successful. You will need to visit branch to reactivate USSD.`
 	},
 	'error': {
-		action: `Cancel USSD`,
 		type: `error`,
-		label: `USSD was not cancelled.`,
+		label: `USSD cancellation was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `USSD has not been cancelled. Please try again later.`,
-		image: null
+		message: `USSD cancellation was unsuccessful. Please try again later.`
 	}
 };
 
 const ACTIVATE_FULL_MENU_OUTCOME = {
 	'success': {
-		action: `Activate full menu`,
 		type: `success`,
-		label: `The full menu is active.`,
+		label: `Full USSD menu is now active.`,
 		header: `Successful!`,
-		message: `Full USSD menu is now active.`,
-		image: null
+		message: `Full USSD menu is now active.`
 	},
 	'error': {
-		action: `Activate full menu`,
 		type: `error`,
 		label: `Full USSD menu was not activated.`,
 		header: `Unsuccessful!`,
-		message: `Full USSD menu was not activated. Please try again later.`,
-		image: null
+		message: `Full USSD menu was not activated. Please try again later.`
 	}
 };
 
@@ -196,11 +184,11 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`success`];
-			this.outcomeDetails.message = `SIM for number ${this.ussd.userRegNo} was unblocked successfully.`;
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking was successfully.`;
 		} else {
 			
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`error`];
-			this.outcomeDetails.message = `SIM for number ${this.ussd.userRegNo} was not unblocked.`;
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking has failed.`;
 		}
 	}
 

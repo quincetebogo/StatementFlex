@@ -27,39 +27,31 @@ const RENDER_MODE = {
 
 const SUSPEND_OUTCOME_DETAILS = {
 	'success': {
-		action: `Suspend Internet Banking`,
 		type: `success`,
-		label: `Internet security token was suspended.`,
+		label: `Security Token suspension is successful.`,
 		header: `Successful!`,
-		message: `Successfully suspended Internet security token.`,
-		image: null
+		message: `Security Token suspension is successful.`
 	},
 	'error': {
-		action: `Suspend Internet Banking`,
 		type: `error`,
-		label: `Internet security token was not suspended.`,
+		label: `Security token suspension was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `Unable to suspend Internet security token. Please try again later.`,
-		image: null
+		message: `Security token suspension was unsuccessful. Please try again later.`
 	}
 };
 
 const RESET_OUTCOME_DETAILS = {
 	'success': {
-		action: `Reset Security Token Clock`,
 		type: `success`,
-		label: `Security token was reset.`,
+		label: `Security token reset was successful`,
 		header: `Successful!`,
-		message: `Security token has been reset successfully. You can now log in again. To access internet banking you will need to register on the App.`,
-		image: null
+		message: `Security token reset was successful. You can now log in again. To access internet banking you will need to register on the App.`
 	},
 	'error': {
-		action: `Reset Security Token Clock`,
 		type: `error`,
-		label: `Unable to reset security token`,
+		label: `Security token reset was unsuccessful`,
 		header: `Unsuccessful!`,
-		message: `Security token clock did not reset. Please try again later.`,
-		image: null
+		message: `Security token reset was unsuccessful. Please try again later.`
 	}
 };
 /**
@@ -107,12 +99,10 @@ export class InternetBankingProfileDetails extends Component {
 		this.singleToken = ``;
 		this.showOutcomeSlide = false;
 		this.outcomeDetails = {
-			action: null,
 			type: null,
 			label: null,
 			header: null,
-			message: null,
-			image: null
+			message: null
 		};
 	}
 
