@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from '../../../utils/channelServiceUtilities';
 import { formatDateToInsure } from 'app/utils/insureUtils';
 
@@ -114,6 +115,7 @@ class PayPremiumAgreementDialog extends Component {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
 
 				.notification > capitec-toast{
 					--theme-toast-height: 80px;
@@ -210,7 +212,7 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
+				<capitec-expander expandbuttonalignment="left" class="pdf-viewer" label="View Arrears Payment Instruction" data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
 					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent.value}#view=fitH" alt="agreement"></iframe>
 				</capitec-expander>
 			</capitec-content-box>
