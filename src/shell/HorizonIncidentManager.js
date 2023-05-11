@@ -199,7 +199,7 @@ export class HorizonIncidentManager {
 	 * @returns {string} Feedback on the current incident
 	 */
 	getFeedback() {
-		if (isNullorEmpty(this.incidentDetails?.feedback)) {
+		if (!this.incidentDetails?.feedback) {
 			return null;
 		}
 
