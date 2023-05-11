@@ -859,7 +859,7 @@ export class LiveBetter extends SavingsAccountBase {
 						<horizon-label
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Transaction Date"
-							value = "${this.formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
+							value = "${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
 							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label
