@@ -20,7 +20,7 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://SBLDEV01.int.capinet:8102/",
+		"sbl": "https://cbwsbldev01.capitecbank.fin.sky:8092/",
 		"cds": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
