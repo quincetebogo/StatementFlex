@@ -258,7 +258,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
 	
-		if (journalNumber && this.journalNumber !== `00000`) {
+		if (journalNumber) {
 			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
 			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
 			this.requestUpdate();
@@ -429,6 +429,10 @@ export class LiveBetter extends SavingsAccountBase {
 										item.formatedBalance = formatCurrency(item.balance);
 										item.description = item.statementDescription;
 										item.getBreakdownDetails = TRAN_CODES.includes(item.transactionCode);
+
+										if (item.journalNumber === this.journalNumber) {
+											item.linkedTransactionDetails = this.linkedTransactionDetails;
+										}
 							
 										return item;
 									});
@@ -551,11 +555,6 @@ export class LiveBetter extends SavingsAccountBase {
 		this._setIncidentDone();
 	}
 
-	_resetTHVariables() {
-		this.transactionHistory = [];
-		this.journalNumber = `00000`;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -661,7 +660,7 @@ export class LiveBetter extends SavingsAccountBase {
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
-					.disposeData="${() => this._resetTHVariables()}"
+					.disposeData="${() => this.transactionHistory = []}"
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setTranHistoryDone()}"
