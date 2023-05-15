@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { Configuration } from 'platform/core';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -62,6 +63,8 @@ export class UpdateCardLimits extends Component {
 
 	constructor() {
 		super();
+
+		this.configuration = Configuration.getInstance();
 
 		// private properites
 		this.isBusy = false;
@@ -413,6 +416,13 @@ export class UpdateCardLimits extends Component {
 				type="info"
 				header="Notify client: "
 				label="A fee will be charged for updating limits">
+				<capitec-spacer></capitec-spacer>
+				<capitec-hyperlink
+					class="view-fees"
+					data-automation-id="statements-credit-view-fees"
+					label="View fee"
+					@click="${() => this._viewFees()}">
+				</capitec-hyperlink>
 			</horizon-alert-banner>
 		`;
 	}
@@ -530,6 +540,11 @@ export class UpdateCardLimits extends Component {
 		const oldLimitValue = isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10);
 		
 		return newLimitValue - oldLimitValue;
+	}
+
+	async _viewFees() {
+		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
+		window.open(`${fees}`);
 	}
 	
 	// ---------
@@ -664,7 +679,7 @@ export class UpdateCardLimits extends Component {
 				--theme-label-title-font-weight: 600;
 				padding-bottom: 16px;
 				--theme-label-title-line-height: 24px;
-				margin: 0px 8px ;
+				margin-bottom: 0px ;
 			}
 			capitec-label[type="default"] {
 				line-height: 20px;
@@ -709,6 +724,13 @@ export class UpdateCardLimits extends Component {
 				--theme-label-subtitle-font-size: 12px;
 				--theme-label-subtitle-font-weight: normal;
 				--theme-label-font-color: #3A3A3A;
+			}
+			.view-fees {
+				--theme-hyperlink-font-size: 14px;
+				--theme-layout-gap-spacing: 15px;
+				--theme-font-weight: bold;
+
+				text-decoration: none;
 			}
 			.label-bold {
 				--theme-label-strong-font-weight: 600;
@@ -812,9 +834,6 @@ export class UpdateCardLimits extends Component {
 				font-size: 15px;
 				font-weight: 500;
 				line-height: 20px;
-			}
-			.title > capitec-lable {
-				margin-left: 0px !important;
 			}
 			.agreement-viewer {
 				width: 100%;
@@ -1224,7 +1243,7 @@ export class UpdateCardLimits extends Component {
 				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
-						data-automation-id="update-card-limits-accepted-agreement-expander"							
+						data-automation-id="update-card-limits-accepted-agreement-expander"
 						id="accepted${type}"
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
