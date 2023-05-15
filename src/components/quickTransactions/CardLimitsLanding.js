@@ -412,11 +412,6 @@ export class CardLimitsLanding extends Component {
 		this._updateType = updateType;
 		this._limitType = limitType;
 		this._cardDetails = card;
-		
-		// TODO: Remove these comment lines
-		// if (this._limitType === LIMIT_TYPES.TEMPORARY && card.isVirtualCard) {
-		// 	return;
-		// }
 
 		const cardId = this._updateType === `Debit` && this._cardDetails.linkedCardLimits ? this._cardDetails.linkedCardId : this._cardDetails.cardId;
 		const limitsReq = {

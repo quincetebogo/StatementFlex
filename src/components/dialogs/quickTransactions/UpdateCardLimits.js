@@ -406,6 +406,17 @@ export class UpdateCardLimits extends Component {
 		return debitErrors.length + creditErrors.length;
 	}
 
+	_renderFeeAlertBanner() {
+
+		return html`
+			<horizon-alert-banner
+				type="info"
+				header="Notify client: "
+				label="A fee will be charged for updating limits">
+			</horizon-alert-banner>
+		`;
+	}
+
 	_getAlertMessage() {
 
 		if (this._getErrorsCount() > 1) {
@@ -601,6 +612,11 @@ export class UpdateCardLimits extends Component {
 			horizon-alert-banner[type="warning"] {
 				margin: 14px 8px 0px 8px;
 			}
+
+			horizon-alert-banner[type="info"] {
+				width: 100%;
+				margin: 0px 16px 0px 0px;
+			}
 			.agreements-banner {
 				margin: 0px 0px 16px 0px;
 			}
@@ -614,6 +630,9 @@ export class UpdateCardLimits extends Component {
 			}
 			.main-cb > capitec-group {
 				--theme-layout-gap-spacing: 32px;
+			}
+			.render-limits {
+				margin-bottom: 8px;
 			}
 			capitec-group > capitec-card {
 				width: 780px;
@@ -794,6 +813,9 @@ export class UpdateCardLimits extends Component {
 				font-weight: 500;
 				line-height: 20px;
 			}
+			.title > capitec-lable {
+				margin-left: 0px !important;
+			}
 			.agreement-viewer {
 				width: 100%;
 				height: 100%;
@@ -931,6 +953,10 @@ export class UpdateCardLimits extends Component {
 	_renderSetLimits() {
 		return this.renderMode === RENDER_MODE.LIMITS
 			? html`
+				<capitec-group class="render-limits" layout="horizontal" halign="left" valign="top" gap="clear">
+					${this._renderFeeAlertBanner()}
+				</capitec-group>
+
 				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel" data-automation-id="update-card-limits-virtual-cards"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
