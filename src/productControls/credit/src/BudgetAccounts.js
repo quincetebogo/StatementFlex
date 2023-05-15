@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { PERMISSION_DECLINE_REASONS } from 'app/constants/Credit';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
@@ -74,12 +75,17 @@ import 'app/components/common/HorizonLabel';
 	*/
 
 	/**
+	 * @callback getArrearsPayableCallback
+	 * @returns {Object}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 * @property {canOpenBudgetCallback} canOpenBudget Callback function to get open budget permissions
-	 *
+	 * @property {getArrearsPayableCallback} getArrearsPayable Callback function to get total arrears payable
 	 */
 	static get properties() {
 		return {
@@ -87,6 +93,7 @@ import 'app/components/common/HorizonLabel';
 			shouldDisable: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
 			canOpenBudget: { type: Object, attribute: false },
+			getArrearsPayable: { type: Object, attribute: false },
       
 			groupAccountsByTerm: { state: true },
 			filteredAccounts: { state: true },
@@ -170,7 +177,7 @@ import 'app/components/common/HorizonLabel';
 		}
 
 		this.canOpenBudget = result?.canAdd;
-		this.openBudgetDeclineReason = result?.declineReason;
+		this.openBudgetDeclineReason = PERMISSION_DECLINE_REASONS[result?.declineReason];
 
 		if (this.canOpenBudget) {
 			this.dispatchEvent(new CustomEvent(`open-budget-click`, {
@@ -178,6 +185,10 @@ import 'app/components/common/HorizonLabel';
 					option: `open-budget`
 				}
 			}));
+		} else if (this.openBudgetDeclineReason === PERMISSION_DECLINE_REASONS.AccountInArrears) {
+			let arrearsPayable = await this.getArrearsPayable();
+			arrearsPayable = arrearsPayable < 0 ? arrearsPayable * -1 : arrearsPayable;
+			this.openBudgetDeclineReason = this.openBudgetDeclineReason.replace(`$ArrearsPayable$`, formatCurrency(arrearsPayable));
 		}
 		this.requestUpdate();
 	}

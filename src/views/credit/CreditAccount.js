@@ -198,6 +198,10 @@ export class CreditAccount extends ViewBase {
 		return ccDetails?.accountNumber;
 	}
 
+	get ccDetails() {
+		return this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -572,6 +576,7 @@ export class CreditAccount extends ViewBase {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
 			item.productTypeDescription = formatStringAsPascalCase(item.productTypeDescription);
+			item.arrearsPayable = item.arrearIndicator ? item.currentBalance : 0;
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableCredit = formatCurrency(item.availableCredit);
 			item.creditLimit = formatCurrency(item.creditLimit);
@@ -1062,17 +1067,24 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_openBudgetDialog() {
-		const ccDetails = this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
-		this._optionClick(`open-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, ccDetails);
+		this._optionClick(`open-budget`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
 	}
 
-	_calculateBudget(ccAccNumber, budgetAmount) {
-		// service call to calculate budget comes here
-		return this.creditService.calculateBudget(ccAccNumber, budgetAmount);
+	async _calculateBudget(ccAccNumber, budgetAmount) {
+		const amountInCents = budgetAmount * 100;
+		const returnValue = await this.creditService.calculateBudget(ccAccNumber, amountInCents, () => true);
+		return returnValue;
 	}
 
-	_confirmOpenBudget(event) {
-		// service call to confirm open budget comes here
+	async _confirmOpenBudget(event) {
+		const openBudgetRequest = {
+			creditCardAccountNumber: this.ccAccNumber,
+			amount: event.detail.budgetAmount * 100,
+			term: event.detail.selectedTermInfo.term,
+			narrative: event.detail.budgetName
+		};
+		const returnValue = await this.creditService.openBudget(openBudgetRequest, () => true);
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		
 		screenDetails.narrative = event.detail.budgetName;
@@ -1081,7 +1093,12 @@ export class CreditAccount extends ViewBase {
 		screenDetails.instalment = event.detail.selectedTermInfo.instalment;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToOpenBudgetSuccess();
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToOpenBudgetSuccess();
+		} else {
+			this.horizonRouter.navigateToOpenBudgetFailure();
+		}
 	}
 
 	// ---------
@@ -1214,6 +1231,7 @@ export class CreditAccount extends ViewBase {
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
 					.canOpenBudget=${() => this._canOpenBudget()}
+					.getArrearsPayable=${() => this.ccDetails?.arrearsPayable}
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"

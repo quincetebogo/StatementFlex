@@ -93,7 +93,9 @@ export const FROM_ACCOUNTS = {
  * @enum {Object} PERMISSION_DECLINE_REASONS
  */
  export const PERMISSION_DECLINE_REASONS = Object.freeze({
-	ACC_NOT_ACTIVE: `AccountNotActive`
+	ACC_NOT_ACTIVE: `AccountNotActive`,
+	ClientHandedOver: `Client is under CCS status`,
+	AccountInArrears: `Please settle arrears of $ArrearsPayable$ to continue adding budget`
 });
 
 /**
