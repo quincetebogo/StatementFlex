@@ -76,6 +76,8 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = CancelPolicyEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
+
+		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -131,6 +133,12 @@ class CancelPolicyDialog extends Component {
 	//  #endregion EVENT HANDLERS
 
 	//  #region PRIVATE METHODS
+
+	async _initialise() {
+		await super._inicidentManager_(`cancel-policy`, null);
+		await super.createAndClassifySubIncident();
+
+	}
 
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page

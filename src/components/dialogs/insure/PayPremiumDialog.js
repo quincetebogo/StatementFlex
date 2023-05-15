@@ -108,7 +108,7 @@ class PayPremiumDialog extends Component {
 	 * Initialize component when loaded
 	 * @returns {null} null
 	 */
-	_initialise() {
+	async _initialise() {
 		this.payArrears = {};
 		this.payArrears.arrears = [];
 		this.payArrears.contractReference = this.currentContractRef;
@@ -122,6 +122,9 @@ class PayPremiumDialog extends Component {
 		for (let i = 0; i < this.clientArrears.arrears.length; i++) {
 			this.totalAmount += this.clientArrears.arrears[i].amount;
 		}
+
+		await super._inicidentManager_(`pay-arrears`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**

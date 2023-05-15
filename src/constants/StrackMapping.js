@@ -105,5 +105,20 @@
 	"savings-account": `SAVINGS_ACCOUNT`,
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
-	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+	
+
+	// Insure 
+	"insure-update-plan": `UPDATE_PLAN`,
+	"insure-pay-arrears": `PAY_ARREARS`,
+	"insure-cancel-policy": `CANCEL_POLICY`,
+	"insure-sms-history": `SMS_HISTORY`,
+	"insure-transaction-history": `TRANSACTION_HISTORY`,
+	"insure-estimate": `ESTIMATE`,
+	"insure-request-callback": `REQUEST_CALLBACK`,
+	"insure-policy-summary": `POLICY_SUMMARY`,
+	"insure-email-agreement": `EMAIL_AGREEMENT`,
+	"insure-client-summary": `CLIENT_SUMMARY`,
+	"insure-reissue-policy": `REISSUE-POLICY`
+
 });

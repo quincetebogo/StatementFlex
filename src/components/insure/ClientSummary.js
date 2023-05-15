@@ -5,6 +5,7 @@ import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -164,6 +165,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
+		this._initialise();
 
 	}
 
@@ -430,6 +432,11 @@ class ClientSummary extends Component {
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
+
+	async _initialise() {
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+				await super.createAndClassifySubIncident(null, false);
+	}
 
 	/**
 	 * Open Pay Premium dialog 

@@ -57,6 +57,8 @@ class PolicySummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = PolicySummaryEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.POLICY_SUMMARY, {});
+
+		this._initialise();
 	}
 
 	/**
@@ -107,6 +109,15 @@ class PolicySummary extends Component {
 	}
 
 	// #endregion EVENT HANDLERS
+
+	// #region PRIVATE FUNCTIONS
+
+	 async _initialise() {
+		await super._inicidentManager_(`policy-summary`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+	}
+
+	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
 
