@@ -43,6 +43,15 @@ export class StopCardSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		let description = ``;
+		this.stoppedCards.forEach(card => {
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped:${card.cardStoppedDate}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+		});
+
+		return description;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -76,6 +85,7 @@ export class StopCardSuccess extends ViewBase {
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails.description = this.incidentDescription;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}  
 
