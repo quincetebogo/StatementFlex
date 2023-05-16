@@ -67,6 +67,7 @@ export class UpdateCardLimits extends Component {
 		this.configuration = Configuration.getInstance();
 
 		// private properites
+		this._showErrorBanner = true;
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
@@ -146,6 +147,8 @@ export class UpdateCardLimits extends Component {
 			tapToPayAgreementExpanded: { state: true },
 			alertBannerText: { state: true },
 			renderMode: { state: true },
+
+			_showErrorBanner: { state: true },
 			isBusy: { state: true },
 			_tapToPayStatus: { state: true },
 			totalPrimaryPermanentLimits: { state: true },
@@ -284,6 +287,7 @@ export class UpdateCardLimits extends Component {
 	_back() {
 		this.cardlimitsInfo.acceptedLimitsAgreement = false;
 		this.cardlimitsInfo.acceptedTapToPayAgreement = false;
+		this._showErrorBanner = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 
 		this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_BACK, {
@@ -298,6 +302,7 @@ export class UpdateCardLimits extends Component {
 
 	_next() {
 		const tempErrors = Object.values(this.tempError).filter(item => item !== ``);
+		this._showErrorBanner = true;
 
 		if (tempErrors.length > 0) {
 			return;
@@ -436,6 +441,7 @@ export class UpdateCardLimits extends Component {
 					type="strong">
 				</capitec-label>`;
 		}
+
 		return html`
 			<div>
 				Maximum limit for ${this.errorField} is <strong>${formatCurrency(this.maxValue, 0)}</strong>
@@ -727,9 +733,8 @@ export class UpdateCardLimits extends Component {
 			}
 			.view-fees {
 				--theme-hyperlink-font-size: 14px;
+				--theme-hyperlink-font-weight: bold;
 				--theme-layout-gap-spacing: 15px;
-				--theme-font-weight: bold;
-
 				text-decoration: none;
 			}
 			.label-bold {
@@ -951,14 +956,14 @@ export class UpdateCardLimits extends Component {
 		return html`
 			<horizon-alert-banner
 				type="error"
-				header="Notify client: "
-				label="${this._getAlertMessage()}">
+				header="Notify client: ">
+				${this._getAlertMessage()}
 			</horizon-alert-banner>
 		`;
 	}
 
 	_renderAgreementsAlertBanner() {
-		return this.alertBannerText
+		return this.alertBannerText && this._showErrorBanner
 			? html`
 				<horizon-alert-banner
 					class="agreements-banner"
@@ -1188,7 +1193,7 @@ export class UpdateCardLimits extends Component {
 			return html`
 				<capitec-expander-group modeset="single">
 
-					<capitec-expander
+					<!-- <capitec-expander
 						data-automation-id="update-card-limits-view-agreement-expander"
 						expandbuttonalignment="left"
 						label="View Agreement">
@@ -1201,7 +1206,7 @@ export class UpdateCardLimits extends Component {
 									</object>
 									${this._renderAgreementContent(this.tapToPayAgreementData)}
 							</capitec-content-box>
-					</capitec-expander>
+					</capitec-expander> -->
 
 					<capitec-expander
 						data-automation-id="update-card-limits-limits-agreemnet-expander"
