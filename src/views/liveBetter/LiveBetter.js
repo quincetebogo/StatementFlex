@@ -430,6 +430,8 @@ export class LiveBetter extends SavingsAccountBase {
 										item.description = item.statementDescription;
 										item.getBreakdownDetails = TRAN_CODES.includes(item.transactionCode);
 
+										// Below condition check is specific to date filter case. We reassigning the linked transaction expanded previously 
+										// to the new set if it has matching journal number
 										if (item.journalNumber === this.journalNumber) {
 											item.linkedTransactionDetails = this.linkedTransactionDetails;
 										}
