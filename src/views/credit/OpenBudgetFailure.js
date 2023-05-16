@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -37,21 +38,24 @@ export class OpenBudgetFailure extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
+		await this._telemetry.startSpan(CreditEvents.OPEN_BUDGET_FAILURE);
 		this._updateIncidentState();
 	}
 		
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+		await this._telemetry.endSpan(CreditEvents.OPEN_BUDGET_FAILURE);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+		await this._telemetry.logEvent(CreditEvents.OPEN_BUDGET_FAILURE_DONE);
 		this.horizonStore.clearScreenDetails();
 		this.horizonRouter.navigateToCreditAccount();
 	}
