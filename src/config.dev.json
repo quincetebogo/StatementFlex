@@ -20,16 +20,16 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://SBLDEV01.int.capinet:8102/",
-		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"sbl": "http://SBLDEV01.int.capinet:8102",
+		"cds": "https://clientdocsearchdev.int.capinet:51443",
 		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",
+		"branch-locator": "https://www.capitecbank.co.za/branch-locator",
+		"live-better": "https://www.capitecbank.co.za/live-better",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
-		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
+		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits",
+		"fees": "https://www.capitecbank.co.za/global-one/transact/fees"
 	},
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
