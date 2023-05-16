@@ -263,6 +263,14 @@
 		"putClientConsent": {
 			"enabled": false,
 			"positiveCase" : true
+		},
+		"budgetDetails": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"calculateBudget": {
+			"enabled": true,
+			"positiveCase" : true
 		}
 	},
 	"searchClientOptionEnabled": true

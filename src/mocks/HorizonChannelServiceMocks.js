@@ -79,6 +79,7 @@ export default class HorizonChannelServiceMocks {
 		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockQuote`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await this._loadMockModule(this.unlockFTSPMocks, `ftspUnlockAgreement`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
+		this.budgetFacility = await this._loadMockModule(this.budgetFacility, `calculateBudget`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -617,6 +618,20 @@ export default class HorizonChannelServiceMocks {
 	ftspUnlock() {
 		if (this._mockSettings.ftspUnlock.positiveCase) {
 			return true;
+		}
+		return null;
+	}
+
+	canOpenBudget() {
+		if (this._mockSettings.canOpenBudget.positiveCase) {
+			return this.budgetFacility.canOpenBudget;
+		}
+		return null;
+	}
+
+	calculateBudget() {
+		if (this._mockSettings.calculateBudget.positiveCase) {
+			return this.budgetFacility.calculateBudget;
 		}
 		return null;
 	}
