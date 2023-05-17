@@ -68,6 +68,7 @@ export class UpdateCardLimits extends Component {
 
 		// private properites
 		this._showErrorBanner = true;
+		this._termsAndConditionAgreed = true;
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
@@ -149,6 +150,7 @@ export class UpdateCardLimits extends Component {
 			renderMode: { state: true },
 
 			_showErrorBanner: { state: true },
+			_termsAndConditionAgreed: { state: true },
 			isBusy: { state: true },
 			_tapToPayStatus: { state: true },
 			totalPrimaryPermanentLimits: { state: true },
@@ -352,6 +354,7 @@ export class UpdateCardLimits extends Component {
 	_toggleAgreementsAccept(e) {
 		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 		this.alertBannerText = ``;
+		this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
 
 		if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
 			this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
@@ -981,7 +984,7 @@ export class UpdateCardLimits extends Component {
 					${this._renderFeeAlertBanner()}
 				</capitec-group>
 
-				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? `Virtual Limits` : this.limitLabel}" class="limitLabel" data-automation-id="update-card-limits-virtual-cards"></capitec-label>
+				<capitec-label type="title" label="${this.limitLabel}" class="limitLabel" data-automation-id="update-card-limits-virtual-cards"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
@@ -1193,21 +1196,6 @@ export class UpdateCardLimits extends Component {
 			return html`
 				<capitec-expander-group modeset="single">
 
-					<!-- <capitec-expander
-						data-automation-id="update-card-limits-view-agreement-expander"
-						expandbuttonalignment="left"
-						label="View Agreement">
-							<capitec-content-box
-								class="expander-cb zeroPaddingRight" halign="left" valign="top" gap="none">
-									<object
-										class="agreement-viewer"
-										data="data:text/html;base64,${this.cardLimitsAgreement}"
-										type="text/html">
-									</object>
-									${this._renderAgreementContent(this.tapToPayAgreementData)}
-							</capitec-content-box>
-					</capitec-expander> -->
-
 					<capitec-expander
 						data-automation-id="update-card-limits-limits-agreemnet-expander"
 						expandbuttonalignment="left"
@@ -1334,6 +1322,7 @@ export class UpdateCardLimits extends Component {
 					type="primary" 
 					label="Agree"
 					@click="${() => this._agree()}"
+					?disabled=${this._termsAndConditionAgreed}
 					?hidden=${this.renderMode === RENDER_MODE.LIMITS}>
 				</capitec-button>
 			</capitec-group>
