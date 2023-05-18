@@ -356,11 +356,7 @@ export class UpdateCardLimits extends Component {
 		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 		this.alertBannerText = ``;
 
-		if (e.target.checked) {
-			this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
-		} else {
-			this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
-		}
+		this._termsAndConditionAgreed = !e.target.checked;
 
 		if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
 			this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
