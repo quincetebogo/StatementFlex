@@ -357,9 +357,9 @@ export class UpdateCardLimits extends Component {
 		this.alertBannerText = ``;
 
 		if (e.target.checked) {
-			this._termsAndConditionAgreed = false;
+			this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
 		} else {
-			this._termsAndConditionAgreed = true;
+			this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
 		}
 
 		if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
