@@ -261,7 +261,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_savingsServiceErrorHandler(ex) {
-		if (ex.output.statusCode == `1301`) {
+		if (ex.output.statusCode === 1301) {
 			this.alertBannerMessage = `Tax free Savings account cannot be unlocked.`;
 			return;
 		}
@@ -520,6 +520,14 @@ export class SavingsPlan extends ViewBase {
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP
 		});
 
+		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
+		this.unlockFromAccountsList = this._getUnlockFromAccounts();
+		
+		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
+		this.unlockToAccountsList = await this._getUnlockToAccount();
+		
+		this.unlockOptions = await this._getUnlockOptions(accountNumber);
+
 		// Try again functionality from failure screen to open unlock FTSP screen with previous account selection.
 		const screenDetails = this.horizonStore.getScreenDetails();
 		if (screenDetails?.unlockAccountNumber) {
@@ -528,14 +536,6 @@ export class SavingsPlan extends ViewBase {
 			this.selectedUnlockAccNumber = accountNumber;
 		}
 		this.horizonStore.setScreenDetails({ unlockAccountNumber: this.selectedUnlockAccNumber });
-
-		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
-		this.unlockFromAccountsList = this._getUnlockFromAccounts();
-		
-		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
-		this.unlockToAccountsList = await this._getUnlockToAccount();
-		
-		this.unlockOptions = await this._getUnlockOptions(this.unlockFromAccountsList);
 
 		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
 	}
@@ -561,11 +561,13 @@ export class SavingsPlan extends ViewBase {
 		return fromAccounts;
 	}
 
-	async _getUnlockOptions() {
-	
-		const unlockOptionsAccountList = this.unlockFromAccountsList.map(account => ({
-											'accountNumber': account.accountNumber 
-											}));
+	async _getUnlockOptions(accNumber) {
+
+		const unlockOptionsAccountList = this.unlockFromAccountsList
+												.filter(acc => acc.accountNumber === accNumber)
+												.map(account => ({
+													'accountNumber': account.accountNumber 
+												}));
 
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
