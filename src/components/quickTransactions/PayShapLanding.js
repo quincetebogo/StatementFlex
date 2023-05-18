@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { INSTITUTIONS_LIST } from 'app/constants/PayShap';
+import { INSTITUTIONS_LIST, payShapDetails } from 'app/constants/PayShap';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * This component shows the payshap landing page.
@@ -22,7 +23,11 @@ export class PayShapLanding extends Component {
 	constructor() {
 		super();
 
+		this.payShapLandingDetails = {};
 		this.institutionsList = [];
+		this.showUpdateModal = false;
+		this.optInInsights = false;
+		this.defaultInstitute = false;
 	}
 
 	// --------------
@@ -31,7 +36,13 @@ export class PayShapLanding extends Component {
 
 	static get properties() {
 		return {
-			institutionsList: { state: true }
+			institutionsList: { state: true },
+			optInInsights: { state: true },
+			defaultInstitute: { state: true },
+
+			getInstitutions: { state: Object },
+
+			showUpdateModal: { state: true, attribute: false }
 		};
 	}
 
@@ -43,6 +54,7 @@ export class PayShapLanding extends Component {
 		super.connectedCallback();
 
 		this.institutionsList = INSTITUTIONS_LIST;
+		this.payShapLandingDetails = payShapDetails;
 	}
 
 	disconnectedCallback() {
@@ -52,6 +64,14 @@ export class PayShapLanding extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_selectedTab(e) {
+		if (e.detail.selectedIndex === 1) {
+			// TODO: Remove the commented line once the CS is up and running.
+			// this.institutionsList = await this.getInstitutions();
+			this.institutionsList = INSTITUTIONS_LIST;
+		}
+	}
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
@@ -71,6 +91,14 @@ export class PayShapLanding extends Component {
 			});
 			this.institutionsList = Array.from(new Set([...searchTextResult.flat()]));
 		}
+	}
+
+	_onUpdateClick() {
+		this.dispatchEvent(new CustomEvent(`on-update`, {}));
+	}
+
+	_acceptAgreement() {
+		this.agreementAccepted = !this.agreementAccepted;
 	}
 
 	// --------------
@@ -242,7 +270,7 @@ export class PayShapLanding extends Component {
 
 	_renderPayShapContent() {
 		return html`
-			<capitec-tab-group>
+			<capitec-tab-group @tab-select=${(e) => this._selectedTab(e)}>
 				<capitec-tab label="Details" layout="vertical" halign="left">
 					<capitec-content-box class="details-tab">
 						${this._renderPayShapDetails()}
@@ -272,7 +300,7 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="0764575577@capitecbank">
+							value="${this.payShapLandingDetails.capitecProxy.knownAsName}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
@@ -280,11 +308,11 @@ export class PayShapLanding extends Component {
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Default Institution"
-							value="None Assigned">
+							value="${this.payShapLandingDetails.capitecProxy.domain}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="Active">
+							value="${this.payShapLandingDetails.capitecProxy.fullProxyStatus}">
 					</horizon-label>
 			</capitec-card>
 		`;
@@ -295,25 +323,19 @@ export class PayShapLanding extends Component {
 			<capitec-card class="payment-fees">
 				<capitec-label type="subtitle" label="Payshap Payment Fees"></capitec-label>
 				<capitec-group layout="horizontal">
-					<horizon-label class="horizon-label-payment"
-							label="R0 - R100.00"
-							value="R1.00">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R100.01 - R1 000.00"
-							value="R2.50">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R1 000.01 - R3 000.00"
-							value="R5.00">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R3000.01 - R100 000.00"
-							value="R7.50">
-					</horizon-label>
+					${this._renderFeeDetails()}
 				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderFeeDetails() {
+		return this.payShapLandingDetails.fees.map(item => html`
+			<horizon-label class="horizon-label-payment"
+					label="${formatCurrency(item.lowerBound)} - ${formatCurrency(item.upperBound)}"
+					value="${formatCurrency(item.amount)}">
+			</horizon-label>
+		`);
 	}
 
 	_renderPaymentLimits() {
@@ -337,8 +359,15 @@ export class PayShapLanding extends Component {
 	_renderPayShapDetailsFooter() {
 		return html`
 			<capitec-button-bar align="right">
-				<capitec-button label="Report Fraud"></capitec-button>
-				<capitec-button type="primary" label="Update"></capitec-button>
+				<capitec-button 
+						label="Report Fraud">
+				</capitec-button>
+
+				<capitec-button 
+						type="primary"
+						label="Update"
+						@click="${() => this._onUpdateClick()}">
+				</capitec-button>
 			</capitec-button-bar>
 		`;
 	}
@@ -412,6 +441,7 @@ export class PayShapLanding extends Component {
 			</capitec-group>
 		`;
 	}
+
 }
 
 customElements.define(`horizon-payshap-landing`, PayShapLanding);

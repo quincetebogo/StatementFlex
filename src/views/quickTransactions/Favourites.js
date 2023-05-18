@@ -27,6 +27,7 @@ import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/dialogs/quickTransactions/PayshapUpdate';
 import 'app/components/quickTransactions/SettlementQuote';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 
@@ -200,6 +201,10 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.horizonRouter.navigateToSendCashFailure();
+	}
+
+	_showPayShapUpdateModal() {
+		this.renderMode = RENDER_MODE.PAYSHAP_MODAL;
 	}
 
 	_saveToState(selectedReason) {
@@ -667,7 +672,29 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_payShap() {
+		// this.payShapDetails = await this._getPayShapDetails();
 		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _getPayShapDetails() {
+		const payShapDetailsRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			verifiedCellphoneNumber: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.payShapService.getDetails(payShapDetailsRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getPayShapInstitutionsDetails() {
+		const returnValue = await this.payShapService.getInstitutions();
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
 	}
 
 	async _getSendCashVouchers(startDate, endDate) {
@@ -983,6 +1010,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSendCash()}
 			${this._renderConfirmPlaceHoldModal()}
 			${this._renderPayShap()}
+			${this._renderPayShapUpdateModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1175,12 +1203,25 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderPayShap() {
-		return this.renderMode === RENDER_MODE.PAYSHAP 
-			? html`
-				<horizon-payshap-landing
-					@back="${() => this._onExitPayShap()}">
-				</horizon-payshap-landing>`
-			: html``;
+		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-payshap-landing
+				.getInstitutions="${() => this._getPayShapInstitutionsDetails()}"
+
+				@on-update="${() => this._showPayShapUpdateModal()}"
+				@back="${() => this._onExitPayShap()}">
+			</horizon-payshap-landing>`
+		: html``;
+	}
+
+	_renderPayShapUpdateModal() {
+		return this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-pay-shap-update
+						@on-save="${() => this.renderMode = RENDER_MODE.PAYSHAP}"
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+			</horizon-pay-shap-update>`
+		: html``;
 	}
 
 }

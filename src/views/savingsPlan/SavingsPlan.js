@@ -691,7 +691,7 @@ export class SavingsPlan extends ViewBase {
 
 		const returnValue = await this.savingsService.ftspUnlock(request);
 
-		if (returnValue.succeeded) {
+		if (!returnValue.succeeded) {
 			this.horizonRouter.navigateToUnlockFTSPSuccess();
 			return;
 		}
