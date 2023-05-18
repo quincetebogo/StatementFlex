@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { BUDGET_TERMS } from 'app/constants/Credit';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
@@ -49,21 +50,24 @@ import 'app/components/common/SuccessScreen';
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
+		await this._telemetry.startSpan(CreditEvents.OPEN_BUDGET_SUCCESS);
 		this._updateIncidentState();
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+		await this._telemetry.endSpan(CreditEvents.OPEN_BUDGET_SUCCESS);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+		await this._telemetry.logEvent(CreditEvents.OPEN_BUDGET_SUCCESS_DONE);
 		this.horizonStore.clearScreenDetails();
 		this.horizonRouter.navigateToCreditAccount();
 	}

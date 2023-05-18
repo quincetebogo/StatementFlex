@@ -195,7 +195,7 @@ export class OpenBudgetFacility extends Component {
 	}
 
 	async _calculateBudget() {
-		
+		this.selectedTerm = {};
 		if (!isNullorEmpty(this.budgetAmountErr)) {
 			this.paymentPlans = [];
 			return;
@@ -209,6 +209,8 @@ export class OpenBudgetFacility extends Component {
 		}
 
 		this.paymentPlans = returnValue.result.map(item => {
+			item.instalment /= 100;
+			item.interestRate /= 100;
 			item.label = `${BUDGET_TERMS[item.term]} Months - Instalment amount R${item.instalment}`;
 			return item;
 		});
