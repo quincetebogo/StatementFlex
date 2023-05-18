@@ -680,6 +680,7 @@ export class CardLimitsLanding extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 16px;
+					width: 1064px;
 					overflow-x: hidden;
 				}
 				.col1{
@@ -746,6 +747,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.m-t-16 {
 					margin-top: 16px;
+					width: 100%;
 				}
 				capitec-image {
 					margin: 109px 406px 0px 406px;

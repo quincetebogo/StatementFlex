@@ -290,6 +290,7 @@ export class UpdateCardLimits extends Component {
 		this.cardlimitsInfo.acceptedLimitsAgreement = false;
 		this.cardlimitsInfo.acceptedTapToPayAgreement = false;
 		this._showErrorBanner = false;
+		this._termsAndConditionAgreed = true;
 		this.renderMode = RENDER_MODE.LIMITS;
 
 		this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_BACK, {
@@ -354,7 +355,12 @@ export class UpdateCardLimits extends Component {
 	_toggleAgreementsAccept(e) {
 		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 		this.alertBannerText = ``;
-		this._termsAndConditionAgreed = !this._termsAndConditionAgreed;
+
+		if (e.target.checked) {
+			this._termsAndConditionAgreed = false;
+		} else {
+			this._termsAndConditionAgreed = true;
+		}
 
 		if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED) {
 			this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
