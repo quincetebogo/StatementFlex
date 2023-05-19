@@ -123,7 +123,7 @@ class PayPremiumDialog extends Component {
 			this.totalAmount += this.clientArrears.arrears[i].amount;
 		}
 
-		await super._inicidentManager_(`pay-arrears`, () => this._toggleBusyFlag());
+		await super._inicidentManager_(`funeral-arrears-payment`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 	}
 

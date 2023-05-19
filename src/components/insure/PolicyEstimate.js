@@ -390,7 +390,7 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
-		await super._inicidentManager_(`estimate`, () => this._toggleBusyFlag());
+		await super._inicidentManager_(`funeral-estimate`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 	}
 

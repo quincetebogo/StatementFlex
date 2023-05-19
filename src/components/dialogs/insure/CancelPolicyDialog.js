@@ -135,7 +135,7 @@ class CancelPolicyDialog extends Component {
 	//  #region PRIVATE METHODS
 
 	async _initialise() {
-		await super._inicidentManager_(`cancel-policy`, null);
+		await super._inicidentManager_(`funeral-cancellation`, null);
 		await super.createAndClassifySubIncident();
 
 	}

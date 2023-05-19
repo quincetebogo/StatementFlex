@@ -109,16 +109,12 @@
 	
 
 	// Insure 
-	"insure-update-plan": `UPDATE_PLAN`,
-	"insure-pay-arrears": `PAY_ARREARS`,
-	"insure-cancel-policy": `CANCEL_POLICY`,
-	"insure-sms-history": `SMS_HISTORY`,
-	"insure-transaction-history": `TRANSACTION_HISTORY`,
-	"insure-estimate": `ESTIMATE`,
-	"insure-request-callback": `REQUEST_CALLBACK`,
-	"insure-policy-summary": `POLICY_SUMMARY`,
-	"insure-email-agreement": `EMAIL_AGREEMENT`,
-	"insure-client-summary": `CLIENT_SUMMARY`,
-	"insure-reissue-policy": `REISSUE-POLICY`
+	"funeral-update": `FUNERAL_UPDATE`,
+	"funeral-arrears-payment": `FUNERAL_ARREARS_PAYMENT`,
+	"funeral-cancellation": `FUNERAL_CANCELLATION`,
+	"funeral-estimate": `FUNERAL_ESTIMATE`,
+	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
+	"funeral-reissue": `FUNERAL_REISSUE`,
+	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`
 
 });

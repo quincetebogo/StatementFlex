@@ -1241,10 +1241,10 @@ class UpdatePlan extends Component {
 		this._openIneligibleLivesDialog();
 
 		if (this.canReinstate === true) {
-			await super._inicidentManager_(`reissue-policy`, () => this._toggleBusyFlag());
+			await super._inicidentManager_(`funeral-reissue`, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident();
 		} else {
-			await super._inicidentManager_(`update-plan`, () => this._toggleBusyFlag());
+			await super._inicidentManager_(`funeral-update`, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident();
 		}
 

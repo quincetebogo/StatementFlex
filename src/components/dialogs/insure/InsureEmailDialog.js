@@ -150,7 +150,7 @@ class InsureEmailDialog extends Component {
 	// #region PRIVATE METHODS
 	
 	async _initialise() {
-		await super._inicidentManager_(`email-agreement`, () => this._toggleBusyFlag());
+		await super._inicidentManager_(`funeral-document-request`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 	}
 

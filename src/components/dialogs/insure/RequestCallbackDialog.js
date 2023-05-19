@@ -77,7 +77,7 @@ class RequestCallbackDialog extends Component {
 	// #region PRIVATE METHODS
 	
 	async _initialise() {
-		await super._inicidentManager_(`request-callback`, () => this._toggleBusyFlag());
+		await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 	}
 

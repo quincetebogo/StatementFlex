@@ -273,7 +273,7 @@ class PolicyTransactionHistory extends Component {
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 
-			await super._inicidentManager_(`transaction-history`, () => this._toggleBusyFlag());
+			await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident();
 	}
 
