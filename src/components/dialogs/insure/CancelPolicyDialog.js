@@ -5,7 +5,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDateToInsure } from 'app/utils/insureUtils';
-import 'app/components/dialogs/insure/AgreementDialog'
+import 'app/components/dialogs/insure/AgreementDialog';
 
 // Lookups
 
@@ -37,6 +37,7 @@ class CancelPolicyDialog extends Component {
 		this.cancelPolicyDocumentDetails = {};
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this.showCancelAgreement = false;
 	}
 
 	// #endregion INITIALIZE
@@ -61,7 +62,8 @@ class CancelPolicyDialog extends Component {
 			cancelReason: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
 			cancelPolicyDocumentDetails: { type: Object, state: true },
-			errorMsg: { type: String, state: true }
+			errorMsg: { type: String, state: true },
+			showCancelAgreement: { type: Boolean, state: true }
 		};
 	}
 
@@ -77,7 +79,7 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = CancelPolicyEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
-		this._initialise()
+		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -131,7 +133,11 @@ class CancelPolicyDialog extends Component {
 	}
 
 	_showAgreement() {
-		this.showCancelAgreement = true 
+		this.showCancelAgreement = true;
+	}
+
+	_closeAgreementDialog() {
+		this.showCancelAgreement = false;
 	}
 
 
@@ -335,13 +341,6 @@ class CancelPolicyDialog extends Component {
 				</horizon-product-tile>
 			`}
 				
-					<!-- <capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="cancel-pdf-viewer"
-						data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
-						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
-							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent.value}#view=fitH">
-						</iframe>
-					</capitec-expander> -->
-				
 			</capitec-content-box>
 		`;
 	}
@@ -365,12 +364,13 @@ class CancelPolicyDialog extends Component {
 	}
 
 	_renderAgreementDialog() {
-		this.showCancelAgreement === false ? html``
+		return this.showCancelAgreement === false ? html``
 		: html`
 			<horizon-insure-agreement-dialog
-			.agreementContent="${this.cancelPolicyDocumentDetails?.documentContent.value}">
+			.agreementContent="${this.cancelPolicyDocumentDetails?.documentContent.value}"
+			@back-click="${() => this._closeAgreementDialog()}">
 			</horizon-insure-agreement-dialog>
-		`
+		`;
 	}
 
 	// #endregion RENDERING

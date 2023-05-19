@@ -9,7 +9,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
  * -------------
  * close-modal
  *  
- * @export_agreeClick
+ * @export
  * @class AgreementDialog
  * @extends {Component}
  */
@@ -39,27 +39,42 @@ class AgreementDialog extends Component {
 
 	// #endregion PROPERTIES
 
+	//  #region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	//  #endregion LIFECYCLE OVERRIDES
+
+
 	// #region PRIVATE METHODS
+
+	_initialise() {
+		
+	}
 
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
 
 	/**
-	 * Cancel event from dialog footer button, closes modal & reset toggles 
+	 * back event from dialog footer button, closes modal & reset toggles 
 	 * @returns {void} 
 	 */
-	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
+	_backClick() {
+		this.dispatchEvent(new CustomEvent(`back-click`, {}));
 	}
 
-	/**
-	 * Agree event from dialog footer, closes modal and navigates to Pay Premium Success page
-	 * @returns {void} 
-	 */
-	_agreeClick() {
-			this.dispatchEvent(new CustomEvent(`update-plan-agree-click`, {}));
-	}
 
 	// #endregion EVENT HANDLERS
 
@@ -109,7 +124,6 @@ class AgreementDialog extends Component {
 
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
-					z-index: 1000;
 				}
 				`
 		];
@@ -121,7 +135,7 @@ class AgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="View Agreement" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto;">
+			<capitec-modal type="form" header="View Agreement" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
 				<div slot="body" data-automation-id="horizon-insure-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -139,7 +153,7 @@ class AgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			<capitec-content-box>
+			<capitec-content-box style="height: 700px; width: 800px;">
 				<iframe title="Agreement" height = "100%" frameborder = "0"
 					src="data:application/pdf;base64,${this.agreementContent}#view=fitH">
 				</iframe>
