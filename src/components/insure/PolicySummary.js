@@ -364,7 +364,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-last-premium-payment">
 				</horizon-label>
 				<horizon-label label="Last payment date"
-					value="${formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
+					value="${isNullorEmpty(paymentSchedule?.previousPaymentDate) ? `-` : formatDate(paymentSchedule?.previousPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-last-premium-date">
 				</horizon-label>
 				<horizon-label label="Next payment due"
@@ -372,7 +372,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-next-debit-amount">
 				</horizon-label>
 				<horizon-label label="Next payment date"
-					value="${formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
+					value="${isNullorEmpty(paymentSchedule?.nextPaymentDate) ? `-` : formatDate(paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}"
 					data-automation-id="policy-summary-next-premium">
 				</horizon-label>
 			</capitec-group>
@@ -389,7 +389,7 @@ class PolicySummary extends Component {
 					data-automation-id="policy-summary-months-outstanding">
 				</horizon-label>
 				<horizon-label label="Mandate Status"
-					value="${!isNullorEmpty(activeMandateDetails) && !isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? activeMandateDetails[0]?.mandateStatus : `N/A`}"
+					value="${!isNullorEmpty(activeMandateDetails) && !isNullorEmpty(activeMandateDetails[0]?.mandateStatus) ? activeMandateDetails[0]?.mandateStatus : `-`}"
 					data-automation-id="policy-summary-mandate-status">
 				</horizon-label>
 			</capitec-group>

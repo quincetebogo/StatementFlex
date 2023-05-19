@@ -1116,14 +1116,14 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-start-date"
 							label="Start date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(policyItem.commencementDate) ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
 							label="Cancellation date"
-							value="${formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(policyItem.cancellationDetails?.recordedCancellationDate) ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
