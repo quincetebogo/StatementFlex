@@ -2,9 +2,11 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 import { INSTITUTIONS_LIST } from 'app/constants/PayShap';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/PayShapTransactionHistory';
+
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -22,7 +24,7 @@ const TRANSACTION_HISTORY = {
 
 const paymentHistoryList = [
 	  {
-	    "processDateTime": `2023-04-28T10:45:11.473+02:00`,
+	    "processDateTime": `2023-04-01T10:45:11.473+02:00`,
       "methodOfPayment": `PBPX`,
       "tranCode": `string`,
       "statusCode": `FailedToProcess`,
@@ -46,11 +48,11 @@ const paymentHistoryList = [
       "insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
 	  },
 	  {
-	  "processDateTime": `2023-05-10T07:44:56.360+02:00`,
+	  "processDateTime": `2023-05-17T07:44:56.360+02:00`,
       "methodOfPayment": `PBPX`,
       "tranCode": `string`,
       "statusCode": `FailedToProcess`,
-      "amount": -547.00,
+      "amount": -5000.00,
       "currency": `string`,
       "debtorAccountId": `string`,
       "debtorReference": `string`,
@@ -59,8 +61,8 @@ const paymentHistoryList = [
       "creditorAgentMemberIdentification": `string`,
       "creditorAgentCreditorDomain": `string`,
       "creditorProxyType": `MBNO`,
-      "creditorKnownAsName": `Brandon George`,
-      "creditorFicaName": `Absa Bank`,
+      "creditorKnownAsName": `Ryan Vetrovs`,
+      "creditorFicaName": `Standard Bank`,
       "creditorProxyId": `(+27) 716 546 7890`,
       "creditorReference": `string`,
       "feeAmount": 3000,
@@ -70,11 +72,11 @@ const paymentHistoryList = [
       "insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
 	  },
 	  {
-		"processDateTime": `2023-05-09T07:44:56.360+02:00`,
+		"processDateTime": `2023-03-10T07:44:56.360+02:00`,
 		"methodOfPayment": `PBPX`,
 		"tranCode": `string`,
 		"statusCode": `FailedToProcess`,
-		"amount": 547.00,
+		"amount": 5470.00,
 		"currency": `string`,
 		"debtorAccountId": `string`,
 		"debtorReference": `string`,
@@ -83,8 +85,8 @@ const paymentHistoryList = [
 		"creditorAgentMemberIdentification": `string`,
 		"creditorAgentCreditorDomain": `string`,
 		"creditorProxyType": `MBNO`,
-		"creditorKnownAsName": `Brandon George`,
-		"creditorFicaName": `Absa Bank`,
+		"creditorKnownAsName": `Leo Lubin`,
+		"creditorFicaName": `First National Bank`,
 		"creditorProxyId": `(+27) 716 546 7890`,
 		"creditorReference": `string`,
 		"feeAmount": 3000,
@@ -135,7 +137,7 @@ export class PayShapLanding extends Component {
 			institutionsList: { state: true },
 			moneyfilter: { state: false },
 			transactionHistory: { type: Object },
-			payments: { type: Object }
+			renderMode: { state: false }
 			
 		};
 	}
@@ -163,6 +165,18 @@ export class PayShapLanding extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_selectedTab(e) {
+		const detailsTab = () => this._detailsTab();
+		const transactionHistoryTab = () => this._transactionHistoryTab();
+		const institutionsTab = () => this._institutionsTab();
+		const payshapTab = {
+			0: detailsTab, 
+			1: transactionHistoryTab,
+			2: institutionsTab
+		};
+		payshapTab[e.detail.selectedIndex]();
+	}
+
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
@@ -187,43 +201,16 @@ export class PayShapLanding extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	getPredefinedDateRanges() {
-
-		const today = new Date();
-		const last7day = new Date(today);
-		const last30day = new Date(today);
-		const last60day = new Date(today);
-		const last90day = new Date(today);
-
-		last7day.setDate(today.getDate() - 7);
-		last30day.setDate(today.getDate() - 30);
-		last60day.setDate(today.getDate() - 60);
-		last90day.setDate(today.getDate() - 90);
-
-		return [
-			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
-		];
-		}
-
-		
-	 _transactionHistory() {
-		
-			 this._getTransactionHistory();
-		}
-
 		_getTransactionHistory() {
 			const transactionHistoryRequest = {
 				startDate: TRANSACTION_HISTORY.START_DATE,
 				endDate: TRANSACTION_HISTORY.END_DATE
 			};
-
+			this.transactionHistory = paymentHistoryList; // channel service call to pull transaction history
 			const formattedTrans = this.transactionHistory.map((item) => {
 				const date = new Date(Date.parse(item.processDateTime));
 				const inserteddate = new Date(Date.parse(item.insertedDateTime));
-				item.tranDate = date;
+				item.processDateTime = date;
 
 				item.insertedDateTime = inserteddate;
 				item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
@@ -236,12 +223,30 @@ export class PayShapLanding extends Component {
 
 				return item;
 			});
-			this.transactionHistory.push(...formattedTrans);
+			// this.transactionHistory = formattedTrans;
+			 this.transactionHistory.push(...formattedTrans);
+		}
+
+	 _unloadTransactionHistory() {
+			this.transactionHistory = [];
 		}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_transactionHistoryTab() {
+		this._getTransactionHistory();
+		this.renderMode = RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY;
+	}
+
+	_detailsTab() {
+		// this can be used while switching to details tab
+	}
+
+	_institutionsTab() {
+		// this can be used while switching to institutions tab
+	}
 
 	// ---------
 	// RENDERING
@@ -403,9 +408,6 @@ export class PayShapLanding extends Component {
 					--theme-data-table-header-font-weight: 600;
 
 				}
-				horizon-column-class{
-					width: 260px;
-				}
 
 				.load-more-bar{
 					--theme-actionbar-min-height: 48px;
@@ -459,9 +461,6 @@ export class PayShapLanding extends Component {
 				capitec-image {
 					cursor: pointer;
 				}
-				capitec-spacer {
-					width: 70px;
-				}
 
 			`
 		];
@@ -498,7 +497,7 @@ export class PayShapLanding extends Component {
 
 	_renderPayShapContent() {
 		return html`
-			<capitec-tab-group>
+			<capitec-tab-group @tab-select="${(e) => this._selectedTab(e)}">
 				<capitec-tab label="Details" layout="vertical" halign="left">
 					<capitec-content-box class="details-tab">
 						${this._renderPayShapDetails()}
@@ -520,185 +519,22 @@ export class PayShapLanding extends Component {
 	}
 
 	_renderPayShapTransactionHistory() {
-		return html`
+		return this.renderMode === RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY
+		? html`
 					<horizon-payshap-transaction-history
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
-					.renderTableColumns="${() => this._renderTransactionHistoryColumnsMoneyOut()}"
-					.renderTransactionDetails="${(item) => this._renderTransactionDetailsMoneyOut(item)}"
-					.getTransactionHistory="${(startDate, endDate) => this._getTransactionHistory(startDate, endDate)}"
-					.disposeData="${() => this.transactionHistory = []}">
+					.renderTableColumns="${() => this._renderTransactionHistoryColumns()}"
+					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+					.getTransactionHistory="${() => this._getTransactionHistory()}"
+					.disposeData="${() => this.transactionHistory = []}"
+					@unloading="${() => this._unloadTransactionHistory()}">
 				</horizon-payshap-transaction-history>
-		`;
-	}
-
-	_renderPayShapTransactionHistory1() {
-		return html`
-		<capitec-group>
-		<capitec-group layout="horizontal">
-			${this._renderTransactionHistorySearchBar()}
-			${this._renderSelectOption()}
-			${this._renderMoneyIn()}
-			${this._renderMoneyOut()}
-		</capitec-group>
-		${this._renderMoneyType()}
-	</capitec-group>
-		`;
-	}
-
-_renderMoneyType() {
-	return false
-	? html`
-	${this._renderTransactionHistoryColumnsMoneyOut()} 
-	`
-	: html` ${this._renderTransactionHistoryColumnsMoneyIn()}`;
-}
-
-	_renderTransactionHistoryColumnsMoneyIn() {
-		return html`
-		<capitec-table class="main-view" .items="${this.MoneyInrecords}" expandable="right" .expandRenderer="${(item) => this._renderTransactionDetailsMoneyIn(item)}">
-			<capitec-table-column
-				label="Transaction Date"
-				field="transactionDate"
-				size="156px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Description"
-				field="description"
-				size="410px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Amount (R)"
-				field="amount"
-				size="158px;"
-				type="currency">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Balance"
-				field="balance"
-				size="130px;"
-				type="currency"
-				align="right">
-			</capitec-table-column>
-			<capitec-table>
-		`;
-	}
-
-	_renderTransactionDetailsMoneyIn(item) {
-		return html`
-			<capitec-group class="main-view">
-			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Statement description: SMS Notification Fee: 2 Notification(s)">
-			</capitec-label>
-	
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Posting date" 
-					value = "28 Apr 2023">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Processed date"
-					value = "28 Apr 2023">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card number"
-					value = "-">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card authentication type"
-					value = "UNKNOWN">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "971599">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Includes Vat"
-					value = "No">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="External terminal ID"
-					value = "-">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "9402">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Cash back"
-					value = "-">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Branch" 
-					value = "997">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Teller"
-					value = "9991">
-				</horizon-label>
-			</capitec-group>
-	</capitec-group>
-		`;
-	}
-
-	_renderTransactionHistoryColumnsMoneyOut1() {
-		return html`
-			<capitec-table class="main-view" .items="${this.MoneyOutrecords}" expandable="right" .expandRenderer="${(item) => this._renderTransactionDetailsMoneyOut(item)}">
-			<capitec-table-column
-				label="Transaction Date"
-				field="transactionDate"
-				size="156px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Full Name"
-				field="fullname"
-				size="300px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Shap ID"
-				field="shapId"
-				size="158px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Account number"
-				field="accountnumber"
-				size="150px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Institution"
-				field="institution"
-				size="300px;">
-			</capitec-table-column>
-			<capitec-table-column
-				label="Amount"
-				field="amount"
-				size="130px;"
-				type="currency"
-				align ="right">
-			</capitec-table-column>
-	</capitec-table>
-		`;
+		`
+		: html``;
 	}
 	
-	_renderTransactionHistoryColumnsMoneyOut() {
+	_renderTransactionHistoryColumns() {
 		return html`
 		
 			<capitec-table-column
@@ -710,7 +546,7 @@ _renderMoneyType() {
 			<capitec-table-column
 				label="Full Name"
 				field="creditorKnownAsName"
-				size="300px;">
+				size="200px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Shap ID"
@@ -725,7 +561,7 @@ _renderMoneyType() {
 			<capitec-table-column
 				label="Institution"
 				field="creditorFicaName"
-				size="300px;">
+				size="130px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Amount"
@@ -745,7 +581,7 @@ _renderMoneyType() {
 	}
 	
 
-	_renderTransactionDetailsMoneyOut() {
+	_renderTransactionDetails() {
 		return html`
 			<capitec-group class="main-view">
 			<capitec-label
@@ -811,7 +647,7 @@ _renderMoneyType() {
 					value = "R5.00">
 				</horizon-label>
 			</capitec-group>
-			<capitec-button-bar>
+			<capitec-button-bar align="right">
 				<capitec-button
 				type="clear" label="Escalate Transaction"></capitec-button>
 				<capitec-button
@@ -907,62 +743,6 @@ _renderMoneyType() {
 		`;
 	}
 
-	_renderTransactionHistorySearchBar() {
-		return html`
-			<capitec-text-field
-					id="text-filter"
-					label="Search for amount or transaction name"
-					type="search"
-					keyboardMode="alpha-numeric"
-					@key-input="${(e) => this._searchText(e)}"
-					@value-change="${(e) => this._searchText(e)}">
-			</capitec-text-field>
-		`;
-	}
-
-	_renderSelectOption() {
-		return html`
-
-		<capitec-date-time-picker
-			type="range"
-			mode="date"
-			inputType="calendar"
-			outputType="string"
-			.predefinedRanges="${this.getPredefinedDateRanges()}">
-		</capitec-date-time-picker>
-			`;
-	}
-
-	_renderMoneyIn() {
-		return html`
-		<capitec-chip
-		 label="Money In" 
-		 @click="${() => this._moneyFilter1()}">
-		</capitec-chip>
-		`;
-	}
-
-	_renderMoneyOut() {
-		return html`
-		<capitec-chip 
-		 label="Money Out"
-		 @click="${this._moneyFilter2()}">
-		</capitec-chip>
-		`;
-	}
-
-	_moneyFilter1() {
-			console.log(22222);
-			this.moneyfilter = true;
-			this.requestUpdate();
-	};
-
-
-	_moneyFilter2() {
-		console.log(333333);
-		this.moneyfilter = false;
-		this.requestUpdate();
-	};
 
 	_renderPayShapInstitutions() {
 		return html`

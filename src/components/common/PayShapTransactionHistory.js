@@ -353,7 +353,7 @@ export class PayShapTransactionHistory extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
+			this.filteredData = this.filteredData.filter(item => item.processDateTime >= startDate && item.processDateTime <= endDate); 
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
@@ -450,18 +450,6 @@ export class PayShapTransactionHistory extends Component {
 
 					--theme-label-font-color: #FFFFFF;
 				}
-				.transact {
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
-				}
-				.save {
-					background: linear-gradient(90deg, #003354 0%, #00486D 100%);
-				}
-				.lbb {
-					background: no-repeat url(../images/liveBetter/gradient.png);
-				}
-				.credit {
-					background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
-				}
 				.transaction-history-title > img {
 					width: 26px;
 					margin-right: 10px;
@@ -495,7 +483,6 @@ export class PayShapTransactionHistory extends Component {
 				/* Filter Bar styles */
 				.transaction-action-bar {
 					height: 64px;
-					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
@@ -516,30 +503,6 @@ export class PayShapTransactionHistory extends Component {
 					border: 1px solid #E1E1E1;
 					cursor: pointer;
 				}
-
-				/* Chip Bar Styles */
-				.filter-bar {
-					--theme-actionbar-min-height: 48px;
-					--theme-actionbar-padding: 8px 0px 8px 16px;
-				}
-				.filter-bar > capitec-label {
-					height: 20px;
-					width: auto;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-				.filter-bar > capitec-button {
-					height: 40px;
-					margin: 0px;
-
-					--theme-button-font-size : 14px;
-					--theme-button-line-height: 10px;
-					--theme-button-font-weight: 600;
-				}
 				
 				/* Main View Styles */
 				.main-view {
@@ -549,10 +512,8 @@ export class PayShapTransactionHistory extends Component {
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
 					height: 661px;
-					width: 1064;
 				}
 				capitec-table{
-					width:1000px; 
 					height: auto;
 					--theme-icon-size-default: 24px;
 					--theme-data-table-body-group-font-weight: 600;
@@ -694,51 +655,6 @@ export class PayShapTransactionHistory extends Component {
 
 			</capitec-group>
 		`;
-	}
-
-	_renderFilterBar() {
-		if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.STATUS] !== ``) {
-			return html`
-				<capitec-action-bar
-					id="active-filters"
-					class="filter-bar"
-					data-automation-id="transaction-history-active-filters">
-						<capitec-label label = "Active filters:"></capitec-label>
-							${this._renderTextChip()}
-							${this._renderDateChip()}
-						<capitec-button
-							type="clear"
-							label="Clear All"
-							@click = "${() => this._clearFilters()}"
-							data-automation-id="transaction-history-clear-active-filters">
-						</capitec-button>
-				</capitec-action-bar>
-			`;
-		}
-	}
-
-	_renderTextChip() {
-		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.TEXT])
-			? html`
-				<capitec-chip
-					id="${FILTER_BY.TEXT}"
-					label="${RENDER_CHIPS[FILTER_BY.TEXT]}"
-					@remove="${() => this._closeChip(FILTER_BY.TEXT)}"
-					closable>
-				</capitec-chip>`
-			: html``;
-	}
-
-	_renderDateChip() {
-		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])
-			? html`
-			<capitec-chip
-				id="${FILTER_BY.DATE}"
-				label="${RENDER_CHIPS[FILTER_BY.DATE]}"
-				@remove="${() => this._closeChip(FILTER_BY.DATE)}"
-				closable>
-			</capitec-chip>`
-			: html``;
 	}
 
 	_renderTransactionHistory() {
