@@ -1,7 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from '../../../utils/channelServiceUtilities';
 import { formatDateToInsure } from 'app/utils/insureUtils';
 
+import 'app/components/dialogs/insure/AgreementDialog';
 
 /**
  * Pay Premium Agreement Dialog componant will allow you to view the policy schedule, view the mandate and to agree 
@@ -22,6 +24,8 @@ class PayPremiumAgreementDialog extends Component {
 
 	constructor() {
 		super();
+
+		this.showAgreementDialog = false;
 	}
 
 	// #endregion INITIALIZE
@@ -41,7 +45,8 @@ class PayPremiumAgreementDialog extends Component {
 			contractReference: { type: Object, state: true },
 			payAmount: { type: Number, state: true },
 			getArrearsPaymentDocument: { type: Object },
-			arrearsPaymentDocumentDetails: { type: Object, state: true }
+			arrearsPaymentDocumentDetails: { type: Object, state: true },
+			showAgreementDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -99,6 +104,15 @@ class PayPremiumAgreementDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`pay-premium-agree`, {}));
 	}
 
+	_showAgreementDialog() {
+		this.showAgreementDialog = true;
+	}
+
+	_closeAgreementDialog() {
+		this.showAgreementDialog = false;
+	}
+
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -114,6 +128,7 @@ class PayPremiumAgreementDialog extends Component {
 		return [
 			super.styles,
 			css`
+				${INSURE_CSS}
 
 				.notification > capitec-toast{
 					--theme-toast-height: 80px;
@@ -172,6 +187,34 @@ class PayPremiumAgreementDialog extends Component {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
 
+				horizon-product-tile {
+					--theme-product-tile--height: 64px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 16px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-heading-margin-left: 6px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
+					--theme-radio-disabled-border-color: #E1E1E1;
+					--theme-radio-disabled-background-color: #F7F7F7;
+				}
+
+				.view-document {
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-detail-top: 20px;
+					--theme-product-tile-detail-right: 16px;
+				}
+				.view-document > capitec-label[type="strong"] {
+					line-height: 20px;
+					cursor: pointer;
+
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600;
+				}
+
 				`
 		];
 	}
@@ -183,7 +226,8 @@ class PayPremiumAgreementDialog extends Component {
 	 */
 	 _webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto;">
+			${this._renderAgreementDialog()}
+			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: 635px;">
 				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -209,10 +253,11 @@ class PayPremiumAgreementDialog extends Component {
 				</capitec-label>
 			</div>
 
-			<capitec-content-box class="no-padding">
-				<capitec-expander expandbuttonalignment="left" label="View Arrears Payment Instruction" data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
-					<iframe class="iframe-content" src="data:application/pdf;base64,${this.arrearsPaymentDocumentDetails?.documentContent.value}#view=fitH" alt="agreement"></iframe>
-				</capitec-expander>
+			<capitec-content-box>
+				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Ready to view" detail="" icon="" @click="${() => this._showAgreementDialog()}">
+						<capitec-label slot="detail" type="strong" label="View Document" >
+						</capitec-label>
+				</horizon-product-tile>
 			</capitec-content-box>
 
 		`;
@@ -233,6 +278,16 @@ class PayPremiumAgreementDialog extends Component {
 					@click="${() => this._agreeClick()}"
 					data-automation-id="horizon-insure-pay-premium-agreement-dialog-agree">
 				</capitec-button>
+		`;
+	}
+
+	_renderAgreementDialog() {
+		return this.showAgreementDialog === false ? html`` 
+		: html`
+			<horizon-insure-agreement-dialog
+				.agreementContent="${this.arrearsPaymentDocumentDetails?.documentContent.value}"
+				@back-click="${() => this._closeAgreementDialog()}">
+			</horizon-insure-agreement-dialog>
 		`;
 	}
 
