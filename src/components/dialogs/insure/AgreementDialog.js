@@ -33,7 +33,7 @@ class AgreementDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			agreementContent: { type: String, state: true },
+			agreementContent: { type: String, state: true }
 		};
 	}
 
@@ -154,7 +154,7 @@ class AgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 			<capitec-content-box style="height: 700px; width: 800px;">
-				<iframe title="Agreement" height = "100%" frameborder = "0"
+				<iframe title="View agreement" height = "100%" frameborder = "0"
 					src="data:application/pdf;base64,${this.agreementContent}#view=fitH">
 				</iframe>
 			</capitec-content-box>

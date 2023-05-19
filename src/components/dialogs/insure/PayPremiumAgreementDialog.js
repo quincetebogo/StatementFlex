@@ -227,7 +227,7 @@ class PayPremiumAgreementDialog extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto;">
+			<capitec-modal type="form" header="Pay Arrears Agreement (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: 635px;">
 				<div slot="body" data-automation-id="horizon-insure-pay-premium-agreement-dialog-body">
 					${this._renderDialogBody()}
 				</div>
@@ -254,7 +254,7 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<capitec-content-box>
-				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" detail="" icon="" @click="${() => this._showAgreementDialog()}">
+				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Ready to view" detail="" icon="" @click="${() => this._showAgreementDialog()}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 				</horizon-product-tile>
