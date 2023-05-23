@@ -470,6 +470,9 @@ export class StatementsDialog extends Component {
 				.date-label {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
+				.chose-account {
+					margin-bottom: var(--horizon-statement-generic-margin-top, 8px);
+				}
 				.main-cb {
 					height: 100%;
 
@@ -731,6 +734,7 @@ export class StatementsDialog extends Component {
 		if (this.renderMode === RENDER_MODE.CHOOSE_ACCOUNT) {
 			return html`
 				<capitec-label
+					class='chose-account'
 					type="subtitle"
 					label="Choose an Account">
 				</capitec-label>

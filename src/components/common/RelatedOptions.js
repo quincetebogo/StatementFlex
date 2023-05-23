@@ -213,7 +213,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.currentIncident);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 

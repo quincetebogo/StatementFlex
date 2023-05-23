@@ -1,18 +1,26 @@
 {
-  "name": "Horizon-UI",
-  "product": "Horizon",
-  "group": "G_CKS_CEC_HORIZON_DEVELOPER",
-  "version": "2.13.14",
-  "alias": "HorizonAWS",
-  "release": "230101",
+  "name": "cec-ui-horizon",
+  "product": "horizon",
+  "group": "G_CKS_CEC_HORIZON_ADMIN",
+  "version": "2.22.11",
+  "alias": "cec-horizon",
+  "release": "230502",
   "contractVersion": "v1",
   "serviceType": "Channel",
-  "resourceSize": "small",
-  "redundancySize": "tiny",
   "port": 6001,
-  "secrets": [],
+  "client": {
+    "clientName": "Platform",
+    "clientDescription": null,
+    "isUserInterface": false,
+    "flow": "password",
+    "extraScopes": "",
+    "roles": null
+  },
+  "secrets": [
+    "telemetrydatabussecret",
+    "axoncs_t_ch_password",
+    "axoncs_t_ch_username"
+  ],
   "environmentVariables": [
-    "LogLevel",
-    "MetricsLogLevel"
   ]
 }

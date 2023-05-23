@@ -44,7 +44,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			savingsAccount: ``,
 			liveBetterSavings: ``,
 			savingsPlan: ``,
-			insure: ``, 
+			insure: ``,
 			credit: ``
 		};
 
@@ -52,7 +52,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			savingsAccount: ``,
 			liveBetterSavings: ``,
 			savingsPlan: ``,
-			insure: ``, 
+			insure: ``,
 			credit: ``
 		};
 
@@ -70,7 +70,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.activePageTitle = ``;
 		this.product = ``;
-		
+
 		this.creditService = new CreditService(() => true, ex => true);
 		this.quickTransactionService = new QuickTransactionsService(() => true, () => true);
 	}
@@ -103,6 +103,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		super.connectedCallback();
 
 		this._updateProductTileInfo();
+		this._setActivePageTitle();
 	}
 
 	disconnectedCallback() {
@@ -110,7 +111,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.favouritesBarSub.dispose();
 		this.navContextSub.dispose();
 		this.stateChangeSub.unsubscribe();
-		
+
 		super.disconnectedCallback();
 	}
 
@@ -132,7 +133,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			} else {
 				contactNumber = state.callerInformation.incomingTelephoneNumber;
 			}
-	
+
 			this.miniProfile = {
 				name: state.callerInformation.isNonClient ? state.callerInformation.nonClientFullName : state.callerInformation.name,
 				idNumber: state.callerInformation.southAfricanIDNumber,
@@ -167,25 +168,29 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_onNavigationContextUpdated() {
-		const activePage = this.horizonRouter.getCurrentRoute(); 
+		this._setActivePageTitle();
+	};
+
+	_setActivePageTitle() {
+		const activePage = this.horizonRouter.getCurrentRoute();
 
 		// Initialise activePage properly if the current route is not yet readable
 		if (!activePage) {
 			this.activePageTitle = ``;
 			return;
-		} 
-		
+		}
+
 		// this.activePageTitle is passed to the horizon-product-button-panel control and is used to
 		// determine which product button should be highlighted.
 		this.activePageTitle = activePage.title;
 		if (this.activePageTitle === `ProductInfo`) {
 			this.activePageTitle = this.product;
 		}
-	};
+	}
 
 	async _productButtonClick(event) {
 		await this._clearPrevProductSpans(this.product, event.detail.productButton);
-		
+
 		this.product = event.detail.productButton;
 
 		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
@@ -193,23 +198,29 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		// Clear return to state before navigation
 		this.horizonStore.clearReturnScreen();
-		
+
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
 		if (!this.callerInformation) {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit`)) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
+		if (this.product !== `Insure` && this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToUnavaliableForRole();
+			return;
+		}
+
+		if (this.callerInformation.verificationStatus === `unverified`
+			&& (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit` || this.product === `SavingsAccount` || this.product === `Insure`)) {
+			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
 
 		if (this.callerInformation.verificationStatus === `verified`) {
-			this.horizonRouter.navigateToLandingPage(this.product, false);
+			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
-		
+
 		this.horizonRouter.navigateToProductInfo(this.product);
 	}
 
@@ -219,6 +230,12 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.product = ``;
 		this.horizonStore.clearReturnScreen();
+
+		if (this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToUnavaliableForRole();
+			return;
+		}
+
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -240,14 +257,14 @@ export class ProfileAndProductSummaryBar extends Component {
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
-	
+
 			const returnValues = await Promise.allSettled([this.quickTransactionService.favouritesLanding(landingRequest), this.creditService.creditBalance(this.callerInformation.cifNumber, () => true)]);
-	
+
 			if (returnValues[0].status === `fulfilled` && returnValues[0].value.succeeded) {
 				this.isLoading = false;
-	
+
 				productTilesInfo = returnValues[0].value.result;
-				
+
 				/* 
 				* NOTE: This is a work around as the favourites landing does not return credit information. 
 				* NOTE: This implementation will not include credit information in the favourites landing call fails.
@@ -301,7 +318,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			detail: this.detail,
 			hasFavorutie: this.hasFavourites
 		};
-		
+
 		// Now we can update the information on the product buttons
 		this.horizonStore.setLeftBarProductTilesInfoState(updatedProductButtonInfo);
 
@@ -337,7 +354,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
-		
+
 		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState)) {
 			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
@@ -371,7 +388,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			<horizon-mini-profile 
 				.miniProfile="${this.miniProfile}"
 				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
-				@view-profile="${() => this._viewProfileDetails()}">
+				@view-profile="${() => this._viewProfileDetails()}"
+				?isInsureAgent="${this.roleManager.isInsureAgent}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}
@@ -387,7 +405,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 
 	_renderFavourites() {
-			return html`
+		return html`
 				<horizon-favourites-tile
 					data-automation-id="profile-and-product-summary-bar-favourites"
 					class="favourites-button"

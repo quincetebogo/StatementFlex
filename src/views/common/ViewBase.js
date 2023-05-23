@@ -303,7 +303,7 @@ export class ViewBase extends View {
 	}
 
 	_currentIncidentRef() {
-		return this.currentIncident ? this.currentIncidentRef() : ``;
+		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
 	async _updatePreferences(language, cif) {
@@ -385,7 +385,7 @@ export class ViewBase extends View {
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				incidentRefNumber="${this.currentIncidentRef()}"
+				incidentRefNumber="${this._currentIncidentRef()}"
 				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
