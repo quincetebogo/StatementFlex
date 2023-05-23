@@ -1,19 +1,21 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-cs-main.platform-dev.int.capinet",
-		"clientInsightsUrl": "https://cec-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://cec-cs-accesschannels.platform-dev.int.capinet",
-		"creditChannelServiceUrl": "https://bsc-horizon-credit.platform-dev.int.capinet",
-		"clientProfileServiceUrl": "https://csc-clientprofile.platform-dev.int.capinet",
-		"debiCheckServiceUrl": "https://csc-debicheck.platform-dev.int.capinet",
-		"cardServiceUrl": "https://horizon-cs-card-v1.platform-dev.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://csc-cs-save.platform-dev.int.capinet",
-		"sendCashServiceUrl": "https://cec-cs-sendcash.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-dev.int.capinet",
+		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
+		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
+		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
+		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-dev.int.capinet",
+		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
+		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
+		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
-	"KbaChannelServiceUrl": "https://horizon-cs-ita.platform-dev.int.capinet",
+	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
+	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -24,7 +26,7 @@
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
@@ -49,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -66,7 +68,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -82,16 +84,16 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"itaVerification": {
@@ -99,7 +101,7 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -202,11 +204,39 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureClientSummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureProductParams": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCalculateQuote": {
+			"enabled": false,
+			"positiveCase": false
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureAuditTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"creditBalance": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCommsHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -219,7 +249,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -227,7 +257,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -242,8 +272,64 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-		"ftspUnlockOptions": {
+		"insurePrepareUpdate": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateIssueAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyReissue": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureSendEmail": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureClaims": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRequestCallback": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockOptions": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
@@ -267,6 +353,14 @@
 			"positiveCase" : true
 		},
 		"putClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"creditStatement": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"settleAndClose": {
 			"enabled": false,
 			"positiveCase" : true
 		}

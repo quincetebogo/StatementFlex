@@ -136,6 +136,16 @@ export class HorizonIncidentManager {
 			}
 		};
 	};
+	
+	/**
+	 * Updates the state of the current incident
+	 * 
+	 * @param {Object} currentIncident An object containing incidentId & incidentReference of the current incident.
+	 */
+	set currentIncident(currentIncident) {
+		this.incidentDetails.currentIncident = currentIncident;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	/**
 	 * 
@@ -189,7 +199,7 @@ export class HorizonIncidentManager {
 	 * @returns {string} Feedback on the current incident
 	 */
 	getFeedback() {
-		if (!this.incidentDetails?.feedback) {
+		if (isNullorEmpty(this.incidentDetails?.feedback)) {
 			return null;
 		}
 
@@ -447,8 +457,8 @@ export class HorizonIncidentManager {
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident, 
-			reason, 
-			this._formatLineBreaks(resolution), 
+			reason,
+			resolution,
 			causeCode, 
 			this.incidentDetails.description,
 			errorHandler
@@ -549,10 +559,6 @@ export class HorizonIncidentManager {
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
-	}
-
 	_updateIncidentState(clientNeed) {
 		const incidentDetails = this.getIncidentDetails();
 		
@@ -614,7 +620,7 @@ export class HorizonIncidentManager {
 		
 		this.checkIncidentStatus = false;
 
-		this.currentIncident = returnValue.result;
+		this.currentIncident = returnValue.result?.incident;
 		
 		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
 			"parent-incident-reference": this.primaryIncident.toString(),
