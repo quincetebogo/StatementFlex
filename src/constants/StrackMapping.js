@@ -25,7 +25,7 @@
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
 
 	// Savings account
-	"transaction-history": `TRANSACTION_HISTORY`,
+	// "transaction-history": `TRANSACTION_HISTORY`,
 	"statements-transact": `STATEMENTS`,
 
 	// Savings plan

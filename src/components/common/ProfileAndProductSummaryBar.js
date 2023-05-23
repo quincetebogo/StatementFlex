@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -9,6 +10,7 @@ import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
+import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -231,10 +233,10 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		const productEvents = {
 			'SavingsAccount': SavingsAccLandingPage.SAVINGS_ACCOUNT,
-			'SavingsPlan': ``,
+			'SavingsPlan': SavingsPlanEvents.SAVINGS_PLAN,
 			'LiveBetter': LiveBetterEvents.LIVE_BETTER,
 			'Insure': ``,
-			'Credit': ``
+			'Credit': CreditEvents.CREDIT
 		};
 
 		if (!this.product) {
@@ -247,9 +249,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	_setIncidentDone() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed)) {
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentDetails.currentNeed) && 
+				incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
+					incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+					this.horizonStore.setIncidentDetails(incidentDetails);
 		}
 	}
 

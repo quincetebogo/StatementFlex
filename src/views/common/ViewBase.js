@@ -304,6 +304,13 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
+	_setIncidentNotstarted() {
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------

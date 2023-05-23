@@ -242,7 +242,7 @@ export class EndCallSession extends Component {
 		// Determining at least we know categorization to classify
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 		// Checks if the curr incident is active
-		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED;
+		const isIncClosed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED || !incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`;
 		// should classify as per need?
 		// And enforcing this to false when the end call context includes in Recognize need by context
 		const classifyAsPerNeed = incidentDetails.needStatus === super.HORIZON_NEED_STATUS.INPROGRESS &&
