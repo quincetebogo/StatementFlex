@@ -115,6 +115,39 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Updates the preferred language with selected language 
+	 * 
+	 * @param {string} preferredLanguage selected value to update clients preferred language
+	 * @param {string} cif client's CIF number
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof ClientProfileService
+	 */
+	updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/client-${this._version}/preferences/language`;
+
+		const request = {
+			'language': preferredLanguage,
+			'cifNumber': cif
+		};
+
+		return this.put(
+			url,
+			request,
+			this.setToken(),
+			`updatePreferredLanguage`,
+			null,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// consent management methods
 
 	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
