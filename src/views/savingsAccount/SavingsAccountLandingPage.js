@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -90,7 +90,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
             if (actions[option]) {
                 await super._inicidentManager_(option, () => this._toggleBusyFlag());
-                this._refreshIncidentDetails();
                 return actions[option]();
             }
         };
@@ -295,7 +294,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
         this.savingsDetails = {
             "accountNumber": savingsLandingDetails.accountNumber,
