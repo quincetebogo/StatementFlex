@@ -1232,7 +1232,7 @@ export class InternetBankingProfileDetails extends Component {
 					<p>A fee will be charged to activate a new security token.</p>
 
 					<capitec-hyperlink
-						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						href="https://www.capitecbank.co.za/personal/transact/transact-fees"
 						target="_blank"
 						label="View fees"
 						inline>
