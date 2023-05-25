@@ -1,10 +1,55 @@
-import { ACCESS_CHANNEL_STATUS, parseHTMLtoDOM } from './Constants';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
 import 'app/webComponents/src/SideSheet';
 import 'platform/components';
+
+const UNBLOCK_SIM_OUTCOME = {
+	'success': {
+		type: `success`,
+		label: `SIM unblocking was successfully.`,
+		header: `Successful!`,
+		message: ``
+	},
+	'error': {
+		type: `error`,
+		label: `SIM unblocking has failed.`,
+		header: `Unsuccessful!`,
+		message: ``
+	}
+};
+
+const CANCEL_USSD_OUTCOME = {
+	'success': {
+		type: `success`,
+		label: `USSD cancellation was successful.`,
+		header: `Successful!`,
+		message: `USSD cancellation was successful. You will need to visit branch to reactivate USSD.`
+	},
+	'error': {
+		type: `error`,
+		label: `USSD cancellation was unsuccessful.`,
+		header: `Unsuccessful!`,
+		message: `USSD cancellation was unsuccessful. Please try again later.`
+	}
+};
+
+const ACTIVATE_FULL_MENU_OUTCOME = {
+	'success': {
+		type: `success`,
+		label: `Full USSD menu is now active.`,
+		header: `Successful!`,
+		message: `Full USSD menu is now active.`
+	},
+	'error': {
+		type: `error`,
+		label: `Full USSD menu was not activated.`,
+		header: `Unsuccessful!`,
+		message: `Full USSD menu was not activated. Please try again later.`
+	}
+};
 
 export class USSDProfileDetails extends Component {
 	constructor() {
@@ -23,6 +68,15 @@ export class USSDProfileDetails extends Component {
 		this.bannerTitle = ``;
 		this.bannerSubtitle = ``;
 		this.cellphoneNumber = ``;
+		this.showOutcomeSlide = false;
+		this.outcomeDetails = {
+			action: null,
+			type: null,
+			label: null,
+			header: null,
+			message: null,
+			image: null
+		};
 
 		// Active, Inactive, SIM Blocked Blocked, Service Unavailable - null
 		this.ussdStatus = ``;
@@ -84,46 +138,9 @@ export class USSDProfileDetails extends Component {
 			showCancelReasons: { state: true },
 			showNotificationBanner: { state: true },
 			showValidationBanner: { state: true },
-			isBusy: { state: true }
+			isBusy: { state: true },
+			showOutcomeSlide: { state: true }
 		};
-	}
-
-	get unblockSIMSuccessToast() {
-		return `<capitec-label label="SIM for number ${this.ussd.userRegNo} was unblocked successfully."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
-	}
-
-	get unblockSIMUnSuccessToast() {
-		return `<capitec-label label="SIM for number ${this.ussd.userRegNo} was not unblocked."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="Try again"></capitec-label>`;
-	}
-
-	get cancelUSSDSuccessToast() {
-		return `<capitec-label label="USSD was cancelled."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="You will need to visit branch to reactivate USSD."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
-	}
-
-	get cancelUSSDUnSuccessToast() {
-		return `<capitec-label label="USSD was not cancelled."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="Try again"></capitec-label>`;
-	}
-
-	get activateFullMenuSuccessToast() {
-		return `<capitec-label label="The full menu is active."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}" type="subtitle"></capitec-label>`;
-	}
-
-	get activateFullMenuUnSuccessToast() {
-		return `<capitec-label label="Full USSD menu was not activated."></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-label label="Try again"></capitec-label>`;
 	}
 
 	// -------------------
@@ -162,12 +179,16 @@ export class USSDProfileDetails extends Component {
 	async _onUnblockSIM() {
 		// code to unblock SIM
 		const returnValue = await this.unblockSIM();
+		this._toggleOutcomePanel();
+
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
-
-			this._displayAndCloseSuccessToast(this.unblockSIMSuccessToast, `unblock-sim`);
+			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`success`];
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking was successfully.`;
 		} else {
-			this._displayAndCloseUnsuccessfulToast(this.unblockSIMUnSuccessToast);
+			
+			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`error`];
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking has failed.`;
 		}
 	}
 
@@ -175,13 +196,14 @@ export class USSDProfileDetails extends Component {
 		// action of actually cancelling the ussd service
 		if (this.cancelReason) {
 			const returnValue = await this.cancelUSSD(this.cancelReason);
+			this._toggleOutcomePanel();
+
 			if (returnValue) {
 				this.ussdStatus = `Inactive`;
-
-				this._displayAndCloseSuccessToast(this.cancelUSSDSuccessToast, `cancel-ussd`);
+				this.outcomeDetails = CANCEL_USSD_OUTCOME[`success`];
 				this.showNotificationBanner = true;
 			} else {
-				this._displayAndCloseUnsuccessfulToast(this.cancelUSSDUnSuccessToast);
+				this.outcomeDetails = CANCEL_USSD_OUTCOME[`error`];
 			}
 			
 			this.showCancelReasons = !this.showCancelReasons;
@@ -194,11 +216,12 @@ export class USSDProfileDetails extends Component {
 
 	async _activateFullMenu() {
 		const activateFullMenuUSSDSuccessful = await this.activateFullMenuUSSD();
+		this._toggleOutcomePanel();
 
 		if (activateFullMenuUSSDSuccessful) {
-			this._displayAndCloseSuccessToast(this.activateFullMenuSuccessToast, `full-menu`);
+			this.outcomeDetails = ACTIVATE_FULL_MENU_OUTCOME[`success`];
 		} else {
-			this._displayAndCloseUnsuccessfulToast(this.activateFullMenuUnSuccessToast);
+			this.outcomeDetails = ACTIVATE_FULL_MENU_OUTCOME[`error`];
 		}
 	}
 
@@ -238,40 +261,6 @@ export class USSDProfileDetails extends Component {
 		}
 	}
 
-	// display success toast for 3 seconds
-	_displayAndCloseSuccessToast(detail, action) {
-
-		const elementToast = this.shadowRoot.getElementById(`ussd-success-toast`);
-		elementToast.style.display = `block`;
-		elementToast.style.animation = `slideDown 0.6s`;
-		elementToast.setAttribute(`for`, action);
-
-		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
-		detailLabel.style.width = `210px`;
-		detailLabel.innerHTML = parseHTMLtoDOM(detail);
-
-		window.setTimeout(() => {
-			elementToast.style.animation = `slideUp 0.6s`;
-			window.setTimeout(() => elementToast.style.display = `none`, 600);
-		}, 3000);
-	}
-
-	_displayAndCloseUnsuccessfulToast(detail) {
-
-		const elementToast = this.shadowRoot.getElementById(`ussd-unsuccessful-toast`);
-		elementToast.style.display = `block`;
-		elementToast.style.animation = `slideDown 0.6s`; 
-
-		const detailLabel = elementToast.shadowRoot.querySelector(`label.detail`);
-		detailLabel.style.width = `210px`;
-		detailLabel.innerHTML = parseHTMLtoDOM(detail);
-
-		window.setTimeout(() => {
-			elementToast.style.animation = `slideUp 0.6s`;
-			window.setTimeout(() => elementToast.style.display = `none`, 600);
-		}, 3000);
-	}
-
 	_formatDate(dateToFormat) {
 		if (!dateToFormat) {
 			return `-`;
@@ -301,6 +290,10 @@ export class USSDProfileDetails extends Component {
 		return `${this.ussd.isSimBlocked ? SIMStatus : ussdStatus}${menuStatus}`;
 	}
 	
+	_toggleOutcomePanel() {
+		this.showOutcomeSlide = !this.showOutcomeSlide;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -375,10 +368,20 @@ export class USSDProfileDetails extends Component {
 				margin: 16px 0px 14px 0px;
 				--theme-label-strong-font-size: 16px;
 			}
-			.content-box > capitec-button {
+			.outcome-label {
+				margin: 16px 16px 0px;
+				text-align: center;
+				height: auto;
+			}
+			 capitec-button {
 				width: 296px;
 				margin-top: 24px;
 				--theme-button-font-weight: 600;
+			}
+			.service-unavilable-group{
+				text-align: center;
+				align-items: center;
+				padding: 14px 36px;
 			}
 			.content-box > capitec-button[label="Cancel"] {
 				margin-top: 16px;
@@ -417,31 +420,6 @@ export class USSDProfileDetails extends Component {
 			.validate-reasons {
 				--theme-alert-banner-height: 64px;
 			}
-			capitec-toast {
-				animation-timing-function: cubic-bezier(0.2, 0.8, 0.5, 1);
-				animation-fill-mode: forwards;
-
-				--theme-toast-min-width: 312px;
-				--theme-toast-max-width: 312px;
-				--theme-toast-height: 106px;
-				--theme-icon-size-default: 24px;
-				--theme-toast-success-color: #3a3a3a;
-				--theme-toast-detail-line-height: 20px;
-				--theme-toast-title-line-height: 22px;
-				--theme-label-subtitle-font-size: 14px;
-				--theme-label-subtitle-font-weight: 600;
-
-				padding: 12px 0px 0px 16px;
-				position: absolute;
-				z-index: 100;
-				display: none;
-			}
-			capitec-toast[for="unblock-sim"] {
-				--theme-toast-height: 126px;
-			}
-			capitec-toast[for="cancel-ussd"] {
-				--theme-toast-height: 166px;
-			}
 			capitec-radio-group{
 				--theme-buttonbar-item-gap: 14px;
 			}
@@ -450,7 +428,7 @@ export class USSDProfileDetails extends Component {
 				margin-right: 8.25px;
 			}
 			.cancel-reasons {
-				--theme-side-sheet-top: 104px;
+				--theme-side-sheet-top: 96px;
 				--theme-modal-screen-background-color: transparent;
 			}
 			.header-group-cancel{
@@ -467,22 +445,15 @@ export class USSDProfileDetails extends Component {
 				width: 210px;
 				margin: 18px 0px 13px 0px;
 			}
-
-			@keyframes slideDown {
-				0% {
-					transform: translateY(-50%);
-				};
-				100% {
-					transform: translateY(100%);
-				}
+			.hide-label {
+				display: none;
 			}
-			@keyframes slideUp{
-				0% {
-					transform: translateY(0%);
-				}
-				100% {
-					transform: translateY(-50%);
-				}
+			.outcome-banner {
+				margin: 32px 16px;
+			}
+			.outcome-icon {
+				--theme-icon-size-large: 64px;
+				margin: 16px 0px 32px;
 			}
 			`
 		];
@@ -505,7 +476,51 @@ export class USSDProfileDetails extends Component {
 			${this._renderLoadingIndicator()}
 			${this._renderUSSDProfileDetails()}
 			${this._renderCancelUSSD()}
+			${this._renderOutcome()}
 		`;
+	}
+
+	_renderOutcome() {
+		return this.showOutcomeSlide 
+		? html`
+			<capitec-side-sheet
+				data-automation-id="ussd-profile-details-outcome-side-sheet"
+				class="cancel-reasons"
+				.expanded="${this.showOutcomeSlide}"
+				alignment="right">
+
+				<horizon-alert-banner
+					data-automation-id="ussd-profile-details-outcome-banner"
+					class="outcome-banner"
+					type="${this.outcomeDetails.type}"
+					header="${this.outcomeDetails.header}"
+					label="${this.outcomeDetails.label}"
+					layout="vertical">
+				</horizon-alert-banner>
+			
+				<capitec-group class="service-unavilable-group" layout="vertical" halign="center" valign="center" gap="none">
+				
+					<capitec-icon class="outcome-icon" size="large" icon="status/${this.outcomeDetails.type}-trans"></capitec-icon>
+
+					<capitec-label 
+							class="header-label outcome-label"
+							type="Strong" 
+							label="${this.outcomeDetails.message}">
+					</capitec-label>
+
+					<capitec-label 
+							class="outcome-label ${this.outcomeDetails.type === `error` ? `hide-label` : ``}"
+							label="${this._getFormattedDateTime(this.ussd.dateLastUpdated)}">
+					</capitec-label>
+
+					<capitec-button 
+						data-automation-id="ussd-profile-details-outcome-okay-button"
+						label="Okay" 
+						@click="${() => this.showOutcomeSlide = false}">
+					</capitec-button>
+				</capitec-group>
+			</capitec-side-sheet>`
+		: html``;
 	}
 
 	_renderUSSDNotRegistered() {
@@ -586,8 +601,6 @@ export class USSDProfileDetails extends Component {
 							</capitec-icon>
 					</capitec-group>
 
-					${this._renderSuccessToast()}
-					${this._renderUnsuccessfulToast()}
 					${this._renderAlertBanner()}
 
 					<capitec-content-box
@@ -866,42 +879,6 @@ export class USSDProfileDetails extends Component {
 		: html``;
 	}
 
-	_renderSuccessToast() {
-		
-		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
-			as content inside slot will be effective.*/
-		
-		return html`
-			<capitec-toast 
-				data-automation-id="ussd-profile-details-success-toast"
-				id="ussd-success-toast"
-				type="success" 
-				header="Successful!"
-				detail=""
-				@click="${(e) => this._closeToast(e)}"
-				closable>
-			</capitec-toast>
-		`;
-	}
-
-	_renderUnsuccessfulToast() {
-		
-		/* TO DO: "Header" and "Detail" properties can be removed when update platform to the latest version 
-			as content inside slot will be effective.*/
-		
-		return html`
-			<capitec-toast 
-				data-automation-id="ussd-profile-details-unsuccessful-toast"
-				id="ussd-unsuccessful-toast"
-				type="error" 
-				header="Unsuccessful!"
-				detail=""
-				@click="${(e) => this._closeToast(e)}"
-				closable>
-			</capitec-toast>
-		`;
-	}
-	
 	_renderLoadingIndicator() {
 		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="ussd-profile-details-loading-indicator"></capitec-loading-indicator>`

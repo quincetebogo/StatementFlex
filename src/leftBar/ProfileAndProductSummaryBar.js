@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { CreditService } from 'app/services/CreditService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
@@ -12,6 +13,7 @@ import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTran
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
+import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
 
 
 import 'app/components/common/MiniProfile';
@@ -339,10 +341,10 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		const productEvents = {
 			'SavingsAccount': SavingsAccLandingPage.SAVINGS_ACCOUNT,
-			'SavingsPlan': ``,
+			'SavingsPlan': SavingsPlanEvents.SAVINGS_PLAN,
 			'LiveBetter': LiveBetterEvents.LIVE_BETTER,
 			'Insure': ``,
-			'Credit': ``
+			'Credit': CreditEvents.CREDIT
 		};
 
 		if (!this.product) {
@@ -354,9 +356,10 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
-
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState)) {
-			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState) &&
+			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
+				incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
 	}
 
