@@ -154,7 +154,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				// Do not create subs inc on performing return to screen
 				if (!this.horizonStore.getReturnToScreen()) {
 					await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-					await super.createAndClassifySubsIncident(null, false);
+					await super.createAndClassifySubIncident(null, false);
 
 					// setting inc status to not started for landing page needs
 					this._setIncidentNotstarted();
@@ -185,7 +185,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             "next-screen": TelemetryScreen.TRANSACTION_HISTORY
         });
 
-        // await super.createAndClassifySubsIncident(null, false);
+        // await super.createAndClassifySubIncident(null, false);
         await this._getTransactionHistory();
     }
 

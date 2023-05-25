@@ -243,7 +243,7 @@ export class SavingsPlan extends ViewBase {
 				}
 
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-				await super.createAndClassifySubsIncident(null, false);
+				await super.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
