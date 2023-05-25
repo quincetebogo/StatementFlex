@@ -221,6 +221,7 @@ export class ViewProfileDetails extends ViewBase {
 			${this._renderViewProfileDetails()}
 			${this._renderUpdateProfileDetailsModal()}
 			${this._renderLoadingIndicator()}
+			${super._webTemplate()}
 		`;
 	}
 
