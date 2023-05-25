@@ -298,6 +298,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
+	_setIncidentNotstarted() {
+		if (this.horizonIncidentManager.incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		}
+	}
+
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
 	}
