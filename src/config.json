@@ -27,6 +27,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
 		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
+	"InstanaKey":"g7qULvtMSCGMWT4t8RGB8Q",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,

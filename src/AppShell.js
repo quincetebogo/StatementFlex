@@ -388,7 +388,6 @@ export class AppShell extends Shell {
 							${this.horizonViewManager.renderLeftBar(this.currentView)}
 						</div>
 						<div class="middle">
-						<script> (function (s, t, a, n) { s[t] || (s[t] = a, n = s[a] = function () { n.q.push(arguments) }, n.q = [], n.v = 2, n.l = 1 * new Date) })(window, "InstanaEumObject", "ineum"); ineum('reportingUrl', 'https://eum-green-saas.instana.io'); ineum('key', 'g7qULvtMSCGMWT4t8RGB8Q'); ineum('trackSessions'); </script><script defer crossorigin="anonymous" src="https://eum.instana.io/eum.min.js"></script>
 							<capitec-app-router></capitec-app-router>
 						</div>
 						<div class="right">

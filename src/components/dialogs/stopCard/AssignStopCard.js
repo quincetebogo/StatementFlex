@@ -69,7 +69,7 @@ export class AssignStopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Assign Stop Card Dialog`);
 		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
 		});

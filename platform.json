@@ -8,7 +8,11 @@
 		},
 		"csp": {
 			"script-src": [
-				"*.instana.io"
+				"*.instana.io",
+				"https://casper-widget.platform-dev.int.capinet",
+				"https://casper-widget.platform-int.int.capinet",
+				"https://casper-widget.platform-qa.int.capinet",
+				"https://casper-widget.platform.int.capinet"
 			],
 			"img-src":[
 				"*.instana.io"

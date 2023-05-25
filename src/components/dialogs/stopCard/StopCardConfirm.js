@@ -67,7 +67,7 @@ export class StopCardConfirm extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.cardService = new CardService(

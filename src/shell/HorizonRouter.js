@@ -88,9 +88,11 @@ export class HorizonRouter {
 		this.eventAggregator = EventAggregator.getInstance();
 		
 		// instana properties
+		this._InstanaKey = this._configuration.getSetting(`InstanaKey`);
 		this._InstanaHelper = Instana.getInstance();
 		this._InstanaHelper._instanaScript();
 		this._securityContext = SecurityContext.getInstance();
+		// this._InstanaKey = ``;
 
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 
@@ -104,6 +106,7 @@ export class HorizonRouter {
 
 	async _initialiseSTrackConfig() {
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+		this._InstanaKey = await this._configuration.getSetting(`InstanaKey`);
 	}
 
 	static getInstance() {
@@ -126,7 +129,8 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
-		this._InstanaHelper._instanaScripts(this._securityContext);
+		
+		this._InstanaHelper._instanaScripts(this._securityContext, this._InstanaKey);
 	}
 
 	/**
