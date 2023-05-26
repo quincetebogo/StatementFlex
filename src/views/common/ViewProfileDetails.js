@@ -66,7 +66,8 @@ export class ViewProfileDetails extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_updateProfileDetails() {
+	async _updateProfileDetails() {
+		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
 		this.showUpdatePreferenceModal = true;
 	}
 	
