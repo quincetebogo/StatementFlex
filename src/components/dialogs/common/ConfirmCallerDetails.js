@@ -13,6 +13,7 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -342,14 +343,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _onLanguageUpdate(e) {
-	 	this.languagePreference = e.detail.new;
+		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		this.languagePreference = e.detail.new;
 
 		const isLanguageUpdated = await this.updateLanguage(e.detail.new);
 		
-		if (!isLanguageUpdated) {
-			this.languagePreference = e.detail.old;
-		} else {
+		if (isLanguageUpdated) {
 			this.callerInformation.languagePreference = this.languagePreference;
+		} else {
+			this.languagePreference = e.detail.old;
 		}
 	}
 
@@ -428,7 +430,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	async _navigateToInsureLandingPage() {
+	_navigateToInsureLandingPage() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonRouter.navigateToInsureUnverifiedClient();
 	}
@@ -489,6 +491,8 @@ export class ConfirmCallerDetails extends Component {
 
 		if (!this.languagePreference || this.languagePreference === `NOT_DEFINED`) {
 			this.languagePreference = `-`;
+		} else {
+			this.languagePreference = formatStringAsPascalCase(this.languagePreference);
 		}
 	}
 

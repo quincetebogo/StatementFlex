@@ -308,7 +308,10 @@ export class ViewBase extends View {
 
 	async _updatePreferences(language, cif) {
 		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
-		
+
+		this.horizonIncidentManager.incidentState = returnValue.succeeded 
+														? super.HORIZON_NEED_STATUS.COMPLETED 
+														: super.HORIZON_NEED_STATUS.FAILED;
 		return returnValue.succeeded;
 	}
 	
