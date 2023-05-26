@@ -791,16 +791,7 @@ export class ConfirmCallerDetails extends Component {
 						label="Lives In" 
 						value="${this.confirmedCaller.livesIn}">
 					</horizon-label>
-					<horizon-select
-						row="3" columun="2" 
-						data-automation-id="confirm-caller-details-language-preference"
-						class="client-info-row"
-						label="Language Preference"
-						display-field="value"
-						.items="${LANGUAGE_LIST}"
-						.value="${this.languagePreference}"
-						@value-changed="${(e) => this._onLanguageUpdate(e)}">
-					</horizon-select>
+					${this._renderLanguagePreference()}
 					<horizon-label class="client-info-row" row="4" columun="1" 
 						data-automation-id="confirm-caller-details-birthday"
 						label="Birthday"
@@ -809,6 +800,30 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-group>
 			</capitec-group>
 		 `;
+	}
+
+	_renderLanguagePreference() {
+		return this.roleManager.isInsureAgent ? 
+			html`							
+				<horizon-label 
+					class="client-info-row" 
+					row="3" 
+					columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					label="Language Preference"
+					value="${this.languagePreference}">
+				</horizon-label>`
+			: html`
+				<horizon-select
+					row="3" columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					class="client-info-row"
+					label="Language Preference"
+					display-field="value"
+					.items="${LANGUAGE_LIST}"
+					.value="${this.languagePreference}"
+					@value-changed="${(e) => this._onLanguageUpdate(e)}">
+				</horizon-select>`
 	}
 
 	_renderClientProfileImage() {
