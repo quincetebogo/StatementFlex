@@ -1,6 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { RoleManager } from 'app/shell/RoleManager';
 
 import 'platform/components';
 import 'app/rightBar/AccessChannels';
@@ -23,6 +24,7 @@ export class RightBarLayout extends Component {
 		this.layout = `info-graphic`;
 		this.callerInformation = {};
 
+		this.roleManager = RoleManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 
@@ -96,6 +98,7 @@ export class RightBarLayout extends Component {
 
 	_renderInfoGraphic() {
 		return this.callerInformation?.verificationStatus === `unverified` && this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES
+			&& !this.roleManager.isInsureAgent
 		 ? html`
 			<section>
 				<horizon-info-graphic-short></horizon-info-graphic-short>
