@@ -25,10 +25,10 @@
 		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"branch-locator": "https://www.capitecbank.co.za/branch-locator",
+		"branch-locator": "https://www.capitecbank.co.za/branches",
 		"live-better": "https://www.capitecbank.co.za/live-better",	
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits",
+		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"		
 	},
 	"AuthMethod": "KBA",
