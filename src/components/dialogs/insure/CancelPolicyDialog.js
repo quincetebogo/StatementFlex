@@ -145,6 +145,12 @@ class CancelPolicyDialog extends Component {
 
 	//  #region PRIVATE METHODS
 
+	async _initialise() {
+		await super._inicidentManager_(`funeral-cancellation`, null);
+		await super.createAndClassifySubIncident();
+
+	}
+
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
 	 * 

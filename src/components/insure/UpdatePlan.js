@@ -1198,7 +1198,7 @@ class UpdatePlan extends Component {
 	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
-	_initialise() {
+	 async _initialise() {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
@@ -1239,6 +1239,15 @@ class UpdatePlan extends Component {
 			}
 		});
 		this._openIneligibleLivesDialog();
+
+		if (this.canReinstate === true) {
+			await super._inicidentManager_(`funeral-reissue`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+		} else {
+			await super._inicidentManager_(`funeral-update`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+		}
+
 
 	}
 

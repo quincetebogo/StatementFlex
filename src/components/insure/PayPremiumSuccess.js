@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -30,6 +31,9 @@ class PayPremiumSuccess extends Component {
 		this.amountToPay = ``;
 		this.contractReference = ``;
 		this.titleMessage = ``;
+
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+
 	}
 
 	// #endregion
@@ -67,14 +71,20 @@ class PayPremiumSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
+		
+		this._updateIncidentState();
+
 	}
 
-	// #endregion
+	// #endregion LIFECYCLE OVERRIDES
 
-// #region PRIVATE FUNCTIONS
+// #region PRIVATE METHODS
 
+	_updateIncidentState() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
 
-// #endregion
+// #endregion PRIVATE METHODS
 
 // #region EVENT HANDLERS
 

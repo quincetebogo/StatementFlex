@@ -81,7 +81,8 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	SAVINGS_ACCOUNT: `savings-account`,
 	LBB: `lbb-account-enquiry`,
 	CREDIT: `credit-account-enquiry`,
-	SAVINGS_PLAN: `savings-plan-account-enquiry`
+	SAVINGS_PLAN: `savings-plan-account-enquiry`,
+	INSURE: `funeral-general-enquiry`
 });
 
 /**

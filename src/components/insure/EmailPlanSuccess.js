@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
@@ -18,6 +19,9 @@ class EmailPlanSuccess extends Component {
 
 	constructor() {
 		super();
+
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+
 	}
 
 // #endregion INITIALIZE
@@ -51,11 +55,17 @@ class EmailPlanSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
+
+		this._updateIncidentState();
 	}
 
 	// #endregion
 
 // #region PRIVATE METHODS
+
+	_updateIncidentState() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
 
 // #endregion PRIVATE METHODS
 

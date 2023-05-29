@@ -105,5 +105,16 @@
 	"savings-account": `SAVINGS_ACCOUNT`,
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
-	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+	
+
+	// Insure 
+	"funeral-update": `FUNERAL_UPDATE`,
+	"funeral-arrears-payment": `FUNERAL_ARREARS_PAYMENT`,
+	"funeral-cancellation": `FUNERAL_CANCELLATION`,
+	"funeral-estimate": `FUNERAL_ESTIMATE`,
+	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
+	"funeral-reissue": `FUNERAL_REISSUE`,
+	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`
+
 });

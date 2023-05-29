@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-
 
 import 'app/components/dialogs/insure/InsureEmailDialog';
 
@@ -23,6 +23,8 @@ class CancelPolicySuccess extends Component {
 
 	constructor() {
 		super();
+
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		this.showEmailPlanDialog = false;
 		this.contractReference = ``;
@@ -59,11 +61,17 @@ class CancelPolicySuccess extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._updateIncidentState();
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
+
+	_updateIncidentState() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
 
 	// #endregion PRIVATE METHODS
 

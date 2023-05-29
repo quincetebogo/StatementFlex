@@ -56,7 +56,30 @@ class RequestCallbackDialog extends Component {
 
 	// #endregion PROPERTIES
 
+	// #region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+
+	// #endregion LIFECYCLE OVERRIDES
+
 	// #region PRIVATE METHODS
+	
+	async _initialise() {
+		await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+	}
 
 	// #endregion PRIVATE METHODS
 
