@@ -354,10 +354,10 @@ export class ExistingClient extends InsureViewBase {
 			emailDocumentRequestPayload.documentInfo = [
 				{
 					"documentType": DOCUMENT_TYPE.PAY_ARREARS_AGREEMENT,
-					"documentGuid": ``,
+					"documentGuid": this.arrearsPaymentDocumentDetails?.documentDetails.guid,
 					"content": {
 						"type": `PDF`,
-						"value": ``
+						"value": this.arrearsPaymentDocumentDetails?.documentContent.value
 					}
 				}
 			];
