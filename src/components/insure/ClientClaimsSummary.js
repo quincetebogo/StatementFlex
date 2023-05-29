@@ -1,9 +1,10 @@
 import { Component, css, html } from 'platform/elements';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LodgeClaimEvents } from 'app/constants/telemetry/events/Insure';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { formatDate } from 'app/utils/channelServiceUtilities';
+
 
 /**
  * Display a summary of all client claims, in progress and completed.
@@ -236,7 +237,7 @@ class ClientClaimsSummary extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Date of event"
-							value="${isNullorEmpty(claim?.dateOfEvent) ? '-' : formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(claim?.dateOfEvent) ? `-` : formatDate(claim?.dateOfEvent, `dd mmm yyyy`)}">
 						</horizon-label>
 						<horizon-label
 							label="Policy number"
