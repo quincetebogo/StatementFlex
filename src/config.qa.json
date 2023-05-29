@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform-qa.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-qa.int.capinet",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-qa.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-qa.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-qa.int.capinet",
@@ -10,7 +11,8 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-qa.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-qa.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-qa.int.capinet"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",

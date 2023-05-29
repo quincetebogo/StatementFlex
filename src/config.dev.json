@@ -1,6 +1,7 @@
 {
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
+		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-dev.int.capinet",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
@@ -8,6 +9,7 @@
 		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
@@ -24,10 +26,10 @@
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
 		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
-		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"		
+		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
 	},
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
@@ -51,11 +53,15 @@
 	"mock": {
 		"enabled": false,
 		"acceptCall": {
-		"enabled": false,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"searchCaller": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -77,6 +83,14 @@
 		},
 		"digitalVerificationChannelsAvailable": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"verifyKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"loadKBA": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -120,7 +134,15 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureAuditTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"savingsAccountLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"savingsPlanLanding": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -136,12 +158,84 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureClientSummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureProductParams": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"confirmBudgetTransfer": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCommsHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePrepareUpdate": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateIssueAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureRequestCallback": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyReissue": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureSendEmail": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureClaims": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

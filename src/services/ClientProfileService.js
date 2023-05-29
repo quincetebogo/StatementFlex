@@ -88,7 +88,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	async searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`searchCaller`)) {
-			return this.mock(`searchCaller`);
+			return this.mock(`searchCaller`, clientInfo);
 		}
 
 		const url = `/clientcare-clientprofile-${this._version}/search-caller`;
