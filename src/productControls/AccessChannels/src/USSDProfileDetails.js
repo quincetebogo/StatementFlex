@@ -1,5 +1,5 @@
-import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -184,11 +184,11 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`success`];
-			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking was successfully.`;
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo || ``} unblocking was successfully.`;
 		} else {
 			
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`error`];
-			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo} unblocking has failed.`;
+			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo || ``} unblocking has failed.`;
 		}
 	}
 

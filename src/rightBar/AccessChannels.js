@@ -536,6 +536,9 @@ export class AccessChannels extends Component {
 				this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
 			}
 
+			// loading UserRegNo onto USSD information
+			this.landingInfo.ussd.userRegNo = this.landingInfo.app?.userRegNo || this.landingInfo.internetBanking?.userRegNo;
+
 			this.requestUpdate();
 			return;
 		}
