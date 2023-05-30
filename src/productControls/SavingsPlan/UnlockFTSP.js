@@ -57,6 +57,7 @@ const UNLOCK_OPTIONS = {
 		this.declarationExpanded = false;
 
 		this.unlockFee = null;
+		this.balanceAfterUnlock = null;
 		this.quoteRefNumber = ``;
 		this.errMessage = ``;
 		this.unlockAllowed = false;
@@ -130,9 +131,11 @@ const UNLOCK_OPTIONS = {
 			agreementAccepted: { state: true },
 			showConfirmModal: { state: true },
 			unlockFee: { state: true },
+			balanceAfterUnlock: { state: true },
 			quoteRefNumber: { state: true },
 			declarationExpanded: { state: true },
-			displayUnlockAmount: { state: true }
+			displayUnlockAmount: { state: true },
+			errMessage: { state: true }
 		};
 	}
 
@@ -178,6 +181,7 @@ const UNLOCK_OPTIONS = {
 		this.hasAmountChanged = true;
 		this.declarationExpanded = false;
 		this.unlockFee = null;
+		this.balanceAfterUnlock = null;
 
 		if (this.partialUnlockAmount > this.selectedAccUnlockOptions.partialUnlockAmount) {
 			this.errMessage = `Max unlock amount ${formatCurrency(this.selectedAccUnlockOptions.partialUnlockAmount)}`;
@@ -192,12 +196,26 @@ const UNLOCK_OPTIONS = {
 	_focusOutUnlockAmount(e) {
 		this.displayUnlockAmount = this._formatAmount(this.partialUnlockAmount);
 
+		this.unlockAllowed = this._isPartialUnlockAllowed();
+
 		if (this.hasAmountChanged && !this.errMessage) {
 			this.declarationExpanded = true;
 			this.dispatchEvent(new CustomEvent(`unlock-amount-telemetry`, { detail: { unlockAmount: this.partialUnlockAmount } }));
 			this._getUnlockQuoteDetails();
 		}
 		this.hasAmountChanged = false;
+	}
+
+	_isPartialUnlockAllowed() {
+		if (this.unlockType === `Partial unlock` && this.partialUnlockAmount < "1") {
+			this.errMessage = `Min limit- R1`;
+			return false;
+		}
+		if (this.unlockType === `Partial unlock` && this.partialUnlockAmount % 1 > "0") {
+			this.errMessage = `Enter amount in Rands only, cents not allowed.`;
+			return false;
+		}
+		return true;
 	}
 
 	_viewAgreement() {
@@ -233,7 +251,8 @@ const UNLOCK_OPTIONS = {
 				unlockType: this.unlockType,
 				quoteRefNumber: this.quoteRefNumber,
 				penaltyFee: this.unlockFee,
-				unlockBalance: this.selectedFromAccount.unlockBalance
+				unlockBalance: this.selectedFromAccount.unlockBalance,
+				balanceAfterUnlock: this.balanceAfterUnlock
 			} }));
 	}
 	
@@ -268,6 +287,7 @@ const UNLOCK_OPTIONS = {
 		const result = await this.getUnlockQuote(this.unlockType, this.selectedFromAccount.accountNumber, this.partialUnlockAmount);
 		this.unlockFee = result.unlockFee;
 		this.quoteRefNumber = result.quoteReferenceNumber;
+		this.balanceAfterUnlock = result.balanceAfterUnlock;
 	}
 
 	_isUnlockAllowed() {
@@ -426,7 +446,7 @@ const UNLOCK_OPTIONS = {
 					--theme-layout-gap-spacing: 21px;
 				}
 				capitec-text-field {
-					width: 501px;
+					width: 328px;
 					--theme-input-hint-font-color:#009DE0;
 					--theme-input-disabled-background-color: #FFFFFF;
 				}
@@ -880,8 +900,17 @@ const UNLOCK_OPTIONS = {
 						data-automation-id="unlock-ftsp-unlock-fee"
 						label="Penalty fee"
 						type="currency"
-						value="${this._formatAmount(this.unlockFee)}"
+						value="${this.unlockFee}"
 						?disabled=${true}>
+					</capitec-text-field>
+
+					<capitec-text-field
+						data-automation-id="unlock-ftsp-updated-balance"
+						label="Updated Balance"
+						type="currency"
+						value="${this.balanceAfterUnlock}"
+						?disabled=${true}
+						?hidden=${this.unlockType !== `Partial unlock`}>
 					</capitec-text-field>
 					
 				</capitec-group>

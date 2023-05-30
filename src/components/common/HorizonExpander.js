@@ -335,7 +335,7 @@ export class Expander extends Component {
 					cursor: pointer;
 					padding: var(--theme-expander-header-padding, 0px);
 					border-radius:4px;
-					height: 64px;
+					min-height: 64px;
 				}
 
 				:host(*.styled) > .header {
@@ -398,6 +398,7 @@ export class Expander extends Component {
 					//border-left: var(--theme-expander-border, 1px solid black);
 					//border-right: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
+					overflow: visible;
 				}
 
 				:host(*.styled[expanded]) > .content {
@@ -469,7 +470,7 @@ export class Expander extends Component {
 				.indicator.right{
 					height: 24px;
 					width: 24px;
-					margin: 20px;
+					margin: var(--theme-expander-indicator-right-margin, 20px);
 				}
 
 				.input {

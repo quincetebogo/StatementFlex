@@ -121,6 +121,10 @@ export class EndCallSession extends Component {
 		};
 	}
 
+	get currentIncidentRef() {
+		return this.horizonIncidentManager.currentIncident ? this.horizonIncidentManager.currentIncident.toString() : ``;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -177,10 +181,8 @@ export class EndCallSession extends Component {
 				"next-screen": TelemetryScreen.WAIT_FOR_CALL
 			});
 
-			const currentIncident = this.horizonIncidentManager.currentIncident;
-
 			// Ignoring the abandon or not started need action
-			if (!currentIncident.incidentReference || currentIncident.incidentReference === `0`) {
+			if (!this.currentIncidentRef || this.currentIncidentRef === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
@@ -279,7 +281,7 @@ export class EndCallSession extends Component {
 		// Determining at least we know categorization to classify
 		const hasValues = !isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue);
 		// Checks if the curr incident is active
-		const isIncClosed = incidentState === super.HORIZON_NEED_STATUS.CLOSED;
+		const isIncClosed = incidentState === super.HORIZON_NEED_STATUS.CLOSED || !this.currentIncidentRef;
 		// should classify as per need?
 		// And enforcing this to false when the end call context includes in Recognize need by context
 		const classifyAsPerNeed = incidentState === super.HORIZON_NEED_STATUS.INPROGRESS &&
@@ -757,7 +759,7 @@ export class EndCallSession extends Component {
 
 				headerLabel="${HEADER_LABEL}" 
 				?displayButton="${false}"
-				incidentRefNumber="${this.horizonIncidentManager.currentIncident.toString()}"
+				incidentRefNumber="${this.currentIncidentRef}"
 				?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
 				.incomingCallDetails="${this.incomingCallDetails}"
 				?isNeedSelectable="${false}">

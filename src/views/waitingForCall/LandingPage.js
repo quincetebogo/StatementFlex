@@ -8,6 +8,7 @@ import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
@@ -175,6 +176,12 @@ export class LandingPage extends ViewBase {
 		 const incident = returnValue.result?.incident;
 
 		 if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+			} 
+
 		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
 		 }
 

@@ -3,6 +3,7 @@ import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
@@ -135,6 +136,16 @@ export class HorizonIncidentManager {
 			}
 		};
 	};
+	
+	/**
+	 * Updates the state of the current incident
+	 * 
+	 * @param {Object} currentIncident An object containing incidentId & incidentReference of the current incident.
+	 */
+	set currentIncident(currentIncident) {
+		this.incidentDetails.currentIncident = currentIncident;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	/**
 	 * 
@@ -188,7 +199,7 @@ export class HorizonIncidentManager {
 	 * @returns {string} Feedback on the current incident
 	 */
 	getFeedback() {
-		if (!this.incidentDetails?.feedback) {
+		if (isNullorEmpty(this.incidentDetails?.feedback)) {
 			return null;
 		}
 
@@ -446,8 +457,8 @@ export class HorizonIncidentManager {
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident, 
-			reason, 
-			this._formatLineBreaks(resolution), 
+			reason,
+			resolution,
 			causeCode, 
 			this.incidentDetails.description,
 			errorHandler
@@ -548,10 +559,6 @@ export class HorizonIncidentManager {
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
-	}
-
 	_updateIncidentState(clientNeed) {
 		const incidentDetails = this.getIncidentDetails();
 		
@@ -596,6 +603,12 @@ export class HorizonIncidentManager {
 		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
 		
 		if (!returnValue.succeeded || !returnValue.result) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
+			} 
+			
 			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubIncident`, returnValue.correlationId);
 
 			// updating inc creation status to state
@@ -607,7 +620,7 @@ export class HorizonIncidentManager {
 		
 		this.checkIncidentStatus = false;
 
-		this.currentIncident = returnValue.result;
+		this.currentIncident = returnValue.result?.incident;
 		
 		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
 			"parent-incident-reference": this.primaryIncident.toString(),
