@@ -44,10 +44,10 @@ export class StatementsFailure extends ViewBase {
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
 		this.accType = this.screenDetails && this.screenDetails.accountType;
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.telemetryEvent = this.screenDetails?.telemetryEvent ?? {};
 
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_FAILURE);
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
@@ -77,10 +77,9 @@ export class StatementsFailure extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
 
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	// ---------

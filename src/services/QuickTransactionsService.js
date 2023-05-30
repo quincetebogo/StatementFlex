@@ -95,7 +95,7 @@ export class QuickTransactionsService extends ChannelServiceBase {
 	}
 
 	async sendTaxCertificate(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/clientcare-documents-${this._version}/send-tax-certificate`;
 
