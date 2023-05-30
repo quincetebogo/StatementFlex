@@ -6,9 +6,9 @@
 		{
 			"type": "shell",
 			"label": "run",
-			"command": "ocwp/1.14.1/ocwp",
+			"command": "ocwp/1.17.0/ocwp",
 			"args": [
-				"ocwp/1.14.1",
+				"ocwp/1.17.0",
 				"run",
 				"--port",
 				"62000"
@@ -41,9 +41,9 @@
 		{
 			"type": "shell",
 			"label": "restore",
-			"command": "ocwp/1.14.1/ocwp",
+			"command": "ocwp/1.17.0/ocwp",
 			"args": [
-				"ocwp/1.14.1",
+				"ocwp/1.17.0",
 				"restore"
 			],
 			"isBackground": true,

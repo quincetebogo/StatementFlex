@@ -255,6 +255,7 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button
 						data-automation-id="favourites-transaction-send-cash"
 						icon="system/send-cash-action"
+						?disabled="${this.shouldDisable(`send-cash`)}"
 						label="Send Cash"
 						@click="${() => this._optionSelectedClick(`send-cash`)}">
 					</horizon-option-button>
