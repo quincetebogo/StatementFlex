@@ -134,7 +134,8 @@ const UNLOCK_OPTIONS = {
 			balanceAfterUnlock: { state: true },
 			quoteRefNumber: { state: true },
 			declarationExpanded: { state: true },
-			displayUnlockAmount: { state: true }
+			displayUnlockAmount: { state: true },
+			errMessage: { state: true }
 		};
 	}
 
@@ -195,12 +196,26 @@ const UNLOCK_OPTIONS = {
 	_focusOutUnlockAmount(e) {
 		this.displayUnlockAmount = this._formatAmount(this.partialUnlockAmount);
 
+		this.unlockAllowed = this._isPartialUnlockAllowed();
+
 		if (this.hasAmountChanged && !this.errMessage) {
 			this.declarationExpanded = true;
 			this.dispatchEvent(new CustomEvent(`unlock-amount-telemetry`, { detail: { unlockAmount: this.partialUnlockAmount } }));
 			this._getUnlockQuoteDetails();
 		}
 		this.hasAmountChanged = false;
+	}
+
+	_isPartialUnlockAllowed() {
+		if (this.unlockType === `Partial unlock` && this.partialUnlockAmount < "1") {
+			this.errMessage = `Min limit- R1`;
+			return false;
+		}
+		if (this.unlockType === `Partial unlock` && this.partialUnlockAmount % 1 > "0") {
+			this.errMessage = `Enter amount in Rands only, cents not allowed.`;
+			return false;
+		}
+		return true;
 	}
 
 	_viewAgreement() {

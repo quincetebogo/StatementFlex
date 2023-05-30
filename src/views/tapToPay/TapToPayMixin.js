@@ -18,7 +18,9 @@ export const tapToPayMixin = {
 			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
-		const returnValue = await this.cardService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+
+		const returnValue = await this.cardService.tapToPayLanding(this.callerInformation.cifNumber, currentIncident);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
