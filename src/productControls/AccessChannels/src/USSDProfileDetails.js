@@ -11,13 +11,13 @@ const UNBLOCK_SIM_OUTCOME = {
 		type: `success`,
 		label: `SIM unblocking was successfully.`,
 		header: `Successful!`,
-		message: ``
+		message: `SIM unblocking was successfully.`
 	},
 	'error': {
 		type: `error`,
 		label: `SIM unblocking has failed.`,
 		header: `Unsuccessful!`,
-		message: ``
+		message: `SIM unblocking has failed.`
 	}
 };
 
@@ -184,11 +184,8 @@ export class USSDProfileDetails extends Component {
 		if (returnValue) {
 			this.ussd.isSimBlocked = false;
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`success`];
-			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo || ``} unblocking was successfully.`;
 		} else {
-			
 			this.outcomeDetails = UNBLOCK_SIM_OUTCOME[`error`];
-			this.outcomeDetails.message = `SIM ${this.ussd.userRegNo || ``} unblocking has failed.`;
 		}
 	}
 
