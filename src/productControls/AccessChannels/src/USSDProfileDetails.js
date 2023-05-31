@@ -9,9 +9,9 @@ import 'platform/components';
 const UNBLOCK_SIM_OUTCOME = {
 	'success': {
 		type: `success`,
-		label: `SIM unblocking was successfully.`,
+		label: `SIM unblocking was successful.`,
 		header: `Successful!`,
-		message: `SIM unblocking was successfully.`
+		message: `SIM unblocking was successful.`
 	},
 	'error': {
 		type: `error`,
