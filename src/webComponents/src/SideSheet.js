@@ -197,6 +197,7 @@ export class SideSheet extends Component {
 					z-index: 100;
 					background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
 					cursor: default;
+					z-index: 1001;
 				}
 
 				:host([alignment=right]) {
