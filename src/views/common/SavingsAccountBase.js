@@ -47,7 +47,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.clientProducts = null;
 		this.debiCheckMandates = [];
 		this.incomingCallDetails = {};
-		this.incidentRecId = ``;
 		this.landingPageInfo = {};
 		this.callerInformation = {};
 		this.clientDetails = {};
@@ -79,8 +78,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.landingPageInfo = state.landingPageInfo;
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	disconnectedCallback() {
@@ -166,7 +163,6 @@ export class SavingsAccountBase extends ViewBase {
 
 		if (mandateActions[action]) {
 			await super._inicidentManager_(action, () => this._toggleBusyFlag());
-			this._refreshIncidentDetails();
 
 			this.debiCheckDetails = await this._getMandateDetails();
 			return mandateActions[action](screenDetails);
@@ -237,8 +233,7 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	async _cancelMandateAction(eventName, currScreen) {
@@ -248,7 +243,6 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
 		await super._inicidentManager_(`debi-check-viewInfo`, () => this._toggleBusyFlag());
-		this._refreshIncidentDetails();
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -391,16 +385,14 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_setIncidentNotstarted() {
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.incidentState;
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

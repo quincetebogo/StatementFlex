@@ -7,6 +7,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the selected account has been settle and closed successfully.
@@ -111,10 +112,8 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.incidentDetails.description = this.incidentDescription;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 	
 	// ---------
@@ -146,6 +145,8 @@ import 'app/components/common/SuccessScreen';
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -195,6 +196,14 @@ import 'app/components/common/SuccessScreen';
 				<strong>Would you like proof of payment?</strong>
 				<span @click="${() => this._sendEmailConfirmationClick()}">Send Email Confirmation</span>
 			</section>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

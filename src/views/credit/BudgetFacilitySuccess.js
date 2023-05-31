@@ -5,6 +5,7 @@ import { OutcomeBase } from 'app/views/common/OutcomeBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 
 /**
@@ -105,9 +106,7 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -140,6 +139,7 @@ import 'app/components/common/SuccessScreen';
 		return html`
 			${super._webTemplate()}
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -177,6 +177,14 @@ import 'app/components/common/SuccessScreen';
 				Would you like proof of payment? 
 				<span @click="${() => this._sendEmailClick()}">Send Email Confirmation</span>
 			</section>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

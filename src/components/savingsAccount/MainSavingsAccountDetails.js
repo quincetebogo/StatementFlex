@@ -194,23 +194,23 @@ export class MainSavingsAccountDetails extends Component {
 				wrap>
 				${this._renderFields()}
 			</capitec-group>`;
+	 }
 
- }
- _renderFields(){
+ 	_renderFields() {
+		const { accountNumber: _, ...accDetails } = this.savingsAccountDetails;
 
-	const { accountNumber: _, ...accDetails } = this.savingsAccountDetails;
+		return Object.entries(accDetails).map(item => {
+			const [key, value] = item;
 
- 	return Object.entries(accDetails).map(item => {
-	const [key, value] = item;
-	return html`
-		<horizon-label
-			class="details-label"
-			label="${key}"
-			value="${value}"
-			data-automation-id="savings-account-details-${key.toLowerCase().split(``).join(`-`)}">
-		</horizon-label>
-	`;
-	})}
+			return html`
+				<horizon-label
+					class="details-label"
+					label="${key}"
+					value="${value}"
+					data-automation-id="savings-account-details-${key.toLowerCase().split(``).join(`-`)}">
+				</horizon-label>`;
+		}); 
+	}
 }
 
 customElements.define(`horizon-savings-account-details`, MainSavingsAccountDetails);

@@ -67,6 +67,9 @@ export class OutcomeBase extends ViewBase {
 		super.disconnectedCallback();
 	}
 
+	_formatNextScreenInfo() {
+		return this.horizonIncidentManager.getCurrentNeed().replaceAll(`-`, ` `);
+	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -84,7 +87,7 @@ export class OutcomeBase extends ViewBase {
 	_cancelEmailModal() {
 		this._telemetry.logEvent(this.telemetryEvents.POP_CANCEL, {
 			"screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG,
-			"next-screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)}`
+			"next-screen": `${this._formatNextScreenInfo()}`
 		});
 		this._telemetry.endSpan(this.telemetryEvents.POP_MODAL, {}, true, true);
 
@@ -100,6 +103,7 @@ export class OutcomeBase extends ViewBase {
 	async _sendCreditDocument(event) {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		let request;
+		
 		if (screenDetails.settleAndCloseCreditOption === `CreditCard`) {
 			 request = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -119,14 +123,15 @@ export class OutcomeBase extends ViewBase {
 			};
 			
 		} else {
+			const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+
 			request = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"emailAddress": event.detail.email,
-				"documentType": DOCUMENT_TYPE[this.incidentDetails.currentNeed],
+				"documentType": DOCUMENT_TYPE[currentNeed],
 				"creditType": formatStringAsPascalCase(screenDetails.productType).replace(` `, ``),
 				"data": event.detail.documentData
 			};
-			
 		}
 		 
 

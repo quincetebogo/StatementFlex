@@ -1,6 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 /**
  * Channel Service methods for Cards related functionality
@@ -22,8 +21,6 @@ export class CardService extends ChannelServiceBase {
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
-
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -35,7 +32,7 @@ export class CardService extends ChannelServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	async identifyCaller(callerInformation, incomingCallDetails, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async identifyCaller(callerInformation, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`stopCardLanding`)) {
 			return this.mock(`stopCardLanding`);
 		}
@@ -43,7 +40,7 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/LoadConfirmedClientProfile`;
 
 		const model = {
-			'incidentRecId': incidentDetails.incidentRecId,
+			'incidentRecId': incident?.incidentId || `0`,
 			'idNumber': callerInformation.southAfricanIDNumber,
 			'nonClientFullName': callerInformation.nonClientFullName,
 			'nonClientCellPhone': callerInformation.nonClientCellPhone,
@@ -65,11 +62,9 @@ export class CardService extends ChannelServiceBase {
 		);
 	};
 
-	async stopCards(cardsToStop, callerInfo, incidentDetails, cif, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+	async stopCards(cardsToStop, incident, cif, title, lastName, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		let cardStopResults = [];
-		incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
@@ -81,7 +76,7 @@ export class CardService extends ChannelServiceBase {
 				reason: card.cardStopReason.key,
 				cardDisplayName: card.cardDisplayName
 			})),
-			incidentRecId: incidentDetails.incidentRecId,
+			incidentRecId: incident?.incidentId || `0`,
 			title: title,
 			lastName: lastName,
 			cif: cif
@@ -132,7 +127,7 @@ export class CardService extends ChannelServiceBase {
 			`/clientcare-card-${this._version}/Assign/Teams`, 
 			{
 				"cardIds": incidentData.cardIds,
-				"incidentRecId": incidentData.incidentRecId
+				"incident": incidentData.incident
 			},
 			this.setToken(),
 			`assignTeams`, 
@@ -151,7 +146,7 @@ export class CardService extends ChannelServiceBase {
 			`/clientcare-card-${this._version}/Assign`, 
 			{
 				"cardIds": assignData.cardIds,
-				"incidentRecId": assignData.incidentRecId,
+				"incident": assignData.incident,
 				"team": assignData.team
 			},
 			this.setToken(),
@@ -164,14 +159,14 @@ export class CardService extends ChannelServiceBase {
 		);
 	}
 
-	async cardLimitsLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async cardLimitsLanding(cifNumber, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`cardLimitsLanding`)) {
 			return this.mock(`cardLimitsLanding`, cifNumber);
 		}
 
 		const request = {
 			"cifNumber": cifNumber,
-			"incidentRecId": incidentRecId
+			"incident": incident
 		};
 
 		const url = `/clientcare-card-${this._version}/limits-landing`;
@@ -190,14 +185,14 @@ export class CardService extends ChannelServiceBase {
 		);
 	}
 
-	async tapToPayLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async tapToPayLanding(cifNumber, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`tapToPayLanding`)) {
 			return this.mock(`tapToPay`, cifNumber);
 		}
 
 		const request = {
 			"cifNumber": cifNumber,
-			"incidentRecId": incidentRecId
+			"incident": incident
 		};
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
@@ -234,7 +229,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay`;
 
@@ -272,7 +267,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
@@ -291,7 +286,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
