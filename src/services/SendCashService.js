@@ -63,6 +63,9 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async putVoucherHold(sendCashHoldVoucherRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`sendCashVoucherHold`)) {
 			return this.mock(`sendCashVoucherHold`);
 		}

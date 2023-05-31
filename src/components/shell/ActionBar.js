@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { RoleManager } from 'app/shell/RoleManager';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
@@ -27,10 +29,11 @@ export class HorizonActionBar extends Component {
 		this.hideAddCallerDetails = false;
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+		this.roleManager = RoleManager.getInstance();
 		
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
@@ -79,7 +82,7 @@ export class HorizonActionBar extends Component {
 
 	_stateChanged(state) {
 		if (state) {
-			this.referenceNo = state && state.incidentDetails && state.incidentDetails.primaryIncidentRef;
+			this.referenceNo = this.horizonIncidentManager.primaryIncident?.toString();
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
@@ -238,7 +241,7 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 					<capitec-button type="clear"
 									label="Add caller details"
-									?hidden="${this.hideAddCallerDetails || false}"
+									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent}"
 									@click="${() => this._addCallerDetails()}"
 									data-automation-id="action-bar-add-caller-details">
 					</capitec-button>

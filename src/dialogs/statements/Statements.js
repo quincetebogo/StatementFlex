@@ -1,7 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/common';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -13,6 +13,7 @@ import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Statements dialog is used to view/send statements from the Quick transaction & corresponding product screens.
@@ -430,7 +431,7 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 
@@ -471,6 +472,7 @@ export class Statements extends Component {
 	// ---------
 	_mobileTemplate() {
 		return _webTemplate();
+		
 	}
 
 	_webTemplate() {
@@ -490,6 +492,7 @@ export class Statements extends Component {
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 			${this._renderCcsModal()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -507,6 +510,14 @@ export class Statements extends Component {
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
 		: html``;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

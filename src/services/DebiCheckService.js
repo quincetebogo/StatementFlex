@@ -39,7 +39,7 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	 async debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag, null, false);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag, null, false);
 
 		if (await this.isMockEnabled(`debiCheckMandates`)) {
 			return this.mock(`debiCheckMandates`, cifNumber);
@@ -115,10 +115,10 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async debiCheckDecline(cifNumber, title, lastName, debiCheckDetails, mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckDecline`)) {
-			return this.mock(`debiCheckDecline`, cifNumber, title, lastName, debiCheckDetails, mandateInfo, accepted);
+			return this.mock(`debiCheckDecline`, cifNumber, title, lastName, debiCheckDetails, mandateInfo);
 		}
 
 		const request = {
@@ -157,7 +157,7 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async debiCheckApprove (request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckApprove`)) {
 			return this.mock(`debiCheckApprove`, request);

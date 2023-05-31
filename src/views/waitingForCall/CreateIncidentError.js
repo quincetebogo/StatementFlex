@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -73,9 +74,15 @@ export class CreateIncidentError extends ViewBase {
 		this._saveRetries(); 
 
 		const returnValue = await this.incidentManagementService.createIncident(this.incomingCallDetails, () => true, 1);
-		const incident = returnValue.result;
+		const incident = returnValue.result?.incident;
 		
 		if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+			} 
+			
 			this.logger.log(`error`, `Retry create incident failed`, `_retryCreateIncident`, returnValue.correlationId);
 		}
 
@@ -108,20 +115,7 @@ export class CreateIncidentError extends ViewBase {
 	}
 
 	_saveIncidentDetails(incCreated = true, incident = null) {
-
-		// Set up state for the incident details
-		const incidentDetails = new IncidentDetails(
-			incident ? incident.incidentNumber : `0`,
-			incident ? incident.incidentRecId : `0`,
-			incident ? incident.incidentNumber : `0`,
-			``,
-			this.incomingCallDetails.ivrOptionCode,
-			``,
-			`Not Started`,
-			``,
-			incCreated
-		);
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.horizonIncidentManager.setNewPrimaryIncident(incident, this.incomingCallDetails.ivrOptionCode, incCreated);
 	}
 
 	_saveRetries() {
