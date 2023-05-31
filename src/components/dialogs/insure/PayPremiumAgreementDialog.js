@@ -254,7 +254,7 @@ class PayPremiumAgreementDialog extends Component {
 			</div>
 
 			<capitec-content-box>
-				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Ready to view" detail="" icon="" @click="${() => this._showAgreementDialog()}">
+				<horizon-product-tile class="view-document" type="default" label="Arrears Payment Agreement" subtitle="Funeral Cover Plan" detail="" icon="" @click="${() => this._showAgreementDialog()}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 				</horizon-product-tile>

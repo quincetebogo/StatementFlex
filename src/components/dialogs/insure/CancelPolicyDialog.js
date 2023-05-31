@@ -341,7 +341,7 @@ class CancelPolicyDialog extends Component {
 
 			${this.cancelPolicyDocumentDetails === undefined ? html`` 
 			: html`
-				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Ready to view" detail="" icon="" @click="${() => this._showAgreement()}">
+				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Funeral Cover Plan" detail="" icon="" @click="${() => this._showAgreement()}">
 					<capitec-label slot="detail" type="strong" label="View Document" >
 					</capitec-label>
 				</horizon-product-tile>
