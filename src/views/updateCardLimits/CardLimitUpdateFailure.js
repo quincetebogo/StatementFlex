@@ -18,7 +18,6 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.maskedCardNumber = ``;
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.tapToPayStatus = ``;
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
@@ -67,7 +66,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	}
 
 	_onHandoff() {
-		this.horizonRouter.navigateToStrack(this.incidentRecId);
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	// --------------
@@ -79,9 +78,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	// ---------

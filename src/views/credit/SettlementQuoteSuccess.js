@@ -98,9 +98,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	_formateAccountNames(accounts) {
@@ -142,6 +140,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -162,6 +161,14 @@ export class SettlementQuoteSuccess extends ViewBase {
 						Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -39,6 +40,7 @@ export class AccessChannels extends Component {
 		this.landingInfo = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -145,7 +147,7 @@ export class AccessChannels extends Component {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
-				await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+				await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
 			} else {
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
@@ -534,10 +536,8 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
-	_updateIncidentState(status) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = status;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+	_updateIncidentState(state) {
+		this.horizonIncidentManager.incidentState = state;
 	}
 
 	// ---------

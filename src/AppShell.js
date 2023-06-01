@@ -15,6 +15,7 @@ import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
 import 'app/components/shell/HorizonStatusBar';
+import 'app/shell/ModalController';
 
 import 'app/components/common/AlertBanner';
 
@@ -342,6 +343,8 @@ export class AppShell extends Shell {
 			${this._renderLoginFailed()}
 			${this._renderAuthenticating()}
 	   		${this._renderContent()}
+			<!-- just to initialise modal controller -->
+			<horizon-modal-controller></horizon-modal-controller>
 		`;
 	}
 

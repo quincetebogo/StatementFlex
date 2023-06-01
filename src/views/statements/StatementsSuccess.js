@@ -3,7 +3,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
-
+import 'app/components/common/RelatedOptions';
 export class StatementsSuccess extends ViewBase {
 
 	// --------------
@@ -77,9 +77,7 @@ export class StatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -106,6 +104,7 @@ export class StatementsSuccess extends ViewBase {
 			${this._renderSuccessScreen()}
 
 			${super._webTemplate()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -128,6 +127,15 @@ export class StatementsSuccess extends ViewBase {
 			</horizon-success-screen>
 		`;
 	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
+	}
+	
 }
 
 customElements.define(`horizon-statements-success`, StatementsSuccess);

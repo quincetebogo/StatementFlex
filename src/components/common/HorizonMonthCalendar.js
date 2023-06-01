@@ -46,7 +46,7 @@ export class HorizonMonthCalendar extends Component {
 		// Component properties
 		this.error = null;
 		this.label = null;
-		this.today = new DateTime.now();
+		this.today = DateTime.now();
 		this.minDate = DateTime.local(2001, 1);
 		this.maxDate = this.today;
 		this.months = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
@@ -302,11 +302,11 @@ export class HorizonMonthCalendar extends Component {
 					margin-right: 90px;
 				}
 				.leftArrow{
-					margin-left:32px;
+					margin-left:12px;
 				}
 
 				.rightArrow{
-					margin-right:32px;
+					margin-right:12px;
 				}
 
 				.calendarContainer{
@@ -443,7 +443,7 @@ export class HorizonMonthCalendar extends Component {
 
 		return html`
 			<div class="icon calendar-icon ${this.error ? `error` : ``}" style=${styleMap(iconStyles)} @click=${onClickHandler}>
-				<img style="height:24px; margin-top:10px;" src="./platform/icons/system/calendar${this.error ? `-error` : `-action`}.svg"/>
+				<img style="height:24px;" src="./platform/icons/system/calendar${this.error ? `-error` : `-action`}.svg"/>
 			</div>`;
 	}
 
