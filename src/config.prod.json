@@ -11,7 +11,8 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
@@ -21,7 +22,7 @@
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
 		"cds": "https://clientdocsearch.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",

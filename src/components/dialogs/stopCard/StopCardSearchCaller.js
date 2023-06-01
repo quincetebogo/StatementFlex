@@ -7,6 +7,7 @@ import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { validateAccountNumber } from 'app/utils/accountNumberValidator';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -60,6 +61,10 @@ const ERROR_MESSAGES = {
 			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
+	},
+	INVALID_ACCOUNT_NUMBER: {
+		ALERT_BANNER: `Invalid account number`,
+		FIELD_ERROR: `Please enter a valid account number`
 	}
 };
 
@@ -323,6 +328,14 @@ export class StopCardSearchCaller extends Component {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
 			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
+		}
+		
+		if (this.identificationMethods.key === `2`) {
+			if (!validateAccountNumber(this.searchFieldText)) {
+				this.errMessage.searchFieldText = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.ALERT_BANNER;
+				return false;
+			}
 		}
 
 		return true;

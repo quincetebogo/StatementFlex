@@ -29,19 +29,25 @@ import { Configuration, SecurityContext } from 'platform/core';
 
 	// Indicates if an agent is with Helpdest role
 	get isHelpDeskAgent() {
-		
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
 	get isAuthorised() {
-		return this.roles && (this.roles.length >= 1);
+		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`);
+		return isAuthorised;
+	}
+
+	get isInsureAgent() {
+		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
 	async isSearchClientEnabled() {
-		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
-		const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+		if (this.isAuthorised) {
+			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+			const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
 
-		return searchClientEnabledByConfig || searchClientEnabledByGroup;
+			return searchClientEnabledByConfig || searchClientEnabledByGroup;
+		}
+		return false;
 	}
-
 };
