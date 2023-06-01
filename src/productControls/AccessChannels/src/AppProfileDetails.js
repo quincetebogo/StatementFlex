@@ -1,5 +1,5 @@
-import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -9,32 +9,33 @@ import 'platform/components';
 const SUSPEND_OUTCOME_DETAILS = {
 	'success': {
 		type: `success`,
-		label: `Suspension was successful.`,
+		label: `App suspension was successful.`,
 		header: `Successful!`,
-		message: `Suspension was successful.`
+		message: `App suspension was successful.`
 	},
 	'error': {
 		type: `error`,
-		label: `Suspension was unsuccessful.`,
+		label: `App suspension was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `Suspension was unsuccessful - System fault. Please try again later.`
+		message: `App suspension was unsuccessful. Please try again later.`
 	}
 };
 
 const UNSUSPEND_OUTCOME_DETAILS = {
 	'success': {
 		type: `success`,
-		label: `Unsuspension was Successful.`,
+		label: `App unsuspension was Successful.`,
 		header: `Successful!`,
-		message: `Unsuspension was Successful. App is now active.`
+		message: `App unsuspension was Successful. App is now active.`
 	},
 	'error': {
 		type: `error`,
-		label: `Unsuspension was unsuccessful.`,
+		label: `App unsuspension was unsuccessful.`,
 		header: `Unsuccessful!`,
-		message: `Unsuspension was unsuccessful- System fault. Please try again later.`
+		message: `App unsuspension was unsuccessful. Please try again later.`
 	}
 };
+
 /**
  * App profile Details component is used to show client's information and Suspend/Unsuspend app.
  * This component is envoked from Access Channels component
