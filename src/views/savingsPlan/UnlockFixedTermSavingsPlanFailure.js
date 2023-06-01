@@ -39,8 +39,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE);
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {

@@ -35,8 +35,7 @@ import 'app/components/common/RelatedOptions';
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	disconnectedCallback() {
@@ -52,9 +51,8 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_assignClick() {
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	// --------------

@@ -58,7 +58,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.agreementResult = ``;
 		// private properites
-		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+	
 
 		this.isLoading = true;
 
@@ -113,7 +113,7 @@ export class Favourites extends SavingsAccountBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		
 
@@ -152,7 +152,6 @@ export class Favourites extends SavingsAccountBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 
@@ -188,8 +187,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this._saveToState(event.detail.selectedReason);
 
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.currentNeed = `send-cash-place-hold`;
+		this.horizonIncidentManager.setCurrentNeed(`send-cash-place-hold`);
 
 		const returnValue = await this.sendCashService.putVoucherHold(sendCashVoucherHoldRequest);
 
@@ -232,11 +230,8 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-		
-			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-			incidentDetails.feedback = selectedOption.key;
-			this.horizonStore.setIncidentDetails(incidentDetails);
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
+			this.horizonIncidentManager.setFeedback(selectedOption.key);
 			this._updateNeedToState();
 			this._searchOtherNeedDone();
 		} else {
@@ -267,7 +262,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_searchOtherNeedDone() {
-		this._refreshIncidentDetails();
 	
 		if (this.updateStrackClick) {
 			this.postAction._refreshScreen();
@@ -365,7 +359,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getSubCategories(event) {
-		this._updateNeedToState(`category`, event.detail.category);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+		if (!currentIncident) {
+			await super.createAndClassifySubIncident();
+		}
+		
+		this._updateNeedToState(event.detail.category);
+		
 		await this.getSubCategories(event);
 	}
 
@@ -374,16 +374,6 @@ export class Favourites extends SavingsAccountBase {
 		await this.getIssues(event);
 	}
 
-	async _getSubCategories(event) {
-		
-		if (this.incidentDetails.incidentRecId === `0`) {
-			await super.createAndClassifySubsIncident();
-		}
-		
-		this._updateNeedToState(event.detail.category);
-		
-		await this.getSubCategories(event);
-	}
 
 	async _getIssues(event) {
 		
@@ -485,7 +475,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 
@@ -508,7 +498,9 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+		const currentIncident = this.horizonIncidentManager.currentIncident;
+
+		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, currentIncident);
 			
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
@@ -667,7 +659,7 @@ export class Favourites extends SavingsAccountBase {
 	async _sendCash() {
 		this.sendCashVouchers = await this._getSendCashVouchers();
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
@@ -750,7 +742,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
@@ -764,15 +756,15 @@ export class Favourites extends SavingsAccountBase {
 	async _unLoadingOtherNeeds() {
 		this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED);
 
-		const incidentDetails = this.horizonStore.getIncidentDetails() || {};
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 
-		if (isNullorEmpty(incidentDetails.incidentRecId) || incidentDetails.incidentRecId === `0`) {
+		if (!currentIncident) {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 			return true;
 		}
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		const incidentInfo = await this.incidentStatus(this.incidentDetails.incidentRecId) || {};
+		const incidentInfo = await this.incidentStatus(currentIncident) || {};
 
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
@@ -814,8 +806,11 @@ export class Favourites extends SavingsAccountBase {
 			"issue-type": event.detail.issue
 		});
 		await this._classifyIncident(event);
+
+		const currentIncident = this.horizonIncidentManager.currentIncident;
 	
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonRouter.navigateToStrack(currentIncident);
+		
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
@@ -840,7 +835,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 		return true;
 	}
 
@@ -872,9 +867,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	async _onUnloadingSendCash() {

@@ -15,3 +15,5 @@ node.cmd
 npm
 node
 .npmrc
+npx.cmd
+npx
