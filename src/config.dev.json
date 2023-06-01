@@ -10,6 +10,7 @@
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
+		"payShapServiceUrl": "",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},

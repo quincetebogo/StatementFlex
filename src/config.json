@@ -10,6 +10,7 @@
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
+		"payShapServiceUrl": "",
 		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
@@ -50,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -152,7 +153,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -204,19 +205,19 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditBalance": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"confirmBudgetTransfer": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
@@ -236,7 +237,7 @@
 			"positiveCase": true
 		},
 		"creditPermissions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"emailPaidUpLetter": {
@@ -244,19 +245,19 @@
 			"positiveCase": false
 		},
 		"ftspUnlockOptions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlock": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"sendCashVouchers": {
@@ -276,8 +277,12 @@
 			"positiveCase" : true
 		},
 		"settleAndClose": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase" : true
+		},
+		"payShapDetails": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }
