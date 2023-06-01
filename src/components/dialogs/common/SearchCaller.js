@@ -1,14 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -198,15 +198,14 @@ export class SearchCaller extends Component {
 
 		this.logger = Logger.getInstance();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 	}
 
 	// ----------
@@ -215,7 +214,7 @@ export class SearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
-	 * @property {object} incidentDetails Incident details
+	 * @property {object} currentIncident Current incident details
 	 *
 	 * @readonly
 	 * @static
@@ -224,7 +223,7 @@ export class SearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			incidentDetails: { type: Object },
+			currentIncident: { type: Object },
 			errMessage: { type: Object },
 
 			cpNumber: { attribute: false },
@@ -302,11 +301,11 @@ export class SearchCaller extends Component {
 		this._clearErrors(e);
 	}
 
-	_getConsultant(e) {
+	async _getConsultant(e) {
 		this._clearErrors(e);
 
 		const cpNumber = e.detail.new;
-		this._getBranchConsultantDetails(cpNumber);
+		await this._getBranchConsultantDetails(cpNumber);
 
 		this.cpNumber = cpNumber;
 	}
@@ -368,7 +367,7 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else if (this.incidentDetails.incidentReferenceNumber === null) {
+			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -408,7 +407,7 @@ export class SearchCaller extends Component {
 					const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 					this.alertBannerMessage = errMessages.ALERT_BANNER;
 					this.errMessage.searchValue = errMessages.FIELD_ERROR;
-				} else if (this.incidentDetails.incidentReferenceNumber === null) {
+				} else if (this.currentIncident === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
@@ -418,11 +417,12 @@ export class SearchCaller extends Component {
 	}
 
 	_needChanged(e) {
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
+		const ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.incomingCallDetails.ivrOptionCode = ivrOptionCode;
+		this.incomingCallDetails.ivrOption.value = ivrOptionCode;
+
+		this.horizonIncidentManager.setCurrentNeed(ivrOptionCode);
 
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
@@ -430,58 +430,60 @@ export class SearchCaller extends Component {
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					incidentDetails: this.incidentDetails
+					incomingCallDetails: this.incomingCallDetails
 				}
 			}));
 		}
 	}
 
 	async _onContinue() {
-
 		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.PRODUCT_INFO
 		});
 
-		if (this._validateNonClientFields()) {
-			const callerDetails = new CallerDetails();
-
-			callerDetails.idNumber = ``;
-			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
-			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
-			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
-			callerDetails.nonClientIDNumber = ``;
-			callerDetails.nonClientRelationship = ``;
-
-			if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
-				this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
-				this._raiseNonClientCaptured();
-				return;
-			}
-
-			const nonClientDetails = {
-				firstName: this.nameValue,
-				surname: this.surNameValue,
-				cellPhone: this.cellPhoneNumberValue
-			};
-
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
-			if (returnValue.succeeded) {
-				this._raiseNonClientCaptured();
-			} else if (this.incomingCallDetails.incidentRecId === null) {
-				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-			}
+		if (!this._validateNonClientFields()) {
+			return;
 		}
+
+		const callerDetails = new CallerDetails();
+
+		callerDetails.idNumber = ``;
+		callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+		callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+		callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+		callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
+		callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
+		callerDetails.nonClientIDNumber = ``;
+		callerDetails.nonClientRelationship = ``;
+
+		if (!this.currentIncident) {
+			this.logger.log(`error`, `There is no incident available against which to record the non-client details`, `_onContinue`);
+			this._raiseNonClientCaptured();
+			return;
+		}
+
+		const nonClientDetails = {
+			firstName: this.nameValue,
+			surname: this.surNameValue,
+			cellPhone: this.cellPhoneNumberValue
+		};
+
+		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails);
+
+		if (!returnValue.succeeded) {
+			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+			this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+			return;
+		}
+
+		if (!this.currentIncident) {
+			this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			return;
+		}
+
+				this._raiseNonClientCaptured();
 	}
 
 	_onEndCall() {
@@ -683,7 +685,6 @@ export class SearchCaller extends Component {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
 				confirmedCaller: confirmedCaller,
-				incidentDetails: this.incidentDetails,
 				isBranchConsultant: false
 			}
 		}));
@@ -720,7 +721,6 @@ export class SearchCaller extends Component {
 			detail: {
 				incomingCallDetails: this.incomingCallDetails,
 				confirmedCaller: confirmedCaller,
-				incidentDetails: this.incidentDetails,
 				isBranchConsultant: true,
 				isClientPresent: this.clientInBranch,
 				cpNumber: this.cpNumber,
@@ -729,16 +729,15 @@ export class SearchCaller extends Component {
 		}));
 	}
 
-	async _updateIncidentBranchDetails(branchCode, branchCallerID) {
+	async _updateIncidentBranchDetails(branchCode, branchCallerId) {
 		
-		if (!this.incidentDetails.incidentRecId || this.incidentDetails.incidentRecId === `0`) {
+		if (!this.currentIncident) {
 			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
 			return;
 		}
 
 		// on confirm click, update incident details to be branch incident and not client incident
-		const incidentRecID = this.incidentDetails.incidentRecId;
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, branchCallerID);
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, branchCode, branchCallerId);
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
 			return false;
@@ -812,6 +811,11 @@ export class SearchCaller extends Component {
 			}
 		}));
 	}
+
+	_currentIncidentRef() {
+		return this.currentIncident ? this.currentIncident.toString() : ``;
+	}
+
 
 	_deepCopyErrMessage() {
 		// Creates and returns a deep copy of an Object this.errMessage
@@ -917,10 +921,13 @@ export class SearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 						data-automation-id="search-caller-dialog"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.incidentDetails="${this.incidentDetails}"
-						.isNeedSelectable=${true}
+
 						headerLabel="${this.headerLabel}"
+						incidentRefNumber="${this._currentIncidentRef()}"
+						?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
+						.incomingCallDetails="${this.incomingCallDetails}"
+						?isNeedSelectable=${true}
+
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
@@ -969,7 +976,8 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-non-client"
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="2">
+						column="2"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 					<capitec-radio 
 						id="branch" 
@@ -977,7 +985,8 @@ export class SearchCaller extends Component {
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3"
-						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
+						?checked="${this.clientType === CLIENT_TYPE.BRANCH}"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 
 			</capitec-radio-group>`;
@@ -1235,7 +1244,6 @@ export class SearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">

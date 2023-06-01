@@ -37,6 +37,10 @@ import { Configuration, SecurityContext } from 'platform/core';
 		return isAuthorised;
 	}
 
+	get isInsureAgent() {
+		return this.roles && this.roles.includes(`insure-agent`);
+	}
+
 	async isSearchClientEnabled() {
 		if (this.isAuthorised) {
 			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
