@@ -41,6 +41,10 @@ import { Configuration, SecurityContext } from 'platform/core';
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
+	get isCapitecConnectAgent(){
+		return this.roles && this.roles.incules(`capitecconnect-agent`);
+	} 
+
 	async isSearchClientEnabled() {
 		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
 		const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);

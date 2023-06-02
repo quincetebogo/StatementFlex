@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 
+import { RoleManager } from '../../shell/RoleManager';
+
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -567,7 +569,7 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-unlock-ftsp"
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
-						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
+						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN || this.roleManager.isCapitecConnectAgent()}
 						@click="${() => this._click(`unlock-ftsp`, item)}">
 				</horizon-option-button>
 			</capitec-group>
