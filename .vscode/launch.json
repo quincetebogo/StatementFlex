@@ -16,14 +16,6 @@
 			"env": {
 				"PATH": "${workspaceFolder}/ocwp/1.17.0/node;${env:PATH}"
 			}
-		},
-		{
-			"type": "firefox",
-			"request": "launch",
-			"name": "Run: Firefox",
-			"url": "http://localhost:62000",
-			"webRoot": "${workspaceFolder}/",
-			"preLaunchTask": "run"
 		}
 	]
 }

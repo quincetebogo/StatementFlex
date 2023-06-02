@@ -51,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -153,7 +153,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -205,19 +205,19 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"creditBalance": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"confirmBudgetTransfer": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
@@ -237,7 +237,7 @@
 			"positiveCase": true
 		},
 		"creditPermissions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"emailPaidUpLetter": {
@@ -245,19 +245,19 @@
 			"positiveCase": false
 		},
 		"ftspUnlockOptions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlockAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlock": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"sendCashVouchers": {
@@ -277,7 +277,7 @@
 			"positiveCase" : true
 		},
 		"settleAndClose": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		},
 		"payShapDetails": {
