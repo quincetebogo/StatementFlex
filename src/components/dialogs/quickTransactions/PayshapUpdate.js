@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 
 /**
@@ -22,8 +23,11 @@ export class PayShapUpdate extends Component {
 	constructor() {
 		super();
 
-		this.defaultInstitute = false;
+		this.isCapitecBankDefault = false;
 		this.agreementAccepted = false;
+		this.showAgreement = false;
+		this.showWarningModal = false;
+		this.removalConfirmed = false;
 	}
 
 
@@ -33,8 +37,11 @@ export class PayShapUpdate extends Component {
 
 	static get properties() {
 		return {
-			defaultInstitute: { state: true },
-			agreementAccepted: { state: true }
+			payShapModalDetails: { type: Object },
+			isCapitecBankDefault: { state: true },
+			agreementAccepted: { state: true },
+			showAgreement: { state: true },
+			showWarningModal: { state: true }
 		};
 	}
 
@@ -44,6 +51,7 @@ export class PayShapUpdate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.isCapitecBankDefault = this.payShapModalDetails.isCapitecBankDefault;
 	}
 
 	disconnectedCallback() {
@@ -59,7 +67,9 @@ export class PayShapUpdate extends Component {
 	}
 
 	_toggleValue() {
-		this.defaultInstitute = !this.defaultInstitute;
+		this.isCapitecBankDefault = !this.isCapitecBankDefault;
+		this.showAgreement = this.isCapitecBankDefault; 
+		this.showWarningModal = !this.isCapitecBankDefault;
 	}
 
 	_acceptAgreement() {
@@ -67,7 +77,21 @@ export class PayShapUpdate extends Component {
 	}
 
 	_onSave() {
-		this.dispatchEvent(new CustomeEvent(`on-save`), { detail: this.agreementAccepted });
+		this.dispatchEvent(new CustomEvent(`set-capitec-as-defult`));
+	}
+
+	_onConfirm() {
+		this.dispatchEvent(new CustomEvent(`remove-capitec-as-default`, {}));
+	}
+
+	_onRemovalCancel() {
+		this.showWarningModal = false;
+		this.isCapitecBankDefault = true;
+	}
+
+	_onRemovalContinue() {
+		this.removalConfirmed = true;
+		this.showWarningModal = false;
 	}
 
 	// --------------
@@ -202,6 +226,38 @@ export class PayShapUpdate extends Component {
 
 				.agreement-box {
 					padding: 10px;
+				}
+				.warning-modal{
+					--theme-modal-free-max-width: 500px;
+					--theme-modal-free-max-height: 400px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
+				}
+				.warning-header {
+					width: 341px;
+					height: auto;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -464px;
+					top: -11px;
+					--theme-modal-header-height: 64px;
+				}
+				.warning-label {
+					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
+				}
+				.warning-modal > div[slot="body"] {
+					height: 268px;
+					width: 500px;
+				}
+				.warning-body > capitec-content-box > capitec-label {
+					--theme-label-default-font-size: 16px;
+					--theme-label-default-font-weight: 400;
+					margin-bottom: 24px;
+				}
 			`
 		];
 	}
@@ -224,6 +280,7 @@ export class PayShapUpdate extends Component {
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
+			${this._renderWarningModal()}
 		`;
 	}
 
@@ -231,7 +288,7 @@ export class PayShapUpdate extends Component {
 		return html`
 			<capitec-text-field 
 					label="Cell Phone number"
-					value="076 457 5577"
+					value="${this.payShapModalDetails.verifiedCellphoneNumber}"
 					disabled>
 			</capitec-text-field>
 		`;
@@ -253,13 +310,15 @@ export class PayShapUpdate extends Component {
 			<capitec-label type="title" label="Default institution"></capitec-label>
 			<capitec-card class="default-institute">
 				<capitec-group layout="horizontal">
-					<capitec-label class="institute-name" type="strong" label="Capitec"></capitec-label>
+					<capitec-label class="institute-name" type="strong" label="${this.payShapModalDetails.defaultInstitution || `None Assigned`}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label type="strong" label="Set as Capitec"></capitec-label>
 					<capitec-toggle 
-							label=""
-							?checked="${this.defaultInstitute}"
-							@click ="${() => this._toggleValue()}"></capitec-toggle>
+						label=""
+						?checked="${this.isCapitecBankDefault}"
+						@click ="${() => this._toggleValue()}"
+						?disabled=${!isNullorEmpty(this.payShapModalDetails.defaultInstitution) && !this.payShapModalDetails.isCapitecBankDefault}>
+					</capitec-toggle>
 				</capitec-group>
 				${this._renderDisclaimer()}
 			</capitec-card>
@@ -267,7 +326,7 @@ export class PayShapUpdate extends Component {
 	}
 
 	_renderDisclaimer() {
-		return this.defaultInstitute
+		return this.showAgreement && !this.payShapModalDetails.isCapitecBankDefault
 		? html`
 			<capitec-card>
 				<capitec-title-bar type="clear" label="Disclaimer"></capitec-title-bar>
@@ -292,6 +351,46 @@ export class PayShapUpdate extends Component {
 		: html``;
 	}
 
+	_renderWarningModal() {
+		return this.showWarningModal && this.payShapModalDetails.isCapitecBankDefault
+		? html`
+		<capitec-modal type="free" class="warning-modal" header-align="left">
+			<div slot="header" class="warning-header">
+				<span>
+					<capitec-group layout="horizontal">
+						<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
+						<capitec-label class="warning-label" label="Warning"></capitec-label>
+					</capitec-group>
+				</span>
+			</div>
+			<div slot="body" class="warning-body">
+				<capitec-content-box>
+					<capitec-label label="You are about to remove Capitec Bank as the default institution for payshap."></capitec-label>
+					<capitec-label label="Do you wish to continue?"></capitec-label>
+				</capitec-content-box>
+			</div>
+			<div slot="footer">
+				<capitec-group layout="horizontal">
+					<capitec-button 
+							data-automation-id=""
+							id="id-cancel-button"
+							label="Cancel" 
+							@click="${() => this._onRemovalCancel()}">
+					</capitec-button>
+
+					<capitec-button 
+							data-automation-id=""
+							id="id-discard-button" 
+							type="primary" 
+							label="Continue" 
+							@click="${() => this._onRemovalContinue()}">
+					</capitec-button>
+				</capitec-group>
+			</div>
+		</capitec-modal>`
+		: html``;
+	}
+
 	_renderFooter() {
 		return html`
 			<capitec-button
@@ -303,7 +402,16 @@ export class PayShapUpdate extends Component {
 					type="primary"
 					label="Save"
 					?disabled=${!this.agreementAccepted}
-					@click="${() => this._onSave}">
+					?hidden=${this.payShapModalDetails.isCapitecBankDefault || this.payShapModalDetails.defaultInstitution}
+					@click="${() => this._onSave()}">
+			</capitec-button>
+
+			<capitec-button 
+					type="primary"
+					label="Confirm"
+					?disabled=${!this.removalConfirmed}
+					?hidden=${!this.payShapModalDetails.isCapitecBankDefault && !this.payShapModalDetails.defaultInstitution}
+					@click="${() => this._onConfirm()}">
 			</capitec-button>
 		`;
 	}

@@ -1,5 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
-// import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service methods for Pay Shap related functionality
@@ -18,7 +18,7 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.sendCashServiceUrl`, 
+			`serviceURIs.payShapServiceUrl`, 
 			`PayShapChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
@@ -63,7 +63,11 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
 		);
 	}
 
-	getInstitutions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async getInstitutions(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`getInstitutions`)) {
+			return this.mock(`getInstitutions`);
+		}
+
 		const url = `/payshap/institutions`;
 
 		return this.get(
@@ -78,8 +82,13 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
 		);
 	}
 
-	enlistCapitec(enlisterrorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = ``;
+	async enlistCapitec(enlisterrorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`enlistCapitec`)) {
+			return this.mock(`enlistCapitec`);
+		}
+		const url = `payshap/enlist-default`;
 
 		return this.post(
 			url,
@@ -93,8 +102,14 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
 		);
 	}
 
-	delistCapitec(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = ``;
+	async delistCapitec(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`delistCapitec`)) {
+			return this.mock(`delistCapitec`);
+		}
+
+		const url = `payshap/delist-default`;
 
 		return this.post(
 			url,

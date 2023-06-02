@@ -105,5 +105,11 @@
 	"savings-account": `SAVINGS_ACCOUNT`,
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
-	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+
+	// PayShap
+	"payshap": `PAYSHAP_ENQUIRY`,
+	"set-capitec-as-default-bank": `SET_CAPITEC_AS_DEFAULT_BANK`,
+	"remove-capitec-as-default-bank": `REMOVE_CAPITEC_AS_DEFAULT_BANK`,
+	"payshap-pop": `PAYSHAP_POP`
 });

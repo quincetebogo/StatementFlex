@@ -3,7 +3,7 @@ export const payShapDetails = {
 		"verified": true,
 		"knownAsName": `0764575577@capitecbank`,
 		"proxyId": ``,
-		"domain": ``,
+		"domain": `Capitec Bank`,
 		"fullProxyStatus": `Active`,
 		"defaultProxyStatus": true
 	},
@@ -34,3 +34,54 @@ export const payShapDetails = {
 		"dailyLimit": 5000.00
 	}
 };
+
+export const institutionsList = [
+	{
+		"participantName": `CAPITEC BANK LIMITED`,
+		"domains": [
+			{
+				"name": `CAPITEC`
+			}
+		]
+	},
+	{
+		"participantName": `AFRICAN BANK`,
+		"domains": [
+			{
+				"name": `AFRICANBANK`
+			}
+		]
+	},
+	{
+		"participantName": `Standard Bank`,
+		"domains": [
+			{
+				"name": `StandardBank`
+			}
+		]
+	},
+	{
+		"participantName": `ABSA BANK`,
+		"domains": [
+			{
+				"name": `ABSA`
+			}
+		]
+	},
+	{
+		"participantName": `TEST BANK`,
+		"domains": [
+			{
+				"name": `TEST`
+			}
+		]
+	},
+	{
+		"participantName": `BSA SIMULATOR`,
+		"domains": [
+			{
+				"name": `sandbox`
+			}
+		]
+	}
+];

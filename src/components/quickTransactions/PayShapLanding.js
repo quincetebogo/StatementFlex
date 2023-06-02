@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { INSTITUTIONS_LIST, payShapDetails } from 'app/constants/PayShap';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
@@ -25,6 +24,7 @@ export class PayShapLanding extends Component {
 
 		this.payShapLandingDetails = {};
 		this.institutionsList = [];
+		this.filteredInstitutions = [];
 		this.showUpdateModal = false;
 		this.optInInsights = false;
 		this.defaultInstitute = false;
@@ -36,11 +36,15 @@ export class PayShapLanding extends Component {
 
 	static get properties() {
 		return {
+			payShapLandingDetails: { type: Object },
+			verifiedCellphoneNumber: { type: String },
+			getInstitutions: { type: Object },
+
 			institutionsList: { state: true },
 			optInInsights: { state: true },
 			defaultInstitute: { state: true },
 
-			getInstitutions: { state: Object },
+			filteredInstitutions: { state: true },
 
 			showUpdateModal: { state: true, attribute: false }
 		};
@@ -52,24 +56,21 @@ export class PayShapLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.institutionsList = INSTITUTIONS_LIST;
-		this.payShapLandingDetails = payShapDetails;
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this._unloading();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_selectedTab(e) {
+	async _selectedTab(e) {
 		if (e.detail.selectedIndex === 1) {
-			// TODO: Remove the commented line once the CS is up and running.
-			// this.institutionsList = await this.getInstitutions();
-			this.institutionsList = INSTITUTIONS_LIST;
+			this.institutionsList = await this.getInstitutions();
+			this.filteredInstitutions = this.institutionsList;
 		}
 	}
 
@@ -78,29 +79,39 @@ export class PayShapLanding extends Component {
 	}
 
 	_searchTextChange(event) {
-		this.institutionsList = INSTITUTIONS_LIST;
+		this.filteredInstitutions = this.institutionsList;
+
 		if (event.detail.new) {
 			const searchText = event.detail.new.split(` `);
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
 					// TODO: Add Logic to filter by domain names while integrating with CS.
-					return this.institutionsList.filter(item => item.institutionName.toLowerCase().toString().startsWith(key.toLowerCase()));
+					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()));
 				}
 				return [];
 			});
-			this.institutionsList = Array.from(new Set([...searchTextResult.flat()]));
+			this.filteredInstitutions = Array.from(new Set([...searchTextResult.flat()]));
 		}
 	}
 
 	_onUpdateClick() {
-		this.dispatchEvent(new CustomEvent(`on-update`, {}));
+		this.dispatchEvent(new CustomEvent(`on-update`, {
+			detail: {
+				isCapitecBankDefault: this.payShapLandingDetails.capitecProxy.domain === `Capitec Bank`,
+				defaultInstitution: this.payShapLandingDetails.capitecProxy.domain,
+				verifiedCellphoneNumber: this.verifiedCellphoneNumber
+			}
+		}));
 	}
 
 	_acceptAgreement() {
 		this.agreementAccepted = !this.agreementAccepted;
 	}
 
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -259,7 +270,7 @@ export class PayShapLanding extends Component {
 			<capitec-title-bar class="main-title">
 				<capitec-icon
 					data-automation-id="payshap-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
@@ -393,15 +404,15 @@ export class PayShapLanding extends Component {
 	}
 
 	_renderInstitutions() {
-		return this.institutionsList.length > 0
+		return this.filteredInstitutions.length > 0
 		? html`${this._renderInsitutionsList()}`
 		: html`${this._renderNoResults()}`;
 	}
 
 	_renderInsitutionsList() {
-		return this.institutionsList.map((item) => html`
+		return this.filteredInstitutions.map((item) => html`
 			<capitec-card>
-				<capitec-title-bar label="${item.institutionName}" class="institutions-title"></capitec-title-bar>
+				<capitec-title-bar label="${item.participantName}" class="institutions-title"></capitec-title-bar>
 				<capitec-group 
 						class="institutions-content"
 						layout="horizontal"
@@ -409,7 +420,7 @@ export class PayShapLanding extends Component {
 						halign="left"
 						valign="top"
 						wrap>
-							${this._renderDomainList(item.institutionDomains)}
+							${this._renderDomainList(item.domains)}
 				</capitec-group>
 			</capitec-card>
 		`);
@@ -418,7 +429,7 @@ export class PayShapLanding extends Component {
 	_renderDomainList(item) {
 		const domains = item;
 		return domains.map((domain) => html`
-			<capitec-label class="domain-name" label="${domain}"></capitec-label>
+			<capitec-label class="domain-name" label="${domain.name}"></capitec-label>
 		`);
 	}
 

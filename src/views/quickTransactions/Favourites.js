@@ -203,7 +203,8 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonRouter.navigateToSendCashFailure();
 	}
 
-	_showPayShapUpdateModal() {
+	_showPayShapUpdateModal(e) {
+		this.payShapModalDetails = e.detail;
 		this.renderMode = RENDER_MODE.PAYSHAP_MODAL;
 	}
 
@@ -671,8 +672,10 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
-	_payShap() {
-		// this.payShapDetails = await this._getPayShapDetails();
+	async _payShap() {
+		this.payShapDetails = await this._getPayShapDetails();
+		
+		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -951,6 +954,38 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 	}
 
+	async _setCapitecBankAsDefault() {
+		await super._inicidentManager_(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber);
+
+		if (returnValue.succeeded) {
+			// TO DO: show success toast on payshap landing
+		} else {
+			// TO DO: show failure toast on payshap landing
+		}
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _removeCapitecBankAsDefault() {
+		await super._inicidentManager_(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber);
+
+		if (returnValue.succeeded) {
+			// TO DO: show success toast on payshap landing
+		} else {
+			// TO DO: show failure toast on payshap landing
+		}
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _unloadingPayshap() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
+		this._onExitPayShap();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1206,10 +1241,13 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL
 		? html`
 			<horizon-payshap-landing
+				.payShapLandingDetails=${this.payShapDetails}
+				verifiedCellphoneNumber=${this.callerInformation.verifiedTelephoneNumber}
 				.getInstitutions="${() => this._getPayShapInstitutionsDetails()}"
 
-				@on-update="${() => this._showPayShapUpdateModal()}"
-				@back="${() => this._onExitPayShap()}">
+				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
+				@back="${() => this._onExitPayShap()}"
+				@unloading="${() => this._unloadingPayshap()}">
 			</horizon-payshap-landing>`
 		: html``;
 	}
@@ -1218,7 +1256,9 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PAYSHAP_MODAL
 		? html`
 			<horizon-pay-shap-update
-						@on-save="${() => this.renderMode = RENDER_MODE.PAYSHAP}"
+						.payShapModalDetails=${this.payShapModalDetails}
+						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
+						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
 						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
 			</horizon-pay-shap-update>`
 		: html``;

@@ -283,6 +283,18 @@
 		"payShapDetails": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"getInstitutions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"enlistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"delistCapitec": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }
