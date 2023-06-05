@@ -364,6 +364,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.transDesc = event.detail.transDesc;
+		screenDetails.disputed = event.detail.disputed;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);

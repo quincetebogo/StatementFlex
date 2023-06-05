@@ -28,6 +28,9 @@ export class SuccessScreen extends Component {
 		this.secondaryToast = ``;
 		this.hasSubDetails = false;
 		this.subContent = false;
+		this.toastType = `success`;
+		this.toastHeader = `Successful`;
+		this.type = `success`;
 	}
 
 	// ----------
@@ -59,7 +62,10 @@ export class SuccessScreen extends Component {
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
 			hasSubDetails: { type: Boolean },
-			subContent: { type: Boolean }
+			subContent: { type: Boolean },
+			toastType: { type: String, attribute: `toast-type` },
+			toastHeader: { type: String, attribute: `toast-header` },
+			type: { type: String }
 		};
 	}
 
@@ -146,7 +152,7 @@ export class SuccessScreen extends Component {
 				}
 
 				#id-sub-content {
-					margin-top: 24px;
+					margin-top: var(--horizon-success-screen-margin-top, 24px);
 					justify-content: center;
 				}
 
@@ -256,8 +262,8 @@ export class SuccessScreen extends Component {
 			<capitec-toast 
 				?hidden="${!this.displayToast}" 
 				id="id-success-toast"
-				type="success"
-				header="Successful"
+				type="${this.toastType}"
+				header="${this.toastHeader}"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">
@@ -297,7 +303,7 @@ export class SuccessScreen extends Component {
 			<capitec-group id="id-msg-group" layout="horizontal">
 				<capitec-icon
 					size="default"
-					icon="status/success-trans">
+					icon="status/${this.type}-trans">
 				</capitec-icon>
 				<slot name="detail"></slot>
 			</capitec-group>

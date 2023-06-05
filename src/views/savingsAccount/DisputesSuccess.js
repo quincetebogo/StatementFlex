@@ -3,6 +3,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the card disputes is successful.
@@ -37,6 +38,7 @@ export class DisputesSuccess extends ViewBase {
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.tranDescription = screenDetails.transDesc;
+		this.disputed = screenDetails.disputed;
 	}
 
 	disconnectedCallback() {
@@ -66,6 +68,7 @@ export class DisputesSuccess extends ViewBase {
 			css`
 				horizon-success-screen {
 					--horizon-button-group-margin-top: 24px;
+					--horizon-success-screen-margin-top: 12px;
 				}
 				#id-error-msg {
 					width: auto;
@@ -88,12 +91,19 @@ export class DisputesSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
 	}
 
 	_renderSuccessScreen() {
+		return this.disputed
+		? html`${this._renderDisputed()}`
+		: html`${this._renderCannotBeDisputed()}`;
+	}
+
+	_renderDisputed() {
 		return html`
 			<horizon-success-screen 
 				header="Dispute successfully logged"
@@ -108,6 +118,36 @@ export class DisputesSuccess extends ViewBase {
 						slot="detail">Dispute for ${this.tranDescription} was successfully logged.
 					</section>
 			</horizon-success-screen>`;
+	}
+
+	_renderCannotBeDisputed() {
+		return html`
+			<horizon-success-screen 
+				type="warning"
+				header="Transaction can't be disputed"
+				image="platform/illustrations/cards.svg"
+				left="Dispute Another Transaction"
+				right="Done"
+				toast="Transaction cannot be disputed"
+				toast-type="warning"
+				toast-header="Notice"
+				@left-click=${() => this._disputeAnotherTran()}
+				@right-click=${() => this._doneClick()}
+				?subContent="${true}">
+					<section 
+						id="id-error-msg" 
+						slot="detail">Transaction for ${this.tranDescription} was unable to be disputed.
+					</section>
+					<capitec-label slot="sub-content" label="You will need to contact the merchant directly"></capitec-label>
+			</horizon-success-screen>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

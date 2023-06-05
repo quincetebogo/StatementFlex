@@ -140,6 +140,8 @@ export class Disputes extends Component {
 		if (this.disputeQuestion?.finalCue) {
 			const ans = this.disputeQuestion?.answers.shift();
 			this.declarationContent = ans.clientAnswerWording;
+			// still have to figure our the other possible reasons
+			this.canBeDisputed = ans.agentAnswerWording !== `No Dispute rights - Card details compromised`;
 			this.disputeCurState = DISPUTE_STEPS.Declaration;
 		}
 	}
@@ -151,7 +153,8 @@ export class Disputes extends Component {
 		}
 		this.dispatchEvent(new CustomEvent(`dispute-confirm`, {
 			detail: {
-				transDesc: this.transactionDetails?.statementDescription
+				transDesc: this.transactionDetails?.statementDescription,
+				disputed: this.canBeDisputed
 			}
 		}));
 	}
@@ -230,7 +233,6 @@ export class Disputes extends Component {
 					--theme-label-strong-font-weight: 600;
 				}
 				.question-card {
-					border-left: 3px solid #009DE0;
 					--theme-card-min-height: 56px;
 				}
 				.multiple-options-card {
@@ -242,6 +244,8 @@ export class Disputes extends Component {
 					--theme-container-padding-top: 13px;
 					--theme-container-padding-right: 18px;
 					--theme-container-padding-bottom: 13px;
+					border-left: 3px solid #009DE0;
+					border-radius: 4px 4px 0px 0px;
 				}
 				.question-box . capitec-group {
 					--theme-layout-gap-spacing: 16px;
@@ -250,7 +254,7 @@ export class Disputes extends Component {
 					max-width: 982px;
 				}
 				capitec-radio-group {
-					--theme-layout-gap-spacing: 26px;
+					--theme-layout-gap-spacing: 12px;
 				}
 				capitec-radio-group > capitec-radio {
 					--theme-radio-width: 20px;
@@ -263,9 +267,11 @@ export class Disputes extends Component {
 					--theme-titlebar-min-height: 32px;
 					--theme-type-clear-background: #F7F7F7;
 					--theme-layout-gap-spacing: 0px;
+					order: 3;
 				}
 				.multiple-ans-option-card {
 					--theme-card-border-radius: 0px 0px 4px 4px;
+					--theme-card-border: 0px;
 				}
 				.multiple-option-radio-group > capitec-radio {
 					--theme-layout-gap-spacing: 8px;
@@ -421,13 +427,14 @@ export class Disputes extends Component {
 				<capitec-content-box class="question-box">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
 						<capitec-label type="strong" label="Q${this.qusNo}"></capitec-label>
-
+	
 						<capitec-label class="question-label" type="strong" label="${this.disputeQuestion.clientQuestionWording}">
 						</capitec-label>
 					</capitec-group>
 				</capitec-content-box>
+				${this._renderAnsOptions(this.disputeQuestion.answers)}
 			</capitec-card>
-			${this._renderAnsOptions(this.disputeQuestion.answers)}
+			
 		`;
 	}
 
@@ -500,7 +507,7 @@ export class Disputes extends Component {
 					label="Restart Questions"
 					@click="${() => this._restartQuestions()}"
 					?hidden="${this.disputeCurState === DISPUTE_STEPS.Declaration}"
-					?disabled="${this.qusNo > 1}">
+					?disabled="${this.qusNo === 1}">
 				</capitec-button>
 				<capitec-button
 					data-automation-id="dispute-next"
