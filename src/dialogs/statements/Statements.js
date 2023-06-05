@@ -438,9 +438,14 @@ export class Statements extends Component {
 	_updateScreenDetails(request) {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
+		// Inc description
+		screenDetails.productName = this.selectedProduct.name;
+		screenDetails.period = !request.startDate && !request.endDate ? `${request.dateIntervalLabel}` : `${request.startDate} to ${request.endDate}`;
+		screenDetails.productType = this.selectedProduct.category;
+		screenDetails.monthRange = !request.dateIntervalLabel ? request.monthInterval.join(`,`) : `${request.dateIntervalLabel}`;
 		screenDetails.emailAddress = request.emailAddress;
 		screenDetails.accountNumber = request.accountNumber;
-		screenDetails.accountType = request.accountName;
+		screenDetails.accountName = request.accountName;
 		screenDetails.telemetryEvent = this.telemetryEvent;
 
 		this.horizonStore.setScreenDetails(screenDetails);

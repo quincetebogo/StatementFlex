@@ -355,7 +355,8 @@ export class SavingsPlan extends ViewBase {
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
 				'order': productInfo.order,
-				'choosePeriod': productInfo.choosePeriod
+				'choosePeriod': productInfo.choosePeriod,
+				'name': productInfo.name
 			}
 		];
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_STATEMENTS_SELECT, {
