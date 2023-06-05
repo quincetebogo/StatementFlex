@@ -20,6 +20,7 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
+import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
@@ -51,6 +52,10 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
+		this.numberOfCharacters = 0;
+		this.allowedCharacters = 10000;
+		this.endCallDescription = ``;
+		this.validNumberOfChars = true;
 
 		// Private Variables
 		this.category = ``;
@@ -108,7 +113,11 @@ export class EndCallSession extends Component {
 			category: { attribute: false },
 			need: { attribute: false },
 			issue: { attribute: false },
-			understandNeed: { attribute: false }
+			understandNeed: { attribute: false },
+			numberOfCharacters: { attribute: false },
+			allowedCharacters: { attribute: false },
+			endCallDescription: { attribute: false },
+			validNumberOfChars: { attribute: false }
 		};
 	}
 
@@ -180,6 +189,21 @@ export class EndCallSession extends Component {
 			} else {
 				this._classifyAndClose();
 			}
+			
+			// This is to set the description for the incident which is optional
+			if (!isNullorEmpty(this.endCallDescription)) {
+				
+				const getDesc = this.horizonIncidentManager.getDescription();
+				let description = ``;
+				
+				if (getDesc) {
+					description = `${getDesc} + \n + ${this.endCallDescription}`;
+				} else {
+					description = `${this.endCallDescription}`;
+				}
+
+				this.horizonIncidentManager.setDescription(description);
+			}
 		}
 	}
 
@@ -193,6 +217,29 @@ export class EndCallSession extends Component {
 
 			this._prepopulateNeed();
 		}
+	}
+
+	_countNumberOfCharacters(event) {
+		if (event.detail.new !== null) {
+			this.numberOfCharacters = event.detail.new.length;
+			this.endCallDescription = event.detail.new;
+
+			const chars = event.detail.new.length;
+
+			this.validNumberOfChars = this._validateCharacters(chars);
+		}
+	}
+
+	_validateCharacters(chars) {
+
+		if (!isNullorEmpty(chars) && chars > this.allowedCharacters) {
+
+			this.alertBannerMessage = `You can only have ${this.allowedCharacters} characters in the description.`;
+ 			return false; 
+		}
+
+		this.alertBannerMessage = ``;
+		return true;
 	}
 
 	async _categoryChanged(e) {
@@ -653,7 +700,7 @@ export class EndCallSession extends Component {
 				--theme-layout-gap-spacing: 16px;
 			  }
 
-			capitec-select {
+			capitec-select, capitec-text-box {
 				width: 100%;
 
 				--theme-layout-gap-spacing: 18px;
@@ -686,6 +733,15 @@ export class EndCallSession extends Component {
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 12px;
 			}
+
+			.descriptionGroup, horizon-text-box {
+				width: 100%;
+			}
+
+			.descriptionCharValidation {
+				color: #ff0000;
+				--theme-label-subtitle-font-weight: 600;
+			}
 			
 			horizon-alert-banner {
 				width: 100%;
@@ -694,9 +750,6 @@ export class EndCallSession extends Component {
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
-	}
-
-	_mobileTemplate() {
 	}
 
 	_webTemplate() {
@@ -720,6 +773,7 @@ export class EndCallSession extends Component {
 							valign="top"
 							gap="clear">
 								${this._renderAlertBanner()}
+								${this._renderEndcallDescription()}
 								${this._renderChooseEndCallReason()}
 								${this._renderUnderstandNeed()}
 								${this._renderLoadingIndicator()}
@@ -752,6 +806,33 @@ export class EndCallSession extends Component {
 				select-mode="single"
 				error="${this.errors.endCallReason}">
 			</capitec-select>
+		`;
+	}
+
+	_renderEndcallDescription() {
+		return html`
+			<capitec-group class="descriptionGroup" layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-label
+					type="subtitle"
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
+					label="Add Description (optional)">
+				</capitec-label>
+				<capitec-spacer></capitec-spacer>
+				
+				<capitec-label
+					type="default"
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
+					label="${this.numberOfCharacters}/10000">
+				</capitec-label>
+			</capitec-group>
+
+			<horizon-text-box
+				id="endCallDescriptionId"
+				label="Is there additional information you would like to capture?"
+				?hideForLabel=${true}
+				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
+				@key-input="${(e) => this._countNumberOfCharacters(e)}">
+			</horizon-text-box>
 		`;
 	}
 
