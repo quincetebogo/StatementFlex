@@ -62,6 +62,7 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this.disableSend = false;
 	}
 
 	// ----------
@@ -92,7 +93,8 @@ export class StatementsDialog extends Component {
 			fromDate: { state: true },
 			toDate: { state: true },
 			errorMessage: { state: true },
-			periodType: { state: true }
+			periodType: { state: true },
+			disableSend: { state: true }
 		};
 	}
 
@@ -248,6 +250,7 @@ export class StatementsDialog extends Component {
 		};
 
 		await this.sendStatement(request);
+		this.disableSend = true;
 	}
 
 	_valueChanged(e) {
@@ -1021,7 +1024,8 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
-						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}"
+						?disabled="${Boolean(this.disableSend)}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-close"
