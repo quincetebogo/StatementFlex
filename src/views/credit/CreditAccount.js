@@ -430,6 +430,9 @@ export class CreditAccount extends ViewBase {
 		screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
 		screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 		screenDetails.accountName = Object.keys(this.settleAndCloseDetails).find(key => this.settleAndCloseDetails[key] === this.settleAndCloseQuote.accountNumber);
+		screenDetails.type = this.selectedAccountDetails.type;
+		screenDetails.settlementAmount = this.settleAndCloseQuote.settlementAmount;
+		screenDetails.fromAccountNumber = settleAndClose.fromAccountNumber;
 
 		if (returnValue.succeeded) {
 
