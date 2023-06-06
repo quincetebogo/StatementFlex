@@ -186,7 +186,7 @@ export class UpdateCardLimits extends Component {
 			tempPurchaseAmountLimit: this.cardDetails.cardLimits.tempPurchaseAmountLimit
 		};
 
-		this.linkedCardLimits = this.cardDetails.linkedCardLimits 
+		this.linkedCardLimits = this.cardDetails.linkedCardLimits
 			? {
 				maxPermanentCashAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCashAmountLimit,
 				maxPermanentCnpAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCnpAmountLimit,
@@ -312,7 +312,12 @@ export class UpdateCardLimits extends Component {
 		}
 
 		const compare = (obj, source) => Object.keys(source).every(key => Object.prototype.hasOwnProperty.call(obj, key) && obj[key] === source[key]);
-		if (compare(this.cardLimits, this.cardDetails.cardLimits)) {
+
+		const noChangeInLimits = (this.updateType === `Debit` && this.cardDetails.linkedCardLimits)
+			? compare(this.linkedCardLimits, this.cardDetails.linkedCardLimits)
+			: compare(this.cardLimits, this.cardDetails.cardLimits);
+
+		if (noChangeInLimits) {
 			this._limitHasNotChanged();
 		} else {
 			this._limitHasChanged();
@@ -411,7 +416,7 @@ export class UpdateCardLimits extends Component {
 
 		if (debitErrors.length + creditErrors.length === 1) {
 			this.maxValue = debitErrors[0] || creditErrors[0];
-			
+
 			const errDetails = Object.entries(this.error[this.updateType.toLowerCase()]).find(item => !isNullorEmpty(item[1]));
 			this.errorField = FIELDS[errDetails[0]];
 		}
@@ -440,11 +445,7 @@ export class UpdateCardLimits extends Component {
 	_getAlertMessage() {
 
 		if (this._getErrorsCount() > 1) {
-			return html`
-				<capitec-label
-					label="Maximum limits have been exceeded"
-					type="strong">
-				</capitec-label>`;
+			return `Maximum limits have been exceeded`;
 		}
 
 		return html`
@@ -454,10 +455,10 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-	_getFieldError(value) { 
+	_getFieldError(value) {
 		return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
 	}
-   
+
 	_getTapToPayStatus() {
 		if (this._tapToPayStatus === this.cardDetails.isContactlessActivated) {
 			return TAP_TO_PAY_STATUS.UNCHANGED;
@@ -475,7 +476,7 @@ export class UpdateCardLimits extends Component {
 		}
 		return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
 	}
-	
+
 	async _limitHasChanged() {
 		if (this._getErrorsCount() > 0) {
 			return;
@@ -495,7 +496,7 @@ export class UpdateCardLimits extends Component {
 				// Set the script type as it is null at this stage and must be set
 				tapToPayAgreement.scriptContent.scriptContentType = `HTML`;
 			}
-			
+
 			this.renderMode = RENDER_MODE.AGREEMENT;
 
 			const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
@@ -503,10 +504,10 @@ export class UpdateCardLimits extends Component {
 				purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
 				cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit
 			} : {
-					cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
-					purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
-					cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit
-				};
+				cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+				purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+				cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit
+			};
 
 
 			this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_NEXT, {
@@ -531,7 +532,7 @@ export class UpdateCardLimits extends Component {
 		const otherDate = DateTime.fromISO(date.substring(10, 0));
 		return `${otherDate.day} ${otherDate.monthShort} ${otherDate.year}`;
 	}
-	
+
 	_getTextFieldValue(id, value) {
 		if (isNullorEmpty(value)) {
 			return ``;
@@ -549,7 +550,7 @@ export class UpdateCardLimits extends Component {
 	_getDifference(newVal, oldVal) {
 		const newLimitValue = isNullorEmpty(newVal) ? 0 : parseInt(newVal, 10);
 		const oldLimitValue = isNullorEmpty(oldVal) ? oldVal : parseInt(oldVal, 10);
-		
+
 		return newLimitValue - oldLimitValue;
 	}
 
@@ -557,7 +558,7 @@ export class UpdateCardLimits extends Component {
 		const fees = await this.configuration.getSetting(`otherSystemsURL.fees`);
 		window.open(`${fees}`);
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -902,8 +903,8 @@ export class UpdateCardLimits extends Component {
 					</capitec-stepper>
 
 					${!this.hasDigitalChannels
-							? this._renderNoDigitalHighRiskTransAlertBanner()
-							: this._renderHighRiskTransAlertBanner()}
+				? this._renderNoDigitalHighRiskTransAlertBanner()
+				: this._renderHighRiskTransAlertBanner()}
 
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
@@ -1076,13 +1077,13 @@ export class UpdateCardLimits extends Component {
 			maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentPurchaseAmountLimit : this.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
 			maxcnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCnpAmountLimit : this.linkedCardLimits.maxTemporaryCnpAmountLimit
 		} : {
-				cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
-				purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
-				cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
-				maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
-				maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
-				maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
-			};
+			cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+			purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+			cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
+			maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
+			maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
+			maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
+		};
 
 		const cashAmountLimit = this.limitType === `Permanent` ? `permanentCashAmountLimit` : `tempCashAmountLimit`;
 		const purchaseAmountLimit = this.limitType === `Permanent` ? `permanentPurchaseAmountLimit` : `tempPurchaseAmountLimit`;
