@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { ACCOUNT_TYPE_CODE } from 'app/constants/common';
+import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -58,13 +58,14 @@ export class SavingsPlanLanding extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 *  @property {savingsPlanDetails} savingsPlanDetails Data for verified savings plan account landing Page display
-	 *
+	 * @property {savingsPlanDetails} savingsPlanDetails - Data for verified savings plan account landing Page display.
+	 * @property {renderAlertBanner} renderAlertBanner - Callback function to parent component, used to get the alert banner message.
 	 */
 
 	static get properties() {
 		return {
-			savingsPlanDetails: { type: Object }
+			savingsPlanDetails: { type: Object },
+			renderAlertBanner: { type: Object }
 		};
 	}
 	
@@ -322,6 +323,14 @@ export class SavingsPlanLanding extends Component {
 					--horizon-service-call-error-screen-height: 100%;
 				
 				}
+
+				capitec-alert-banner[type="unsuccessful-red"] {
+					margin-bottom: 16px;
+				}
+
+				.alert-banner {
+					width: 960px;
+				}
 			`
 		];
 	}
@@ -385,6 +394,7 @@ export class SavingsPlanLanding extends Component {
 		return fixedSavingsPlanDetails.length > 0 
 		? html`
 			<capitec-content-box class="accounts-box">
+				${this.renderAlertBanner()}
 				${this._renderFixedTermAccounts(fixedSavingsPlanDetails)}
 			</capitec-content-box>
 			

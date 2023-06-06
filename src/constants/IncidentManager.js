@@ -1,9 +1,13 @@
 /**
- * Incident manager need status constants.
- * This depicts the current status of primary or secondary incident
+ * @typedef {string} IncidentState
+ */
+
+/**
+ * Incident state constants.
+ * This depicts the current state of a primary or secondary incident
  * 
  * @readonly
- * @enum {object} HORIZON_NEED_STATUS
+ * @enum {IncidentState}
  */
 export const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,

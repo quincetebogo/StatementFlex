@@ -73,7 +73,7 @@ export class ProductInformation extends ViewBase {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.incidentDetails.incidentReferenceNumber,
+				referenceNo: this.horizonIncidentManager.currentIncident.toString(),
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
@@ -87,11 +87,12 @@ export class ProductInformation extends ViewBase {
 
 		super.disconnectedCallback();
 
+		const incidentState = this.horizonIncidentManager.incidentState;
+
 		// Rule: When unloading any of the product info screen, if the current active incident is not completed/ closed
 		// which means we haven't started it, so manually setting it to Not strated status
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED && this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED && incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 	}
 
@@ -134,7 +135,7 @@ export class ProductInformation extends ViewBase {
 		
 		if (this._config) {
 			await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
 		} else {
 			this._config = CONFIG.SavingsAccount;
 		}
@@ -147,10 +148,7 @@ export class ProductInformation extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------

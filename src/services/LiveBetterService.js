@@ -16,7 +16,7 @@ export class LiveBetterService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc, 
 			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
+			`serviceURIs.liveBetterServiceUrl`, 
 			`HorizonChannelService`, 
 			`v1`, 
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
@@ -121,7 +121,7 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	 async lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		return this.put(
 			`/clientcare-lbb-${this._version_2}/update-lbb-account`, 

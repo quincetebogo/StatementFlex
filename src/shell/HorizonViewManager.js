@@ -89,7 +89,7 @@ export class HorizonViewManager {
 				load: () => import(`../rightBar/RightBarLayout`)
 			},
 			{
-				load: () => import(`../components/common/ProfileAndProductSummaryBar`)
+				load: () => import(`../leftBar/ProfileAndProductSummaryBar`)
 			},
 			{
 				load: () => import(`../components/landingPage/TitleBar`)
