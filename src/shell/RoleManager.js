@@ -41,8 +41,8 @@ import { Configuration, SecurityContext } from 'platform/core';
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
-	get isCapitecConnectAgent(){
-		return this.roles && this.roles.incules(`capitecconnect-agent`);
+	get isCapitecConnectAgent() {
+		return this.roles && this.roles.includes(`capitecconnect-agent`);
 	} 
 
 	async isSearchClientEnabled() {

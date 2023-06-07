@@ -33,7 +33,7 @@ export class SavingsPlanLanding extends Component {
 
 	constructor() {
 		super();
-
+		this.roleManager = RoleManager.getInstance();
 		this.savingsPlanDetails = {};
 	}
 
@@ -76,7 +76,7 @@ export class SavingsPlanLanding extends Component {
 	// --------------
 
 	_click(selection, savePlanDetails) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
+			this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
 	}
 
 	_viewInfo() {
@@ -569,8 +569,9 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-unlock-ftsp"
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
-						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN || this.roleManager.isCapitecConnectAgent()}
-						@click="${() => this._click(`unlock-ftsp`, item)}">
+						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
+						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._click(`unlock-ftsp`, item)}"
+						?disabled=${this.roleManager.isCapitecConnectAgent}>
 				</horizon-option-button>
 			</capitec-group>
 		`;
