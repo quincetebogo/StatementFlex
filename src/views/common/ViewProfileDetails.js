@@ -85,7 +85,7 @@ export class ViewProfileDetails extends ViewBase {
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = preferredlanguage;
+			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = formatStringAsPascalCase(preferredlanguage);
 		}
 		
 	}
