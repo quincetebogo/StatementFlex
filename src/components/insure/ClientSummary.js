@@ -434,8 +434,8 @@ class ClientSummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
-				await super.createAndClassifySubIncident(null, false);
+				// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+				// await super.createAndClassifySubIncident(null, false);
 	}
 
 	/**
