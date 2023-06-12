@@ -41,6 +41,12 @@ export const institutionsList = [
 		"domains": [
 			{
 				"name": `CAPITEC`
+			},
+			{
+				"name": `AFRICANBANK`
+			},
+			{
+				"name": `SBI BANK`
 			}
 		]
 	},

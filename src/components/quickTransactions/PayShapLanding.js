@@ -86,8 +86,8 @@ export class PayShapLanding extends Component {
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					// TODO: Add Logic to filter by domain names while integrating with CS.
-					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()));
+					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()) ||
+																	item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
 				}
 				return [];
 			});

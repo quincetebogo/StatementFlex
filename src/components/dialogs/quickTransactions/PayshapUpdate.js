@@ -51,7 +51,9 @@ export class PayShapUpdate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this.isCapitecBankDefault = this.payShapModalDetails.isCapitecBankDefault;
+		this.defaultInstitutionName = this.payShapModalDetails.defaultInstitution;
 	}
 
 	disconnectedCallback() {
@@ -90,6 +92,7 @@ export class PayShapUpdate extends Component {
 	}
 
 	_onRemovalContinue() {
+		this.defaultInstitutionName = `None Assigned`;
 		this.removalConfirmed = true;
 		this.showWarningModal = false;
 	}
@@ -310,14 +313,14 @@ export class PayShapUpdate extends Component {
 			<capitec-label type="title" label="Default institution"></capitec-label>
 			<capitec-card class="default-institute">
 				<capitec-group layout="horizontal">
-					<capitec-label class="institute-name" type="strong" label="${this.payShapModalDetails.defaultInstitution || `None Assigned`}"></capitec-label>
+					<capitec-label class="institute-name" type="strong" label="${this.isCapitecBankDefault ? `Capitec Bank` : `None Assigned`}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label type="strong" label="Set as Capitec"></capitec-label>
 					<capitec-toggle 
 						label=""
 						?checked="${this.isCapitecBankDefault}"
 						@click ="${() => this._toggleValue()}"
-						?disabled=${!isNullorEmpty(this.payShapModalDetails.defaultInstitution) && !this.payShapModalDetails.isCapitecBankDefault}>
+						?disabled=${!isNullorEmpty(this.defaultInstitutionName) && !this.payShapModalDetails.isCapitecBankDefault}>
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderDisclaimer()}
@@ -326,7 +329,7 @@ export class PayShapUpdate extends Component {
 	}
 
 	_renderDisclaimer() {
-		return this.showAgreement && !this.payShapModalDetails.isCapitecBankDefault
+		return this.showAgreement && this.isCapitecBankDefault
 		? html`
 			<capitec-card>
 				<capitec-title-bar type="clear" label="Disclaimer"></capitec-title-bar>
@@ -398,19 +401,19 @@ export class PayShapUpdate extends Component {
 					@click="${() => this._onCancel()}">
 			</capitec-button>
 
-			<capitec-button 
+			<!-- <capitec-button 
 					type="primary"
 					label="Save"
-					?disabled=${!this.agreementAccepted}
-					?hidden=${this.payShapModalDetails.isCapitecBankDefault || this.payShapModalDetails.defaultInstitution}
+					?disabled="${!this.agreementAccepted}"
+					?hidden="${this.isCapitecBankDefault}"
 					@click="${() => this._onSave()}">
-			</capitec-button>
+			</capitec-button> -->
 
 			<capitec-button 
 					type="primary"
 					label="Confirm"
-					?disabled=${!this.removalConfirmed}
-					?hidden=${!this.payShapModalDetails.isCapitecBankDefault && !this.payShapModalDetails.defaultInstitution}
+					?disabled="${!this.removalConfirmed && !this.agreementAccepted}"
+					?hidden="${!this.payShapModalDetails.isCapitecBankDefault && !this.payShapModalDetails.defaultInstitution}"
 					@click="${() => this._onConfirm()}">
 			</capitec-button>
 		`;
