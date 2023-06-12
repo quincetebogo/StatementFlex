@@ -262,7 +262,7 @@ class PolicyTransactionHistory extends Component {
 	 * Initialize component when loaded
 	 * @returns {void}
 	 */
-	async _initialise() {
+	_initialise() {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
@@ -273,8 +273,8 @@ class PolicyTransactionHistory extends Component {
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 
-			await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			// await super._inicidentManager_(`funeral-transaction-history`, () => this._toggleBusyFlag());
+			// await super.createAndClassifySubIncident();
 	}
 
 	/**
