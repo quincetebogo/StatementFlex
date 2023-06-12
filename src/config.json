@@ -51,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -60,7 +60,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -89,7 +89,7 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
@@ -285,15 +285,15 @@
 			"positiveCase": true
 		},
 		"getInstitutions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"enlistCapitec": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"delistCapitec": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
