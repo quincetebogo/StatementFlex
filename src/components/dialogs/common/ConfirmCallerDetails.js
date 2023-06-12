@@ -343,16 +343,25 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _onLanguageUpdate(e) {
+		if (e.detail.old === e.detail.new.value) {
+			return;
+		}
+		
 		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
-		this.languagePreference = e.detail.new;
+		this.languagePreference = e.detail.new.key;
 
-		const isLanguageUpdated = await this.updateLanguage(e.detail.new);
+		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);
 		
 		if (isLanguageUpdated) {
 			this.callerInformation.languagePreference = this.languagePreference;
 		} else {
-			this.languagePreference = e.detail.old;
+			this.languagePreference = e.detail.old?.toUpperCase();
 		}
+	}
+
+	_getLanguageValue(languagePreference) {
+		const result = LANGUAGE_LIST.find((entry) => entry.key === languagePreference);
+		return result ? result.value : ``;
 	}
 
 	// --------------
@@ -491,8 +500,6 @@ export class ConfirmCallerDetails extends Component {
 
 		if (!this.languagePreference || this.languagePreference === `NOT_DEFINED`) {
 			this.languagePreference = `-`;
-		} else {
-			this.languagePreference = formatStringAsPascalCase(this.languagePreference);
 		}
 	}
 
@@ -807,8 +814,8 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLanguagePreference() {
-		return this.roleManager.isInsureAgent ? 
-			html`							
+		return this.roleManager.isInsureAgent 
+		? html`
 				<horizon-label 
 					class="client-info-row" 
 					row="3" 
@@ -825,9 +832,9 @@ export class ConfirmCallerDetails extends Component {
 					label="Language Preference"
 					display-field="value"
 					.items="${LANGUAGE_LIST}"
-					.value="${this.languagePreference}"
+					.value="${this._getLanguageValue(this.languagePreference)}"
 					@value-changed="${(e) => this._onLanguageUpdate(e)}">
-				</horizon-select>`
+				</horizon-select>`;
 	}
 
 	_renderClientProfileImage() {

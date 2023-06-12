@@ -63,7 +63,10 @@ export class UpdateProfileDetails extends Component {
 	}
 	
 	_selectPreferredLanguage(e) {
-		this.preferredLanguage = e.detail.new;
+		if (e.detail.old === e.detail.new.key) {
+			return;
+		}
+		this.preferredLanguage = e.detail.new.key;
 	}
 	
 	// --------------
@@ -73,9 +76,14 @@ export class UpdateProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	_getLanguageValue(languagePreference) {
+		const result = LANGUAGE_LIST.find((entry) => entry.key === languagePreference);
+		return result ? result.value : this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE];
+	}
 
 	_isSaveDisabled() {
-		return this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] === this.preferredLanguage;
+		return this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] === this._getLanguageValue(this.preferredLanguage);
 	}
 
 	// ---------
@@ -187,17 +195,17 @@ export class UpdateProfileDetails extends Component {
 				data-automation-id="update-profile-language-preference"
 				label="Preferred language"
 				display-field="value"
-				.items=${LANGUAGE_LIST}
+				.items="${LANGUAGE_LIST}"
 				@value-changed="${(e) => this._selectPreferredLanguage(e)}"
 				tabindex=3
-				value="${this.preferredLanguage || this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE]}"
+				id-field="value"
+				.value="${this._getLanguageValue(this.preferredLanguage)}"
 				select-mode="single">
 			</capitec-select>
-			</capitec-radio-group>
 		`
 		: html``;
 	}
-
+	
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
