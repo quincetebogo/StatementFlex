@@ -335,12 +335,11 @@ export class PayShapUpdate extends Component {
 				<capitec-title-bar type="clear" label="Disclaimer"></capitec-title-bar>
 				<capitec-content-box layout="vertical" noPadding class="agreement-box">
 					<ul class="list-items">
-						<li><capitec-label label="Capitec will charge you a penalty fee for unlocking before the agreed maturity date"></capitec-label></li>
-						<li><capitec-label label="The penalty fee does not reduce the interest you've earned"></capitec-label></li>
-						<li><capitec-label label="You may still be liable to pay income tax to SARS on the interest you've earned"></capitec-label></li>
-						<li><capitec-label label="Your interest rate may change after an unlock and withdrawal of money"></capitec-label></li>
-						<li><capitec-label label="The penalty fee will be deducted from your Capitec Fixed-term Savings Account"></capitec-label></li>
-						<li><capitec-label label="The unlock criteria may change at any time and will be determined at Capitec's discretion"></capitec-label></li>
+						<li><capitec-label label="Capitec Bank will not charge you for setting Capitec Bank as the default bank for PayShap."></capitec-label></li>
+						<li><capitec-label label="Capitec Bank will only charge you the fees associated with the payment instruction sent through PayShap."></capitec-label></li>
+						<li><capitec-label label="Your PayShap payment limit is currently R3000 per transaction."></capitec-label></li>
+						<li><capitec-label label="Your ShapID will be your registered cell phone number @capitec bank."></capitec-label></li>
+						<li><capitec-label label="All payment instructions sent through PayShap will be credited to your global one savings account."></capitec-label></li>
 					</ul>
 					<capitec-card class="agreement">
 						<capitec-check
