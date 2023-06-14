@@ -79,6 +79,8 @@ export class LandingPage extends ViewBase {
 		});
 
 		this.employeeId = ``;
+		this.displayToast = false;
+		this.preferenceToastDetails = {};
 	}
 
 	// ----------
@@ -88,7 +90,8 @@ export class LandingPage extends ViewBase {
 	static get properties() {
 		return {
 			desktopAgentDown: { state: true },
-			isAuthorised: { state: true }
+			isAuthorised: { state: true },
+			displayToast: { state: true }
 		};
 	}
 
@@ -334,6 +337,29 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
+	
+	async _updatePreferredLanguage(preferredLanguage) {
+		// CS call to update preferred language
+		const isUpdateSuccess = await this._updatePreferences(preferredLanguage, this.confirmedCaller.cifNumber);
+
+		this._displayToast(isUpdateSuccess);
+		return isUpdateSuccess;
+	}
+
+	_displayToast(success) {
+		if (success) {
+			this.preferenceToastDetails = { type: `success`, header: `Success`, detail: `Preferred language updated.` };
+		} else {
+			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language not update failed.` };
+		}
+		
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = false;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -392,9 +418,17 @@ export class LandingPage extends ViewBase {
 		return [
 			super.styles,
 			css`
-				.wait-for-call{
+				.wait-for-call {
 					width:100%;
 					height:100%;
+				}
+				capitec-toast {
+					width: 406px;
+					position: absolute;
+					top : var(--toast-top, 56px);
+					--theme-toast-padding: 12px;
+					--theme-toast-close-size: 24px;
+					margin-left: var(--toast-margin-left, 382px);
 				}
 				`
 		];
@@ -405,6 +439,7 @@ export class LandingPage extends ViewBase {
 		${this._renderMiddleSection()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
+		${this._renderToast()}
 		${super._webTemplate()}
 		`;
 	}
@@ -424,6 +459,7 @@ export class LandingPage extends ViewBase {
 					.currentIncident="${this.currentIncident}"
 					.cpNumber="${this.cpNumber}"
 					.clientType="${this.clientType}"
+					.updateLanguage="${(languagePreference) => this._updatePreferredLanguage(languagePreference)}"
 
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@branch-captured="${(event) => this._branchCaptured(event)}"
@@ -452,6 +488,20 @@ export class LandingPage extends ViewBase {
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}
+	}
+
+	_renderToast() {
+		return this.displayToast
+		? html`
+			<capitec-toast 
+				?hidden="${!this.displayToast}"
+				type="${this.preferenceToastDetails.type}" 
+				header="${this.preferenceToastDetails.header}" 
+				detail="${this.preferenceToastDetails.detail}" 
+				@click="${() => this.displayToast = false}"
+				closable >
+			</capitec-toast>`
+		: html``;
 	}
 }
 
