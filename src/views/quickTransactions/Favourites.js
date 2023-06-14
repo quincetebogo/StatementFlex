@@ -27,6 +27,7 @@ import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/dialogs/quickTransactions/PayshapUpdate';
 import 'app/components/quickTransactions/SettlementQuote';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 
@@ -200,6 +201,11 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.horizonRouter.navigateToSendCashFailure();
+	}
+
+	_showPayShapUpdateModal(e) {
+		this.payShapModalDetails = e.detail;
+		this.renderMode = RENDER_MODE.PAYSHAP_MODAL;
 	}
 
 	_saveToState(selectedReason) {
@@ -666,8 +672,32 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
-	_payShap() {
+	async _payShap() {
+		this.payShapDetails = await this._getPayShapDetails();
+		
+		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _getPayShapDetails() {
+		const payShapDetailsRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			verifiedCellphoneNumber: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.payShapService.getDetails(payShapDetailsRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getPayShapInstitutionsDetails() {
+		const returnValue = await this.payShapService.getInstitutions();
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
 	}
 
 	async _getSendCashVouchers(startDate, endDate) {
@@ -924,6 +954,38 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
 	}
 
+	async _setCapitecBankAsDefault() {
+		await super._inicidentManager_(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber);
+
+		if (returnValue.succeeded) {
+			// TO DO: show success toast on payshap landing
+		} else {
+			// TO DO: show failure toast on payshap landing
+		}
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _removeCapitecBankAsDefault() {
+		await super._inicidentManager_(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber);
+
+		if (returnValue.succeeded) {
+			// TO DO: show success toast on payshap landing
+		} else {
+			// TO DO: show failure toast on payshap landing
+		}
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _unloadingPayshap() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
+		this._onExitPayShap();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -983,6 +1045,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSendCash()}
 			${this._renderConfirmPlaceHoldModal()}
 			${this._renderPayShap()}
+			${this._renderPayShapUpdateModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1175,12 +1238,30 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderPayShap() {
-		return this.renderMode === RENDER_MODE.PAYSHAP 
-			? html`
-				<horizon-payshap-landing
-					@back="${() => this._onExitPayShap()}">
-				</horizon-payshap-landing>`
-			: html``;
+		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-payshap-landing
+				.payShapLandingDetails=${this.payShapDetails}
+				verifiedCellphoneNumber=${this.callerInformation.verifiedTelephoneNumber}
+				.getInstitutions="${() => this._getPayShapInstitutionsDetails()}"
+
+				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
+				@back="${() => this._onExitPayShap()}"
+				@unloading="${() => this._unloadingPayshap()}">
+			</horizon-payshap-landing>`
+		: html``;
+	}
+
+	_renderPayShapUpdateModal() {
+		return this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-pay-shap-update
+						.payShapModalDetails=${this.payShapModalDetails}
+						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
+						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+			</horizon-pay-shap-update>`
+		: html``;
 	}
 
 }

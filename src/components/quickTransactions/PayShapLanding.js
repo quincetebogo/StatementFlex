@@ -1,7 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
-import { INSTITUTIONS_LIST } from 'app/constants/PayShap';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -14,64 +13,64 @@ const DATE_ONLY = `dd mmm yyyy`;
 const NINETY_DAYS = 7777000000;
 
 const TRANSACTION_HISTORY = {
-    ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-    END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-    START_AT_INDEX: 0,
-    MAX_RESULTS: 50,
-    MONEY_TYPE: `BOTH`
+	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	START_AT_INDEX: 0,
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
 };
 
 const paymentHistoryList = [
-	  {
-	    "processDateTime": `2023-04-01T10:45:11.473+02:00`,
-      "methodOfPayment": `PBPX`,
-      "tranCode": `string`,
-      "statusCode": `FailedToProcess`,
-      "amount": -547.00,
-      "currency": `string`,
-      "debtorAccountId": `string`,
-      "debtorReference": `string`,
-      "creditorAccountId": `GM524sBa`,
-      "creditorAgentBICFI": `string`,
-      "creditorAgentMemberIdentification": `string`,
-      "creditorAgentCreditorDomain": `string`,
-      "creditorProxyType": `MBNO`,
-      "creditorKnownAsName": `Brandon George`,
-      "creditorFicaName": `Absa Bank`,
-      "creditorProxyId": `(+27) 716 546 7890`,
-      "creditorReference": `string`,
-      "feeAmount": 3000,
-      "notificationType": `NONE`,
-      "notificationAddress": `string`,
-      "hideDetails": true,
-      "insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
-	  },
-	  {
-	  "processDateTime": `2023-05-17T07:44:56.360+02:00`,
-      "methodOfPayment": `PBPX`,
-      "tranCode": `string`,
-      "statusCode": `FailedToProcess`,
-      "amount": -5000.00,
-      "currency": `string`,
-      "debtorAccountId": `string`,
-      "debtorReference": `string`,
-      "creditorAccountId": `GM524sBa`,
-      "creditorAgentBICFI": `string`,
-      "creditorAgentMemberIdentification": `string`,
-      "creditorAgentCreditorDomain": `string`,
-      "creditorProxyType": `MBNO`,
-      "creditorKnownAsName": `Ryan Vetrovs`,
-      "creditorFicaName": `Standard Bank`,
-      "creditorProxyId": `(+27) 716 546 7890`,
-      "creditorReference": `string`,
-      "feeAmount": 3000,
-      "notificationType": `NONE`,
-      "notificationAddress": `string`,
-      "hideDetails": true,
-      "insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
-	  },
-	  {
+	{
+		"processDateTime": `2023-04-01T10:45:11.473+02:00`,
+	"methodOfPayment": `PBPX`,
+	"tranCode": `string`,
+	"statusCode": `FailedToProcess`,
+	"amount": -547.00,
+	"currency": `string`,
+	"debtorAccountId": `string`,
+	"debtorReference": `string`,
+	"creditorAccountId": `GM524sBa`,
+	"creditorAgentBICFI": `string`,
+	"creditorAgentMemberIdentification": `string`,
+	"creditorAgentCreditorDomain": `string`,
+	"creditorProxyType": `MBNO`,
+	"creditorKnownAsName": `Brandon George`,
+	"creditorFicaName": `Absa Bank`,
+	"creditorProxyId": `(+27) 716 546 7890`,
+	"creditorReference": `string`,
+	"feeAmount": 3000,
+	"notificationType": `NONE`,
+	"notificationAddress": `string`,
+	"hideDetails": true,
+	"insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
+	},
+	{
+	"processDateTime": `2023-05-17T07:44:56.360+02:00`,
+	"methodOfPayment": `PBPX`,
+	"tranCode": `string`,
+	"statusCode": `FailedToProcess`,
+	"amount": -5000.00,
+	"currency": `string`,
+	"debtorAccountId": `string`,
+	"debtorReference": `string`,
+	"creditorAccountId": `GM524sBa`,
+	"creditorAgentBICFI": `string`,
+	"creditorAgentMemberIdentification": `string`,
+	"creditorAgentCreditorDomain": `string`,
+	"creditorProxyType": `MBNO`,
+	"creditorKnownAsName": `Ryan Vetrovs`,
+	"creditorFicaName": `Standard Bank`,
+	"creditorProxyId": `(+27) 716 546 7890`,
+	"creditorReference": `string`,
+	"feeAmount": 3000,
+	"notificationType": `NONE`,
+	"notificationAddress": `string`,
+	"hideDetails": true,
+	"insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
+	},
+	{
 		"processDateTime": `2023-03-10T07:44:56.360+02:00`,
 		"methodOfPayment": `PBPX`,
 		"tranCode": `string`,
@@ -118,6 +117,7 @@ export class PayShapLanding extends Component {
 	constructor() {
 		super();
 
+		this.payShapLandingDetails = {};
 		this.institutionsList = [];
 		this.transactionHistory = [];
 		this.payments = [];
@@ -126,6 +126,10 @@ export class PayShapLanding extends Component {
 
 		this.MoneyOutrecords = [{ transactionDate: `07 Aug 2022`, fullname: `Brandon George`, shapId: `(+27) 716 546 7890`, accountnumber: `N/A`, institution: `ABSA Bank`, amount: `-R547.00` }];
 		this.moneyfilter = false;
+		this.filteredInstitutions = [];
+		this.showUpdateModal = false;
+		this.optInInsights = false;
+		this.defaultInstitute = false;
 	}
 
 	// --------------
@@ -134,11 +138,20 @@ export class PayShapLanding extends Component {
 
 	static get properties() {
 		return {
+			payShapLandingDetails: { type: Object },
+			verifiedCellphoneNumber: { type: String },
+			getInstitutions: { type: Object },
+
 			institutionsList: { state: true },
 			moneyfilter: { state: false },
 			transactionHistory: { type: Object },
-			renderMode: { state: false }
-			
+			renderMode: { state: false },
+			optInInsights: { state: true },
+			defaultInstitute: { state: true },
+
+			filteredInstitutions: { state: true },
+
+			showUpdateModal: { state: true, attribute: false }
 		};
 	}
 
@@ -148,8 +161,6 @@ export class PayShapLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.institutionsList = INSTITUTIONS_LIST;
 		// this.transactionHistory = () => this._transactionHistory();
 		this.transactionHistory = paymentHistoryList;
 		this.payments = paymentHistoryList;
@@ -158,7 +169,7 @@ export class PayShapLanding extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-	
+		this._unloading();
 	}
 
 	// --------------
@@ -182,21 +193,39 @@ export class PayShapLanding extends Component {
 	}
 
 	_searchTextChange(event) {
-		this.institutionsList = INSTITUTIONS_LIST;
+		this.filteredInstitutions = this.institutionsList;
+
 		if (event.detail.new) {
 			const searchText = event.detail.new.split(` `);
 
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					// TODO: Add Logic to filter by domain names while integrating with CS.
-					return this.institutionsList.filter(item => item.institutionName.toLowerCase().toString().startsWith(key.toLowerCase()));
+					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()) ||
+																	item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
 				}
 				return [];
 			});
-			this.institutionsList = Array.from(new Set([...searchTextResult.flat()]));
+			this.filteredInstitutions = Array.from(new Set([...searchTextResult.flat()]));
 		}
 	}
 
+	_onUpdateClick() {
+		this.dispatchEvent(new CustomEvent(`on-update`, {
+			detail: {
+				isCapitecBankDefault: this.payShapLandingDetails.capitecProxy.domain === `Capitec Bank`,
+				defaultInstitution: this.payShapLandingDetails.capitecProxy.domain,
+				verifiedCellphoneNumber: this.verifiedCellphoneNumber
+			}
+		}));
+	}
+
+	_acceptAgreement() {
+		this.agreementAccepted = !this.agreementAccepted;
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -224,10 +253,10 @@ export class PayShapLanding extends Component {
 				return item;
 			});
 			// this.transactionHistory = formattedTrans;
-			 this.transactionHistory.push(...formattedTrans);
+			this.transactionHistory.push(...formattedTrans);
 		}
 
-	 _unloadTransactionHistory() {
+	_unloadTransactionHistory() {
 			this.transactionHistory = [];
 		}
 
@@ -244,8 +273,9 @@ export class PayShapLanding extends Component {
 		// this can be used while switching to details tab
 	}
 
-	_institutionsTab() {
-		// this can be used while switching to institutions tab
+	async _institutionsTab() {
+		this.institutionsList = await this.getInstitutions();
+		this.filteredInstitutions = this.institutionsList;
 	}
 
 	// ---------
@@ -486,7 +516,7 @@ export class PayShapLanding extends Component {
 			<capitec-title-bar class="main-title">
 				<capitec-icon
 					data-automation-id="payshap-landing-back"
-					size="small"
+					size="medium"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
@@ -672,7 +702,7 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="0764575577@capitecbank">
+							value="${this.payShapLandingDetails.capitecProxy.knownAsName}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
@@ -680,11 +710,11 @@ export class PayShapLanding extends Component {
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Default Institution"
-							value="None Assigned">
+							value="${this.payShapLandingDetails.capitecProxy.domain}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="Active">
+							value="${this.payShapLandingDetails.capitecProxy.fullProxyStatus}">
 					</horizon-label>
 			</capitec-card>
 		`;
@@ -695,25 +725,19 @@ export class PayShapLanding extends Component {
 			<capitec-card class="payment-fees">
 				<capitec-label type="subtitle" label="Payshap Payment Fees"></capitec-label>
 				<capitec-group layout="horizontal">
-					<horizon-label class="horizon-label-payment"
-							label="R0 - R100.00"
-							value="R1.00">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R100.01 - R1 000.00"
-							value="R2.50">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R1 000.01 - R3 000.00"
-							value="R5.00">
-					</horizon-label>
-					<horizon-label class="horizon-label-payment"
-							label="R3000.01 - R100 000.00"
-							value="R7.50">
-					</horizon-label>
+					${this._renderFeeDetails()}
 				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderFeeDetails() {
+		return this.payShapLandingDetails.fees.map(item => html`
+			<horizon-label class="horizon-label-payment"
+					label="${formatCurrency(item.lowerBound)} - ${formatCurrency(item.upperBound)}"
+					value="${formatCurrency(item.amount)}">
+			</horizon-label>
+		`);
 	}
 
 	_renderPaymentLimits() {
@@ -737,8 +761,15 @@ export class PayShapLanding extends Component {
 	_renderPayShapDetailsFooter() {
 		return html`
 			<capitec-button-bar align="right">
-				<capitec-button label="Report Fraud"></capitec-button>
-				<capitec-button type="primary" label="Update"></capitec-button>
+				<capitec-button 
+						label="Report Fraud">
+				</capitec-button>
+
+				<capitec-button 
+						type="primary"
+						label="Update"
+						@click="${() => this._onUpdateClick()}">
+				</capitec-button>
 			</capitec-button-bar>
 		`;
 	}
@@ -765,15 +796,15 @@ export class PayShapLanding extends Component {
 	}
 
 	_renderInstitutions() {
-		return this.institutionsList.length > 0
+		return this.filteredInstitutions.length > 0
 		? html`${this._renderInsitutionsList()}`
 		: html`${this._renderNoResults()}`;
 	}
 
 	_renderInsitutionsList() {
-		return this.institutionsList.map((item) => html`
+		return this.filteredInstitutions.map((item) => html`
 			<capitec-card>
-				<capitec-title-bar label="${item.institutionName}" class="institutions-title"></capitec-title-bar>
+				<capitec-title-bar label="${item.participantName}" class="institutions-title"></capitec-title-bar>
 				<capitec-group 
 						class="institutions-content"
 						layout="horizontal"
@@ -781,7 +812,7 @@ export class PayShapLanding extends Component {
 						halign="left"
 						valign="top"
 						wrap>
-							${this._renderDomainList(item.institutionDomains)}
+							${this._renderDomainList(item.domains)}
 				</capitec-group>
 			</capitec-card>
 		`);
@@ -790,7 +821,7 @@ export class PayShapLanding extends Component {
 	_renderDomainList(item) {
 		const domains = item;
 		return domains.map((domain) => html`
-			<capitec-label class="domain-name" label="${domain}"></capitec-label>
+			<capitec-label class="domain-name" label="${domain.name}"></capitec-label>
 		`);
 	}
 
@@ -813,6 +844,7 @@ export class PayShapLanding extends Component {
 			</capitec-group>
 		`;
 	}
+
 }
 
 customElements.define(`horizon-payshap-landing`, PayShapLanding);

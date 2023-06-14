@@ -1200,7 +1200,7 @@ export class UpdateCardLimits extends Component {
 				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
-						data-automation-id="update-card-limits-accepted-agreement-expander"							
+						data-automation-id="update-card-limits-accepted-agreement-expander"
 						id="accepted${type}"
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
