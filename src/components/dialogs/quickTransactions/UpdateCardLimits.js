@@ -250,7 +250,7 @@ export class UpdateCardLimits extends Component {
 
 		const diff = this._getDifference(newVal, oldVal);
 
-		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
+		if (this.cardDetails.cardDisplayType === `Primary_Card` || this.cardDetails.cardDisplayType === `Virtual_Card`) {
 			if (this.limitType === `Permanent`) {
 				this.totalPrimaryPermanentLimits += diff;
 			} else {
