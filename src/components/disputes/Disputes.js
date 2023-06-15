@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { Logger } from 'platform/core';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 const DISPUTE_STEPS = {
@@ -7,7 +8,7 @@ const DISPUTE_STEPS = {
 };
 
 /**
- * Verifying client via Knowledge Based Authentication (KBA)
+ * Dialog populates the cue sheet questions for raising dispute
  * 
  * Events Raised
  * -------------
@@ -16,7 +17,7 @@ const DISPUTE_STEPS = {
  * verify - should navigate to landing page with appropriate verification status
  * 
  * @export
- * @class VerifyByKBA
+ * @class Disputes
  * @extends {Component}
  */
 export class Disputes extends Component {
@@ -32,6 +33,11 @@ export class Disputes extends Component {
 		this.declarationExpanded = true;
 		this.agreementAccepted = false;
 		this.showDeclarationError = false;
+		this.systemError = false;
+		this.qusNo = 0;
+		this.selectedAnswer = ``;
+
+		this.logger = Logger.getInstance();
 	}
 
 	// ----------
@@ -45,24 +51,22 @@ export class Disputes extends Component {
 	static get properties() {
 		return {
 			transactionDetails: { type: Object },
-			disputeQuestions: { type: Array },
+			disputeQuestion: { type: Array },
 			getNextQuestion: { type: Object },
+			restartQuestions: { type: Object },
 
 			disputeCurState: { state: true },
 			declarationExpanded: { state: true },
 			agreementAccepted: { state: true },
-			showDeclarationError: { state: true }
+			showDeclarationError: { state: true },
+			systemError: { state: true },
+			qusNo: { state: true },
+			selectedAnswer: { state: true }
 		};
 	}
 
 	get disableNextBtn() {
-		const len = this.disputeQuestions.length;
-		const lastElem = this.disputeQuestions[len - 1];
-		return !Boolean(lastElem?.finalCue) || !this.allAnswered;
-	}
-
-	get allAnswered() {
-		return this.disputeQuestions.every(item => Boolean(item.selectedAnswer));
+		return !Boolean(this.selectedAnswer);
 	}
 
 	get steps() {
@@ -80,12 +84,12 @@ export class Disputes extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
+		this.qusNo++;
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this.disputeQuestions = [];
+		this.disputeQuestion = {};
 	}
 
 	// --------------
@@ -96,22 +100,50 @@ export class Disputes extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_restartQuestions() {
+	async _restartQuestions() {
+		const returnValue = await this.restartQuestions(this.transactionDetails?.transactionId);
 
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to restart cue sheet questions`, `_restartQuestions`, returnValue.correlationId);
+			this.systemError = true;
+			return;
+		}
+
+		this.disputeQuestion = returnValue.result;
+		this.qusNo = 1;
+		this._reset();
 	}
 
-	async _answerSelected(answerId, cueSheetId) {
-		const index = this.disputeQuestions.findIndex(item => item.cueSheetId === cueSheetId);
-		this.disputeQuestions[index].selectedAnswer = answerId;
+	_answerSelected(answerId) {
+		this.selectedAnswer = answerId;
+	}
 
-		if (!this.disputeQuestions[index].finalCue) {
-			const nxtQus = await this.getNextQuestion(answerId);
-			
-			this.disputeQuestions.push(nxtQus);
-			this._initialise();
+	async _next() {
+		const nextQusReq = {
+			"cueSheetId": this.disputeQuestion.cueSheetId,
+			"caseId": this.disputeQuestion.caseId,
+			"answerId": this.selectedAnswer,
+			"comments": ``
+		};
+		const returnValue = await this.getNextQuestion(nextQusReq);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get next cue sheet questions`, `_next`, returnValue.correlationId);
+			this.systemError = true;
+			return;
 		}
-		
-		this.requestUpdate();
+
+		this.disputeQuestion = returnValue.result;
+		this.qusNo++;
+		this._reset();
+
+		if (this.disputeQuestion?.finalCue) {
+			const ans = this.disputeQuestion?.answers.shift();
+			this.declarationContent = ans.clientAnswerWording;
+			// still have to figure our the other possible reasons
+			this.canBeDisputed = ans.agentAnswerWording !== `No Dispute rights - Card details compromised`;
+			this.disputeCurState = DISPUTE_STEPS.Declaration;
+		}
 	}
 
 	_dispute() {
@@ -119,7 +151,12 @@ export class Disputes extends Component {
 			this.showDeclarationError = true;
 			return;
 		}
-		this.dispatchEvent(new CustomEvent(`dispute-confirm`, {}));
+		this.dispatchEvent(new CustomEvent(`dispute-confirm`, {
+			detail: {
+				transDesc: this.transactionDetails?.statementDescription,
+				disputed: this.canBeDisputed
+			}
+		}));
 	}
 
 	_agreeDeclaration(e) {
@@ -131,13 +168,9 @@ export class Disputes extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
-		this.disputeQuestions = this.disputeQuestions.map((item, index) => {
-			item.rowNum = index + 1;
-			item.selectedAnswer = item.selectedAnswer;
-			item.mutipleOptions = item.answers.length > 2; // temp check
-			return item;
-		});
+	_reset() {
+		this.selectedAnswer = ``;
+		this.systemError = false;
 	}
 
 	// ---------------
@@ -190,7 +223,7 @@ export class Disputes extends Component {
 					width: 188px;
 				}
 				.content {
-					height: 660px;
+					height: 550px;
 				}
 				capitec-label[type="subtitle"] {
 					--theme-label-font-color: #3A3A3A; 
@@ -200,7 +233,6 @@ export class Disputes extends Component {
 					--theme-label-strong-font-weight: 600;
 				}
 				.question-card {
-					border-left: 3px solid #009DE0;
 					--theme-card-min-height: 56px;
 				}
 				.multiple-options-card {
@@ -212,12 +244,17 @@ export class Disputes extends Component {
 					--theme-container-padding-top: 13px;
 					--theme-container-padding-right: 18px;
 					--theme-container-padding-bottom: 13px;
+					border-left: 3px solid #009DE0;
+					border-radius: 4px 4px 0px 0px;
 				}
 				.question-box . capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
+				.question-label {
+					max-width: 982px;
+				}
 				capitec-radio-group {
-					--theme-layout-gap-spacing: 26px;
+					--theme-layout-gap-spacing: 12px;
 				}
 				capitec-radio-group > capitec-radio {
 					--theme-radio-width: 20px;
@@ -230,9 +267,11 @@ export class Disputes extends Component {
 					--theme-titlebar-min-height: 32px;
 					--theme-type-clear-background: #F7F7F7;
 					--theme-layout-gap-spacing: 0px;
+					order: 3;
 				}
 				.multiple-ans-option-card {
 					--theme-card-border-radius: 0px 0px 4px 4px;
+					--theme-card-border: 0px;
 				}
 				.multiple-option-radio-group > capitec-radio {
 					--theme-layout-gap-spacing: 8px;
@@ -242,7 +281,7 @@ export class Disputes extends Component {
 					--theme-card-min-height: 48px;
 				}
 				capitec-expander {
-					--theme-expander-height: 368px;
+					--theme-expander-height: auto;
 					--theme-expander-border: 0px;
 					--theme-expander-background-color: #F5F5F5;
 					--theme-expander-header-font-size: 16px;
@@ -356,62 +395,51 @@ export class Disputes extends Component {
 	_renderQuestionsContent() {
 		return this.disputeCurState === 1
 		? html`
-			<horizon-alert-banner
-				type="info"
-				header="Notify client: "
-				label="All questions must be answered to complete the dispute request."
-				?hidden="${this.showDeclarationError}">
-			</horizon-alert-banner>
-
+			${this._renderQusBanner()}
 			<capitec-group layout="horizontal" gap="none">
 				<capitec-label type="subtitle" label="Questions"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-label type="subtitle" label="Client feedback"></capitec-label>
 			</capitec-group>
 
-			${this._renderQuestions()}`
+			${this._renderQuestion()}`
 		: html``;
 	}
 
-	_renderQuestions() {
-		return this.disputeQuestions.map(item => html`
-			<capitec-card class="question-card ${item.mutipleOptions ? `multiple-options-card` : ``}">
+	_renderQusBanner() {
+		return this.systemError
+		? html`
+			<horizon-alert-banner
+				type="error"
+				label="System error. Try again later">
+			</horizon-alert-banner>`
+		: html`
+			<horizon-alert-banner
+				type="info"
+				header="Notify client: "
+				label="All questions must be answered to complete the dispute request.">
+			</horizon-alert-banner>`;
+	}
+
+	_renderQuestion() {
+		return html`
+			<capitec-card class="question-card multiple-options-card">
 				<capitec-content-box class="question-box">
-					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-							<capitec-label type="strong" label="Q${item.rowNum}"></capitec-label>
-
-							<capitec-label type="strong" label="${item.clientQuestionWording}">
-							</capitec-label>
-
-							<capitec-spacer></capitec-spacer>
-
-							${this._renderYesOrNoAnswers(item.answers, item.cueSheetId, item.selectedAnswer)}
+					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
+						<capitec-label type="strong" label="Q${this.qusNo}"></capitec-label>
+	
+						<capitec-label class="question-label" type="strong" label="${this.disputeQuestion.clientQuestionWording}">
+						</capitec-label>
 					</capitec-group>
 				</capitec-content-box>
+				${this._renderAnsOptions(this.disputeQuestion.answers)}
 			</capitec-card>
-			${this._renderMultipleOptionAns(item.answers, item.cueSheetId, item.selectedAnswer)}
-		`);
+			
+		`;
 	}
 
-	_renderYesOrNoAnswers(answers, cueSheetId, selectedAnswer) {
-		return answers.length === 2
-		? html`
-			<capitec-radio-group layout="horizontal" gap="clear">
-				${answers.map(item => html`
-					<capitec-radio
-						label="${item.clientAnswerWording}"
-						@value-change="${() => this._answerSelected(item.answerId, cueSheetId)}"
-						?checked="${selectedAnswer === item.answerId}"
-						?disabled="${Boolean(selectedAnswer)}">
-					</capitec-radio>
-				`)}
-			</capitec-radio-group>`
-		: html``;
-	}
-
-	_renderMultipleOptionAns(answers, cueSheetId, selectedAnswer) {
-		return answers.length > 2
-		? html`
+	_renderAnsOptions(answers) {
+		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Choose an option"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box>
@@ -419,15 +447,14 @@ export class Disputes extends Component {
 						${answers.map(item => html`
 							<capitec-radio
 								label="${item.clientAnswerWording}"
-								@value-change="${() => this._answerSelected(item.answerId, cueSheetId)}"
-								?checked = "${selectedAnswer === item.answerId}"
-								?disabled="${Boolean(selectedAnswer)}">
+								@value-change="${() => this._answerSelected(item.answerId)}"
+								?checked="${this.selectedAnswer === item.answerId}"
+								?disabled="${Boolean(this.selectedAnswer)}">
 							</capitec-radio>
 						`)}
 					</capitec-radio-group>
 				</capitec-content-box>
-			</capitec-card>`
-		: html``;
+			</capitec-card>`;
 	}
 
 	_renderDeclarationContent() {
@@ -448,11 +475,7 @@ export class Disputes extends Component {
 					@expand="${() => this.declarationExpanded = true}"
 					@collapse="${() => this.declarationExpanded = false}">
 						<capitec-content-box class="declaration-box">
-							<capitec-label type="default" label="If your dispute is successful, Capitec will automatically credit your account with the disputed amount(s)."></capitec-label>
-							<capitec-label type="default" label="If the merchant also issues you with a refund, or if they’re able to prove that the disputed transaction is valid, Capitec will automatically debit the disputed amount from your account."></capitec-label>
-							<capitec-label type="default" label="It’s important to remember that you will be charged an R80 Charge Back fee for each transaction you dispute. This means that Capitec will debit your savings account with the R80.00 Charge Back fee once you proceed with this dispute."></capitec-label>
-							<capitec-label type="default" label="If we need any further documents or information from regarding this dispute, a Capitec agent will contact with you."></capitec-label>
-							<capitec-label type="default" label="Please confirm if you agree to the R80 charge back fee."></capitec-label>
+							<capitec-label type="default" label="${this.declarationContent}"></capitec-label>
 
 							<capitec-card class="i-agree-card">
 								<capitec-content-box>
@@ -483,19 +506,14 @@ export class Disputes extends Component {
 					data-automation-id="dispute-restart-qus"
 					label="Restart Questions"
 					@click="${() => this._restartQuestions()}"
-					?hidden="${this.disputeCurState === DISPUTE_STEPS.Declaration}">
-				</capitec-button>
-				<capitec-button
-					data-automation-id="dispute-back"
-					label="Back"
-					@click="${() => this.disputeCurState = DISPUTE_STEPS.Questions}"
-					?hidden="${this.disputeCurState === DISPUTE_STEPS.Questions}">
+					?hidden="${this.disputeCurState === DISPUTE_STEPS.Declaration}"
+					?disabled="${this.qusNo === 1}">
 				</capitec-button>
 				<capitec-button
 					data-automation-id="dispute-next"
 					type="primary"
 					label="Next"
-					@click="${() => this.disputeCurState = DISPUTE_STEPS.Declaration}"
+					@click="${() => this._next()}"
 					?disabled="${this.disableNextBtn}"
 					?hidden="${this.disputeCurState === DISPUTE_STEPS.Declaration}">
 				</capitec-button>
@@ -504,12 +522,11 @@ export class Disputes extends Component {
 					type="primary"
 					label="Dispute"
 					@click="${() => this._dispute()}"
-					?disabled="${this.disableNextBtn}"
 					?hidden="${this.disputeCurState === DISPUTE_STEPS.Questions}">
 				</capitec-button>
 			</capitec-group>
 		`;
-	 }
+	}
 }
 
 window.customElements.define(`horizon-disputes`, Disputes);

@@ -8,7 +8,6 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { disputeQuestions } from 'app/mocks/SavingsAccountMocks';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/TransactionHistory';
@@ -63,7 +62,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         // private properites
         this._loading = true;
 		this.tranToDispute = {};
-		this.disputeQuestions = [];
+		this.disputeQuestion = {};
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
     }
@@ -78,17 +77,19 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
         this._initialise();
 
-        this._optionClick = async (option) => {
+        this._optionClick = async (option, data) => {
 
             const transactionHistory = () => this._transactionHistory();
             const debiCheck = () => this._debiCheck();
             const statements = () => this._getStatements();
             const more = () => this._more();
+			const cardDisputes = () => this._cardDisputeTransaction(data);
 
             const actions = {
                 'transaction-history': transactionHistory,
                 'debi-check-viewInfo': debiCheck,
                 'statements-transact': statements,
+				'card-disputes': cardDisputes,
                 'more': more
             };
 
@@ -322,33 +323,53 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this._setIncidentDone();
     }
 
-	_disputeTransaction(item) {
+	async _cardDisputeTransaction(item) {
 		this.tranToDispute = item;
-		this._getFirstQusToDispute();
+		const returnValue = await this._getFirstQusToDispute(item);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
+			return;
+		}
+
+		this.disputeQuestion = returnValue.result;
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	_getFirstQusToDispute() {
-		const frstQus = disputeQuestions[0];
-		this.disputeQuestions.push(frstQus);
+	async _getFirstQusToDispute(item) {
+		const request = {
+			"transactionIdList": [item.transactionId],
+			"incident": {
+				"incidentId": this.incidentRecId,
+				"incidentReference": this.incidentDetails.incidentReferenceNumber
+			},
+			"cifNumber": this.callerInformation.cifNumber,
+			"agentId": `123456`
+		};
+		const returnValue = await this.savingsService.getFirstQuestion(request);
+		return returnValue;
 	}
 
-	_getNextQusToDispute() {
-		const len = this.disputeQuestions.length;
-		const nxtQus = disputeQuestions[len];
-		
-		this.disputeQuestions.push(nxtQus);
-		return nxtQus;
+	async _getNextQusToDispute(request) {
+		const returnValue = await this.savingsService.getNextQuestion(request, () => true);
+		return returnValue;
 	}
 
 	_cancelDisputeTrans() {
-		this.disputeQuestions = [];
+		this.disputeQuestion = {};
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
-	_confirmDispute() {
-		this.disputeQuestions = [];
-		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+	_confirmDispute(event) {
+		this.disputeQuestion = {};
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.transDesc = event.detail.transDesc;
+		screenDetails.disputed = event.detail.disputed;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
+
+		this.horizonRouter.navigateToDisputesSuccess();
 	}
 
     // ---------
@@ -562,15 +583,41 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 						data-automation-id="transaction-history-item-teller">
 					</horizon-label>
 				</capitec-group>
+				${this._renderDispute(item)}
+			</capitec-group>
+		`;
+	}
 
-				<capitec-group layout="horizontal" gap="none" halign="right" valign="center">
-					<capitec-button
-						type="clear"
-						label="Dispute Transaction"
-						data-automation-id="transaction-history-dispute-btn"
-						@click="${() => this._disputeTransaction(item)}">
-					</capitec-button>
-				</capitec-group>
+	_renderDispute(item) {
+		return html`
+			<capitec-label
+				label="Dispute details"
+				style="${unsafeCSS(EXPANDER_LABEL).toString()}"
+				?hidden="${!item.disputeFlag}">
+			</capitec-label>
+			<capitec-group layout="horizontal" gap="none" halign="right" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Dispute status"
+					value = "${item.disputeReason}"
+					?hidden="${!item.disputeFlag}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Date and time disputed"
+					value = "${formatDate(item.disputeDate, DATE_TIME_FORMAT)}"
+					?hidden="${!item.disputeFlag}">
+				</horizon-label>
+
+				<capitec-spacer></capitec-spacer>
+
+				<capitec-button
+					type="clear"
+					label="Dispute Transaction"
+					data-automation-id="transaction-history-dispute-btn"
+					@click="${() => this._optionClick(`card-disputes`, item)}"
+					?hidden="${item.disputeFlag}">
+				</capitec-button>
 			</capitec-group>
 		`;
 	}
@@ -595,10 +642,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		? html`
 			<horizon-disputes
 				.transactionDetails="${this.tranToDispute}"
-				.disputeQuestions="${this.disputeQuestions}"
-				.getNextQuestion="${() => this._getNextQusToDispute()}"
+				.disputeQuestion="${this.disputeQuestion}"
+				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
+				.restartQuestions="${(transactionDetails) => this._getFirstQusToDispute(transactionDetails)}"
 				@cancel="${() => this._cancelDisputeTrans()}"
-				@dispute-confirm="${() => this._confirmDispute()}">
+				@dispute-confirm="${(event) => this._confirmDispute(event)}">
 			</horizon-disputes>
 			`
 		: html``;
