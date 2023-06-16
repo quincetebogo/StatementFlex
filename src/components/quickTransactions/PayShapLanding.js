@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -20,6 +20,12 @@ const TRANSACTION_HISTORY = {
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 };
+
+const CAPITEC_DOMAINS = [
+	`CAPITEC`,
+	`CAPITECBANK`,
+	`CAPITECBUSINESS`
+]
 
 const paymentHistoryList = [
 	{
@@ -212,7 +218,7 @@ export class PayShapLanding extends Component {
 	_onUpdateClick() {
 		this.dispatchEvent(new CustomEvent(`on-update`, {
 			detail: {
-				isCapitecBankDefault: this.payShapLandingDetails.capitecProxy.domain === `Capitec Bank`,
+				isCapitecBankDefault: CAPITEC_DOMAINS.includes(this.payShapLandingDetails.capitecProxy.domain),
 				defaultInstitution: this.payShapLandingDetails.capitecProxy.domain,
 				verifiedCellphoneNumber: this.verifiedCellphoneNumber
 			}
@@ -309,13 +315,13 @@ export class PayShapLanding extends Component {
 					height: var(--horizon-panel-height, 888px);
 					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-border-radius: 5px;
-					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 				.details-tab {
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 6px;
 					--theme-container-padding-left: 16px;
+					--theme-layout-gap-spacing: 16px;
 					height: 688px;
 				}
 				.institutions-tab {
@@ -325,12 +331,15 @@ export class PayShapLanding extends Component {
 					--theme-container-padding-left: 16px;
 					height: 750px;
 				}
+				
 				.payshap-info {
 					--theme-card-min-height: 80px;
+					--theme-card-box-shadow: 0px 6px 10px 0.25px rgba(0, 0, 0, 0.08);
 					padding: 22px 16px;
 				}
 				.payment-fees {
 					--theme-card-min-height: 112px;
+					--theme-card-background-color: #F5F5F5;
 					padding: 16px;
 				}
 				.payment-limits {
@@ -364,6 +373,7 @@ export class PayShapLanding extends Component {
 				}
 				.horizon-label-payment {
 					width: 200px;
+    				margin-bottom: 16px;
 				}
 				capitec-button-bar {
 					padding: 10px 16px;
@@ -702,15 +712,15 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="${this.payShapLandingDetails.capitecProxy.knownAsName}">
+							value="${this.payShapLandingDetails.capitecProxy.proxyId}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
-							value="0764575577">
+							value="${this.verifiedCellphoneNumber}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Default Institution"
-							value="${this.payShapLandingDetails.capitecProxy.domain}">
+							value="${this.payShapLandingDetails.capitecProxy.domain || `None Assigned`}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
@@ -724,7 +734,7 @@ export class PayShapLanding extends Component {
 		return html`
 			<capitec-card class="payment-fees">
 				<capitec-label type="subtitle" label="Payshap Payment Fees"></capitec-label>
-				<capitec-group layout="horizontal">
+				<capitec-group layout="horizontal" wrap>
 					${this._renderFeeDetails()}
 				</capitec-group>
 			</capitec-card>
@@ -734,8 +744,8 @@ export class PayShapLanding extends Component {
 	_renderFeeDetails() {
 		return this.payShapLandingDetails.fees.map(item => html`
 			<horizon-label class="horizon-label-payment"
-					label="${formatCurrency(item.lowerBound)} - ${formatCurrency(item.upperBound)}"
-					value="${formatCurrency(item.amount)}">
+					label="${formatCurrency(convertCentsToRand(item.lowerBound))} - ${formatCurrency(convertCentsToRand(item.upperBound))}"
+					value="${formatCurrency(convertCentsToRand(item.amount))}">
 			</horizon-label>
 		`);
 	}
@@ -747,11 +757,11 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payment"
 							label="Daily Limit"
-							value="R5 000.00">
+							value="${formatCurrency(convertCentsToRand(this.payShapLandingDetails.limits.dailyLimit))}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payment"
 							label="Transaction limit"
-							value="R3 000.00">
+							value="${formatCurrency(convertCentsToRand(this.payShapLandingDetails.limits.transactionLimit))}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>
