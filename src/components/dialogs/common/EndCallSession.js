@@ -117,7 +117,7 @@ export class EndCallSession extends Component {
 			numberOfCharacters: { attribute: false },
 			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
-			validNumberOfChars: { attribute: false }
+			validNumberOfChars: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -831,7 +831,8 @@ export class EndCallSession extends Component {
 				label="Is there additional information you would like to capture?"
 				?hideForLabel=${true}
 				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
-				@key-input="${(e) => this._countNumberOfCharacters(e)}">
+				@key-input="${(e) => this._countNumberOfCharacters(e)}"
+				@value-change="${(e) => this._countNumberOfCharacters(e)}">
 			</horizon-text-box>
 		`;
 	}
@@ -905,6 +906,7 @@ export class EndCallSession extends Component {
 					data-automation-id="end-call-session-end-call"
 					id="id-continue-button"
 					type="primary"
+					?disabled="${!this.validNumberOfChars}"
 					label="End Call"
 					@click="${() => this._endCallClick()}">
 				</capitec-button>
