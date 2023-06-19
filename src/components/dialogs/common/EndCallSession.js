@@ -197,7 +197,7 @@ export class EndCallSession extends Component {
 				let description = ``;
 				
 				if (getDesc) {
-					description = `${getDesc} + \n + ${this.endCallDescription}`;
+					description = `${getDesc}\n${this.endCallDescription}`;
 				} else {
 					description = `${this.endCallDescription}`;
 				}
