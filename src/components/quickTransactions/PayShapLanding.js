@@ -22,9 +22,7 @@ const TRANSACTION_HISTORY = {
 };
 
 const CAPITEC_DOMAINS = [
-	`CAPITEC`,
-	`CAPITECBANK`,
-	`CAPITECBUSINESS`
+	`CAPITEC`
 ]
 
 const paymentHistoryList = [
@@ -282,6 +280,10 @@ export class PayShapLanding extends Component {
 	async _institutionsTab() {
 		this.institutionsList = await this.getInstitutions();
 		this.filteredInstitutions = this.institutionsList;
+	}
+
+	_formateProxyId(id) {
+		return id ? id.replace(`+27-`,`0`) : `-`;
 	}
 
 	// ---------
@@ -714,7 +716,7 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="${this.payShapLandingDetails.capitecProxy.proxyId}">
+							value="${this._formateProxyId(this.payShapLandingDetails.capitecProxy.proxyId)}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
