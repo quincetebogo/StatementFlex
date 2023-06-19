@@ -10,6 +10,7 @@ import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicySummary';
 import 'app/components/insure/PolicyTransactionHistory';
 import 'app/components/insure/SMSHistory';
+import 'app/components/insure/ClaimSummary';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -48,6 +49,7 @@ constructor() {
 	this.policyTransactionHistory = {};
 	this.policyDetails = {};
 	this.contractReference = ``;
+	this.claims = [];
 
 	this.readOnlyMode = true;
 }
@@ -69,7 +71,8 @@ static get properties() {
 		policyDetails: { type: Object, state: true },
 		contractReference: { type: String, state: true },
 		readOnlyMode: { type: Boolean, state: true },
-		renderMode: { type: Number, state: true }
+		renderMode: { type: Number, state: true },
+		claims: { type: Object, state: true }
 	};
 }
 
@@ -99,7 +102,7 @@ static get properties() {
 	 */
 	 async _initialise() {
 		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
-		this.commsHistory = await this._retrieveCommsHistory();
+		this.claims = await this._retrieveClaims();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -152,24 +155,40 @@ static get properties() {
 		/**
 	 * retrieve the communication history for the specific policy
 	 * Map metadata (coverDetails) back when response is received
-	 * @param {*} startDate startDate
-	 * @param {*} endDate endDate
+	 * @param {*} contractReference startDate
+	 * @param {*} fromDate startDate
+	 * @param {*} toDate endDate
 	 * @returns {Object} Communication history response
 	 */
-		 async _retrieveCommsHistory(startDate, endDate) {
+		async _retrieveCommsHistory(contractReference, fromDate, toDate) {
 		
 			const commsHistoryDetails = {
-				"contractReference": this.contractReference
-			  };
-			  
+				"contractReference": contractReference,
+				"fromDate": fromDate,
+				"toDate": toDate
+			};
+	
 			const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
 			if (resp.succeeded === true && resp.result !== null) {
 				return resp.result;
-			} 
-				// Do error message
-				return null;
-			
+			}
+			this.handleToastError(resp.exception);
+			return null;
+	
 		}
+
+	/**
+	 * Retrieve Claims list for Client
+	 * @returns {Object} Claims list
+	 */
+	async _retrieveClaims() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		const claimsList = await this.insureService.viewExistingClaims(request);
+		return claimsList.result;
+	}
 
 	/**
 	* Navigate so specific subview
@@ -196,6 +215,10 @@ static get properties() {
 	 async _goToPolicyTransactionHistory(e) {
 		// Telemetry Here
 		this.contractReference = e.detail.policyNumber;
+		this.bankName = e.detail.bankName;
+		this.accountNumber = e.detail.accountNumber;
+		this.arrearsAmount = e.detail.arrearsAmount;
+
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY);
 	}
@@ -211,13 +234,23 @@ static get properties() {
 	}
 
 	_goToSMSHistory(e) {
-	this.policyNumber = e.detail.policyNumber;
+	this.policyNumber = e.detail.policyItem.contractReference;
 	
 	// call fips here
 
 	// Telemetry Here
 
 	this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
+	}
+
+	/**
+	 * Fetch latest claim details and render Claims Summary 
+	 * @param {event} e e
+	 * @returns {void} 
+	 */
+	_goToClaimSummary(e) {
+		this.claimSummary = e.detail;
+		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
 	}
 
 	/**
@@ -243,7 +276,10 @@ static get properties() {
 		this.transactions = [];
 
 		this.policyTransactionHistory = {
-			contractReference: this.contractReference
+			contractReference: this.contractReference,
+			bankName: this.bankName,
+			accountNumber: this.accountNumber,
+			arrearsAmount: this.arrearsAmount
 		};
 
 		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
@@ -347,6 +383,8 @@ static get properties() {
 				return html`${this._renderPolicySummaryPage()}`;
 			case INSURE_RENDER_MODE.SMS_HISTORY:
 				return html`${this._renderSMSHistory()}`;
+			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
+				return html`${this._renderClaimSummaryPage()}`;
 			default:
 				return html``;
 		}
@@ -359,6 +397,8 @@ static get properties() {
 	 _renderClientPoliciesPage() {
 		return html`
 			<horizon-insure-client-summary .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
+				.clientClaims="${this.claims}"
+				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
@@ -399,14 +439,28 @@ static get properties() {
 	_renderSMSHistory() {
 		return this.renderMode === INSURE_RENDER_MODE.SMS_HISTORY
 		? html`
-		<horizon-insure-sms-history-page @navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-		.contractReference = ${this.policyNumber} .contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
-		.commsHistory = "${this.commsHistory}"
-		.getCommsHistory="${(startDate, endDate) => this._retrieveCommsHistory(startDate, endDate)}"
-		.readOnlyMode="${this.readOnlyMode}">
+		<horizon-insure-sms-history-page 
+			.contractReference = ${this.policyNumber} 
+			.contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
+			.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
+			.readOnlyMode="${this.readOnlyMode}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-sms-history-page>`
 		: html``;
 	}
+
+		/**
+	 * Renders the Claim Summary page
+	 * 
+	 * @returns {html} html
+	 */
+		_renderClaimSummaryPage() {
+			return html`
+				<horizon-insure-claim-summary
+					.claimSummary="${this.claimSummary}"
+					@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				</horizon-insure-claim-summary>`;
+		}
 
 
 	// #endregion RENDERING
