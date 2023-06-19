@@ -543,6 +543,9 @@ export class CreditAccount extends ViewBase {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident(null, false);
 
+			// setting inc status to not started for landing page needs
+			this._setIncidentNotstarted();
+
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
 				"credit-active": true
