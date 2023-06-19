@@ -61,5 +61,16 @@ export const TRANSACTION_ENQUIRY_EVENTS = Object.freeze({
     TRANSACTION_HISTORY_INFO: `call.fulfill-need.savings-account.transaction-history.view-info`,
     TRANSACTION_HISTORY_BACK: `call.fulfill-need.savings-account.transaction-history.back`,
     TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.savings-account.transaction-history.load-more`,
-    TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.savings-account.transaction-history.scroll-to-top`
+    TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.savings-account.transaction-history.scroll-to-top`,
+	TRANSACTION_HISTORY_DISPUTE_CLICK: `call.fulfill-need.savings-account.transaction-history.select.dispute`,
+	TRANSACTION_HISTORY_DISPUTE: `call.fulfill-need.savings-account.transaction-history.dispute`,
+	TRANSACTION_HISTORY_DISPUTE_CANCEL: `call.fulfill-need.savings-account.transaction-history.dispute.cancel`,
+	TRANSACTION_HISTORY_DISPUTE_NEXT: `call.fulfill-need.savings-account.transaction-history.dispute.next`,
+	TRANSACTION_HISTORY_DISPUTE_RESTART: `call.fulfill-need.savings-account.transaction-history.dispute.restart`,
+	TRANSACTION_HISTORY_DISPUTE_CONFIRM: `call.fulfill-need.savings-account.transaction-history.dispute.confirm`,
+	
+	// Dispute Outcome
+	TRANSACTION_HISTORY_DISPUTE_SUCCESS: `call.fulfill-need.savings-account.transaction-history.dispute.success`,
+	TRANSACTION_HISTORY_DISPUTE_SUCCESS_REPEAT: `call.fulfill-need.savings-account.transaction-history.dispute.success.dispute-another`,
+	TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE: `call.fulfill-need.savings-account.transaction-history.dispute.success.done`
 });

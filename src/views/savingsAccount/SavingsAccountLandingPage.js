@@ -116,6 +116,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         };
     }
 
+	get cardAuthTypesToDispute() {
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`];
+	}
+
     // --------------
     // EVENT HANDLERS
     // --------------
@@ -213,6 +217,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
                     item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
                     item.formatedAmount = formatCurrency(item.amount);
                     item.formatedBalance = formatCurrency(item.balance);
+					item.isDomesticWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL` && item.currency === `ZAR`;
 
                     return item;
                 });
@@ -324,6 +329,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     }
 
 	async _cardDisputeTransaction(item) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+            transactionId: item.transactionId,
+            cardAuthType: item.cardAuthType
+        });
+
 		this.tranToDispute = item;
 		const returnValue = await this._getFirstQusToDispute(item);
 
@@ -351,16 +361,29 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _getNextQusToDispute(request) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+			cueSheetId: request.cueSheetId,
+			caseId: request.caseId,
+			answerId: request.answerId
+		});
+
 		const returnValue = await this.savingsService.getNextQuestion(request, () => true);
 		return returnValue;
 	}
 
-	_cancelDisputeTrans() {
+	async _cancelDisputeTrans() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE);
+
 		this.disputeQuestion = {};
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
-	_confirmDispute(event) {
+	async _confirmDispute(event) {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
+			disputeLogged: event.detail.disputed
+		});
+
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.transDesc = event.detail.transDesc;
@@ -370,6 +393,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
 
 		this.horizonRouter.navigateToDisputesSuccess();
+	}
+
+	async _restartDispute(transactionDetails) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
+		
+		const returnValue = await this._getFirstQusToDispute(transactionDetails);
+		return returnValue;
 	}
 
     // ---------
@@ -616,7 +646,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
 					@click="${() => this._optionClick(`card-disputes`, item)}"
-					?hidden="${item.disputeFlag}">
+					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl()}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -644,9 +674,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				.transactionDetails="${this.tranToDispute}"
 				.disputeQuestion="${this.disputeQuestion}"
 				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
-				.restartQuestions="${(transactionDetails) => this._getFirstQusToDispute(transactionDetails)}"
+				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
 				@cancel="${() => this._cancelDisputeTrans()}"
-				@dispute-confirm="${(event) => this._confirmDispute(event)}">
+				@dispute-confirm="${(event) => this._confirmDispute(event)}"
+				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
 			</horizon-disputes>
 			`
 		: html``;
