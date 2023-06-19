@@ -687,7 +687,9 @@ export class PayShapLanding extends Component {
 					value = "R5.00">
 				</horizon-label>
 			</capitec-group>
-			<capitec-button-bar align="right">
+			<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
+			Need to remove hidden attribute when development starts on these functionalities -->
+			<capitec-button-bar ?hidden=${true} align="right">
 				<capitec-button
 				type="clear" label="Escalate Transaction"></capitec-button>
 				<capitec-button
@@ -770,9 +772,11 @@ export class PayShapLanding extends Component {
 
 	_renderPayShapDetailsFooter() {
 		return html`
+			<!-- Hiding Report Fraud button as we dont have functionality on it yet -->
 			<capitec-button-bar align="right">
 				<capitec-button 
-						label="Report Fraud">
+						label="Report Fraud"
+						?hidden=${true}>
 				</capitec-button>
 
 				<capitec-button 
@@ -783,7 +787,6 @@ export class PayShapLanding extends Component {
 			</capitec-button-bar>
 		`;
 	}
-
 
 	_renderPayShapInstitutions() {
 		return html`

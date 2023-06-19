@@ -3,7 +3,7 @@ export const payShapDetails = {
 		"verified": false,
 		"knownAsName": "DEV NAME SURNAME XX",
 		"proxyId": "+27-825367598@CAPITEC",
-		"domain": "CAPITECANU",
+		"domain": "CAPITEC",
 		"fullProxyStatus": 1,
 		"defaultProxyStatus": 1
 	},
