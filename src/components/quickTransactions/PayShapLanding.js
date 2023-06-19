@@ -366,6 +366,12 @@ export class PayShapLanding extends Component {
 				horizon-label[value="Active"] {
 					--horizon-label-value-color: #70AF00;
 				}
+				horizon-label[value="Suspended"] {
+					--horizon-label-value-color: #d4781c;
+				}
+				horizon-label[value="Inactive"] {
+					--horizon-label-value-color: #a5132a;
+				}				
 				.horizon-label-payshap-info {
 					width: 234px;
 				}

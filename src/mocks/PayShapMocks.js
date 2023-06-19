@@ -4,8 +4,8 @@ export const payShapDetails = {
 		"knownAsName": "DEV NAME SURNAME XX",
 		"proxyId": "+27-825367598@CAPITEC",
 		"domain": "CAPITEC",
-		"fullProxyStatus": 1,
-		"defaultProxyStatus": 1
+		"fullProxyStatus": "Inactive",
+		"defaultProxyStatus": "False"
 	},
 	"fees": [
 		{
