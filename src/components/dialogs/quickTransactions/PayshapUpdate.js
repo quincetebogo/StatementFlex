@@ -71,7 +71,11 @@ export class PayShapUpdate extends Component {
 	_toggleValue() {
 		this.isCapitecBankDefault = !this.isCapitecBankDefault;
 		this.showAgreement = this.isCapitecBankDefault; 
+
+		this.agreementAccepted = false;
 		this.showWarningModal = !this.isCapitecBankDefault;
+
+		this.defaultInstitutionName = this.isCapitecBankDefault ? `CAPITEC` : this.payShapModalDetails.defaultInstitution;
 	}
 
 	_acceptAgreement() {
@@ -134,6 +138,11 @@ export class PayShapUpdate extends Component {
 
 				capitec-text-field {
 					padding-top: 10px;
+					padding-top: 10px;
+					--theme-input-disabled-background-color: #fbfbfb;
+					--theme-input-disabled-font-color: #B4B4B4;
+					--theme-input-label-font-color: #7C7C7C;
+					--theme-input-hint-font-color: #3A3A3A;
 				}
 
 				capitec-label[label="Default institution"] {
@@ -261,6 +270,12 @@ export class PayShapUpdate extends Component {
 					--theme-label-default-font-weight: 400;
 					margin-bottom: 24px;
 				}
+				capitec-alert-banner {
+					--theme-toast-box-shadow: none;
+					--theme-toast-width: 664px;
+					--theme-toast-border-radius: 0px;
+				}
+			}
 			`
 		];
 	}
@@ -274,6 +289,7 @@ export class PayShapUpdate extends Component {
 			<capitec-modal type="free" header-align="left" header="Update PayShap Details">
 				<div slot="body">
 					<capitec-content-box class="main-container">
+						${this._renderAlertBanner()}
 						${this._renderCellPhoneNumber()}
 						${this._renderPayShapName()}
 						${this._renderDefaultInstitution()}
@@ -285,6 +301,18 @@ export class PayShapUpdate extends Component {
 			</capitec-modal>
 			${this._renderWarningModal()}
 		`;
+	}
+
+	_renderAlertBanner() {
+		return !isNullorEmpty(this.payShapModalDetails.defaultInstitution) && !this.payShapModalDetails.isCapitecBankDefault
+		? html`
+			<capitec-alert-banner 
+				type="warning" 
+				header="Notify client:" 
+				label="To set Capitec as your default bank, please first de-list with your current default institution / Bank." 
+				layout="vertical">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderCellPhoneNumber() {
@@ -313,14 +341,14 @@ export class PayShapUpdate extends Component {
 			<capitec-label type="title" label="Default institution"></capitec-label>
 			<capitec-card class="default-institute">
 				<capitec-group layout="horizontal">
-					<capitec-label class="institute-name" type="strong" label="${this.isCapitecBankDefault ? `Capitec Bank` : `None Assigned`}"></capitec-label>
+					<capitec-label class="institute-name" type="strong" label="${isNullorEmpty(this.defaultInstitutionName) ? `None Assigned` : this.defaultInstitutionName }"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label type="strong" label="Set as Capitec"></capitec-label>
 					<capitec-toggle 
 						label=""
 						?checked="${this.isCapitecBankDefault}"
 						@click ="${() => this._toggleValue()}"
-						?disabled=${!isNullorEmpty(this.defaultInstitutionName) && !this.payShapModalDetails.isCapitecBankDefault}>
+						?disabled=${!isNullorEmpty(this.payShapModalDetails.defaultInstitution) && !this.payShapModalDetails.isCapitecBankDefault}>
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderDisclaimer()}
@@ -329,7 +357,7 @@ export class PayShapUpdate extends Component {
 	}
 
 	_renderDisclaimer() {
-		return this.showAgreement && this.isCapitecBankDefault
+		return this.showAgreement && !this.payShapModalDetails.isCapitecBankDefault
 		? html`
 			<capitec-card>
 				<capitec-title-bar type="clear" label="Disclaimer"></capitec-title-bar>
@@ -400,18 +428,18 @@ export class PayShapUpdate extends Component {
 					@click="${() => this._onCancel()}">
 			</capitec-button>
 
-			<!-- <capitec-button 
+			<capitec-button 
 					type="primary"
 					label="Save"
 					?disabled="${!this.agreementAccepted}"
-					?hidden="${this.isCapitecBankDefault}"
+					?hidden="${this.payShapModalDetails.isCapitecBankDefault || !isNullorEmpty(this.payShapModalDetails.defaultInstitution)}"
 					@click="${() => this._onSave()}">
-			</capitec-button> -->
+			</capitec-button>
 
 			<capitec-button 
 					type="primary"
 					label="Confirm"
-					?disabled="${!this.removalConfirmed && !this.agreementAccepted}"
+					?disabled="${!this.removalConfirmed || this.isCapitecBankDefault}"
 					?hidden="${!this.payShapModalDetails.isCapitecBankDefault && !this.payShapModalDetails.defaultInstitution}"
 					@click="${() => this._onConfirm()}">
 			</capitec-button>
