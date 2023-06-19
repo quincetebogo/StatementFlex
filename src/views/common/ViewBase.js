@@ -2,6 +2,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
 import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
@@ -57,6 +58,7 @@ export class ViewBase extends View {
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -296,6 +298,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
+	_setIncidentNotstarted() {
+		if (this.horizonIncidentManager.incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		}
+	}
+
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
 	}
@@ -304,6 +312,15 @@ export class ViewBase extends View {
 		return this.currentIncident ? this.currentIncident.toString() : ``;
 	}
 
+	async _updatePreferences(language, cif) {
+		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
+
+		this.horizonIncidentManager.incidentState = returnValue.succeeded 
+														? super.HORIZON_NEED_STATUS.COMPLETED 
+														: super.HORIZON_NEED_STATUS.FAILED;
+		return returnValue.succeeded;
+	}
+	
 	// ---------
 	// RENDERING
 	// ---------
