@@ -214,13 +214,13 @@ export class HorizonSelect extends Component {
 
 				.options {
 					height: auto;
-					width: 282px;
-					max-height: 219px;
-					margin-top: 50px;
+					width: var(--horizon-select-options-width, 282px);
+					max-height: var(--horizon-select-options-max-height, 219px);
+					margin-top: var(--horizon-select-options-margin-top, 50px);
 
 					border-top-left-radius: 0;
 					border-top-right-radius: 0;
-					border-bottom-left-radius:var(--theme-button-border-radius, 4px);
+					border-bottom-left-radius: var(--theme-button-border-radius, 4px);
 					border-bottom-right-radius: var(--theme-button-border-radius, 4px);
 					
 					overflow-x: hidden; /* Hide horizontal scrollbar */
@@ -231,10 +231,12 @@ export class HorizonSelect extends Component {
 					transition:1s;
 					box-shadow: var(--theme-select-options-box-shadow, 0 0 6px 0 rgba(0,0,0,0.11));
 					background-color: var(--theme-input-background-color, #FFFFFF);
+					margin-bottom: var(--horizon-select-options-margin-bottom, 0px);
+					margin-left: var(--horizon-select-options-margin-left, 0px);
 				}
 
 				.option {
-					height: 40px;
+					height: var(--horizon-select-option-height, 40px);
 					color: var(--theme-input-font-color, black);
 
 					font-family: var(--theme-input-font-family, Arial, Helvetica, sans-serif);
