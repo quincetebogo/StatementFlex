@@ -176,7 +176,8 @@ export class AddCallerDetails extends Component {
 			"name": this.callerInformation.nonClientFirstName,
 			"surname": this.callerInformation.nonClientSurName,
 			"relation": this.callerInformation.nonClientRelationship,
-			"telephone": this.callerInformation.nonClientCellPhone
+			"telephone": this.callerInformation.nonClientCellPhone,
+			"language": this.callerInformation.languagePreference
 		});
 
 		if (!this._validateData()) {
