@@ -238,6 +238,8 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
+		this.disableSend = true;
+
 		const request = {
 			"emailAddress": this.email,
 			"accountNumber": this.productSelected.accountNumber,
@@ -250,7 +252,6 @@ export class StatementsDialog extends Component {
 		};
 
 		await this.sendStatement(request);
-		this.disableSend = true;
 	}
 
 	_valueChanged(e) {
