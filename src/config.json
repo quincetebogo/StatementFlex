@@ -10,7 +10,7 @@
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
-		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet",
+		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-int.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
@@ -51,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -68,7 +68,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -285,15 +285,23 @@
 			"positiveCase": true
 		},
 		"getInstitutions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"enlistCapitec": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"delistCapitec": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"moneyOut": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"moneyIn": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

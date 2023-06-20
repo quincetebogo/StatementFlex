@@ -46,8 +46,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			return this.mock(`payShapDetails`);
 		}
 
-		// TODO: Update URL once CS is deployed.
-		const url = ``;
+		const url = `/payshap/details`;
 
 		return this.post(
 			url,
@@ -88,7 +87,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		if (await this.isMockEnabled(`enlistCapitec`)) {
 			return this.mock(`enlistCapitec`);
 		}
-		const url = `payshap/enlist-default`;
+		const url = `/payshap/enlist-default`;
 
 		return this.post(
 			url,
@@ -109,13 +108,57 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			return this.mock(`delistCapitec`);
 		}
 
-		const url = `payshap/delist-default`;
+		const url = `/payshap/delist-default`;
 
 		return this.post(
 			url,
 			this.setToken(),
 			`delistCapitecDefault`,
 			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async moneyIn(moneyInDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`moneyIn`)) {
+			return this.mock(`moneyIn`);
+		}
+
+		const url = `/payshap/money-in`;
+
+		return this.post(
+			url,
+			moneyInDetails,
+			this.setToken(),
+			`moneyIn`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async moneyOut(moneyOutDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`moneyOut`)) {
+			return this.mock(`moneyOut`);
+		}
+
+		const url = `/payshap/money-out`;
+
+		return this.post(
+			url,
+			moneyOutDetails,
+			this.setToken(),
+			`moneyIn`,
+			null,
+			null,
 			null,
 			null,
 			errorHandler,

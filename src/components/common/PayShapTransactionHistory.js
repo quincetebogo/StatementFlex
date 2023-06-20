@@ -264,8 +264,13 @@ export class PayShapTransactionHistory extends Component {
 		element.scrollTop = 0;
 	}
 	
-	_selectedMoneyType(e) {
-		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
+	async _selectedMoneyType(e) {
+		if (e.target.label === `Money Out`) {
+			await this.moneyOutTransactionHistory();
+		} else if (e.target.label === `Money In`) {
+			this.dispatchEvent(new CustomEvent(`money-in`, { detail: { filterType: `Money In` } }));
+			// await this.moneyInTransactionHistory();
+		}
 		this._refineSearch();
 	}
 

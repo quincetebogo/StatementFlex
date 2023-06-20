@@ -400,13 +400,13 @@ export class PayShapUpdate extends Component {
 					@click="${() => this._onCancel()}">
 			</capitec-button>
 
-			<!-- <capitec-button 
+			<capitec-button 
 					type="primary"
 					label="Save"
 					?disabled="${!this.agreementAccepted}"
-					?hidden="${this.isCapitecBankDefault}"
+					?hidden="${this.payShapModalDetails.isCapitecBankDefault}"
 					@click="${() => this._onSave()}">
-			</capitec-button> -->
+			</capitec-button>
 
 			<capitec-button 
 					type="primary"

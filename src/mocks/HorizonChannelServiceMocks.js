@@ -63,6 +63,8 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -658,6 +660,20 @@ export default class HorizonChannelServiceMocks {
 	delistCapitec() {
 		if (this._mockSettings.delistCapitec.positiveCase) {
 			return true;
+		}
+		return null;
+	}
+
+	moneyOut() {
+		if (this._mockSettings.moneyOut.positiveCase) {
+			return this.payShapMocks.moneyOutResponse;
+		}
+		return null;
+	}
+
+	moneyIn() {
+		if (this._mockSettings.moneyIn.positiveCase) {
+			return this.payShapMocks.moneyInResponse;
 		}
 		return null;
 	}

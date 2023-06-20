@@ -1,11 +1,12 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { PayShapService } from 'app/services/PayShapService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/PayShapTransactionHistory';
-
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -122,14 +123,18 @@ export class PayShapLanding extends Component {
 		this.transactionHistory = [];
 		this.payments = [];
 
-		this.MoneyInrecords = [{ transactionDate: `28 Apr 2023`, description: `SMS Notification Fee: 2 Notification(s)`, amount: `R200.60`, balance: `R373.75` }];
+		// this.MoneyInrecords = [{ transactionDate: `28 Apr 2023`, description: `SMS Notification Fee: 2 Notification(s)`, amount: `R200.60`, balance: `R373.75` }];
 
-		this.MoneyOutrecords = [{ transactionDate: `07 Aug 2022`, fullname: `Brandon George`, shapId: `(+27) 716 546 7890`, accountnumber: `N/A`, institution: `ABSA Bank`, amount: `-R547.00` }];
+		// this.MoneyOutrecords = [{ transactionDate: `07 Aug 2022`, fullname: `Brandon George`, shapId: `(+27) 716 546 7890`, accountnumber: `N/A`, institution: `ABSA Bank`, amount: `-R547.00` }];
 		this.moneyfilter = false;
 		this.filteredInstitutions = [];
 		this.showUpdateModal = false;
 		this.optInInsights = false;
 		this.defaultInstitute = false;
+		this.displayToast = false;
+		this.isBusy = false;
+
+		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -139,19 +144,23 @@ export class PayShapLanding extends Component {
 	static get properties() {
 		return {
 			payShapLandingDetails: { type: Object },
+			cifNumber: { type: String },
 			verifiedCellphoneNumber: { type: String },
 			getInstitutions: { type: Object },
+			accountNumber: { type: String },
 
 			institutionsList: { state: true },
 			moneyfilter: { state: false },
-			transactionHistory: { type: Object },
 			renderMode: { state: false },
 			optInInsights: { state: true },
 			defaultInstitute: { state: true },
 
 			filteredInstitutions: { state: true },
 
-			showUpdateModal: { state: true, attribute: false }
+			showUpdateModal: { state: true, attribute: false },
+			displayToast: { type: Boolean },
+			payShapDefaultToast: { type: String },
+			isBusy: { state: true }
 		};
 	}
 
@@ -162,8 +171,8 @@ export class PayShapLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		// this.transactionHistory = () => this._transactionHistory();
-		this.transactionHistory = paymentHistoryList;
-		this.payments = paymentHistoryList;
+		// this.transactionHistory = paymentHistoryList;
+		// this.payments = paymentHistoryList;
 		this.moneyfilter = true;
 	}
 
@@ -226,57 +235,105 @@ export class PayShapLanding extends Component {
 	_unloading() {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-		_getTransactionHistory() {
-			const transactionHistoryRequest = {
-				startDate: TRANSACTION_HISTORY.START_DATE,
-				endDate: TRANSACTION_HISTORY.END_DATE
-			};
-			this.transactionHistory = paymentHistoryList; // channel service call to pull transaction history
-			const formattedTrans = this.transactionHistory.map((item) => {
-				const date = new Date(Date.parse(item.processDateTime));
-				const inserteddate = new Date(Date.parse(item.insertedDateTime));
-				item.processDateTime = date;
+	async _getMoneyOutTransactionHistory(startDate, endDate, startAtIndex) {
 
-				item.insertedDateTime = inserteddate;
-				item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-				item.formatedAmount = formatCurrency(item.amount);
-				item.formatedFeeAmount = formatCurrency(item.feeAmount);
-				item.fullname = item.creditorKnownAsName;
-				item.institution = item.creditorFicaName;
-				item.shapId = item.creditorProxyId;
-				item.accountnumber = item.creditorAccountId;
+		const moneyOutTHRequest = {
+			cifNumber: this.cifNumber,
+			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
+			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
+			pageSize: `0`,
+			paginationToken: `0`
+		};
 
-				return item;
-			});
-			// this.transactionHistory = formattedTrans;
+		const returnValue = await this.payShapService.moneyOut(moneyOutTHRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.paymentHistoryList
+				.map((item) => {
+					const date = new Date(Date.parse(item.postingDateTime));
+
+					item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+					item.fullname = item.creditorKnownAsName;
+					item.shapId = item.creditorProxyId;
+					item.accountnumber = item.creditorAccountId;
+					item.institution = item.creditorFicaName;
+					item.formatedAmount = formatCurrency(item.amount);
+
+					return item;
+				});
 			this.transactionHistory.push(...formattedTrans);
 		}
+	}
+
+	async _getMoneyInTransactionHistory(startDate, endDate) {
+		const moneyInTHRequest = {
+			cifNumber: this.cifNumber,
+			account: this.accountNumber,
+			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
+			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
+			pageSize: `0`
+		};
+
+		const returnValue = await this.payShapService.moneyIn(moneyInTHRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactions
+				.map((item) => {
+					const date = new Date(Date.parse(item.transactionDate));
+
+					item.description = item.statementDescription;
+					item.tranDate = date;
+					item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+					item.formatedAmount = formatCurrency(item.amount);
+					item.formatedBalance = formatCurrency(item.balance);
+
+					return item;
+				});
+			this.transactionHistory.push(...formattedTrans);
+			
+			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+		}
+
+	}
 
 	_unloadTransactionHistory() {
-			this.transactionHistory = [];
-		}
+		this.transactionHistory = [];
+		this._setIncidentDone();
+	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	_transactionHistoryTab() {
-		this._getTransactionHistory();
+		this.transactionHistory = this._getMoneyOutTransactionHistory();
 		this.renderMode = RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY;
 	}
 
-	_detailsTab() {
-		// this can be used while switching to details tab
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	async _institutionsTab() {
 		this.institutionsList = await this.getInstitutions();
 		this.filteredInstitutions = this.institutionsList;
 	}
+
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+		return true;
+	}
+
+	_exitTransactionHistory() {
+        this._setIncidentDone();
+        this.renderMode = RENDER_MODE.MAIN_PAGE;
+    }
 
 	// ---------
 	// RENDERING
@@ -491,6 +548,19 @@ export class PayShapLanding extends Component {
 				capitec-image {
 					cursor: pointer;
 				}
+				capitec-toast {
+					position: absolute;
+					top : 70px;
+					left: 790px;
+					height: 64px;
+					width: 428px;
+					border-radius: 4px;
+					color: #70AF00;
+					z-index: 201;
+					left: calc(50.8% - 200px);
+					justify-content: center;
+					align-items: center;
+				}
 
 			`
 		];
@@ -501,6 +571,26 @@ export class PayShapLanding extends Component {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderToast()}
+			${this._renderContent()}
+			${this._renderLoadingIndicator()}
+		`;
+	}
+
+	_renderToast() {
+		return this.displayToast
+		? html`
+			<capitec-toast
+				type="${this.payShapDefaultToast}"
+				header="${this.payShapDefaultToast === `success` ? `Success` : `Failure`}"
+				detail="${this.payShapDefaultToast === `success` ? `Payshap details updated` : `Payshap details not updated`}"
+				closable>
+			</capitec-toast>`
+		: html``;
+	}
+
+	_renderContent() {
 		return html`
 			<capitec-card class="main">
 				${this._renderTitleBar()}
@@ -551,22 +641,24 @@ export class PayShapLanding extends Component {
 	_renderPayShapTransactionHistory() {
 		return this.renderMode === RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY
 		? html`
-					<horizon-payshap-transaction-history
-					.transactionHistory="${this.transactionHistory}"
-					.accountDetails="${this.accountDetails}"
-					.renderTableColumns="${() => this._renderTransactionHistoryColumns()}"
-					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
-					.getTransactionHistory="${() => this._getTransactionHistory()}"
-					.disposeData="${() => this.transactionHistory = []}"
-					@unloading="${() => this._unloadTransactionHistory()}">
-				</horizon-payshap-transaction-history>
+			<horizon-payshap-transaction-history
+				.transactionHistory="${this.transactionHistory}"
+				.renderTableColumns="${() => this._renderTransactionHistoryColumns()}"
+				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
+				.moneyOutTransactionHistory="${() => this._getMoneyOutTransactionHistory()}"
+				.disposeData="${() => this.transactionHistory = []}"
+
+				@money-in="${() => this._getMoneyInTransactionHistory()}"
+				@unloading="${() => this._unloadTransactionHistory()}">
+			</horizon-payshap-transaction-history>
 		`
 		: html``;
 	}
-	
+
+	// .moneyInTransactionHistory="${() => this._getMoneyInTransactionHistory()}"
+
 	_renderTransactionHistoryColumns() {
 		return html`
-		
 			<capitec-table-column
 				label="Transaction Date"
 				field="processDateTime"
@@ -611,82 +703,85 @@ export class PayShapLanding extends Component {
 	}
 	
 
-	_renderTransactionDetails() {
+	_renderTransactionDetails(item) {
 		return html`
 			<capitec-group class="main-view">
-			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Transaction Details">
-			</capitec-label>
-	
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction type" 
-					value = "Rapid Payment">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Status"
-					value = "Successful">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "444554465765798">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Posting date"
-					value = "07 Aug 2022, 14:40">
-				</horizon-label>
-			</capitec-group>
+				<capitec-label
+					style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+					label="Transaction Details">
+				</capitec-label>
 
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Payment reference"
-					value = "Melissa's Gift">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Creditor"
-					value = "Christine Marrah">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Payment domain"
-					value = "RD2.Bot-Absa">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Institution"
-					value = "ABSA">
-				</horizon-label>
-			</capitec-group>
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Transaction type" 
+						value = "Rapid Payment">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Status"
+						value"${item.statusCode}">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Transaction code"
+						value="${item.tranCode}">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Posting date"
+						value="${item.insertedDateTime}">
+					</horizon-label>
+				</capitec-group>
 
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Creditor PayShap ID"
-					value = "6373**** ****1930">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Fee" 
-					value = "R5.00">
-				</horizon-label>
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Payment reference"
+						value="${item.debtorReference}">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Creditor"
+						value="">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Payment domain"
+						value="${item.creditorAgentCreditorDomain}">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Institution"
+						value = "ABSA">
+					</horizon-label>
+				</capitec-group>
+
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Creditor PayShap ID"
+						value="${item.shapId}">
+					</horizon-label>
+					<horizon-label
+						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+						label="Fee" 
+						value="${item.feeAmount}">
+					</horizon-label>
+				</capitec-group>
+				<capitec-button-bar align="right">
+					<capitec-button
+								type="clear" 
+								label="Escalate Transaction">
+					</capitec-button>
+					<capitec-button
+								type="clear" 
+								label="Proof of Payment">
+					</capitec-button>
+				</capitec-button-bar>
 			</capitec-group>
-			<capitec-button-bar align="right">
-				<capitec-button
-				type="clear" label="Escalate Transaction"></capitec-button>
-				<capitec-button
-				type="clear" label="Proof of Payment"></capitec-button>
-			</capitec-button-bar>
-	</capitec-group>
 		`;
 	}
-
 
 	_renderPayShapDetails() {
 		return html`
@@ -702,7 +797,7 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="${this.payShapLandingDetails.capitecProxy.knownAsName}">
+							value="${this.payShapLandingDetails.capitecProxy.proxyId}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
@@ -774,7 +869,6 @@ export class PayShapLanding extends Component {
 		`;
 	}
 
-
 	_renderPayShapInstitutions() {
 		return html`
 			${this._renderSearchBar()}
@@ -843,6 +937,160 @@ export class PayShapLanding extends Component {
 					</capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderPayShapMoneyInTransactionHistory() {
+		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
+		? html`
+			<horizon-transaction-history
+				.transactionHistory="${this.transactionHistory}"
+				type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+				.renderTableColumns="${() => this._renderMoneyInTransHistoryColumns()}"
+				.renderTransactionDetails="${(item) => this._renderMoneyInTransactionDetails(item)}"
+				.getTransactionHistory="${(startDate, endDate) => this._getMoneyInTransactionHistory(startDate, endDate)}"
+				.disposeData="${() => this.transactionHistory = []}"
+
+				@error-handler = "${() => this._errorHandler()}"
+				@back="${() => this._exitTransactionHistory()}"
+				@unloading="${() => this._unloadTransactionHistory()}">
+			</horizon-transaction-history>`
+		: html``;
+	}
+
+	_renderMoneyInTransHistoryColumns() {
+        return html`
+			<capitec-table-column
+				label="Transaction Date"
+				field="transactionDate"
+				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
+				size="156px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Description"
+				field="description"
+				size="410px;">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Amount"
+				field="formatedAmount"
+				size="158px;"
+				type="currency">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Balance"
+				field="formatedBalance"
+				size="130px;"
+				type="currency"
+				align ="right">
+			</capitec-table-column>
+		`;
+    }
+
+	_renderMoneyInTransactionDetails(item) {
+
+        return html`
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Statement description: ${item.statementDescription}"
+				data-automation-id="transaction-history-item-description">
+			</capitec-label>
+	
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "${item.transTypeDesc ? item.transTypeDesc : `-`}"
+					data-automation-id="transaction-history-item-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					data-automation-id="transaction-history-item-transfer-account">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${formatDate(item.postingDate, DATE_ONLY)}"
+					data-automation-id="transaction-history-item-posting-date">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${formatDate(item.processDate, DATE_ONLY)}"
+					data-automation-id="transaction-history-item-processed-date">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction code"
+					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					data-automation-id="transaction-history-item-code">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="transaction-history-item-card-number">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="transaction-history-item-card-auth-type">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="transaction-history-item-journal-number">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="transaction-history-item-includes-vat">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="transaction-history-item-terminalID">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Cash back"
+					value = "${item.cashback ? item.cashback : `-`}"
+					data-automation-id="transaction-history-item-cashback">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Branch" 
+					value = "${item.branch ? item.branch : `-`}"
+					data-automation-id="transaction-history-item-branch">
+				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Teller"
+					value = "${item.teller ? item.teller : `-`}"
+					data-automation-id="transaction-history-item-teller">
+				</horizon-label>
+			</capitec-group>
+		`;
+    }
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
+			: html``;
 	}
 
 }

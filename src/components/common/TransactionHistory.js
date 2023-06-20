@@ -771,7 +771,8 @@ export class TransactionHistory extends Component {
 
 	_renderAccountDetailsBar() {
 		const accDetails = Object.entries(this.accountDetails);
-		return html`
+		return this.accountDetails 
+		? html`
 			<capitec-group
 				class= "actionbar-header ${this.type}"
 				layout="horizontal"
@@ -788,8 +789,8 @@ export class TransactionHistory extends Component {
 							</horizon-label>
 						`;
 					})}
-			</capitec-group>
-		`;
+			</capitec-group>`
+		: html``;
 	}
 
 	_renderActionBar() {
