@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { RoleManager } from 'app/shell/RoleManager';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
@@ -29,6 +30,7 @@ export class HorizonActionBar extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+		this.roleManager = RoleManager.getInstance();
 		
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -239,7 +241,7 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 					<capitec-button type="clear"
 									label="Add caller details"
-									?hidden="${this.hideAddCallerDetails || false}"
+									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent}"
 									@click="${() => this._addCallerDetails()}"
 									data-automation-id="action-bar-add-caller-details">
 					</capitec-button>

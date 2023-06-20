@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * The client profile service contains service calls that start off the flow for 
@@ -88,7 +89,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	async searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`searchCaller`)) {
-			return this.mock(`searchCaller`);
+			return this.mock(`searchCaller`, clientInfo);
 		}
 
 		const url = `/clientcare-clientprofile-${this._version}/search-caller`;
@@ -110,6 +111,40 @@ export class ClientProfileService extends ChannelServiceBase {
 			null, 
 			1000,
 			5000,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Updates the preferred language with selected language 
+	 * 
+	 * @param {string} preferredLanguage selected value to update clients preferred language
+	 * @param {string} cif client's CIF number
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof ClientProfileService
+	 */
+	async updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		
+		const url = `/client-${this._version}/preferences/language`;
+
+		const request = {
+			'language': preferredLanguage,
+			'cifNumber': cif
+		};
+
+		return this.put(
+			url,
+			request,
+			this.setToken(),
+			`updatePreferredLanguage`,
+			null,
+			null,
+			1000,
+			null,
 			errorHandler,
 			autoRetries
 		);

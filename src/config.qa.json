@@ -11,7 +11,8 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-qa.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-qa.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-qa.int.capinet"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
@@ -19,16 +20,16 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://standardbancslinkv3qa.int.capinet:8080/",
-		"cds": "https://clientdocsearchqa.int.capinet:51443/",
-		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"sbl": "https://standardbancslinkv3qa.int.capinet:8080/",
+		"cds": "https://clientdocsearchqa.int.capinet:51443",
+		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-qa.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"branch-locator": "https://www.capitecbank.co.za/branches",
+		"live-better": "https://www.capitecbank.co.za/live-better",	
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
-		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"				
+		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
+		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"				
 	},
 	"AuthMethod": "KBA",
 	"AuthAttempts": {

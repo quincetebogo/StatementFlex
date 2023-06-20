@@ -371,6 +371,9 @@ export class LiveBetter extends SavingsAccountBase {
 
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
+				
+				// setting inc status to not started for landing page needs
+				this._setIncidentNotstarted();
 
 			} else if (returnValue.succeeded) {
 
@@ -429,6 +432,12 @@ export class LiveBetter extends SavingsAccountBase {
 										item.formatedBalance = formatCurrency(item.balance);
 										item.description = item.statementDescription;
 										item.getBreakdownDetails = TRAN_CODES.includes(item.transactionCode);
+
+										// Below condition check is specific to date filter case. We reassigning the linked transaction expanded previously 
+										// to the new set if it has matching journal number
+										if (item.journalNumber === this.journalNumber) {
+											item.linkedTransactionDetails = this.linkedTransactionDetails;
+										}
 							
 										return item;
 									});
@@ -854,7 +863,7 @@ export class LiveBetter extends SavingsAccountBase {
 						<horizon-label
 							style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns).toString()} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell).toString()}" 
 							label="Transaction Date"
-							value = "${this.formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
+							value = "${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
 							data-automation-id="transaction-history-linked-transation-date"">
 						</horizon-label>
 						<horizon-label
