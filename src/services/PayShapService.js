@@ -45,9 +45,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		if (await this.isMockEnabled(`payShapDetails`)) {
 			return this.mock(`payShapDetails`);
 		}
-
-		// TODO: Update URL once CS is deployed.
-		const url = ``;
+		const url = `/payshap/details`;
 
 		return this.post(
 			url,
@@ -82,16 +80,19 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
-	async enlistCapitec(enlisterrorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async enlistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`enlistCapitec`)) {
 			return this.mock(`enlistCapitec`);
 		}
-		const url = `payshap/enlist-default`;
+		const url = `/payshap/enlist-default`;
 
 		return this.post(
 			url,
+			{
+				"verifiedCellphoneNumber": verifiedTelephoneNumber
+			},
 			this.setToken(),
 			`enlistCapitecDefault`,
 			false,
@@ -102,17 +103,20 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
-	async delistCapitec(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async delistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`delistCapitec`)) {
 			return this.mock(`delistCapitec`);
 		}
 
-		const url = `payshap/delist-default`;
+		const url = `/payshap/delist-default`;
 
 		return this.post(
 			url,
+			{
+				"verifiedCellphoneNumber": verifiedTelephoneNumber
+			},
 			this.setToken(),
 			`delistCapitecDefault`,
 			false,
