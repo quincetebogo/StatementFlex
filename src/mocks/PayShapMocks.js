@@ -1,34 +1,91 @@
 export const payShapDetails = {
 	"capitecProxy": {
-		"verified": false,
-		"knownAsName": "DEV NAME SURNAME XX",
-		"proxyId": "+27-825367598@CAPITEC",
-		"domain": "CAPITEC",
-		"fullProxyStatus": "Inactive",
-		"defaultProxyStatus": "False"
+	  "verified": false,
+	  "knownAsName": "DEV NAME SURNAME XX",
+	  "proxyId": "+27-820000401@CAPITEC",
+	  "domain": "CAPITEC",
+	  "fullProxyStatus": "Inactive",
+	  "defaultProxyStatus": "False"
 	},
 	"fees": [
-		{
-			"lowerBound": 1,
-			"upperBound": 10000,
-			"amount": 0
-		},
-		{
-			"lowerBound": 10001,
-			"upperBound": 100000,
-			"amount": 150
-		},
-		{
-			"lowerBound": 100001,
-			"upperBound": 300000,
-			"amount": 300
-		}
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "External Account Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "External Account Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "External Account Payments"
+	  }
 	],
 	"limits": {
-		"dailyLimit": 500000,
-		"transactionLimit": 300000
+	  "dailyLimit": 500000,
+	  "transactionLimit": 300000
 	}
-};
+  };
 
 export const institutionsList = [
 	{

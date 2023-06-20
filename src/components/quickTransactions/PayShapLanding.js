@@ -2,6 +2,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { convertCentsToRand, formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/PayShapTransactionHistory';
@@ -21,9 +22,7 @@ const TRANSACTION_HISTORY = {
 	MONEY_TYPE: `BOTH`
 };
 
-const CAPITEC_DOMAINS = [
-	`CAPITEC`
-]
+const CAPITEC_DOMAINS = [`CAPITEC`];
 
 const paymentHistoryList = [
 	{
@@ -169,6 +168,7 @@ export class PayShapLanding extends Component {
 		this.transactionHistory = paymentHistoryList;
 		this.payments = paymentHistoryList;
 		this.moneyfilter = true;
+		this.feeCategories = Utilities.groupBy(this.payShapLandingDetails.fees, `methodOfPayment`);
 	}
 
 	disconnectedCallback() {
@@ -283,7 +283,7 @@ export class PayShapLanding extends Component {
 	}
 
 	_formateProxyId(id) {
-		return id ? id.replace(`+27-`,`0`) : `-`;
+		return id ? id.replace(`+27-`, `0`) : `-`;
 	}
 
 	// ---------
@@ -337,7 +337,7 @@ export class PayShapLanding extends Component {
 				.payshap-info {
 					--theme-card-min-height: 80px;
 					--theme-card-box-shadow: 0px 6px 10px 0.25px rgba(0, 0, 0, 0.08);
-					padding: 22px 16px;
+					padding: 19px 16px;
 				}
 				.payment-fees {
 					--theme-card-min-height: 112px;
@@ -346,10 +346,44 @@ export class PayShapLanding extends Component {
 				}
 				.payment-limits {
 					--theme-card-min-height: 112px;
-					padding: 16px;
+					padding: 14px 16px 0px 16px;
 				}
 				.payshap-info > capitec-group {
 					--theme-layout-gap-spacing: 20px;
+				}
+				.fee-categories {
+					height: 32px;
+					width: auto;
+					padding: 4px 0px 4px 16px;
+					background-color: #F5F5F5;
+					border-top: 1px solid #E1E1E1;
+					border-bottom: 1px solid #E1E1E1;
+					border-left: 0px;
+					border-right: 0px;
+					--theme-label-subtitle-font-size: 14px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-layout-gap-spacing: 18px;
+				}
+				capitec-expander {
+					border: 1px solid #E1E1E1;
+					border-radius: 4px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-expander-indicator-width: 36px;
+					--theme-expander-icon-width: 24px;
+					--theme-expander-header-height: 64px;
+					--theme-expander-header-font-size: 16px;
+					--theme-expander-header-font-weight: 600;
+					--theme-expander-header-font-color: #3A3A3A;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-expander-height: 436px;
+					--theme-expander-width: 1029px;
+					--theme-expander-border: 0px;
+				}
+				.fee-limits-box {
+					height: 323px;
+					padding: 0px 16px;
 				}
 				horizon-label {
 					--theme-layout-gap-spacing: 0px;
@@ -371,7 +405,7 @@ export class PayShapLanding extends Component {
 				}
 				horizon-label[value="Inactive"] {
 					--horizon-label-value-color: #a5132a;
-				}				
+				}
 				.horizon-label-payshap-info {
 					width: 234px;
 				}
@@ -381,7 +415,7 @@ export class PayShapLanding extends Component {
 				}
 				.horizon-label-payment {
 					width: 200px;
-    				margin-bottom: 16px;
+    				margin-bottom: 12px;
 				}
 				capitec-button-bar {
 					padding: 10px 16px;
@@ -509,6 +543,9 @@ export class PayShapLanding extends Component {
 				capitec-image {
 					cursor: pointer;
 				}
+				.fee-limits-box > capitec-label {
+					padding-bottom: 4px;
+				}
 
 			`
 		];
@@ -627,7 +664,6 @@ export class PayShapLanding extends Component {
 				label="${formatDate(value, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
 	}
-	
 
 	_renderTransactionDetails() {
 		return html`
@@ -707,7 +743,6 @@ export class PayShapLanding extends Component {
 		`;
 	}
 
-
 	_renderPayShapDetails() {
 		return html`
 			${this._renderInfo()}
@@ -742,17 +777,31 @@ export class PayShapLanding extends Component {
 
 	_renderPaymentFees() {
 		return html`
-			<capitec-card class="payment-fees">
-				<capitec-label type="subtitle" label="Payshap Payment Fees"></capitec-label>
-				<capitec-group layout="horizontal" wrap>
-					${this._renderFeeDetails()}
-				</capitec-group>
-			</capitec-card>
+		<capitec-expander icon="system/cash-action" label="Payment fees">
+			<capitec-label
+				class="fee-categories"
+				type="subtitle"
+				label="Fee Categories">
+			</capitec-label>
+			<capitec-content-box class="fee-limits-box" halign="left" valign="top" gap="none">
+				${this._renderFeeCategories()}
+			</capitec-content-box>
+			
+		</capitec-expander>
 		`;
 	}
 
-	_renderFeeDetails() {
-		return this.payShapLandingDetails.fees.map(item => html`
+	_renderFeeCategories() {
+		return Object.keys(this.feeCategories).map(category => html`
+			<capitec-label type="subtitle" label="${category}"></capitec-label>
+			<capitec-group layout="horizontal" wrap>
+				${this._renderFeeDetails(this.feeCategories[category])}
+			</capitec-group>
+		`);
+	}
+
+	_renderFeeDetails(limits) {
+		return limits.map(item => html`
 			<horizon-label class="horizon-label-payment"
 					label="${formatCurrency(convertCentsToRand(item.lowerBound))} - ${formatCurrency(convertCentsToRand(item.upperBound))}"
 					value="${formatCurrency(convertCentsToRand(item.amount))}">
