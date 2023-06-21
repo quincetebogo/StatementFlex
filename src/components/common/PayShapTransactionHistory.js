@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FILTER_BY = {
 	ALL: `ALL`,
@@ -13,7 +13,7 @@ const FILTER_BY = {
 const RENDER_CHIPS = {
 	TEXT: ``,
 	DATE: ``,
-	MONEY_TYPE: `Money Out`
+	MONEY_TYPE: `All`
 };
 
 const DEFAULTS = {
@@ -26,15 +26,15 @@ const MAX_RESULTS = 50;
 const today = new Date();
 
 /**
- * Transaction History, common component to display list of transactions happened in client's'
- * account (Savings account / LBB / Savings plan / Credit).
+ * Transaction History, common component to display list of transactions occured 
+ * in client's payshap account.
  *
  * Events Raised
  * -------------
  * back 
  *
  * @export
- * @class TransactionHistory
+ * @class PayShapTransactionHistory
  * @extends {Component}
  */
 
@@ -47,16 +47,14 @@ export class PayShapTransactionHistory extends Component {
 	constructor() {
 		super();
 
-		this.transactionHistory = [];
-		this.accountDetails = {};
+		this.moneyOutTransactionHistory = [];
+		this.moneyInTransactionHistory = [];
 
 		// private properites
-		this.isBusy = false;
 		this.hideLoadMore = true;
 
 		this.startDate = ``;
 		this.endDate = ``;
-		this.product = ``;
 
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
@@ -84,14 +82,13 @@ export class PayShapTransactionHistory extends Component {
 	 */
 
 	/**
-	 * @property {Object} transactionHistory - Object holds transaction data
-	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
-	 * @property {String} type - Type of account (savings/ lbb/ credit)
-	 * @property {String} product - Type of product under account type ( Credit card/ Access facility/ Term loan/ etc...)
+	 * @property {Object} moneyOutTransactionHistory - Object holds money out transaction data
+	 * @property {Object} moneyInTransactionHistory - Object holds money in transaction data
 	 * 
 	 * @property {Object} renderTableColumns - Callback function to render account sepecific columns
 	 * @property {Object} renderTransactionDetails - Callback function to render account sepecific transaction information
-	 * @property {Function} getTransactionHistory Callback function to fetch more data
+	 * @property {Function} getMoneyOutTransactionHistory Callback function to fetch more data
+	 * @property {Function} getMoneyInTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * 
 	 * @readonly
@@ -101,18 +98,18 @@ export class PayShapTransactionHistory extends Component {
 
 	static get properties() {
 		return {
-			transactionHistory: { type: Object },
-			accountDetails: { type: Object },
-			type: { type: String },
-			product: { type: String },
+			moneyOutTransactionHistory: { type: Object },
+			moneyInTransactionHistory: { type: Object },
 
 			renderTableColumns: { type: Object },
 			renderTransactionDetails: { type: Object },
-			getTransactionHistory: { type: Object },
+			getMoneyOutTransactionHistory: { type: Object },
+			getMoneyInTransactionHistory: { type: Object },
 			disposeData: { type: Object },
 
+			moneyType: { type: String },
+
 			filteredData: { state: true },
-			isBusy: { state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
 			searchTextLabel: { state: true },
@@ -126,18 +123,23 @@ export class PayShapTransactionHistory extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
- connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
-		 this._initialise();
+		await this._initialise();
 
 		// Making sure no baggage is carried from the previous instance.
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = `All`;
 
-		this.filteredData = this.transactionHistory;
-		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		if (this.moneyType = `Money Out`) {
+			this.filteredData = this.moneyOutTransactionHistory;
+			this.hideLoadMore = this.moneyOutTransactionHistory.length % MAX_RESULTS > 0 && this.moneyOutTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		} else {
+			this.filteredData = this.moneyInTransactionHistory;
+			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0 && this.moneyInTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		}
+
 	}
 
 	disconnectedCallback() {
@@ -186,7 +188,7 @@ export class PayShapTransactionHistory extends Component {
 		];
 	}
 
-	 _dateChanged(e) {
+	async _dateChanged(e) {
 
 		/**
 		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
@@ -226,67 +228,47 @@ export class PayShapTransactionHistory extends Component {
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		
-		this._loadFilteredTransactions();
+
+		await this._loadFilteredTransactions();
 	}
 
-	 _loadFilteredTransactions() {
+	async _loadFilteredTransactions() {
 		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		this.disposeData();
-		 this.getTransactionHistory();
 
-		this._refineSearch(startDate, endDate);
-	}
-
-	_closeChip(type) {
-
-		this._clearFilter(type);
-		this._refineSearch();
-	}
-
-	_clearFilters() {
-
-		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
-		Array.from(activeFilters.children)
-			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
-			 .forEach(item => {
-				 this._clearFilter(item.id);
-			 });
-
-		this._refineSearch();
-	}
-
-	// To scroll the content of the Table to the Top when scroll to Top button is clicked
-	_scrollToTop(e) {
-		const element = this.shadowRoot.getElementById(`transactions-table`);
-		element.scrollTop = 0;
-	}
-	
-	async _selectedMoneyType(e) {
-		if (e.target.label === `Money Out`) {
-			await this.moneyOutTransactionHistory();
-		} else if (e.target.label === `Money In`) {
-			this.dispatchEvent(new CustomEvent(`money-in`, { detail: { filterType: `Money In` } }));
-			// await this.moneyInTransactionHistory();
+		if (this.moneyType = `Money Out`) {
+			this.moneyOutTransactionHistory = await this.getMoneyOutTransactionHistory(startDate, endDate);
+			this.hideLoadMore = this.moneyOutTransactionHistory.length % MAX_RESULTS > 0 && this.moneyOutTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+		} else {
+			this.moneyInTransactionHistory = await this.getMoneyInTransactionHistory(startDate, endDate);
+			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0 && this.moneyInTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
 		}
+
 		this._refineSearch();
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
+	async _selectedMoneyType(e) {
 
-	_errorHandler(exception) {
-		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
+		this.moneyType = e.target.label;
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
+		const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+		if (this.moneyType === `Money In`) {
+			this.moneyInTransactionHistory = await this.getMoneyInTransactionHistory(startDate, endDate);
+		} else if (this.moneyType === `Money Out`) {
+			this.moneyOutTransactionHistory = await this.getMoneyOutTransactionHistory(startDate, endDate);
+		}
+
+		this._refineSearch();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	 _initialise() {
+	_initialise() {
 		this.get90DaysAfter = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() + 90);
@@ -298,44 +280,16 @@ export class PayShapTransactionHistory extends Component {
 			result.setDate(result.getDate() - 90);
 			return result.toISOString();
 		};
-
-	}
-
-	// To set the values to default on closing the chip or clearing all the filters
-	 _reset() {
-		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``;
-			this.endDate = ``;
-
-			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-			if (calendar) {
-				calendar._placeholderEndDate = null;
-				calendar._placeholderStartDate = null;
-			}
-			this._loadFilteredTransactions();
-		}
-	}
-
-	async _loadMoreTransactions() {
-		const oldCount = this.transactionHistory.length;
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
-
-		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
-
-		// If the old record count and count after load more are same means no more data to populate,
-		// so hiding loadmore button
-		if (oldCount === this.transactionHistory.length) {
-			this.hideLoadMore = true;
-		} else {
-			this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
-		}
-		this._refineSearch();
 	}
 
 	_refineSearch() {
 		// Assigning the raw data before performing the filter
-		this.filteredData = this.transactionHistory;
+
+		if (this.moneyType === `Money Out`) {
+			this.filteredData = this.moneyOutTransactionHistory;
+		} else {
+			this.filteredData = this.moneyInTransactionHistory;
+		}
 
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
@@ -345,9 +299,15 @@ export class PayShapTransactionHistory extends Component {
 					if (key.startsWith(`-`)) {
 						return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
 					}
-					return this.filteredData.filter(item => item.creditorFicaName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-															parseFloat(item.amount).toFixed(2).startsWith(key) ||
-															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
+					if (this.moneyType === `Money Out`) {
+						return this.filteredData.filter(item => item.creditorKnownAsName.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+																parseFloat(item.creditorAccountId).toFixed(2).startsWith(key) ||
+																parseFloat(item.amount).toFixed(2).startsWith(key));
+					} 
+					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															parseFloat(item.amount).toFixed(2).startsWith(key));
+
+
 				}
 				return [];
 			});
@@ -358,24 +318,10 @@ export class PayShapTransactionHistory extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			this.filteredData = this.filteredData.filter(item => item.processDateTime >= startDate && item.processDateTime <= endDate); 
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
 		}
 
-		if (RENDER_CHIPS[FILTER_BY.MONEY_TYPE]) {
-			const moneyType = RENDER_CHIPS[FILTER_BY.MONEY_TYPE];
-
-			if (moneyType === `Money In`) {
-				this.filteredData = this.filteredData.filter(item => item.amount > 0);
-			} else if (moneyType === `Money Out`) {
-				this.filteredData = this.filteredData.filter(item => item.amount < 0);
-			}
-		}
 		this.requestUpdate();
-	}
-
-	_formatDate(date) {
-		const newdate = new Date(Date.parse(date));
-		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	_getDateRange() {
@@ -396,98 +342,28 @@ export class PayShapTransactionHistory extends Component {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
-	_clearFilter(type) {
-		const text = () => this._clearTextFilter();
-		const date = () => this._reset();
-		const status = () => { 
-			this.statuslabel = DEFAULTS.STATUS_LABEL; 
-		};
-		
-		const resetForfilters = {
-			'DATE': date,
-			'TEXT': text,
-			'STATUS': status
-		};
-
-		RENDER_CHIPS[type] = ``;
-		if (resetForfilters[type]) {
-			resetForfilters[type]();
-		}
-	}
-
-	_clearTextFilter() {
-		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
-
-		const searchTextField = this.shadowRoot.getElementById(`text-filter`);
-		searchTextField.clearVisible = false;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------
 
-	/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
 	static get styles() {
 		return [
 			super.styles,
 			css`
 				.transaction-card {
-					height: auto;
+					height: 750px;
+					width: 1060px;
 					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+					border: none;
 				}
 				.transaction-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
 
-				/* Header Styles */
-				.transaction-history-title {
-					width: var(--horizon-center-panel-width, 1064px);
-					border-bottom: 0px;
-					border-radius: 4px 4px 0 0;
-					padding: 11px 24px 11px 15px;
-
-					--theme-label-font-color: #FFFFFF;
-				}
-				.transaction-history-title > img {
-					width: 26px;
-					margin-right: 10px;
-					cursor: pointer;
-				}
-
-				/* Account Details Bar styles */
-				.actionbar-header {
-					height: 64px;
-					border-bottom: 0px;
-					padding: 11px 24px 11px 43px;
-				}
-				.actionbar-header > horizon-label {
-					width: 156px;
-					height: 100%;
-					padding: 0px 0px 0px 16px;
-				
-					--horizon-label-text-height: 20px;
-					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-value-color: #FFFFFF;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-				.actionbar-header > horizon-label[label="Account Number"] {
-					width: 174px;
-				}
-				.actionbar-header > horizon-label[label="Interest"] {
-					width: 120px;
-				}
-
 				/* Filter Bar styles */
 				.transaction-action-bar {
 					height: 64px;
+					width: 1060px;
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
@@ -500,15 +376,7 @@ export class PayShapTransactionHistory extends Component {
 					--theme-input-clear-icon-height: 0px;
 					--theme-input-clear-icon-width: 0px;
 				}
-				.cb-datepicker {
-					height: 48px;
-					width: 201px;
-					margin-right: 8px;
-					border-radius: 5px;
-					border: 1px solid #E1E1E1;
-					cursor: pointer;
-				}
-				
+
 				/* Main View Styles */
 				.main-view {
 					--theme-container-padding-left: 0px;
@@ -516,9 +384,11 @@ export class PayShapTransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 661px;
+					height: 683px;
+					width: 1060px;
 				}
-				capitec-table{
+				capitec-table {
+					width: 1060px;
 					height: auto;
 					--theme-icon-size-default: 24px;
 					--theme-data-table-body-group-font-weight: 600;
@@ -538,38 +408,37 @@ export class PayShapTransactionHistory extends Component {
 
 				/* Modal Calendar Styles */
 
-				div[slot="body"] {
-					display: flex;
-				}
-
-				.load-more-bar{
+				.load-more-bar {
 					--theme-actionbar-min-height: 48px;
 					padding-top : 0px;
 					padding-bottom: 0px; 
 					--theme-actionbar-background: #f4f4f4;
 				}
+
 				.scroll-top {
 					padding-top: 12px;
 					cursor: pointer;
 				}
-				capitec-date-time-picker{
+
+				capitec-date-time-picker {
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-date-time-picker-range-calendar-border: 0px;
 					margin-right: 8px;
 					width: 280px;
 				}
-				.transaction-action-bar > capitec-chip{
+
+				.transaction-action-bar > capitec-chip {
 					margin: 0px 8px;
 					--theme-chip-label-padding-left: 11px;
 					--theme-chip-label-padding-right: 11px;
 					--theme-chip-label-line-height: 19px;
 				}
-				.type-normal{
+				.type-normal {
 					--theme-chip-label-color: #3A3A3A;
 					--theme-chip-background-color: #FFFFFF;
 				}
-				.type-selected{
+				.type-selected {
 					--theme-chip-label-color: #FFFFFF;
 					--theme-chip-background-color: #009DE0;
 					--theme-chip-font-weight: 600;
@@ -580,7 +449,7 @@ export class PayShapTransactionHistory extends Component {
 					--theme-label-font-color: #3A3A3A;
 				}
 				.no-result-group {
-					width: 1062px;
+					width: 1060px;
 					margin-top: 130px;
 				}
 				capitec-image {
@@ -605,14 +474,7 @@ export class PayShapTransactionHistory extends Component {
 						${this._renderFooter()}
 				</capitec-group>
 			</capitec-card>
-			${this._renderLoadingIndicator()}
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator data-automation-id="transaction-history-loading-indicator"></capitec-loading-indicator>`
-			: html``;
 	}
 
 	_renderActionBar() {
@@ -629,7 +491,6 @@ export class PayShapTransactionHistory extends Component {
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					data-automation-id="transaction-history-text-filter">
-					
 				</capitec-text-field>
 
 				<capitec-date-time-picker
@@ -646,15 +507,15 @@ export class PayShapTransactionHistory extends Component {
 					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter">
 				</capitec-date-time-picker>
-				
+
 				<capitec-chip 
 					label="Money In"
-					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money In` ? `type-selected` : `type-normal`}" 
+					class="${this.moneyType === `Money In` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}">
 				</capitec-chip>
 				<capitec-chip 
 					label="Money Out" 
-					class="${RENDER_CHIPS[FILTER_BY.MONEY_TYPE] === `Money Out` ? `type-selected` : `type-normal`}" 
+					class="${this.moneyType === `Money Out` ? `type-selected` : `type-normal`}" 
 					@click="${(e) => this._selectedMoneyType(e)}">
 				</capitec-chip>
 
@@ -677,6 +538,18 @@ export class PayShapTransactionHistory extends Component {
 		: html`
 			${this._renderNoResults()}
 		`;
+	}
+
+	renderTransactionDetails(item) {
+		return this.moneyType === `Money Out` 
+		? html`${this.renderMoneyOutTransactionDetails(item)}`
+		: html`${this.renderMoneyInTransactionDetails(item)}`;
+	}
+
+	renderTableColumns() {
+		return this.moneyType === `Money Out` 
+		? html`${this.renderMoneyOutTableColumns()}`
+		: html`${this.renderMoneyInTableColumns()}`;
 	}
 
 	_renderNoResults() {
