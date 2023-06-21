@@ -1,92 +1,188 @@
 export const payShapDetails = {
 	"capitecProxy": {
-		"verified": true,
-		"knownAsName": `0764575577@capitecbank`,
-		"proxyId": ``,
-		"domain": `Capitec Bank`,
-		"fullProxyStatus": `Active`,
-		"defaultProxyStatus": true
+	  "verified": false,
+	  "knownAsName": "DEV NAME SURNAME XX",
+	  "proxyId": "+27-820000401@CAPITEC",
+	  "domain": "CAPITEC",
+	  "fullProxyStatus": "Inactive",
+	  "defaultProxyStatus": "False"
 	},
 	"fees": [
-		{
-			"lowerBound": 0,
-			"upperBound": 100.00,
-			"amount": 1.00
-		},
-		{
-			"lowerBound": 100.01,
-			"upperBound": 1000.00,
-			"amount": 2.50
-		},
-		{
-			"lowerBound": 1000.01,
-			"upperBound": 3000.00,
-			"amount": 5.00
-		},
-		{
-			"lowerBound": 3000.01,
-			"upperBound": 100000.00,
-			"amount": 7.50
-		}
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "Capitec to Capitec Account Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "External Proxy Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "Capitec to Capitec Proxy Payments"
+	  },
+	  {
+		"lowerBound": 1,
+		"upperBound": 10000,
+		"amount": 0,
+		"methodOfPayment": "External Account Payments"
+	  },
+	  {
+		"lowerBound": 10001,
+		"upperBound": 100000,
+		"amount": 150,
+		"methodOfPayment": "External Account Payments"
+	  },
+	  {
+		"lowerBound": 100001,
+		"upperBound": 300000,
+		"amount": 300,
+		"methodOfPayment": "External Account Payments"
+	  }
 	],
 	"limits": {
-		"transactionLimit": 3000.00,
-		"dailyLimit": 5000.00
+	  "dailyLimit": 500000,
+	  "transactionLimit": 300000
 	}
-};
+  };
 
 export const institutionsList = [
 	{
-		"participantName": `CAPITEC BANK LIMITED`,
+		"participantName": "CAPITEC BANK LIMITED",
 		"domains": [
 			{
-				"name": `CAPITEC`
+				"name": "CAPITEC"
 			},
 			{
-				"name": `AFRICANBANK`
+				"name": "CAPITECBANK"
 			},
 			{
-				"name": `SBI BANK`
+				"name": "CAPITECBUSINESS"
 			}
 		]
 	},
 	{
-		"participantName": `AFRICAN BANK`,
+		"participantName": "ABSA",
 		"domains": [
 			{
-				"name": `AFRICANBANK`
+				"name": "ABSA"
 			}
 		]
 	},
 	{
-		"participantName": `Standard Bank`,
+		"participantName": "STANDARD BANK SOUTH AFRICA",
 		"domains": [
 			{
-				"name": `StandardBank`
+				"name": "SBSA"
+			},
+			{
+				"name": "MYMO"
+			},
+			{
+				"name": "STANDARDBANK"
+			},
+			{
+				"name": "THRIVE"
 			}
 		]
 	},
 	{
-		"participantName": `ABSA BANK`,
+		"participantName": "AFRICAN BANK",
 		"domains": [
 			{
-				"name": `ABSA`
+				"name": "AFRICANBANK"
 			}
 		]
 	},
 	{
-		"participantName": `TEST BANK`,
+		"participantName": "DISCOVERY",
 		"domains": [
 			{
-				"name": `TEST`
+				"name": "DISCOVERY"
 			}
 		]
 	},
 	{
-		"participantName": `BSA SIMULATOR`,
+		"participantName": "FIRSTRAND BANK",
 		"domains": [
 			{
-				"name": `sandbox`
+				"name": "FNB"
+			}
+		]
+	},
+	{
+		"participantName": "INVESTEC",
+		"domains": [
+			{
+				"name": "INVESTEC"
+			}
+		]
+	},
+	{
+		"participantName": "NEDBANK",
+		"domains": [
+			{
+				"name": "NEDBANK"
+			}
+		]
+	},
+	{
+		"participantName": "BSA SIMULATOR",
+		"domains": [
+			{
+				"name": "sandbox"
+			},
+			{
+				"name": "sandbox_test"
+			}
+		]
+	},
+	{
+		"participantName": "TYME BANK LIMITED",
+		"domains": [
+			{
+				"name": "TYME"
 			}
 		]
 	}

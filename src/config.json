@@ -51,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -68,7 +68,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -97,7 +97,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -281,27 +281,27 @@
 			"positiveCase" : true
 		},
 		"payShapDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"getInstitutions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"enlistCapitec": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"delistCapitec": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"moneyOut": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"moneyIn": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

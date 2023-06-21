@@ -81,7 +81,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
-	async enlistCapitec(enlisterrorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async enlistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`enlistCapitec`)) {
@@ -91,6 +91,9 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 		return this.post(
 			url,
+			{
+				"verifiedCellphoneNumber": verifiedTelephoneNumber
+			},
 			this.setToken(),
 			`enlistCapitecDefault`,
 			false,
@@ -101,7 +104,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
-	async delistCapitec(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async delistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`delistCapitec`)) {
@@ -112,6 +115,9 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 		return this.post(
 			url,
+			{
+				"verifiedCellphoneNumber": verifiedTelephoneNumber
+			},
 			this.setToken(),
 			`delistCapitecDefault`,
 			false,
