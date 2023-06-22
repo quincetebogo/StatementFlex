@@ -4,7 +4,7 @@ import { css, html } from 'platform/elements';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
-import { MAX_RESULTS } from 'app/constants/InsureTransactionHistory';
+import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 
 import 'app/components/insure/ClientSummary';
 import 'app/components/insure/PolicySummary';
@@ -16,12 +16,11 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 
-// ninety days in milliseconds
-const NINETY_DAYS = 7777000000;
+const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
 const POLICY_TRANSACTION_HISTORY = {
 	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	START_DATE: new Date(INSURE_PRODUCT_START_DATE).toISOString().substr(0, 10),
 	PAGE_INDEX: 0,
 	MAX_RESULTS: MAX_RESULTS
 };
@@ -286,17 +285,15 @@ static get properties() {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const formatedPremiumDate = new Date(Date.parse(item.premiumDueDate));
-										const formatedDate = new Date(Date.parse(item.Date));
-										item.formatedPremiumDate = formatedPremiumDate;
-										item.formatedDate = formatedDate;
-										item.formatedPremium = formatCurrency(item.premium);
-										item.groupByPremiumDate = `${getMonthName(formatedPremiumDate.getMonth())} ${formatedPremiumDate.getFullYear()}`;
-										item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										return item;
-									});
+			.map((item) => {
+				const formatedDate = new Date(Date.parse(item.date));
+				item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
+				item.formatedDate = formatedDate;
+				item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
+				item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+				item.formatedAmount = isNullorEmpty(item.amount) ? `` : formatCurrency(item.amount);
+				return item;
+			});
 			this.transactions.push(...formattedTrans);
 
 			this.policyTransactionHistory.transactions = this.transactions;
