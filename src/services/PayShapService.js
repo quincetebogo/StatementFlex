@@ -45,6 +45,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		if (await this.isMockEnabled(`payShapDetails`)) {
 			return this.mock(`payShapDetails`);
 		}
+
 		const url = `/payshap/details`;
 
 		return this.post(
@@ -120,6 +121,50 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			this.setToken(),
 			`delistCapitecDefault`,
 			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async moneyIn(moneyInDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`moneyIn`)) {
+			return this.mock(`moneyIn`);
+		}
+
+		const url = `/payshap/money-in`;
+
+		return this.post(
+			url,
+			moneyInDetails,
+			this.setToken(),
+			`moneyIn`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async moneyOut(moneyOutDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`moneyOut`)) {
+			return this.mock(`moneyOut`);
+		}
+
+		const url = `/payshap/money-out`;
+
+		return this.post(
+			url,
+			moneyOutDetails,
+			this.setToken(),
+			`moneyIn`,
+			null,
+			null,
 			null,
 			null,
 			errorHandler,

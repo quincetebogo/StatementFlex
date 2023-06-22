@@ -275,7 +275,6 @@ export class PayShapUpdate extends Component {
 					--theme-toast-width: 664px;
 					--theme-toast-border-radius: 0px;
 				}
-			}
 			`
 		];
 	}
@@ -341,7 +340,7 @@ export class PayShapUpdate extends Component {
 			<capitec-label type="title" label="Default institution"></capitec-label>
 			<capitec-card class="default-institute">
 				<capitec-group layout="horizontal">
-					<capitec-label class="institute-name" type="strong" label="${isNullorEmpty(this.defaultInstitutionName) ? `None Assigned` : this.defaultInstitutionName }"></capitec-label>
+					<capitec-label class="institute-name" type="strong" label="${isNullorEmpty(this.defaultInstitutionName) ? `None Assigned` : this.defaultInstitutionName}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label type="strong" label="Set as Capitec"></capitec-label>
 					<capitec-toggle 
