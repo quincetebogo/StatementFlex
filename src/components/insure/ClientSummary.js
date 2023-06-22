@@ -1118,6 +1118,13 @@ class ClientSummary extends Component {
 							label="Start date"
 							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
+
+						${policyItem.status === `Lapsed` ? html`
+						<horizon-label
+							label="Lapse Date"
+							value="${formatDate(policyItem?.cancellationDetails?.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem?.cancellationDetails?.commencementDate, `dd mmm yyyy`)}">
+						</horizon-label>` : html``}
+
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
