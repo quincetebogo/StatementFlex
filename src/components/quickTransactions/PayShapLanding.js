@@ -20,88 +20,13 @@ const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-	START_AT_INDEX: 0,
+	START_AT_INDEX: 1,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 };
 
 const CAPITEC_DOMAINS = [`CAPITEC`];
 
-const paymentHistoryList = [
-	{
-		"processDateTime": `2023-04-01T10:45:11.473+02:00`,
-	"methodOfPayment": `PBPX`,
-	"tranCode": `string`,
-	"statusCode": `FailedToProcess`,
-	"amount": -547.00,
-	"currency": `string`,
-	"debtorAccountId": `string`,
-	"debtorReference": `string`,
-	"creditorAccountId": `GM524sBa`,
-	"creditorAgentBICFI": `string`,
-	"creditorAgentMemberIdentification": `string`,
-	"creditorAgentCreditorDomain": `string`,
-	"creditorProxyType": `MBNO`,
-	"creditorKnownAsName": `Brandon George`,
-	"creditorFicaName": `Absa Bank`,
-	"creditorProxyId": `(+27) 716 546 7890`,
-	"creditorReference": `string`,
-	"feeAmount": 3000,
-	"notificationType": `NONE`,
-	"notificationAddress": `string`,
-	"hideDetails": true,
-	"insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
-	},
-	{
-	"processDateTime": `2023-05-17T07:44:56.360+02:00`,
-	"methodOfPayment": `PBPX`,
-	"tranCode": `string`,
-	"statusCode": `FailedToProcess`,
-	"amount": -5000.00,
-	"currency": `string`,
-	"debtorAccountId": `string`,
-	"debtorReference": `string`,
-	"creditorAccountId": `GM524sBa`,
-	"creditorAgentBICFI": `string`,
-	"creditorAgentMemberIdentification": `string`,
-	"creditorAgentCreditorDomain": `string`,
-	"creditorProxyType": `MBNO`,
-	"creditorKnownAsName": `Ryan Vetrovs`,
-	"creditorFicaName": `Standard Bank`,
-	"creditorProxyId": `(+27) 716 546 7890`,
-	"creditorReference": `string`,
-	"feeAmount": 3000,
-	"notificationType": `NONE`,
-	"notificationAddress": `string`,
-	"hideDetails": true,
-	"insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
-	},
-	{
-		"processDateTime": `2023-03-10T07:44:56.360+02:00`,
-		"methodOfPayment": `PBPX`,
-		"tranCode": `string`,
-		"statusCode": `FailedToProcess`,
-		"amount": 5470.00,
-		"currency": `string`,
-		"debtorAccountId": `string`,
-		"debtorReference": `string`,
-		"creditorAccountId": `GM524sBa`,
-		"creditorAgentBICFI": `string`,
-		"creditorAgentMemberIdentification": `string`,
-		"creditorAgentCreditorDomain": `string`,
-		"creditorProxyType": `MBNO`,
-		"creditorKnownAsName": `Leo Lubin`,
-		"creditorFicaName": `First National Bank`,
-		"creditorProxyId": `(+27) 716 546 7890`,
-		"creditorReference": `string`,
-		"feeAmount": 3000,
-		"notificationType": `NONE`,
-		"notificationAddress": `string`,
-		"hideDetails": true,
-		"insertedDateTime": `yyyy-MM-ddTHH:mm:ss.sss+/-hh:mm`
-		}
-	];
-	
 /**
  * This component shows the payshap landing page.
  *
@@ -129,12 +54,8 @@ export class PayShapLanding extends Component {
 		this.moneyInTransactionHistory = [];
 		this.payments = [];
 		this.moneyType = ``;
-		this.paginationToken = null;
+		this.moneyOutLoadDetails = {};
 
-		// this.MoneyInrecords = [{ transactionDate: `28 Apr 2023`, description: `SMS Notification Fee: 2 Notification(s)`, amount: `R200.60`, balance: `R373.75` }];
-
-		// this.MoneyOutrecords = [{ transactionDate: `07 Aug 2022`, fullname: `Brandon George`, shapId: `(+27) 716 546 7890`, accountnumber: `N/A`, institution: `ABSA Bank`, amount: `-R547.00` }];
-		this.moneyfilter = false;
 		this.filteredInstitutions = [];
 		this.showUpdateModal = false;
 		this.optInInsights = false;
@@ -144,6 +65,8 @@ export class PayShapLanding extends Component {
 
 		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.horizonRouter = HorizonRouter.getInstance();
+
+		this.moneyOutTransDetails = {};
 	}
 
 	// --------------
@@ -158,10 +81,9 @@ export class PayShapLanding extends Component {
 			getInstitutions: { type: Object },
 			accountNumber: { type: String },
 			moneyType: { type: String },
-			paginationToken: { type: String },
 
+			moneyOutTransDetails: { state: true },
 			institutionsList: { state: true },
-			moneyfilter: { state: false },
 			renderMode: { state: false },
 			optInInsights: { state: true },
 			defaultInstitute: { state: true },
@@ -181,10 +103,7 @@ export class PayShapLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		// this.transactionHistory = () => this._transactionHistory();
-		// this.transactionHistory = paymentHistoryList;
-		// this.payments = paymentHistoryList;
-		this.moneyfilter = true;
+
 		this.feeCategories = Utilities.groupBy(this.payShapLandingDetails.fees, `methodOfPayment`);
 	}
 
@@ -252,24 +171,25 @@ export class PayShapLanding extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	async _getMoneyOutTransactionHistory(startDate, endDate) {
+	async _getMoneyOutTransactionHistory(startDate, endDate, paginationToken) {
 
 		const moneyOutTHRequest = {
 			cifNumber: this.cifNumber,
 			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
-			pageSize: `5`,
-			paginationToken: null
+			pageSize: `11`,
+			paginationToken: paginationToken || null
 		};
 
 		const returnValue = await this.payShapService.moneyOut(moneyOutTHRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			this.paginationToken = returnValue.result.paginationToken;
+
 			const formattedTrans = returnValue.result.paymentHistoryList
 				.map((item) => {
 					const date = new Date(Date.parse(item.processDateTime));
 
+					item.tranDate = date;
 					item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 					item.fullname = item.creditorKnownAsName;
 					item.shapId = item.creditorProxyId;
@@ -279,9 +199,14 @@ export class PayShapLanding extends Component {
 
 					return item;
 				});
-			this.moneyOutTransactionHistory.push(...formattedTrans);
+			this.moneyOutTransactionHistory = formattedTrans;
 		}
-		return this.moneyOutTransactionHistory;
+		return {
+			moneyOutTransactionHistory: this.moneyOutTransactionHistory,
+			paginationToken: returnValue.result.paginationToken,
+			moneyOutLoadMore: returnValue.result.more
+		};
+
 	}
 
 	async _getMoneyInTransactionHistory(startDate, endDate) {
@@ -326,7 +251,8 @@ export class PayShapLanding extends Component {
 
 	async _transactionHistoryTab() {
 		this.moneyType = `Money Out`;
-		await this._getMoneyOutTransactionHistory();
+
+		this.moneyOutTransDetails = await this._getMoneyOutTransactionHistory();
 		this.renderMode = RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY;
 	}
 
@@ -370,6 +296,7 @@ export class PayShapLanding extends Component {
 					cursor: pointer;
 				}
 				capitec-tab {
+					height: 768px;
 					border-top: 1px solid #E1E1E1;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
@@ -710,10 +637,12 @@ export class PayShapLanding extends Component {
 			<horizon-payshap-transaction-history
 				.moneyType="${this.moneyType}"
 
+				.moneyOutTransDetails="${this.moneyOutTransDetails}"
+
 				.moneyOutTransactionHistory="${this.moneyOutTransactionHistory}"
 				.renderMoneyOutTableColumns="${() => this._renderMoneyOutTransactionHistoryColumns()}"
 				.renderMoneyOutTransactionDetails="${(item) => this._renderMoneyOutTransactionDetails(item)}"
-				.getMoneyOutTransactionHistory="${() => this._getMoneyOutTransactionHistory()}"
+				.getMoneyOutTransactionHistory="${(startDate, endDate, paginationToken) => this._getMoneyOutTransactionHistory(startDate, endDate, paginationToken)}"
 
 				.moneyInTransactionHistory="${this.moneyInTransactionHistory}"
 				.renderMoneyInTableColumns="${() => this._renderMoneyInTransactionHistoryColumns()}"

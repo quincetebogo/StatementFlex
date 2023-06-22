@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
 
 const FILTER_BY = {
 	ALL: `ALL`,
@@ -24,6 +25,7 @@ const DEFAULTS = {
 
 const MAX_RESULTS = 50;
 const today = new Date();
+const DATE_FORMAT = `dd mmm yyyy`;
 
 /**
  * Transaction History, common component to display list of transactions occured 
@@ -100,6 +102,7 @@ export class PayShapTransactionHistory extends Component {
 		return {
 			moneyOutTransactionHistory: { type: Object },
 			moneyInTransactionHistory: { type: Object },
+			moneyOutTransDetails: { type: Object },
 
 			renderTableColumns: { type: Object },
 			renderTransactionDetails: { type: Object },
@@ -133,11 +136,12 @@ export class PayShapTransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 
 		if (this.moneyType = `Money Out`) {
+			this.moneyOutTransactionHistory = this.moneyOutTransDetails.moneyOutTransactionHistory;
 			this.filteredData = this.moneyOutTransactionHistory;
-			this.hideLoadMore = this.moneyOutTransactionHistory.length % MAX_RESULTS > 0 && this.moneyOutTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = !this.moneyOutTransDetails.moneyOutLoadMore;
 		} else {
 			this.filteredData = this.moneyInTransactionHistory;
-			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0 && this.moneyInTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0;
 		}
 
 	}
@@ -239,11 +243,14 @@ export class PayShapTransactionHistory extends Component {
 		this.disposeData();
 
 		if (this.moneyType = `Money Out`) {
-			this.moneyOutTransactionHistory = await this.getMoneyOutTransactionHistory(startDate, endDate);
-			this.hideLoadMore = this.moneyOutTransactionHistory.length % MAX_RESULTS > 0 && this.moneyOutTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			const details = await this.getMoneyOutTransactionHistory(startDate, endDate, this.moneyOutTransDetails.paginationToken);
+
+			this.moneyOutTransDetails = details;
+			this.moneyOutTransactionHistory = details.moneyOutTransactionHistory;
+			this.hideLoadMore = !details.moneyOutLoadMore;
 		} else {
 			this.moneyInTransactionHistory = await this.getMoneyInTransactionHistory(startDate, endDate);
-			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0 && this.moneyInTransactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0;
 		}
 
 		this._refineSearch();
@@ -255,10 +262,16 @@ export class PayShapTransactionHistory extends Component {
 		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
-		if (this.moneyType === `Money In`) {
+		if (this.moneyType === `Money In` && this.moneyInTransactionHistory.length === 0) {
 			this.moneyInTransactionHistory = await this.getMoneyInTransactionHistory(startDate, endDate);
-		} else if (this.moneyType === `Money Out`) {
-			this.moneyOutTransactionHistory = await this.getMoneyOutTransactionHistory(startDate, endDate);
+			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0;
+
+		} else if (this.moneyType === `Money Out` && this.moneyOutTransactionHistory.length === 0) {
+			const details = await this.getMoneyOutTransactionHistory(startDate, endDate, this.moneyOutTransDetails.paginationToken);
+
+			this.moneyOutTransDetails = details;
+			this.moneyOutTransactionHistory = details.moneyOutTransactionHistory;
+			this.hideLoadMore = !details.moneyOutLoadMore;
 		}
 
 		this._refineSearch();
@@ -325,11 +338,11 @@ export class PayShapTransactionHistory extends Component {
 	}
 
 	_getDateRange() {
-		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
-		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+		const fromDate = !this.startDate ? `dd mm yyyy` : formatDate(this.startDate, DATE_FORMAT);
+		const toDate = !this.endDate ? `dd mm yyyy` : formatDate(this.endDate, DATE_FORMAT);
 
 		const preDefinedRanges = this.getPredefinedDateRanges();
-		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+		const selectedValue = preDefinedRanges.filter(item => formatDate(item.value.startDate, DATE_FORMAT) === fromDate && formatDate(item.value.endDate, DATE_FORMAT) === toDate);
 
 		if (selectedValue.length > 0) {
 			return selectedValue[0].text;
@@ -342,6 +355,39 @@ export class PayShapTransactionHistory extends Component {
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
+	async _loadMoreTransactions() {
+		if (this.moneyType === `Money Out`) {
+			const startDate = this.startDate.toLocaleString().slice(0, 10);
+			const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+			const details = await this.getMoneyOutTransactionHistory(startDate, endDate, this.moneyOutTransDetails.paginationToken);
+
+			this.moneyOutTransDetails = details;
+			this.moneyOutTransactionHistory = details.moneyOutTransactionHistory;
+			this.hideLoadMore = !details.moneyOutLoadMore;
+
+		} else {
+			const oldCount = this.moneyInTransactionHistory.length;
+			const startDate = this.startDate.toLocaleString().slice(0, 10);
+			const endDate = this.endDate.toLocaleString().slice(0, 10);
+
+			this.moneyInTransactionHistory = await this.getMoneyInTransactionHistory(startDate, endDate, this.moneyInTransactionHistory.length + 1);
+
+			if (oldCount === this.transactionHistory.length) {
+				this.hideLoadMore = true;
+			} else {
+				this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
+			}
+		}
+
+		this._refineSearch();
+	}
+
+	_scrollToTop() {
+		const element = this.shadowRoot.getElementById(`transactions-table`);
+		element.scrollTop = 0;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -351,7 +397,7 @@ export class PayShapTransactionHistory extends Component {
 			super.styles,
 			css`
 				.transaction-card {
-					height: 750px;
+					height: 767px;
 					width: 1060px;
 					background-color: #FFFFFF;
 					border: none;
@@ -384,7 +430,7 @@ export class PayShapTransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 683px;
+					height: 648px;
 					width: 1060px;
 				}
 				capitec-table {
@@ -409,9 +455,9 @@ export class PayShapTransactionHistory extends Component {
 				/* Modal Calendar Styles */
 
 				.load-more-bar {
+					padding: 0px;
+					margin: 0px;
 					--theme-actionbar-min-height: 48px;
-					padding-top : 0px;
-					padding-bottom: 0px; 
 					--theme-actionbar-background: #f4f4f4;
 				}
 
@@ -578,21 +624,19 @@ export class PayShapTransactionHistory extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.transactionHistory.length === 0}">
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
 					label="Load More"
-					@click = ${() => this._loadMoreTransactions()}
-					data-automation-id="transaction-history-load-more">
+					@click = ${() => this._loadMoreTransactions()}>
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-icon
 					class='scroll-top'
 					size="medium"
 					icon="system/arrow-up-action"
-					@click = ${(e) => this._scrollToTop(e)}
-					data-automation-id="transaction-history-scroll-top">
+					@click = ${(e) => this._scrollToTop(e)}>
 				</capitec-icon>
 			</capitec-action-bar>`;
 	}
