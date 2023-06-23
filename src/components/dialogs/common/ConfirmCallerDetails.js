@@ -13,6 +13,7 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -177,6 +178,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _confirmClick() {
+		// TODO: Should this be updated to indicate next screen to be insure?
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -184,6 +186,12 @@ export class ConfirmCallerDetails extends Component {
 			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
 			"confirmed-client-cif": this.callerInformation.cifNumber
 		});
+
+		// TODO: If insure role then navigate to Insure landing page.
+		if (this.roleManager.isInsureAgent) {
+			this._navigateToInsureLandingPage();
+			return;
+		}
 		
 		await this._updateClientNonClientDetails();
 
@@ -335,14 +343,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _onLanguageUpdate(e) {
-	 	this.languagePreference = e.detail.new;
+		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		this.languagePreference = e.detail.new;
 
 		const isLanguageUpdated = await this.updateLanguage(e.detail.new);
 		
-		if (!isLanguageUpdated) {
-			this.languagePreference = e.detail.old;
-		} else {
+		if (isLanguageUpdated) {
 			this.callerInformation.languagePreference = this.languagePreference;
+		} else {
+			this.languagePreference = e.detail.old;
 		}
 	}
 
@@ -421,6 +430,11 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
+	_navigateToInsureLandingPage() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonRouter.navigateToInsureUnverifiedClient();
+	}
+
 	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
 	//  const insuranceClientInfo = {
 	//   'idNumber': southAfricanIDNumber,
@@ -435,6 +449,8 @@ export class ConfirmCallerDetails extends Component {
 
 	async _setAvailabilityFlags() {
 		let flagsSet = false;
+
+		this.callerInformation.hasInsuranceProducts = true;
 
 		// Check if the client has digital channels
 		// Disabled error handler because if this call fails we will still attempt to help the client.
@@ -475,6 +491,8 @@ export class ConfirmCallerDetails extends Component {
 
 		if (!this.languagePreference || this.languagePreference === `NOT_DEFINED`) {
 			this.languagePreference = `-`;
+		} else {
+			this.languagePreference = formatStringAsPascalCase(this.languagePreference);
 		}
 	}
 
@@ -777,16 +795,7 @@ export class ConfirmCallerDetails extends Component {
 						label="Lives In" 
 						value="${this.confirmedCaller.livesIn}">
 					</horizon-label>
-					<horizon-select
-						row="3" columun="2" 
-						data-automation-id="confirm-caller-details-language-preference"
-						class="client-info-row"
-						label="Language Preference"
-						display-field="value"
-						.items="${LANGUAGE_LIST}"
-						.value="${this.languagePreference}"
-						@value-changed="${(e) => this._onLanguageUpdate(e)}">
-					</horizon-select>
+					${this._renderLanguagePreference()}
 					<horizon-label class="client-info-row" row="4" columun="1" 
 						data-automation-id="confirm-caller-details-birthday"
 						label="Birthday"
@@ -795,6 +804,30 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-group>
 			</capitec-group>
 		 `;
+	}
+
+	_renderLanguagePreference() {
+		return this.roleManager.isInsureAgent ? 
+			html`							
+				<horizon-label 
+					class="client-info-row" 
+					row="3" 
+					columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					label="Language Preference"
+					value="${this.languagePreference}">
+				</horizon-label>`
+			: html`
+				<horizon-select
+					row="3" columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					class="client-info-row"
+					label="Language Preference"
+					display-field="value"
+					.items="${LANGUAGE_LIST}"
+					.value="${this.languagePreference}"
+					@value-changed="${(e) => this._onLanguageUpdate(e)}">
+				</horizon-select>`
 	}
 
 	_renderClientProfileImage() {

@@ -65,7 +65,7 @@ export class ChannelServiceBase extends Service {
 		this.logRequestResponseModels = null;
 	}
 
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -91,8 +91,8 @@ export class ChannelServiceBase extends Service {
 	*/
 	post(url, model, customHeaders, caller, isBinary = false, controller, sla = null, timeout = null, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
-			this._post(url, model, customHeaders, caller, isBinary, controller, sla, timeout), 
-			errorHandlerFunc, 
+			this._post(url, model, customHeaders, caller, isBinary, controller, sla, timeout),
+			errorHandlerFunc,
 			maxAttempts
 		);
 	}
@@ -117,16 +117,16 @@ export class ChannelServiceBase extends Service {
 	get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._get(url, customHeaders, caller, isBinary, sla, timeout),
-				errorHandlerFunc, 
-				maxAttempts
+			errorHandlerFunc,
+			maxAttempts
 		);
 	}
 
 	put(url, model, customHeaders, caller, isBinary, controller, sla, timeout, errorHandlerFunc = null, maxAttempts = DEFAULT_AUTO_RETRIES) {
 		return this._wrapCall(
 			this._put(url, model, customHeaders, caller, isBinary, controller, sla, timeout),
-				errorHandlerFunc, 
-				maxAttempts
+			errorHandlerFunc,
+			maxAttempts
 		);
 	}
 
@@ -137,7 +137,7 @@ export class ChannelServiceBase extends Service {
 	 * @returns {object} The X-User-Token custom header object
 	 * @memberof HorizonChannelService
 	 */
-	 setToken() {
+	setToken() {
 		return {
 			"X-User-Token": Security.getInstance().token
 		};
@@ -150,7 +150,7 @@ export class ChannelServiceBase extends Service {
 	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
 	 * @memberof HorizonChannelService
 	 */
-	 async isMockEnabled(mockName) {
+	async isMockEnabled(mockName) {
 		if (this._mocking === null) {
 			try {
 				this._mocking = await this._configuration.getSetting(`mock`);
@@ -255,7 +255,7 @@ export class ChannelServiceBase extends Service {
 	_inSdlc() {
 		return this._configuration.config.runtime.environment !== `LOCAL`;
 	}
-	
+
 	/**
 	 * Load a mocking module if it has not yet been loaded
 	 *
@@ -293,19 +293,19 @@ export class ChannelServiceBase extends Service {
 			result: null,
 			correlationId: null
 		};
-	
+
 		if (this.logRequestResponseModels === null) {
 			this.logRequestResponseModels = await Configuration.getInstance().getSetting(`LogRequestResponseModels`);
 		}
 
 		let tryCount = 0;
-	
+
 		while (!returnValue.succeeded && tryCount < maxAttempts) {
 			try {
 				tryCount++;
-	
+
 				this._toggleBusyFlag();
-		
+
 				// we want each attempt to be sequential so disable es-lint warning
 				// eslint-disable-next-line no-await-in-loop
 				returnValue.result = await channelServiceCallFunc;
@@ -396,7 +396,7 @@ export class ChannelServiceBase extends Service {
 			throw exception;
 		}
 	}
-	
+
 	/**
 	 * Wrap's the platform's get method
 	 *
@@ -415,7 +415,7 @@ export class ChannelServiceBase extends Service {
 	 */
 	async _get(url, customHeaders, caller, isBinary = false, sla = null, timeout = null) {
 		const correlationId = v4();
-			
+
 		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
 		try {
@@ -440,59 +440,59 @@ export class ChannelServiceBase extends Service {
 			throw exception;
 		}
 	}
-	
-		/**
-		 * Wraps the platform's put method
-		 * 
-		 * - Debug logging is added over the platform's post capability
-		 * - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
-		 *
-		 * @param {string} url The Channel Service URL
-		 * @param {Object} model The request model
-		 * @param {Object} customHeaders Any custom headers
-		 * @param {string} caller The name of the method for logging purposes
-		 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
-		 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
-		 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
-		 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
-		 *
-		 * @returns {Promise<*>} The response of the Channel Service Request
-		 * @memberof HorizonChannelService
-		 */
-		async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
-			const correlationId = v4();
-	
-			this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
-	
-			try {
-				const response = await super.httpClient.request({
-					method: `PUT`,
-					url: url,
-					model: model,
-					customHeaders: customHeaders,
-					correlationId: correlationId,
-					isBinary: isBinary,
-					controller: controller,
-					sla: sla,
-					timeout: timeout,
-					caller: caller
-				});
-	
-				this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
-	
-				return response;
-			} catch (exception) {
-				exception.requestUrl = url;
-				exception.requestModel = model;
-				exception.requestCaller = caller;
-				throw exception;
-			}
+
+	/**
+	 * Wraps the platform's put method
+	 * 
+	 * - Debug logging is added over the platform's post capability
+	 * - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
+	 *
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} model The request model
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purposes
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+	 *
+	 * @returns {Promise<*>} The response of the Channel Service Request
+	 * @memberof HorizonChannelService
+	 */
+	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+		const correlationId = v4();
+
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
+
+		try {
+			const response = await super.httpClient.request({
+				method: `PUT`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
+
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
 		}
-	
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	_logException(exception) {
 		let message = ``;
 
@@ -517,20 +517,20 @@ export class ChannelServiceBase extends Service {
 			this._logger.log(`error`, message, exception?.requestCaller, exception?.correlationId);
 		}
 	}
-	
+
 	_handleException(errorHandler, exception) {
 		let handled = false;
-	
+
 		if (errorHandler !== null) {
 			// Call any error handler attached to the method invoking the service call
 			handled = errorHandler(exception);
 		}
-	
+
 		// Call any error hander attached to the class invoking the service call
 		if (!handled && this._defaultErrorHandler !== null) {
 			handled = this._defaultErrorHandler(exception);
 		}
-	
+
 		if (!handled) {
 			throw exception;
 		};

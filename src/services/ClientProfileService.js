@@ -1,4 +1,5 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * The client profile service contains service calls that start off the flow for 
@@ -88,7 +89,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	async searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`searchCaller`)) {
-			return this.mock(`searchCaller`);
+			return this.mock(`searchCaller`, clientInfo);
 		}
 
 		const url = `/clientcare-clientprofile-${this._version}/search-caller`;
@@ -125,7 +126,8 @@ export class ClientProfileService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof ClientProfileService
 	 */
-	updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 		
 		const url = `/client-${this._version}/preferences/language`;
 

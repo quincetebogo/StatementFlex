@@ -298,6 +298,12 @@ export class ViewBase extends View {
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
+	_setIncidentNotstarted() {
+		if (this.horizonIncidentManager.incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		}
+	}
+
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
 	}
@@ -308,7 +314,10 @@ export class ViewBase extends View {
 
 	async _updatePreferences(language, cif) {
 		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
-		
+
+		this.horizonIncidentManager.incidentState = returnValue.succeeded 
+														? super.HORIZON_NEED_STATUS.COMPLETED 
+														: super.HORIZON_NEED_STATUS.FAILED;
 		return returnValue.succeeded;
 	}
 	
