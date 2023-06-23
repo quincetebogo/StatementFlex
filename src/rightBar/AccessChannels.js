@@ -186,7 +186,7 @@ export class AccessChannels extends Component {
 
 		// If successfully suspended, update app status, else Error scenario
 		
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
 	
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
