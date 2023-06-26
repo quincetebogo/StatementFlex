@@ -199,7 +199,7 @@ export class HorizonIncidentManager {
 	 * @returns {string} Feedback on the current incident
 	 */
 	getFeedback() {
-		if (!this.incidentDetails?.feedback) {
+		if (isNullorEmpty(this.incidentDetails?.feedback)) {
 			return null;
 		}
 
@@ -457,8 +457,8 @@ export class HorizonIncidentManager {
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident, 
-			reason, 
-			this._formatLineBreaks(resolution), 
+			reason,
+			resolution,
 			causeCode, 
 			this.incidentDetails.description,
 			errorHandler
@@ -557,10 +557,6 @@ export class HorizonIncidentManager {
 								: CAUSE_CODE_BY_REASON[endCallReason];
 		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
-	}
-
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
 	}
 
 	_updateIncidentState(clientNeed) {

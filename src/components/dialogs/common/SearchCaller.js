@@ -390,7 +390,8 @@ export class SearchCaller extends Component {
 					"search-method": this.searchType.value,
 					"search-value": this.searchValue,
 					"client-present": this.clientInBranch,
-					"client-verified": this.isClientVerifiedInBranch
+					"client-verified": this.isClientVerifiedInBranch,
+					"language": this.languagePreference
 				});
 
 				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
@@ -963,7 +964,8 @@ export class SearchCaller extends Component {
 						data-automation-id="search-caller-non-client"
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="2">
+						column="2"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 					<capitec-radio 
 						id="branch" 
@@ -971,7 +973,8 @@ export class SearchCaller extends Component {
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3"
-						?checked="${this.clientType === CLIENT_TYPE.BRANCH}">
+						?checked="${this.clientType === CLIENT_TYPE.BRANCH}"
+						?hidden="${this.roleManager.isInsureAgent}">
 					</capitec-radio>
 
 			</capitec-radio-group>`;
