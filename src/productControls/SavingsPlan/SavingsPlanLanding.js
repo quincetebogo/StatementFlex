@@ -87,6 +87,10 @@ export class SavingsPlanLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { accountType: type, accountNumber: accNumber } }));
 	}
 
+	_capitecConnectToolTip() {
+		return this.roleManager.isCapitecConnectAgent ? `Your role does not allow you to make use of this functionality.` : ``;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -164,6 +168,11 @@ export class SavingsPlanLanding extends Component {
 					border-top: 1px solid #E1E1E1;
 					border-bottom: 1px solid #E1E1E1;
 				}
+				capitec-tooltip {
+					padding-left: 15px;
+					padding-right: 15px;
+				}
+
 				.options-group {
 					height: 80px; 
 					margin: 17px 0px 15px 0px;
@@ -569,10 +578,20 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-unlock-ftsp"
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
+						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN || this.roleManager.isCapitecConnectAgent}
+						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._click(`unlock-ftsp`, item)}"
+						?disabled = ${this.roleManager.isCapitecConnectAgent}>
+				</horizon-option-button>
+			<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+				<horizon-option-button 
+						data-automation-id="savings-plan-unlock-ftsp"
+						label="Unlock Savings Plans"
+						icon="system/unlocked-action"
 						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
 						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._click(`unlock-ftsp`, item)}"
 						?disabled=${this.roleManager.isCapitecConnectAgent}>
 				</horizon-option-button>
+			</capitec-tooltip>
 			</capitec-group>
 		`;
 	}
