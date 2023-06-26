@@ -77,7 +77,7 @@ export default class HorizonChannelServiceMocks {
 			mockResponse.ivrOptionCode = incomingCallData.ivrOptionCode;
 			mockResponse.incomingTelephoneNumber = incomingCallData.incomingTelephoneNumber;
 			mockResponse.agentTelephoneNumber = incomingCallData.agentTelephoneNumber;
-		
+
 			return mockResponse;
 		}
 
@@ -87,7 +87,7 @@ export default class HorizonChannelServiceMocks {
 
 	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			return this.callMocks.searchCaller;
+			return mockedCaller = this.callMocks.searchCaller;
 		}
 	}
 
@@ -120,7 +120,7 @@ export default class HorizonChannelServiceMocks {
 	verifySecurityQuestions(answers) {
 		if (this._mockSettings.verifySecurityQuestions.positiveCase) {
 			return `Authenticated`;
-		} 
+		}
 
 		return `not-authenticated`;
 	}
@@ -134,7 +134,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -332,7 +332,7 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-	
+
 	accessChannelLanding() {
 		if (this._mockSettings.accessChannelLanding.positiveCase) {
 			return this.accessChannelsMocks.accessChannelsDetails;
@@ -356,7 +356,7 @@ export default class HorizonChannelServiceMocks {
 			return this.accessChannelsMocks.accessChannelResetSecurityTokenClock;
 		}
 		return null;
-	}  
+	}
 
 	activatefullUssdMenu() {
 		if (this._mockSettings.activatefullUssdMenu.positiveCase) {
@@ -367,7 +367,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -383,7 +383,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -399,7 +399,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -415,7 +415,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -431,7 +431,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -447,14 +447,14 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
 		return errPromise;
 	}
 
-	settleAndCloseQuote () {
+	settleAndCloseQuote() {
 		if (this._mockSettings.settleAndCloseQuote.positiveCase) {
 			return this.creditMocks.settleAndCloseQuote;
 		}
@@ -463,7 +463,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -480,7 +480,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 
@@ -548,7 +548,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 400;
 			httpError.message = `Oh no! A fake 400!`;
-	
+
 			throw httpError;
 		});
 

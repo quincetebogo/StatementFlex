@@ -9,6 +9,7 @@
 		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
@@ -20,16 +21,16 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://SBLDEV01.int.capinet:8102/",
-		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"sbl": "https://cbwsbldev01.capitecbank.fin.sky:8092/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443",
 		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",	
+		"branch-locator": "https://www.capitecbank.co.za/branches",
+		"live-better": "https://www.capitecbank.co.za/live-better",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
-		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
+		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
+		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
@@ -204,11 +205,39 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureClientSummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureProductParams": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCalculateQuote": {
+			"enabled": false,
+			"positiveCase": false
+		},
+		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureAuditTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"creditBalance": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicySummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCommsHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -244,8 +273,64 @@
 			"enabled": false,
 			"positiveCase": false
 		},
-		"ftspUnlockOptions": {
+		"insurePrepareUpdate": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateIssueAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenerateAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyReissue": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCreatePolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureSendEmail": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelPolicy": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insurePolicyPay": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureUpdatePolicyAccept": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureEstimatePrintout": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureClaims": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRequestCallback": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockOptions": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockQuote": {
