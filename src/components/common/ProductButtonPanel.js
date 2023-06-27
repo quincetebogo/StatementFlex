@@ -92,8 +92,6 @@ export class ProductButtonPanel extends Component {
         if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
           return null;
         }
-		console.log(product.includes(type));
-		console.log(type);
         return amount;
     }
 
