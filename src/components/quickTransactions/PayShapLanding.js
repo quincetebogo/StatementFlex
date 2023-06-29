@@ -1,12 +1,10 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { convertCentsToRand, formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/Common';
+import { convertCentsToRand, formatCurrency, formatDate, formatPhoneNumber, formatProxyId, getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { PayShapService } from 'app/services/PayShapService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { Utilities } from '@cb/platform-web-core';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/PayShapTransactionHistory';
 import 'app/components/common/TransactionHistory';
@@ -265,10 +263,6 @@ export class PayShapLanding extends Component {
 		this.filteredInstitutions = this.institutionsList;
 	}
 
-	_formateProxyId(id) {
-		return id ? id.replace(`+27-`, `0`) : `-`;
-	}
-
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 		return true;
@@ -308,7 +302,7 @@ export class PayShapLanding extends Component {
 				}
 				.main {
 					height: var(--horizon-panel-height, 888px);
-					width: var(--horizon-center-panel-width, 1064px);
+					width: 1066px;
 					--theme-card-border-radius: 5px;
 				}
 				.details-tab {
@@ -725,7 +719,7 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Posting date"
-						value="${item.insertedDateTime}">
+						value="${formatDate(item.insertedDateTime, DATE_ONLY)}">
 					</horizon-label>
 				</capitec-group>
 
@@ -756,7 +750,7 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Fee" 
-						value="${item.feeAmount}">
+						value="${formatCurrency(item.feeAmount)}">
 					</horizon-label>
 				</capitec-group>
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
@@ -918,11 +912,11 @@ export class PayShapLanding extends Component {
 				<capitec-group layout="horizontal">
 					<horizon-label class="horizon-label-payshap-name"
 							label="Shap ID/Name"
-							value="${this._formateProxyId(this.payShapLandingDetails.capitecProxy.proxyId)}">
+							value="${this._renderProxyName()}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Registered Cell Number"
-							value="${this.verifiedCellphoneNumber}">
+							value="${formatPhoneNumber(this.verifiedCellphoneNumber)}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Default Institution"
@@ -935,6 +929,15 @@ export class PayShapLanding extends Component {
 				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderProxyName() {
+		if (this.payShapLandingDetails.capitecProxy.domain === `CAPITEC`) {
+			const shapID = this.payShapLandingDetails.capitecProxy.proxyId.split(`@`);
+			const capitecShapID = `${shapID[0]}@CAPITEC`;
+			return formatProxyId(capitecShapID);
+		}
+		return formatProxyId(this.payShapLandingDetails.capitecProxy.proxyId);
 	}
 
 	_renderPaymentFees() {

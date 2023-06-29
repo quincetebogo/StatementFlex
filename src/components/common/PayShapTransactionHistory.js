@@ -397,10 +397,10 @@ export class PayShapTransactionHistory extends Component {
 			super.styles,
 			css`
 				.transaction-card {
-					height: 767px;
-					width: 1060px;
+					height: auto;
 					background-color: #FFFFFF;
 					border: none;
+					width: 1062px;
 				}
 				.transaction-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
@@ -430,8 +430,8 @@ export class PayShapTransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 648px;
-					width: 1060px;
+					height: 661px;
+					width: auto;
 				}
 				capitec-table {
 					width: 1060px;
@@ -514,7 +514,7 @@ export class PayShapTransactionHistory extends Component {
 			<capitec-card class="transaction-card">
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderActionBar()}
-						<capitec-content-box class="main-view" id="transactions-table">
+						<capitec-content-box class="main-view" id="transactions-table" noScroll>
 							${this._renderTransactionHistory()}
 						</capitec-content-box>
 						${this._renderFooter()}
