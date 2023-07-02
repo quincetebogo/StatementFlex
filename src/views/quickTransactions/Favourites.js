@@ -82,6 +82,7 @@ export class Favourites extends SavingsAccountBase {
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
+		this.payShapDetails = {};
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -106,7 +107,8 @@ export class Favourites extends SavingsAccountBase {
 			hasTaxCertificate: { state: false },
 			showCCSmodal: { type: Boolean },
 			ccsStatus: { state: false },
-			displayToast: { state: false }
+			displayToast: { state: false },
+			payShapDetails: { type: Object}
 		};
 	}
 
@@ -975,6 +977,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 		this.payshapDisplayToast();
 		this._setIncidentDone();
+
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -989,7 +992,21 @@ export class Favourites extends SavingsAccountBase {
 		}
 		this.payshapDisplayToast();
 		this._setIncidentDone();
+
 		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _updatePayShapDetails() {
+		const payShapDetailsRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			verifiedCellphoneNumber: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.payShapService.getDetails(payShapDetailsRequest);
+
+		if (returnValue.succeeded) {
+			this.payShapDetails = returnValue.result;
+		}
 	}
 
 	async _unloadingPayshap() {
@@ -1275,7 +1292,8 @@ export class Favourites extends SavingsAccountBase {
 						.payShapModalDetails="${this.payShapModalDetails}"
 						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
 						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
-						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}"
+						@update-payshap-details="${() => this._updatePayShapDetails()}">
 			</horizon-pay-shap-update>`
 		: html``;
 	}

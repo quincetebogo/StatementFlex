@@ -57,6 +57,7 @@ export class PayShapUpdate extends Component {
 	}
 
 	disconnectedCallback() {
+		this.dispatchEvent(new CustomEvent(`update-payshap-details`));
 		super.disconnectedCallback();
 	}
 
