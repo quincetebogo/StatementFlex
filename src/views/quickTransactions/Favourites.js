@@ -108,7 +108,7 @@ export class Favourites extends SavingsAccountBase {
 			showCCSmodal: { type: Boolean },
 			ccsStatus: { state: false },
 			displayToast: { state: false },
-			payShapDetails: { type: Object}
+			payShapDetails: { type: Object }
 		};
 	}
 
@@ -978,6 +978,7 @@ export class Favourites extends SavingsAccountBase {
 		this.payshapDisplayToast();
 		this._setIncidentDone();
 
+		this.payShapDetails = await this._getPayShapDetails();
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -993,6 +994,7 @@ export class Favourites extends SavingsAccountBase {
 		this.payshapDisplayToast();
 		this._setIncidentDone();
 
+		this.payShapDetails = await this._getPayShapDetails();
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -1292,8 +1294,7 @@ export class Favourites extends SavingsAccountBase {
 						.payShapModalDetails="${this.payShapModalDetails}"
 						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
 						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
-						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}"
-						@update-payshap-details="${() => this._updatePayShapDetails()}">
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
 			</horizon-pay-shap-update>`
 		: html``;
 	}

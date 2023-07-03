@@ -997,7 +997,7 @@ export class PayShapLanding extends Component {
 							value="${this._renderProxyName()}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
-							label="Registered Cell Number"
+							label="Verified Cell Number"
 							value="${formatPhoneNumber(this.verifiedCellphoneNumber)}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
