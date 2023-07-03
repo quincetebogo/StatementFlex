@@ -1,5 +1,5 @@
 export const payShapDetails = {
-	"capitecProxy": {
+	"proxyDetails": {
 	  "verified": false,
 	  "knownAsName": "DEV NAME SURNAME XX",
 	  "proxyId": "+27-820000401@CAPITEC",
