@@ -308,7 +308,7 @@ export class PayShapUpdate extends Component {
 			<capitec-alert-banner 
 				type="warning" 
 				header="Notify client:" 
-				label="To set Capitec as your default bank, please first de-list with your current default institution / Bank." 
+				label="To set Capitec as your main bank, please first de-list with your current default institution / Bank." 
 				layout="vertical">
 			</capitec-alert-banner>`
 		: html``;
@@ -317,7 +317,7 @@ export class PayShapUpdate extends Component {
 	_renderCellPhoneNumber() {
 		return html`
 			<capitec-text-field 
-					label="Cell Phone number"
+					label="Verfied Phone number"
 					value="${this.payShapModalDetails.verifiedCellphoneNumber}"
 					disabled>
 			</capitec-text-field>
@@ -337,7 +337,7 @@ export class PayShapUpdate extends Component {
 
 	_renderDefaultInstitution() {
 		return html`
-			<capitec-label type="title" label="Default institution"></capitec-label>
+			<capitec-label type="title" label="Main Bank"></capitec-label>
 			<capitec-card class="default-institute">
 				<capitec-group layout="horizontal">
 					<capitec-label class="institute-name" type="strong" label="${isNullorEmpty(this.defaultInstitutionName) ? `None Assigned` : this.defaultInstitutionName}"></capitec-label>

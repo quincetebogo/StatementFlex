@@ -95,6 +95,22 @@ export class PayShapLanding extends Component {
 		};
 	}
 
+	get isCapitecBankDefault() {
+		return this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `True` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain);
+	}
+
+	get defaultInstitution() {
+		if (this.isCapitecBankDefault) {
+			return this.payShapLandingDetails.proxyDetails.domain;
+		} else {
+			if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && !CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+				return this.payShapLandingDetails.proxyDetails.domain;
+			}
+		}
+
+		return ``;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -150,8 +166,8 @@ export class PayShapLanding extends Component {
 	_onUpdateClick() {
 		this.dispatchEvent(new CustomEvent(`on-update`, {
 			detail: {
-				isCapitecBankDefault: CAPITEC_DOMAINS.includes(this.payShapLandingDetails.capitecProxy.domain),
-				defaultInstitution: this.payShapLandingDetails.capitecProxy.domain,
+				isCapitecBankDefault: this.isCapitecBankDefault,
+				defaultInstitution: this.defaultInstitution,
 				verifiedCellphoneNumber: this.verifiedCellphoneNumber
 			}
 		}));
@@ -270,6 +286,15 @@ export class PayShapLanding extends Component {
 
 	_exitTransactionHistory() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	isUnverifiedProxyDetails() {
+		return !this.payShapLandingDetails.proxyDetails.verified 
+			&& !this.payShapLandingDetails.proxyDetails.knownAsName
+			&& !this.payShapLandingDetails.proxyDetails.proxyId
+			&& !this.payShapLandingDetails.proxyDetails.domain
+			&& !this.payShapLandingDetails.proxyDetails.fullProxyStatus
+			&& !this.payShapLandingDetails.proxyDetails.defaultProxyStatus
 	}
 
 	// ---------
@@ -548,6 +573,32 @@ export class PayShapLanding extends Component {
 					justify-content: center;
 					align-items: center;
 				}
+				.warning-modal{
+					--theme-modal-free-max-width: 500px;
+					--theme-modal-free-max-height: 400px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
+				}
+				.warning-header {
+					width: 341px;
+					height: auto;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -464px;
+					top: -11px;
+					--theme-modal-header-height: 64px;
+				}
+				.warning-label {
+					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
+				}
+				.warning-modal > div[slot="body"] {
+					height: 268px;
+					width: 500px;
+				}
 
 			`
 		];
@@ -580,12 +631,12 @@ export class PayShapLanding extends Component {
 	_renderContent() {
 		return html`
 			<capitec-card class="main">
+				${this._renderUnableToRetrieveProxyDetailsModal()}
 				${this._renderTitleBar()}
 				<capitec-content-box noPadding>
 					${this._renderPayShapContent()}
 				</capitec-content-box>
-			</capitec-card>
-		`;
+			</capitec-card>`;
 	}
 
 	_renderTitleBar() {
@@ -600,6 +651,37 @@ export class PayShapLanding extends Component {
 				<capitec-label label="PayShap" type="title"></capitec-label>
 			</capitec-title-bar>
 		`;
+	}
+
+	_renderUnableToRetrieveProxyDetailsModal() {
+		return this.isUnverifiedProxyDetails()
+		? html`
+			<capitec-modal type="free" class="warning-modal" header-align="left">
+				<div slot="header" class="warning-header">
+					<span>
+						<capitec-group layout="horizontal">
+							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
+							<capitec-label class="warning-label" label="Warning"></capitec-label>
+						</capitec-group>
+					</span>
+				</div>
+				<div slot="body" class="warning-body">
+					<capitec-content-box>
+						<capitec-label label="Unable to retrieve proxy information for client."></capitec-label>
+						<capitec-label label="Please contact support."></capitec-label>
+					</capitec-content-box>
+				</div>
+				<div slot="footer">
+					<capitec-button 
+							data-automation-id=""
+							id="id-discard-button" 
+							type="clear" 
+							label="OK" 
+							@click="${() => this._unloading()}">
+					</capitec-button>
+				</div>
+			</capitec-modal>`
+			: html``;
 	}
 
 	_renderPayShapContent() {
@@ -915,16 +997,16 @@ export class PayShapLanding extends Component {
 							value="${this._renderProxyName()}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
-							label="Registered Cell Number"
+							label="Verified Cell Number"
 							value="${formatPhoneNumber(this.verifiedCellphoneNumber)}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Default Institution"
-							value="${this.payShapLandingDetails.capitecProxy.domain || `None Assigned`}">
+							value="${this.defaultInstitution || `None Assigned`}">
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="${this.payShapLandingDetails.capitecProxy.fullProxyStatus}">
+							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>
@@ -932,12 +1014,12 @@ export class PayShapLanding extends Component {
 	}
 
 	_renderProxyName() {
-		if (this.payShapLandingDetails.capitecProxy.domain === `CAPITEC`) {
-			const shapID = this.payShapLandingDetails.capitecProxy.proxyId.split(`@`);
+		if (this.isCapitecBankDefault) {
+			const shapID = this.payShapLandingDetails.proxyDetails.proxyId.split(`@`);
 			const capitecShapID = `${shapID[0]}@CAPITEC`;
 			return formatProxyId(capitecShapID);
 		}
-		return formatProxyId(this.payShapLandingDetails.capitecProxy.proxyId);
+		return formatProxyId(this.payShapLandingDetails.proxyDetails.proxyId);
 	}
 
 	_renderPaymentFees() {

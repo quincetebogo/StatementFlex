@@ -108,7 +108,7 @@
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
 
 	// Update client language preference
-	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`
+	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
 
 	// PayShap
 	"payshap": `PAYSHAP_ENQUIRY`,
