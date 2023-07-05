@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 
 const FILTER_BY = {
@@ -61,6 +64,8 @@ export class PayShapTransactionHistory extends Component {
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
 		this.statuslabel = DEFAULTS.STATUS_LABEL;
+
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 	// --------------
@@ -297,6 +302,13 @@ export class PayShapTransactionHistory extends Component {
 
 	_refineSearch() {
 		// Assigning the raw data before performing the filter
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB_FILTER, {
+			"screen": TelemetryScreen.PAY_SHAP_TRANSACTION_HISTORY,
+			"search-by-text": RENDER_CHIPS[FILTER_BY.TEXT],
+			"date-filter": RENDER_CHIPS[FILTER_BY.DATE],
+			"money-type": this.moneyType
+		});
 
 		if (this.moneyType === `Money Out`) {
 			this.filteredData = this.moneyOutTransactionHistory;

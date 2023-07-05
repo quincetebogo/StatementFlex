@@ -1,5 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+
 import 'platform/components/popups/Modal';
 
 /**
@@ -28,6 +32,8 @@ export class PayShapUpdate extends Component {
 		this.showAgreement = false;
 		this.showWarningModal = false;
 		this.removalConfirmed = false;
+
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -54,10 +60,18 @@ export class PayShapUpdate extends Component {
 
 		this.isCapitecBankDefault = this.payShapModalDetails.isCapitecBankDefault;
 		this.defaultInstitutionName = this.payShapModalDetails.defaultInstitution;
+
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD, null, true, true);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, null, true, true);
 	}
 
 	// --------------
@@ -65,6 +79,8 @@ export class PayShapUpdate extends Component {
 	// --------------
 
 	_onCancel() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_CANCEL);
+
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
