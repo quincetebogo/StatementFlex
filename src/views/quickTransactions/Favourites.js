@@ -676,6 +676,12 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _payShap() {
+
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAY_SHAP, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAY_SHAP_DETAILS
+		});
+
 		this.payShapDetails = await this._getPayShapDetails();
 		
 		await super.createAndClassifySubIncident(null, false);
@@ -991,6 +997,13 @@ export class Favourites extends SavingsAccountBase {
 		} else {
 			this.payShapDefaultToast = `error`;
 		}
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
+			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
+			"Default-institution": returnValue.succeeded ? `CAPITEC` : `Not Set`, 
+			"next-screen": returnValue.succeeded ? `success` : `failed`
+		});
+
 		this.payshapDisplayToast();
 		this._setIncidentDone();
 
@@ -1007,6 +1020,13 @@ export class Favourites extends SavingsAccountBase {
 		} else {
 			this.payShapDefaultToast = `error`;
 		}
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
+			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
+			"Default-institution": returnValue.succeeded ? `Not Set` : `CAPITEC`, 
+			"next-screen": returnValue.succeeded ? `success` : `failed`
+		});
+
 		this.payshapDisplayToast();
 		this._setIncidentDone();
 
