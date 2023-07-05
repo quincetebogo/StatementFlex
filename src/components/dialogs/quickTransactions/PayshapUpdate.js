@@ -306,7 +306,6 @@ export class PayShapUpdate extends Component {
 					<capitec-content-box class="main-container">
 						${this._renderAlertBanner()}
 						${this._renderCellPhoneNumber()}
-						${this._renderPayShapName()}
 						${this._renderDefaultInstitution()}
 					</capitec-content-box>
 				</div>
