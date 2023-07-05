@@ -308,7 +308,7 @@ export class PayShapUpdate extends Component {
 			<capitec-alert-banner 
 				type="warning" 
 				header="Notify client:" 
-				label="To set Capitec as your main bank, please first de-list with your current default institution / Bank." 
+				label="To set Capitec as your main bank, please first de-list with your current main bank." 
 				layout="vertical">
 			</capitec-alert-banner>`
 		: html``;
@@ -364,8 +364,7 @@ export class PayShapUpdate extends Component {
 					<ul class="list-items">
 						<li><capitec-label label="Capitec Bank will not charge you for setting Capitec Bank as the default bank for PayShap."></capitec-label></li>
 						<li><capitec-label label="Capitec Bank will only charge you the fees associated with the payment instruction sent through PayShap."></capitec-label></li>
-						<li><capitec-label label="Your PayShap payment limit is currently R3000 per transaction."></capitec-label></li>
-						<li><capitec-label label="Your ShapID will be your registered cell phone number @capitec bank."></capitec-label></li>
+						<li><capitec-label label="Your ShapID will be your registered cell phone number @capitec."></capitec-label></li>
 						<li><capitec-label label="All payment instructions sent through PayShap will be credited to your global one savings account."></capitec-label></li>
 					</ul>
 					<capitec-card class="agreement">

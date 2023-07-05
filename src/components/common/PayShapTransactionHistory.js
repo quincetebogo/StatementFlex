@@ -135,7 +135,7 @@ export class PayShapTransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 
-		if (this.moneyType = `Money Out`) {
+		if (this.moneyType === `Money Out`) {
 			this.moneyOutTransactionHistory = this.moneyOutTransDetails.moneyOutTransactionHistory;
 			this.filteredData = this.moneyOutTransactionHistory;
 			this.hideLoadMore = !this.moneyOutTransDetails.moneyOutLoadMore;
@@ -242,8 +242,8 @@ export class PayShapTransactionHistory extends Component {
 
 		this.disposeData();
 
-		if (this.moneyType = `Money Out`) {
-			const details = await this.getMoneyOutTransactionHistory(startDate, endDate, this.moneyOutTransDetails.paginationToken);
+		if (this.moneyType === `Money Out`) {
+			const details = await this.getMoneyOutTransactionHistory(startDate, endDate);
 
 			this.moneyOutTransDetails = details;
 			this.moneyOutTransactionHistory = details.moneyOutTransactionHistory;
@@ -267,7 +267,7 @@ export class PayShapTransactionHistory extends Component {
 			this.hideLoadMore = this.moneyInTransactionHistory.length % MAX_RESULTS > 0;
 
 		} else if (this.moneyType === `Money Out` && this.moneyOutTransactionHistory.length === 0) {
-			const details = await this.getMoneyOutTransactionHistory(startDate, endDate, this.moneyOutTransDetails.paginationToken);
+			const details = await this.getMoneyOutTransactionHistory(startDate, endDate);
 
 			this.moneyOutTransDetails = details;
 			this.moneyOutTransactionHistory = details.moneyOutTransactionHistory;
@@ -300,8 +300,10 @@ export class PayShapTransactionHistory extends Component {
 
 		if (this.moneyType === `Money Out`) {
 			this.filteredData = this.moneyOutTransactionHistory;
+			this.hideLoadMore = !this.moneyOutTransDetails.moneyOutLoadMore;
 		} else {
 			this.filteredData = this.moneyInTransactionHistory;
+			this.hideLoadMore = this.moneyInTransactionHistory.length === 0 || this.moneyInTransactionHistory.length % MAX_RESULTS > 0;
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
@@ -352,6 +354,7 @@ export class PayShapTransactionHistory extends Component {
 	}
 
 	_unloading() {
+		this.disposeData();
 		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
@@ -430,8 +433,7 @@ export class PayShapTransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 661px;
-					width: auto;
+					height: inherit;
 				}
 				capitec-table {
 					width: 1060px;
@@ -496,6 +498,7 @@ export class PayShapTransactionHistory extends Component {
 				}
 				.no-result-group {
 					width: 1060px;
+    				height: 500px;
 					margin-top: 130px;
 				}
 				capitec-image {
