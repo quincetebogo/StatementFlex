@@ -5,6 +5,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { PayShapService } from 'app/services/PayShapService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { Utilities } from '@cb/platform-web-core';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/PayShapTransactionHistory';
 import 'app/components/common/TransactionHistory';
@@ -64,6 +67,8 @@ export class PayShapLanding extends Component {
 		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.horizonRouter = HorizonRouter.getInstance();
 
+		this._telemetry = HorizonTelemetry.getInstance();
+
 		this.moneyOutTransDetails = {};
 	}
 
@@ -121,11 +126,16 @@ export class PayShapLanding extends Component {
 		super.connectedCallback();
 
 		this.feeCategories = Utilities.groupBy(this.payShapLandingDetails.fees, `methodOfPayment`);
+		
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
 		this._unloading();
+		
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP, null, true, false, true);
 	}
 
 	// --------------
@@ -145,10 +155,18 @@ export class PayShapLanding extends Component {
 	}
 
 	_back() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_BACK);
+
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
 	_searchTextChange(event) {
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB_SEARCH, {
+			"screen": TelemetryScreen.PAY_SHAP_INSTITUTIONS,
+			"Insitution-name": event.detail.searchText
+		});
+
 		this.filteredInstitutions = this.institutionsList;
 
 		if (event.detail.new) {
@@ -166,6 +184,8 @@ export class PayShapLanding extends Component {
 	}
 
 	_onUpdateClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP);
+
 		this.dispatchEvent(new CustomEvent(`on-update`, {
 			detail: {
 				isCapitecBankDefault: this.isCapitecBankDefault,
@@ -262,16 +282,25 @@ export class PayShapLanding extends Component {
 	// ---------------
 
 	async _transactionHistoryTab() {
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+
 		this.moneyType = `Money Out`;
 
 		this._unloadTransactionHistory();
 
 		this.moneyOutTransDetails = await this._getMoneyOutTransactionHistory();
+
 		this.renderMode = RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY;
 	}
 
 	_detailsTab() {
-
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
+			"Shap Id": this.payShapLandingDetails.proxyDetails.proxyId,
+			"Registered Cell": this.verifiedCellphoneNumber,
+			"Default Institution": this.defaultInstitution,
+			"Status": this.payShapLandingDetails.proxyDetails.fullProxyStatus
+		});
 	}
 
 	_toggleBusyFlag() {
@@ -279,7 +308,11 @@ export class PayShapLanding extends Component {
 	}
 
 	async _institutionsTab() {
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB);
+
 		this.institutionsList = await this.getInstitutions();
+
 		this.filteredInstitutions = this.institutionsList;
 	}
 

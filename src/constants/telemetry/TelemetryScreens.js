@@ -170,5 +170,12 @@ export const TelemetryScreen = {
 	INSURE_SMS_HISTORY: `Insure SMS History screen`,
 
 	INSURE_SUCCESS: `Insure Successful Transaction screen`,
-	INSURE_SEND_EMAIL_DIALOG: `Send Email dialog`
+	INSURE_SEND_EMAIL_DIALOG: `Send Email dialog`,
+
+	PAY_SHAP_DETAILS: `Payshap details tab`,
+	PAY_SHAP_INSTITUTIONS: `Payshap institutions tab`,
+	PAY_SHAP_TRANSACTION_HISTORY: `Payshap transaction history tab`,
+	PAY_SHAP_UPDATE_MODAL: `Payshap update details modal`,
+	PAY_SHAP_PROOF_OF_PAYMENT: `Payshap proof of payment`,
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME: `Payshap proof of payment outcome`
 };
