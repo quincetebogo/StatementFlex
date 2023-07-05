@@ -703,6 +703,22 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _getMoneyInTransactionHistory(request) {
+		const returnValue = await this.payShapService.moneyIn(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getMoneyOutTransactionHistory(request) {
+		const returnValue = await this.payShapService.moneyOut(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
 	payshapDisplayToast() {
 		this.displayToast = true;
 		window.setTimeout(() => this._toggleToastDisplay(), 3000);
@@ -968,7 +984,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _setCapitecBankAsDefault() {
 		await super._inicidentManager_(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
-		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber);
+		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
@@ -984,7 +1000,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _removeCapitecBankAsDefault() {
 		await super._inicidentManager_(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
-		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber);
+		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
@@ -1279,6 +1295,8 @@ export class Favourites extends SavingsAccountBase {
 				.displayToast="${this.displayToast}"
 				.accountNumber="${this.landingPageInfo.accountNumber}"
 				.getInstitutions="${() => this._getPayShapInstitutionsDetails()}"
+				.getMoneyInTransactionHistory="${(request) => this._getMoneyInTransactionHistory(request)}"
+				.getMoneyOutTransactionHistory="${(request) => this._getMoneyOutTransactionHistory(request)}"
 
 				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
 				@back="${() => this._onExitPayShap()}"
