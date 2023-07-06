@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-import { RoleManager } from '../../shell/RoleManager';
+import { RoleManager } from 'app/shell/RoleManager';
 
 import 'app/components/common/OptionButton';
 
