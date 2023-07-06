@@ -108,6 +108,11 @@
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
 
 	// Update client language preference
-	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`
+	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
 
+	// PayShap
+	"payshap": `PAYSHAP_ENQUIRY`,
+	"set-capitec-as-default-bank": `SET_CAPITEC_AS_DEFAULT_BANK`,
+	"remove-capitec-as-default-bank": `REMOVE_CAPITEC_AS_DEFAULT_BANK`,
+	"payshap-pop": `PAYSHAP_POP`
 });
