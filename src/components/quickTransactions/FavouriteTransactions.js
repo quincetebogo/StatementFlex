@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-
+import { RoleManager } from '../../shell/RoleManager';
 import 'app/components/common/OptionButton';
+
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
@@ -23,7 +24,7 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
-
+		this.roleManager = RoleManager.getInstance();
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
@@ -275,14 +276,26 @@ export class FavouriteTransactions extends Component {
 					@click="${() => this._optionSelectedClick(`stop-card`)}"
 					?disabled="${this.shouldDisable(`stop-card`)}">
 				</horizon-option-button>
+
 				<horizon-option-button
 					data-automation-id="favourite-transactions-update-card-limits"
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.shouldDisable(`update-card-limits`)}">
+					@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._optionSelectedClick(`update-card-limits`)}"
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`update-card-limits`)}"
+					?hidden= ${this.roleManager.isCapitecConnectAgent}>
 				</horizon-option-button>
+			<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+				<horizon-option-button
+					data-automation-id="favourite-transactions-update-card-limits"
+					label="Update Card Limits" 
+					icon="system/cards-action" 
+					iconSize="default"
+					@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._optionSelectedClick(`update-card-limits`)}"
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`update-card-limits`)}">
+				</horizon-option-button>
+			</capitec-tooltip>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-tap-to-pay"
 					label="Tap to Pay"
