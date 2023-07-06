@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { RoleManager } from '../../shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/OptionButton';
@@ -27,6 +28,7 @@ export class SavingsAccount extends Component {
 		super();
 
 		this.landingPageInfo = null;
+		this.roleManager = RoleManager.getInstance();
 	}
 
 	// -------------------
@@ -342,7 +344,7 @@ export class SavingsAccount extends Component {
 						label="DebiCheck" 
 						icon="system/debi-check-action"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-						?disabled="${this.shouldDisable(`debi-check`)}">
+						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
