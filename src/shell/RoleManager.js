@@ -42,8 +42,8 @@ import { Configuration, SecurityContext } from 'platform/core';
 	}
 
 	get isCapitecConnectAgent() {
-		return this.roles && this.roles.includes(`capitecconnect-agent`);
-	} 
+        return this.roles && this.roles.includes(`capitecconnect-agent`);
+    } 
 
 	async isSearchClientEnabled() {
 		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
