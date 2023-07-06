@@ -781,7 +781,7 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Transaction type" 
-						value="${item.methodOfPayment}">
+						value="Rapid Payment (${item.methodOfPayment})">
 					</horizon-label>
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
