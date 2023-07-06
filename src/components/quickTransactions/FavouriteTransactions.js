@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-import { RoleManager } from '../../shell/RoleManager';
+import { RoleManager } from 'app/shell/RoleManager';
 import 'app/components/common/OptionButton';
 
 
@@ -251,12 +251,12 @@ export class FavouriteTransactions extends Component {
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-						?disabled="${this.shouldDisable(`debi-check`)}">
+						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button
 						data-automation-id="favourites-transaction-send-cash"
 						icon="system/send-cash-action"
-						?disabled="${this.shouldDisable(`send-cash`)}"
+						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`send-cash`)}"
 						label="Send Cash"
 						@click="${() => this._optionSelectedClick(`send-cash`)}">
 					</horizon-option-button>
@@ -302,7 +302,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/contactless-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-					?disabled="${this.shouldDisable(`tap-to-pay`)}">
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`tap-to-pay`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
@@ -327,7 +327,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/sars-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
-					?disabled="${this.shouldDisable(`tax-certificate`)}">
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`tax-certificate`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-proof-of-account"
@@ -335,7 +335,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-					?disabled="${this.shouldDisable(`proof-of-account`)}">
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`proof-of-account`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					data-automation-id="favourite-transactions-settlement-quote"
@@ -343,14 +343,14 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`settlement-quote`)}"
-					?disabled="${this.shouldDisable(`settlement-quote`)}">
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`settlement-quote`)}">
 				</horizon-option-button>
 				<horizon-option-button
 					label="Paid Up Letter" 
 					icon="system/documents-action" 
 					iconSize="default"
 					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
-					?disabled="${this.shouldDisable(`paid-up-accounts`)}">
+					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`paid-up-accounts`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
