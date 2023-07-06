@@ -22,10 +22,12 @@ import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/quickTransactions/SendCashLanding';
+import 'app/components/quickTransactions/PayShapLanding';
 import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/dialogs/quickTransactions/PayshapUpdate';
 import 'app/components/quickTransactions/SettlementQuote';
 import 'app/components/quickTransactions/TaxCertificateLanding';
 
@@ -80,6 +82,7 @@ export class Favourites extends SavingsAccountBase {
 		this.ccsStatus = false;
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
+		this.payShapDetails = {};
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -103,7 +106,9 @@ export class Favourites extends SavingsAccountBase {
 			verificationToastDisplayed: { state: true },
 			hasTaxCertificate: { state: false },
 			showCCSmodal: { type: Boolean },
-			ccsStatus: { state: false }
+			ccsStatus: { state: false },
+			displayToast: { state: false },
+			payShapDetails: { type: Object }
 		};
 	}
 
@@ -135,6 +140,7 @@ export class Favourites extends SavingsAccountBase {
 			const settlementQuote = () => this._settlementQuote();
 			const paidUpAccounts = () => this._paidUpAccounts();
 			const sendCash = () => this._sendCash();
+			const payShap = () => this._payShap();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -147,7 +153,8 @@ export class Favourites extends SavingsAccountBase {
 				'search-other-need': searchOtherNeed,
 				'settlement-quote': settlementQuote,
 				'paid-up-accounts': paidUpAccounts,
-				'send-cash': sendCash
+				'send-cash': sendCash,
+				'payshap': payShap
 			};
 
 			if (actions[option]) {
@@ -197,6 +204,11 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.horizonRouter.navigateToSendCashFailure();
+	}
+
+	_showPayShapUpdateModal(e) {
+		this.payShapModalDetails = e.detail;
+		this.renderMode = RENDER_MODE.PAYSHAP_MODAL;
 	}
 
 	_saveToState(selectedReason) {
@@ -663,6 +675,65 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
+	async _payShap() {
+
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PAY_SHAP, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PAY_SHAP_DETAILS
+		});
+
+		this.payShapDetails = await this._getPayShapDetails();
+		
+		await super.createAndClassifySubIncident(null, false);
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _getPayShapDetails() {
+		const payShapDetailsRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			verifiedCellphoneNumber: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.payShapService.getDetails(payShapDetailsRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getPayShapInstitutionsDetails() {
+		const returnValue = await this.payShapService.getInstitutions();
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getMoneyInTransactionHistory(request) {
+		const returnValue = await this.payShapService.moneyIn(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	async _getMoneyOutTransactionHistory(request) {
+		const returnValue = await this.payShapService.moneyOut(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+	}
+
+	payshapDisplayToast() {
+		this.displayToast = true;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = false;
+	}
+
 	async _getSendCashVouchers(startDate, endDate) {
 
 		const sendCashVouchersRequest = {
@@ -876,6 +947,10 @@ export class Favourites extends SavingsAccountBase {
 		this._setIncidentDone();
 	}
 
+	_onExitPayShap() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	_limitsRandsToCents(cardDetails) {
  
 		// Converting limits from rands to cents before updating
@@ -911,6 +986,71 @@ export class Favourites extends SavingsAccountBase {
 
 		this.horizonStore.clearScreenDetails();
 		this.renderMode = RENDER_MODE.SETTLEMENT_QUOTE_VIEW;
+	}
+
+	async _setCapitecBankAsDefault() {
+		await super._inicidentManager_(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
+
+		if (returnValue.succeeded) {
+			this.payShapDefaultToast = `success`;
+		} else {
+			this.payShapDefaultToast = `error`;
+		}
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
+			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
+			"Default-institution": returnValue.succeeded ? `CAPITEC` : `Not Set`, 
+			"next-screen": returnValue.succeeded ? `success` : `failed`
+		});
+
+		this.payshapDisplayToast();
+		this._setIncidentDone();
+
+		this.payShapDetails = await this._getPayShapDetails();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _removeCapitecBankAsDefault() {
+		await super._inicidentManager_(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
+
+		if (returnValue.succeeded) {
+			this.payShapDefaultToast = `success`;
+		} else {
+			this.payShapDefaultToast = `error`;
+		}
+
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
+			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
+			"Default-institution": returnValue.succeeded ? `Not Set` : `CAPITEC`, 
+			"next-screen": returnValue.succeeded ? `success` : `failed`
+		});
+
+		this.payshapDisplayToast();
+		this._setIncidentDone();
+
+		this.payShapDetails = await this._getPayShapDetails();
+		this.renderMode = RENDER_MODE.PAYSHAP;
+	}
+
+	async _updatePayShapDetails() {
+		const payShapDetailsRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			verifiedCellphoneNumber: this.callerInformation.verifiedTelephoneNumber
+		};
+
+		const returnValue = await this.payShapService.getDetails(payShapDetailsRequest);
+
+		if (returnValue.succeeded) {
+			this.payShapDetails = returnValue.result;
+		}
+	}
+
+	async _unloadingPayshap() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		this._setIncidentDone();
+		this._onExitPayShap();
 	}
 
 	// ---------
@@ -971,6 +1111,8 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderCcsModal()}
 			${this._renderSendCash()}
 			${this._renderConfirmPlaceHoldModal()}
+			${this._renderPayShap()}
+			${this._renderPayShapUpdateModal()}
 
 			${super._webTemplate()}
 		`;
@@ -1161,6 +1303,40 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-confirm-place-hold>`
 		: html``;
 	}
+
+	_renderPayShap() {
+		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-payshap-landing
+				.payShapLandingDetails="${this.payShapDetails}"
+				.cifNumber="${this.callerInformation.cifNumber}"
+				.verifiedCellphoneNumber="${this.callerInformation.verifiedTelephoneNumber}"
+				.payShapDefaultToast="${this.payShapDefaultToast}"
+				.displayToast="${this.displayToast}"
+				.accountNumber="${this.landingPageInfo.accountNumber}"
+				.getInstitutions="${() => this._getPayShapInstitutionsDetails()}"
+				.getMoneyInTransactionHistory="${(request) => this._getMoneyInTransactionHistory(request)}"
+				.getMoneyOutTransactionHistory="${(request) => this._getMoneyOutTransactionHistory(request)}"
+
+				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
+				@back="${() => this._onExitPayShap()}"
+				@unloading="${() => this._unloadingPayshap()}">
+			</horizon-payshap-landing>`
+		: html``;
+	}
+
+	_renderPayShapUpdateModal() {
+		return this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		? html`
+			<horizon-pay-shap-update
+						.payShapModalDetails="${this.payShapModalDetails}"
+						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
+						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+			</horizon-pay-shap-update>`
+		: html``;
+	}
+
 }
 
 customElements.define(`horizon-favourites`, Favourites);
