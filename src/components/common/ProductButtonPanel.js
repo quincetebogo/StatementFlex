@@ -3,6 +3,7 @@ import { RoleManager } from 'app/shell/RoleManager';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
+
 const DEFAULT_SUBTITLE = {
 	SAVINGS_ACCOUNT: `Know what you get, know what you pay`,
 	LIVE_BETTER_SAVINGS: `Supercharge your savings`,
@@ -30,7 +31,7 @@ export class ProductButtonPanel extends Component {
 		this.roleManager = RoleManager.getInstance();
 
 		this.selectedButton = ``;
-
+		this.roleManager = RoleManager.getInstance();
 		this.subtitle = {
 			savingsAccount: ``,
 			liveBetterSavings: ``,
@@ -87,6 +88,14 @@ export class ProductButtonPanel extends Component {
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
 	}
+
+	_getProductDetailValue(amount, type) {
+        const product = [`insure`, `credit`];
+        if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
+          return null;
+        }
+        return amount;
+    }
 
 	// ---------
 	// RENDERING
@@ -145,7 +154,7 @@ export class ProductButtonPanel extends Component {
 				type="credit"
 				label="Credit"
 				subtitle="${this.subtitle.credit ? this.subtitle.credit : DEFAULT_SUBTITLE.CREDIT}"
-				detail="${this.detail.credit ? this.detail.credit : ``}"
+				detail="${this.detail.credit ? this._getProductDetailValue(this.detail.credit, `credit`) : ``}"
 				icon="product/credit-white"
 				?detailIcon="${false}"
 				@click="${() => this._productButtonClick(`Credit`)}"
@@ -157,7 +166,7 @@ export class ProductButtonPanel extends Component {
 				type="insure"
 				label="Insure"
 				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
-				detail="${this.detail.insure ? this.detail.insure : ``}"
+				detail="${this.detail.insure ? this._getProductDetailValue(this.detail.insure, `insure`) : ``}"
 				icon="product/insure-white"
 				@click="${() => this._productButtonClick(`Insure`)}"
 				?selected="${this.selectedButton === `Insure`}"
