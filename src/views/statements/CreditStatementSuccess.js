@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { ACCOUNT_TYPES } from 'app/constants/common';
 import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -19,6 +20,9 @@ export class CreditStatementsSuccess extends ViewBase {
 		this.acNumber = ``;
 		this.accountName = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.productName = ``;
+		this.productType = ``;
+		this.monthRange = ``;
 	}
 
 	// ----------
@@ -33,7 +37,15 @@ export class CreditStatementsSuccess extends ViewBase {
 		};
 	}
 
-	// N/A
+	get incidentDescription() {
+		let accountName = ``;
+		
+		if (this.productType === ACCOUNT_TYPES.CREDIT) {
+			accountName = `Account Name: ${this.accountName}\n`;
+		}
+
+		return `Type: ${this.productName}\n${accountName}Period: ${this.monthRange}\nRecipient EmailID: ${this.mailId}`;
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -51,7 +63,10 @@ export class CreditStatementsSuccess extends ViewBase {
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
-		this.accountName = screenDetails && screenDetails.accountType;
+		this.accountName = screenDetails && screenDetails.accountName;
+		this.productName = screenDetails && screenDetails.productName;
+		this.productType = screenDetails && screenDetails.productType;
+		this.monthRange = screenDetails && screenDetails.monthRange;
 
 		this._updateIncidentState();
 	}
@@ -92,7 +107,8 @@ export class CreditStatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	// ---------
