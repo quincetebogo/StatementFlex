@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { RoleManager } from '../../shell/RoleManager';
+import { RoleManager } from 'app/shell/RoleManager';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
@@ -173,7 +173,7 @@ export class ProductButtonPanel extends Component {
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
 				?selected="${this.selectedButton === `LiveBetter`}"
 				data-automation-id="product-button-panel-live-better"
-				?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`paid-up-accounts`)}">
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
 		`;
 	}
