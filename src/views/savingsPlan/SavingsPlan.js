@@ -83,7 +83,7 @@ export class SavingsPlan extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;	
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.selectedAccountNumber = ``;
@@ -154,7 +154,7 @@ export class SavingsPlan extends ViewBase {
 		return {
 			landingPageInfo: { state: true },
 			accountViewType: { state: false },
-			alertBannerMessage: { state: true}
+			alertBannerMessage: { state: true }
 		};
 	}
 	
@@ -828,6 +828,7 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 				.renderAlertBanner="${() => this._renderAlertBanner()}"
+				?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 
 				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"
