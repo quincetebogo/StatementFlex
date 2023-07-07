@@ -1,5 +1,5 @@
 import { css, html } from 'platform/elements';
-import { ACCOUNT_TYPES } from 'app/constants/common';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
