@@ -250,6 +250,21 @@ export class HorizonProductTile extends Component {
 				}
 				/* Hove & Focus styles - End*/
 
+				/* Overriding product tile component styles when tile is disabled */
+				.tile.disabled {
+					cursor: default;
+					filter: grayscale(100%);
+				}
+				.tile.disabled:hover {
+					border: var(--theme-product-tile-border, 1px solid #E1E1E1);
+					box-shadow: none;
+				}
+				.tile.disabled:focus, .tile.disabled.selected{
+					border: var(--theme-product-tile-border, 1px solid #E1E1E1);
+					box-shadow: none;
+				}
+				/* Overriding product tile component styles when tile is disabled - End */
+
 				.product {
 					height: calc(var(--theme-product-tile--height, 80px) - 3px);
 					width: var(--theme-product-tile-colour-display-width, 57px);
