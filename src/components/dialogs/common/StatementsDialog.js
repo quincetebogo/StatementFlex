@@ -1,6 +1,8 @@
 import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+// import { Instana } from 'app/services/instana';
+import { SecurityContext } from 'platform/core';
 
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -62,6 +64,9 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+
+		// this._InstanaHelper = Instana.getInstance();
+		this._securityContext = SecurityContext.getInstance();
 	}
 
 	// ----------
@@ -102,7 +107,7 @@ export class StatementsDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Statement Dialog`);
 		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
 		this._initialise();
 	}

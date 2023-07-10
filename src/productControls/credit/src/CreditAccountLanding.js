@@ -40,6 +40,7 @@ export class CreditAccountLanding extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+		// ineum('user', '{userID}', 'Lungile', null);
 	}
 
 	disconnectedCallback() {

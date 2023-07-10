@@ -241,6 +241,7 @@ export class SearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Search Caller Dialog`);
 		this.identificationMethods = SEARCH_OPTIONS;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 

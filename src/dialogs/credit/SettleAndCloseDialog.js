@@ -57,6 +57,7 @@ export class SettleAndCloseDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `settle and close dialog`);
 		[this.productSelected] = this.clientProducts;
 		this.savList = this.settleAndCloseQuote.savingAccountsList;
 		this._CheckSavStatus();

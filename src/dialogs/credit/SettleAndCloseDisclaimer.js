@@ -36,6 +36,7 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum('page', `Credit Settle and Close Disclaimer`);
 	}
 
 	// --------------

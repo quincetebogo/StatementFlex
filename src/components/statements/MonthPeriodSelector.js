@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { Instana } from 'app/services/instana';
+import { SecurityContext } from 'platform/core';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+
 
 import 'app/components/common/HorizonExpanderNoAnimations';
 import 'app/components/common/HorizonMonthCalendar';
@@ -18,6 +21,9 @@ export class MonthPeriodSelector extends Component {
 		this.selectedCustomMonths = [];
 		this.checkedAll = false;
 		this.maxDate = ``;
+
+		this._InstanaHelper = Instana.getInstance();
+		this._securityContext = SecurityContext.getInstance();
 	}
 
 	// ----------
@@ -105,6 +111,7 @@ export class MonthPeriodSelector extends Component {
 	// ---------------
 
 	_initialise() {
+		this._InstanaHelper._instanaScriptsCustoms(this._securityContext, `/horizon-month-period-selector`);
 		for (let month = 1; month <= 6; month++) {
 			
 			const accOpenedDate = new Date(this.accountOpenDate);

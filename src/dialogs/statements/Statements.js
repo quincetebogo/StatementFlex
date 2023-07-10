@@ -118,7 +118,7 @@ export class Statements extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Statement Dialog`);
 		// Fetching the telemetry events object at runtime based on product type
 		// const type = this.type || `Default`;
 		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.accountType]();
