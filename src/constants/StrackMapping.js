@@ -106,7 +106,6 @@
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
-<<<<<<< HEAD
 	
 
 	// Insure 
@@ -116,11 +115,9 @@
 	"funeral-estimate": `FUNERAL_ESTIMATE`,
 	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
 	"funeral-reissue": `FUNERAL_REISSUE`,
-	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`
-=======
+	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`,
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`
->>>>>>> features/INUC-1835-insure-lapse-dates
 
 });
