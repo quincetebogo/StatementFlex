@@ -240,6 +240,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"budgetAccounts": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
