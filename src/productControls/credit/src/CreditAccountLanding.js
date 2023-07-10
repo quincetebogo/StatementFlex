@@ -270,36 +270,6 @@ export class CreditAccountLanding extends Component {
 				.expander-content > capitec-title-bar {
 					border-top: 0px;
 				}
-				.budget-banner {
-					--theme-titlebar-min-height: 48px;
-				}
-				.budget-banner:hover {
-    				--theme-type-default-background: rgba(0,157,224,0.1);
-				}
-				.budget-banner > horizon-label {
-					width: 158px;
-					padding-left: 16px;
-					--theme-titlebar-item-gap: 0px;
-					--horizon-label-value-margin-top: 2px;
-					--horizon-label-text-height: 12px;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 12px;
-					--horizon-label-value-font-size: 14px;;
-				}
-				.budget-banner > horizon-label[label="Total budget balance"] {
-					margin-left: 90px;
-				}
-				.budget-banner > horizon-label[label="Total budget instalment (monthly)"] {
-					width: auto;
-				}
-				.budget-banner > capitec-hyperlink {
-					--theme-hyperlink-font-size: 14px;
-					--theme-font-weight: 600;
-					--theme-hyperlink-color: #009DE0;
-				}
-				.budget-banner:hover > capitec-hyperlink {
-    				text-decoration: underline;
-				}
 
 				/* No results available styles */
 				.no-results {
@@ -450,40 +420,10 @@ export class CreditAccountLanding extends Component {
 							gap="none"
 							halign="left"
 							valign="center">
-								${this._renderBudgetDetailsBar(item)}
 								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
-	}
-
-	_renderBudgetDetailsBar(item) {
-		return item.type === PRODUCTS.CREDIT_CARD &&
-				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
-				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
-					? html`
-						<capitec-title-bar
-							type="default"
-							label="Budget facilities"
-							class="budget-banner">
-								<horizon-label
-									label="Total budget balance"
-									value="${this.budgetAccountsSummary.totalBudgetBalance}">
-								</horizon-label>
-								<horizon-label
-									label="Total budget instalment (monthly)"
-									value="${this.budgetAccountsSummary.totalBudgetInstallmentAmount}">
-								</horizon-label>
-								
-								<capitec-spacer></capitec-spacer>
-
-								<capitec-hyperlink 
-									label="View details" 
-									@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
-									inline>
-								</capitec-hyperlink>
-						</capitec-title-bar>`
-					: html``;
 	}
 
 	_renderFixedTermAccounts() {
@@ -577,6 +517,9 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderCreditCardOptions(selectedAccountDetails) {
+		const showBudgetFacilityOption = this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00` &&
+											this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`;
+			
 		return html`
 			<horizon-option-button 
 					data-automation-id="credit-account-transaction-history"
@@ -609,6 +552,13 @@ export class CreditAccountLanding extends Component {
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
 					?disabled="${this.shouldDisable(`settle-close`)}">
+			</horizon-option-button>
+			<horizon-option-button
+					data-automation-id="credit-account-budget-facility"
+					label="Budget Facility"
+					img-src="/images/credit/calculator.svg"
+					?hidden=${!showBudgetFacilityOption}
+					@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
 	}

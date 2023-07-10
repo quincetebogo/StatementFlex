@@ -1,12 +1,38 @@
+/* eslint-disable prefer-object-spread */
 import { Component, css, html } from 'platform/elements';
+import { formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { DateTime } from 'luxon';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/NoResultsSearchScreen';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
+
+ const FILTER_BY_STATUS = {
+	ACTIVE: `Active`,
+	SETTLED: `Settled`,
+	CLOSED: `Closed`
+ };
+
+ const FILTER_BY = {
+	TEXT: `TEXT`,
+	DATE: `DATE`
+};
+
+const RENDER_CHIPS = {
+	TEXT: ``,
+	DATE: ``
+};
+
+ const BUDGET_TYPE = {
+	'Active': `activeCreditCardBudgetList`,
+	'Settled': `settledCreditCardBudgetList`,
+	'Closed': `closedCreditCardBudgetList`
+ };
+
+const today = new Date();
 
 /**
  * Budget facility Accounts view Product Control
@@ -30,9 +56,12 @@ import 'app/components/common/HorizonLabel';
 		super();
 
 		this.budgetFacilityAccounts = null;
-		this.groupAccountsByTerm = null;
+		this.activeCreditCardBudgetList = null;
+		this.settledCreditCardBudgetList = null;
+		this.closedCreditCardBudgetList = null;
 		this.filteredAccounts = null;
 		this.searchText = ``;
+		this.filterByStatus = ``;
 	}
 
 	// -------------------
@@ -42,9 +71,11 @@ import 'app/components/common/HorizonLabel';
 	connectedCallback() {
 		super.connectedCallback();
 		
-		// Grouping budget accounts available based on total number of term months.
-		this.groupAccountsByTerm = Utilities.groupBy(this.budgetFacilityAccounts.creditCardBudgetList, `originalTerm`);
-		this.filteredAccounts = { ...this.groupAccountsByTerm };
+		this._loadBudgetLists();
+
+		// Making sure no baggage is carried from the previous instance.
+		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
+		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 
 		this._onLoading();
 	}
@@ -60,27 +91,39 @@ import 'app/components/common/HorizonLabel';
 	/**
 	 * @typedef {Object} renderAlertBanner Display alter banner based on verification status
 	*/
-
 	/**
 	 * @callback renderAlterBannerCallback
 	 * @returns {html}
 	*/
 
 	/**
+	 * @typedef {Object} getBudgetFacilities  Callback function to get budgets facilities with the selected status
+	*/
+	/**
+	 * @callback getBudgetFacilitiesCallback
+	 * @returns {object}
+	*/
+
+	/**
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {budgetFacilityAccounts} budgetFacilityAccounts List of Budget facility accounts and their details
+	 * @property {budgetFacilityAccounts} shouldDisable Indicates if Transfer button needs to be disabled based on ITA verification
+	 * @property {budgetFacilityAccounts} budgetStatus Budget status captured when clicked on budget account details, helps to return to the same status list 
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {getBudgetFacilitiesCallback} getBudgetFacilities Callback function to get budgets facilities with the selected status
 	 *
 	 */
 	static get properties() {
 		return {
 			budgetFacilityAccounts: { type: Object },
 			shouldDisable: { type: Object },
+			budgetStatus: { type: String },
 			renderAlertBanner: { type: Object, attribute: false },
+			getBudgetFacilities: { type: Object, attribute: false },
       
-			groupAccountsByTerm: { state: true },
-			filteredAccounts: { state: true }
+			filteredAccounts: { state: true },
+			filterByStatus: { state: true }
 		};
 	}
 	
@@ -103,20 +146,8 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_searchValueChange(event) {
-		
-		this.filteredAccounts = { ...this.groupAccountsByTerm };
-		this.searchText = event.detail.new.toLowerCase();
-
-		if (this.searchText) {
-			Object.keys(this.filteredAccounts).forEach(term => {
-				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(this.searchText) !== -1 ||
-																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(this.searchText) ||
-																						parseFloat(item.originalAmount).toFixed(2).startsWith(this.searchText) ||
-																						parseFloat(item.budgetBalance).toFixed(2).startsWith(this.searchText));
-			});
-		}
-
-		this.requestUpdate();
+		RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new.toLowerCase();
+		this._refineSearch();
 	}
 
 	_transferClick(selectedBudgetAccount) {
@@ -146,6 +177,120 @@ import 'app/components/common/HorizonLabel';
 		}
 	}
 
+	async _statusValueChange(e) {
+		this.filterByStatus = e.currentTarget.label;
+
+		// Make sure not to hit CS when the status is selected for second time or more
+		if (!this[BUDGET_TYPE[this.filterByStatus]]) {
+			const request = {
+				accountNumber: this.budgetFacilityAccounts.creditCardNumber,
+				status: this.filterByStatus,
+				startDateTime: ``,
+				endDateTime: ``
+			};
+			const response = await this.getBudgetFacilities(request);
+			if (response) {
+				this[BUDGET_TYPE[this.filterByStatus]] = Utilities.groupBy(response[BUDGET_TYPE[this.filterByStatus]], `originalTerm`);
+				this.budgetFacilityAccounts[BUDGET_TYPE[this.filterByStatus]] = response[BUDGET_TYPE[this.filterByStatus]];
+			}
+		}
+
+		this._refineSearch();
+	} 
+
+	_dateChanged(e) {
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate || this.get90DaysAfter(e.detail.new.startDate);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
+		}
+
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate);
+		const currentDateTime = DateTime.local();
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			
+			toDate = fromDate.plus({ days: 90 });
+			if (toDate > currentDateTime) {
+				this.startDate = fromDate;
+				this.endDate = currentDateTime;
+			} else {
+				this.startDate = fromDate;
+				this.endDate = toDate;
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else {
+			this.startDate = fromDate;
+			this.endDate = toDate;
+		}
+		
+		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+		this._refineSearch();
+	}
+
+	_clearAllFilters() {
+		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
+		Array.from(activeFilters.children)
+			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
+			 .forEach(item => {
+				 this._clearFilter(item.id);
+			 });
+
+		this._refineSearch();
+	}
+
+	_closeChip(type) {
+		this._clearFilter(type);
+		this._refineSearch();
+	}
+
+	_clearFilter(type) {
+		const text = () => this._clearTextFilter();
+		const date = () => this._reset();
+		
+		const resetForfilters = {
+			'DATE': date,
+			'TEXT': text
+		};
+
+		RENDER_CHIPS[type] = ``;
+		if (resetForfilters[type]) {
+			resetForfilters[type]();
+		}
+	}
+
+	_clearTextFilter() {
+		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
+		this._refineSearch();
+	}
+
+	// To set the values to default on closing the chip or clearing all the filters
+	_reset() {
+		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
+			this.startDate = ``;
+			this.endDate = ``;
+
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = null;
+				calendar._placeholderStartDate = null;
+			}
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -159,7 +304,88 @@ import 'app/components/common/HorizonLabel';
 	_onLoading() {
 		this.dispatchEvent(new CustomEvent(`on-loading`, {}));
 	}
+
+	_loadBudgetLists() {
+		// Set status to previous selection when coming back from details screen else by default Active 
+		this.filterByStatus = this.budgetStatus || FILTER_BY_STATUS.ACTIVE;
+
+		Object.values(FILTER_BY_STATUS).forEach(status => {
+			if (this.budgetFacilityAccounts[BUDGET_TYPE[status]] && this.budgetFacilityAccounts[BUDGET_TYPE[status]].length > 0) {
+
+				// Grouping budget accounts available based on total number of term months.
+				this[BUDGET_TYPE[status]] = Utilities.groupBy(this.budgetFacilityAccounts[BUDGET_TYPE[status]], `originalTerm`);
+			} else if (this.budgetFacilityAccounts[BUDGET_TYPE[status]] && !this[BUDGET_TYPE[status]]) {
+				// Loading null when array is empty, provided there is no CS call yet made with particular status
+				this[BUDGET_TYPE[status]] = null;
+			}
+		});
+
+		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+	}
+
+	getPredefinedDateRanges() {
+		const last7day = new Date(today);
+		const last30day = new Date(today);
+		const last60day = new Date(today);
+		const last90day = new Date(today);
+
+		last7day.setDate(today.getDate() - 7);
+		last30day.setDate(today.getDate() - 30);
+		last60day.setDate(today.getDate() - 60);
+		last90day.setDate(today.getDate() - 90);
+
+		return [
+			{ text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+			{ text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+		];
+	}
 	
+	_getDateRange() {
+		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+
+		const preDefinedRanges = this.getPredefinedDateRanges();
+		const selectedValue = preDefinedRanges.filter(item => this._formatDate(item.value.startDate) === fromDate && this._formatDate(item.value.endDate) === toDate);
+
+		if (selectedValue.length > 0) {
+			return selectedValue[0].text;
+		}
+	
+		return `${fromDate} - ${toDate}`;
+	}
+	
+	_formatDate(date) {
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	_refineSearch() {
+		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+
+		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT];
+			Object.keys(this.filteredAccounts).forEach(term => {
+				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => item.budgetName.toLowerCase().indexOf(searchText) !== -1 ||
+																						parseFloat(item.budgetInstallment).toFixed(2).startsWith(searchText) ||
+																						parseFloat(item.originalAmount).toFixed(2).startsWith(searchText) ||
+																						parseFloat(item.budgetBalance).toFixed(2).startsWith(searchText));
+			});
+		}
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const fromDate = new Date(Date.parse(this.startDate));
+			const toDate = new Date(Date.parse(this.endDate));
+			Object.keys(this.filteredAccounts).forEach(term => {
+				this.filteredAccounts[term] = this.filteredAccounts[term].filter(item => new Date(Date.parse(item.budgetDateTaken)) >= fromDate &&
+																						new Date(Date.parse(item.budgetDateTaken)) <= toDate);
+			});
+		}
+
+		this.requestUpdate();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -171,6 +397,7 @@ import 'app/components/common/HorizonLabel';
 				.card {
 					width: 100%;
 					height: 888px;
+					--theme-layout-gap-spacing: 0px;
 				}
 
 				/* Title Bar styles */
@@ -194,6 +421,7 @@ import 'app/components/common/HorizonLabel';
 				.account-details-bar {
 					width: auto;
 					height: 64px;
+					border-bottom: 0px;
 				}
 				.account-details-bar > horizon-label {
 					width: auto;
@@ -212,17 +440,22 @@ import 'app/components/common/HorizonLabel';
 				/* Search bar styles */
 				capitec-search-field {
 					margin: 8px 16px;
+					width: 356px;
+					--theme-input-label-font-color: #7c7c7c;
 				}
 
 				/* Busget Accounts content styles */
 				capitec-content-box {
-					width: auto;
-					height: 678px;
+					width: 1062px;
+					height: 693px;
 					
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-bottom: 0px;
+				}
+				.budget-content {
+					height: 647px;
 				}
 				horizon-label {
 					height: 100%;
@@ -244,6 +477,12 @@ import 'app/components/common/HorizonLabel';
 				}
 				horizon-label[value="Active"] {
 					--horizon-label-value-color:#70AF00;
+				}
+				horizon-label[value="Settled"] {
+					--horizon-label-value-color:#d4781c;
+				}
+				horizon-label[value="Close"] {
+					--horizon-label-value-color:#7C7C7C;
 				}
 				#budget-name-label {
 					width: 253px;
@@ -317,6 +556,65 @@ import 'app/components/common/HorizonLabel';
 					--theme-tooltip-border-radius: 2px;
 					--theme-layout-gap-spacing: 0px;
 				}
+				capitec-date-time-picker{
+					width: 224px;
+					margin-right: 12px;
+					--theme-input-icon-top: 11px;
+					--theme-input-font-size: 14px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-input-font-family: "Hind Vadodara";
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-date-time-picker-range-calendar-border: 0px;
+					--theme-date-time-picker-medium-select-min-width: 224px;
+				
+				}
+				.type-normal{
+					--theme-chip-label-color: #3A3A3A;
+					--theme-chip-background-color: #FFFFFF;
+				}
+				.type-selected{
+					--theme-chip-label-color: #FFFFFF;
+					--theme-chip-background-color: #009DE0;
+					--theme-chip-font-weight: 600;
+				}
+				capitec-chip{
+					margin: 4px;
+				}
+				
+				/* Chip Bar Styles */
+				.filter-bar {
+					border-bottom: 0px;
+					border-top: 1px solid rgb(225, 225, 225);
+					--theme-actionbar-min-height: 48px;
+					--theme-actionbar-padding-top: 8px
+				}
+				.filter-bar > capitec-label {
+					height: 20px;
+					width: auto;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 30px;
+				}
+				.filter-bar > capitec-button {
+					height: 40px;
+					margin: 0px;
+
+					--theme-button-font-size : 14px;
+					--theme-button-line-height: 10px;
+					--theme-button-font-weight: 600;
+				}
+				.filter-bar > capitec-chip{
+					margin: 4px 8px;
+					--theme-chip-label-padding-left: 11px;
+					--theme-chip-label-padding-right: 11px;
+					--theme-chip-label-line-height: 19px;
+				}
+				horizon-no-results-search-screen {
+					border-top: 1px solid #E1E1E1;
+				}
 			`
 		];
 	}
@@ -330,6 +628,7 @@ import 'app/components/common/HorizonLabel';
 			<capitec-card 
 				data-automation-id="budget-facility-list-view"
 				class="card">
+				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					<capitec-title-bar 
 						data-automation-id="budget-facility-title"
 						type="credit">
@@ -344,12 +643,14 @@ import 'app/components/common/HorizonLabel';
 				
 					</capitec-title-bar>
 
-					<capitec-content-box>
+					${this._renderFilterBar()}
+					${this._renderFilterChipsBar()}
+					
+					<capitec-content-box class="${RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` ? `budget-content` : ``}">
 						${this.renderAlertBanner()}
-						${this._renderSearchBar()}
 						${this._renderBudgetAccounts()}
 					</capitec-content-box>
-
+				</capitec-group>
 			</capitec-card>
 		`;
 	}
@@ -362,12 +663,6 @@ import 'app/components/common/HorizonLabel';
 					data-automation-id="budget-facility-credit-card-number"
 					label="Credit card"
 					value="${this.budgetFacilityAccounts.creditCardNumber}">
-				</horizon-label>
-
-				<horizon-label
-					data-automation-id="budget-facility-number-of-budgets"
-					label="Number of budget accounts"
-					value="${this.budgetFacilityAccounts.creditCardBudgetList.length}">
 				</horizon-label>
 
 				<horizon-label
@@ -385,36 +680,114 @@ import 'app/components/common/HorizonLabel';
 		`;
 	}
 
-	_renderSearchBar() {
+	_renderFilterBar() {
 		return html`
+		<capitec-group class= "account-details-bar" layout="horizontal" gap="none" halign="left" valign="center">
 			<capitec-search-field
-				data-automation-id="budget-facility-search-bar"
-				label="Search for amount or transaction name" 
-				value="${this.searchText}"
+				data-automation-id="budget-facility-search-filter"
+				label="Search for amount or budget name" 
+				value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 				@key-input="${(event) => this._searchValueChange(event)}"
 				@focusout="${(event) => this._focusOut(event)}">
 			</capitec-search-field>
+			
+			<capitec-date-time-picker
+				data-automation-id="budget-facility-date-range-filter"
+				id="calendarRange"
+				label="Choose a date range"
+				startDate='${this.startDate}'
+				endDate='${this.endDate}'
+				maxDate="${new Date().toString()}"
+				type="range"
+				mode="date"
+				inputType="calendar"
+				outputType="string"
+				.predefinedRanges="${this.getPredefinedDateRanges()}"
+				@apply-clicked="${(e) => this._dateChanged(e)}">
+			</capitec-date-time-picker>
+
+			<capitec-chip 
+				data-automation-id="budget-facility-active-status-filter"
+				label="Active" 
+				class="${this.filterByStatus === FILTER_BY_STATUS.ACTIVE ? `type-selected` : `type-normal`}" 
+				@click="${(e) => this._statusValueChange(e)}">
+			</capitec-chip>
+			<capitec-chip 
+				data-automation-id="budget-facility-settled-status-filter"
+				label="Settled" 
+				class="${this.filterByStatus === FILTER_BY_STATUS.SETTLED ? `type-selected` : `type-normal`}" 
+				@click="${(e) => this._statusValueChange(e)}">
+			</capitec-chip>
+			<capitec-chip 
+				data-automation-id="budget-facility-closed-status-filter"
+				label="Closed" 
+				class="${this.filterByStatus === FILTER_BY_STATUS.CLOSED ? `type-selected` : `type-normal`}" 
+				@click="${(e) => this._statusValueChange(e)}">
+			</capitec-chip>
+
+		</capitec-group>
 		`;
 	}
 
+	_renderFilterChipsBar() {
+		if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
+			return html`
+				<capitec-action-bar
+					id="active-filters"
+					class="filter-bar"
+					data-automation-id="budget-facility-active-filters-bar">
+						<capitec-label label = "Active filters:"></capitec-label>
+							${this._renderChip(FILTER_BY.TEXT)}
+							${this._renderChip(FILTER_BY.DATE)}
+						<capitec-button
+							type="clear"
+							label="Clear All"
+							@click = "${() => this._clearAllFilters()}"
+							data-automation-id="budget-facility-clear-all-filters">
+						</capitec-button>
+				</capitec-action-bar>
+			`;
+		}
+	}
+
+	_renderChip(type) {
+		return !isNullorEmpty(RENDER_CHIPS[FILTER_BY[type]])
+			? html`
+				<capitec-chip
+					data-automation-id="budget-facility-clear-filter-chip"
+					id="${FILTER_BY[type]}"
+					label="${RENDER_CHIPS[FILTER_BY[type]]}"
+					@remove="${() => this._closeChip(FILTER_BY[type])}"
+					closable>
+				</capitec-chip>`
+			: html``;
+	}
+
 	_renderBudgetAccounts() {
-		return Object.entries(this.filteredAccounts).map(termGroup => {
-			const [term, accountsList] = termGroup;
-			return accountsList.length !== 0
-			 ? html`
-					<capitec-group class="accounts-group" layout="vertical" gap="none" halign="left" valign="center">
-						<capitec-title-bar
-							data-automation-id="budget-facility-term-group-header"
-							class="term-header"
-							type="default"
-							label="${term} months">
-						</capitec-title-bar>
-						${accountsList.map(budgetAccount => this._renderBudgetAccountTile(budgetAccount))}
-					</capitec-group>`
-				: html`
-					<horizon-no-results-search-screen></horizon-no-results-search-screen>
-				`;
+		let noOfBudgets = 0;
+		Object.keys(this.filteredAccounts).forEach(term => {
+			if (this.filteredAccounts[term].length > 0) {
+				noOfBudgets++;
+			}
 		});
+
+		return noOfBudgets
+		? Object.entries(this.filteredAccounts).map(termGroup => {
+			const [term, accountsList] = termGroup;
+				return accountsList.length > 0 
+				? html`
+						<capitec-group class="accounts-group" layout="vertical" gap="none" halign="left" valign="center">
+							<capitec-title-bar
+								data-automation-id="budget-facility-term-group-header"
+								class="term-header"
+								type="default"
+								label="${term} months">
+							</capitec-title-bar>
+							${accountsList.map(budgetAccount => this._renderBudgetAccountTile(budgetAccount))}
+					</capitec-group>`
+				: html``;
+					})
+		: html`<horizon-no-results-search-screen></horizon-no-results-search-screen>`;
 	}
 
 	_renderBudgetNameLabel(budgetAccount) {
