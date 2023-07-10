@@ -993,6 +993,7 @@ export class Favourites extends SavingsAccountBase {
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+						?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 						.shouldDisable="${need => this._shouldDisable(need)}"
 						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
