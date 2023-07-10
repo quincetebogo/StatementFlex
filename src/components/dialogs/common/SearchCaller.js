@@ -391,7 +391,8 @@ export class SearchCaller extends Component {
 					"search-method": this.searchType.value,
 					"search-value": this.searchValue,
 					"client-present": this.clientInBranch,
-					"client-verified": this.isClientVerifiedInBranch
+					"client-verified": this.isClientVerifiedInBranch,
+					"language": this.languagePreference
 				});
 
 				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);

@@ -71,9 +71,10 @@ const HORIZON_ROUTES = Object.freeze({
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
 	CREATE_INCIDENT_ERROR: `/error/create-incident`,
-	WIDGET_HOST: `/widget`,  
+	WIDGET_HOST: `/widget`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
+	VIEW_PROFILE: `/view-profile`,
 	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`
 });
 
@@ -163,7 +164,7 @@ export class HorizonRouter {
 	navigateToWaitingForCall(postNavigateAction = null) {
 		// This is specifically for master incident creation failed scenario
 		this._performPostNavigateFunc = postNavigateAction;
-		
+
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
 
@@ -310,7 +311,7 @@ export class HorizonRouter {
 		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
-		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`); 
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -457,7 +458,7 @@ export class HorizonRouter {
 	navigateToUnlockFTSPFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.UNLOCK_FTSP_FAILURE}`);
 	}
-	
+
 	navigateToSendCashSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_SUCCESS}`);
 	}
@@ -465,11 +466,11 @@ export class HorizonRouter {
 	navigateToSendCashFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
 	}
-	  
+
 	navigateToWidget(widgetName) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
 	}
-		
+
 	navigateToWidgetUnavailable() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
 	}
@@ -477,11 +478,11 @@ export class HorizonRouter {
 	navigateToWidgetNotFound() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_NOTFOUND}`);
 	}
-  
+
 	navigateToWidget(widgetId) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetId}`);
 	}
-  
+
 	/**
 	 * Navigates to the indicated Product Info Page
 	 *
@@ -499,6 +500,10 @@ export class HorizonRouter {
 
 	navigateToCreateIncidentError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREATE_INCIDENT_ERROR}`);
+	}
+
+	navigateToViewProfileDetails() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_PROFILE}`);
 	}
 
 	navigateToUnavaliableForRole() {
@@ -1155,6 +1160,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
 		load: () => import(`../views/common/WidgetNotFound`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-view-profile-details`,
+		title: `ProfileDetails`,
+		icon: null,
+		path: HORIZON_ROUTES.VIEW_PROFILE,
+		load: () => import(`../views/common/ViewProfileDetails`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
