@@ -101,4 +101,25 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
 	ACCOUNT_NUMBER: `ACCOUNTNUMBER`,
 	CELLPHONE_NUMBER: `VERIFIEDCELLPHONENUMBER`  
 });
- 
+
+
+/**
+ * Available language list for choosing preferred language
+ * 
+ * @readonly
+ * @enum {Object} LANGUAGE_LIST
+ */
+
+export const LANGUAGE_LIST = Object.freeze([
+	`English`, 
+	`Afrikaans`, 
+	`isiZulu`,
+	`isiXhosa`, 
+	`Xitsonga`, 
+	`siSwati`,
+	`isiNdebele`, 
+	`Tshivenda`,
+	`Sepedi`,
+	`Sesotho`,
+	`Setswana`
+]);

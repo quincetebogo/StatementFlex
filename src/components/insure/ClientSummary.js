@@ -1125,6 +1125,14 @@ class ClientSummary extends Component {
 							label="Start date"
 							value="${isNullorEmpty(policyItem.commencementDate) ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
+
+						${policyItem.status === `Lapsed` ? html`
+						<horizon-label
+							style="width: 404px;"
+							label="Lapse Date"
+							value="${formatDate(policyItem?.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem?.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
+						</horizon-label>` : html``} 
+
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
@@ -1132,32 +1140,35 @@ class ClientSummary extends Component {
 							label="Cancellation date"
 							value="${isNullorEmpty(policyItem.cancellationDetails?.recordedCancellationDate) ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
-						`
-					: html`
+						` : html``}
+
+						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed`
+					? html`
 						<horizon-label
 							data-automation-id="insure-policy-next-debit-order"
 							label="Next debit order"
 							value="${this._nextDebitOrderDisplay(policyItem)}">
 						</horizon-label>
-						`
-				}
-						
+						` : html``}
+
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
-							style="    width: 270px;"
+							style="width: 270px;"
 							data-automation-id="insure-policy-cancellation-reason"
 							label="Reason"
 							value="${policyItem?.cancellationDetails?.displayReason}">
-						</horizon-label>`
-					: html`
+						</horizon-label>` : html``}
+
+						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed`
+					? html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total premium"
 							value="${this._totalPremiumDisplay(policyItem)}">
-						</horizon-label>`
-				}
-						${policyItem.status === `Cancelled`
+						</horizon-label>` : html``}
+				
+						${policyItem.status === `Cancelled` || policyItem.status === `Lapsed`
 					? html``
 					: html`
 						<horizon-label

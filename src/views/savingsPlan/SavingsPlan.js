@@ -241,9 +241,12 @@ export class SavingsPlan extends ViewBase {
 					this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
 					return;
 				}
-				
+
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
+
+				// setting inc status to not started for landing page needs
+				this._setIncidentNotstarted();
 			} 
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {

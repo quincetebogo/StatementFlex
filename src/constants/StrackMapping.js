@@ -25,7 +25,7 @@
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
 
 	// Savings account
-	"transaction-history": `TRANSACTION_HISTORY`,
+	// "transaction-history": `TRANSACTION_HISTORY`,
 	"statements-transact": `STATEMENTS`,
 
 	// Savings plan
@@ -106,6 +106,7 @@
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+<<<<<<< HEAD
 	
 
 	// Insure 
@@ -116,5 +117,10 @@
 	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
 	"funeral-reissue": `FUNERAL_REISSUE`,
 	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`
+=======
+
+	// Update client language preference
+	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`
+>>>>>>> features/INUC-1835-insure-lapse-dates
 
 });
