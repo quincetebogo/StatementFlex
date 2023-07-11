@@ -103,19 +103,25 @@ export class PayShapLanding extends Component {
 	}
 
 	get isCapitecBankDefault() {
+
+		if (!this.payShapLandingDetails.proxyDetails.defaultProxyStatus) {
+			return CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain);
+		}
+
 		return this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `True` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain);
 	}
 
 	get defaultInstitution() {
-		if (this.isCapitecBankDefault) {
-			return this.payShapLandingDetails.proxyDetails.domain;
-		} else {
-			if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && !CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
-				return this.payShapLandingDetails.proxyDetails.domain;
-			}
+
+		if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+			return ``;
 		}
 
-		return ``;
+		if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `Unknown` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+			return `Unknown`;
+		}
+
+		return this.payShapLandingDetails.proxyDetails.domain;
 	}
 
 	// -------------------
@@ -1001,7 +1007,7 @@ export class PayShapLanding extends Component {
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus}">
+							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus || `-`}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>
@@ -1152,12 +1158,6 @@ export class PayShapLanding extends Component {
 					</capitec-label>
 			</capitec-group>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
-			: html``;
 	}
 
 }
