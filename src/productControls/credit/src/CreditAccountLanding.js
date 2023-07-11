@@ -517,8 +517,6 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderCreditCardOptions(selectedAccountDetails) {
-		const showBudgetFacilityOption = this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00` &&
-											this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`;
 			
 		return html`
 			<horizon-option-button 
@@ -557,7 +555,6 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-budget-facility"
 					label="Budget Facility"
 					img-src="/images/credit/calculator.svg"
-					?hidden=${!showBudgetFacilityOption}
 					@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
 			</horizon-option-button>
 		`;
