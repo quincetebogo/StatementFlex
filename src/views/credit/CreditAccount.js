@@ -430,6 +430,9 @@ export class CreditAccount extends ViewBase {
 		screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
 		screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 		screenDetails.accountName = Object.keys(this.settleAndCloseDetails).find(key => this.settleAndCloseDetails[key] === this.settleAndCloseQuote.accountNumber);
+		screenDetails.type = this.selectedAccountDetails.type;
+		screenDetails.settlementAmount = this.settleAndCloseQuote.settlementAmount;
+		screenDetails.fromAccountNumber = settleAndClose.fromAccountNumber;
 
 		if (returnValue.succeeded) {
 
@@ -542,6 +545,9 @@ export class CreditAccount extends ViewBase {
 
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident(null, false);
+
+			// setting inc status to not started for landing page needs
+			this._setIncidentNotstarted();
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,

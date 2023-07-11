@@ -14,6 +14,7 @@ import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { validateAccountNumber } from 'app/utils/accountNumberValidator';
 
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/CallerDialog';
@@ -31,6 +32,13 @@ const CLIENT_TYPE = Object.freeze({
 	BRANCH: 2
 });
 
+const ERROR_CODE = Object.freeze({
+	2401: `UNABLE_TO_SIGN_IN`,
+	2402: `BANCS_ERROR`,
+	2403: `TELLER_NOT_FOUND`,
+	2404: `CAPABILITY_LEVELS` 
+});
+
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
@@ -41,6 +49,10 @@ const ERROR_MESSAGES = {
 	INVALID_BRANCH: `Invalid branch code`,
 	CP_NUMBER_NOT_FOUND: `CP Number not found`,
 	CONSULTANT_INACTIVE: `Service Consultant is inactive`,
+	UNABLE_TO_SIGN_IN: `Your teller account is suspended. Log a request on the service desk to resolve.`,
+	BANCS_ERROR: `There is an error on our core system (BANCS). Log a ticket to escalate this`,
+	TELLER_NOT_FOUND: `Your teller number is inactive or invalid. Log a request on the service desk to resolve.`,
+	CAPABILITY_LEVELS: `Your teller access level is too low. Log a request on the service desk to resolve.`,
 	NOT_FOUND: {
 		0: {
 			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
@@ -62,6 +74,10 @@ const ERROR_MESSAGES = {
 			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
+	},
+	INVALID_ACCOUNT_NUMBER: {
+		ALERT_BANNER: `Invalid account number`,
+		FIELD_ERROR: `Please enter a valid account number`
 	}
 };
 
@@ -355,8 +371,8 @@ export class SearchCaller extends Component {
 
 			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
-
-			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+			
+		    if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
@@ -364,6 +380,8 @@ export class SearchCaller extends Component {
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+				this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
 			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
@@ -390,7 +408,8 @@ export class SearchCaller extends Component {
 					"search-method": this.searchType.value,
 					"search-value": this.searchValue,
 					"client-present": this.clientInBranch,
-					"client-verified": this.isClientVerifiedInBranch
+					"client-verified": this.isClientVerifiedInBranch,
+					"language": this.languagePreference
 				});
 
 				const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
@@ -404,6 +423,8 @@ export class SearchCaller extends Component {
 					this.errMessage.searchValue = errMessages.FIELD_ERROR;
 				} else if (this.currentIncident === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+					this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				}
@@ -589,6 +610,14 @@ export class SearchCaller extends Component {
 			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
 			this.alertBannerMessage = regexValidation.ALERT_BANNER;
 			return false;
+		}
+		
+		if (this.searchType.key === `2`) {
+			if (!validateAccountNumber(this.searchValue)) {
+				this.errMessage.searchValue = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.ALERT_BANNER;
+				return false;
+			}
 		}
 
 		return true;
