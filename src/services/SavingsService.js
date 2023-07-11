@@ -230,7 +230,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			null, 
 			null, 
 			2000,
-			null,
+			5000,
 			errorHandler,
 			autoRetries
 		);

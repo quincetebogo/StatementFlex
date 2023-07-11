@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator } from 'platform/core';
+import { LANGUAGE_LIST } from 'app/constants/Common';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
@@ -103,7 +104,7 @@ export class MiniProfile extends Component {
 	}
 
 	_getLanguagePreference(value) {
-		return !value || value === `NOT_DEFINED` ? `-` : value;
+		return !value || value === `NOT_DEFINED` ? `-` : LANGUAGE_LIST.find((entry) => entry.key === value).value || value;
 	}
 
 	_formatBirthDate(birthdate) {
