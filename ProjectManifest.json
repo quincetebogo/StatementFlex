@@ -2,7 +2,7 @@
   "name": "cec-ui-horizon",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
-  "version": "2.27.0",
+  "version": "2.27.1",
   "alias": "cec-horizon",
   "release": "230801",
   "contractVersion": "v1",
@@ -21,6 +21,5 @@
     "axoncs_t_ch_password",
     "axoncs_t_ch_username"
   ],
-  "environmentVariables": [
-  ]
+  "environmentVariables": []
 }
