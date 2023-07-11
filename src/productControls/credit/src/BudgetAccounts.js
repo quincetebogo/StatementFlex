@@ -386,6 +386,14 @@ const today = new Date();
 		this.requestUpdate();
 	}
 
+	_checkBudgetStatusAndDisable(budgetAcc) {
+
+		if (budgetAcc.status !== `Active`) {
+			return true;
+		}
+		return false;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -857,7 +865,8 @@ const today = new Date();
 					type="clear"
 					label="Transfer"
 					@click="${() => this._transferClick(budgetAccount)}"
-					?disabled="${this.shouldDisable(`pay-budget`)}">
+					?disabled="${this.shouldDisable(`pay-budget`)}"
+					?hidden="${this._checkBudgetStatusAndDisable(budgetAccount)}">
 				</capitec-button>
 			</capitec-group>`;
 	}
