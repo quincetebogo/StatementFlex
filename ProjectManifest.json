@@ -21,6 +21,5 @@
     "axoncs_t_ch_password",
     "axoncs_t_ch_username"
   ],
-  "environmentVariables": [
-  ]
+  "environmentVariables": []
 }

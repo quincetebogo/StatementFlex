@@ -46,6 +46,11 @@ export class SettlementQuoteOutcome extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		return `Type: Settlement Quote\nSucceeded: ${this._formateAccountNames(this.succeededAccounts)}\nFailed: ${this._formateAccountNames(this.failedAccounts)}
+				Receipient EmailID: ${this.emailAddress}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -112,6 +117,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_getOutcomeDetails() {
