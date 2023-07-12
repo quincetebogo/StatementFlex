@@ -323,7 +323,7 @@ export class PayShapUpdate extends Component {
 		? html`
 			<capitec-alert-banner 
 				type="warning" 
-				label="Unable to determine if Capitec is client's main bank. Please refresh Payshap page or instruct client to try set their main bank of the app." 
+				label="Unable to determine client's main bank. Please refresh Payshap page or instruct client to try using the app." 
 				layout="vertical">
 			</capitec-alert-banner>`
 		: html``;

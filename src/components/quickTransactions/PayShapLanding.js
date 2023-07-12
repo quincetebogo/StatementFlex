@@ -1007,7 +1007,7 @@ export class PayShapLanding extends Component {
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus || `-`}">
+							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus || `Unknown`}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>
