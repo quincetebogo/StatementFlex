@@ -560,6 +560,7 @@ export class StopCard extends Component {
 										data-automation-id="Supplementary Access Revoked"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 										.disabled="${rowData.cardStopReason === STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED]}"
+										?hidden="${!rowData.supplementaryCard}"
 										@click="${(e) => this._onClickReason(STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED], rowData)}">
 						</capitec-button>
 					</div>`;
