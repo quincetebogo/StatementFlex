@@ -5,6 +5,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDateToInsure } from 'app/utils/insureUtils';
+import 'app/components/dialogs/insure/AgreementDialog';
 
 // Lookups
 
@@ -36,6 +37,7 @@ class CancelPolicyDialog extends Component {
 		this.cancelPolicyDocumentDetails = {};
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this.showCancelAgreement = false;
 	}
 
 	// #endregion INITIALIZE
@@ -60,7 +62,8 @@ class CancelPolicyDialog extends Component {
 			cancelReason: { type: String, state: true },
 			getCancelPolicyDocument: { type: Object, state: true },
 			cancelPolicyDocumentDetails: { type: Object, state: true },
-			errorMsg: { type: String, state: true }
+			errorMsg: { type: String, state: true },
+			showCancelAgreement: { type: Boolean, state: true }
 		};
 	}
 
@@ -76,6 +79,7 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = CancelPolicyEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
+		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -128,9 +132,24 @@ class CancelPolicyDialog extends Component {
 		}
 	}
 
+	_showAgreement() {
+		this.showCancelAgreement = true;
+	}
+
+	_closeAgreementDialog() {
+		this.showCancelAgreement = false;
+	}
+
+
 	//  #endregion EVENT HANDLERS
 
 	//  #region PRIVATE METHODS
+
+	async _initialise() {
+		// await super._inicidentManager_(`funeral-plan-cancel`, null);
+		// await super.createAndClassifySubIncident();
+
+	}
 
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
@@ -162,6 +181,9 @@ class CancelPolicyDialog extends Component {
 	 */
 	 async _getCancelAgreement(cancelReason) {
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
+	}
+
+	_initialise() {
 	}
 
 	//  #endregion PRIVATE METHODS
@@ -236,6 +258,34 @@ class CancelPolicyDialog extends Component {
 					width: 800px;
 				}
 
+				horizon-product-tile {
+					--theme-product-tile--height: 64px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 16px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-heading-margin-left: 6px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
+					--theme-radio-disabled-border-color: #E1E1E1;
+					--theme-radio-disabled-background-color: #F7F7F7;
+				}
+
+				.view-document {
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-detail-top: 20px;
+					--theme-product-tile-detail-right: 16px;
+				}
+				.view-document > capitec-label[type="strong"] {
+					line-height: 20px;
+					cursor: pointer;
+
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600;
+				}
+
 				`
 		];
 	}
@@ -246,6 +296,7 @@ class CancelPolicyDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
+			${this._renderAgreementDialog()}
 			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Funeral Cover Plan (${this.contractReference})" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 848px;">
 				<div slot="body" data-automation-id="horizon-insure-cancel-policy-dialog-body">
 					${this._renderDialogBody()}
@@ -286,17 +337,16 @@ class CancelPolicyDialog extends Component {
 				</ul>
 			</capitec-content-box>
 
-			<capitec-content-box class="no-padding">
+			<capitec-content-box>
 
-				${this.cancelPolicyDocumentDetails === undefined ? html`
-				` : html`
-					<capitec-expander expandbuttonalignment="left" label="View Cancellation Agreement" class="cancel-pdf-viewer"
-						data-automation-id="horizon-insure-cancel-policy-dialog-view-cancellation-agreement">
-						<iframe title="CancelPolicyAgreement" height = "100%" frameborder = "0"
-							src="data:application/pdf;base64,${this.cancelPolicyDocumentDetails?.documentContent.value}#view=fitH">
-						</iframe>
-					</capitec-expander>
-				`}
+			${this.cancelPolicyDocumentDetails === undefined ? html`` 
+			: html`
+				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Funeral Cover Plan" detail="" icon="" @click="${() => this._showAgreement()}">
+					<capitec-label slot="detail" type="strong" label="View Document" >
+					</capitec-label>
+				</horizon-product-tile>
+			`}
+				
 			</capitec-content-box>
 		`;
 	}
@@ -316,6 +366,16 @@ class CancelPolicyDialog extends Component {
 					@click="${() => this._checkSelected()}"
 					data-automation-id="horizon-insure-cancel-policy-dialog-agree">
 				</capitec-button>
+		`;
+	}
+
+	_renderAgreementDialog() {
+		return this.showCancelAgreement === false ? html``
+		: html`
+			<horizon-insure-agreement-dialog
+			.agreementContent="${this.cancelPolicyDocumentDetails?.documentContent.value}"
+			@back-click="${() => this._closeAgreementDialog()}">
+			</horizon-insure-agreement-dialog>
 		`;
 	}
 
