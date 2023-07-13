@@ -5,6 +5,7 @@ import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -164,6 +165,7 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
+		this._initialise();
 
 	}
 
@@ -431,6 +433,11 @@ class ClientSummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
+	async _initialise() {
+				// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+				// await super.createAndClassifySubIncident(null, false);
+	}
+
 	/**
 	 * Open Pay Premium dialog 
 	 * @param {Object} policyItem policy item
@@ -659,7 +666,7 @@ class ClientSummary extends Component {
 		if (policyItem.status === `NotTakenUp` || policyItem.status === `Lapsed`) {
 			return `-`;
 		}
-		return formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`);
+		return isNullorEmpty(policyItem.paymentSchedule?.nextPaymentDate) ? `-` : formatDate(policyItem.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`);
 	}
 
 	/**
@@ -1116,14 +1123,14 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-start-date"
 							label="Start date"
-							value="${formatDate(policyItem.commencementDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(policyItem.commencementDate) ? `-` : formatDate(policyItem.commencementDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						${policyItem.status === `Cancelled`
 					? html`
 						<horizon-label
 							data-automation-id="insure-policy-cancellation-date"
 							label="Cancellation date"
-							value="${formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`) === `` ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
+							value="${isNullorEmpty(policyItem.cancellationDetails?.recordedCancellationDate) ? `-` : formatDate(policyItem.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}">
 						</horizon-label>
 						`
 					: html`
