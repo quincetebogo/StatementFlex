@@ -264,10 +264,21 @@ export class FavouriteTransactions extends Component {
 						data-automation-id="favourites-transaction-payshap"
 						icon=""
 						img-src="/images/common/pay-shap-icon.svg"
-						?disabled="${this.shouldDisable(`pay-shap`)}"
 						label="PayShap"
-						@click="${() => this._optionSelectedClick(`payshap`)}">
+						@click="${() => this._optionSelectedClick(`payshap`)}"
+						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`payshap`)}"
+						?hidden= ${this.roleManager.isCapitecConnectAgent}>
 					</horizon-option-button>
+					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+						<horizon-option-button
+							data-automation-id="favourites-transaction-payshap"
+							icon=""
+							img-src="/images/common/pay-shap-icon.svg"
+							label="PayShap"
+							@click="${() => this._optionSelectedClick(`payshap`)}"
+							?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`payshap`)}">
+						</horizon-option-button>
+					</capitec-tooltip>
 				</capitec-button-bar>
 		`;
 	}
