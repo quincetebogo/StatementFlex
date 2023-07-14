@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import 'app/components/dialogs/insure/InsureEmailDialog';
+
 
 /**
  * Success page after action (update plan, accept policy, etc...) has been done.
@@ -28,6 +30,9 @@ class SuccessPage extends Component {
 		this.showEmailPlanDialog = false;
 		this.contractReference = ``;
 		this.titleMessage = ``;
+
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
+
 	}
 
 	// #endregion INITIALISATION
@@ -53,6 +58,29 @@ class SuccessPage extends Component {
 		};
 	}
 	// #endregion PROPERTIES
+
+	// #region LIFECYCLE OVERRIDES
+
+	/**
+	 * Setup the component once added to the DOM.
+	 * @returns {void}
+	 */
+	connectedCallback() {
+		super.connectedCallback();
+		
+		this._updateIncidentState();
+
+	}
+
+	// #endregion
+
+	// #region PRIVATE METHODS
+
+	_updateIncidentState() {
+		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
+
+	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLER
 
