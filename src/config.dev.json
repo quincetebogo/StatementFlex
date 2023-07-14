@@ -39,6 +39,7 @@
 	"LogRequestResponseModels" : true,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7223",
 	"ivrMapping": [
 		{
 			"option": "7251",

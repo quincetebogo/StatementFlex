@@ -1,4 +1,5 @@
 import { Configuration, SecurityContext } from 'platform/core';
+import { ORG_UNITS } from 'app/constants/Common';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
@@ -44,6 +45,15 @@ import { Configuration, SecurityContext } from 'platform/core';
 	get isCapitecConnectAgent() {
         return this.roles && this.roles.includes(`capitecconnect-agent`);
     } 
+
+	get orgUnit() {
+		if (this.isCapitecConnectAgent) {
+			return ORG_UNITS.CAPITEC_CONNECT;
+		} else if (this.isHelpDeskAgent) {
+			return ORG_UNITS.HELPDESK;
+		}
+		return ORG_UNITS.CLIENT_CARE;
+	}
 
 	async isSearchClientEnabled() {
 		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);

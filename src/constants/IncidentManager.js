@@ -1,3 +1,5 @@
+import { ORG_UNITS } from "app/constants/Common";
+
 /**
  * @typedef {string} IncidentState
  */
@@ -49,7 +51,7 @@ export const REASON_RESOLUTIONS = {
  * @readonly
  * @enum {object} CAUSE_CODE_BY_REASON
  */
-export const CAUSE_CODE_BY_REASON = {
+const CAUSE_CODE_BY_REASON = {
 	'Abandoned Verification': `ClientFailedSecurityCheck`,
 	'Client failed verification': `ClientFailedSecurityCheck`,
 	'Follow up required': `FollowUpCall`,
@@ -57,4 +59,17 @@ export const CAUSE_CODE_BY_REASON = {
 	'Call transferred': {
 		'Fraud Engagement Transfer': `FraudTransfer`
 	}
+};
+
+export const CAUSE_CODE_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: {
+		'Abandoned request': `AbandonedRequest`,
+		'Client failed verification': `ClientFailedVerification`,
+		'External factor': `ExternalFactor`,
+		'Query closed': `QueryClosed`,
+		'Query escalation': `QueryEscalation`,
+		'Query resolved': `QueryResolved`
+	},
+	[ORG_UNITS.HELPDESK]: CAUSE_CODE_BY_REASON,
+	[ORG_UNITS.CLIENT_CARE]: CAUSE_CODE_BY_REASON
 };

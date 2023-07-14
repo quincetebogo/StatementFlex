@@ -294,15 +294,10 @@ export class DesktopAgentService {
 			const currentdate = d.toISOString();
 			const newCallEvent = new NewCallEvent();
 
-			const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
-			const vdn = isHelpDeskAgent 
-				? await this._configuration.getSetting(`HelpDeskVDN`)
-				: await this._configuration.getSetting(`ClientCareVDN`);
-
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
 			newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
 			newCallEvent.agentTelephoneNumber = `000000`;
-			newCallEvent.VDN = vdn;
+			newCallEvent.VDN = await this._getVdn();
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
 
@@ -423,5 +418,18 @@ export class DesktopAgentService {
 		}
 
 		return false;
+	}
+
+	_getVdn() {
+		const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
+		const isCapitecConnectAgent = RoleManager.getInstance().isCapitecConnectAgent;
+
+		if (isCapitecConnectAgent) {
+			return this._configuration.getSetting(`CapitecConnectVDN`);
+		} else if (isHelpDeskAgent) {
+			return this._configuration.getSetting(`HelpDeskVDN`);
+		}
+		return this._configuration.getSetting(`ClientCareVDN`);
+
 	}
 }

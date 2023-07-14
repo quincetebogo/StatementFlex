@@ -122,3 +122,16 @@ export const LANGUAGE_LIST = Object.freeze([
 	`Sesotho`,
 	`Setswana`
 ]);
+
+/**
+ * Available language list for choosing preferred language
+ * 
+ * @readonly
+ * @enum {Object} LANGUAGE_LIST
+ */
+
+export const ORG_UNITS = {
+	CLIENT_CARE: `Client Care`,
+	HELPDESK: `Helpdesk`,
+	CAPITEC_CONNECT: `Capitec Connect`
+};

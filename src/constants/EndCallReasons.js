@@ -1,3 +1,5 @@
+import { ORG_UNITS } from "app/constants/Common";
+
 const callTransferedResoltuion = (issueType) => {
 	const returnValue = issueType === `Fraud Engagement Transfer` ? `Fraud Transfer` : ``;
 	return returnValue;
@@ -394,9 +396,42 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
  ]);
 
  /**
- * Enum - For the below end call contexts, we need to recognize need when incident not classified
  * 
  * @readonly
- * @enum {Object} RECOGNIZE_NEED_CONTEXTS
+ * @enum {Object} END_CALL_REASON_BY_ROLE
  */
-export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
+ export const END_CALL_REASON_BY_ROLE = Object.freeze({
+	[ORG_UNITS.CAPITEC_CONNECT]: [
+		{
+			key: NEED_INCOMPLETE,
+			value: `Abandoned request`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `failed-verification`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `External factor`,
+			mapping: `language-transfer`
+		},
+		{
+			key: NEED_FULFILLED,
+			value: `Query closed`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Query escalation`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Query resolved`,
+			mapping: `call-transfer`,
+			getResolution: callTransferedResoltuion
+		}
+	]
+});

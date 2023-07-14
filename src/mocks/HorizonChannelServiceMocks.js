@@ -83,7 +83,7 @@ export default class HorizonChannelServiceMocks {
 
 	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			return mockedCaller = this.callMocks.searchCaller;
+			return this.callMocks.searchCaller;
 		}
 	}
 
