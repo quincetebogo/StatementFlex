@@ -266,17 +266,17 @@ export class FavouriteTransactions extends Component {
 						img-src="/images/common/pay-shap-icon.svg"
 						label="PayShap"
 						@click="${() => this._optionSelectedClick(`payshap`)}"
-						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`payshap`)}"
-						?hidden= ${this.roleManager.isCapitecConnectAgent}>
+						?disabled="${this.roleManager.isCapitecConnectAgent || this.shouldDisable(`payshap`)}"
+						?hidden= "${this.roleManager.isCapitecConnectAgent}">
 					</horizon-option-button>
-					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = "${!this.roleManager.isCapitecConnectAgent}">
 						<horizon-option-button
 							data-automation-id="favourites-transaction-payshap"
 							icon=""
 							img-src="/images/common/pay-shap-icon.svg"
 							label="PayShap"
 							@click="${() => this._optionSelectedClick(`payshap`)}"
-							?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`payshap`)}">
+							?disabled="${this.roleManager.isCapitecConnectAgent || this.shouldDisable(`payshap`)}">
 						</horizon-option-button>
 					</capitec-tooltip>
 				</capitec-button-bar>
@@ -301,18 +301,18 @@ export class FavouriteTransactions extends Component {
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
-					@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`update-card-limits`)}"
-					?hidden= ${this.roleManager.isCapitecConnectAgent}>
+					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
+					?disabled="${this.shouldDisable(`update-card-limits`)}"
+					?hidden= "${this.roleManager.isCapitecConnectAgent}">
 				</horizon-option-button>
-			<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+			<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = "${!this.roleManager.isCapitecConnectAgent}">
 				<horizon-option-button
 					data-automation-id="favourite-transactions-update-card-limits"
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
-					@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`update-card-limits`)}">
+					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
+					?disabled="${this.roleManager.isCapitecConnectAgent || this.shouldDisable(`update-card-limits`)}">
 				</horizon-option-button>
 			</capitec-tooltip>
 				<horizon-option-button
