@@ -1,4 +1,4 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS, ROLES_WITH_END_CALL_CONTEXT } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
@@ -10,7 +10,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { ORG_UNITS } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -598,11 +597,14 @@ export class EndCallSession extends Component {
 	}
 
 	_getEndCallReasons() {
-		if (RoleManager.getInstance().isCapitecConnectAgent) {
-			return END_CALL_REASON_BY_ROLE[ORG_UNITS.CAPITEC_CONNECT];
+		const orgUnit = RoleManager.getInstance().orgUnit;
+		const reasonsByRole = END_CALL_REASON_BY_ROLE[orgUnit];
+
+		if (ROLES_WITH_END_CALL_CONTEXT.includes(orgUnit)) {
+			return reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
 		}
 
-		return END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
+		return reasonsByRole;
 	}
 
 	// ---------

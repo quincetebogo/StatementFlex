@@ -61,6 +61,12 @@ const CAUSE_CODE_BY_REASON = {
 	}
 };
 
+/**
+ * Mapping cause code based on agent role.
+ * 
+ * @readonly
+ * @enum {object} CAUSE_CODE_BY_ROLE
+ */
 export const CAUSE_CODE_BY_ROLE = {
 	[ORG_UNITS.CAPITEC_CONNECT]: {
 		'Abandoned request': `AbandonedRequest`,

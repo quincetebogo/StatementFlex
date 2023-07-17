@@ -15,9 +15,9 @@ const callTransferedResoltuion = (issueType) => {
  * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
  * End call contexts confluence https://confluence.capitecbank.co.za:8443/display/HOR/User+Story+1%3A+End+call+session+-+Enhanced
  */
- const NEED_FULFILLED = 0;
+ const NEED_FULFILLED = 0; 
  const NEED_INCOMPLETE = 1;
- const NEED_ASSIGNED = 2; 
+ const NEED_ASSIGNED = 2;
  const NEED_HANDED_OFF = 3;
  const FAILED_VERIFICATION = 4;
  const FOLLOW_UP = 5;
@@ -396,7 +396,7 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
  ]);
 
  /**
- * 
+ * The end call reasons based on agent role.
  * @readonly
  * @enum {Object} END_CALL_REASON_BY_ROLE
  */
@@ -433,5 +433,14 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 			mapping: `call-transfer`,
 			getResolution: callTransferedResoltuion
 		}
-	]
+	],
+	[ORG_UNITS.CLIENT_CARE]: END_CALL_REASON,
+	[ORG_UNITS.HELPDESK]: END_CALL_REASON
 });
+
+ /**
+ * Roles structured with end call context
+ * @readonly
+ * @enum {Object} ROLES_WITH_END_CALL_CONTEXT
+ */
+export const ROLES_WITH_END_CALL_CONTEXT = [ORG_UNITS.CLIENT_CARE, ORG_UNITS.HELPDESK];
