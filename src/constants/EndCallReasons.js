@@ -395,6 +395,14 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `LandingPage`
  ]);
 
+/**
+ *
+ * @readonly
+ * @enum {Object} RECOGNIZE_NEED_CONTEXTS
+ */
+export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
+
+
  /**
  * The end call reasons based on agent role.
  * @readonly
