@@ -709,6 +709,7 @@ class PolicyEstimate extends Component {
 			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}"
+				.callerPage = "${`estimate`}"
 				@add-new-life="${(e) => this._addLife(e)}"
 				@close-modal="${() => this.showAddLifeDialog = false}" >
 			</horizon-insure-add-life-dialog>`;

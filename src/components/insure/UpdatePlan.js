@@ -248,27 +248,50 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_addLife(e) {
-		this.policyDetails.roleplayers.push({
-			title: ``,
-			gender: ``,
-			firstName: ``,
-			surname: ``,
-			middleName: ``,
-			idNumber: ``,
-			contactDetails: {
-				cellphone: ``,
-				email: ``
-			},
-			relationship: e.detail.relationship,
-			coverAmount: e.detail.coverDetails.defaultCover,
-			lifeAssured: true,
-			beneficiary: false,
-			premium: 0,
-			gender: `Male`,
-			age: 0,
-			rowID: this.policyDetails.roleplayers.length,
-			coverDetails: e.detail.coverDetails
-		});
+		console.log('e :>> ', e);
+
+		if (isNullorEmpty(e.detail.beneficiary)) {
+			this.policyDetails.roleplayers.push({
+				title: ``,
+				gender: ``,
+				firstName: ``,
+				surname: ``,
+				middleName: ``,
+				idNumber: ``,
+				contactDetails: {
+					cellphone: ``,
+					email: ``
+				},
+				relationship: e.detail.relationship,
+				coverAmount: e.detail.coverDetails.defaultCover,
+				lifeAssured: true,
+				beneficiary: false,
+				premium: 0,
+				gender: `Male`,
+				age: 0,
+				rowID: this.policyDetails.roleplayers.length,
+				coverDetails: e.detail.coverDetails
+			});
+		} else {
+			// e.detail.beneficiary.lifeAssured = true;
+
+			this.policyDetails.roleplayers.forEach((life, index) => {
+				if (life.rowID === e.detail.beneficiary.rowID) {
+					this.policyDetails.roleplayers[index].lifeAssured = true;
+					this.policyDetails.roleplayers[index].relationship = e.detail.relationship;
+					
+					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+						this.policyDetails.roleplayers[index].relationship,
+						this.productParams,
+						this.policyDetails.roleplayers[index]?.coverAmount,
+						index === 0 ? this.maxAllowedCover : 0,
+						getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
+						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
+						false
+					);
+				}
+			})
+		}
 		this.showAddRelationshipDialog = false;
 	}
 
@@ -345,11 +368,14 @@ class UpdatePlan extends Component {
 	 * @return {void}
 	 */
 	_removeLifeAssured() {
-
-		this.policyDetails.roleplayers.splice(this.lifeAssuredToRemove, 1);
-		// Reshuffle
-		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
-			this.policyDetails.roleplayers[index].rowID = index;
+		if (this.policyDetails.roleplayers[this.lifeAssuredToRemove].beneficiary === true) {
+			this.policyDetails.roleplayers[this.lifeAssuredToRemove].lifeAssured = false;
+		} else {
+			this.policyDetails.roleplayers.splice(this.lifeAssuredToRemove, 1);
+			// Reshuffle
+			for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
+				this.policyDetails.roleplayers[index].rowID = index;
+			}
 		}
 		this._closeRemoveLifeAssuredDialog();
 		this.requestUpdate();
@@ -2554,6 +2580,7 @@ class UpdatePlan extends Component {
 			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.policyDetails.roleplayers}" 
 				.productParams="${this.productParams}"
+				.callerPage = "${`update`}"
 				@add-new-life="${(e) => this._addLife(e)}" 
 				@close-modal="${(e) => this._closeAddLifeDialog(e)}">
 			</horizon-insure-add-life-dialog>`;
