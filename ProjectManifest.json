@@ -4,7 +4,7 @@
   "group": "G_CKS_CEC_HORIZON_ADMIN",
   "version": "2.26.5",
   "alias": "cec-horizon",
-  "release": "230702",
+  "release": "230704",
   "contractVersion": "v1",
   "serviceType": "Channel",
   "port": 6001,
