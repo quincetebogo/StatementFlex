@@ -212,12 +212,6 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-
-		if (this.product === `Credit` && this.roleManager.isCapitecConnectAgent) {
-			this.horizonRouter.navigateToUnavaliableForRole();
-			return;
-		}
-
 		if (this.product === `Insure` && this.roleManager.isCapitecConnectAgent) {
 			this.horizonRouter.navigateToUnavaliableForRole();
 			return;
