@@ -53,6 +53,24 @@ export class TaxCertificateSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		let type = ``;
+		let period = ``;
+
+		if (this.iT3BTaxCertificates?.taxYears.length > 0 && this.iT3STaxCertificates?.taxYears.length > 0) {
+			type = `iT3B & iT3S Tax certificates`;
+			period = `Period(iT3B): ${this._taxableYears()}\nPeriod(iT3S): ${this._taxFreeYears()}`;
+		} else if (this.iT3BTaxCertificates?.taxYears.length > 0) {
+			type = `iT3B Tax certificates`;
+			period = `Period: ${this._taxableYears()}`;
+		} else {
+			type = `iT3S Tax certificates`;
+			period = `Period: ${this._taxFreeYears()}`;
+		}
+		
+		return `Type: ${type} \n${period}\nRecipient EmailID:${this.email}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -127,6 +145,7 @@ export class TaxCertificateSuccess extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_taxableYears() {
