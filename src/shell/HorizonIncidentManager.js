@@ -6,7 +6,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { RoleManager } from './RoleManager';
+import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { SubsequentNeedEvents } from 'app/constants/telemetry/events/SubsequentIncident';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -41,6 +41,7 @@ export class HorizonIncidentManager {
 		this.securityContext = SecurityContext.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
 		this.incidentService = new IncidentManagementService(null, () => true);
+		this.roleManager = RoleManager.getInstance();
 
 		// Incident Details Object that will be persisted in state
 		this.incidentDetails = {};
@@ -454,7 +455,7 @@ export class HorizonIncidentManager {
 
 		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.incidentState] : endCallReason.key;
 		 const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
-		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason], manualClassification);
+		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[this.roleManager.orgUnit][reason], manualClassification);
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident, 
@@ -534,7 +535,7 @@ export class HorizonIncidentManager {
 		if (endCallReason.getResolution) {
 			resolution = endCallReason.getResolution(manualClassification.issue);
 		}
-		resolution = resolution || endCallReason.value || REASON_RESOLUTIONS[reason];
+		resolution = resolution || endCallReason.value || REASON_RESOLUTIONS[this.roleManager.orgUnit][reason];
 
 		return incResolution ? `${incResolution}\n${resolution}` : `${resolution}`;
 	}
@@ -550,7 +551,7 @@ export class HorizonIncidentManager {
 	 _getCauseCode(causeCode, endCallReason, manualClassification) {
 		let causeCodeByReason = ``;
 
-		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[RoleManager.getInstance().orgUnit];
+		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[this.roleManager.orgUnit];
 		const getFromValObj = (reason) => causeCodeByReasons[reason][manualClassification.issue] || ``;
 
 		if (causeCodeByReasons[endCallReason]) {

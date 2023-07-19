@@ -1,5 +1,11 @@
 import { ORG_UNITS } from "app/constants/Common";
 
+const COMMON_RESOLUTIONS = {
+	'NeedFulfilled': `Need Fulfilled`,
+	'NeedIncomplete': `Need incomplete - Transaction Failed`,
+	'ClientAssigned': `Need assigned`
+};
+
 /**
  * @typedef {string} IncidentState
  */
@@ -34,15 +40,19 @@ export const CLOSE_REASONS = {
 };
 
 /**
- * End call reason resolutions.
+ * End call reason resolutions structured by agent roles.
  * 
  * @readonly
  * @enum {object} REASON_RESOLUTIONS
  */
 export const REASON_RESOLUTIONS = {
-	'NeedFulfilled': `Need Fulfilled`,
-	'NeedIncomplete': `Need incomplete - Transaction Failed`,
-	'ClientAssigned': `Need assigned`
+	[ORG_UNITS.CAPITEC_CONNECT]: {
+		'NeedFulfilled': `Query closed`,
+		'NeedIncomplete': `Abandoned request`,
+		'ClientAssigned': `Query resolved`
+	},
+	[ORG_UNITS.CLIENT_CARE]: COMMON_RESOLUTIONS,
+	[ORG_UNITS.HELPDESK]: COMMON_RESOLUTIONS
 };
 
 /**
@@ -74,7 +84,10 @@ export const CAUSE_CODE_BY_ROLE = {
 		'External factor': `ExternalFactor`,
 		'Query closed': `QueryClosed`,
 		'Query escalation': `QueryEscalation`,
-		'Query resolved': `QueryResolved`
+		'Query resolved': `QueryResolved`,
+		'Need fulfilled': `QueryClosed`,
+		'Need was assigned/handed off': `QueryEscalation`,
+		'Need incomplete': `AbandonedRequest`
 	},
 	[ORG_UNITS.HELPDESK]: CAUSE_CODE_BY_REASON,
 	[ORG_UNITS.CLIENT_CARE]: CAUSE_CODE_BY_REASON

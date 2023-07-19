@@ -170,7 +170,8 @@ export class ProductButtonPanel extends Component {
 				icon="product/insure-white"
 				@click="${() => this._productButtonClick(`Insure`)}"
 				?selected="${this.selectedButton === `Insure`}"
-				data-automation-id="product-button-panel-insure">
+				data-automation-id="product-button-panel-insure"
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
 			<horizon-product-tile
 				class="product-button"

@@ -273,7 +273,7 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button
 						data-automation-id="favourites-transaction-send-cash"
 						icon="system/send-cash-action"
-						?disabled="${this.isCapitecConnectAgent ? true : this.shouldDisable(`send-cash`)}"
+						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`send-cash`)}"
 						label="Send Cash"
 						@click="${() => this._optionSelectedClick(`send-cash`)}"
 						?hidden="${this.isCapitecConnectAgent}">
@@ -291,23 +291,26 @@ export class FavouriteTransactions extends Component {
 						</horizon-option-button>
 					</capitec-tooltip>
 
+					<!-- PayShap -->
 					<horizon-option-button
 						data-automation-id="favourites-transaction-payshap"
 						icon=""
 						img-src="/images/common/pay-shap-icon.svg"
 						label="PayShap"
 						@click="${() => this._optionSelectedClick(`payshap`)}"
-						?disabled="${this.roleManager.isCapitecConnectAgent || this.shouldDisable(`payshap`)}"
-						?hidden= "${this.roleManager.isCapitecConnectAgent}">
+						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`payshap`)}"
+						?hidden= "${this.isCapitecConnectAgent}">
 					</horizon-option-button>
-					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = "${!this.roleManager.isCapitecConnectAgent}">
+					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' 
+						position="left-edge" 
+						?hidden = "${!this.isCapitecConnectAgent}">
 						<horizon-option-button
 							data-automation-id="favourites-transaction-payshap"
 							icon=""
 							img-src="/images/common/pay-shap-icon.svg"
 							label="PayShap"
 							@click="${() => this._optionSelectedClick(`payshap`)}"
-							?disabled="${this.roleManager.isCapitecConnectAgent || this.shouldDisable(`payshap`)}">
+							?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`payshap`)}">
 						</horizon-option-button>
 					</capitec-tooltip>
 				</capitec-button-bar>
