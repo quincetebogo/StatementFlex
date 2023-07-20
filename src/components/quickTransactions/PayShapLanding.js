@@ -235,7 +235,7 @@ export class PayShapLanding extends Component {
 				item.shapId = item.creditorProxyId;
 				item.accountnumber = item.creditorAccountId;
 				item.institution = item.creditorFicaName;
-				item.formatedAmount = `-${formatCurrency(item.amount)}`;
+				item.formatedAmount = `-${formatCurrency(convertCentsToRand(item.amount))}`;
 
 				return item;
 			});
