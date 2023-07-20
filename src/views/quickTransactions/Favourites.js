@@ -1136,7 +1136,8 @@ export class Favourites extends SavingsAccountBase {
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
-						.shouldDisable="${need => this._shouldDisable(need)}"
+						.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+						.showTooltip="${need => this._showTooltip(need)}"
 						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;

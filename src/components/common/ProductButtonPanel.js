@@ -90,12 +90,13 @@ export class ProductButtonPanel extends Component {
 	}
 
 	_getProductDetailValue(amount, type) {
-        const product = [`insure`, `credit`];
-        if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
-          return null;
-        }
-        return amount;
-    }
+		// Insure and Livebetter are disabled as part of the Capitec connect agent flow
+		const product = [`insure`, `LiveBetter`];
+		if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
+			return null;
+		}
+		return amount;
+	}
 
 	// ---------
 	// RENDERING

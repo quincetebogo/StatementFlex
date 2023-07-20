@@ -1,5 +1,5 @@
 import { Configuration, SecurityContext } from 'platform/core';
-import { ORG_UNITS } from 'app/constants/Common';
+import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
@@ -47,11 +47,16 @@ import { ORG_UNITS } from 'app/constants/Common';
     } 
 
 	get orgUnit() {
-		if (this.isCapitecConnectAgent) {
-			return ORG_UNITS.CAPITEC_CONNECT;
-		} else if (this.isHelpDeskAgent) {
-			return ORG_UNITS.HELPDESK;
-		}
+		const filteredAndSorted = this.roles
+									.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
+									.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
+									.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
+		
+		if (filteredAndSorted.length > 0) {
+			return filteredAndSorted[0].orgUnit;
+		};
+
+		// Defaults to client care when filtered roles are empty - Yet to confirm
 		return ORG_UNITS.CLIENT_CARE;
 	}
 

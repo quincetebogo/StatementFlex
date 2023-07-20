@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import 'app/components/common/OptionButton';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
@@ -46,7 +47,8 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
 	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
-	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 * @readonly
@@ -59,7 +61,8 @@ export class FavouriteTransactions extends Component {
 			verificationStatus: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
 			isCapitecConnectAgent: { type: Boolean },
-			shouldDisable: { type: Object },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -234,7 +237,6 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
-
 	_renderTransactSection() {
 		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
@@ -249,47 +251,24 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button
 						data-automation-id="favourite-transactions-debi-check"
 						badgeText="${pendingMandates}"
+						?showTooltip="${this.showTooltip(`debi-check`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-						?hidden="${this.isCapitecConnectAgent}"
-						?disabled="${this.shouldDisable(`debi-check`)}">
+						?disabled="${this.shouldDisableByRole(`debi-check`)}">
 					</horizon-option-button>
-					<capitec-tooltip 
-						message= 'Your role does not allow you to make use of this functionality.' 
-						position="left-edge" 
-						?hidden="${!this.isCapitecConnectAgent}">
-						<horizon-option-button
-							data-automation-id="favourite-transactions-debi-check"
-							badgeText="${pendingMandates}"
-							icon="system/debi-check-action" iconSize="default"
-							label="DebiCheck"
-							@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-							?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`debi-check`)}">
-						</horizon-option-button>
-					</capitec-tooltip>
 
 					<!-- Send Cash -->
 					<horizon-option-button
 						data-automation-id="favourites-transaction-send-cash"
 						icon="system/send-cash-action"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`send-cash`)}"
+						?disabled="${this.shouldDisableByRole(`send-cash`)}"
 						label="Send Cash"
-						@click="${() => this._optionSelectedClick(`send-cash`)}"
-						?hidden="${this.isCapitecConnectAgent}">
+						?showTooltip="${this.showTooltip(`send-cash`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						@click="${() => this._optionSelectedClick(`send-cash`)}">
 					</horizon-option-button>
-					<capitec-tooltip
-						message= 'Your role does not allow you to make use of this functionality.' 
-						position="left-edge" 
-						?hidden="${!this.isCapitecConnectAgent}">
-						<horizon-option-button
-							data-automation-id="favourites-transaction-send-cash"
-							icon="system/send-cash-action"
-							label="Send Cash"
-							?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`send-cash`)}"
-							@click="${() => this._optionSelectedClick(`send-cash`)}">
-						</horizon-option-button>
-					</capitec-tooltip>
 
 					<!-- PayShap -->
 					<horizon-option-button
@@ -297,22 +276,11 @@ export class FavouriteTransactions extends Component {
 						icon=""
 						img-src="/images/common/pay-shap-icon.svg"
 						label="PayShap"
+						?showTooltip="${this.showTooltip(`payshap`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
 						@click="${() => this._optionSelectedClick(`payshap`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`payshap`)}"
-						?hidden= "${this.isCapitecConnectAgent}">
+						?disabled="${this.shouldDisableByRole(`payshap`)}">
 					</horizon-option-button>
-					<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' 
-						position="left-edge" 
-						?hidden = "${!this.isCapitecConnectAgent}">
-						<horizon-option-button
-							data-automation-id="favourites-transaction-payshap"
-							icon=""
-							img-src="/images/common/pay-shap-icon.svg"
-							label="PayShap"
-							@click="${() => this._optionSelectedClick(`payshap`)}"
-							?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`payshap`)}">
-						</horizon-option-button>
-					</capitec-tooltip>
 				</capitec-button-bar>
 		`;
 	}
@@ -328,8 +296,10 @@ export class FavouriteTransactions extends Component {
 					label="Stop Card" 
 					icon="system/stop-card-action"
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`stop-card`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`stop-card`)}"
-					?disabled="${this.shouldDisable(`stop-card`)}">
+					?disabled="${this.shouldDisableByRole(`stop-card`)}">
 				</horizon-option-button>
 
 				<!-- Update Card Limits -->
@@ -338,22 +308,11 @@ export class FavouriteTransactions extends Component {
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`update-card-limits`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.shouldDisable(`update-card-limits`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?disabled="${this.shouldDisableByRole(`update-card-limits`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						data-automation-id="favourite-transactions-update-card-limits"
-						label="Update Card Limits" 
-						icon="system/cards-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`update-card-limits`)}">
-					</horizon-option-button>
 				</capitec-tooltip>
 
 				<!-- Tap to Pay -->
@@ -362,23 +321,11 @@ export class FavouriteTransactions extends Component {
 					label="Tap to Pay"
 					icon="system/contactless-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`tap-to-pay`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-					?disabled="${this.shouldDisable(`tap-to-pay`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?disabled="${this.shouldDisableByRole(`tap-to-pay`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						data-automation-id="favourite-transactions-tap-to-pay"
-						label="Tap to Pay"
-						icon="system/contactless-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`tap-to-pay`)}">
-					</horizon-option-button>
-				</capitec-tooltip>
 			</capitec-button-bar>
 		`;
 	}
@@ -394,8 +341,10 @@ export class FavouriteTransactions extends Component {
 					label="Statements" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`statements`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`statements`)}"
-					?disabled="${this.shouldDisable(`statements`)}">
+					?disabled="${this.shouldDisableByRole(`statements`)}">
 				</horizon-option-button>
 
 				<!-- Tax Certificate -->
@@ -405,24 +354,11 @@ export class FavouriteTransactions extends Component {
 					label="Tax Certificate" 
 					icon="system/sars-action" 
 					iconSize="default"
-					@click="${() => this._optionSelectedClick(`tax-certificatetax-certificate`)}"
-					?disabled="${this.shouldDisable(`tax-certificate`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?showTooltip="${this.showTooltip(`tax-certificate`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
+					?disabled="${this.shouldDisableByRole(`tax-certificate`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						id="tax-certificate"
-						data-automation-id="favourite-transactions-tax-certificate"
-						label="Tax Certificate" 
-						icon="system/sars-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`tax-certificate`)}">
-					</horizon-option-button>
-				</capitec-tooltip>
 
 				<!-- Proof of Account -->
 				<horizon-option-button
@@ -430,23 +366,11 @@ export class FavouriteTransactions extends Component {
 					label="Proof of Account" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`proof-of-account`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-					?disabled="${this.shouldDisable(`proof-of-account`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?disabled="${this.shouldDisableByRole(`proof-of-account`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						data-automation-id="favourite-transactions-proof-of-account"
-						label="Proof of Account" 
-						icon="system/documents-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`proof-of-account`)}">
-					</horizon-option-button>
-				</capitec-tooltip>
 
 				<!-- Settlement Quote -->
 				<horizon-option-button
@@ -454,44 +378,22 @@ export class FavouriteTransactions extends Component {
 					label="Settlement Quote" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`settlement-quote`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`settlement-quote`)}"
-					?disabled="${this.shouldDisable(`settlement-quote`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						data-automation-id="favourite-transactions-settlement-quote"
-						label="Settlement Quote" 
-						icon="system/documents-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`settlement-quote`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`settlement-quote`)}">
-					</horizon-option-button>
-				</capitec-tooltip>
 
 				<!-- Paid Up Letter -->
 				<horizon-option-button
 					label="Paid Up Letter" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`paid-up-accounts`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
-					?disabled="${this.shouldDisable(`paid-up-accounts`)}"
-					?hidden="${this.isCapitecConnectAgent}">
+					?disabled="${this.shouldDisableByRole(`paid-up-accounts`)}">
 				</horizon-option-button>
-				<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${!this.isCapitecConnectAgent}">
-					<horizon-option-button
-						label="Paid Up Letter" 
-						icon="system/documents-action" 
-						iconSize="default"
-						@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
-						?disabled="${this.isCapitecConnectAgent || this.shouldDisable(`paid-up-accounts`)}">
-					</horizon-option-button>
 				</capitec-tooltip>
 
 			</capitec-button-bar>
@@ -509,8 +411,10 @@ export class FavouriteTransactions extends Component {
 					label="Search Other Need" 
 					icon="system/search-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`search-other-need`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`search-other-need`)}"
-					?disabled="${this.shouldDisable(`search-other-need`)}">
+					?disabled="${this.shouldDisableByRole(`search-other-need`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;

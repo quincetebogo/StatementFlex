@@ -7,6 +7,8 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 import 'app/views/product/CreditProduct';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+
 /**
  * Credit Account verified landing Product Control
  * 
@@ -45,6 +47,19 @@ export class CreditAccountLanding extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
+	
+	// Disable fixed-term credit accounts on runtime for Capitec connect agents
+	async updated() {
+		await this.updateComplete;
+	
+		const tabGroup = this.shadowRoot.getElementById(`credit-tab-group`);
+	
+		if (tabGroup && this.isCapitecConnectAgent) {
+			const fixedTermTab = tabGroup.shadowRoot.querySelectorAll(`.tab`)[1];
+			fixedTermTab.style.backgroundColor = `#C7C7C7`;
+			fixedTermTab.style.pointerEvents = `none`;
+		}
+	}
 
 	// --------------
 	// PROPERTIES
@@ -66,6 +81,8 @@ export class CreditAccountLanding extends Component {
 	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
 	 * @property {budgetAccountsSummary} budgetAccountsSummary
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 *
 	 */
 	 static get properties() {
@@ -73,7 +90,9 @@ export class CreditAccountLanding extends Component {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
 			budgetAccountsSummary: { type: Object },
-			shouldDisable: { type: Object },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
+			isCapitecConnectAgent: { type: Boolean },
 			renderAlertBanner: { type: Object, attribute: false },
 			selectedTab: { type: String }
 		};
@@ -350,7 +369,7 @@ export class CreditAccountLanding extends Component {
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
 		? html`
-			<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
+			<capitec-tab-group class="tabs" id="credit-tab-group" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
 				<capitec-tab
 					data-automation-id="credit-account-flexible-credit-tab"
 					label="Flexible Credit">
@@ -395,7 +414,8 @@ export class CreditAccountLanding extends Component {
 		return this.flexibleCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
-				.expanded="${index === 0}">
+				.expanded="${index === 0}"
+				?disabled="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}">
 					<capitec-group
 						class="expander-header"
 						slot="custom-header"
@@ -458,7 +478,7 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderBudgetDetailsBar(item) {
-		return item.type === PRODUCTS.CREDIT_CARD &&
+		return item.type === PRODUCTS.CREDIT_CARD && !this.shouldDisableByRole(`view-budgets`) &&
 				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
 				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
 					? html`
@@ -490,7 +510,7 @@ export class CreditAccountLanding extends Component {
 		return this.fixedTermCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
-				.expanded="${index === 0}">
+				.expanded="${index === 0}"
 					<capitec-group
 						class="expander-header"
 						slot="custom-header"
@@ -582,33 +602,47 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`transaction-history`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`transaction-history`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
-					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`statements`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`statements`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`settlement-quote`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
 					?hidden="${true}"
-					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`paid-up-letter`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`paid-up-letter`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
-					?disabled="${this.shouldDisable(`settle-close`)}">
+					?showTooltip="${this.showTooltip(`settle-close`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}
@@ -677,7 +711,7 @@ export class CreditAccountLanding extends Component {
 					label="Settle Loan"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
-					?disabled="${this.shouldDisable(`settle-close`)}">
+					?disabled="${this.shouldDisableByRole(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}
