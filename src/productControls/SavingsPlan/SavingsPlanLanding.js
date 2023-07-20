@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 
-import { RoleManager } from '../../shell/RoleManager';
-
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -33,8 +31,8 @@ export class SavingsPlanLanding extends Component {
 
 	constructor() {
 		super();
-		this.roleManager = RoleManager.getInstance();
 		this.savingsPlanDetails = {};
+		this.isCapitecConnectAgent = false;
 	}
 
 	// -------------------
@@ -47,6 +45,18 @@ export class SavingsPlanLanding extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+	}
+
+	async updated() {
+		await this.updateComplete;
+	
+		const tabGroup = this.shadowRoot.getElementById(`save-tab-group`);
+	
+		if (tabGroup && this.isCapitecConnectAgent) {
+			const fixedTermTab = tabGroup.shadowRoot.querySelectorAll(`.tab`)[1];
+			fixedTermTab.style.backgroundColor = `#C7C7C7`;
+			fixedTermTab.style.pointerEvents = `none`;
+		}
 	}
 
 	// --------------
@@ -67,7 +77,8 @@ export class SavingsPlanLanding extends Component {
 	static get properties() {
 		return {
 			savingsPlanDetails: { type: Object },
-			renderAlertBanner: { type: Object }
+			renderAlertBanner: { type: Object },
+			isCapitecConnectAgent: { type: Boolean }
 		};
 	}
 	
@@ -85,10 +96,6 @@ export class SavingsPlanLanding extends Component {
 	
 	_accountDetails(type, accNumber) {
 		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { accountType: type, accountNumber: accNumber } }));
-	}
-
-	_capitecConnectToolTip() {
-		return this.roleManager.isCapitecConnectAgent ? `Your role does not allow you to make use of this functionality.` : ``;
 	}
 
 	// --------------
@@ -178,7 +185,7 @@ export class SavingsPlanLanding extends Component {
 					margin: 17px 0px 15px 0px;
 					width: auto;
 				}
-				.options-group > horizon-option-button {
+				horizon-option-button {
 					width: 186px;
 					height: 80px;
 					margin-left: 16px;
@@ -373,7 +380,7 @@ export class SavingsPlanLanding extends Component {
 	_renderSavingsPlanLandingContent() {
 		return this.savingsPlanDetails.length > 0 
 		? html`
-			<capitec-tab-group class="tabs">
+			<capitec-tab-group class="tabs" id="save-tab-group">
 				<capitec-tab
 					data-automation-id="savings-plan-flexible-tab"
 					label="Flexible Savings">
@@ -572,26 +579,30 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
-						@click="${() => this._click(`tax-certificate`, item)}">
+						@click="${() => this._click(`tax-certificate`, item)}"
+						?hidden="${this.isCapitecConnectAgent}">
 				</horizon-option-button>
-				<horizon-option-button 
-						data-automation-id="savings-plan-unlock-ftsp"
-						label="Unlock Savings Plans"
-						icon="system/unlocked-action"
-						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN || this.roleManager.isCapitecConnectAgent}
-						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._click(`unlock-ftsp`, item)}"
-						?disabled = ${this.roleManager.isCapitecConnectAgent}>
-				</horizon-option-button>
-			<capitec-tooltip message= 'Your role does not allow you to make use of this functionality.' position="left-edge" ?hidden = ${!this.roleManager.isCapitecConnectAgent}>
+
+				<capitec-tooltip 
+					message= 'Your role does not allow you to make use of this functionality.' 
+					position="left-edge" 
+					?hidden = "${!this.isCapitecConnectAgent}">
+					<horizon-option-button 
+						data-automation-id="savings-plan-tax-certificate"
+						label="Tax Certificate"
+						icon="system/sars-action" 
+						@click="${() => this._click(`tax-certificate`, item)}"
+						?disabled="${this.isCapitecConnectAgent}">
+					</horizon-option-button>
+				</capitec-tooltip>
+
 				<horizon-option-button 
 						data-automation-id="savings-plan-unlock-ftsp"
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
 						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
-						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._click(`unlock-ftsp`, item)}"
-						?disabled=${this.roleManager.isCapitecConnectAgent}>
+						@click="${() => this._click(`unlock-ftsp`, item)}">
 				</horizon-option-button>
-			</capitec-tooltip>
 			</capitec-group>
 		`;
 	}
