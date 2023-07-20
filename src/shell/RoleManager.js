@@ -34,7 +34,7 @@ import { ORG_UNITS } from 'app/constants/Common';
 	}
 
 	get isAuthorised() {
-		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`);
+		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`);
 		return isAuthorised;
 	}
 
