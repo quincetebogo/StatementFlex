@@ -4,6 +4,7 @@ import { CreditService } from 'app/services/CreditService';
 import { DebiCheckService } from 'app/services/DebiCheckService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
+import { PayShapService } from 'app/services/PayShapService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsService } from 'app/services/SavingsService';
@@ -62,6 +63,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.debiCheckService = new DebiCheckService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.payShapService = new PayShapService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------

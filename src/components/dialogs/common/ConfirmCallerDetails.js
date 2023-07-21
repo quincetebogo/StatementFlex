@@ -10,8 +10,10 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { LANGUAGE_LIST } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -85,6 +87,7 @@ export class ConfirmCallerDetails extends Component {
 		this.errorCount = 0;
 		this.cpNumber = ``;
 		this.clientType = -1;
+		this.languagePreference = `-`;
 	}
 
 	// ----------
@@ -92,9 +95,18 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
+	 * Callback function to update client's preferred language {@link ConfirmCallerDetails}.
+	 * 
+	 * @callback updateLanguage
+	 * @returns {Boolean} return is preferred language is updated or not 
+	 */
+
+	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} currentIncident Current incident details
+	 * 
+	 * @property {Function} updateLanguage update client's preferred language
 	 * 
 	 * @readonly
 	 * @static
@@ -107,10 +119,12 @@ export class ConfirmCallerDetails extends Component {
 			currentIncident: { type: Object },
 			cpNumber: { type: String },
 			clientType: { type: String },
+			updateLanguage: { type: Object },
 
 			isBusy: { state: true },
 			renderMode: { state: true },
-			errorMessage: { state: true }
+			errorMessage: { state: true },
+			languagePreference: { state: true }
 		};
 	}
 
@@ -127,6 +141,7 @@ export class ConfirmCallerDetails extends Component {
 			"initial-client-cif": this.confirmedCaller.cifNumber
 		});
 		this._initCallerInformation();
+		this._getLanguagePreference();
 	}
 
 	disconnectedCallback() {
@@ -327,6 +342,28 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	async _onLanguageUpdate(e) {
+		if (e.detail.old === e.detail.new.value) {
+			return;
+		}
+		
+		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		this.languagePreference = e.detail.new.key;
+
+		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);
+		
+		if (isLanguageUpdated) {
+			this.callerInformation.languagePreference = this.languagePreference;
+		} else {
+			this.languagePreference = e.detail.old?.toUpperCase();
+		}
+	}
+
+	_getLanguageValue(languagePreference) {
+		const result = LANGUAGE_LIST.find((entry) => entry.key === languagePreference);
+		return result ? result.value : ``;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -402,7 +439,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	async _navigateToInsureLandingPage() {
+	_navigateToInsureLandingPage() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonRouter.navigateToInsureUnverifiedClient();
 	}
@@ -459,12 +496,11 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_getLanguagePreference() {
-		let languagePreference = this.confirmedCaller.languagePreference;
+		this.languagePreference = this.confirmedCaller.languagePreference;
 
-		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
-			languagePreference = `-`;
+		if (!this.languagePreference || this.languagePreference === `NOT_DEFINED`) {
+			this.languagePreference = `-`;
 		}
-		return languagePreference;
 	}
 
 	_getVerifiedTelephoneNumber() {
@@ -591,7 +627,24 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
+
+					--horizon-select-outer-wrapper-margin-left: 0px;
+					--theme-label-default-font-weight: 500;
+					--horizon-select-label-text-color: #3A3A3A;
+					--horizon-select-label-text-line-height: 24px;
+					--horizon-select-icon-margin-top: 12px;
+					--horizon-select-options-width: 200px;
+					--horizon-select-options-margin-top: 0px;
+					--horizon-select-options-max-height: 270px;
+					--horizon-select-options-position-top: 408px;
+					--horizon-select-options-position-left: 816px;
+					--horizon-select-option-height: 45px;
+					--horizon-select-options-margin-bottom: 106px;
+					--horizon-select-options-margin-left: 40px;
+					--horizon-select-label-value-font-size: 16px;
+					--horizon-select-label-value-color: #3E4547;
 				}
+
 				capitec-tooltip {
 					display: none;
 					height: 27px;
@@ -619,6 +672,7 @@ export class ConfirmCallerDetails extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderLoadingIndicator()}
+			
 			${this._renderContent()}
 		`;
 	}
@@ -748,11 +802,7 @@ export class ConfirmCallerDetails extends Component {
 						label="Lives In" 
 						value="${this.confirmedCaller.livesIn}">
 					</horizon-label>
-					<horizon-label class="client-info-row" row="3" columun="2" 
-						data-automation-id="confirm-caller-details-language-preference"
-						label="Language Preference"
-						value="${this._getLanguagePreference()}">
-					</horizon-label>
+					${this._renderLanguagePreference()}
 					<horizon-label class="client-info-row" row="4" columun="1" 
 						data-automation-id="confirm-caller-details-birthday"
 						label="Birthday"
@@ -761,6 +811,30 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-group>
 			</capitec-group>
 		 `;
+	}
+
+	_renderLanguagePreference() {
+		return this.roleManager.isInsureAgent 
+		? html`
+				<horizon-label 
+					class="client-info-row" 
+					row="3" 
+					columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					label="Language Preference"
+					value="${this.languagePreference}">
+				</horizon-label>`
+			: html`
+				<horizon-select
+					row="3" columun="2" 
+					data-automation-id="confirm-caller-details-language-preference"
+					class="client-info-row"
+					label="Language Preference"
+					display-field="value"
+					.items="${LANGUAGE_LIST}"
+					.value="${this._getLanguageValue(this.languagePreference)}"
+					@value-changed="${(e) => this._onLanguageUpdate(e)}">
+				</horizon-select>`;
 	}
 
 	_renderClientProfileImage() {
@@ -886,6 +960,8 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-verify-caller>
 		`;
 	}
+
+	
 }
 
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

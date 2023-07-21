@@ -63,7 +63,7 @@ export const PERIOD_TYPE = Object.freeze({
 		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	200: {
-		name: ``,
+		name: `Flexible savings plan`,
 		type: `FLEXIBLE_SAVINGS`,
 		category: `save`,
 		subCategory: ``,
@@ -73,7 +73,7 @@ export const PERIOD_TYPE = Object.freeze({
 	},
 	201: {
 		1: {
-			name: ``,
+			name: `Fixed term savings plan`,
 			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
 			category: `save`,
 			subCategory: ``,
@@ -82,7 +82,7 @@ export const PERIOD_TYPE = Object.freeze({
 			choosePeriod: RANGE_SELECTOR.DATE
 		},
 		2: {
-			name: ``,
+			name: `Fixed term savings plan`,
 			type: `FIXED_TERM_SINGLE_DEPOSIT`,
 			category: `save`,
 			subCategory: ``,
