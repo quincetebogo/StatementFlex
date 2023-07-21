@@ -1,4 +1,4 @@
-import { CAUSE_CODE_BY_REASON, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
+import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -6,6 +6,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { SubsequentNeedEvents } from 'app/constants/telemetry/events/SubsequentIncident';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -453,7 +454,7 @@ export class HorizonIncidentManager {
 
 		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.incidentState] : endCallReason.key;
 		 const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
-		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[reason], manualClassification);
+		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], manualClassification);
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident, 
@@ -533,7 +534,7 @@ export class HorizonIncidentManager {
 		if (endCallReason.getResolution) {
 			resolution = endCallReason.getResolution(manualClassification.issue);
 		}
-		resolution = resolution || endCallReason.value || REASON_RESOLUTIONS[reason];
+		resolution = resolution || endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason];
 
 		return incResolution ? `${incResolution}\n${resolution}` : `${resolution}`;
 	}
@@ -549,12 +550,13 @@ export class HorizonIncidentManager {
 	 _getCauseCode(causeCode, endCallReason, manualClassification) {
 		let causeCodeByReason = ``;
 
-		const getFromValObj = (reason) => CAUSE_CODE_BY_REASON[reason][manualClassification.issue] || ``;
+		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[RoleManager.getInstance().orgUnit];
+		const getFromValObj = (reason) => causeCodeByReasons[reason][manualClassification.issue] || ``;
 
-		if (CAUSE_CODE_BY_REASON[endCallReason]) {
-			causeCodeByReason = typeof CAUSE_CODE_BY_REASON[endCallReason] === `object`
+		if (causeCodeByReasons[endCallReason]) {
+			causeCodeByReason = typeof causeCodeByReasons[endCallReason] === `object`
 								? getFromValObj(endCallReason)
-								: CAUSE_CODE_BY_REASON[endCallReason];
+								: causeCodeByReasons[endCallReason];
 		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
