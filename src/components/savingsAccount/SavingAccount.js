@@ -6,6 +6,8 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+
 /**
  * Savings Account View
  *
@@ -46,7 +48,8 @@ export class SavingsAccount extends Component {
 	/**
 	 *
 	 * @property {Object} landingPageInfo Data for the Savings Account Landing Page display
-	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 *
 	 * @readonly
 	 * @static
@@ -55,7 +58,8 @@ export class SavingsAccount extends Component {
 	static get properties() {
 		return {
 			landingPageInfo: { type: Object },
-			shouldDisable: { type: Object }
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object }
 		};
 	}
 	
@@ -335,23 +339,29 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?showTooltip="${this.showTooltip(`transaction-history`)}"
 						@click="${() => this._optionSelectedClick(`transaction-history`)}"
-						?disabled="${this.shouldDisable(`transaction-history`)}">
+						?disabled="${this.shouldDisableByRole(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button
 					    badgeText="${pendingMandates}"
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debi-check-action"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?showTooltip="${this.showTooltip(`debi-check`)}"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-						?disabled="${this.roleManager.isCapitecConnectAgent ? true : this.shouldDisable(`debi-check`)}">
+						?disabled="${this.shouldDisableByRole(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?showTooltip="${this.showTooltip(`statements`)}"
 						@click="${() => this._optionSelectedClick(`statements-transact`)}"
-						?disabled="${this.shouldDisable(`statements`)}">
+						?disabled="${this.shouldDisableByRole(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin button-more"

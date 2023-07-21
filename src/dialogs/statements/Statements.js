@@ -13,7 +13,6 @@ import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
-import 'app/components/common/RelatedOptions';
 
 /**
  * Statements dialog is used to view/send statements from the Quick transaction & corresponding product screens.
@@ -492,7 +491,6 @@ export class Statements extends Component {
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 			${this._renderCcsModal()}
-			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -510,14 +508,6 @@ export class Statements extends Component {
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
 		: html``;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				context="Success">
-			</horizon-related-options>
-		`;
 	}
 }
 
