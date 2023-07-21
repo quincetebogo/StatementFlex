@@ -41,6 +41,8 @@ class AddBeneficiaryDialog extends Component {
 	 * @property {Number} roleplayerLength current amount of rolePlayers
 	 * @property {Boolean} showExtendedRelationships determines whether to show the extended family sub-catagories
 	 * @property {Boolean} canAdd determines whether to disable to the add button
+	 * @property {String} selectedRelationship the relationship that was selected
+	 * @property {Array} rolePlayers Array of all the roleplayers
 	 *
 	 * @readonly
 	 * @static

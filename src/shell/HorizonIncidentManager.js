@@ -573,7 +573,7 @@ export class HorizonIncidentManager {
 			``,
 			false,
 			incidentDetails.incCreated,
-			incidentDetails.description
+			``// resetting description once incident is closed
 		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
