@@ -91,7 +91,7 @@ export class ProductButtonPanel extends Component {
 
 	_getProductDetailValue(amount, type) {
 		// Insure and Livebetter are disabled as part of the Capitec connect agent flow
-		const product = [`insure`, `LiveBetter`];
+		const product = [`insure`, `liveBetter`];
 		if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
 			return null;
 		}
@@ -155,7 +155,7 @@ export class ProductButtonPanel extends Component {
 				type="credit"
 				label="Credit"
 				subtitle="${this.subtitle.credit ? this.subtitle.credit : DEFAULT_SUBTITLE.CREDIT}"
-				detail="${this.detail.credit ? this._getProductDetailValue(this.detail.credit, `credit`) : ``}"
+				detail="${this.detail.credit ? this.detail.credit : ``}"
 				icon="product/credit-white"
 				?detailIcon="${false}"
 				@click="${() => this._productButtonClick(`Credit`)}"
@@ -179,7 +179,7 @@ export class ProductButtonPanel extends Component {
 				type="live-better"
 				label="Live Better Savings"
 				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
-				detail="${this.detail.liveBetterSavings ? this.detail.liveBetterSavings : ``}"
+				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
 				icon="product/live-better"
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
 				?selected="${this.selectedButton === `LiveBetter`}"
