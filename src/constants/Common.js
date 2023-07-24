@@ -156,5 +156,5 @@ export const ROLES_TO_ORG_UNITS = {
  * @enum {Object} AVAILABLE_FEATURES_BY_ROLE
  */
 export const AVAILABLE_FEATURES_BY_ROLE = {
-	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `statements`, `search-other-need`, `transaction-history`]
+	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `search-other-need`, `transaction-history`]
 };

@@ -2,7 +2,6 @@ import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_S
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { RoleManager } from '../../../shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 
@@ -63,7 +62,6 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
-		this.roleManager = RoleManager.getInstance();
 	}
 
 	// ----------
@@ -1022,28 +1020,13 @@ export class StatementsDialog extends Component {
 						?hidden="${this.currentStep === this.STEPPER_STEPS.length - 1}"
 						?disabled="${Boolean(this.productSelected?.ccsStatus)}">
 					</capitec-button>
-					<capitec-tooltip 
-					message= 'Your role does not allow you to make use of this functionality.' 
-					position="left-edge" 
-					?hidden="${this.isCapitecConnectAgent}">
 					<capitec-button
 						class="m-r-0"
 						data-automation-id="statements-dialog-send"
 						type="primary"
 						label="Send"
-						@click="${!this.roleManager.isCapitecConnectAgent ? `` : () => this._sendStatement()}"
-						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF || !this.roleManager.isCapitecConnectAgent}"
-						?disabled="${this.roleManager.isCapitecConnectAgent}">
-					</capitec-button>
-					</capitec-tooltip>
-					<capitec-button
-						class="m-r-0"
-						data-automation-id="statements-dialog-send"
-						type="primary"
-						label="Send"
-						@click="${this.roleManager.isCapitecConnectAgent ? `` : () => this._sendStatement()}"
-						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF || this.roleManager.isCapitecConnectAgent}"
-						?disabled="${this.roleManager.isCapitecConnectAgent}">
+						@click="${() => this._sendStatement()}"
+						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-close"
