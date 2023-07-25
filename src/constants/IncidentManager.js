@@ -79,7 +79,7 @@ const CAUSE_CODE_BY_REASON = {
  */
 export const CAUSE_CODE_BY_ROLE = {
 	[ORG_UNITS.CAPITEC_CONNECT]: {
-		'Abandoned request': `AbandonedRequest`,
+		'Abandoned request': `Abandonedrequest`,
 		'Client failed verification': `ClientFailedVerification`,
 		'External factor': `ExternalFactor`,
 		'Query closed': `QueryClosed`,
@@ -87,7 +87,7 @@ export const CAUSE_CODE_BY_ROLE = {
 		'Query resolved': `QueryResolved`,
 		'Need fulfilled': `QueryClosed`,
 		'Need was assigned/handed off': `QueryEscalation`,
-		'Need incomplete': `AbandonedRequest`
+		'Need incomplete': `Abandonedrequest`
 	},
 	[ORG_UNITS.HELPDESK]: CAUSE_CODE_BY_REASON,
 	[ORG_UNITS.CLIENT_CARE]: CAUSE_CODE_BY_REASON
