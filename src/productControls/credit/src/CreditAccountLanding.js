@@ -124,8 +124,7 @@ export class CreditAccountLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
 
-	_CheckTermLoanBalanceSettleAndClose(amount)
-	{
+	_CheckTermLoanBalanceSettleAndClose(amount) {
 		let balance = parseFloat(amount.substring(1));
 		if (balance <= 0) {
 			return true;
@@ -456,35 +455,6 @@ export class CreditAccountLanding extends Component {
 			</horizon-expander>`);
 	}
 
-	_renderBudgetDetailsBar(item) {
-		return item.type === PRODUCTS.CREDIT_CARD && !this.shouldDisableByRole(`view-budgets`) &&
-				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
-				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
-					? html`
-						<capitec-title-bar
-							type="default"
-							label="Budget facilities"
-							class="budget-banner">
-								<horizon-label
-									label="Total budget balance"
-									value="${this.budgetAccountsSummary.totalBudgetBalance}">
-								</horizon-label>
-								<horizon-label
-									label="Total budget instalment (monthly)"
-									value="${this.budgetAccountsSummary.totalBudgetInstallmentAmount}">
-								</horizon-label>
-								
-								<capitec-spacer></capitec-spacer>
-
-								<capitec-hyperlink 
-									label="View details" 
-									@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
-									inline>
-								</capitec-hyperlink>
-						</capitec-title-bar>`
-					: html``;
-	}
-
 	_renderFixedTermAccounts() {
 		return this.fixedTermCreditAccounts.map((item, index) => html`
 			<horizon-expander
@@ -628,7 +598,10 @@ export class CreditAccountLanding extends Component {
 					data-automation-id="credit-account-budget-facility"
 					label="Budget Facility"
 					img-src="/images/credit/calculator.svg"
-					@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`view-budgets`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`view-budgets`)}">
 			</horizon-option-button>
 		`;
 	}
