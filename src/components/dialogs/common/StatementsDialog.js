@@ -1,10 +1,10 @@
 import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 // import { Instana } from 'app/services/instana';
 import { SecurityContext } from 'platform/core';
 
-import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 
@@ -70,7 +70,6 @@ export class StatementsDialog extends Component {
 
 		// this._InstanaHelper = Instana.getInstance();
 		this._securityContext = SecurityContext.getInstance();
-		this.roleManager = RoleManager.getInstance();
 	}
 
 	// ----------
