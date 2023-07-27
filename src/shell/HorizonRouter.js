@@ -2,8 +2,9 @@ import { Configuration, EventAggregator, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Instana } from 'app/services/instana';
-import { Router } from 'platform/Router';
 import { RoleManager } from 'app/shell/RoleManager';
+import { Router } from 'platform/Router';
+
 
 /**
  * The Horizon URL Schema. 
