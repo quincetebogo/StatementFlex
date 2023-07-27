@@ -81,7 +81,8 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	SAVINGS_ACCOUNT: `savings-account`,
 	LBB: `lbb-account-enquiry`,
 	CREDIT: `credit-account-enquiry`,
-	SAVINGS_PLAN: `savings-plan-account-enquiry`
+	SAVINGS_PLAN: `savings-plan-account-enquiry`,
+	INSURE: `funeral-plan-summary`
 });
 
 /**
@@ -110,15 +111,15 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
  */
 
 export const LANGUAGE_LIST = Object.freeze([
-	`English`, 
-	`Afrikaans`, 
-	`isiZulu`,
-	`isiXhosa`, 
-	`Xitsonga`, 
-	`siSwati`,
-	`isiNdebele`, 
-	`Tshivenda`,
-	`Sepedi`,
-	`Sesotho`,
-	`Setswana`
+	{ key: `ENGLISH`, value: `English` },
+	{ key: `AFRIKAANS`, value: `Afrikaans` },
+	{ key: `ISIZULU`, value: `isiZulu` },
+	{ key: `ISIXHOSA`, value: `isiXhosa` },
+	{ key: `XITSONGA`, value: `Xitsonga` },
+	{ key: `SISWATI`, value: `siSwati` },
+	{ key: `ISINDEBELE`, value: `isiNdebele` },
+	{ key: `TSHIVENDA`, value: `Tshivenda` },
+	{ key: `SEPEDI`, value: `Sepedi` },
+	{ key: `SESOTHO`, value: `Sesotho` },
+	{ key: `SETSWANA`, value: `Setswana` }
 ]);

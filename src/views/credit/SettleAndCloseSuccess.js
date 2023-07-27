@@ -1,10 +1,11 @@
+import { CREDIT_TYPE, PRODUCTS } from 'app/constants/Credit';
 import { css, html } from 'platform/elements';
-import { CREDIT_TYPE } from 'app/constants/Credit';
 import { OutcomeBase } from '../common/OutcomeBase';
 import { SETTLE_AND_CLOSE } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { creditMixin } from 'app/views/credit/CreditMixin';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
 
@@ -34,6 +35,13 @@ import 'app/components/common/RelatedOptions';
 		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
 
+	get incidentDescription() {
+		const settleAccDetails = this.type === PRODUCTS.TERM_LOAN
+								? `Loan Account: ${this.creditCardNumber}`
+								: `Credit Card Account Number: ${this.creditCardNumber}`;
+		return `From Account Number: ${this.fromAccountNumber}\n${settleAccDetails}\nSettlement Amount Paid: ${formatCurrency(this.settlementAmount)}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -58,6 +66,9 @@ import 'app/components/common/RelatedOptions';
 		this.creditType = screenDetails.settleAndCloseCreditType;
 		this.creditCardNumber = screenDetails.settleAndCloseAccountNumber;
 		this.accountName = screenDetails.accountName;
+		this.type = screenDetails.type;
+		this.settlementAmount = screenDetails.settlementAmount;
+		this.fromAccountNumber = screenDetails.fromAccountNumber;
 		
 		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account settled`;
 		this.settleAndCloseTelemetryEvents = SETTLE_AND_CLOSE[this.creditType];
@@ -102,6 +113,7 @@ import 'app/components/common/RelatedOptions';
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 	
 	// ---------

@@ -24,6 +24,7 @@ export const QuickTransactionEvents = {
 	FAVOURITES_SEARCH_OTHER_NEED: `call.fulfill-need.select-other-need`,
 	FAVOURITES_END_CALL: `call.fulfill-need.end-call`,
 	FAVOURITES_PAID_UP_LETTER: `call.fulfill-need.select.paid-up-letter`,
+	FAVOURITES_PAY_SHAP: `call.fulfill-need.select-pay-shap`,
 
 	// Stop Card
 	STOP_CARD: `call.fulfill-need.stop-card`,
@@ -130,7 +131,39 @@ export const QuickTransactionEvents = {
 	SETTLEMENT_QUOTE_SELECT_ALL: `call.fulfill-need.settlement-quote.select-all`,
 	SETTLEMENT_QUOTE_DESELECT_ALL: `call.fulfill-need.settlement-quote.deselect-all`,
 	SETTLEMENT_QUOTE_SEND: `call.fulfill-need.settlement-quote.send-settlement-quote`,
-	SETTLEMENT_QUOTE_BACK: `call.fulfill-need.settlement-quote.back`
+	SETTLEMENT_QUOTE_BACK: `call.fulfill-need.settlement-quote.back`,
+
+	// Payshap
+	PAY_SHAP: `call.fulfill-need.pay-shap`,
+	PAY_SHAP_BACK: `call.fulfill-need.pay-shap.back`,
+	// Institutions tab
+	PAY_SHAP_INSTITUTIONS_TAB: `call.fulfill-need.pay-shap.institutions`,
+	PAY_SHAP_INSTITUTIONS_TAB_SEARCH: `call.fulfill-need.pay-shap.institutions.search`,
+	// Details tab
+	PAY_SHAP_DETAILS_TAB: `call.fulfill-need.pay-shap.details`,
+	// Update details modal
+	PAY_SHAP_UPDATE_ON_LOAD: `call.fulfill-need.pay-shap.details.update`,
+	PAY_SHAP_UPDATE_ON_LOAD_POP: `call.fulfill-need.pay-shap.details.update.pop-up`,
+	PAY_SHAP_UPDATE_DETAILS_CANCEL: `call.fulfill-need.pay-shap.details.update.pop-up.cancel`,
+	PAY_SHAP_UPDATE_DETAILS_SAVE: `call.fulfill-need.pay-shap.details.update.pop-up.save`,
+	// Transaction history tab
+	PAY_SHAP_TRANSACTION_HISTORY_TAB: `call.fulfill-need.pay-shap.transaction-history`,
+	PAY_SHAP_TRANSACTION_HISTORY_TAB_FILTER: `call-fulfill-need.pay-shap.transaction-history.filter`,
+	PAY_SHAP_TRANSACTION_HISTORY_TAB_CLEAR_ALL_FILTER: `call.fulfill-need.pay-shap.transaction-history.filter.clear-all`,
+	PAY_SHAP_TRANSACTION_HISTORY_TAB_CLEAR_FILTER: `call.fulfill-need.pay-shap.transaction-history.filter.clear-all`,
+	// Proof of payment
+	PAY_SHAP_PROOF_OF_PAYMENT: `call.fulfill-need.pay-shap.transaction-history`,
+	PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD: `call.fulfill-need.pay-shap.transaction-history.proof-payment`,
+	PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up`,
+	PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up.cancel`,
+	PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up.send`,
+	// Proof of payment success outcome
+	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success`,
+	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success.done`,
+	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS_SEND_ANOTHER: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success.send-another`,
+	// Proof of payment failure outcome
+	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure`,
+	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.done`
 
 };
 
