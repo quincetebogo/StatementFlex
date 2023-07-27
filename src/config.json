@@ -32,7 +32,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
-	"InstanaKey":"g7qULvtMSCGMWT4t8RGB8Q",
+	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -53,7 +53,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
