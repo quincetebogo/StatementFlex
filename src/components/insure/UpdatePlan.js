@@ -248,7 +248,6 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_addLife(e) {
-		console.log('e :>> ', e);
 
 		if (isNullorEmpty(e.detail.beneficiary)) {
 			this.policyDetails.roleplayers.push({
@@ -290,7 +289,7 @@ class UpdatePlan extends Component {
 						false
 					);
 				}
-			})
+			});
 		}
 		this.showAddRelationshipDialog = false;
 	}

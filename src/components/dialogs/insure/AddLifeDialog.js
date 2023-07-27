@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
-import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog'
+import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
 
 const MAX_LIVES_PER_POLICY = 22;
 
@@ -34,9 +34,9 @@ class AddLifeDialog extends Component {
 		this.showExtendedList = false;
 
 		this.callerPage = ``;
-		this.beneToAdd = []
+		this.beneToAdd = [];
 		this.showAddBeneficiaryOnly = false;
-		this.beneOnlyToAdd = []
+		this.beneOnlyToAdd = [];
 	}
 
 	// #endregion INITIALIZE
@@ -82,7 +82,6 @@ class AddLifeDialog extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
-		console.log('currentLifesAssured :>> ', this.currentLifesAssured);
 		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === `Spouse`).length;
 		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === `Child`).length;
 		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === `Parent`).length;
@@ -116,12 +115,12 @@ class AddLifeDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
-		if (!isNullorEmpty(this.beneToAdd) && this.beneToAdd.relationship !== `Spouse` && this.beneToAdd.relationship !== `Parent` && this.beneToAdd.relationship !== `Child` ) {
-			this.showExtendedList = true
+		if (!isNullorEmpty(this.beneToAdd) && this.beneToAdd.relationship !== `Spouse` && this.beneToAdd.relationship !== `Parent` && this.beneToAdd.relationship !== `Child`) {
+			this.showExtendedList = true;
 		}
 
 		const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
-		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails, beneficiary: this.beneToAdd} }));
+		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails, beneficiary: this.beneToAdd } }));
 		this.showExtendedList = false;
 	}
 
@@ -149,18 +148,16 @@ class AddLifeDialog extends Component {
 
 	_addExistingBeneficiary(life, event) {
 		this.showAddBeneficiaryOnly = false;
-		console.log('life.relationship :>> ', life.relationship);
 
 		if (life.relationship === `BeneficiaryOnly`) {
-			console.log('relationship is BeneficiaryOnly');
-			this.beneOnlyToAdd = life
+			this.beneOnlyToAdd = life;
 			this.showAddBeneficiaryOnly = true;
 		}
 
 		console.log(this.showAddBeneficiaryOnly);
 		if (event.detail.new) {
-			this.selectedRelationship = life.relationship
-			this.requestUpdate()
+			this.selectedRelationship = life.relationship;
+			this.requestUpdate();
 			this.beneToAdd = life;
 		}
 	}
@@ -171,26 +168,26 @@ class AddLifeDialog extends Component {
 			if (this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
 				
 				let count = 0;
-				this.currentLifesAssured.forEach(life => {
-					if (life.relationship === `Spouse`){
-						count++
+				this.currentLifesAssured.forEach(lifes => {
+					if (lifes.relationship === `Spouse`) {
+						count++;
 					}
-				})
-				if (count != 1){ 
-					return true
+				});
+				if (count !== 1) { 
+					return true;
 				}
 			}
 		} else if (life.relationship === `Parent`) {
 			if (this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
-				return true
+				return true;
 			}
 		} else if (life.relationship === `Child`) {
 			if (this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
-				return true
+				return true;
 			}
-		} else if (life.relationship !== `Spouse` && life.relationship !== `Parent` && life.relationship !== `Child` && life.relationship !== `BeneficiaryOnly`){
+		} else if (life.relationship !== `Spouse` && life.relationship !== `Parent` && life.relationship !== `Child` && life.relationship !== `BeneficiaryOnly`) {
 			if (this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
-				return true
+				return true;
 			}
 		}
 		return false;
@@ -199,14 +196,14 @@ class AddLifeDialog extends Component {
 	_addNewBeneOnly(event) {
 		this.showAddBeneficiaryOnly = false;
 		this.beneToAdd = this.beneOnlyToAdd;
-		this.selectedRelationship = event.detail.selectedRelationship
-		this.beneToAdd.relationship = event.detail.selectedRelationship
-		this._addClick()
+		this.selectedRelationship = event.detail.selectedRelationship;
+		this.beneToAdd.relationship = event.detail.selectedRelationship;
+		this._addClick();
 	}
 
 	_closeBeneOnlyDialog() {
-		this.showAddBeneficiaryOnly = false
-		this.requestUpdate()
+		this.showAddBeneficiaryOnly = false;
+		this.requestUpdate();
 	}
 	
 	// #endregion EVENT HANDLERS
@@ -513,7 +510,7 @@ class AddLifeDialog extends Component {
 			>
 
 			</horizon-insure-add-beneficiary-only-la-dialog>
-		`
+		`;
 			
 		
 	}
