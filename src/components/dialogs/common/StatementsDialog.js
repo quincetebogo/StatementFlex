@@ -65,11 +65,9 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this._securityContext = SecurityContext.getInstance();
 		this.disableSend = false;
 		this.selectedPeriodLabel = ``;
-
-		// this._InstanaHelper = Instana.getInstance();
-		this._securityContext = SecurityContext.getInstance();
 	}
 
 	// ----------
