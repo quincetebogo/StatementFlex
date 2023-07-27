@@ -1,13 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { formatPhoneNumber, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { NavigationContext } from 'platform/core';
-import { PayShapService } from 'app/services/PayShapService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 
 
@@ -37,41 +28,28 @@ export class PayShapPOP extends Component {
 
 	constructor() {
 		super();
-		this.navigationContext = NavigationContext.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.isCapitecBankDefault = false;
-		this.agreementAccepted = false;
-		this.showAgreement = false;
-		this.showWarningModal = false;
-		this.removalConfirmed = false;
-		this.typeSelected = false;
+	
 		this.inAppNotification = false;
 		this.smsNotififcation = false;
 		this.emailNotification = false;
 		this.showemailField = false;
-		this.isEmailSent = false;
-		this.isSmsSent = false;
-		this.isAppSent = false;
 
-		this._telemetry = HorizonTelemetry.getInstance();
+		// private properites
+		
+		this.alertBannerMessage = ``;
+		this.emailText = `Email address`;
+		
+		// private variables
+		this.emailLabel = `Enter email address`;
+		this.confirmEmailLabel = `Confirm email`;
+		this.idEmailAddress = ``;
+		this.idConfirmEmailAddress = ``;
+		this.errMessage = {
+			idEmailAddress: ``,
+			idConfirmEmail: ``
+		};
 
-			// private properites
-			this.isBusy = false;
-			this.alertBannerMessage = ``;
-			this.emailText = `Email address`;
-			
-			// private variables
-			this.emailLabel = `Enter email address`;
-			this.confirmEmailLabel = `Confirm email`;
-			this.idEmailAddress = ``;
-			this.idConfirmEmailAddress = ``;
-			this.errMessage = {
-				idEmailAddress: ``,
-				idConfirmEmail: ``
-			};
-
-			this.payShapService = new PayShapService(() => this._toggleBusyFlag(), () => true);
+		this.notificationType = [];
 	}
 
 
@@ -81,33 +59,16 @@ export class PayShapPOP extends Component {
 
 	static get properties() {
 		return {
-			isCapitecBankDefault: { state: true },
-			agreementAccepted: { state: true },
-			showAgreement: { state: true },
-			showWarningModal: { state: true },
-			typeSelected: { type: Boolean },
+			
 			inAppNotification: { type: Boolean },
 			smsNotififcation: { type: Boolean },
 			emailNotification: { type: Boolean },
 			showemailField: { type: Boolean },
-			isEmailSent: { type: Boolean },
-			isSmsSent: { type: Boolean },
-			isAppSent: { type: Boolean },
-
-			accountNumber: { type: String },
-			accountOpenedDate: { type: String },
-			cifNumber: { type: String },
-			lastName: { type: String },
-			title: { 
-				type: String,
-				attribute: `client-title`
-			},
+		
 			registeredEmailId: { type: String },
-			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false },
 
-			paymentUetr: { type: String },
 			notificationType: { type: String },
 			verifiedCellphoneNumber: { type: String },
 			emailAddress: { type: String }
@@ -134,85 +95,43 @@ export class PayShapPOP extends Component {
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
-	_onSend() {
-		this.dispatchEvent(new CustomEvent(`on-send`, {}));
-	}
-
-	_notificatioTypeSelected() {
-		 this.typeSelected = !this.typeSelected;
-	}
-
 	_inAppNotificationSelected() {
 		this.inAppNotification = !this.inAppNotification;
+		this._addOrRemoveNotificationType(this.inAppNotification, `APP`);
 	}
 
 	_smsNotificationSelected() {
 		this.smsNotififcation = !this.smsNotififcation;
+		this._addOrRemoveNotificationType(this.smsNotififcation, `SMS`);
 	}
 
 	_emailNotificationSelected() {
 		this.emailNotification = !this.emailNotification;
+		this._addOrRemoveNotificationType(this.emailNotification, `EMAIL`);
 	}
 
 	_showEmailField() {
 		this.showemailField = !this.showemailField;
 	}
 
-
-	_errorHandler(ex) {
-        return true;
-    }
-
-	_toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
-
 	_sendClick(e) {
-		if (this.smsNotififcation || this.inAppNotification) {
-			if (this.emailNotification) {
-				if (this._validateEmailAddress()) {
-					this._sendProofOfPayment();
-				}
-			} else {
-				this._sendProofOfPayment();
-			}
-			
-		}
-
-		if (!this.smsNotififcation || !this.inAppNotification) {
-			if (this._validateEmailAddress() && this.emailNotification) {
-				this._sendProofOfPayment();
-			}
-		}
+		if (this.notificationType.length > 0) {
+			if (this.emailNotification && !this._validateEmailAddress()) {
+				return;
+			} 
+			this._sendProofOfPayment();
+ 		}
 	}
 
-	async _sendProofOfPayment() {
-		this.dispatchEvent(new CustomEvent(`on-send`, { details: {
-			emailAddress: this.emailAddress,
-			app: this.inAppNotification,
-			sms: this.smsNotififcation,
-			email: this.emailNotification
-		} }));
-			// saving 'emailAddress' and 'accountNumber' in state.
-			this._updateScreenDetails();
+	_sendProofOfPayment() {
+		this.dispatchEvent(new CustomEvent(
+		`on-send`, 
+		{ detail: {
+				emailAddress: this.emailAddress,
+				notificationType: this.notificationType
+			} }
+		));
 
-			const clientInfo = {
-				"paymentUetr": this.paymentUetr,
-				"cifNumber": this.cifNumber,
-				"notificationType": this.notificationType,
-				"emailAddress": this.emailAddress,
-				"verifiedCellphoneNumber": this.verifiedCellphoneNumber
-			};
-			const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo);
-
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap-proof-of-payment`);
-
-			if (returnValue.succeeded) {
- 
-				this.horizonRouter.navigateToPayshapProofOfPaymentSuccess();
-			} else {
-				this.horizonRouter.navigateToPayshapProofOfPaymentFailure();
-			}
 	}
 
 	_clearAlerts() {
@@ -267,13 +186,15 @@ export class PayShapPOP extends Component {
 		return fieldValue === `` || fieldValue === null || fieldValue === undefined;
 	}
 
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.emailAddress = this.idEmailAddress;
-		screenDetails.accountNumber = this.accountNumber;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
+	_addOrRemoveNotificationType(selcted, type) {
+		if (selcted) {
+			this.notificationType.push(type);
+		} else {
+			const index = this.notificationType.indexOf(type);
+			if (index !== -1) {
+				this.notificationType.splice(index, 1);
+			}
+		}
 	}
 
 	// ---------

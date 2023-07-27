@@ -1054,6 +1054,29 @@ export class Favourites extends SavingsAccountBase {
 		this._onExitPayShap();
 	}
 
+	async _sendPayshapPOP(event) {
+		const clientInfo = {
+			"paymentUetr": event.detail.uetr,
+			"cifNumber": this.callerInformation.cifNumber,
+			"notificationType": event.detail.notificationType,
+			"emailAddress": event.detail.emailAddress,
+			"verifiedCellphoneNumber": this.callerInformation.verifiedCellphoneNumber
+		};
+		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo);
+
+		// this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap-proof-of-payment`);
+	
+		const screenDetails = event.detail;
+		screenDetails.outcome = returnValue.result;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToPayshapProofOfPaymentSuccess();
+		} else {
+			this.horizonRouter.navigateToPayshapProofOfPaymentFailure();
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1321,7 +1344,8 @@ export class Favourites extends SavingsAccountBase {
 
 				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
 				@back="${() => this._onExitPayShap()}"
-				@unloading="${() => this._unloadingPayshap()}">
+				@unloading="${() => this._unloadingPayshap()}"
+				@send-pop="${(e) => this._sendPayshapPOP(e)}">
 			</horizon-payshap-landing>`
 		: html``;
 	}
@@ -1337,19 +1361,6 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-pay-shap-update>`
 		: html``;
 	}
-
-	_renderPayShapPOP() {
-		return this.renderMode === RENDER_MODE.PAYSHAP_POP
-		? html`
-		<horizon-pay-shap-pop
-						.payShapModalDetails="${this.payShapModalDetails}"
-						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
-						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
-						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
-		</horizon-pay-shap-pop>`
-		: html``;
-	}
-
 }
 
 customElements.define(`horizon-favourites`, Favourites);

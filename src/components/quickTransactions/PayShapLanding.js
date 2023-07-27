@@ -187,13 +187,9 @@ export class PayShapLanding extends Component {
 	_proofOfPayment(uetr, tranCode) {
 		this.proofOfPaymentDetails = {
 			uetr: uetr,
-			tranCode: tranCode,
-			cifNumber: this.cifNumber,
-			notificationType: this.notificationType,
-			emailAddress: this.emailAddress,
-			verifiedCellphoneNumber: this.verifiedCellphoneNumber
-
+			tranCode: tranCode
 		};
+
 		 this.showPopModal = true;
 	}
 
@@ -289,6 +285,11 @@ export class PayShapLanding extends Component {
 	_unloadTransactionHistory() {
 		this.moneyOutTransactionHistory = [];
 		this.moneyInTransactionHistory = [];
+	}
+
+	_sendPOP(event) {
+		const popDetail = { ...event.detail, ...this.proofOfPaymentDetails };
+		this.dispatchEvent(new CustomEvent(`send-pop`, { detail: popDetail }));
 	}
 
 	// ---------------
@@ -1103,7 +1104,8 @@ export class PayShapLanding extends Component {
 		return this.showPopModal
 		? html`
 		<horizon-pay-shap-pop
-						@on-cancel="${() => this.showPopModal = false}">
+						@on-cancel="${() => this.showPopModal = false}"
+						@on-send="${(e) => this._sendPOP(e)}">
 		</horizon-pay-shap-pop>`
 		: html``;
 	}
