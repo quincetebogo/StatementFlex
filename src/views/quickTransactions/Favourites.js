@@ -950,6 +950,7 @@ export class Favourites extends SavingsAccountBase {
 	_onExitPayShap() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+	
 
 	_limitsRandsToCents(cardDetails) {
  
@@ -1334,6 +1335,18 @@ export class Favourites extends SavingsAccountBase {
 						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
 						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
 			</horizon-pay-shap-update>`
+		: html``;
+	}
+
+	_renderPayShapPOP() {
+		return this.renderMode === RENDER_MODE.PAYSHAP_POP
+		? html`
+		<horizon-pay-shap-pop
+						.payShapModalDetails="${this.payShapModalDetails}"
+						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
+						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
+						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+		</horizon-pay-shap-pop>`
 		: html``;
 	}
 

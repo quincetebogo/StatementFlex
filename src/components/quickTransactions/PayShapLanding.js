@@ -2,15 +2,15 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { convertCentsToRand, formatCurrency, formatDate, formatPhoneNumber, formatProxyId, getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { PayShapService } from 'app/services/PayShapService';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { Utilities } from '@cb/platform-web-core';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { PayShapService } from 'app/services/PayShapService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-
+import { Utilities } from '@cb/platform-web-core';
 import 'app/components/common/PayShapTransactionHistory';
 import 'app/components/common/TransactionHistory';
+import 'app/components/dialogs/quickTransactions/PayshapPOP';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -63,6 +63,7 @@ export class PayShapLanding extends Component {
 		this.defaultInstitute = false;
 		this.displayToast = false;
 		this.isBusy = false;
+		this.showPopModal = false;
 
 		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -98,7 +99,8 @@ export class PayShapLanding extends Component {
 			showUpdateModal: { state: true, attribute: false },
 			displayToast: { type: Boolean },
 			payShapDefaultToast: { type: String },
-			isBusy: { state: true }
+			isBusy: { state: true },
+			showPopModal: { type: Boolean }
 		};
 	}
 
@@ -109,11 +111,10 @@ export class PayShapLanding extends Component {
 	get defaultInstitution() {
 		if (this.isCapitecBankDefault) {
 			return this.payShapLandingDetails.proxyDetails.domain;
-		} else {
-			if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && !CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+		} else if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && !CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
 				return this.payShapLandingDetails.proxyDetails.domain;
 			}
-		}
+		
 
 		return ``;
 	}
@@ -181,6 +182,19 @@ export class PayShapLanding extends Component {
 			});
 			this.filteredInstitutions = Array.from(new Set([...searchTextResult.flat()]));
 		}
+	}
+
+	_proofOfPayment(uetr, tranCode) {
+		this.proofOfPaymentDetails = {
+			uetr: uetr,
+			tranCode: tranCode,
+			cifNumber: this.cifNumber,
+			notificationType: this.notificationType,
+			emailAddress: this.emailAddress,
+			verifiedCellphoneNumber: this.verifiedCellphoneNumber
+
+		};
+		 this.showPopModal = true;
 	}
 
 	_onUpdateClick() {
@@ -661,6 +675,7 @@ export class PayShapLanding extends Component {
 				${this._renderTitleBar()}
 				<capitec-content-box noPadding>
 					${this._renderPayShapContent()}
+					${this._renderPayShapPOP()}
 				</capitec-content-box>
 			</capitec-card>`;
 	}
@@ -721,7 +736,6 @@ export class PayShapLanding extends Component {
 				.getMoneyInTransactionHistory="${() => this._getMoneyInTransactionHistory()}"
 
 				.disposeData="${() => this._unloadTransactionHistory()}"
-
 				@back="${() => this._exitTransactionHistory()}"
 				@unloading="${() => this._unloadTransactionHistory()}">
 			</horizon-payshap-transaction-history>
@@ -832,14 +846,15 @@ export class PayShapLanding extends Component {
 				</capitec-group>
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
 			Need to remove hidden attribute when development starts on these functionalities -->
-			<capitec-button-bar ?hidden=${true} align="right" ?hidden="${true}">
+			<capitec-button-bar align="right">
 					<capitec-button
 								type="clear" 
 								label="Escalate Transaction">
 					</capitec-button>
 					<capitec-button
 								type="clear" 
-								label="Proof of Payment">
+								label="Proof of Payment"
+								@click="${() => this._proofOfPayment(item.uetr, item.tranCode)}">
 					</capitec-button>
 				</capitec-button-bar>
 			</capitec-group>
@@ -1082,6 +1097,15 @@ export class PayShapLanding extends Component {
 				</capitec-button>
 			</capitec-button-bar>
 		`;
+	}
+
+	_renderPayShapPOP() {
+		return this.showPopModal
+		? html`
+		<horizon-pay-shap-pop
+						@on-cancel="${() => this.showPopModal = false}">
+		</horizon-pay-shap-pop>`
+		: html``;
 	}
 
 	_renderPayShapInstitutions() {
