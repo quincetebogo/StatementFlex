@@ -148,7 +148,7 @@ export class TransactionHistory extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Transaction History`);
 		await this._initialise();
 		await this._telemetry.startSpan(this.telemetryEvent.TRANSACTION_HISTORY, {});
 
