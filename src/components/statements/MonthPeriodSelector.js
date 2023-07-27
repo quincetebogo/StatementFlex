@@ -111,7 +111,7 @@ export class MonthPeriodSelector extends Component {
 	// ---------------
 
 	_initialise() {
-		this._InstanaHelper._instanaScriptsCustoms(this._securityContext, `/horizon-month-period-selector`);
+		ineum(`page`, `horizon-month-period-selector`);
 		for (let month = 1; month <= 6; month++) {
 			
 			const accOpenedDate = new Date(this.accountOpenDate);

@@ -115,7 +115,7 @@ export class AppShell extends Shell {
 		super.connectedCallback();
 		
 		// this._casperScript(); 
-		
+		this._instanaHead();
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._stateChanged(state));
@@ -126,6 +126,23 @@ export class AppShell extends Shell {
 		}
 		
 		
+	}
+
+	async _instanaHead() {
+		const instanakey = await this._configuration.getSetting(`otherSystemsURL.sbl`);
+		const head = document.head || document.getElementsByTagName(`head`)[0];
+		const script = document.createElement(`script`);
+		script.innerHTML = `(function(s,t,a,n){s[t]||(s[t]=a,n=s[a]=function(){n.q.push(arguments)},
+		n.q=[],n.v=2,n.l=1*new Date)})(window,"InstanaEumObject","ineum");
+			ineum('reportingUrl', 'https://eum-blue-saas.instana.io');  
+			ineum('key', '${instanakey}');
+			ineum('trackSessions');
+			ineum('captureHeaders', [/./i]);
+			ineum('wrapEventHandlers', true);
+			ineum('wrapTimers', true);
+			`;
+		head.appendChild(script);
+
 	}
 
 	disconnectedCallback() {
