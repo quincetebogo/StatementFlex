@@ -11,7 +11,7 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
-		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
+		"payShapServiceUrl": "http://localhost:6001",
 		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
@@ -52,7 +52,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -61,7 +61,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -69,7 +69,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -102,7 +102,7 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -258,7 +258,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -366,30 +366,26 @@
 			"positiveCase" : true
 		},
 		"payShapDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"getInstitutions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"enlistCapitec": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"delistCapitec": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"moneyOut": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"moneyIn": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"payshapPop":{
 			"enabled": true,
 			"positiveCase": true
 		}

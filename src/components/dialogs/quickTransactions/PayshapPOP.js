@@ -390,6 +390,11 @@ export class PayShapPOP extends Component {
                     --horizon-label-value-color:#3A3A3A;
 				}
 
+				horizon-email-input {
+					--theme-input-confirm-email-top: -63px;
+					--theme-input-email-top: -46px;
+				}
+
 			`
 		];
 	}

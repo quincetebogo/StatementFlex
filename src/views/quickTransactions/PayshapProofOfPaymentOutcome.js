@@ -82,11 +82,13 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	_doneClick() {
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_sendAnotherClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearScreenDetails();
 	}
 
 	_showSuccessIcon() {

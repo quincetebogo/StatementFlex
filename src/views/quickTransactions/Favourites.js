@@ -1059,15 +1059,15 @@ export class Favourites extends SavingsAccountBase {
 
 	async _sendPayshapPOP(event) {
 		const clientInfo = {
-			"paymentUetr": event.detail.uetr,
-			"cifNumber": this.callerInformation.cifNumber,
+			"paymentUetr": "cea176ef-d6a4-4286-b151-2201020d08e9",
+			"cifNumber": "115516816",
 			"notificationType": event.detail.notificationType,
-			"emailAddress": event.detail.idEmailAddress,
-			"verifiedCellphoneNumber": this.callerInformation.verifiedCellphoneNumber
+			"emailAddress": event.detail.emailAddress,
+			"verifiedCellphoneNumber": "825367598"
 		};
 		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo);
 
-		// this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap-proof-of-payment`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap`);
 	
 		const screenDetails = event.detail;
 		screenDetails.outcome = returnValue.result;
