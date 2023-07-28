@@ -388,6 +388,10 @@
 		"moneyIn": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"payshapPop":{
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

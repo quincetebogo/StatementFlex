@@ -6,6 +6,7 @@ import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -83,6 +84,8 @@ export class Favourites extends SavingsAccountBase {
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.payShapDetails = {};
+
+		this.navigationContext = NavigationContext.getInstance();
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -1059,7 +1062,7 @@ export class Favourites extends SavingsAccountBase {
 			"paymentUetr": event.detail.uetr,
 			"cifNumber": this.callerInformation.cifNumber,
 			"notificationType": event.detail.notificationType,
-			"emailAddress": event.detail.emailAddress,
+			"emailAddress": event.detail.idEmailAddress,
 			"verifiedCellphoneNumber": this.callerInformation.verifiedCellphoneNumber
 		};
 		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo);
@@ -1071,9 +1074,7 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToPayshapProofOfPaymentSuccess();
-		} else {
-			this.horizonRouter.navigateToPayshapProofOfPaymentFailure();
+			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
 		}
 	}
 

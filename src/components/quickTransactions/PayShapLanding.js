@@ -184,10 +184,11 @@ export class PayShapLanding extends Component {
 		}
 	}
 
-	_proofOfPayment(uetr, tranCode) {
+	_proofOfPayment(uetr, tranCode, verifiedCellphoneNumber) {
 		this.proofOfPaymentDetails = {
 			uetr: uetr,
-			tranCode: tranCode
+			tranCode: tranCode,
+			verifiedCellphoneNumber: verifiedCellphoneNumber
 		};
 
 		 this.showPopModal = true;
@@ -855,11 +856,11 @@ export class PayShapLanding extends Component {
 					<capitec-button
 								type="clear" 
 								label="Proof of Payment"
-								@click="${() => this._proofOfPayment(item.uetr, item.tranCode)}">
+								@click="${() => this._proofOfPayment(item.uetr, item.tranCode, this.verifiedCellphoneNumber)}">
 					</capitec-button>
 				</capitec-button-bar>
 			</capitec-group>
-		`;
+		`; 
 	}
 
 	_renderMoneyInTransactionHistoryColumns() {

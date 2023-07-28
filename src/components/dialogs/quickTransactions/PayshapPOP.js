@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 
 
@@ -29,6 +31,7 @@ export class PayShapPOP extends Component {
 	constructor() {
 		super();
 	
+		this.horizonStore = HorizonStore.getInstance();
 		this.inAppNotification = false;
 		this.smsNotififcation = false;
 		this.emailNotification = false;
@@ -81,6 +84,8 @@ export class PayShapPOP extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		this.verifiedCellphoneNumber = this.screenDetails && this.screenDetails.verifiedCellphoneNumber;
 	}
 
 	disconnectedCallback() {
@@ -127,8 +132,9 @@ export class PayShapPOP extends Component {
 		this.dispatchEvent(new CustomEvent(
 		`on-send`, 
 		{ detail: {
-				emailAddress: this.emailAddress,
-				notificationType: this.notificationType
+				emailAddress: this.idEmailAddress,
+				notificationType: this.notificationType,
+				verifiedCellphoneNumber: this.verifiedCellphoneNumber
 			} }
 		));
 
@@ -224,15 +230,6 @@ export class PayShapPOP extends Component {
 					height: 600px;
 				}
 
-				capitec-text-field {
-					padding-top: 10px;
-					padding-top: 10px;
-					--theme-input-disabled-background-color: #fbfbfb;
-					--theme-input-disabled-font-color: #B4B4B4;
-					--theme-input-label-font-color: #7C7C7C;
-					--theme-input-hint-font-color: #3A3A3A;
-				}
-
 				capitec-label[label="Default institution"] {
 					--theme-label-title-font-size: 16px;
 					--theme-label-title-font-weight: 600;
@@ -248,10 +245,6 @@ export class PayShapPOP extends Component {
 
 				.email-box {
 					--theme-card-min-height: 50px;
-				}
-
-				.expander-box {
-					width: 18px;
 				}
 
 				capitec-card > capitec-group {
@@ -462,7 +455,7 @@ export class PayShapPOP extends Component {
 				<capitec-check 
 				@value-change="${() => this._smsNotificationSelected()}"></capitec-check></capitec-check>
 				<horizon-label
-				value="0712345678"
+				value="${formatPhoneNumber(this.verifiedCellphoneNumber)}"
 				label="SMS"></horizon-label>
 				</capitec-group>
 		</capitec-card>
