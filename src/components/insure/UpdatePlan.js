@@ -117,6 +117,8 @@ class UpdatePlan extends Component {
 
 		this.roleplayerLength = 0;
 
+		this.beneOnlyRowId = 0;
+
 	}
 
 	// #endregion INITIALISATION
@@ -248,8 +250,7 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_addLife(e) {
-
-		if (isNullorEmpty(e.detail.beneficiary)) {
+		if (e.detail.beneficiary.length === 0) {
 			this.policyDetails.roleplayers.push({
 				title: ``,
 				gender: ``,
@@ -277,7 +278,16 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((life, index) => {
 				if (life.rowID === e.detail.beneficiary.rowID) {
 					this.policyDetails.roleplayers[index].lifeAssured = true;
+					if (life.relationship === `BeneficiaryOnly`) {
+						this.beneOnlyRowId = life.rowID;
+					}
 					this.policyDetails.roleplayers[index].relationship = e.detail.relationship;
+
+					if (this.policyDetails.roleplayers[index].relationship === `Spouse` || this.policyDetails.roleplayers[index].relationship === `Parent` || this.policyDetails.roleplayers[index].relationship === `Child`) {
+						this.policyDetails.roleplayers[index].coverDetails.isExtendedFamily = false;
+					} else {
+						this.policyDetails.roleplayers[index].coverDetails.isExtendedFamily = true;
+					}
 					
 					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
 						this.policyDetails.roleplayers[index].relationship,
@@ -368,6 +378,9 @@ class UpdatePlan extends Component {
 	 */
 	_removeLifeAssured() {
 		if (this.policyDetails.roleplayers[this.lifeAssuredToRemove].beneficiary === true) {
+			if (this.policyDetails.roleplayers[this.lifeAssuredToRemove].rowID === this.beneOnlyRowId) {
+				this.policyDetails.roleplayers[this.lifeAssuredToRemove].relationship = `BeneficiaryOnly`;
+			}
 			this.policyDetails.roleplayers[this.lifeAssuredToRemove].lifeAssured = false;
 		} else {
 			this.policyDetails.roleplayers.splice(this.lifeAssuredToRemove, 1);
@@ -420,7 +433,10 @@ class UpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
-
+					if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverAmount)) {
+						this.policyDetails.roleplayers[index].coverDetails.coverMessage = ``;
+					}
+					
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
@@ -888,7 +904,8 @@ class UpdatePlan extends Component {
 				}
 
 				// Cover amount
-				if (ele.coverAmount === `` || ele.coverAmount === `0`) {
+				if (ele.coverAmount === `` || ele.coverAmount === 0) {
+					ele.coverDetails.coverMessage = `Cover amount is a required field`;
 					ele.coverDetails.canSubmit = false;
 				}
 

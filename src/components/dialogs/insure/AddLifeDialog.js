@@ -154,7 +154,6 @@ class AddLifeDialog extends Component {
 			this.showAddBeneficiaryOnly = true;
 		}
 
-		console.log(this.showAddBeneficiaryOnly);
 		if (event.detail.new) {
 			this.selectedRelationship = life.relationship;
 			this.requestUpdate();
@@ -197,7 +196,6 @@ class AddLifeDialog extends Component {
 		this.showAddBeneficiaryOnly = false;
 		this.beneToAdd = this.beneOnlyToAdd;
 		this.selectedRelationship = event.detail.selectedRelationship;
-		this.beneToAdd.relationship = event.detail.selectedRelationship;
 		this._addClick();
 	}
 
@@ -298,7 +296,6 @@ class AddLifeDialog extends Component {
 				<capitec-label label="No beneficiaries to add" type="subtitle" class="title"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
-				${console.log(life)}
 				${life.lifeAssured === true ? html`` 
 				: html`
 					<!-- <div class="add-beneficiary"> -->
