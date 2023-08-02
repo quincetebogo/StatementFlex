@@ -849,7 +849,7 @@ export class PayShapLanding extends Component {
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
 			Need to remove hidden attribute when development starts on these functionalities -->
 			<capitec-button-bar align="right">
-					<capitec-button
+					<capitec-button ?hidden=${true}
 								type="clear" 
 								label="Escalate Transaction">
 					</capitec-button>

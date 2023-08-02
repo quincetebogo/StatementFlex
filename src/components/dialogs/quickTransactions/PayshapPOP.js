@@ -434,24 +434,24 @@ export class PayShapPOP extends Component {
 		return html`
 			<capitec-label type="strong" label="Choose notification type"></capitec-label>
 			${this._renderAlertBanner()}
-			${this._renderAppNotification()}
 			${this._renderSmsNotification()}
 			${this._renderEmailNotification()}
 			${this._renderEmailFields()}
 		`;
 	}
 
-	_renderAppNotification() {
-		return html`
-		<capitec-card class="app-box">
-		<capitec-group >
-				<capitec-check label="In App"
-				@value-change="${() => this._inAppNotificationSelected()}"></capitec-check>
-				</capitec-group>
-		</capitec-card>
-		`;
 
-	}
+	// _renderAppNotification() {
+	// return html`
+	// <capitec-card class="app-box">
+	// <capitec-group >
+	// <capitec-check label="In App"
+	// @value-change="${() => this._inAppNotificationSelected()}"></capitec-check>
+	// </capitec-group>
+	// </capitec-card>
+	// `;
+
+	// }
 
 	_renderSmsNotification() {
 		return html`
