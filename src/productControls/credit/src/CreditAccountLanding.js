@@ -112,6 +112,9 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_accountDetails(creditType, productType, accountNumber) {
+		if (productType === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent) {
+			return;
+		}
 		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType, accountNumber: accountNumber } }));
 	}
 
@@ -238,10 +241,13 @@ export class CreditAccountLanding extends Component {
 				horizon-expander[expanded] {
 					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
 				}
+				horizon-expander[disabled] {
+					--theme-expander-background-color: #E1E1E1;
+				}
 				.expander-budget-facility {
 					--theme-expander-header-height: 112px;
 				}
-				.expander-header > capitec-icon {
+				.info-icon {
 					--theme-icon-size-default: 20px;
 					--theme-layout-gap-spacing: 0px;
 					margin-left: 16px;
@@ -423,7 +429,12 @@ export class CreditAccountLanding extends Component {
 						gap="clear"
 						halign="left"
 						valign="center">
+						<capitec-tooltip 
+							message="${TOOLTIP_MESSAGE}"
+							position="left-edge"
+							?hidden="${!(item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent)}">
 							<capitec-icon
+								class="info-icon"
 								data-automation-id="credit-account-flexible-credit-info"
 								icon="system/info-action"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
@@ -435,6 +446,23 @@ export class CreditAccountLanding extends Component {
 								value="${item.accountNumber}"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</horizon-label>
+						</capitec-tooltip>
+							<capitec-icon
+								class="info-icon"
+								data-automation-id="credit-account-flexible-credit-info"
+								icon="system/info-action"
+								?hidden="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}"
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
+							</capitec-icon>
+							<horizon-label 
+								data-automation-id="credit-account-access-facility"
+								class="label-account-number"
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}"
+								?hidden="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}"
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
+							</horizon-label>
+
 							<div class="vertical-line"></div>
 							<horizon-label
 								data-automation-id="credit-account-balance"
@@ -519,6 +547,7 @@ export class CreditAccountLanding extends Component {
 						halign="left"
 						valign="center">
 							<capitec-icon
+								class="info-icon"
 								data-automation-id="credit-account-fixed-term-info"
 								icon="system/info-action"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
