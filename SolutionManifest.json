@@ -3,7 +3,7 @@
   "groupName": "G_CKS_CEC_HORIZON_ADMIN",
   "projects": [
     {
-      "name": "cec-ui-horizon",
+      "name": "cec-ui-horizon-insure",
       "location": ".",
       "platformType": "ocwp",
       "cliVersion": "1.17.0"
