@@ -21,7 +21,7 @@ const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-	START_AT_INDEX: 1,
+	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 };
@@ -235,7 +235,7 @@ export class PayShapLanding extends Component {
 				item.shapId = item.creditorProxyId;
 				item.accountnumber = item.creditorAccountId;
 				item.institution = item.creditorFicaName;
-				item.formatedAmount = `-${formatCurrency(item.amount)}`;
+				item.formatedAmount = `-${formatCurrency(convertCentsToRand(item.amount))}`;
 
 				return item;
 			});
