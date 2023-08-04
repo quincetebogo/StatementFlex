@@ -3,6 +3,7 @@ import { RoleManager } from 'app/shell/RoleManager';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
 
 const DEFAULT_SUBTITLE = {
 	SAVINGS_ACCOUNT: `Know what you get, know what you pay`,
@@ -171,6 +172,8 @@ export class ProductButtonPanel extends Component {
 				icon="product/insure-white"
 				@click="${() => this._productButtonClick(`Insure`)}"
 				?selected="${this.selectedButton === `Insure`}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				data-automation-id="product-button-panel-insure"
 				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
@@ -182,6 +185,8 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
 				icon="product/live-better"
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				?selected="${this.selectedButton === `LiveBetter`}"
 				data-automation-id="product-button-panel-live-better"
 				?disabled="${this.roleManager.isCapitecConnectAgent}">
