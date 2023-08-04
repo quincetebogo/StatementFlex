@@ -1,11 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { RoleManager } from 'app/shell/RoleManager';
-import 'app/components/common/OptionButton';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
-
 const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+
 const DEFAULT_SUBTITLE = {
 	SAVINGS_ACCOUNT: `Know what you get, know what you pay`,
 	LIVE_BETTER_SAVINGS: `Supercharge your savings`,
@@ -58,7 +57,6 @@ export class ProductButtonPanel extends Component {
 	/**
 	 * @property {Object} subtitle Object holds the subtitle info to be shown on menu button
 	 * @property {Object} detail Object holds the detail info to be shown on menu button
-	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 *
 	 * @readonly
 	 * @static
@@ -68,8 +66,7 @@ export class ProductButtonPanel extends Component {
 		return {
 			selectedButton: { type: String },
 			subtitle: { type: Object },
-			detail: { type: Object },
-			showTooltip:{ type: Object }
+			detail: { type: Object }
 		};
 	}
 
@@ -91,65 +88,6 @@ export class ProductButtonPanel extends Component {
 
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
-	}
-
-	_displayToolTip(){
-		return this.roleManager.isCapitecConnectAgent ? html`
-			<capitec-tooltip message="${TOOLTIP_MESSAGE}" position="top">
-			<horizon-product-tile 
-				class="product-button"
-				type="insure"
-				label="Insure"
-				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
-				detail="${this.detail.insure ? this._getProductDetailValue(this.detail.insure, `insure`) : ``}"
-				icon="product/insure-white"
-				@click="${() => this._productButtonClick(`Insure`)}"
-				?selected="${this.selectedButton === `Insure`}"
-				data-automation-id="product-button-panel-insure"
-				?disabled="${this.roleManager.isCapitecConnectAgent}">
-			</horizon-product-tile>
-			</capitec-tooltip>
-			<capitec-tooltip message="${TOOLTIP_MESSAGE}" position="top">
-			<horizon-product-tile
-				class="product-button"
-				type="live-better"
-				label="Live Better Savings"
-				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
-				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
-				icon="product/live-better"
-				@click="${() => this._productButtonClick(`LiveBetter`)}"
-				?selected="${this.selectedButton === `LiveBetter`}"
-				data-automation-id="product-button-panel-live-better"
-				?disabled="${this.roleManager.isCapitecConnectAgent}">
-			</horizon-product-tile>
-			</capitec-tooltip>
-		` : 
-		html`
-			<horizon-product-tile 
-				class="product-button"
-				type="insure"
-				label="Insure"
-				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
-				detail="${this.detail.insure ? this._getProductDetailValue(this.detail.insure, `insure`) : ``}"
-				icon="product/insure-white"
-				@click="${() => this._productButtonClick(`Insure`)}"
-				?selected="${this.selectedButton === `Insure`}"
-				data-automation-id="product-button-panel-insure"
-				?disabled="${this.roleManager.isCapitecConnectAgent}">
-			</horizon-product-tile>
-			<horizon-product-tile
-				class="product-button"
-				type="live-better"
-				label="Live Better Savings"
-				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
-				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
-				icon="product/live-better"
-				@click="${() => this._productButtonClick(`LiveBetter`)}"
-				?selected="${this.selectedButton === `LiveBetter`}"
-				data-automation-id="product-button-panel-live-better"
-				?disabled="${this.roleManager.isCapitecConnectAgent}">
-			</horizon-product-tile>
-		`
 	}
 
 	_getProductDetailValue(amount, type) {
@@ -225,7 +163,34 @@ export class ProductButtonPanel extends Component {
 				?selected="${this.selectedButton === `Credit`}"
 				data-automation-id="product-button-panel-credit">
 			</horizon-product-tile>
-			${this._displayToolTip()}
+			<horizon-product-tile 
+				class="product-button"
+				type="insure"
+				label="Insure"
+				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
+				detail="${this.detail.insure ? this._getProductDetailValue(this.detail.insure, `insure`) : ``}"
+				icon="product/insure-white"
+				@click="${() => this._productButtonClick(`Insure`)}"
+				?selected="${this.selectedButton === `Insure`}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
+				data-automation-id="product-button-panel-insure"
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
+			</horizon-product-tile>
+			<horizon-product-tile
+				class="product-button"
+				type="live-better"
+				label="Live Better Savings"
+				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
+				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
+				icon="product/live-better"
+				@click="${() => this._productButtonClick(`LiveBetter`)}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
+				?selected="${this.selectedButton === `LiveBetter`}"
+				data-automation-id="product-button-panel-live-better"
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
+			</horizon-product-tile>
 		`;
 	}
 }
