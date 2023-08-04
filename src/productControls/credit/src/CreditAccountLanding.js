@@ -399,7 +399,7 @@ export class CreditAccountLanding extends Component {
 		return this.flexibleCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
-				.expanded="${index === 0}"
+				.expanded="${index === 0 && !(item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent)}"
 				?disabled="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}">
 					<capitec-group
 						class="expander-header"
