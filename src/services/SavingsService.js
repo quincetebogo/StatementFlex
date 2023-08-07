@@ -63,7 +63,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			"getGenericData": getGenericData
 		};
 
-		const url = `/cec-save-${this._version}/savings-account/landing`;
+		const url = `/cec-save-${this._version}/savings-account/landing1`;
 
 		return this.post(
 			url,

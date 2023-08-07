@@ -1,5 +1,9 @@
 import { css, html } from 'platform/elements';
+import { NavigationContext } from 'platform/core';
+import { STRACK_MAPPING } from 'app/constants/StrackMapping';
+import { SystemErrorEvents } from 'app/constants/telemetry/events/SystemError';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ErrorScreen';
 
@@ -21,6 +25,8 @@ export class SystemError extends ViewBase {
 
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
+
+		this.navigationContext = NavigationContext.getInstance();
 	}
 
 	// ----------
@@ -37,6 +43,9 @@ export class SystemError extends ViewBase {
 
 		this.endCallContext = `SystemError`;
 		this._updateIncidentState();
+		this._telemetry.logEvent(SystemErrorEvents.SYSTEM_ERR, {
+			previousScreen: this.navigationContext.previous.route.name
+		});
 	}
 
 	// --------------
@@ -50,7 +59,17 @@ export class SystemError extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+
+		/**
+		 * Updating incident status to failed here, creates subsequent inc when actioning
+		 * subsequent need. Restricting this update when the need is unknown
+		 */
+		const need = this.horizonIncidentManager.getCurrentNeed();
+		const strackMapping = STRACK_MAPPING[need];
+		
+		if (!isNullorEmpty(strackMapping)) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		}
 	}
 
 	// ---------
