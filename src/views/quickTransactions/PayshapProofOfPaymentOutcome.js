@@ -24,12 +24,10 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.mailId = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 		this.verifiedCellphoneNumber = ``;
-		this.tranCode = ``;
+		this.paymentRef = ``;
 		this.showSuccessIcon = false;
 		this.showFailureIcon = false;
 		this.notificationType = [];
-		this.succeededNotification = [];
-		this.failedNotification = [];
 		this.displayToast = true;
 	}
 
@@ -58,11 +56,10 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
-		this.tranCode = this.screenDetails && this.screenDetails.tranCode;
+		this.paymentRef = this.screenDetails && this.screenDetails.debtorReference;
+		this.paymentUetr = this.screenDetails && this.screenDetails.uetr;
 		this.verifiedCellphoneNumber = this.screenDetails && this.screenDetails.verifiedCellphoneNumber;
 		this.outcome = this.screenDetails && this.screenDetails.outcome;
-		this.succeededNotification = this.outcome.resendSucess;
-		this.failedNotification = this.outcome.resendFailed;
 		
 	
 		this._getOutcomeDetails();
@@ -91,6 +88,20 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.horizonStore.clearScreenDetails();
 	}
 
+	async _tryAgain() {
+			const clientInfo = {
+				"paymentUetr": this.paymentUetr,
+				"cifNumber": this.callerInformation.cifNumber,
+				"notificationType": this.outcome.resendFailed,
+				"emailAddress": this.mailId,
+				"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+			};
+			const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+
+			this.outcome = returnValue.result;
+	
+	}
+
 	_showSuccessIcon() {
 		this.showSuccessIcon = !this.showSuccessIcon;
 	}
@@ -109,12 +120,10 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	}
 
 	_getOutcomeDetails() {
-		if (this.outcome.resendSuccess.length > 0) {
-			this.toast = `Proof of payment was sent`;
+		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
+			return this.toast = `Statement sent`;
 		}
-		if (this.outcome.resendFailed.length > 0) {
-			this.secondaryToast = `Proof of payment was not sent`;
-		}
+			return this.secondaryToast = `Statement not sent`;
 	}
 
 	// ---------
@@ -272,7 +281,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="success"
-				header="Successful"
+				header="Success"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">
@@ -287,7 +296,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 					?hidden="${!this.displayToast}"
 					class="${this.toast ? `secondary-toast` : ``}"
 					type="error" 
-					header="Unsuccessful" 
+					header="Failure" 
 					detail="${this.secondaryToast}"
 					closable 
 					@click="${() => this.displayToast = false}">
@@ -305,18 +314,81 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	_renderFailureIcon() {
 		return this.outcome.resendFailed.length >= 1
 		? html`
-			<capitec-icon icon="status/unsuccessful-trans"></capitec-icon>`
+			<capitec-icon icon="system/close-circle-error"></capitec-icon>`
 		: html``;
+	}
+	
+	_successMessage() {
+		const notificationMethod = `The proof of payment for transaction ${this.paymentRef} was sent to `;
+		if (!isNullorEmpty(this.outcome.resendSuccess)) {
+			if (this.outcome.resendSuccess.length === 1) {
+				return notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
+			}
+			if (this.outcome.resendSuccess.length === 2) {
+				let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
+				newStr += ` and `;
+				return newStr + this._notificationTypeId(this.outcome.resendSuccess[1]);
+			}
+			// if (this.outcome.resendSuccess.length === 3) {
+			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
+			// newStr += ` ,`;
+			// newStr += this._notificationTypeId(this.outcome.resendSuccess[1]);
+			// newStr += ` and `;
+			// return newStr + this._notificationTypeId(this.outcome.resendSuccess[2]);
+			// }
+		}
+	}
+
+	_failedMessage() {
+		const notificationMethod = `The proof of payment was not sent to `;
+		if (!isNullorEmpty(this.outcome.resendFailed)) {
+			if (this.outcome.resendFailed.length === 1) {
+				return notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
+			}
+			if (this.outcome.resendFailed.length === 2) {
+				let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
+				newStr += ` and `;
+				return newStr + this._notificationTypeId(this.outcome.resendFailed[1]);
+			}
+			// if (this.outcome.resendFailed.length === 3) {
+			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
+			// newStr += ` ,`;
+			// newStr += this._notificationTypeId(this.outcome.resendFailed[1]);
+			// newStr += ` and `;
+			// return newStr + this._notificationTypeId(this.outcome.resendFailed[2]);
+			// }
+		}
+	}
+
+	_notificationTypeId(notificationType) {
+		if (notificationType === `SMS`) {
+			return this.verifiedCellphoneNumber;
+		}
+		if (notificationType === `EMAIL`) {
+			return this.mailId;
+		}
+		// if (notificationType === `APP`) {
+		// return `APP`;
+		// }
 	}
 
 	_renderLeftButton() {
-		return html`
+		return this.outcome.resendFailed.length >= 1
+		? html`
 			<capitec-button
+				class="center-button"
+				label="Try Again"
+				@click="${() => this._tryAgain()}">
+			</capitec-button>
+		`
+		: html`
+		<capitec-button
 				id="button-left"
 				class="center-button"
 				label="Send Another"
 				@click="${() => this._sendAnotherClick()}">
-			</capitec-button>`;
+			</capitec-button>
+		`;
 	}
 
 	_renderRightButton() {
@@ -329,61 +401,6 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 			</capitec-button>`;
 	}
 	
-	_successMessage() {
-		const notificatioMethod = `The proof of payment for transaction ${this.tranCode} was sent to `;
-		if (!isNullorEmpty(this.outcome.resendSuccess)) {
-			if (this.outcome.resendSuccess.length === 1) {
-				return notificatioMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
-			}
-			if (this.outcome.resendSuccess.length === 2) {
-				let newStr = notificatioMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.outcome.resendSuccess[1]);
-			}
-			if (this.outcome.resendSuccess.length === 3) {
-				let newStr = notificatioMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
-				newStr += ` ,`;
-				newStr += this._notificationTypeId(this.outcome.resendSuccess[1]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.outcome.resendSuccess[2]);
-			}
-		}
-	}
-
-	_failedMessage() {
-		const notificatioMethod = `The proof of payment was not sent to `;
-		if (!isNullorEmpty(this.failedNotification)) {
-			if (this.failedNotification.length === 1) {
-				return notificatioMethod + this._notificationTypeId(this.failedNotification[0]);
-			}
-			if (this.failedNotification.length === 2) {
-				let newStr = notificatioMethod + this._notificationTypeId(this.failedNotification[0]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.failedNotification[1]);
-			}
-			if (this.failedNotification.length === 3) {
-				let newStr = notificatioMethod + this._notificationTypeId(this.failedNotification[0]);
-				newStr += ` ,`;
-				newStr += this._notificationTypeId(this.failedNotification[1]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.failedNotification[2]);
-			}
-		}
-	}
-
-	_notificationTypeId(notificationType) {
-		if (notificationType === `SMS`) {
-			return this.verifiedCellphoneNumber;
-		}
-		if (notificationType === `EMAIL`) {
-			return this.mailId;
-		}
-		if (notificationType === `APP`) {
-			return `APP`;
-		}
-	}
-	
-
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options

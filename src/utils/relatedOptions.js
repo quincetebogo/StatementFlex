@@ -66,12 +66,8 @@ export const relatedOptions = {
 	},
 	'payshap-proof-of-payment': {
 		Success: [
-			`tax-certificate`,
-			`proof-of-account`
-		],
-		Failure: [
-			`tax-certificate`,
-			`proof-of-account`
+			`proof-of-account`,
+			`statements`
 		]
 	},
 	'automatic-savings-lbb': {

@@ -184,10 +184,10 @@ export class PayShapLanding extends Component {
 		}
 	}
 
-	_proofOfPayment(uetr, tranCode, verifiedCellphoneNumber) {
+	_proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
 		this.proofOfPaymentDetails = {
 			uetr: uetr,
-			tranCode: tranCode,
+			debtorReference: debtorReference,
 			verifiedCellphoneNumber: verifiedCellphoneNumber
 		};
 
@@ -856,7 +856,7 @@ export class PayShapLanding extends Component {
 					<capitec-button
 								type="clear" 
 								label="Proof of Payment"
-								@click="${() => this._proofOfPayment(item.uetr, item.tranCode, this.verifiedCellphoneNumber)}">
+								@click="${() => this._proofOfPayment(item.uetr, item.debtorReference, this.verifiedCellphoneNumber)}">
 					</capitec-button>
 				</capitec-button-bar>
 			</capitec-group>
@@ -1104,10 +1104,10 @@ export class PayShapLanding extends Component {
 	_renderPayShapPOP() {
 		return this.showPopModal
 		? html`
-		<horizon-pay-shap-pop
+		<horizon-payshap-proof-of-payment
 						@on-cancel="${() => this.showPopModal = false}"
 						@on-send="${(e) => this._sendPOP(e)}">
-		</horizon-pay-shap-pop>`
+		</horizon-payshap-proof-of-payment>`
 		: html``;
 	}
 

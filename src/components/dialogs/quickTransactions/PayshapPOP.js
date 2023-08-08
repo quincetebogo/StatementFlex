@@ -84,8 +84,8 @@ export class PayShapPOP extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.screenDetails = this.horizonStore.getScreenDetails();
-		this.verifiedCellphoneNumber = this.screenDetails && this.screenDetails.verifiedCellphoneNumber;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.verifiedCellphoneNumber = this.callerInformation && this.callerInformation.verifiedTelephoneNumber;
 	}
 
 	disconnectedCallback() {
@@ -419,12 +419,12 @@ export class PayShapPOP extends Component {
 	}
 
 	_renderAlertBanner() {
-		return this.smsNotififcation || this.emailNotification
+		return this.smsNotififcation
 		? html`
 			<capitec-alert-banner 
 				type="warning" 
 				header="Notify client:" 
-				label="A fee will be charged for SMS & Email notifications" 
+				label="A fee will be charged for SMS notifications" 
 				layout="horizontal">
 			</capitec-alert-banner>`
 		: html``;
@@ -461,7 +461,8 @@ export class PayShapPOP extends Component {
 				@value-change="${() => this._smsNotificationSelected()}"></capitec-check></capitec-check>
 				<horizon-label
 				value="${formatPhoneNumber(this.verifiedCellphoneNumber)}"
-				label="SMS"></horizon-label>
+				label="SMS"
+				></horizon-label>
 				</capitec-group>
 		</capitec-card>
 		`;
@@ -508,4 +509,4 @@ _renderEmailFields() {
 	}
 
 }
-customElements.define(`horizon-pay-shap-pop`, PayShapPOP);
+customElements.define(`horizon-payshap-proof-of-payment`, PayShapPOP);
