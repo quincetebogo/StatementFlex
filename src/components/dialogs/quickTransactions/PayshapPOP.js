@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService'
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 
@@ -53,6 +56,7 @@ export class PayShapPOP extends Component {
 		};
 
 		this.notificationType = [];
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -86,10 +90,18 @@ export class PayShapPOP extends Component {
 		super.connectedCallback();
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.verifiedCellphoneNumber = this.callerInformation && this.callerInformation.verifiedTelephoneNumber;
+
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
 	}
 
 	// --------------
@@ -97,6 +109,13 @@ export class PayShapPOP extends Component {
 	// --------------
 
 	_onCancel() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT
+		});
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, { "screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT });
+
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
@@ -129,6 +148,11 @@ export class PayShapPOP extends Component {
 	}
 
 	_sendProofOfPayment() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
+		});
+		
 		this.dispatchEvent(new CustomEvent(
 		`on-send`, 
 		{ detail: {

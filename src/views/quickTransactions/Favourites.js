@@ -1058,6 +1058,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _sendPayshapPOP(event) {
+		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
 		const clientInfo = {
 			"paymentUetr": event.detail.uetr,
 			"cifNumber": this.callerInformation.cifNumber,
@@ -1073,9 +1074,21 @@ export class Favourites extends SavingsAccountBase {
 		screenDetails.outcome = returnValue.result;
 		screenDetails.request = clientInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
-
+		
 		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
+			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS, {
+				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
+				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
+			}, true);
+
+			this.horizonRouter.navigateToPayshapProofOfPaymentSuccess();
+		} else {
+			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {
+				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
+				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
+			}, true);
+
+			this.horizonRouter.navigateToPayshapProofOfPaymentFailure();
 		}
 	}
 
