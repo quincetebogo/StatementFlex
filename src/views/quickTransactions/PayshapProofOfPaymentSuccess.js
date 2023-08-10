@@ -305,7 +305,7 @@ export class PayshapProofOfPaymentSuccess extends ViewBase {
 	}
 	
 	_successMessage() {
-		const notificationMethod = `The proof of payment for transaction ${this.paymentRef} was sent to `;
+		const notificationMethod = html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to `;
 		if (!isNullorEmpty(this.outcome.resendSuccess)) {
 			if (!isNullorEmpty(this.notificationType)) {
 				if (this.notificationType.length === 1) {
