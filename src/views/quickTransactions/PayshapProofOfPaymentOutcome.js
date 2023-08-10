@@ -39,7 +39,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		return {
 			showSuccessIcon: { type: Boolean },
 			showFailureIcon: { type: Boolean },
-			displayToast: { state: false }
+			displayToast: { state: false },
+			outcome: { state: false }
 		};
 	}
 
@@ -322,12 +323,11 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		const notificationMethod = `The proof of payment for transaction ${this.paymentRef} was sent to `;
 		if (!isNullorEmpty(this.outcome.resendSuccess)) {
 			if (this.outcome.resendSuccess.length === 1) {
-				return notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
+				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to <b>${this._notificationTypeId(this.outcome.resendSuccess[0])}</b>`;
 			}
 			if (this.outcome.resendSuccess.length === 2) {
-				let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.outcome.resendSuccess[1]);
+				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])}
+					 and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
 			}
 			// if (this.outcome.resendSuccess.length === 3) {
 			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
@@ -343,12 +343,11 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		const notificationMethod = `The proof of payment was not sent to `;
 		if (!isNullorEmpty(this.outcome.resendFailed)) {
 			if (this.outcome.resendFailed.length === 1) {
-				return notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
+				return html`The proof of payment was not sent to <b>${this._notificationTypeId(this.outcome.resendFailed[0])}</b>`;
 			}
 			if (this.outcome.resendFailed.length === 2) {
-				let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.outcome.resendFailed[1]);
+				return html`The proof of payment was not sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])} 
+					and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
 			}
 			// if (this.outcome.resendFailed.length === 3) {
 			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
