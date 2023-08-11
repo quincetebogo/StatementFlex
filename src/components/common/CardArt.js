@@ -85,8 +85,7 @@ export class CardArt extends Component {
 		if (!this.isFocused && !this.disableHover) {
 			this.isFocused = true;
 
-			const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
-			cardActionGroup.style.setProperty(`display`, `block`);
+			this._showCardAction();
 		}
 	}
 
@@ -94,9 +93,27 @@ export class CardArt extends Component {
 		if (this.isFocused && !this.disableHover) {
 			this.isFocused = false;
 
-			const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
-			cardActionGroup.style.setProperty(`display`, `none`);
+			this._hideCardAction();
 		}
+	}
+
+	_toggleCheckbox(event) {
+		this.card.selected = event.detail.new;
+
+		if (this.card.selected) {
+			this._showCardAction();
+		} else {
+			this._hideCardAction();
+		}
+
+		this.dispatchEvent(new CustomEvent(`value-change`, { 
+			detail: {
+				old: event.detail.old,
+				new: event.detail.new,
+				currentTarget: event.currentTarget
+			}
+		 }));
+		this.requestUpdate();
 	}
 
 	// --------------
@@ -171,6 +188,16 @@ export class CardArt extends Component {
 		event.stopPropagation();
 	}
 
+	_showCardAction() {
+		const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
+		cardActionGroup.style.setProperty(`display`, `block`);
+	}
+
+	_hideCardAction() {
+		const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
+		cardActionGroup.style.setProperty(`display`, `none`);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -191,6 +218,7 @@ export class CardArt extends Component {
 					width: var(--horizon-card-art-width, 328px);
 					height: var(--horizon-card-art-height, 304px);
 					box-sizing: border-box;
+					position: relative;
 					--theme-card-box-shadow: none;
 					--theme-card-border: 1px solid #E1E1E1;
 					--theme-card-border-radius: 4px;
@@ -226,10 +254,10 @@ export class CardArt extends Component {
 					width: inherit;
 					height: 68px;
 				}
-				.card-info-group > capitec-group:first-child {
+				.card-info-group > *:first-child {
 					padding-left: 16px;
 				}
-				.card-info-group > capitec-group:last-child {
+				.card-info-group > *:last-child {
 					padding-right: 16px;
 				}
 				.card-info-group > capitec-group > capitec-label:last-child {
@@ -265,6 +293,7 @@ export class CardArt extends Component {
 					position: absolute;
 					z-index: 100;
 					background-color: #FFFFFF;
+					bottom: 0;
 				}
 
 				.toggle-label {
@@ -289,7 +318,13 @@ export class CardArt extends Component {
 				.card-img-group {
 					--theme-layout-gap-spacing: 0px;
 				}
-		
+				.card-number {
+					--horizon-label-value-font-size: 15px;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-text-font-size: 12px;
+					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-text-align: left;
+				}
 			`
 		];
 	}
@@ -334,7 +369,7 @@ export class CardArt extends Component {
 
 	_renderCheckBox() {
 		if (this.context === `stop-card`) {
-			return html`<capitec-check label=""></capitec-check>`;
+			return html`<capitec-check label="" @value-change="${(event) => this._toggleCheckbox(event)}"></capitec-check>`;
 		}
 	}
 
@@ -366,6 +401,8 @@ export class CardArt extends Component {
 		switch (this.context) {
 			case `tap-to-pay`:
 				return html`${this._renderTapToPayToggle()}`;
+			case `stop-card`:
+				return html``;
 			default:
 				return html`${this._renderTapToPayLabel()}`;
 		}
@@ -373,20 +410,10 @@ export class CardArt extends Component {
 
 	_renderCardNumber() {
 		return html`
-			<capitec-group
-				layout="vertical"
-				gap="clear"
-				halign="left"
-				valign="top">
-					<capitec-label
-						label="${this.card.cardDisplayName}"
-						type="default">
-					</capitec-label>
-					<capitec-label
-						label="${this.card.maskedCardNumber}"
-						type="strong">
-					</capitec-label>
-			</capitec-group>
+			<horizon-label class="card-number"
+				label="${this.card.cardDisplayName}"
+				value="${this.card.maskedCardNumber}">
+			</horizon-label>
 		`;
 	}
 

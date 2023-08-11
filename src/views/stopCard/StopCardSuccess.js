@@ -1,4 +1,6 @@
 import { css, html } from 'platform/elements';
+import { ACCESS_CHANNELS_TYPE } from 'app/constants/AccessChannels';
+import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -27,8 +29,13 @@ export class StopCardSuccess extends ViewBase {
 		this.stoppedCards = [];
 		this.showAlertModal = false;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.alertSuspendChannels = false;
+		this.confirmSuspendChannels = false;
+		this.channels = {};
 
 		this._telemetry = HorizonTelemetry.instance;
+
+		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
 
 
@@ -39,7 +46,9 @@ export class StopCardSuccess extends ViewBase {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			showAlertModal: { attribute: false }
+			showAlertModal: { attribute: false },
+			alertSuspendChannels: { type: Boolean, attribute: false },
+			confirmSuspendChannels: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -47,7 +56,7 @@ export class StopCardSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -55,6 +64,7 @@ export class StopCardSuccess extends ViewBase {
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();
+		await this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -125,6 +135,46 @@ export class StopCardSuccess extends ViewBase {
 		this.showAlertModal = !this.showAlertModal;
 	}
 
+	_toggleAlertSuspendChannels() {
+		this.alertSuspendChannels = !this.alertSuspendChannels;
+	}
+
+	_suspendChannels() {
+		this._toggleAlertSuspendChannels();
+		this.confirmSuspendChannels = true;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _initialise() {
+		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
+
+		if (returnValue.succeeded) {
+			const channels = [ACCESS_CHANNELS_TYPE.APP, ACCESS_CHANNELS_TYPE.INTERNET_BANKING, ACCESS_CHANNELS_TYPE.USSD];
+			
+			this.channels = Object.entries(returnValue.result).map(item => {
+				if (channels.includes(item[0])) {
+					item[1].channel = item[0];
+				}
+				return item[1];
+			});
+			// Updating the email in callerInfo state
+			const callerInformation = this.horizonStore.getCallerInformation();
+			callerInformation.emailId = returnValue.result?.email || ``;
+			this.horizonStore.setCallerInformation(callerInformation);
+
+
+			// if (this.landingInfo.msisdn?.length >= 9) {
+			// this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
+			// }
+			// this._toggleAlertSuspendChannels();
+		}
+
+		this.logger.log(`error`, `Failed to load access channel landing information`, `StopCardSuccess._initialise`, returnValue.correlationId);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -134,14 +184,19 @@ export class StopCardSuccess extends ViewBase {
 			super.styles,
 			css`
 				.success-group {
-					height: 885px;
+					height: 630px;
 				}
-
-				.title-bar-text {
+				capitec-content-box {
+					border-bottom: var(--theme-divider);
+				}
+				capitec-label[type="title"] {
 					--theme-label-title-font-size : 24px;
 					--theme-label-title-font-weight: 600;
 				}
-
+				capitec-label[type="subtitle"] {
+				--theme-label-subtitle-font-size: 15px;
+				--theme-label-subtitle-font-weight: 600;
+				}
 				.success-toast{
 					position: absolute;
 					top : 32px;
@@ -149,44 +204,9 @@ export class StopCardSuccess extends ViewBase {
 					width : 352px;
 					height: 64px;
 				}
-
 				#action-icon{
 					margin-left: 24px;
 				}
-
-				.card-stopped {
-				    margin: 52px 0px 16px;
-					height: 32px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 36px;
-					text-align: center;
-				}
-				  
-				.stop-card-text {
-					margin: 16px 0px 0px 0px;
-					color: #545D60;
-					font-family: "Hind Vadodara";
-					font-weight: 600;
-					font-size: 15px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-				}
-
-				.options-group{
-					margin: auto 0px 23px 22px;
-				}
-
-				.button-margin{
-					height: 104px;
-					width: 242px;
-					margin-right:16px;
-				}
-
 				.card-status-success{
 					height: 24px;
 					width: auto;
@@ -194,12 +214,10 @@ export class StopCardSuccess extends ViewBase {
 					align-items: center;
 					margin-top: 8px;
 				}
-
-				capitec-icon{
+				.card-status-success > capitec-icon{
 					height: 26px;
 					width: 26px;
 				}
-				
 				.card-status-text {
 					height: 24px;
 					color: #545D60;
@@ -210,15 +228,49 @@ export class StopCardSuccess extends ViewBase {
 					text-align: start;
 					margin: 0px 0px 0px 7px;
 				}
-
-				#id-button-group {
-					justify-content: center;
-					margin-top: 24px;
-					margin-bottom: auto;
+				horizon-alert-banner, horizon-related-options, .success-group {
+					width: 100%;
 				}
-
-				horizon-alert-banner {
-					margin: 16px;
+				capitec-modal[type="onboard"] {
+					--theme-modal-body-padding: 24px;
+					--theme-modal-footer-padding: 0px;
+				}
+				capitec-modal[type="onboard"] > capitec-content-box[slot="body"] {
+					border: none;
+				}
+				capitec-content-box[slot="body"] > capitec-label {
+					--theme-label-title-font-size : 22px;
+					--theme-label-subtitle-font-size: 13px;
+					--theme-label-subtitle-font-weight: 500;
+				}
+				capitec-content-box[slot="body"] > capitec-group {
+					margin-top: 12px;
+				}
+				capitec-modal[type="form"] {
+					--theme-modal-header-background-color: #E1E1E1;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-body-padding: 0px;
+					--theme-modal-form-m-l-xl-width: 500px;
+				}
+				capitec-modal[type="form"] > capitec-content-box {
+					height: 360px;
+				}
+				.accessChannels {
+					--theme-card-min-height: 64px;
+					width: 100%;
+				}
+				.accessChannels > capitec-content-box {
+					--theme-container-padding-top: 8px;
+					--theme-container-padding-bottom: 8px;
+				}
+				.accessChannels > capitec-content-box > capitec-group {
+					align-items: center;
+				}
+				.channelInfoLbl {
+					width: 234px;
+				}
+				.channelStatusLbl {
+					width: 120px;
 				}
 			`
 		];
@@ -231,7 +283,8 @@ export class StopCardSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderStopCardSuccess()}
-
+			${this._renderAlertSuspendChannels()}
+			${this._renderSuspendChannels()}
 			${super._webTemplate()}
 		`;
 	}
@@ -239,29 +292,21 @@ export class StopCardSuccess extends ViewBase {
 	_renderStopCardSuccess() {
 		return html`
 			<capitec-card>
-				<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
-					${this._renderTitleBar()}
-					${this._renderSuccessToast()}
+				${this._renderSuccessToast()}
+				<capitec-content-box layout="vertical" halign="left" valign="top">
 					${this._renderNotifyClient()}
-					${this._renderGraphic()}
-					<p class="card-stopped">Card Stopped</p>
-					${this._renderStoppedCards()}
-					<p class="stop-card-text">Please visit a branch to get a new card.</p>
-					${this._renderButtons()}
-					${this._renderRelatedOptions()}
-					${this._renderAlertModal()}
-				</capitec-group>
+					<capitec-group class="success-group" layout="vertical" gap="clear" halign="center" valign="center">
+						${this._renderGraphic()}
+						<capitec-label type="title" label="Card(s) stopped successfully"></capitec-label>
+						${this._renderStoppedCards()}
+						<capitec-label type="subtitle" label="Visit a branch to get a new card."></capitec-label>
+						${this._renderButtons()}
+					</capitec-group>
+				</capitec-content-box>
 			</capitec-card>
+			${this._renderRelatedOptions()}
+			${this._renderAlertModal()}
 		`;
-	}
-
-	_renderTitleBar() {
-		return html`
-			<capitec-title-bar 
-				class="title-bar-text"
-				type="clear" 
-				label="Stop Card" >
-			</capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
@@ -269,15 +314,14 @@ export class StopCardSuccess extends ViewBase {
 		return html`
 			<horizon-alert-banner 
 				data-automation-id="stop-card-success-notify-client"
-				type="info" 
-				style="visibility:${!this.displayNotification ? `visible` : `visible`}"
+				type="info"
 				header="Notice: "
 				label="Please check if the client also needs to stop the remote banking app channels (App/USSD)">
 			</horizon-alert-banner>`;
 	}
 
 	_renderGraphic() {
-		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/stopCard/cards.svg"/>`;
+		return html`<capitec-image src="platform/illustrations/cards.svg"></capitec-image>`;
 	}
 
 	_renderStoppedCards() {
@@ -363,6 +407,100 @@ export class StopCardSuccess extends ViewBase {
 					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>`
 			: html``;
+	}
+
+	_renderAlertSuspendChannels() {
+		return this.alertSuspendChannels
+		? html`
+			<capitec-modal type="onboard">
+				<capitec-content-box slot="body" layout="vertical" halign="center" valign="center" noPadding>
+					<capitec-image src="platform/illustrations/debicheck.svg"></capitec-image>
+					<capitec-label type="title" label="Suspend access channels"></capitec-label>
+					<capitec-label type="subtitle" label="Does the client wish to suspend their App, USSD or Internet banking."></capitec-label>
+					<capitec-group layout="horizontal">
+						<capitec-button
+							label="Not Now"
+							@click="${() => this._notNow()}">
+						</capitec-button>
+						<capitec-button
+							type="primary"
+							label="Suspend Channels"
+							@click="${() => this._suspendChannels()}">
+						</capitec-button>
+					</capitec-group>
+				</capitec-content-box>
+			</capitec-modal>`
+		: html``;
+	}
+
+	_renderSuspendChannels() {
+		return this.confirmSuspendChannels
+		? html`
+			<capitec-modal type="form" header="Stop Access Channels">
+				<capitec-content-box slot="body" halign="right">
+					<capitec-check label="Select all"></capitec-check>
+
+					<capitec-card class="accessChannels">
+						<capitec-content-box>
+							<capitec-group layout="horizontal">
+								<capitec-icon size="medium" icon="system/cards-action"></capitec-icon>
+								<horizon-label
+									class="channelInfoLbl"
+									label="App"
+									value="Last used 15 Feb 2023">
+								</horizon-label>
+								<horizon-label
+									class="channelStatusLbl"
+									label="Status"
+									value="Active">
+								</horizon-label>
+								<capitec-check></capitec-check>
+							</capitec-group>
+						</capitec-content-box>
+					</capitec-card>
+
+					<capitec-card class="accessChannels">
+						<capitec-content-box>
+							<capitec-group layout="horizontal">
+								<capitec-icon size="medium" icon="system/access-action"></capitec-icon>
+								<horizon-label
+									class="channelInfoLbl"
+									label="Internet Banking"
+									value="Last used 15 Feb 2023">
+								</horizon-label>
+								<horizon-label
+									class="channelStatusLbl"
+									label="Status"
+									value="Active">
+								</horizon-label>
+								<capitec-check></capitec-check>
+							</capitec-group>
+						</capitec-content-box>
+					</capitec-card>
+
+					<capitec-card class="accessChannels">
+						<capitec-content-box>
+							<capitec-group layout="horizontal">
+								<capitec-icon size="medium" icon="system/call-outbound-action"></capitec-icon>
+								<horizon-label
+									class="channelInfoLbl"
+									label="USSD"
+									value="Last used 15 Feb 2023">
+								</horizon-label>
+								<horizon-label
+									class="channelStatusLbl"
+									label="Status"
+									value="Active">
+								</horizon-label>
+								<capitec-check></capitec-check>
+							</capitec-group>
+						</capitec-content-box>
+					</capitec-card>
+				</capitec-content-box>
+				<capitec-button slot="footer" type="clear" label="Cancel"></capitec-button>
+				<capitec-button slot="footer" type="clear" label="Stop Channels" type="Primary"></capitec-button>
+			</capitec-modal>`
+		: html``;
 	}
 }
 

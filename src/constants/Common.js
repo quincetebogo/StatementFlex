@@ -123,3 +123,15 @@ export const LANGUAGE_LIST = Object.freeze([
 	{ key: `SESOTHO`, value: `Sesotho` },
 	{ key: `SETSWANA`, value: `Setswana` }
 ]);
+
+/**
+ * Available card display types to distinguish between cards
+ * 
+ * @readonly
+ * @enum {Object} CARD_DISPLAY_TYPES
+ */
+export const CARD_DISPLAY_TYPES = {
+	PRIMARY_CARD: `Primary_Card`,
+	SUPPLEMENTARY_CARD: `Supplementary_Card`,
+	VIRTUAL_CARD: `Virtual_Card`
+};
