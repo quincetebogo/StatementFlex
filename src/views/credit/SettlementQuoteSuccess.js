@@ -34,7 +34,9 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	// N/A
+	get incidentDescription() {
+		return `Type: Settlement Quote\nAccount List: ${this._formateAccountNames(this.succeededAccounts)}\nRecipient EmailID: ${this.emailAddress}`;
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -99,6 +101,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_formateAccountNames(accounts) {

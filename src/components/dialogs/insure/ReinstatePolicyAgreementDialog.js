@@ -133,16 +133,11 @@ class ReinstatePolicyAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			
-			<capitec-expander-group modeset="single">
-				<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer" ?expanded="${true}"
-					data-automation-id="horizon-insure-reinstate-policy-agreement-dialog-view-policy-schedule">
-					<iframe title="ReinstateIssueAgreement" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64,${this.issuePlanAgreementContent}#view=fitH">
-					</iframe>
-				</capitec-expander>
-			</capitec-expander-group>
-
+			<capitec-content-box style="height: 700px; width: 800px;">
+				<iframe title="ReinstateIssueAgreement" height = "100%" frameborder = "0"
+					src="data:application/pdf;base64, ${this.issuePlanAgreementContent}#view=fitH">
+				</iframe>
+			</capitec-content-box>
 		`;
 	}
 
