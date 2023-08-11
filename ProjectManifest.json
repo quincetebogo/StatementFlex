@@ -2,9 +2,9 @@
   "name": "cec-ui-horizon",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
-  "version": "2.23.8",
+  "version": "2.26.6",
   "alias": "cec-horizon",
-  "release": "230601",
+  "release": "230703",
   "contractVersion": "v1",
   "serviceType": "Channel",
   "port": 6001,
@@ -21,6 +21,5 @@
     "axoncs_t_ch_password",
     "axoncs_t_ch_username"
   ],
-  "environmentVariables": [
-  ]
+  "environmentVariables": []
 }

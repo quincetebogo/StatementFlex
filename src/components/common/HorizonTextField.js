@@ -22,7 +22,7 @@ export class HorizonTextField extends TextField {
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof HorizonTextField
+	 * @memberof HorizonTextBox
 	 */
 	 static get properties() {
 		return {
