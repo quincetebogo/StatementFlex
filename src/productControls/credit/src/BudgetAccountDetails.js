@@ -204,20 +204,26 @@ import 'app/components/common/HorizonLabel';
 						</horizon-label>
 
 						<capitec-spacer></capitec-spacer>
-
-						<capitec-button
-							class="transfer-button"
-							data-automation-id="budget-account-details-transfer-button"
-							label="Transfer"
-							@click="${() => this._transferClick()}"
-							?disabled="${this.shouldDisable(`pay-budget`)}">
-						</capitec-button>
+						${this.accountDetails.budgetDetails[`Budget status`] === `Active` ? this._renderTransferButton() : ``}
+						
 				</capitec-title-bar>
 
 				${this.renderAlertBanner()}
 				${this._renderAccountDetails()}
 
 			</capitec-card>
+		`;
+	}
+
+	_renderTransferButton() {
+		return html`
+			<capitec-button
+				class="transfer-button"
+				data-automation-id="budget-account-details-transfer-button"
+				label="Transfer"
+				@click="${() => this._transferClick()}"
+				?disabled="${this.shouldDisable(`pay-budget`)}">
+			</capitec-button>
 		`;
 	}
 
