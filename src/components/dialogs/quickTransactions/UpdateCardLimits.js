@@ -8,6 +8,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
+import 'app/components/common/HorizonTooltip';
 
 const RENDER_MODE = {
 	LIMITS: 1,
@@ -313,7 +314,7 @@ export class UpdateCardLimits extends Component {
 
 		const compare = (obj, source) => Object.keys(source).every(key => Object.prototype.hasOwnProperty.call(obj, key) && obj[key] === source[key]);
 
-		const noChangeInLimits = (this.updateType === `Debit` && this.cardDetails.linkedCardLimits)
+		const noChangeInLimits = this.updateType === `Debit` && this.cardDetails.linkedCardLimits
 			? compare(this.linkedCardLimits, this.cardDetails.linkedCardLimits)
 			: compare(this.cardLimits, this.cardDetails.cardLimits);
 
@@ -1006,7 +1007,7 @@ export class UpdateCardLimits extends Component {
 		<capitec-content-box class="card-img-cb" halign="center" valign="center">
 			<horizon-card-art
 				.card="${this.cardArtDetails}"
-				disable-hover="${true}"
+				?disable-hover="${true}"
 				context="cardArt">
 			</horizon-card-art>
 		</capitec-content-box>
@@ -1250,6 +1251,11 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderCardLimitsScript() {
+		const _limits = this.linkedCardLimits && this.updateType === `Debit` 
+		? { cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit } 
+		: { cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit };
+
+
 		return html`
 			<div class="agreement-lb">
 				You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
@@ -1257,11 +1263,33 @@ export class UpdateCardLimits extends Component {
 			<div class="agreement-lb">
 				<ol>
 					<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+					${_limits.cnpAmountLimit < 5000 ? this._renderUnderFiveThousand() : html``}
 					<li>You are aware that it's safer to transfer funds electronically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
 					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
 					<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
 				</ol>
 			</div>
+		`;
+	}
+
+	_renderUnderFiveThousand() {
+		return html`
+			<li style="position:relative;">For any Card Not Present transactions that are authorised by 3D Secure either via the App or by entering a One Time Pin code, the card limit is only applied if the transaction amount is R5000 or more. <span style="color: #009DE0;">More info</span> ${this._renderTooltip()}</li>
+		`;
+	}
+
+	_renderTooltip() {
+		const TOOLTIP_MESSAGE = `The limit threshold is set to mitigate risk to clients and to improve cardholder experience by ensuring a sleek shopping experience by avoiding declined transactions based on card limits. The cardholder is in control as they must authenticate the transaction before the limit exception is applied.`;
+
+		return html`
+			<horizon-tooltip 
+				message=${TOOLTIP_MESSAGE} 
+				messagePosition="top"
+				width="max-content"
+				tooltipPosition="absolute"
+				top="48px"
+				left="120px">
+			</horizon-tooltip>
 		`;
 	}
 
