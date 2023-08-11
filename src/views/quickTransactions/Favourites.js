@@ -1081,14 +1081,14 @@ export class Favourites extends SavingsAccountBase {
 				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
 			}, true);
 
-			this.horizonRouter.navigateToPayshapProofOfPaymentSuccess();
+			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
 		} else {
 			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {
 				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
 				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
 			}, true);
 
-			this.horizonRouter.navigateToPayshapProofOfPaymentFailure();
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 

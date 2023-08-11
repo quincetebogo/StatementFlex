@@ -1,21 +1,18 @@
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isNullorEmpty } from '../../utils/channelServiceUtilities';
 
-import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
 
 
 /**
- * Display an error/failure screen indicating the proof of payment statement has been unsuccessfully sent.
+ * Display an confirmation/success screen indicating the proof of payment statement has been successfully sent.
  *
  * @export
- * @class ProofOfAccountFailure
+ * @class ProofOfAccountSuccess
  * @extends {ViewBase}
  */
-export class PayshapProofOfPaymentFailure extends ViewBase {
+export class PayshapProofOfPaymentOutcome extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -25,9 +22,10 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 		super();
 
 		this.mailId = ``;
-		this.endCallContext = `QuickTransactionsUnSuccess`;
+		this.endCallContext = `QuickTransactionSuccess`;
 		this.verifiedCellphoneNumber = ``;
 		this.paymentRef = ``;
+		this.showSuccessIcon = false;
 		this.showFailureIcon = false;
 		this.notificationType = [];
 		this.displayToast = true;
@@ -39,13 +37,15 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 	// ----------
 	static get properties() {
 		return {
+			showSuccessIcon: { type: Boolean },
 			showFailureIcon: { type: Boolean },
-			displayToast: { state: false }
+			displayToast: { state: false },
+			outcome: { state: false }
 		};
 	}
 
 	get incidentDescription() {
-		return `The proof of payment was not sent to the Recipient`;
+		return `Recipient EmailID: ${this.screenDetails.emailAddress}`;
 	}
 	
 	// -------------------
@@ -61,21 +61,15 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 		this.paymentUetr = this.screenDetails && this.screenDetails.uetr;
 		this.verifiedCellphoneNumber = this.screenDetails && this.screenDetails.verifiedCellphoneNumber;
 		this.outcome = this.screenDetails && this.screenDetails.outcome;
-		this.notificationType = this.screenDetails && this.screenDetails.notificationType;
-
-		window.setTimeout(() => this.displayToast = false, 3000);
-
+		
+	
 		this._getOutcomeDetails();
 		this._updateIncidentState();
 
-		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {});
+		window.setTimeout(() => this.displayToast = false, 3000);
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {}, true, true, false);
-
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-
 		super.disconnectedCallback();
 	}
 
@@ -84,16 +78,33 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_DONE, {
-			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
-		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {}, true, true, false);
-
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
+	}
+
+	_sendAnotherClick() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearScreenDetails();
+	}
+
+	async _tryAgain() {
+			const clientInfo = {
+				"paymentUetr": this.paymentUetr,
+				"cifNumber": this.callerInformation.cifNumber,
+				"notificationType": this.outcome.resendFailed,
+				"emailAddress": this.mailId,
+				"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+			};
+			const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+
+			this.outcome = returnValue.result;
+	
+	}
+
+	_showSuccessIcon() {
+		this.showSuccessIcon = !this.showSuccessIcon;
 	}
 
 	_showFailureIcon() {
@@ -105,12 +116,15 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_getOutcomeDetails() {
-		return this.secondaryToast = `Statement not sent`;
+		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
+			return this.toast = `Statement sent`;
+		}
+			return this.secondaryToast = `Statement not sent`;
 	}
 
 	// ---------
@@ -228,6 +242,7 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 	_webTemplate() {
 		return html`
 			<capitec-card class="card">
+			${this._renderSuccessToast()}
 			${this._renderFailureToast()}
 			${this._renderOutcomeScreen()}
 			</capitec-card>
@@ -242,6 +257,11 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 			<capitec-group layout="vertical" halign="center" valign="center">
 		<capitec-image id="id-successful-img" src="platform/illustrations/send-documents.svg"></capitec-image>
 		<capitec-label id="id-successful-header" type="title" label="Proof of Payment"></capitec-label>
+		
+		<capitec-group layout="horizontal">
+		${this._renderSuccessIcon()}
+	    ${this._successMessage()}
+		</capitec-group>
 
 		<capitec-group layout="horizontal">
 		${this._renderFailureIcon()}
@@ -249,10 +269,25 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 		</capitec-group>
 
 		<capitec-group id="id-button-group" layout="horizontal">
+				${this._renderLeftButton()}
 				${this._renderRightButton()}
 			</capitec-group>
 		</capitec-group>
 		`;
+	}
+
+	_renderSuccessToast() {
+		return this.toast
+		? html`
+			<capitec-toast 
+				?hidden="${!this.displayToast}"
+				type="success"
+				header="Success"
+				detail="${this.toast}" 
+				closable
+				@click="${() => this.displayToast = false}">
+			</capitec-toast>`
+		: html``;
 	}
 
 	_renderFailureToast() {
@@ -270,22 +305,57 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 		: html``;
 	}
 
+	_renderSuccessIcon() {
+		return this.outcome.resendSuccess.length >= 1
+		? html`
+			<capitec-icon icon="status/success-trans"></capitec-icon>` 
+		: html``;
+	}
+
 	_renderFailureIcon() {
-		return html`
-		<capitec-icon icon="system/close-circle-error"></capitec-icon>`;
+		return this.outcome.resendFailed.length >= 1
+		? html`
+			<capitec-icon icon="system/close-circle-error"></capitec-icon>`
+		: html``;
+	}
+	
+	_successMessage() {
+		const notificationMethod = `The proof of payment for transaction ${this.paymentRef} was sent to `;
+		if (!isNullorEmpty(this.outcome.resendSuccess)) {
+			if (this.outcome.resendSuccess.length === 1) {
+				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to <b>${this._notificationTypeId(this.outcome.resendSuccess[0])}</b>`;
+			}
+			if (this.outcome.resendSuccess.length === 2) {
+				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])}
+					 and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
+			}
+			// if (this.outcome.resendSuccess.length === 3) {
+			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
+			// newStr += ` ,`;
+			// newStr += this._notificationTypeId(this.outcome.resendSuccess[1]);
+			// newStr += ` and `;
+			// return newStr + this._notificationTypeId(this.outcome.resendSuccess[2]);
+			// }
+		}
 	}
 
 	_failedMessage() {
 		const notificationMethod = `The proof of payment was not sent to `;
-		if (!isNullorEmpty(this.notificationType)) {
-			if (this.notificationType.length === 1) {
-				return notificationMethod + this._notificationTypeId(this.notificationType[0]);
+		if (!isNullorEmpty(this.outcome.resendFailed)) {
+			if (this.outcome.resendFailed.length === 1) {
+				return html`The proof of payment was not sent to <b>${this._notificationTypeId(this.outcome.resendFailed[0])}</b>`;
 			}
-			if (this.notificationType.length === 2) {
-				let newStr = notificationMethod + this._notificationTypeId(this.notificationType[0]);
-				newStr += ` and `;
-				return newStr + this._notificationTypeId(this.notificationType[1]);
+			if (this.outcome.resendFailed.length === 2) {
+				return html`The proof of payment was not sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])} 
+					and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
 			}
+			// if (this.outcome.resendFailed.length === 3) {
+			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
+			// newStr += ` ,`;
+			// newStr += this._notificationTypeId(this.outcome.resendFailed[1]);
+			// newStr += ` and `;
+			// return newStr + this._notificationTypeId(this.outcome.resendFailed[2]);
+			// }
 		}
 	}
 
@@ -296,6 +366,28 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 		if (notificationType === `EMAIL`) {
 			return this.mailId;
 		}
+		// if (notificationType === `APP`) {
+		// return `APP`;
+		// }
+	}
+
+	_renderLeftButton() {
+		return this.outcome.resendFailed.length >= 1
+		? html`
+			<capitec-button
+				class="center-button"
+				label="Try Again"
+				@click="${() => this._tryAgain()}">
+			</capitec-button>
+		`
+		: html`
+		<capitec-button
+				id="button-left"
+				class="center-button"
+				label="Send Another"
+				@click="${() => this._sendAnotherClick()}">
+			</capitec-button>
+		`;
 	}
 
 	_renderRightButton() {
@@ -311,12 +403,11 @@ export class PayshapProofOfPaymentFailure extends ViewBase {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				data-automation-id="payshap-proof-of-payment-failure-related-options"
-				context="Failure">
+				context="Success">
 			</horizon-related-options>
 		`;
 	}
 
 }
 
-customElements.define(`horizon-payshap-proof-of-payment-failure`, PayshapProofOfPaymentFailure);
+customElements.define(`horizon-payshap-proof-of-payment-outcome`, PayshapProofOfPaymentOutcome);
