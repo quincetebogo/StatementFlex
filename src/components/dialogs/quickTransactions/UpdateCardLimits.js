@@ -1279,7 +1279,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderTooltip() {
-		const TOOLTIP_MESSAGE = `The limit threshold is set to mitigate risk to clients and to improve cardholder experience by ensuring a sleek shopping experience by avoiding declined transactions based on card limits. The cardholder is in control as they must authenticate the transaction before the limit exception is applied.`;
+		const TOOLTIP_MESSAGE = `The limit threshold is set to mitigate risk to clients and to improve cardholder experience by ensuring a sleek shopping experience by avoiding declined transactions based on card limits.\n\nThe cardholder is in control as they must authenticate the transaction before the limit exception is applied.`;
 
 		return html`
 			<horizon-tooltip 
