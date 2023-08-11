@@ -326,8 +326,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to <b>${this._notificationTypeId(this.outcome.resendSuccess[0])}</b>`;
 			}
 			if (this.outcome.resendSuccess.length === 2) {
-				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])}
-					 and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
+				return html`The proof of payment for transaction <b>${this.paymentRef}</b> was sent to <b>${this._notificationTypeId(this.outcome.resendSuccess[0])}</b>
+					 and <b>${this._notificationTypeId(this.outcome.resendSuccess[1])}</b>`;
 			}
 			// if (this.outcome.resendSuccess.length === 3) {
 			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendSuccess[0]);
@@ -346,8 +346,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 				return html`The proof of payment was not sent to <b>${this._notificationTypeId(this.outcome.resendFailed[0])}</b>`;
 			}
 			if (this.outcome.resendFailed.length === 2) {
-				return html`The proof of payment was not sent to ${this._notificationTypeId(this.outcome.resendSuccess[0])} 
-					and ${this._notificationTypeId(this.outcome.resendSuccess[0])}`;
+				return html`The proof of payment was not sent to <b>${this._notificationTypeId(this.outcome.resendFailed[0])}</b> 
+					and <b>${this._notificationTypeId(this.outcome.resendFailed[1])}</b>`;
 			}
 			// if (this.outcome.resendFailed.length === 3) {
 			// let newStr = notificationMethod + this._notificationTypeId(this.outcome.resendFailed[0]);
