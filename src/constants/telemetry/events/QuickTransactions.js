@@ -163,7 +163,8 @@ export const QuickTransactionEvents = {
 	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS_SEND_ANOTHER: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success.send-another`,
 	// Proof of payment failure outcome
 	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure`,
-	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.done`
+	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.done`,
+	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_TRY_AGAIN: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.try-again`
 
 };
 

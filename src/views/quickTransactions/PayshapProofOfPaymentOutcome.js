@@ -90,16 +90,21 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	}
 
 	async _tryAgain() {
-			const clientInfo = {
-				"paymentUetr": this.paymentUetr,
-				"cifNumber": this.callerInformation.cifNumber,
-				"notificationType": this.outcome.resendFailed,
-				"emailAddress": this.mailId,
-				"verifiedCellphoneNumber": this.verifiedCellphoneNumber
-			};
-			const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_TRY_AGAIN, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
+		}, true);
 
-			this.outcome = returnValue.result;
+		const clientInfo = {
+			"paymentUetr": this.paymentUetr,
+			"cifNumber": this.callerInformation.cifNumber,
+			"notificationType": this.outcome.resendFailed,
+			"emailAddress": this.mailId,
+			"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+		};
+		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+
+		this.outcome = returnValue.result;
 	
 	}
 

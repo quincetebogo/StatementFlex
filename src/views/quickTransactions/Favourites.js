@@ -1085,7 +1085,7 @@ export class Favourites extends SavingsAccountBase {
 		} else {
 			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {
 				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
-				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
+				"next-screen": TelemetryScreen.SYSTEM_ERROR
 			}, true);
 
 			this.horizonRouter.navigateToSystemError();
