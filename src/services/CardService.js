@@ -107,6 +107,7 @@ export class CardService extends ChannelServiceBase {
 		);
 	
 		const stopCardResponse = returnValue.result;
+		const todayDate = new Date();
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
 			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
@@ -118,7 +119,8 @@ export class CardService extends ChannelServiceBase {
 				cardSequenceNumber: cardsToStop[index].cardSequenceNumber,
 				cardStopReason: cardsToStop[index].cardStopReason,
 				cardStopped: response.result.statusCode === 200,
-				statusCode: response.result.statusCode
+				statusCode: response.result.statusCode,
+				cardStoppedDate: `${todayDate.toLocaleDateString()} ${todayDate.toLocaleTimeString()}`
 			}));
 		}
 
