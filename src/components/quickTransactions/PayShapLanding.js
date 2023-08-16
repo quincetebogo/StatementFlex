@@ -219,7 +219,7 @@ export class PayShapLanding extends Component {
 			cifNumber: this.cifNumber,
 			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
-			pageSize: `11`,
+			pageSize: `12`,
 			paginationToken: paginationToken || null
 		};
 
@@ -380,7 +380,7 @@ export class PayShapLanding extends Component {
 					height: 750px;
 				}
 				.transactions-tab {
-					height: 750px;
+					height: 767px;
 				}
 				.payshap-info {
 					--theme-card-min-height: 80px;
@@ -833,7 +833,7 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Fee" 
-						value="${formatCurrency(item.feeAmount)}">
+						value="${formatCurrency(convertCentsToRand(item.feeAmount))}">
 					</horizon-label>
 				</capitec-group>
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
