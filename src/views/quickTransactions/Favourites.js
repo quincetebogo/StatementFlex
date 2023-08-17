@@ -6,6 +6,7 @@ import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -83,6 +84,8 @@ export class Favourites extends SavingsAccountBase {
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.payShapDetails = {};
+
+		this.navigationContext = NavigationContext.getInstance();
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -950,6 +953,7 @@ export class Favourites extends SavingsAccountBase {
 	_onExitPayShap() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+	
 
 	_limitsRandsToCents(cardDetails) {
  
@@ -1051,6 +1055,28 @@ export class Favourites extends SavingsAccountBase {
 		await super.classifyIncident(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 		this._onExitPayShap();
+	}
+
+	async _sendPayshapPOP(event) {
+		const clientInfo = {
+			"paymentUetr": event.detail.uetr,
+			"cifNumber": this.callerInformation.cifNumber,
+			"notificationType": event.detail.notificationType,
+			"emailAddress": event.detail.emailAddress,
+			"verifiedCellphoneNumber": this.callerInformation.verifiedCellphoneNumber
+		};
+		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap`);
+	
+		const screenDetails = event.detail;
+		screenDetails.outcome = returnValue.result;
+		screenDetails.request = clientInfo;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
+		}
 	}
 
 	// ---------
@@ -1320,7 +1346,8 @@ export class Favourites extends SavingsAccountBase {
 
 				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
 				@back="${() => this._onExitPayShap()}"
-				@unloading="${() => this._unloadingPayshap()}">
+				@unloading="${() => this._unloadingPayshap()}"
+				@send-pop="${(e) => this._sendPayshapPOP(e)}">
 			</horizon-payshap-landing>`
 		: html``;
 	}
@@ -1336,7 +1363,6 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-pay-shap-update>`
 		: html``;
 	}
-
 }
 
 customElements.define(`horizon-favourites`, Favourites);

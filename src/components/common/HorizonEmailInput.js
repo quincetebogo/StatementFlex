@@ -316,7 +316,7 @@ export class HorizonEmailInput extends Component {
     				font-weight: var(--theme-input-font-weight);
 					line-height: normal;
 					letter-spacing: 0px;
-					top: -36px;
+					top: var(--theme-input-email-top, -36px);
 					position: relative;
 					color: #a9a9a9;
 					width: 100px;
@@ -335,7 +335,7 @@ export class HorizonEmailInput extends Component {
 					margin-bottom: 8px;
 				}
 				#confirmEmail-suggestion {
-					top: -52px;
+					top: var(--theme-input-confirm-email-top, -52px);
 				}
 			`
 		];

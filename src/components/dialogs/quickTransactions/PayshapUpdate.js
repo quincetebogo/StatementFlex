@@ -332,7 +332,7 @@ export class PayShapUpdate extends Component {
 	_renderCellPhoneNumber() {
 		return html`
 			<capitec-text-field 
-					label="Verfied Phone number"
+					label="Verified Phone number"
 					value="${this.payShapModalDetails.verifiedCellphoneNumber}"
 					disabled>
 			</capitec-text-field>
