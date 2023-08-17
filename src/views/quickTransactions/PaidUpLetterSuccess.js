@@ -39,6 +39,10 @@ export class PaidUpLetterSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		return `Type: Paid Up Letter\nAccount List: ${this._formateAccountNames(this.succeededAccounts)}\nRecipient EmailID: ${this.emailAddress}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -93,9 +97,8 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 	
 	_formateAccountNames(accounts) {
@@ -138,6 +141,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -158,6 +162,14 @@ export class PaidUpLetterSuccess extends ViewBase {
 						Paid Up letter(s) for ${this.succeededAccounts.length > 4 ? `the selected accounts are` : html`<b>${this._formateAccountNames(this.succeededAccounts)}</b> was`} emailed to <b>${this.emailAddress}</b>
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

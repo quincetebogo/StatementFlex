@@ -93,6 +93,7 @@ export class ValueAddedServices extends Component {
 			cifnumber: this.cifnumber,
 			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
+			
 		};
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {

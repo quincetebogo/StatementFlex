@@ -58,8 +58,10 @@ export class ProofOfPaymentFailure extends ViewBase {
 	// --------------
 
 	async _doneClick() {
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+
 		await this._telemetry.logEvent(this.popTelemetryEvents.POP_FAILURE_DONE, {
-			"screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)} Failure`,
+			"screen": `${currentNeed.replaceAll(`-`, ` `)} Failure`,
 			"next-screen": TelemetryScreen.CREDIT_LANDING
 		});
 
@@ -74,10 +76,13 @@ export class ProofOfPaymentFailure extends ViewBase {
 	}
 
 	async _tryAgainClick() {
+		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+
 		await this._telemetry.logEvent(this.popTelemetryEvents.POP_FAILURE_TRY_AGAIN, {
-			"screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)} Failure`,
-			"next-screen": `${this.incidentDetails.currentNeed.replaceAll(`-`, ` `)} dialog`
+			"screen": `${currentNeed.replaceAll(`-`, ` `)} Failure`,
+			"next-screen": `${currentNeed.replaceAll(`-`, ` `)} dialog`
 		});
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this._telemetry.endSpan(screenDetails.parentSpan, {}, true, false, true);
 		

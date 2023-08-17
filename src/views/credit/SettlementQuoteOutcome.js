@@ -27,6 +27,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 		this.succeededAccounts = [];
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.header = ``;
 	}
 
 	// ----------
@@ -43,6 +44,11 @@ export class SettlementQuoteOutcome extends ViewBase {
 		return {
 			displayToast: { state: false }
 		};
+	}
+
+	get incidentDescription() {
+		return `Type: Settlement Quote\nSucceeded: ${this._formateAccountNames(this.succeededAccounts)}\nFailed: ${this._formateAccountNames(this.failedAccounts)}
+				Receipient EmailID: ${this.emailAddress}`;
 	}
 
 	// -------------------
@@ -110,9 +116,8 @@ export class SettlementQuoteOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_getOutcomeDetails() {
