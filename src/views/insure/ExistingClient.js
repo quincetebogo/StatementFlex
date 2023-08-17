@@ -8,10 +8,12 @@ import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/insure/ClientSummary';
@@ -58,6 +60,7 @@ export class ExistingClient extends InsureViewBase {
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
@@ -169,9 +172,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _initialise() {
-		await this._retrieveClientSummary();
-		// this.accountDetails = await this._retrieveAccountDetails();
-		this.claims = await this._retrieveClaims();
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		if (callerInfo && callerInfo.verificationStatus !== `verified` && !this.roleManager.isInsureAgent) {
+			this.clientPolicies = [];
+		} else {
+			await this._retrieveClientSummary();
+			// this.accountDetails = await this._retrieveAccountDetails();
+			this.claims = await this._retrieveClaims();
+		}
 	}
 
 	/**
@@ -960,7 +968,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _retrieveCommsHistory(contractReference, fromDate, toDate) {
-		
+
 		const commsHistoryDetails = {
 			"contractReference": contractReference,
 			"fromDate": fromDate,
@@ -1214,7 +1222,7 @@ export class ExistingClient extends InsureViewBase {
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(emailResponse.exception);
 			return;
 		}
@@ -1301,6 +1309,13 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	// #endregion EVENT HANDLER
+
+
+	async _clientVerified(event) {
+		super._clientVerified(event);
+		await this._initialise();
+		this.renderMode = RENDER_MODE.CLIENT_POLICIES;
+	}
 
 	// #region RENDERING
 
@@ -1401,7 +1416,7 @@ export class ExistingClient extends InsureViewBase {
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
-				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
+				.maxAllowedCover="${this.clientPolicies?.length === 0 || isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 				.getArrears = "${() => this._getArrears()}"
 				.clientArrears = "${this.clientArrears}"
@@ -1414,7 +1429,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				@send-email = "${(e) => this._sendEmail(e)}">
+				@send-email = "${(e) => this._sendEmail(e)}"
+				@verify-now = ${() => this._verifyClick()}>
 			</horizon-insure-client-summary>`;
 	}
 
