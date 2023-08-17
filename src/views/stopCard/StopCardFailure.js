@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -35,15 +36,14 @@ export class StopCardFailure extends ViewBase {
 		super();
 
 		this.displayNotification = true;
-		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.renderDialog = -1;
 		this.retry = 0;
-		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 	}
 
 	// --------------
@@ -56,14 +56,14 @@ export class StopCardFailure extends ViewBase {
 			renderDialog: { type: Number },
 			retry: { type: Number },
 
-			showHandoffModal: { attribute: false }
+			showHandoffModal: { state: true }
 		};
 	}
 
 	get incidentDescription() {
 		let description = ``;
 		const stoppedCards = this.stoppedCards.filter(card => card.cardStopped)
-		
+
 		stoppedCards.forEach(card => {
 			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped:${card.cardStoppedDate}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
 		});
@@ -77,7 +77,6 @@ export class StopCardFailure extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		this.callerInformation = this.horizonStore.getCallerInformation();
 
@@ -115,7 +114,6 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	async _onTryAgain() {
-		console.log(`cards to stop`, this.failedCards);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME
 		});
@@ -130,8 +128,9 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, this.callerInformation.cifNumber, this.callerInformation.title, this.callerInformation.lastName);
-		
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.horizonIncidentManager.currentIncident);
+
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
 			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
@@ -146,7 +145,7 @@ export class StopCardFailure extends ViewBase {
 			screenDetails.stoppedCardsFailed = !isAllSuccess;
 
 			this.horizonStore.setScreenDetails(screenDetails);
-	
+
 			if (isAllSuccess) {
 				// The stop card incident can be closed if all cards were stopped successfully.
 				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
@@ -157,8 +156,7 @@ export class StopCardFailure extends ViewBase {
 
 	_onHandOff(e) {
 		// On return from the Stop Card Assign dialog, mark the incident as assigned
-        this.isReassigned = true;
-		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
+		this.horizonIncidentManager.isReassigned = true;
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -175,7 +173,7 @@ export class StopCardFailure extends ViewBase {
 
 		this.showHandoffModal = !this.showHandoffModal;
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -185,15 +183,13 @@ export class StopCardFailure extends ViewBase {
 	// ---------------
 
 	_onAssignIncident() {
-        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.incidentDetails.description = this.incidentDescription;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	/**
@@ -440,7 +436,7 @@ export class StopCardFailure extends ViewBase {
 		if (card.cardStopped) {
 			return html`${this._renderSuccessStatus(card)}`;
 		}
-		
+
 		return html`${this._renderErrorStatus(card)}`;
 	}
 
@@ -491,16 +487,14 @@ export class StopCardFailure extends ViewBase {
 
 	_renderAssignModal() {
 		return this.showHandoffModal
-		? html`
+			? html`
 				<horizon-assign-stop-card
 					data-automation-id="stop-card-failure-assign-dialog"
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.showHandoffModal = !this.showHandoffModal}"
 					@on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>`
-		: html``;
+			: html``;
 	}
 
 	_renderAssignReason() {

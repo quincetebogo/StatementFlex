@@ -1,7 +1,7 @@
 import { Component, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
-import { ACCOUNT_TYPES } from 'app/constants/common';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditService } from 'app/services/CreditService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -13,6 +13,7 @@ import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Statements dialog is used to view/send statements from the Quick transaction & corresponding product screens.
@@ -386,8 +387,8 @@ export class Statements extends Component {
 			'statement-period': statement.statementDateRange.parseInterval,
 			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
 		});
-
-		const returnValue = await this.savingsService.sendStatement(statement);
+		
+		const returnValue = await this.savingsService.sendStatement(statement, null, 1);
 		this._updateScreenDetails(request);
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);
@@ -413,10 +414,10 @@ export class Statements extends Component {
 
 				return data;
 			});
-			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails);
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails, null, 1);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
-			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName);
+			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName, null, 1);
 		}
 
 		this._updateScreenDetails(request);
@@ -430,16 +431,21 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 
 	_updateScreenDetails(request) {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
+		// Inc description
+		screenDetails.productName = this.selectedProduct.name;
+		screenDetails.period = !request.startDate && !request.endDate ? `${request.dateIntervalLabel}` : `${request.startDate} to ${request.endDate}`;
+		screenDetails.productType = this.selectedProduct.category;
+		screenDetails.monthRange = !request.dateIntervalLabel ? request.monthInterval.join(`,`) : `${request.dateIntervalLabel}`;
 		screenDetails.emailAddress = request.emailAddress;
 		screenDetails.accountNumber = request.accountNumber;
-		screenDetails.accountType = request.accountName;
+		screenDetails.accountName = request.accountName;
 		screenDetails.telemetryEvent = this.telemetryEvent;
 
 		this.horizonStore.setScreenDetails(screenDetails);
@@ -466,6 +472,7 @@ export class Statements extends Component {
 	// ---------
 	_mobileTemplate() {
 		return _webTemplate();
+		
 	}
 
 	_webTemplate() {
@@ -485,6 +492,7 @@ export class Statements extends Component {
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 			${this._renderCcsModal()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -502,6 +510,14 @@ export class Statements extends Component {
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
 		: html``;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

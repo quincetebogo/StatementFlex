@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -39,6 +40,7 @@ export class AccessChannels extends Component {
 		this.landingInfo = {};
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -145,7 +147,7 @@ export class AccessChannels extends Component {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
-				await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
+				await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
 			} else {
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
@@ -178,15 +180,19 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CONFIRM, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_OUTCOME,
 			"suspend-reason": suspendReason
 		});
-
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
 		// If successfully suspended, update app status, else Error scenario
 		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
 	
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
+		
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+
 		if (returnValue.succeeded) {
 			this.landingInfo.app.status = APP_STATUS.SUSPENDED;
 			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
@@ -204,7 +210,7 @@ export class AccessChannels extends Component {
 
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_OUTCOME
 		});
 
 		// TODO: Channel service call to Un-suspend App should come here
@@ -242,13 +248,17 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CONFIRM, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_OUTCOME,
 			"cancel-reason": cancelReason
 		});
 		
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
-
 		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
+
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
@@ -263,10 +273,13 @@ export class AccessChannels extends Component {
 	}
 
 	async unblockSIM() {
-
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
 
 		const returnValue = await this.accessChannelService.unblockSIM(this.landingInfo.msisdn);
+
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
@@ -291,6 +304,10 @@ export class AccessChannels extends Component {
 		}
 
 		const returnValue = await this.accessChannelService.activatefullUssdMenu(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+		
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
@@ -369,11 +386,9 @@ export class AccessChannels extends Component {
 	async suspendInternetBanking(suspendReason, token) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_OUTCOME,
 			"suspend-reason": suspendReason
 		});
-
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
 		const requestBody = {
 			cifNumber: this.cifNumber,
@@ -381,6 +396,11 @@ export class AccessChannels extends Component {
 			reason: suspendReason
 		};
 		const returnValue = await this.accessChannelService.suspendToken(requestBody);
+		
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
 		if (returnValue.succeeded) {
 			this.landingInfo.internetBanking.status = `Suspended`;
@@ -397,7 +417,7 @@ export class AccessChannels extends Component {
 	async resetInternetBanking(selectedTokens) {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
-			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
+			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_OUTCOME,
 			"token-numbers": selectedTokens
 		});
 
@@ -405,6 +425,11 @@ export class AccessChannels extends Component {
 			"tokenSerialNo": selectedTokens
 		};
 		const returnValue = await this.accessChannelService.resetSecurityTokenClock(requestParams);
+
+		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_OUTCOME, {
+			"result": returnValue.succeeded ? `succeeded` : `failure`
+		});
+
 		// If successfully reset, update Internet Banking status, else Error scenario
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to reset internet banking security token`, `_resetInternetBankingToken`, returnValue.correlationId);
@@ -534,10 +559,8 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
-	_updateIncidentState(status) {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = status;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+	_updateIncidentState(state) {
+		this.horizonIncidentManager.incidentState = state;
 	}
 
 	// ---------

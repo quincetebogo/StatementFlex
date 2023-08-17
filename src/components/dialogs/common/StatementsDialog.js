@@ -1,5 +1,5 @@
 import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -62,6 +62,8 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this.disableSend = false;
+		this.selectedPeriodLabel = ``;
 	}
 
 	// ----------
@@ -92,7 +94,8 @@ export class StatementsDialog extends Component {
 			fromDate: { state: true },
 			toDate: { state: true },
 			errorMessage: { state: true },
-			periodType: { state: true }
+			periodType: { state: true },
+			disableSend: { state: true }
 		};
 	}
 
@@ -164,6 +167,7 @@ export class StatementsDialog extends Component {
 		this.periodSelected = TIME_PERIOD[range].value;
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label}`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
+		this.selectedPeriodLabel = TIME_PERIOD[range].label;
 
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.errorMessage = ``;
@@ -236,6 +240,8 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
+		this.disableSend = true;
+
 		const request = {
 			"emailAddress": this.email,
 			"accountNumber": this.productSelected.accountNumber,
@@ -244,7 +250,8 @@ export class StatementsDialog extends Component {
 			"dateInterval": this.periodSelected,
 			"startDate": this.fromDate === `dd mm yyyy` ? `` : this.fromDate,
 			"endDate": this.toDate === `dd mm yyyy` ? `` : this.toDate,
-			"monthInterval": this.selectedMonths // This is specifically for month period
+			"monthInterval": this.selectedMonths, // This is specifically for month period
+			"dateIntervalLabel": this.selectedPeriodLabel
 		};
 
 		await this.sendStatement(request);
@@ -469,6 +476,9 @@ export class StatementsDialog extends Component {
 				}
 				.date-label {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
+				}
+				.chose-account {
+					margin-bottom: var(--horizon-statement-generic-margin-top, 8px);
 				}
 				.main-cb {
 					height: 100%;
@@ -731,6 +741,7 @@ export class StatementsDialog extends Component {
 		if (this.renderMode === RENDER_MODE.CHOOSE_ACCOUNT) {
 			return html`
 				<capitec-label
+					class='chose-account'
 					type="subtitle"
 					label="Choose an Account">
 				</capitec-label>
@@ -1017,7 +1028,8 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
-						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}"
+						?disabled="${Boolean(this.disableSend)}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-close"
