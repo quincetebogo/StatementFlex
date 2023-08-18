@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EMAIL_DOMAINS } from 'app/constants/common';
+import { EMAIL_DOMAINS } from 'app/constants/Common';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {
@@ -294,6 +294,7 @@ export class HorizonEmailInput extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.emailLabel[type="subtitle"] {
+					margin-bottom:8px;
 					line-height: 24px;
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;

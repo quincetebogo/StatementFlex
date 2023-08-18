@@ -1,7 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 
-import 'app/components/common/RelatedOptions';
-
 /**
  * A generic success screen component. Most input is set via properties but there is a named slot (detail)
  * for the success message detail.
@@ -167,25 +165,6 @@ export class SuccessScreen extends Component {
 					--theme-button-padding-bottom: 12.5px;
 					--theme-button-padding-right: 22px;
 				}
-				.related-options {
-					/*margin-top:144px;*/
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
-				}
-				
-				.related-options-text{
-					margin: 0px 0px 0px 16px;
-					padding: 0px 0px 0px 0px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
 				.options-group{
 					height: 80px; 
 					margin:17px 0px 15px 16px;
@@ -247,7 +226,6 @@ export class SuccessScreen extends Component {
 						${this._renderContent()}
 				</capitec-group>
 			</capitec-card>
-			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -365,14 +343,6 @@ export class SuccessScreen extends Component {
 				@click="${() => this._rightClick()}">
 			</capitec-button>`
 		: html``;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				context="Success">
-			</horizon-related-options>
-		`;
 	}
 }
 

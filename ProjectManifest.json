@@ -1,18 +1,12 @@
 {
-  "name": "Horizon-UI",
-  "product": "BSC-Horizon",
-  "group": "G_PL_HZN_DEV",
-  "version": "2.20.2",
-  "alias": "horizon",
-  "release": "230102",
+  "name": "cec-ui-horizon",
+  "product": "horizon",
+  "group": "G_CKS_CEC_HORIZON_ADMIN",
+  "version": "2.26.7",
+  "alias": "cec-horizon",
+  "release": "230703",
   "contractVersion": "v1",
-  "serviceType": "Hosting",
-  "resourceSize": "medium",
-  "redundancySize": "custom",
-  "redundancySizes": {
-    "NP": 3,
-    "PROD": 6
-  },
+  "serviceType": "Channel",
   "port": 6001,
   "client": {
     "clientName": "Platform",
@@ -27,15 +21,5 @@
     "axoncs_t_ch_password",
     "axoncs_t_ch_username"
   ],
-  "environmentVariables": [
-    "LogLevel",
-    "MetricsLogLevel",
-    "DatabusSourceSystem",
-    "DatabusResponsibleTeam",
-    "TelemetryApiKeySecretName",
-    "TelemetryApiId",
-    "TelemetryApiUrl",
-    "TelemetryOAuthUsernameSecretName",
-    "TelemetryOAuthPasswordSecretName"
-  ]
+  "environmentVariables": []
 }

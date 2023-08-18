@@ -763,7 +763,7 @@ export class NotificationsDetails extends Component {
 					<b>Notify client:</b>
 					<p>You will be charged a fee per SMS update.</p>
 					<capitec-hyperlink
-						href="https://www.capitecbank.co.za/global-one/transact/fees/"
+						href="https://www.capitecbank.co.za/personal/transact/transact-fees"
 						target="_blank"
 						label="View fees"
 						inline>

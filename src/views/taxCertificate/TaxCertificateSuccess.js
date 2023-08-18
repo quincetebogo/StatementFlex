@@ -5,6 +5,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the selected tax certificates have been successfully sent.
@@ -50,6 +51,24 @@ export class TaxCertificateSuccess extends ViewBase {
 			taxYear: { attribute: false },
 			type: { attribute: false }
 		};
+	}
+
+	get incidentDescription() {
+		let type = ``;
+		let period = ``;
+
+		if (this.iT3BTaxCertificates?.taxYears.length > 0 && this.iT3STaxCertificates?.taxYears.length > 0) {
+			type = `iT3B & iT3S Tax certificates`;
+			period = `Period(iT3B): ${this._taxableYears()}\nPeriod(iT3S): ${this._taxFreeYears()}`;
+		} else if (this.iT3BTaxCertificates?.taxYears.length > 0) {
+			type = `iT3B Tax certificates`;
+			period = `Period: ${this._taxableYears()}`;
+		} else {
+			type = `iT3S Tax certificates`;
+			period = `Period: ${this._taxFreeYears()}`;
+		}
+		
+		return `Type: ${type} \n${period}\nRecipient EmailID:${this.email}`;
 	}
 
 	// -------------------
@@ -125,9 +144,8 @@ export class TaxCertificateSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_taxableYears() {
@@ -206,6 +224,8 @@ export class TaxCertificateSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -264,6 +284,14 @@ export class TaxCertificateSuccess extends ViewBase {
 				slot="${slot}">
 					Tax free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.email}</strong>
 			</section>`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

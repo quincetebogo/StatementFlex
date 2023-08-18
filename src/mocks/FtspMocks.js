@@ -4,20 +4,21 @@ export const unlockOptions = {
 				"accountNumber": `1630196159`,
 				"fullUnlock": true,
 				"partialUnlock": true,
-				"partialUnlockAmount": 3000
+				"partialUnlockAmount": 742000
 			},
 			{
 				"accountNumber": `1630196158`,
 				"fullUnlock": true,
 				"partialUnlock": false,
-				"partialUnlockAmount": 3000
+				"partialUnlockAmount": 742000
 			}
 		]
 };
 
 export const unlockQuote = {
 	"quoteReferenceNumber": `9faaf09e-c4f3-4a1d-b821-6a4bdaeef83a`,
-	"unlockFee": ``
+	"unlockFee": `25550`,
+	"balanceAfterUnlock": `1715979`
 };
 
 export const unlockAgreement = {
