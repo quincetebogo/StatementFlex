@@ -1069,7 +1069,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _sendPayshapPOP(event) {
-		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
 		const clientInfo = {
 			"paymentUetr": event.detail.uetr,
 			"cifNumber": this.callerInformation.cifNumber,

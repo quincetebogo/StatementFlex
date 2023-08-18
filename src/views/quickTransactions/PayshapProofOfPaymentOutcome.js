@@ -130,7 +130,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
 
 		this.outcome = returnValue.result;
-	
+		this._updateIncidentState();
 	}
 
 	_showSuccessIcon() {
@@ -146,7 +146,12 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		} else {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		}
+		
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

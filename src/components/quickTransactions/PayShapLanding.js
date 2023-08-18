@@ -203,7 +203,9 @@ export class PayShapLanding extends Component {
 			verifiedCellphoneNumber: verifiedCellphoneNumber
 		};
 
-		 this.showPopModal = true;
+		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
+		
+		this.showPopModal = true;
 
 		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
 		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
@@ -314,6 +316,7 @@ export class PayShapLanding extends Component {
 	}
 
 	async _cancelPOPModal() {
+		await super._inicidentManager_(`payshap`, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
 		this.showPopModal = false;
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
