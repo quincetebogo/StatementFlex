@@ -127,16 +127,15 @@ export class PayShapLanding extends Component {
 		super.connectedCallback();
 
 		this.feeCategories = Utilities.groupBy(this.payShapLandingDetails.fees, `methodOfPayment`);
-		
-		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId
+		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
 		this._unloading();
-		
-		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP, null, true, false, true);
 	}
 
 	// --------------
@@ -152,6 +151,13 @@ export class PayShapLanding extends Component {
 			1: transactionHistoryTab,
 			2: institutionsTab
 		};
+
+		if (e.detail.previousIndex === 0) {
+			this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB);
+		}
+		if (e.detail.previousIndex === 1) {
+			this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		}
 		payshapTab[e.detail.selectedIndex]();
 	}
 
@@ -162,12 +168,6 @@ export class PayShapLanding extends Component {
 	}
 
 	_searchTextChange(event) {
-
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB_SEARCH, {
-			"screen": TelemetryScreen.PAY_SHAP_INSTITUTIONS,
-			"Insitution-name": event.detail.searchText
-		});
-
 		this.filteredInstitutions = this.institutionsList;
 
 		if (event.detail.new) {
@@ -184,7 +184,19 @@ export class PayShapLanding extends Component {
 		}
 	}
 
-	_proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
+	_searchFocusOut(e) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB_SEARCH, {
+			"screen": TelemetryScreen.PAY_SHAP_INSTITUTIONS,
+			"Insitution-name": e.currentTarget.value
+		});
+	}
+
+	async _proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, {
+			"screen": TelemetryScreen.PAYSHAP_TRANSACTION_HISTORY,
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT
+		});
+
 		this.proofOfPaymentDetails = {
 			uetr: uetr,
 			debtorReference: debtorReference,
@@ -192,6 +204,9 @@ export class PayShapLanding extends Component {
 		};
 
 		 this.showPopModal = true;
+
+		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
 	}
 
 	_onUpdateClick() {
@@ -289,8 +304,19 @@ export class PayShapLanding extends Component {
 	}
 
 	_sendPOP(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM, {
+			"notification-type": event.detail.notificationType,
+			"email-address": event.detail.emailAddress
+		});
+	
 		const popDetail = { ...event.detail, ...this.proofOfPaymentDetails };
 		this.dispatchEvent(new CustomEvent(`send-pop`, { detail: popDetail }));
+	}
+
+	async _cancelPOPModal() {
+		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
+		this.showPopModal = false;
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
 	}
 
 	// ---------------
@@ -299,7 +325,8 @@ export class PayShapLanding extends Component {
 
 	async _transactionHistoryTab() {
 
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
 
 		this.moneyType = `Money Out`;
 
@@ -312,10 +339,14 @@ export class PayShapLanding extends Component {
 
 	_detailsTab() {
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
-			"Shap Id": this.payShapLandingDetails.proxyDetails.proxyId,
-			"Registered Cell": this.verifiedCellphoneNumber,
-			"Default Institution": this.defaultInstitution,
-			"Status": this.payShapLandingDetails.proxyDetails.fullProxyStatus
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId,
+			"registered-cell": this.verifiedCellphoneNumber,
+			"default-institution": this.defaultInstitution,
+			"status": this.payShapLandingDetails.proxyDetails.fullProxyStatus
+		});
+
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId
 		});
 	}
 
@@ -338,6 +369,7 @@ export class PayShapLanding extends Component {
 	}
 
 	_exitTransactionHistory() {
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -1105,7 +1137,7 @@ export class PayShapLanding extends Component {
 		return this.showPopModal
 		? html`
 		<horizon-payshap-proof-of-payment
-						@on-cancel="${() => this.showPopModal = false}"
+						@on-cancel="${() => this._cancelPOPModal()}"
 						@on-send="${(e) => this._sendPOP(e)}">
 		</horizon-payshap-proof-of-payment>`
 		: html``;
@@ -1126,7 +1158,8 @@ export class PayShapLanding extends Component {
 					type="search"
 					keyboardMode="alpha-numeric"
 					@key-input="${(e) => this._searchTextChange(e)}"
-					@value-change="${(e) => this._searchTextChange(e)}">
+					@value-change="${(e) => this._searchTextChange(e)}"
+					@focusout="${(e) => this._searchFocusOut(e)}">
 			</capitec-text-field>
 		`;
 	}

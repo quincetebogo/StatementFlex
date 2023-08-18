@@ -152,19 +152,15 @@ export const QuickTransactionEvents = {
 	PAY_SHAP_TRANSACTION_HISTORY_TAB_CLEAR_ALL_FILTER: `call.fulfill-need.pay-shap.transaction-history.filter.clear-all`,
 	PAY_SHAP_TRANSACTION_HISTORY_TAB_CLEAR_FILTER: `call.fulfill-need.pay-shap.transaction-history.filter.clear-all`,
 	// Proof of payment
-	PAY_SHAP_PROOF_OF_PAYMENT: `call.fulfill-need.pay-shap.transaction-history`,
-	PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD: `call.fulfill-need.pay-shap.transaction-history.proof-payment`,
+	PAY_SHAP_PROOF_OF_PAYMENT: `call.fulfill-need.pay-shap.transaction-history.proof-payment`,
 	PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up`,
 	PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up.cancel`,
 	PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM: `call.fulfill-need.pay-shap.transaction-history.proof-payment.pop-up.send`,
-	// Proof of payment success outcome
-	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success`,
-	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success.done`,
-	PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS_SEND_ANOTHER: `call.fulfill-need.pay-shap.transaction-history.proof-payment.success.send-another`,
-	// Proof of payment failure outcome
-	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure`,
-	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.done`,
-	PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_TRY_AGAIN: `call.fulfill-need.pay-shap.transaction-history.proof-payment.failure.try-again`
+	// Proof of payment outcome
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME: `call.fulfill-need.pay-shap.transaction-history.proof-payment.outcome`,
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_DONE: `call.fulfill-need.pay-shap.transaction-history.proof-payment.outcome.done`,
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_SEND_ANOTHER: `call.fulfill-need.pay-shap.transaction-history.proof-payment.outcome.send-another`,
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_TRY_AGAIN: `call.fulfill-need.pay-shap.transaction-history.proof-payment.outcome.try-again`
 
 };
 

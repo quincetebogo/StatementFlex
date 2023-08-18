@@ -209,8 +209,12 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonRouter.navigateToSendCashFailure();
 	}
 
-	_showPayShapUpdateModal(e) {
+	async _showPayShapUpdateModal(e) {
 		this.payShapModalDetails = e.detail;
+		
+		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP);
+
 		this.renderMode = RENDER_MODE.PAYSHAP_MODAL;
 	}
 
@@ -689,6 +693,7 @@ export class Favourites extends SavingsAccountBase {
 		
 		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.PAYSHAP;
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
 	}
 
 	async _getPayShapDetails() {
@@ -951,6 +956,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_onExitPayShap() {
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP, null, true, false, true);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 	
@@ -1012,6 +1018,8 @@ export class Favourites extends SavingsAccountBase {
 		this._setIncidentDone();
 
 		this.payShapDetails = await this._getPayShapDetails();
+		
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -1035,6 +1043,8 @@ export class Favourites extends SavingsAccountBase {
 		this._setIncidentDone();
 
 		this.payShapDetails = await this._getPayShapDetails();
+		
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
@@ -1054,7 +1064,8 @@ export class Favourites extends SavingsAccountBase {
 	async _unloadingPayshap() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
 		this._setIncidentDone();
-		this._onExitPayShap();
+		
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	async _sendPayshapPOP(event) {
@@ -1068,6 +1079,11 @@ export class Favourites extends SavingsAccountBase {
 		};
 		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
 
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, {
+			"resend-success": returnValue.result.resendSuccess,
+			"resend-failed": returnValue.result.resendFailed
+		});
+
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap`);
 	
 		const screenDetails = event.detail;
@@ -1076,22 +1092,17 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 		
 		if (returnValue.succeeded) {
-			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_SUCCESS, {
-				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
-				"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
-			}, true);
-
 			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
 		} else {
-			this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE, {
-				"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT,
-				"next-screen": TelemetryScreen.SYSTEM_ERROR
-			}, true);
-
 			this.horizonRouter.navigateToSystemError();
 		}
 	}
-
+	
+	async _cancelPayshapUpdateModal() {
+		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_CANCEL);
+		this.renderMode = RENDER_MODE.PAYSHAP;
+		await this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -1372,7 +1383,7 @@ export class Favourites extends SavingsAccountBase {
 						.payShapModalDetails="${this.payShapModalDetails}"
 						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
 						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
-						@on-cancel="${() => this.renderMode = RENDER_MODE.PAYSHAP}">
+						@on-cancel="${() => this._cancelPayshapUpdateModal()}">
 			</horizon-pay-shap-update>`
 		: html``;
 	}

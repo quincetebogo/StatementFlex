@@ -1,15 +1,18 @@
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { isNullorEmpty } from '../../utils/channelServiceUtilities';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 
 
 /**
- * Display an confirmation/success screen indicating the proof of payment statement has been successfully sent.
+ * Display an confirmation/success screen indicating the success/failure of payshap proof of payment sending.
  *
  * @export
- * @class ProofOfAccountSuccess
+ * @class PayshapProofOfPaymentOutcome
  * @extends {ViewBase}
  */
 export class PayshapProofOfPaymentOutcome extends ViewBase {
@@ -29,6 +32,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.showFailureIcon = false;
 		this.notificationType = [];
 		this.displayToast = true;
+		
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -55,6 +60,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.paymentRef = this.screenDetails && this.screenDetails.debtorReference;
@@ -78,22 +85,40 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_DONE, {
+			"email-address": this.mailId,
+			"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB, null, true, true);
 	}
 
 	_sendAnotherClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_SEND_ANOTHER, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"next-screen": TelemetryScreen.PAY_SHAP_TRANSACTION_HISTORY
+		}, true);
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonRouter.navigateToReturnPage();
 		this.horizonStore.clearScreenDetails();
+		
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, null, true, true);
 	}
 
 	async _tryAgain() {
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_FAILURE_TRY_AGAIN, {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_TRY_AGAIN, {
 			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
-			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME
-		}, true);
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"failed-notification-type": this.outcome.resendFailed
+		});
 
 		const clientInfo = {
 			"paymentUetr": this.paymentUetr,
