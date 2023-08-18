@@ -34,7 +34,9 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	// N/A
+	get incidentDescription() {
+		return `Type: Settlement Quote\nAccount List: ${this._formateAccountNames(this.succeededAccounts)}\nRecipient EmailID: ${this.emailAddress}`;
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -98,9 +100,8 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_formateAccountNames(accounts) {
@@ -142,6 +143,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -162,6 +164,14 @@ export class SettlementQuoteSuccess extends ViewBase {
 						Settlement quote for <b> ${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>.
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

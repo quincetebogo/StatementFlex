@@ -89,7 +89,6 @@ export class ProductButtonPanel extends Component {
 	// RENDERING
 	// ---------
 
-	// TODO: remove top margin for top most button. 
 	static get styles() {
 		return [
 			super.styles,
@@ -104,6 +103,7 @@ export class ProductButtonPanel extends Component {
             .product-button{
                 padding: 0px 0px 0px 0px;
 				width: var(--horizon-left-panel-width, 440px);
+				--theme-product-tile-focus-transact-border: 2px solid #009DE0;
 				margin-top: 16px;
 			}
 			.hide-tile{

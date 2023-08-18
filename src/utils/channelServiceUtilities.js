@@ -307,3 +307,14 @@ export function capitalizeString(str) {
 export function maskString(str, num = 4, maskChar = `*`) {
 	return str.slice(0, -num).replace(/./g, maskChar) + str.slice(-num);
 }
+
+/**
+ * Formatting the Payshap ID/Name
+ * 
+ * @param {string} str Input string
+ * 
+ * @returns {string} Default format for redndering Payshap ID/Name
+ */
+export function formatProxyId(str) {
+	return str ? str.replace(`+27-`, `0`) : `-`;
+}

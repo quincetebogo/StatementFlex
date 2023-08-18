@@ -74,9 +74,7 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}  
 
 	_doneClick() {
@@ -99,7 +97,11 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler());
+		const returnValue = await this.cardService.identifyCaller(
+			this.callerInformation, 
+			this.horizonIncidentManager.currentIncident, 
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
