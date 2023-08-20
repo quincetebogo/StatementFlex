@@ -33,6 +33,7 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
+		this.selected = false;
 		this._initialise();
 		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
@@ -60,6 +61,7 @@ export class CardArt extends Component {
 			},
 			context: { type: String },
 			tapToPayStatus: { type: Boolean },
+			selected: { type: Boolean },
 			cardArtSVG: { attribute: false }
 		};
 	}
@@ -75,6 +77,16 @@ export class CardArt extends Component {
 		const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
 		this.type = this.cardArtComponents[this.card.cardArt].type;
 		this.cardArtSVG = frameCardArt(this.card);
+	}
+
+	async updated() {
+		await this.updateComplete;
+
+		if (this.selected) {
+			this._showCardAction();
+		} else {
+			this._hideCardAction();
+		}
 	}
 
 	// --------------
@@ -98,13 +110,7 @@ export class CardArt extends Component {
 	}
 
 	_toggleCheckbox(event) {
-		this.card.selected = event.detail.new;
-
-		if (this.card.selected) {
-			this._showCardAction();
-		} else {
-			this._hideCardAction();
-		}
+		this.selected = event.detail.new;
 
 		this.dispatchEvent(new CustomEvent(`value-change`, { 
 			detail: {
@@ -113,7 +119,6 @@ export class CardArt extends Component {
 				currentTarget: event.currentTarget
 			}
 		 }));
-		this.requestUpdate();
 	}
 
 	// --------------
@@ -369,7 +374,7 @@ export class CardArt extends Component {
 
 	_renderCheckBox() {
 		if (this.context === `stop-card`) {
-			return html`<capitec-check label="" @value-change="${(event) => this._toggleCheckbox(event)}"></capitec-check>`;
+			return html`<capitec-check label="" @value-change="${(event) => this._toggleCheckbox(event)}" ?checked="${this.selected}"></capitec-check>`;
 		}
 	}
 

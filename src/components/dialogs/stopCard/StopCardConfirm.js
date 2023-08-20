@@ -145,7 +145,7 @@ export class StopCardConfirm extends Component {
 				}
 				capitec-content-box[slot="body"] {
 					width: 456px;
-					height: 302px;
+					height: 350px;
 					border-bottom: var(--theme-divider);
 				}
 				capitec-card {

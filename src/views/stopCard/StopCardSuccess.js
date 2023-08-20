@@ -1,10 +1,12 @@
+import { ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { css, html } from 'platform/elements';
-import { ACCESS_CHANNELS_TYPE } from 'app/constants/AccessChannels';
+import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -31,11 +33,15 @@ export class StopCardSuccess extends ViewBase {
 		this.endCallContext = `QuickTransactionSuccess`;
 		this.alertSuspendChannels = false;
 		this.confirmSuspendChannels = false;
-		this.channels = {};
+		this.notNowToSuspendChannels = false;
+		this.channels = [];
+		this.accessChannels = {};
+		this.need = ``;
 
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		this.accessChannelsInfoSub = this.eventAggregator.subscribe(`horizon-access-channels-loaded`, (event) => this._initialise(event));
 	}
 
 
@@ -52,11 +58,46 @@ export class StopCardSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		return `${this.notNowToSuspendChannels ? `Note: Access channels not suspended` : ``}`;
+	}
+
+	get isAppRegistered() {
+		const app = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
+		return app?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	}
+
+	get isInetBankingRegistered() {
+		const inet = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
+		return inet?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	}
+
+	get isUSSDRegistered() {
+		const ussd = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
+		return ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	}
+
+	get channelIcons() {
+		const app = `system/cards-action`;
+		const inet = `system/access-action`;
+		const ussd = `system/call-outbound-action`;
+
+		return {
+			[ACCESS_CHANNELS_TYPE.APP]: app,
+			[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]: inet,
+			[ACCESS_CHANNELS_TYPE.USSD]: ussd
+		};
+	}
+
+	get selectedACCount() {
+		return this.channels.filter(item => item.selected).length;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -64,15 +105,17 @@ export class StopCardSuccess extends ViewBase {
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();
-		await this._initialise();
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
-			"screen": TelemetryScreen.STOP_CARD_OUTCOME
-		});
+		if (!this.confirmSuspendChannels) {
+			this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
+				"screen": TelemetryScreen.STOP_CARD_OUTCOME
+			});
+		}
+		this.accessChannelsInfoSub.dispose();
 	}
 
 	// --------------
@@ -139,40 +182,159 @@ export class StopCardSuccess extends ViewBase {
 		this.alertSuspendChannels = !this.alertSuspendChannels;
 	}
 
+	_notNow() {
+		this._toggleAlertSuspendChannels();
+		this.notNowToSuspendChannels = true;
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_NOT_NOW, {});
+	}
+
 	_suspendChannels() {
 		this._toggleAlertSuspendChannels();
 		this.confirmSuspendChannels = true;
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CONTINUE, {});
+	}
+
+	_cancelSuspendChannels() {
+		this.confirmSuspendChannels = false;
+		this.notNowToSuspendChannels = true;
+
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CANCEL, {});
+	}
+
+	_selectAllToSuspend(e) {
+		this.channels = this.channels.map(item => {
+			item.selected = e.detail.new;
+			return item;
+		});
+		this.requestUpdate();
+	}
+
+	_channelSelected(event, index) {
+		this.channels[index].selected = event.detail.new;
+		this.requestUpdate();
+	}
+
+	async _confirmSuspend() {
+		const request = await this._formatSuspendChannelsRequest();
+
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CONFIRM, {
+			ChannelsToSuspend: request.channels
+		});
+
+		await super._inicidentManager_(this.need, () => this._toggleBusyFlag());
+		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to suspend channels`, `StopCardSuccess._confirmSuspend`, returnValue.correlationId);
+		}
+
+		this._updateScreenDetails(request, returnValue.result);
+		this.horizonRouter.navigateToAccessChannelsOutcome();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	async _initialise() {
-		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
+	_initialise(event) {
+		const returnValue = event.accessChannelsInfo;
 
 		if (returnValue.succeeded) {
-			const channels = [ACCESS_CHANNELS_TYPE.APP, ACCESS_CHANNELS_TYPE.INTERNET_BANKING, ACCESS_CHANNELS_TYPE.USSD];
-			
-			this.channels = Object.entries(returnValue.result).map(item => {
-				if (channels.includes(item[0])) {
-					item[1].channel = item[0];
-				}
-				return item[1];
-			});
-			// Updating the email in callerInfo state
-			const callerInformation = this.horizonStore.getCallerInformation();
-			callerInformation.emailId = returnValue.result?.email || ``;
-			this.horizonStore.setCallerInformation(callerInformation);
+			this.channels = [];
+			this.accessChannels = returnValue.result;
+			// Coverting result into Channels array
+			this.channels.push({ ...this.accessChannels.app, channel: ACCESS_CHANNELS_TYPE.APP, label: `App`, selected: false });
+			this.channels.push({ ...this.accessChannels.internetBanking, channel: ACCESS_CHANNELS_TYPE.INTERNET_BANKING, label: `Internet Banking`, selected: false });
+			this.channels.push({ ...this.accessChannels.ussd, channel: ACCESS_CHANNELS_TYPE.USSD, label: `USSD`, selected: false });
 
+			this.alertSuspendChannels = this.isAppRegistered || this.isInetBankingRegistered || this.isUSSDRegistered;
 
-			// if (this.landingInfo.msisdn?.length >= 9) {
-			// this.verifiedTelephoneNumber = `0${this.landingInfo.msisdn.substr(this.landingInfo.msisdn.length - 9)}`;
-			// }
-			// this._toggleAlertSuspendChannels();
+			if (this.alertSuspendChannels) {
+				this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND, {
+					App: this.accessChannels.app?.status,
+					InetBanking: this.accessChannels.internetBanking?.status,
+					USSD: this.accessChannels.ussd?.status
+				});
+			}
 		}
 
 		this.logger.log(`error`, `Failed to load access channel landing information`, `StopCardSuccess._initialise`, returnValue.correlationId);
+	}
+
+	async _formatSuspendChannelsRequest() {
+		const request = {
+			channels: this.channels.filter(item => item.selected).map(item => CHANNEL_TYPE[item.channel]),
+			app: null,
+			inetbanking: null,
+			ussd: null
+		};
+		this.need = request.channels.length > 1 ? `suspend-channels` : ``;
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP])) {
+			request.app = {
+				reason: `Lost`,
+				userRegNo: this.accessChannels.app?.userRegNo
+			};
+			this.need = this.need || `suspend-app`;
+		}
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING])) {
+			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels.app?.userRegNo);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to load tokens to suspend internet banking`, `_formatSuspendChannelsRequest`, returnValue.correlationId);
+			}
+
+			request.inetbanking = {
+				cif: this.callerInformation.cifNumber,
+				tokenSerialNo: [`1234567890`],
+				reason: `Lost`
+			};
+			this.need = this.need || `suspend-token`;
+		}
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD])) {
+			request.ussd = {
+				msisdn: this.accessChannels.msisdn,
+				cif: this.callerInformation.cifNumber,
+				reason: `Do not use service enough`
+			};
+			this.need = this.need || `cancel-ussd`;
+		}
+		return request;
+	}
+
+	_updateScreenDetails(request, response) {
+		const screenDetails = {};
+		screenDetails.result = request.channels.map(item => {
+			const channelRes = response[item.toLowerCase()];
+
+			return {
+				channel: item.toLowerCase(),
+				status: channelRes.status
+			};
+		});
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP]) && response?.app?.status) {
+			request.app = null;
+			const index = request.channels.indexOf(CHANNEL_TYPE.app);
+			request.channels.splice(index, 1);
+		}
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && response?.inetbanking?.status) {
+			request.inetbanking = null;
+			const index = request.channels.indexOf(CHANNEL_TYPE.internetBanking);
+			request.channels.splice(index, 1);
+		}
+
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD]) && response?.ussd?.status) {
+			request.ussd = null;
+			const index = request.channels.indexOf(CHANNEL_TYPE.ussd);
+			request.channels.splice(index, 1);
+		}
+
+		screenDetails.request = request;
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------
@@ -247,13 +409,20 @@ export class StopCardSuccess extends ViewBase {
 					margin-top: 12px;
 				}
 				capitec-modal[type="form"] {
-					--theme-modal-header-background-color: #E1E1E1;
+					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-body-padding: 0px;
 					--theme-modal-form-m-l-xl-width: 500px;
+					--theme-modal-footer-padding: 10px 16px 10px 0px;
 				}
 				capitec-modal[type="form"] > capitec-content-box {
 					height: 360px;
+				}
+				capitec-button {
+					--theme-button-padding-top: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-right: 22px;
 				}
 				.accessChannels {
 					--theme-card-min-height: 64px;
@@ -266,11 +435,30 @@ export class StopCardSuccess extends ViewBase {
 				.accessChannels > capitec-content-box > capitec-group {
 					align-items: center;
 				}
+				horizon-label {
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-font-size: 16px;
+					--horizon-label-text-font-weight: 600;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-font-size: 13px;
+					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-height: 14px;
+					--horizon-label-value-line-height: 14px;
+					--horizon-label-value-margin-top: 6px;
+				}
 				.channelInfoLbl {
 					width: 234px;
 				}
 				.channelStatusLbl {
 					width: 120px;
+					--horizon-label-value-color: #70AF00;
+					--horizon-label-text-font-weight: 400;
+					--horizon-label-value-font-weight: 600;
+				}
+				capitec-check {
+					--theme-check-width: 20px;
+					--theme-check-height: 20px;
+					--theme-check-label-spacing: 8px;
 				}
 			`
 		];
@@ -438,69 +626,48 @@ export class StopCardSuccess extends ViewBase {
 		? html`
 			<capitec-modal type="form" header="Stop Access Channels">
 				<capitec-content-box slot="body" halign="right">
-					<capitec-check label="Select all"></capitec-check>
-
-					<capitec-card class="accessChannels">
-						<capitec-content-box>
-							<capitec-group layout="horizontal">
-								<capitec-icon size="medium" icon="system/cards-action"></capitec-icon>
-								<horizon-label
-									class="channelInfoLbl"
-									label="App"
-									value="Last used 15 Feb 2023">
-								</horizon-label>
-								<horizon-label
-									class="channelStatusLbl"
-									label="Status"
-									value="Active">
-								</horizon-label>
-								<capitec-check></capitec-check>
-							</capitec-group>
-						</capitec-content-box>
-					</capitec-card>
-
-					<capitec-card class="accessChannels">
-						<capitec-content-box>
-							<capitec-group layout="horizontal">
-								<capitec-icon size="medium" icon="system/access-action"></capitec-icon>
-								<horizon-label
-									class="channelInfoLbl"
-									label="Internet Banking"
-									value="Last used 15 Feb 2023">
-								</horizon-label>
-								<horizon-label
-									class="channelStatusLbl"
-									label="Status"
-									value="Active">
-								</horizon-label>
-								<capitec-check></capitec-check>
-							</capitec-group>
-						</capitec-content-box>
-					</capitec-card>
-
-					<capitec-card class="accessChannels">
-						<capitec-content-box>
-							<capitec-group layout="horizontal">
-								<capitec-icon size="medium" icon="system/call-outbound-action"></capitec-icon>
-								<horizon-label
-									class="channelInfoLbl"
-									label="USSD"
-									value="Last used 15 Feb 2023">
-								</horizon-label>
-								<horizon-label
-									class="channelStatusLbl"
-									label="Status"
-									value="Active">
-								</horizon-label>
-								<capitec-check></capitec-check>
-							</capitec-group>
-						</capitec-content-box>
-					</capitec-card>
+					<capitec-check
+						label="Select all"
+						@value-change="${(e) => this._selectAllToSuspend(e)}">
+					</capitec-check>
+					${this._renderActiveAccessChannels()}
 				</capitec-content-box>
-				<capitec-button slot="footer" type="clear" label="Cancel"></capitec-button>
-				<capitec-button slot="footer" type="clear" label="Stop Channels" type="Primary"></capitec-button>
+				<capitec-button slot="footer" label="Cancel" @click="${() => this._cancelSuspendChannels()}">
+				</capitec-button>
+				<capitec-button slot="footer" 
+					type="primary"
+					label="Stop Channels"
+					@click="${() => this._confirmSuspend()}"
+					?disabled="${this.selectedACCount === 0}">
+				</capitec-button>
 			</capitec-modal>`
 		: html``;
+	}
+
+	_renderActiveAccessChannels() {
+		return this.channels.filter(item => item.status === ACCESS_CHANNEL_STATUS.ACTIVE)
+							.map((item, index) => html`
+								<capitec-card class="accessChannels">
+									<capitec-content-box>
+										<capitec-group layout="horizontal">
+											<capitec-icon size="medium" icon="${this.channelIcons[item.channel]}"></capitec-icon>
+											<horizon-label
+												class="channelInfoLbl"
+												label="${item.label}"
+												value="Last used ${formatDate(item.dateLastUsed, `dd mmm yyyy`)}">
+											</horizon-label>
+											<horizon-label
+												class="channelStatusLbl"
+												label="Status"
+												value="${item.status}">
+											</horizon-label>
+											<capitec-check
+												?checked="${item.selected}" 
+												@value-change="${(event) => this._channelSelected(event, index)}">
+											</capitec-check>
+										</capitec-group>
+									</capitec-content-box>
+								</capitec-card>`);
 	}
 }
 

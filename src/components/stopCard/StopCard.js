@@ -193,6 +193,24 @@ export class StopCard extends Component {
 		this.requestUpdate();
 	}
 
+	_selectAll() {
+		this.cards = this.cards.map(item => {
+			item.selected = true;
+			return item;
+		});
+
+		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
+		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
+		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
+		
+		this.requestUpdate();
+	}
+
+	_deselectAll() {
+		this._initialise();
+		this.performUpdate();
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -209,6 +227,9 @@ export class StopCard extends Component {
 		this.cards = this.cards.map(item => {
 			item.selected = false;
 			item.cardStopReason = ``;
+			item.cardHoldName = item.cardholderName;
+			item.primaryAccountId = item.primarySavingsAccountId || item.primaryCreditAccountId;
+
 			return item;
 		});
 
@@ -240,6 +261,10 @@ export class StopCard extends Component {
 				.stop-card > *:not(:last-child) {
 					border-bottom: var(--theme-card-border);
 				}
+				.stop-card-box {
+					--theme-layout-gap-spacing: 16px;
+					--theme-container-padding-right: 0px;
+				}
 				horizon-alert-banner {
 					width: 100%;
 				}
@@ -251,17 +276,17 @@ export class StopCard extends Component {
 					width: 135px;
 				}
 				capitec-image {
-					margin: 109px 406px 0px 406px;
 					width: 252px;
 					height: 182px;
 				}
 				.client-has-no-card {
-					margin: 15px 0px 16px;
 					--theme-label-font-color: #3A3A3A;
 				}
 				capitec-label[type="strong"] {
 					--theme-label-strong-font-size: 16px;
 					--theme-label-strong-font-weight: 600;
+					line-height: var(--theme-label-strong-font-size);
+					text-align: left;
 				}
 				horizon-card-art {
 					--horizon-card-art-width: 328px;
@@ -272,6 +297,7 @@ export class StopCard extends Component {
 				capitec-content-box[slot="cardAction"] {
 					width: 326px;
 					height: 246px;
+					--theme-layout-gap-spacing: 10px;
 				}
 				horizon-label {
 					--horizon-label-value-font-size: 15px;
@@ -292,6 +318,13 @@ export class StopCard extends Component {
 					--theme-label-font-weight: 500;
 					--theme-check-label-spacing: 10px;
 				}
+				.cardArtBox {
+					--theme-layout-gap-spacing: 24px;
+					height: 305px;
+				}
+				.overflow {
+					height: 328px;
+				}
 			`
 		];
 	}
@@ -303,7 +336,9 @@ export class StopCard extends Component {
 		return html`
 			<capitec-card class="stop-card" gap="line">
 				${this._renderTitleBar()}
-				<capitec-content-box halign="left">
+				<capitec-content-box class="stop-card-box"
+					halign="${this.hasCardsAvailable ? `left` : `center`}"
+					valign="${this.hasCardsAvailable ? `top` : `center`}">
 					${this._renderStopCardContent()}
 				</capitec-content-box>
 				${this._renderFooter()}
@@ -324,7 +359,9 @@ export class StopCard extends Component {
 		return this.hasCardsAvailable
 		? html`
 			${this._renderNotifyClient()}
-			${this._renderPrimaryCards()}`
+			${this._renderPrimaryCards()}
+			${this._renderSupplementaryCards()}
+			${this._renderVirtualCards()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
 			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
@@ -344,7 +381,9 @@ export class StopCard extends Component {
 		return this.primaryCards.length > 0
 		? html`
 			<capitec-label type="strong" label="Primary card(s)"></capitec-label>
-			${this.primaryCards.map(card => html`${this._renderCardArt(card)}`)}`
+			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
+				${this.primaryCards.map(card => html`${this._renderCardArt(card)}`)}
+			</capitec-content-box>`
 		: html``;
 	}
 
@@ -352,7 +391,9 @@ export class StopCard extends Component {
 		return this.supplementaryCards.length > 0
 		? html`
 			<capitec-label type="strong" label="Supplementary card(s)"></capitec-label>
-			${this.supplementaryCards.map(card => html`${this._renderCardArt(card)}`)}`
+			<capitec-content-box class="cardArtBox ${this.supplementaryCards.length > 3 ? `overflow` : ``}" layout="horizontal" noPadding>
+				${this.supplementaryCards.map(card => html`${this._renderCardArt(card)}`)}
+			</capitec-content-box>`
 		: html``;
 	}
 
@@ -360,7 +401,9 @@ export class StopCard extends Component {
 		return this.virtualCards.length > 0
 		? html`
 			<capitec-label type="strong" label="Virtual card"></capitec-label>
-			${this.virtualCards.map(card => html`${this._renderCardArt(card)}`)}`
+			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
+				${this.virtualCards.map(card => html`${this._renderCardArt(card)}`)}
+			</capitec-content-box>`
 		: html``;
 	}
 
@@ -370,6 +413,7 @@ export class StopCard extends Component {
 				.card="${card}"
 				?disable-hover="${true}"
 				context="stop-card"
+				?selected="${card.selected}"
 				@value-change="${(evt) => this._cardSelected(evt, card)}">
 					${this._renderCardArtAction(card)}
 			</horizon-card-art>`;
@@ -387,7 +431,8 @@ export class StopCard extends Component {
 					${STOPREASONS.map(item => html`
 						<capitec-radio
 							label="${item.value}"
-							@click="${(e) => this._onClickReason(item.key, card)}">
+							@click="${(e) => this._onClickReason(item.key, card)}"
+							?checked="${item.key === card.cardStopReason}">
 						</capitec-radio>
 					`)}
 				</capitec-radio-group>
@@ -417,12 +462,14 @@ export class StopCard extends Component {
 			<capitec-content-box halign="left" gap="clear" layout="horizontal" class="footer">
 				<capitec-check
 					label="${this.checkBoxLbl}"
-					?indeterminate="${this.selectedCardCount > 0}">
+					?indeterminate="${this.selectedCardCount > 0}"
+					?checked="${this.selectedCardCount > 0}"
+					@value-change="${() => this._selectAll()}">
 				</capitec-check>
 				<capitec-button
 					type="clear"
 					label="Deselect All"
-					@click="${() => this._initialise()}">
+					@click="${() => this._deselectAll()}">
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button 

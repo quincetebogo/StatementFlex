@@ -184,8 +184,17 @@ export class AccessChannels extends Component {
 			"suspend-reason": suspendReason
 		});
 
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP]],
+			app: {
+				reason: suspendReason,
+				userRegNo: userRegNo
+			},
+			inetbanking: null,
+			ussd: null
+		};
 		// If successfully suspended, update app status, else Error scenario
-		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
+		const returnValue = await this.accessChannelService.suspendChannels(request);
 	
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
@@ -252,7 +261,17 @@ export class AccessChannels extends Component {
 			"cancel-reason": cancelReason
 		});
 		
-		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD]],
+			app: null,
+			inetbanking: null,
+			ussd: {
+				msisdn: this.landingInfo.msisdn,
+				cif: this.cifNumber,
+				reason: ACCESS_CHANNELS_REASONS.DEFAULT
+			}
+		};
+		const returnValue = await this.accessChannelService.suspendChannels(request);
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
@@ -390,12 +409,17 @@ export class AccessChannels extends Component {
 			"suspend-reason": suspendReason
 		});
 
-		const requestBody = {
-			cifNumber: this.cifNumber,
-			tokenSerialNo: token,
-			reason: suspendReason
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]],
+			app: null,
+			inetbanking: {
+				cifNumber: this.cifNumber,
+				tokenSerialNo: token,
+				reason: suspendReason
+			},
+			ussd: null
 		};
-		const returnValue = await this.accessChannelService.suspendToken(requestBody);
+		const returnValue = await this.accessChannelService.suspendChannels(request);
 		
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
@@ -524,6 +548,12 @@ export class AccessChannels extends Component {
 	async _landingInfo() {
 
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
+
+		/**
+		 * Publishing the access channels info
+		 * Subscribed by: Stop card outcome screen
+		 */
+		this.eventAggregator.publish(`horizon-access-channels-loaded`, { accessChannelsInfo: returnValue });
 
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
