@@ -691,6 +691,7 @@ export class PayShapLanding extends Component {
 		return html`
 			${this._renderToast()}
 			${this._renderContent()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
