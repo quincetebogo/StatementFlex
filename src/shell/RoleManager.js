@@ -33,9 +33,9 @@ import { Configuration, SecurityContext } from 'platform/core';
 	}
 
 	get isAuthorised() {
-		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`);
-		return isAuthorised;
-	}
+        const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`insure-agent`);
+        return isAuthorised;
+    }
 
 	get isInsureAgent() {
 		return this.roles && this.roles.includes(`insure-agent`);

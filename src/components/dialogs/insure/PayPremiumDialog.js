@@ -122,6 +122,9 @@ class PayPremiumDialog extends Component {
 		for (let i = 0; i < this.clientArrears.arrears.length; i++) {
 			this.totalAmount += this.clientArrears.arrears[i].amount;
 		}
+
+		// await super._inicidentManager_(`funeral-plan-pay-arrears`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 	}
 
 	/**
