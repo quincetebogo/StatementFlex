@@ -50,7 +50,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	}
 
 	get incidentDescription() {
-		return `Recipient EmailID: ${this.screenDetails.emailAddress}`;
+		return this.screenDetails.emailAddress ? `Recipient EmailID: ${this.screenDetails.emailAddress}` : null;
 	}
 	
 	// -------------------

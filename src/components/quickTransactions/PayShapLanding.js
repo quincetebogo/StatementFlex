@@ -1,9 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { convertCentsToRand, formatCurrency, formatDate, formatPhoneNumber, formatProxyId, getMonthName } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { PayShapService } from 'app/services/PayShapService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -63,10 +61,6 @@ export class PayShapLanding extends Component {
 		this.defaultInstitute = false;
 		this.displayToast = false;
 		this.isBusy = false;
-		this.showPopModal = false;
-
-		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.horizonRouter = HorizonRouter.getInstance();
 
 		this._telemetry = HorizonTelemetry.getInstance();
 
@@ -99,8 +93,7 @@ export class PayShapLanding extends Component {
 			showUpdateModal: { state: true, attribute: false },
 			displayToast: { type: Boolean },
 			payShapDefaultToast: { type: String },
-			isBusy: { state: true },
-			showPopModal: { type: Boolean }
+			isBusy: { state: true }
 		};
 	}
 
@@ -191,24 +184,14 @@ export class PayShapLanding extends Component {
 		});
 	}
 
-	async _proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, {
-			"screen": TelemetryScreen.PAYSHAP_TRANSACTION_HISTORY,
-			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT
-		});
-
-		this.proofOfPaymentDetails = {
-			uetr: uetr,
-			debtorReference: debtorReference,
-			verifiedCellphoneNumber: verifiedCellphoneNumber
-		};
-
-		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
-		
-		this.showPopModal = true;
-
-		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
-		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
+	_proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
+		this.dispatchEvent(new CustomEvent(`payshap-pop`, {
+			detail: {
+				uetr: uetr,
+				debtorReference: debtorReference,
+				verifiedCellphoneNumber: verifiedCellphoneNumber
+			}
+		}));
 	}
 
 	_onUpdateClick() {
@@ -305,23 +288,6 @@ export class PayShapLanding extends Component {
 		this.moneyInTransactionHistory = [];
 	}
 
-	_sendPOP(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM, {
-			"notification-type": event.detail.notificationType,
-			"email-address": event.detail.emailAddress
-		});
-	
-		const popDetail = { ...event.detail, ...this.proofOfPaymentDetails };
-		this.dispatchEvent(new CustomEvent(`send-pop`, { detail: popDetail }));
-	}
-
-	async _cancelPOPModal() {
-		await super._inicidentManager_(`payshap`, () => this._toggleBusyFlag());
-		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
-		this.showPopModal = false;
-		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -364,11 +330,6 @@ export class PayShapLanding extends Component {
 		this.institutionsList = await this.getInstitutions();
 
 		this.filteredInstitutions = this.institutionsList;
-	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-		return true;
 	}
 
 	_exitTransactionHistory() {
@@ -713,7 +674,6 @@ export class PayShapLanding extends Component {
 				${this._renderTitleBar()}
 				<capitec-content-box noPadding>
 					${this._renderPayShapContent()}
-					${this._renderPayShapPOP()}
 				</capitec-content-box>
 			</capitec-card>`;
 	}
@@ -1135,16 +1095,6 @@ export class PayShapLanding extends Component {
 				</capitec-button>
 			</capitec-button-bar>
 		`;
-	}
-
-	_renderPayShapPOP() {
-		return this.showPopModal
-		? html`
-		<horizon-payshap-proof-of-payment
-						@on-cancel="${() => this._cancelPOPModal()}"
-						@on-send="${(e) => this._sendPOP(e)}">
-		</horizon-payshap-proof-of-payment>`
-		: html``;
 	}
 
 	_renderPayShapInstitutions() {

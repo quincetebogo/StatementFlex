@@ -407,6 +407,22 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _showPayShapPOPModal(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, {
+			"screen": TelemetryScreen.PAYSHAP_TRANSACTION_HISTORY,
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT
+		});
+
+		this.proofOfPaymentDetails = event.detail;
+
+		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
+
+		this.renderMode = RENDER_MODE.PAYSHAP_POP;
+
+		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -1004,8 +1020,10 @@ export class Favourites extends SavingsAccountBase {
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
+			this._setIncidentDone();
 		} else {
 			this.payShapDefaultToast = `error`;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		}
 
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
@@ -1015,7 +1033,6 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.payshapDisplayToast();
-		this._setIncidentDone();
 
 		this.payShapDetails = await this._getPayShapDetails();
 		
@@ -1029,8 +1046,10 @@ export class Favourites extends SavingsAccountBase {
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
+			this._setIncidentDone();
 		} else {
 			this.payShapDefaultToast = `error`;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		}
 
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
@@ -1040,7 +1059,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.payshapDisplayToast();
-		this._setIncidentDone();
+		
 
 		this.payShapDetails = await this._getPayShapDetails();
 		
@@ -1062,15 +1081,22 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _unloadingPayshap() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
-		this._setIncidentDone();
-		
+		if (this.horizonIncidentManager.currentIncident === `payshap`) {
+			await super.classifyIncident(() => this._toggleBusyFlag());
+			this._setIncidentDone();
+		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	async _sendPayshapPOP(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CONFIRM, {
+			"notification-type": event.detail.notificationType,
+			"email-address": event.detail.emailAddress
+		});
+	
 		const clientInfo = {
-			"paymentUetr": event.detail.uetr,
+			"paymentUetr": this.proofOfPaymentDetails.uetr,
 			"cifNumber": this.callerInformation.cifNumber,
 			"notificationType": event.detail.notificationType,
 			"emailAddress": event.detail.emailAddress,
@@ -1085,7 +1111,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap`);
 	
-		const screenDetails = event.detail;
+		const screenDetails = { ...event.detail, ...this.proofOfPaymentDetails };
 		screenDetails.outcome = returnValue.result;
 		screenDetails.request = clientInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
@@ -1102,6 +1128,14 @@ export class Favourites extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.PAYSHAP;
 		await this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
 	}
+
+	async _cancelPOPModal() {
+		await super._inicidentManager_(`payshap`, () => this._toggleBusyFlag());
+		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
+		this.renderMode = RENDER_MODE.PAYSHAP;
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1162,6 +1196,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderConfirmPlaceHoldModal()}
 			${this._renderPayShap()}
 			${this._renderPayShapUpdateModal()}
+			${this._renderPayShapPOP()}
 
 			${super._webTemplate()}
 		`;
@@ -1354,7 +1389,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderPayShap() {
-		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL
+		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL || this.renderMode === RENDER_MODE.PAYSHAP_POP
 		? html`
 			<horizon-payshap-landing
 				.payShapLandingDetails="${this.payShapDetails}"
@@ -1368,9 +1403,9 @@ export class Favourites extends SavingsAccountBase {
 				.getMoneyOutTransactionHistory="${(request) => this._getMoneyOutTransactionHistory(request)}"
 
 				@on-update="${(e) => this._showPayShapUpdateModal(e)}"
+				@payshap-pop="${(e) => this._showPayShapPOPModal(e)}"
 				@back="${() => this._onExitPayShap()}"
-				@unloading="${() => this._unloadingPayshap()}"
-				@send-pop="${(e) => this._sendPayshapPOP(e)}">
+				@unloading="${() => this._unloadingPayshap()}">
 			</horizon-payshap-landing>`
 		: html``;
 	}
@@ -1386,6 +1421,17 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-pay-shap-update>`
 		: html``;
 	}
+
+	_renderPayShapPOP() {
+		return this.renderMode === RENDER_MODE.PAYSHAP_POP
+		? html`
+		<horizon-payshap-proof-of-payment
+						@on-cancel="${() => this._cancelPOPModal()}"
+						@on-send="${(e) => this._sendPayshapPOP(e)}">
+		</horizon-payshap-proof-of-payment>`
+		: html``;
+	}
+
 }
 
 customElements.define(`horizon-favourites`, Favourites);
