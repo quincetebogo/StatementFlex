@@ -11,6 +11,11 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
 
+const IB_TOKEN_TYPE = {
+	SOFT: `Soft Token`,
+	HARD: `Hard Token`
+};
+
 /**
  * Display an confirmation/success screen indicating which cards have been successfully stopped.
  * 
@@ -37,6 +42,7 @@ export class StopCardSuccess extends ViewBase {
 		this.channels = [];
 		this.accessChannels = {};
 		this.need = ``;
+		this.tokenType = ``;
 
 		this._telemetry = HorizonTelemetry.instance;
 
@@ -62,19 +68,16 @@ export class StopCardSuccess extends ViewBase {
 		return `${this.notNowToSuspendChannels ? `Note: Access channels not suspended` : ``}`;
 	}
 
-	get isAppRegistered() {
-		const app = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
-		return app?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	get app() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
 	}
 
-	get isInetBankingRegistered() {
-		const inet = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
-		return inet?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	get internetBanking() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
 	}
 
-	get isUSSDRegistered() {
-		const ussd = this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
-		return ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+	get ussd() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
 	}
 
 	get channelIcons() {
@@ -89,8 +92,12 @@ export class StopCardSuccess extends ViewBase {
 		};
 	}
 
-	get selectedACCount() {
-		return this.channels.filter(item => item.selected).length;
+	get selectedACs() {
+		return this.channels.filter(item => item.selected && !item.disabled).length;
+	}
+
+	get selectedReasonAcs() {
+		return this.channels.filter(item => item.selected && Boolean(item.reason)).length;
 	}
 
 	// -------------------
@@ -128,7 +135,8 @@ export class StopCardSuccess extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}  
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
+	}
 
 	_doneClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_DONE, {
@@ -186,6 +194,7 @@ export class StopCardSuccess extends ViewBase {
 		this._toggleAlertSuspendChannels();
 		this.notNowToSuspendChannels = true;
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_NOT_NOW, {});
+		this._updateIncidentState();
 	}
 
 	_suspendChannels() {
@@ -199,11 +208,15 @@ export class StopCardSuccess extends ViewBase {
 		this.notNowToSuspendChannels = true;
 
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CANCEL, {});
+		this._updateIncidentState();
 	}
 
 	_selectAllToSuspend(e) {
 		this.channels = this.channels.map(item => {
 			item.selected = e.detail.new;
+			if (!item.disabled) {
+				item.expanded = e.detail.new;
+			}
 			return item;
 		});
 		this.requestUpdate();
@@ -211,6 +224,16 @@ export class StopCardSuccess extends ViewBase {
 
 	_channelSelected(event, index) {
 		this.channels[index].selected = event.detail.new;
+		this.channels[index].expanded = event.detail.new;
+
+		if (this.channels[index].channel === ACCESS_CHANNELS_TYPE.APP && this.tokenType === IB_TOKEN_TYPE.SOFT) {
+			const ibIndex = this.channels.findIndex(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
+			this.channels[ibIndex].selected = event.detail.new;
+		}
+
+		if (!event.detail.new) {
+			this.channels[index].reason = ``;
+		}
 		this.requestUpdate();
 	}
 
@@ -232,6 +255,14 @@ export class StopCardSuccess extends ViewBase {
 		this.horizonRouter.navigateToAccessChannelsOutcome();
 	}
 
+	_suspendReasonSelected(event, item) {
+		const index = this.channels.findIndex(x => x.channel === item.channel);
+		this.channels[index].reason = event.currentTarget.label;
+		this.channels[index].expanded = false;
+
+		this.requestUpdate();
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -242,12 +273,25 @@ export class StopCardSuccess extends ViewBase {
 		if (returnValue.succeeded) {
 			this.channels = [];
 			this.accessChannels = returnValue.result;
-			// Coverting result into Channels array
-			this.channels.push({ ...this.accessChannels.app, channel: ACCESS_CHANNELS_TYPE.APP, label: `App`, selected: false });
-			this.channels.push({ ...this.accessChannels.internetBanking, channel: ACCESS_CHANNELS_TYPE.INTERNET_BANKING, label: `Internet Banking`, selected: false });
-			this.channels.push({ ...this.accessChannels.ussd, channel: ACCESS_CHANNELS_TYPE.USSD, label: `USSD`, selected: false });
+			this.tokenType = this.accessChannels.internetBanking?.tokenType;
 
-			this.alertSuspendChannels = this.isAppRegistered || this.isInetBankingRegistered || this.isUSSDRegistered;
+			// Coverting result into Channels array
+			this.channels.push({ ...this.accessChannels.app, channel: ACCESS_CHANNELS_TYPE.APP, label: `App` });
+			this.channels.push({ ...this.accessChannels.internetBanking, channel: ACCESS_CHANNELS_TYPE.INTERNET_BANKING, label: `Internet Banking` });
+			this.channels.push({ ...this.accessChannels.ussd, channel: ACCESS_CHANNELS_TYPE.USSD, label: `USSD` });
+
+			this.alertSuspendChannels = this.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+										this.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+										this.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+			this.channels = this.channels.filter(x => x.status === ACCESS_CHANNEL_STATUS.ACTIVE)
+										 .map(item => {
+											item.selected = false;
+											item.disabled = this.tokenType === IB_TOKEN_TYPE.SOFT && item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING;
+											item.reason = ``;
+											item.expanded = false;
+
+											return item;
+									   });
 
 			if (this.alertSuspendChannels) {
 				this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND, {
@@ -263,7 +307,7 @@ export class StopCardSuccess extends ViewBase {
 
 	async _formatSuspendChannelsRequest() {
 		const request = {
-			channels: this.channels.filter(item => item.selected).map(item => CHANNEL_TYPE[item.channel]),
+			channels: this.channels.filter(item => item.selected && !item.disabled).map(item => CHANNEL_TYPE[item.channel]),
 			app: null,
 			inetbanking: null,
 			ussd: null
@@ -272,13 +316,13 @@ export class StopCardSuccess extends ViewBase {
 
 		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP])) {
 			request.app = {
-				reason: `Lost`,
+				reason: this.app?.reason,
 				userRegNo: this.accessChannels.app?.userRegNo
 			};
 			this.need = this.need || `suspend-app`;
 		}
 
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING])) {
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType === IB_TOKEN_TYPE.HARD) {
 			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels.app?.userRegNo);
 
 			if (!returnValue.succeeded) {
@@ -297,7 +341,7 @@ export class StopCardSuccess extends ViewBase {
 			request.ussd = {
 				msisdn: this.accessChannels.msisdn,
 				cif: this.callerInformation.cifNumber,
-				reason: `Do not use service enough`
+				reason: this.ussd?.reason
 			};
 			this.need = this.need || `cancel-ussd`;
 		}
@@ -392,6 +436,7 @@ export class StopCardSuccess extends ViewBase {
 				}
 				horizon-alert-banner, horizon-related-options, .success-group {
 					width: 100%;
+					--theme-toast-icon-margin: 0px 13px 0px 15px;
 				}
 				capitec-modal[type="onboard"] {
 					--theme-modal-body-padding: 24px;
@@ -412,11 +457,11 @@ export class StopCardSuccess extends ViewBase {
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-body-padding: 0px;
-					--theme-modal-form-m-l-xl-width: 500px;
+					--theme-modal-form-m-l-xl-width: 515px;
 					--theme-modal-footer-padding: 10px 16px 10px 0px;
 				}
 				capitec-modal[type="form"] > capitec-content-box {
-					height: 360px;
+					height: 541px;
 				}
 				capitec-button {
 					--theme-button-padding-top: 12px;
@@ -431,9 +476,17 @@ export class StopCardSuccess extends ViewBase {
 				.accessChannels > capitec-content-box {
 					--theme-container-padding-top: 8px;
 					--theme-container-padding-bottom: 8px;
+					height: auto;
 				}
 				.accessChannels > capitec-content-box > capitec-group {
 					align-items: center;
+					height: 48px;
+				}
+				.accessChannels.disabled {
+					filter: grayscale(100%);
+				}
+				.accessChannels.expanded {
+					--theme-card-min-height: 200px;
 				}
 				horizon-label {
 					--horizon-label-text-height: 16px;
@@ -459,6 +512,22 @@ export class StopCardSuccess extends ViewBase {
 					--theme-check-width: 20px;
 					--theme-check-height: 20px;
 					--theme-check-label-spacing: 8px;
+				}
+				.reason {
+					display: none
+				}
+				.reason.show {
+					display: block;
+				}
+				capitec-radio-group {
+					--theme-radio-group-label-font-weight: 600;
+					--theme-radio-label-font-weight: 400;
+					--theme-radio-group-label-margin-bottom: 0px;
+					--theme-layout-gap-spacing: 6px;
+				}
+				capitec-radio-group > capitec-radio {
+					--theme-radio-width: 20px;
+					--theme-radio-height: 20px;
 				}
 			`
 		];
@@ -626,6 +695,15 @@ export class StopCardSuccess extends ViewBase {
 		? html`
 			<capitec-modal type="form" header="Stop Access Channels">
 				<capitec-content-box slot="body" halign="right">
+					${this.tokenType === IB_TOKEN_TYPE.SOFT
+						? html`
+							<horizon-alert-banner
+								type="info"
+								header="Note: "
+								label="Suspending App would suspend Internet Banking soft token.">
+							</horizon-alert-banner>`
+						: html``
+					}
 					<capitec-check
 						label="Select all"
 						@value-change="${(e) => this._selectAllToSuspend(e)}">
@@ -638,7 +716,7 @@ export class StopCardSuccess extends ViewBase {
 					type="primary"
 					label="Stop Channels"
 					@click="${() => this._confirmSuspend()}"
-					?disabled="${this.selectedACCount === 0}">
+					?disabled="${this.selectedACs === 0 || this.selectedACs !== this.selectedReasonAcs}">
 				</capitec-button>
 			</capitec-modal>`
 		: html``;
@@ -647,7 +725,8 @@ export class StopCardSuccess extends ViewBase {
 	_renderActiveAccessChannels() {
 		return this.channels.filter(item => item.status === ACCESS_CHANNEL_STATUS.ACTIVE)
 							.map((item, index) => html`
-								<capitec-card class="accessChannels">
+								<capitec-card 
+									class="accessChannels ${item.disabled ? `disabled` : ``} ${item.expanded ? `expanded` : ``}">
 									<capitec-content-box>
 										<capitec-group layout="horizontal">
 											<capitec-icon size="medium" icon="${this.channelIcons[item.channel]}"></capitec-icon>
@@ -663,11 +742,127 @@ export class StopCardSuccess extends ViewBase {
 											</horizon-label>
 											<capitec-check
 												?checked="${item.selected}" 
+												?disabled="${item.disabled}"
 												@value-change="${(event) => this._channelSelected(event, index)}">
 											</capitec-check>
 										</capitec-group>
 									</capitec-content-box>
+									${this._renderSuspendReasons(item)}
 								</capitec-card>`);
+	}
+
+	_renderSuspendReasons(item) {
+		const app = () => this._renderAppReasons(item);
+		const inetBanking = () => this._renderIBReasons(item);
+		const ussd = () => this._renderUssdReasons(item);
+		
+		return {
+			[ACCESS_CHANNELS_TYPE.APP]: app,
+			[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]: inetBanking,
+			[ACCESS_CHANNELS_TYPE.USSD]: ussd
+		}[item.channel]();
+	}
+
+	_renderAppReasons(item) {
+		return html`
+			<capitec-content-box
+				class="reason ${item.expanded ? `show` : ``}">
+					<capitec-radio-group label="Choose a reason">
+						<capitec-radio 
+							label="Lost"
+							?checked="${item.reason === `Lost`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio 
+							label="Stolen"
+							?checked="${item.reason === `Stolen`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio 
+							label="Cancelled remote banking"
+							?checked="${item.reason === `Cancelled remote banking`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio 
+							label="Faulty"
+							?checked="${item.reason === `Faulty`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+					</capitec-radio-group>
+			</capitec-content-box>`;
+	}
+
+	_renderUssdReasons(item) {
+		return html`
+			<capitec-content-box
+				class="reason ${item.expanded ? `show` : ``}">
+					<capitec-radio-group label="Choose a reason">
+						<capitec-radio 
+							label="Do not use service enough"
+							?checked="${item.reason === `Do not use service enough`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Changing to remote/internet banking"
+							?checked="${item.reason === `Changing to remote/internet banking`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Mobile banking too expensive"
+							?checked="${item.reason === `Mobile banking too expensive`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Mobile banking too complicated"
+							?checked="${item.reason === `Mobile banking too complicated`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Need more functions"
+							?checked="${item.reason === `Need more functions`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Lack of support"
+							?checked="${item.reason === `Lack of support`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Closing account"
+							?checked="${item.reason === `Closing account`}"
+							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+					</capitec-radio-group>
+			</capitec-content-box>`;
+	}
+
+	_renderIBReasons() {
+		return html`
+			<capitec-content-box
+				class="reason ${item.expanded ? `show` : ``}">
+					<capitec-radio-group label="Choose a reason">
+						<capitec-radio
+							label="Stolen"
+							?checked="${item.reason === `Stolen`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Lost"
+							?checked="${item.reason === `Lost`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio
+							label="Faulty"
+							?checked="${item.reason === `Faulty`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+						<capitec-radio 
+							label="ServiceCanceled"
+							?checked="${item.reason === `ServiceCanceled`}"
+							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						</capitec-radio>
+					</capitec-radio-group>
+			</capitec-content-box>`;
 	}
 }
 

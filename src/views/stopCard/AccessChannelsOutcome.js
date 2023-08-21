@@ -112,7 +112,12 @@ export class AccessChannelsOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		if (this.showTryAgain) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		} else {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		}
+		
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -144,6 +149,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		
 		this.horizonStore.setScreenDetails(screenDetails);
 		this._initialise();
+		this._updateIncidentState();
 		this.requestUpdate();
 	}
 

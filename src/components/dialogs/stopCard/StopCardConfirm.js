@@ -180,6 +180,10 @@ export class StopCardConfirm extends Component {
 					--theme-button-padding-top: 10px;
 					--theme-button-padding-bottom: 10px;
 				}
+				.cardsToStop-box {
+					height: auto;
+					max-height: 143px;
+				}
 			`
 		];
 	}
@@ -210,7 +214,9 @@ export class StopCardConfirm extends Component {
 		return html`
 			<capitec-label type="strong" label="Are you sure you want to stop the following cards?">
 			</capitec-label>
-			${this._renderConfirmStopCard()}
+			<capitec-content-box class="cardsToStop-box" layout="vertical" noPadding>
+				${this._renderConfirmStopCard()}
+			</capitec-content-box>
 			${this._renderDisclaimer()}
 		`;
 	}
