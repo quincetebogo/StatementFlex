@@ -9,22 +9,22 @@ import { UpdatePlanEvents } from 'app/constants/telemetry/events/Insure';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 // Dialogs
-import 'app/components/dialogs/insure/AddLifeDialog';
-import 'app/components/dialogs/insure/FCPAgreementDialog';
-import 'app/components/dialogs/insure/YROAAgreementDialog';
-import 'app/components/dialogs/insure/YBPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/AddLifeDialog';
+import 'app/components/dialogs/insure/funeral/FCPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YROAAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YBPAgreementDialog';
 
-import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
-import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
-import 'app/components/dialogs/insure/AddBeneficiaryDialog';
-import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
-import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
+import 'app/components/dialogs/insure/funeral/RemoveBeneficiaryDialog';
+import 'app/components/dialogs/insure/funeral/RemoveLifeAssuredDialog';
+import 'app/components/dialogs/insure/funeral/AddBeneficiaryDialog';
+import 'app/components/dialogs/insure/funeral/UpdatePlanAgreementDialog';
+import 'app/components/dialogs/insure/funeral/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
-import 'app/components/dialogs/insure/UpdateValidationDialog';
-import 'app/components/dialogs/insure/IneligibleLivesDialog';
-import 'app/components/dialogs/insure/LAAgreementDialog';
-import 'app/components/dialogs/insure/YWNBPAgreementDialog';
-import 'app/components/dialogs/insure/YPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/UpdateValidationDialog';
+import 'app/components/dialogs/insure/funeral/IneligibleLivesDialog';
+import 'app/components/dialogs/insure/funeral/LAAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YWNBPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YPAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -52,10 +52,10 @@ const REGEX_EMAIL = {
  * 
  *  
  * @export
- * @class UpdatePlan
+ * @class FuneralUpdatePlan
  * @extends {Component}
  */
-class UpdatePlan extends Component {
+class FuneralUpdatePlan extends Component {
 
 	// #region INITIALISATION
 
@@ -91,7 +91,7 @@ class UpdatePlan extends Component {
 		this.agreementYWNBPAccepted = ``;
 		this.showYPAgreementDialog = false;
 		this.agreementYPAccepted = ``;
-		
+
 
 		this.agreementFCPAccepted = ``;
 		this.agreementYBPAccepted = ``;
@@ -847,7 +847,7 @@ class UpdatePlan extends Component {
 
 		this.policyDetails.roleplayers.forEach(ele => {
 			ele.coverDetails.canSubmit = true;
-			
+
 
 			if (ele.lifeAssured === true) {
 
@@ -1067,7 +1067,7 @@ class UpdatePlan extends Component {
 		});
 
 
-		if (!(this.agreementFCPAccepted === `yes` && 
+		if (!(this.agreementFCPAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
 			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
@@ -1106,7 +1106,7 @@ class UpdatePlan extends Component {
  */
 	async _reinstatePolicyPopup() {
 
-		if (!(this.agreementFCPAccepted === `yes` && 
+		if (!(this.agreementFCPAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
 			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
@@ -1199,7 +1199,7 @@ class UpdatePlan extends Component {
 	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
-	 _initialise() {
+	_initialise() {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
@@ -1242,11 +1242,11 @@ class UpdatePlan extends Component {
 		this._openIneligibleLivesDialog();
 
 		// if (this.canReinstate === true) {
-		// 	await super._inicidentManager_(`funeral-plan-reissue`, () => this._toggleBusyFlag());
-		// 	await super.createAndClassifySubIncident();
+		// await super._inicidentManager_(`funeral-plan-reissue`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 		// } else {
-		// 	await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
-		// 	await super.createAndClassifySubIncident();
+		// await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 		// }
 
 
@@ -2762,15 +2762,15 @@ class UpdatePlan extends Component {
 	// #endregion
 }
 
-window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
+window.customElements.define(`horizon-insure-funeral-update-plan`, FuneralUpdatePlan);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-insure-update-plan ... @navigate-back="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @navigate-back="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#navigate-back
+ * @event FuneralUpdatePlan#navigate-back
  * @type {Object} - N/A
  */
 
@@ -2778,9 +2778,9 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * Initiate Update Plan API calls
  *
  * @example
- * <horizon-insure-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#update-plan-create
+ * @event FuneralUpdatePlan#update-plan-create
  * @type {Object} - N/A
  */
 
@@ -2788,8 +2788,8 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * raise Accept Plan event when Agree button is clicked on Reinstate Popup
  *
  * @example
- * <horizon-insure-update-plan ... @accept-policy="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @accept-policy="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#accept-policy
+ * @event FuneralUpdatePlan#accept-policy
  * @type {Object} - N/A
  */

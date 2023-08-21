@@ -11,21 +11,20 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
-import 'app/components/dialogs/insure/PayPremiumDialog';
-import 'app/components/dialogs/insure/PayPremiumConfirmationDialog';
-import 'app/components/dialogs/insure/PayPremiumAgreementDialog';
-import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
-import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/insure/ClientClaimsSummary';
 import 'app/components/dialogs/insure/CFPAgreementDialog';
+import 'app/components/dialogs/insure/LodgeClaimInfoDialog';
 import 'app/components/dialogs/insure/RequestCallbackDialog';
+import 'app/components/dialogs/insure/funeral/PayPremiumDialog';
+import 'app/components/dialogs/insure/funeral/PayPremiumConfirmationDialog';
+import 'app/components/dialogs/insure/funeral/PayPremiumAgreementDialog';
+import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
-
 /**
- * Client Summary component showing all the policies a client currently has on their account
- * This is the primary landing screen for client that has insurance product
+ * Client Summary component showing all the claims, funeral and life cover policies a client currently has on their account
+ * This is the primary landing screen for client that has insurance products
  * 
  * Events Raised 
  * -------------
@@ -39,7 +38,7 @@ const MAIN_LIFE_MINIMUM_COVER = 5000;
  * navigate-to-claim-summary
  * navigate-to-policy-transaction-history
  * navigate-to-sms-history
-  
+
  * _expanded
  * _collapsed
  * 
@@ -54,9 +53,10 @@ class ClientSummary extends Component {
 	constructor() {
 		super();
 
-		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this._horizonInsureStore = HorizonInsureStore.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
-		this.clientPolicies = null;
+		this.funeralPolicies = null;
 		this.clientClaims = null;
 		this.amountToPay = 0;
 
@@ -71,7 +71,6 @@ class ClientSummary extends Component {
 		this.showRequestCallbackDialog = false;
 		this.requestCallbackSuccess = false;
 
-		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
 	}
 
@@ -82,13 +81,12 @@ class ClientSummary extends Component {
 	/**
 	 * @property {Number} maxAllowedCover  CheckInsurance limit for remaining cover limit
 	 * @property {Object} clientClaims Client Claims
-	 * @property {Object} clientPolicies All policies for client
-	 * @property {Object} clientArrears Data & flags from Arrears Service
+	 * @property {Object} funeralPolicies All client funeral policies
+	 * @property {Object} funeralPolicyArrears Data & flags from Arrears Service
 	 * @property {Object} payArrears contains the arrears that will be paid
 	 * @property {Number} fromAccount contains the account number for the account the client will be paying from
-	 * @property {Object} accountDetails contains the clients Savings Account and Savings Plan details
 	 * @property {Number} amountToPay contains the total arrear amount to be paid
-	 * @property {Function} getArrearsPaymentDocument Callback function to fetch arrears payment document
+	 * @property {Function} generateDocumentsFuneralArrears Callback function to fetch arrears payment document
 	 * @property {Object} arrearsPaymentDocumentDetails payment document
 	 * @property {String} contractReferenceToCancel Selected contract reference for cancel action
 	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
@@ -116,14 +114,13 @@ class ClientSummary extends Component {
 		return {
 			maxAllowedCover: { type: Number, state: true },
 			clientClaims: { type: Object, state: true },
-			clientPolicies: { type: Object, state: true },
-			clientArrears: { type: Object, state: true },
+			funeralPolicies: { type: Object, state: true },
 
+			funeralPolicyArrears: { type: Object, state: true },
 			payArrears: { type: Object, state: true },
 			fromAccount: { type: Number, state: true },
-			// accountDetails: { type: Object, state: true },
 			amountToPay: { type: Number, state: true },
-			getArrearsPaymentDocument: { type: Object },
+			generateDocumentsFuneralArrears: { type: Object },
 			arrearsPaymentDocumentDetails: { type: Object },
 			getArrears: { type: Object, state: true },
 
@@ -149,7 +146,6 @@ class ClientSummary extends Component {
 			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true }
-
 		};
 	}
 
@@ -289,8 +285,8 @@ class ClientSummary extends Component {
 	 * @param {string} contractReference contract Reference
 	 * @return {void} 
 	 */
-	async _getArrearsPaymentDocument(contractReference) {
-		await this.getArrearsPaymentDocument(contractReference, this.payArrears, this.fromAccount, false);
+	async _generateDocumentsFuneralArrears(contractReference) {
+		await this.generateDocumentsFuneralArrears(contractReference, this.payArrears, this.fromAccount, false);
 	}
 
 	/**
@@ -381,7 +377,7 @@ class ClientSummary extends Component {
 		}
 
 
-		if (this.horizonInsureStore.getCFPStatus() === false || this.horizonInsureStore.getCFPStatus() === null) {
+		if (this._horizonInsureStore.getCFPStatus() === false || this._horizonInsureStore.getCFPStatus() === null) {
 			this.showCFPAgreementDialog = true;
 		} else {
 			this._navigateAfterCFP();
@@ -393,9 +389,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_navigateAfterCFP() {
-
-		this.horizonInsureStore.setCFPStatus(true);
-
+		this._horizonInsureStore.setCFPStatus(true);
 		switch (this.selectedFlow) {
 			case `update`:
 				this.showCFPAgreementDialog = false;
@@ -434,8 +428,8 @@ class ClientSummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-				// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
-				// await super.createAndClassifySubIncident(null, false);
+		// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident(null, false);
 	}
 
 	/**
@@ -704,20 +698,6 @@ class ClientSummary extends Component {
 		return displayStatus;
 	}
 
-
-	/**
-	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
-	 * @param {String} contractReference contract reference
-	 * @returns {void}
-	 */
-	// _goToAuditTransactionHistory(contractReference) {
-	// this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY, {});
-	// this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
-	// detail: { policyNumber: contractReference }
-	// }));
-	// }
-
-
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -972,9 +952,9 @@ class ClientSummary extends Component {
 	 */
 	_renderDialogs() {
 		return html`
-			${this._renderPayPremiumDialog()}
-			${this._renderPayPremiumConfirmationDialog()}
-			${this._renderPayPremiumAgreementDialog()}
+			${this._renderFuneralPayPremiumDialog()}
+			${this._renderFuneralPayPremiumConfirmationDialog()}
+			${this._renderFuneralPayPremiumAgreementDialog()}
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCancelPolicyDialog()}
 			${this._renderCFPAgreementDialog()}
@@ -1002,7 +982,7 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.clientPolicies?.summaryDetails?.policies.length === 0 || this.readOnlyMode === true ? `` : html`
+					${this.funeralPolicies?.summaryDetails?.policies.length === 0 || this.readOnlyMode === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this.showLodgeClaimInfoDialog = true}">
 						</capitec-button>
@@ -1022,7 +1002,7 @@ class ClientSummary extends Component {
 
 				</capitec-title-bar>
 
-				${this.clientPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResults()}` : html`${this._renderPoliciesLandingContent()}`}
+				${this.funeralPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResults()}` : html`${this._renderPoliciesLandingContent()}`}
 		</capitec-card>`;
 	}
 
@@ -1065,10 +1045,18 @@ class ClientSummary extends Component {
 		return html`
 			<capitec-tab-group>
 				<capitec-tab
-					data-automation-id="insure-landing-policies-tab"
-					label="Policies">
+					data-automation-id="insure-landing-funeral-policies-tab"
+					label="Funeral Plan">
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
-							${this._renderPoliciesDetailsBar()}
+						${this._renderFuneralPoliciesList()}
+					</capitec-content-box>
+					${this._renderFooter()}
+				</capitec-tab>
+				<capitec-tab
+					data-automation-id="insure-landing-life-policies-tab"
+					label="Life Cover">
+					<capitec-content-box  id="client-policies-box" class="accounts-box">
+						${this._renderLifePoliciesList()}
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -1087,11 +1075,11 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render List of Policies
+	 * Render list of Funeral Cover policies
 	 * @returns {html} The html content the list of Policies
 	 */
-	_renderPoliciesDetailsBar() {
-		this.policiesList = this.clientPolicies?.summaryDetails?.policies;
+	_renderFuneralPoliciesList() {
+		this.policiesList = this.funeralPolicies?.summaryDetails?.policies;
 		this.policiesList = this.policiesList?.sort((a, b) => Status[a.status] - Status[b.status] || new Date(b.commencementDate) - new Date(a.commencementDate));
 
 		return html`${this.policiesList?.length > 0 ? this.policiesList?.map((policyItem) => {
@@ -1190,6 +1178,14 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Render list of Life Cover policies
+	 * @returns {html} The html content the list of policies
+	*/
+	_renderLifePoliciesList() {
+		return html`LIFE LIST`;
+	}
+
+	/**
 	 * Render Policy options
 	 * @param {Object} policyItem - each policy item
 	 * @returns {html} The html content of the each Policy options
@@ -1221,7 +1217,7 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content of No results
 	 */
 	_renderNoResults() {
-		return html`${isNullorEmpty(this.clientPolicies) ? ``
+		return html`${isNullorEmpty(this.funeralPolicies) ? ``
 			: html`
 			<capitec-content-box id="no-results-box">
 				<div id="no-results-box-inner">
@@ -1322,6 +1318,8 @@ class ClientSummary extends Component {
 		`;
 	}
 
+	// --- Dialogs
+
 	/**
 	 * Render the Cancel Policy Dialog
 	 * @returns {html} html content
@@ -1339,14 +1337,14 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render Pay Premium Dialog 
+	 * Render Funeral Pay Premium Dialog 
 	 * @return {html} Html of the dialog
 	 */
-	_renderPayPremiumDialog() {
+	_renderFuneralPayPremiumDialog() {
 		return this.showPayPremiumDialog === false ? ``
 			: html`
 			<horizon-insure-pay-premium-dialog   
-				.clientArrears = ${this.clientArrears}
+				.clientArrears = ${this.funeralPolicyArrears}
 				.currentContractRef = "${this.selectedContractRef}"
 				@pay-arrears = "${(e) => this._payArrears(e)}"
 				@close-modal="${() => this.showPayPremiumDialog = false}" >
@@ -1354,10 +1352,10 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render Confirm Pay Premium Dialog 
+	 * Render Funeral Confirm Pay Premium Dialog
 	 * @return {html} Html of the dialog
 	 */
-	_renderPayPremiumConfirmationDialog() {
+	_renderFuneralPayPremiumConfirmationDialog() {
 		return this.showPayPremiumConfirmationDialog === false ? ``
 			: html`
 			<horizon-insure-pay-premium-confirmation-dialog 
@@ -1370,16 +1368,16 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render Pay Premium Agreement Dialog 
+	 * Render Funeral Pay Premium Agreement Dialog 
 	 * @return {html} Html of the dialog
 	 */
-	_renderPayPremiumAgreementDialog() {
+	_renderFuneralPayPremiumAgreementDialog() {
 		return this.showPayPremiumAgreementDialog === false ? ``
 			: html`
 			<horizon-insure-pay-premium-agreement-dialog 
 				.payAmount = "${this.amountToPay}" 
 				.contractReference= ${this.selectedContractRef}
-				.getArrearsPaymentDocument="${(contractReference) => this._getArrearsPaymentDocument(contractReference)}"
+				.getArrearsPaymentDocument="${(contractReference) => this._generateDocumentsFuneralArrears(contractReference)}"
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				@close-modal="${() => this.showPayPremiumAgreementDialog = false}"
 				@pay-premium-agree = "${() => this._payPremiumAgree()}">
@@ -1424,6 +1422,23 @@ class ClientSummary extends Component {
 				</horizon-insure-email-dialog>`;
 	}
 
+	/**
+	 * FMS Request a callback details dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderRequestCallbackDialog() {
+		return this.showRequestCallbackDialog === false ? html``
+			: html`
+			<horizon-insure-request-callback-dialog
+			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
+			@cancel-click="${() => this.showRequestCallbackDialog = false}">
+			</horizon-insure-request-callback-dialog>
+		`;
+	}
+
+	// --- END Dialogs
+
+	// --- Helpers
 
 	/**
 	 * Renders the Email Success alert
@@ -1448,16 +1463,6 @@ class ClientSummary extends Component {
 		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 	}
 
-	_renderRequestCallbackDialog() {
-		return this.showRequestCallbackDialog === false ? html``
-			: html`
-			<horizon-insure-request-callback-dialog
-			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
-			@cancel-click="${() => this.showRequestCallbackDialog = false}">
-			</horizon-insure-request-callback-dialog>
-		`;
-	}
-
 	_renderRequestCallbackAlert() {
 		return this.requestCallbackSuccess === false ? html``
 			: html`
@@ -1472,6 +1477,8 @@ class ClientSummary extends Component {
 
 	`;
 	}
+
+	// --- END Helpers
 
 	// #endregion RENDERING
 }

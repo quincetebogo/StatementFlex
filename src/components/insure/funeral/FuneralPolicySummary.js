@@ -15,10 +15,10 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
  * navigate-back
  *  
  * @export
- * @class PolicySummary
+ * @class FuneralPolicySummary
  * @extends {Component}
  */
-class PolicySummary extends Component {
+class FuneralPolicySummary extends Component {
 
 	// #region INITIALISATION
 
@@ -610,14 +610,14 @@ class PolicySummary extends Component {
 	}
 	// #endregion
 }
-window.customElements.define(`horizon-insure-policy-summary`, PolicySummary);
+window.customElements.define(`horizon-insure-funeral-policy-summary`, FuneralPolicySummary);
 
 /**
  * When back arrow button is clicked, navigate
  *
  * @example
- * <horizon-insure-policy-summary ... @navigate-back="${this._handler}"></horizon-insure-policy-summary>
+ * <horizon-insure-funeral-policy-summary ... @navigate-back="${this._handler}"></horizon-insure-funeral-policy-summary>
  *
- * @event PolicySummary#navigate-back
+ * @event FuneralPolicySummary#navigate-back
  * @type {Object} - N/A
  */
