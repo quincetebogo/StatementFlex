@@ -19,7 +19,7 @@ const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
 	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
-	START_AT_INDEX: 1,
+	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
 };
@@ -98,18 +98,24 @@ export class PayShapLanding extends Component {
 	}
 
 	get isCapitecBankDefault() {
+
+		if (!this.payShapLandingDetails.proxyDetails.defaultProxyStatus) {
+			return CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain);
+		}
+
 		return this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `True` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain);
 	}
 
 	get defaultInstitution() {
-		if (this.isCapitecBankDefault) {
-			return this.payShapLandingDetails.proxyDetails.domain;
-		} else if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && !CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
-				return this.payShapLandingDetails.proxyDetails.domain;
-			}
-		
+		if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+			return ``;
+		}
 
-		return ``;
+		if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `Unknown` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
+			return `Unknown`;
+		}
+
+		return this.payShapLandingDetails.proxyDetails.domain;
 	}
 
 	// -------------------
@@ -140,7 +146,7 @@ export class PayShapLanding extends Component {
 		const transactionHistoryTab = () => this._transactionHistoryTab();
 		const institutionsTab = () => this._institutionsTab();
 		const payshapTab = {
-			0: detailsTab, 
+			0: detailsTab,
 			1: transactionHistoryTab,
 			2: institutionsTab
 		};
@@ -169,7 +175,7 @@ export class PayShapLanding extends Component {
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
 					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()) ||
-																	item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
+						item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
 				}
 				return [];
 			});
@@ -224,12 +230,12 @@ export class PayShapLanding extends Component {
 			cifNumber: this.cifNumber,
 			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
-			pageSize: `11`,
+			pageSize: `12`,
 			paginationToken: paginationToken || null
 		};
 
 		const result = await this.getMoneyOutTransactionHistory(moneyOutTHRequest);
-		
+
 		const formattedTrans = result.paymentHistoryList
 			.map((item) => {
 				const date = new Date(Date.parse(item.processDateTime));
@@ -240,12 +246,12 @@ export class PayShapLanding extends Component {
 				item.shapId = item.creditorProxyId;
 				item.accountnumber = item.creditorAccountId;
 				item.institution = item.creditorFicaName;
-				item.formatedAmount = `-${formatCurrency(item.amount)}`;
+				item.formatedAmount = `-${formatCurrency(convertCentsToRand(item.amount))}`;
 
 				return item;
 			});
 		this.moneyOutTransactionHistory.push(...formattedTrans);
-		
+
 		return {
 			moneyOutTransactionHistory: this.moneyOutTransactionHistory,
 			paginationToken: result.paginationToken,
@@ -265,7 +271,7 @@ export class PayShapLanding extends Component {
 		};
 
 		const result = await this.getMoneyInTransactionHistory(moneyInTHRequest);
-		
+
 		const formattedTrans = result.transactions
 			.map((item) => {
 				const date = new Date(Date.parse(item.transactionDate));
@@ -386,7 +392,7 @@ export class PayShapLanding extends Component {
 					height: 750px;
 				}
 				.transactions-tab {
-					height: 750px;
+					height: 767px;
 				}
 				.payshap-info {
 					--theme-card-min-height: 80px;
@@ -658,14 +664,14 @@ export class PayShapLanding extends Component {
 
 	_renderToast() {
 		return this.displayToast
-		? html`
+			? html`
 			<capitec-toast
 				type="${this.payShapDefaultToast}"
 				header="${this.payShapDefaultToast === `success` ? `Success` : `Failure`}"
 				detail="${this.payShapDefaultToast === `success` ? `Payshap details updated` : `Payshap details not updated`}"
 				closable>
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -717,7 +723,7 @@ export class PayShapLanding extends Component {
 
 	_renderPayShapTransactionHistory() {
 		return this.renderMode === RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY
-		? html`
+			? html`
 			<horizon-payshap-transaction-history
 				.moneyType="${this.moneyType}"
 
@@ -738,7 +744,7 @@ export class PayShapLanding extends Component {
 				@unloading="${() => this._unloadTransactionHistory()}">
 			</horizon-payshap-transaction-history>
 		`
-		: html``;
+			: html``;
 	}
 
 	_renderMoneyOutTransactionHistoryColumns() {
@@ -839,7 +845,7 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Fee" 
-						value="${formatCurrency(item.feeAmount)}">
+						value="${formatCurrency(convertCentsToRand(item.feeAmount))}">
 					</horizon-label>
 				</capitec-group>
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
@@ -856,7 +862,7 @@ export class PayShapLanding extends Component {
 					</capitec-button>
 				</capitec-button-bar>
 			</capitec-group>
-		`; 
+		`;
 	}
 
 	_renderMoneyInTransactionHistoryColumns() {
@@ -1014,7 +1020,7 @@ export class PayShapLanding extends Component {
 					</horizon-label>
 					<horizon-label class="horizon-label-payshap-info"
 							label="Status"
-							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus}">
+							value="${this.payShapLandingDetails.proxyDetails.fullProxyStatus || `Unknown`}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>
@@ -1120,8 +1126,8 @@ export class PayShapLanding extends Component {
 
 	_renderInstitutions() {
 		return this.filteredInstitutions.length > 0
-		? html`${this._renderInsitutionsList()}`
-		: html`${this._renderNoResults()}`;
+			? html`${this._renderInsitutionsList()}`
+			: html`${this._renderNoResults()}`;
 	}
 
 	_renderInsitutionsList() {
@@ -1166,12 +1172,6 @@ export class PayShapLanding extends Component {
 					</capitec-label>
 			</capitec-group>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
-			: html``;
 	}
 
 }

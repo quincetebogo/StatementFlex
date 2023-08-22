@@ -361,7 +361,7 @@ class PolicyEstimate extends Component {
 	 * Initialize component when loaded / Add default life to list for calculator and list
 	 * @returns {void}
 	 */
-	_initialise() {
+	 _initialise() {
 		let ageMessage = ``;
 		if (this.mainLifeDefaultAge < 18 || this.mainLifeDefaultAge > 64) {
 			ageMessage = `Only Main Life between the ages of 18 and 64 are allowed`;
@@ -390,6 +390,8 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
+		// await super._inicidentManager_(`funeral-plan-calculate-estimate`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 	}
 
 	/**

@@ -110,14 +110,11 @@ class PrintEstimateAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			<capitec-expander-group modeset="single">
-				<capitec-expander expandbuttonalignment="left" label="View Estimate" class="pdf-viewer" .expanded="${true}"
-					data-automation-id="insure-horizon-insure-print-estimate-agreement-dialog-view-estimate">
-					<iframe title="PrintEstimateAgreement" height = "100%" frameborder = "0"
-						src="data:application/pdf;base64, ${this.printEstimateAgreementContent}#view=fitH">
-					</iframe>
-				</capitec-expander>
-			</capitec-expander-group>
+			<capitec-content-box style="height: 700px; width: 800px;">
+				<iframe title="PrintEstimateAgreement" height = "100%" frameborder = "0"
+					src="data:application/pdf;base64, ${this.printEstimateAgreementContent}#view=fitH">
+				</iframe>
+			</capitec-content-box>
 		`;
 	}
 

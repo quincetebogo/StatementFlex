@@ -101,6 +101,9 @@ class SMSHistory extends Component {
 			this.filteredData = this.commsHistory?.results.filter(item => new Date(item.sentAt) >= new Date(this.startDate) && new Date(item.sentAt) <= new Date(this.endDate));
 			// this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
+
+		// await super._inicidentManager_(`funeral-sms-history`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 	}
 
 	/**
