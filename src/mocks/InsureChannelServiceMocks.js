@@ -41,6 +41,7 @@ export default class InsureChannelServiceMocks {
 			console.log(err);
 		};
 
+		// Funeral
 		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
 		this.clientSummaryMocks = await this._loadMockModule(this.clientSummaryMocks, `insureClientSummary`, () => import(`../mocks/insure/ClientSummary`).catch(err => logError(err)));
 		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
@@ -51,20 +52,24 @@ export default class InsureChannelServiceMocks {
 		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
 		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
 		this.sendEmailMocks = await this._loadMockModule(this.sendEmailMocks, `insureSendEmail`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
-
 		this.insureEstimatePrintoutMocks = await this._loadMockModule(this.insureEstimatePrintoutMocks, `insureEstimatePrintout`, () => import(`../mocks/insure/GenericDocumentResponse`).catch(err => logError(err)));
 		this.generateIssueAgreementMocks = await this._loadMockModule(this.generateIssueAgreementMocks, `insureGenerateIssueAgreement`, () => import(`../mocks/insure/GenericDocumentResponse`).catch(err => logError(err)));
-
 		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
 		this.policyAcceptMocks = await this._loadMockModule(this.policyAcceptMocks, `insurePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
 		this.policyReissueMocks = await this._loadMockModule(this.policyReissueMocks, `insurePolicyReissue`, () => import(`../mocks/insure/PolicyReissue`).catch(err => logError(err)));
 		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/CommunicationHistory`).catch(err => logError(err)));
-
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
-		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/InsureArrears`).catch(err => logError(err)));
+
+		// Life
+		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
+		this.lifeCancelPolicyMocks = await this._loadMockModule(this.lifeCancelPolicyMocks, `insureLifeCancelPolicy`, () => import(`../mocks/insure/life/LifeCancelPolicy`).catch(err => logError(err)));
+		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
+		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
 	}
+
+	// #region FUNERAL
 
 	/**
 	 * Product parameters mock check
@@ -96,29 +101,6 @@ export default class InsureChannelServiceMocks {
 	insurePolicyTransactionHistory(policyTransactionHistoryRequest) {
 		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
 			return this.transactionHistoryMocks.PolicyTransactionHistory;
-		}
-
-		// Code for a negative case could come here
-		return null;
-	}
-
-	/**
-	 * fetch mock data for audit transactions
-	 * @param {Object} auditTransactionHistoryRequest request payload 
-	 * @returns {Object} Mock transactions data
-	*/
-	auditTransactionHistory(auditTransactionHistoryRequest) {
-		if (this._mockSettings.insureAuditTransactionHistory.positiveCase) {
-			const result = this.auditTransactionHistoryMocks.AuditTransactionHistory;
-			const auditTrans = result.filter(x => x.contractReference === auditTransactionHistoryRequest.contractReference);
-
-			// TODO: should be modified below code once integrated with service
-			if (auditTrans.length > 0) {
-				return auditTrans[0];
-			}
-
-			return result.filter(x => x.contractReference === `FP123456`)[0];
-
 		}
 
 		// Code for a negative case could come here
@@ -292,4 +274,54 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
+
+	// #endregion FUNERAL
+
+	// #region LIFE
+	
+	/**
+	 * Policy summary mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeClientSummary() {
+		if (this._mockSettings.insureLifeClientSummary.positiveCase) {
+			return this.lifeClientSummaryMocks.insureLifeClientSummary;
+		}
+		return null;
+	}
+
+	/**
+	 * Cancel life policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeCancelPolicy() {
+		if (this._mockSettings.insureLifeCancelPolicy.positiveCase) {
+			return this.lifeCancelPolicyMocks.insureLifeCancelPolicy;
+		}
+		return null;
+	}
+
+	/**
+	 * Get Arrears policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeGetArrears() {
+		if (this._mockSettings.insureLifeGetArrears.positiveCase) {
+			return this.lifeGetArrearsMocks.insureLifeGetArrears;
+		}
+		return null;
+	}
+
+	/**
+	 * Get Policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeGetPolicy() {
+		if (this._mockSettings.insureLifeGetPolicy.positiveCase) {
+			return this.lifeGetPolicyMocks.insureLifeGetPolicy;
+		}
+		return null;
+	}
+
+	// #endregion LIFE
 }

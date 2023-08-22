@@ -17,7 +17,6 @@ export const ClientPoliciesEvents = {
 	CLIENT_POLICIES_PAY_POLICY: `call.fulfill-need.insure.client-policies.pay-policy`,
 	CLIENT_POLICIES_CANCEL_POLICY: `call.fulfill-need.insure.client-policies.cancel-policy`,
 	CLIENT_POLICIES_TRANSACTION_HISTORY: `call.fulfill-need.insure.client-policies.transaction-history`,
-	CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY: `call.fulfill-need.insure.client-policies.audit-transaction-history`,
 	CLIENT_POLICIES_REINSTATE_PLAN: `call.fulfill-need.insure.client-policies.reinstate-plan`,
 	CLIENT_POLICIES_SMS_HISTORY: `call.fulfill-need.insure.client-policies.sms-history`
 };
