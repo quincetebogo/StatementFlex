@@ -1,5 +1,5 @@
+import { AVAILABLE_FEATURES_BY_ROLE, HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { EventAggregator, Logger } from 'platform/core';
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -321,6 +321,23 @@ export class ViewBase extends View {
 		return returnValue.succeeded;
 	}
 	
+	// Show tooltip when a particular option is disabled
+	_showTooltip(need) {
+		const availableFeatures = AVAILABLE_FEATURES_BY_ROLE[this.roleManager.orgUnit];
+		
+		if (availableFeatures?.length > 0) {
+			return !availableFeatures.includes(need);
+		}
+		return false;
+	}
+
+	_shouldDisableByRole(need) {
+		const disableByVerification = this._shouldDisable(need);
+		const disableByRole = this._showTooltip(need);
+
+		return disableByVerification || disableByRole;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
