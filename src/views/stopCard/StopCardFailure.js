@@ -4,6 +4,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
 // import 'app/components/dialogs/insure/AssignReasonSelected';
@@ -62,10 +63,10 @@ export class StopCardFailure extends ViewBase {
 
 	get incidentDescription() {
 		let description = ``;
-		const stoppedCards = this.stoppedCards.filter(card => card.cardStopped)
+		const stoppedCards = this.stoppedCards.filter(card => card.cardStopped);
 
 		stoppedCards.forEach(card => {
-			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped:${card.cardStoppedDate}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
 		});
 
 		return description;

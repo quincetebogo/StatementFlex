@@ -3,6 +3,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -46,7 +47,7 @@ export class StopCardSuccess extends ViewBase {
 	get incidentDescription() {
 		let description = ``;
 		this.stoppedCards.forEach(card => {
-			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped:${card.cardStoppedDate}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
 		});
 
 		return description;
