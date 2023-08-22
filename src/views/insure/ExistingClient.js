@@ -99,7 +99,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} funeralCancelAgreementDocument contains the cancel policy document details
 	 * @property {Object} funeralArrearsAgreementDocument contains the arrears payment document details
 	 * @property {Boolean} funeralShowEstimateSuccessToast determine whether to show a success alert for estimate email
-	 * @property {Object} funeralArrears contains client arrears and payable accounts for funeral
+	 * @property {Object} funeralPolicyArrears contains client arrears and payable accounts for funeral policy
 	 * 
 	 * @readonly
 	 * @static
@@ -124,7 +124,7 @@ export class ExistingClient extends InsureViewBase {
 			funeralCancelAgreementDocument: { type: Object, state: true },
 			funeralArrearsAgreementDocument: { type: Object, state: true },
 			funeralShowEstimateSuccessToast: { type: Boolean, state: true },
-			funeralArrears: { type: Object, state: true }
+			funeralPolicyArrears: { type: Object, state: true }
 		};
 	}
 
@@ -843,7 +843,7 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
-		this.funeralArrears = arrearsResp?.result;
+		this.funeralPolicyArrears = arrearsResp?.result;
 	}
 
 	/**
@@ -1257,17 +1257,17 @@ export class ExistingClient extends InsureViewBase {
 
 		return html`
 			<horizon-insure-client-summary 
-				.emailEstimateSuccess ="${this.funeralShowEstimateSuccessToast}"
+				.showEmailEstimateSuccessToast ="${this.funeralShowEstimateSuccessToast}"
 				.clientClaims="${this.insuranceClaims}"
 				.funeralPolicies="${this.funeralPolicies}"
-				.cancelPolicyDocumentDetails="${this.funeralCancelAgreementDocument}" 
-				.arrearsPaymentDocumentDetails="${this.funeralArrearsAgreementDocument}"
-				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum)}"
+				.funeralCancelAgreementDocument="${this.funeralCancelAgreementDocument}" 
+				.funeralArrearsPaymentDocumentDetails="${this.funeralArrearsAgreementDocument}"
+				.generateDocumentsFuneralCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.generateDocumentsFuneralArrears="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._generateDocumentsFuneralArrears(contractReference, payArrears, fromAccount, saveToDocumentum)}"
 				.maxAllowedCover="${isNullorEmpty(this.funeralPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.funeralPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
-				.getArrears = "${() => this._retrieveFuneralPolicyArrears()}"
-				.clientArrears = "${this.funeralArrears}"
+				.funeralGetPolicyArrears = "${() => this._retrieveFuneralPolicyArrears()}"
+				.funeralPolicyArrears = "${this.funeralPolicyArrears}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
