@@ -47,7 +47,6 @@ export class StopCardSuccess extends ViewBase {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
-		this.accessChannelsInfoSub = this.eventAggregator.subscribe(`horizon-access-channels-loaded`, (event) => this._initialise(event));
 	}
 
 
@@ -104,13 +103,14 @@ export class StopCardSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails?.stoppedCards || [];
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+		await this._initialise();
 		this._updateIncidentState();
 	}
 
@@ -122,7 +122,6 @@ export class StopCardSuccess extends ViewBase {
 				"screen": TelemetryScreen.STOP_CARD_OUTCOME
 			});
 		}
-		this.accessChannelsInfoSub.dispose();
 	}
 
 	// --------------
@@ -267,8 +266,8 @@ export class StopCardSuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise(event) {
-		const returnValue = event.accessChannelsInfo;
+	async _initialise() {
+		const returnValue = await this.accessChannelService.accessChannelLanding(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
 			this.channels = [];
@@ -836,7 +835,7 @@ export class StopCardSuccess extends ViewBase {
 			</capitec-content-box>`;
 	}
 
-	_renderIBReasons() {
+	_renderIBReasons(item) {
 		return html`
 			<capitec-content-box
 				class="reason ${item.expanded ? `show` : ``}">
