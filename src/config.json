@@ -221,10 +221,6 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureAuditTransactionHistory": {
-			"enabled": false,
-			"positiveCase": true
-		},
 		"creditOverview": {
 			"enabled": false,
 			"positiveCase": true
@@ -387,6 +383,22 @@
 		},
 		"moneyIn": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeClientSummary": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeCancelPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeGetArrears": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeGetPolicy": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

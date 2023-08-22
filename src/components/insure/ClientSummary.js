@@ -705,19 +705,6 @@ class ClientSummary extends Component {
 	}
 
 
-	/**
-	 * Fire navigate event to Audit Transaction History - RELEASE DELAYED
-	 * @param {String} contractReference contract reference
-	 * @returns {void}
-	 */
-	// _goToAuditTransactionHistory(contractReference) {
-	// this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_AUDIT_TRANSACTION_HISTORY, {});
-	// this.dispatchEvent(new CustomEvent(`navigate-to-audit-transaction-history`, {
-	// detail: { policyNumber: contractReference }
-	// }));
-	// }
-
-
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING

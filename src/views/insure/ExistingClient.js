@@ -22,7 +22,6 @@ import 'app/components/insure/CancelPolicySuccess';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/PayPremiumSuccess';
 import 'app/components/insure/PolicyTransactionHistory';
-import 'app/components/insure/AuditTransactionHistory';
 import 'app/components/insure/UpdatePlanSuccess';
 import 'app/components/insure/SuccessPage';
 import 'app/components/insure/SMSHistory';
@@ -75,7 +74,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this.readOnly = false;
 		this.emailEstimateSuccess = false;
-		// this.auditTransactionHistory = {};
 
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
@@ -1037,69 +1035,6 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.SMS_HISTORY);
 	}
 
-	/**
-	 * Fetch Audit Transaction History - RELEASE DELAYED
-	 * @param {*} startDate startDate
-	 * @param {*} endDate endDate
-	 * @param {*} pageIndex pageIndex
-	 * @returns {null} null
-	*/
-	// async _getAuditTransactionHistory(startDate, endDate, pageIndex) {
-	// const transactionHistoryRequest = {
-	// contractReference: this.contractReference,
-	// transactionDateType: AUDIT_DATE_TYPE_LIST[0].code,
-	// fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
-	// toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
-	// transactionStatus: TRANSACTION_STATUS.NONFINANCIAL,
-	// pagniation: {
-	// pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
-	// totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
-	// }
-	// };
-
-	// this.transactions = [];
-
-	// this.auditTransactionHistory = {
-	// contractReference: this.contractReference
-	// };
-
-	// const returnValue = await this.insureService.getAuditTransactions(transactionHistoryRequest);
-
-	// if (returnValue.succeeded && returnValue.result) {
-	// const formattedTrans = returnValue.result.transactions
-	// .map((item) => {
-	// // TODO: Need to update below code once service includes in the response payload.
-	// // const formatedChangeActionedDate = new Date(Date.parse(item.changeActionedDate));
-	// // const formatedEffectiveDate = new Date(Date.parse(item.effectiveDate));
-	// // item.formatedChangeActionedDate = formatedChangeActionedDate;
-	// // item.formatedEffectiveDate = formatedEffectiveDate;
-	// // item.groupBychangeActionedDate = `${getMonthName(formatedChangeActionedDate.getMonth())} ${formatedChangeActionedDate.getFullYear()}`;
-
-	// const formatedDate = new Date(Date.parse(item.date));
-	// item.formatedDate = formatedDate;
-	// item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-	// item.transactionTypeDesc = isNullorEmpty(ACTIVITY_TYPE_DESCRIPTION[item.transactionType]) ? item.transactionType : ACTIVITY_TYPE_DESCRIPTION[item.transactionType];
-	// return item;
-	// });
-	// this.transactions.push(...formattedTrans);
-
-	// this.auditTransactionHistory.transactions = this.transactions;
-
-	// this.endCallContext = `AuditTransactionHistory`;
-	// this.renderMode = INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY;
-	// }
-	// }
-
-	/**
-	 * Prepare and navigate to Audit Transaction history - RELEASE DELAYED
-	 * @param {*} e e
-	 * @returns {null} null
-	 */
-	// async _goToAuditTransactionHistory(e) {
-	// this.contractReference = e.detail.policyNumber;
-	// await this._getAuditTransactionHistory();
-	// this._navigateToSubView(INSURE_RENDER_MODE.AUDIT_TRANSACTION_HISTORY);
-	// }
 
 	/**
 	 * Invoke accept plan call, and redirect to success page
@@ -1236,13 +1171,6 @@ export class ExistingClient extends InsureViewBase {
 		this.policyTransactionHistory = {};
 	}
 
-	/**
-	 * Unload Audit Transactions
-	 * @returns {void}
-	 */
-	_unloadAuditTransactionHistory() {
-		this.auditTransactionHistory = {};
-	}
 
 	/**
 	 * Unload Policy Transactions
@@ -1591,23 +1519,5 @@ export class ExistingClient extends InsureViewBase {
 
 	// #endregion RENDERING
 
-	// #region RELEASE DELAYED
-
-	/**
-	 * Render Audit Transaction History Page
-	 * @returns {html} Html of the sub view 
-	 */
-	// _renderAuditTransactionHistoryPage() {
-	// return html`
-	// <horizon-insure-audit-transaction-history 
-	// @navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-	// .auditTransactionHistory="${this.auditTransactionHistory}"
-	// .getAuditTransactionHistory="${(startDate, endDate, pageIndex) => this._getAuditTransactionHistory(startDate, endDate, pageIndex)}"
-	// .disposeData="${() => this.auditTransactionHistory = []}"
-	// @unloading="${() => this._unloadAuditTransactionHistory()}">
-	// </horizon-insure-audit-transaction-history>`;
-	// }
-
-	// #endregion RELEASE DELAYED
 }
 customElements.define(`horizon-existing-client`, ExistingClient);
