@@ -22,10 +22,10 @@ import 'app/components/common/HorizonLabel';
  * _filterByDateType
  *  
  * @export
- * @class PolicyTransactionHistory
+ * @class FuneralPolicyTransactionHistory
  * @extends {Component}
  */
-class PolicyTransactionHistory extends Component {
+class FuneralPolicyTransactionHistory extends Component {
 
 	// #region INITIALIZATION
 
@@ -712,13 +712,13 @@ class PolicyTransactionHistory extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`horizon-insure-policy-transaction-history`, PolicyTransactionHistory);
+window.customElements.define(`horizon-insure-funeral-policy-transaction-history`, FuneralPolicyTransactionHistory);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-insure-policy-transaction-history 
+ * <horizon-insure-funeral-policy-transaction-history 
 			...@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}..."
  *
  * @event PolicyTransactionHistory#navigate-back
@@ -729,7 +729,7 @@ window.customElements.define(`horizon-insure-policy-transaction-history`, Policy
  * When page is unloaded, clear policytransactionhistory objects
  *
  * @example
- * <horizon-insure-policy-transaction-history 
+ * <horizon-insure-funeral-policy-transaction-history 
 			...@unloading="${() => this._unloadPolicyTransactionHistory()}"...>
 			</horizon-insure-policy-transaction-history>
  *

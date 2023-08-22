@@ -17,8 +17,8 @@ export class InsureViewBase extends ViewBase {
 
 	constructor() {
 		super();
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
 	// #endregions INITIALISATION
@@ -45,8 +45,8 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Setup the component once added to the DOM.
-	 * Fetch caller information
-	 * Fetch insure product parameters
+	 * 1. Fetch caller information
+	 * 2. Fetch insure product parameters before view loads
 	 * @returns {void}
 	 */
 	async connectedCallback() {
@@ -56,7 +56,7 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Unload the component once removed from the DOM.
-	 * Clears CFP value from state
+	 * 1. Clears CFP value from state
 	 * @returns {void}
 	 */
 	disconnectedCallback() {
@@ -81,15 +81,6 @@ export class InsureViewBase extends ViewBase {
 	}
 
 	/**
-	 * Error callback for channel services
-	 * @param {Object} ex Error from Channel Service 
-	 * @returns {Boolean} boolean
-	 */
-	_handleChannelServiceError(ex) {
-		return true;
-	}
-
-	/**
 	 * Pop toast with channel services error
 	 * Clear toast after delay has passed
 	 * @param {object} exception Exception thrown by channel service
@@ -108,6 +99,15 @@ export class InsureViewBase extends ViewBase {
 	_hideToastDisplay() {
 		this.showInsureErrorToast = false;
 		this.insureErrorToastMessage = ``;
+	}
+
+	/**
+	 * Error callback for channel services
+	 * @param {Object} ex Error from Channel Service 
+	 * @returns {Boolean} boolean
+	 */
+	_handleChannelServiceError(ex) {
+		return true;
 	}
 
 	// #endregion PRIVATE METHODS

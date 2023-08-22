@@ -21,10 +21,10 @@ const today = new Date();
  * --------------
  * 
  * @export
- * @class SMSHistory
+ * @class FuneralSMSHistory
  * @extends {Component}
  */
-class SMSHistory extends Component {
+class FuneralSMSHistory extends Component {
 
 	// #region INITIALIZE
 
@@ -79,7 +79,7 @@ class SMSHistory extends Component {
 		this._initialise();
 
 		// RENDER_CHIPS[FILTER_BY.DATE] = ``;
-		// this.filteredData = this.commsHistory?.communications;
+		// this.filteredData = this.?.communications;
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -636,14 +636,14 @@ class SMSHistory extends Component {
 
 }
 
-window.customElements.define(`horizon-insure-sms-history-page`, SMSHistory);
+window.customElements.define(`horizon-insure-funeral-sms-history-page`, FuneralSMSHistory);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-insure-sms-history-page ... @navigate-back="${this._handler}"></horizon-insure-sms-history-page>
+ * <horizon-insure-funeral-sms-history-page ... @navigate-back="${this._handler}"></horizon-insure-funeral-sms-history-page>
  *
- * @event PayPremiumSuccess#navigate-back
+ * @event FuneralSMSHistory#navigate-back
  * @type {Object} - N/A
  */
