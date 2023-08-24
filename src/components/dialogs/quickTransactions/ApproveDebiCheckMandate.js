@@ -69,7 +69,7 @@ export class ApproveDebiCheckMandate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Approve DebiCheck Dialog`);
 		this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 			"screen": TelemetryScreen.APPROVE_DEBICHECK
 		});

@@ -70,6 +70,7 @@ export class ViewAndEmailDocuments extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `View And Email Document Dialog`);
 	}
 
 	// --------------

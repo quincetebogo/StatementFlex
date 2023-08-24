@@ -52,7 +52,7 @@ export class PayShapUpdate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Payshap Update`);
 		this.isCapitecBankDefault = this.payShapModalDetails.isCapitecBankDefault;
 		this.defaultInstitutionName = this.payShapModalDetails.defaultInstitution;
 	}
