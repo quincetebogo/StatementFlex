@@ -170,7 +170,7 @@ export class UpdateCardLimits extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Update Card Limits Dialog`);
 		this.cardLimits = {
 			maxPermanentCashAmountLimit: this.cardDetails.cardLimits.maxPermanentCashAmountLimit,
 			maxPermanentCnpAmountLimit: this.cardDetails.cardLimits.maxPermanentCnpAmountLimit,

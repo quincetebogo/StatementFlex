@@ -133,6 +133,7 @@ export class AddCallerDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Add Caller Details`);
 		
 		this.telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
