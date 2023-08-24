@@ -1,3 +1,11 @@
+import { ORG_UNITS } from "app/constants/Common";
+
+const COMMON_RESOLUTIONS = {
+	'NeedFulfilled': `Need Fulfilled`,
+	'NeedIncomplete': `Need incomplete - Transaction Failed`,
+	'ClientAssigned': `Need assigned`
+};
+
 /**
  * @typedef {string} IncidentState
  */
@@ -32,15 +40,19 @@ export const CLOSE_REASONS = {
 };
 
 /**
- * End call reason resolutions.
+ * End call reason resolutions structured by agent roles.
  * 
  * @readonly
  * @enum {object} REASON_RESOLUTIONS
  */
 export const REASON_RESOLUTIONS = {
-	'NeedFulfilled': `Need Fulfilled`,
-	'NeedIncomplete': `Need incomplete - Transaction Failed`,
-	'ClientAssigned': `Need assigned`
+	[ORG_UNITS.CAPITEC_CONNECT]: {
+		'NeedFulfilled': `Query closed`,
+		'NeedIncomplete': `Abandoned request`,
+		'ClientAssigned': `Query resolved`
+	},
+	[ORG_UNITS.CLIENT_CARE]: COMMON_RESOLUTIONS,
+	[ORG_UNITS.HELPDESK]: COMMON_RESOLUTIONS
 };
 
 /**
@@ -49,7 +61,7 @@ export const REASON_RESOLUTIONS = {
  * @readonly
  * @enum {object} CAUSE_CODE_BY_REASON
  */
-export const CAUSE_CODE_BY_REASON = {
+const CAUSE_CODE_BY_REASON = {
 	'Abandoned Verification': `ClientFailedSecurityCheck`,
 	'Client failed verification': `ClientFailedSecurityCheck`,
 	'Follow up required': `FollowUpCall`,
@@ -57,4 +69,26 @@ export const CAUSE_CODE_BY_REASON = {
 	'Call transferred': {
 		'Fraud Engagement Transfer': `FraudTransfer`
 	}
+};
+
+/**
+ * Mapping cause code based on agent role.
+ * 
+ * @readonly
+ * @enum {object} CAUSE_CODE_BY_ROLE
+ */
+export const CAUSE_CODE_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: {
+		'Abandoned request': `Abandonedrequest`,
+		'Client failed verification': `ClientFailedVerification`,
+		'External factor': `ExternalFactor`,
+		'Query closed': `QueryClosed`,
+		'Query escalation': `QueryEscalation`,
+		'Query resolved': `QueryResolved`,
+		'Need fulfilled': `QueryClosed`,
+		'Need was assigned/handed off': `QueryEscalation`,
+		'Need incomplete': `Abandonedrequest`
+	},
+	[ORG_UNITS.HELPDESK]: CAUSE_CODE_BY_REASON,
+	[ORG_UNITS.CLIENT_CARE]: CAUSE_CODE_BY_REASON
 };

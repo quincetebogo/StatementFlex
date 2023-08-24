@@ -56,6 +56,7 @@ export class TapToPayAgreement extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Tap to pay Agreement Dialog`);
 		this.tapToPayAgreement = this.agreementResult.cardAgreement.agreementContent.agreementContentData;
 	}
 
