@@ -366,7 +366,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					.shouldDisable="${need => this._shouldDisable(need)}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
 					@account-details="${() => this._accountDetails(this.landingPageInfo)}">

@@ -35,6 +35,7 @@ const DAMAGED = 0;
 const LOST = 1;
 const STOLEN = 2;
 const SUSPECTED_FRAUD = 3;
+const SUPPLEMENTARY_ACCESS_REVOKED = 4;
 
 const STOPREASONS = [
 	 {
@@ -52,6 +53,10 @@ const STOPREASONS = [
 	 {
 		key: `SUSPECTED_FRAUD`,
 		value: `Suspected Fraud`
+	},
+	{
+		key: `SUPPLEMENTARY_ACCESS_REVOKED`,
+		value: `Supplementary Access Revoked`
 	}
 ];
 
@@ -256,11 +261,33 @@ export class StopCard extends Component {
 	// ---------------
 
 	addFieldsToCardsArray() {
+
+
 		this.cards.map((card, index) => {
+			
 			card.rowIndex = index;
 			card.selected = false;
 			card.cardType = card.supplementaryCard ? `Supplementary Cards` : ``;
 			card.cardStopReason = STOPREASONS[LOST];
+			return card;
+		});
+
+		this.cards.sort((a, b) => {
+			const nameA = a.cardType.toUpperCase(); // ignore upper and lowercase
+			const nameB = b.cardType.toUpperCase(); // ignore upper and lowercase  
+		  // sort in an ascending order
+			if (nameA < nameB) {
+			  return -1;
+			}
+			if (nameA > nameB) {
+			  return 1;
+			}
+			// names must be equal
+			return 0;
+		});
+
+		this.cards.map((card, index) => {
+			card.rowIndex = index;
 			return card;
 		});
 	}
@@ -550,6 +577,13 @@ export class StopCard extends Component {
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 										.disabled="${rowData.cardStopReason === STOPREASONS[SUSPECTED_FRAUD]}"
 										@click="${(e) => this._onClickReason(STOPREASONS[SUSPECTED_FRAUD], rowData)}">
+						</capitec-button>
+						<capitec-button type="clear" label="Supplementary Access Revoked"
+										data-automation-id="Supplementary Access Revoked"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED]}"
+										?hidden="${!rowData.supplementaryCard}"
+										@click="${(e) => this._onClickReason(STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED], rowData)}">
 						</capitec-button>
 					</div>`;
 		}
