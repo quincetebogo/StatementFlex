@@ -3,6 +3,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -22,7 +23,7 @@ export class StopCardSuccess extends ViewBase {
 
 	constructor() {
 		super();
-		
+
 		this.displayNotification = false;
 		this.stoppedCards = [];
 		this.showAlertModal = false;
@@ -43,13 +44,22 @@ export class StopCardSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		let description = ``;
+		this.stoppedCards.forEach(card => {
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+		});
+
+		return description;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails?.stoppedCards || [];
 
@@ -75,7 +85,8 @@ export class StopCardSuccess extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}  
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
+	}
 
 	_doneClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_DONE, {
@@ -98,8 +109,8 @@ export class StopCardSuccess extends ViewBase {
 		});
 
 		const returnValue = await this.cardService.identifyCaller(
-			this.callerInformation, 
-			this.horizonIncidentManager.currentIncident, 
+			this.callerInformation,
+			this.horizonIncidentManager.currentIncident,
 			(ex) => this._stopCardErrorHandler(ex)
 		);
 
@@ -110,7 +121,7 @@ export class StopCardSuccess extends ViewBase {
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 			this.horizonStore.setScreenDetails(screenDetails);
-			
+
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();

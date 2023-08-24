@@ -4,6 +4,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate } from 'app/utils/channelServiceUtilities';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
 // import 'app/components/dialogs/insure/AssignReasonSelected';
@@ -58,6 +59,17 @@ export class StopCardFailure extends ViewBase {
 
 			showHandoffModal: { state: true }
 		};
+	}
+
+	get incidentDescription() {
+		let description = ``;
+		const stoppedCards = this.stoppedCards.filter(card => card.cardStopped);
+
+		stoppedCards.forEach(card => {
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+		});
+
+		return description;
 	}
 
 	// -------------------
@@ -119,7 +131,7 @@ export class StopCardFailure extends ViewBase {
 
 		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
 		const returnValue = await this.cardService.stopCards(this.failedCards, this.horizonIncidentManager.currentIncident);
-		
+
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
 			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
@@ -134,7 +146,7 @@ export class StopCardFailure extends ViewBase {
 			screenDetails.stoppedCardsFailed = !isAllSuccess;
 
 			this.horizonStore.setScreenDetails(screenDetails);
-	
+
 			if (isAllSuccess) {
 				// The stop card incident can be closed if all cards were stopped successfully.
 				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
@@ -162,7 +174,7 @@ export class StopCardFailure extends ViewBase {
 
 		this.showHandoffModal = !this.showHandoffModal;
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -172,12 +184,13 @@ export class StopCardFailure extends ViewBase {
 	// ---------------
 
 	_onAssignIncident() {
-        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
-        this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
+		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	/**
@@ -192,7 +205,12 @@ export class StopCardFailure extends ViewBase {
 
 			this.stoppedCards[index].cardStopped = card.cardStopped;
 			this.stoppedCards[index].statusCode = card.statusCode;
+			this.stoppedCards[index].cardStoppedDate = card.cardStoppedDate;
 		});
+
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.description = this.incidentDescription;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -419,7 +437,7 @@ export class StopCardFailure extends ViewBase {
 		if (card.cardStopped) {
 			return html`${this._renderSuccessStatus(card)}`;
 		}
-		
+
 		return html`${this._renderErrorStatus(card)}`;
 	}
 
@@ -470,14 +488,14 @@ export class StopCardFailure extends ViewBase {
 
 	_renderAssignModal() {
 		return this.showHandoffModal
-		? html`
+			? html`
 				<horizon-assign-stop-card
 					data-automation-id="stop-card-failure-assign-dialog"
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.showHandoffModal = !this.showHandoffModal}"
 					@on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>`
-		: html``;
+			: html``;
 	}
 
 	_renderAssignReason() {
