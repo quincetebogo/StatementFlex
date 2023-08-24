@@ -1,15 +1,18 @@
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { isNullorEmpty } from '../../utils/channelServiceUtilities';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 
 
 /**
- * Display an confirmation/success screen indicating the proof of payment statement has been successfully sent.
+ * Display an confirmation/success screen indicating the success/failure of payshap proof of payment sending.
  *
  * @export
- * @class ProofOfAccountSuccess
+ * @class PayshapProofOfPaymentOutcome
  * @extends {ViewBase}
  */
 export class PayshapProofOfPaymentOutcome extends ViewBase {
@@ -29,6 +32,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.showFailureIcon = false;
 		this.notificationType = [];
 		this.displayToast = true;
+		
+		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
 
@@ -45,7 +50,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	}
 
 	get incidentDescription() {
-		return `Recipient EmailID: ${this.screenDetails.emailAddress}`;
+		return this.screenDetails.emailAddress ? `Recipient EmailID: ${this.screenDetails.emailAddress}` : null;
 	}
 	
 	// -------------------
@@ -54,6 +59,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
@@ -78,29 +85,52 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_DONE, {
+			"email-address": this.mailId,
+			"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+		});
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB, null, true, true);
 	}
 
 	_sendAnotherClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_SEND_ANOTHER, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"next-screen": TelemetryScreen.PAY_SHAP_TRANSACTION_HISTORY
+		}, true);
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonRouter.navigateToReturnPage();
 		this.horizonStore.clearScreenDetails();
+		
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, null, true, true);
 	}
 
 	async _tryAgain() {
-			const clientInfo = {
-				"paymentUetr": this.paymentUetr,
-				"cifNumber": this.callerInformation.cifNumber,
-				"notificationType": this.outcome.resendFailed,
-				"emailAddress": this.mailId,
-				"verifiedCellphoneNumber": this.verifiedCellphoneNumber
-			};
-			const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME_TRY_AGAIN, {
+			"screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"next-screen": TelemetryScreen.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME,
+			"failed-notification-type": this.outcome.resendFailed
+		});
 
-			this.outcome = returnValue.result;
-	
+		const clientInfo = {
+			"paymentUetr": this.paymentUetr,
+			"cifNumber": this.callerInformation.cifNumber,
+			"notificationType": this.outcome.resendFailed,
+			"emailAddress": this.mailId,
+			"verifiedCellphoneNumber": this.verifiedCellphoneNumber
+		};
+		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
+
+		this.outcome = returnValue.result;
+		this._updateIncidentState();
 	}
 
 	_showSuccessIcon() {
@@ -116,7 +146,12 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		} else {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		}
+		
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

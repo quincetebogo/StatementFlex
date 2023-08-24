@@ -176,7 +176,8 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async payshapProofOfPayment(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		
 		if (await this.isMockEnabled(`payshapPop`)) {
 			return this.mock(`payshapPop`);
 		}

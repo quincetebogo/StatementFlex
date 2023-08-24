@@ -353,8 +353,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
 	}
 
-	navigateToPayshapProofOfPaymentOutcome() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
+    navigateToPayshapProofOfPaymentOutcome() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
 	}
 
 	_navigateToTapToPayUnsuccessful() {
@@ -1099,7 +1099,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME,
 		load: () => import(`../views/quickTransactions/PayshapProofOfPaymentOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-		},
+	},
 	{
 		name: `horizon-paid-up-letter-success`,
 		title: `PaidUpLetterSuccess`,

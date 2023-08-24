@@ -86,6 +86,7 @@ export class PayShapPOP extends Component {
 		super.connectedCallback();
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.verifiedCellphoneNumber = this.callerInformation && this.callerInformation.verifiedTelephoneNumber;
+
 	}
 
 	disconnectedCallback() {
