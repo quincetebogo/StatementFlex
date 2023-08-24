@@ -1219,7 +1219,9 @@ export class Favourites extends SavingsAccountBase {
 						.landingPageInfo="${this.landingPageInfo}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-						.shouldDisable="${need => this._shouldDisable(need)}"
+						?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
+						.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+						.showTooltip="${need => this._showTooltip(need)}"
 						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;

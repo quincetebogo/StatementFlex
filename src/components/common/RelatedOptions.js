@@ -7,7 +7,9 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { ORG_UNITS } from 'app/constants/Common';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
@@ -28,6 +30,10 @@ const RENDER_MODE = Object.freeze({
 });
 
 const SAVINGS_ACCOUNT_TYPE = 300;
+
+const OPTIONS_UNAVAILABLE_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: [`update-card-limits`, `tap-to-pay`, `statements`, `tax-certificate`, `proof-of-account`, `paid-up-accounts`]
+};
 
 /**
  * Common component, renders related options based on the need and context of success/ failure.
@@ -419,6 +425,7 @@ export class RelatedOptions extends Component {
 			<horizon-option-button
 				label="${option.label}"
 				icon="${option.src}"
+				?disabled="${OPTIONS_UNAVAILABLE_BY_ROLE[RoleManager.getInstance().orgUnit]?.includes(item)}"
 				@click="${() => this._navigateToOption(item)}">
 			</horizon-option-button>
 		`;
