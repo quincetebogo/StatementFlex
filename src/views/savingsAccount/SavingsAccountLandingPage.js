@@ -372,7 +372,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.showTooltip="${need => this._showTooltip(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
-					@="${() => this._accountDetails(this.landingPageInfo)}">
+					@account-details="${() => this._accountDetails(this.landingPageInfo)}">
 				</horizon-savings-account>`
             : html``;
     }
@@ -553,10 +553,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     _renderSavingsAccountDetails() {
         return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
             ? html`
-			<horizon-savings-
+			<horizon-savings-account-details
 				.savingsAccountDetails = "${this.savingsDetails}"
 				@back="${() => this._cancelAccountView()}">
-			</horizon-savings->`
+			</horizon-savings-account-details>`
             : html``;
     }
 
