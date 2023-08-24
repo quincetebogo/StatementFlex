@@ -37,6 +37,15 @@ export const QuickTransactionEvents = {
 	STOP_CARD_OUTCOME_ANOTHER: `call.fulfill-need.stop-card.outcome.another`,
 	STOP_CARD_OUTCOME_TRY_AGAIN: `call.fulfill-need.stop-card.outcome.try-again`,
 	STOP_CARD_OUTCOME_ASSIGN: `call.fulfill-need.stop-card.outcome.assign`,
+	STOP_CARD_AC_SUSPEND: `call.fulfill-need.stop-card.ac-suspend`,
+	STOP_CARD_AC_SUSPEND_NOT_NOW: `call.fulfill-need.stop-card.ac-suspend.not-now`,
+	STOP_CARD_AC_SUSPEND_CONTINUE: `call.fulfill-need.stop-card.ac-suspend.continue`,
+	STOP_CARD_AC_SUSPEND_CANCEL: `call.fulfill-need.stop-card.ac-suspend.cancel`,
+	STOP_CARD_AC_SUSPEND_CONFIRM: `call.fulfill-need.stop-card.ac-suspend.confirm`,
+	// Stop card AC outcome
+	STOP_CARD_AC_SUSPEND_OUTCOME: `call.fulfill-need.stop-card.ac-suspend.outcome`,
+	STOP_CARD_AC_SUSPEND_OUTCOME_DONE: `call.fulfill-need.stop-card.ac-suspend.outcome.done`,
+	STOP_CARD_AC_SUSPEND_OUTCOME_TRY_AGAIN: `call.fulfill-need.stop-card.ac-suspend.outcome.try-again`,
 	// Stop card Assign
 	STOP_CARD_ASSIGN: `call.fulfill-need.stop-card.assign`,
 	STOP_CARD_ASSIGN_CONFIRM: `call.fulfill-need.stop-card.assign.confirm`,

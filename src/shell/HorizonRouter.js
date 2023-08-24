@@ -76,7 +76,8 @@ const HORIZON_ROUTES = Object.freeze({
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
 	VIEW_PROFILE: `/view-profile`,
-	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`
+	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`,
+	ACCESS_CHANNELS_OUTCOME: `/access-channels/outcome`
 });
 
 
@@ -509,6 +510,10 @@ export class HorizonRouter {
 
 	navigateToUnavaliableForRole() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE}`);
+	}
+
+	navigateToAccessChannelsOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}`);
 	}
 
 	/**
@@ -1193,6 +1198,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE,
 		load: () => import(`../views/common/UnableAvailableForRole`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-access-channels-outcome`,
+		title: `HorizonAccessChannelsOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME,
+		load: () => import(`../views/stopCard/AccessChannelsOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
