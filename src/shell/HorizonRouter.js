@@ -1,8 +1,10 @@
-import { Configuration, EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Router } from 'platform/Router';
+import { Instana } from 'app/services/instana';
 import { RoleManager } from 'app/shell/RoleManager';
+import { Router } from 'platform/Router';
+
 
 /**
  * The Horizon URL Schema. 
@@ -93,6 +95,13 @@ export class HorizonRouter {
 		this.router = Router.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		
+		// instana properties
+		this._InstanaKey = this._configuration.getSetting(`InstanaKey`);
+		this._InstanaHelper = Instana.getInstance();
+		this._InstanaHelper._instanaScript();
+		this._securityContext = SecurityContext.getInstance();
+		// this._InstanaKey = ``;
 		this.roleManager = RoleManager.getInstance();
 
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
@@ -107,6 +116,7 @@ export class HorizonRouter {
 
 	async _initialiseSTrackConfig() {
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+		this._InstanaKey = await this._configuration.getSetting(`InstanaKey`);
 	}
 
 	static getInstance() {
@@ -129,6 +139,8 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
+		
+		this._InstanaHelper._instanaScripts(this._securityContext, this._InstanaKey);
 	}
 
 	/**
