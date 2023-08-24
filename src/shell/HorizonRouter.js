@@ -71,6 +71,8 @@ const HORIZON_ROUTES = Object.freeze({
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
+	OPEN_BUDGET_SUCCESS: `/success/open-budget`,
+	OPEN_BUDGET_FAILURE: `/error/open-budget`,
 	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	WIDGET_HOST: `/widget`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
@@ -503,6 +505,13 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREATE_INCIDENT_ERROR}`);
 	}
 
+	navigateToOpenBudgetSuccess() {
+		this.router.navigateByPath(HORIZON_ROUTES.OPEN_BUDGET_SUCCESS);
+	}
+
+	navigateToOpenBudgetFailure() {
+		this.router.navigateByPath(HORIZON_ROUTES.OPEN_BUDGET_FAILURE);
+	}
 	navigateToViewProfileDetails() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_PROFILE}`);
 	}
@@ -1185,6 +1194,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
 		load: () => import(`../views/sendCash/SendCashFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-open-budget-success`,
+		title: `OpenBudgetSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.OPEN_BUDGET_SUCCESS,
+		load: () => import(`../views/credit/OpenBudgetSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-open-budget-failure`,
+		title: `OpenBudgetFailure`,
+		icon: null,
+		path: HORIZON_ROUTES.OPEN_BUDGET_FAILURE,
+		load: () => import(`../views/credit/OpenBudgetFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{

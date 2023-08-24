@@ -363,6 +363,18 @@
 			"enabled": false,
 			"positiveCase" : true
 		},
+		"canOpenBudget": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"budgetDetails": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"calculateBudget": {
+			"enabled": true,
+			"positiveCase" : true
+		},
 		"creditStatement": {
 			"enabled": false,
 			"positiveCase" : true

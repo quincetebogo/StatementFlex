@@ -20,7 +20,7 @@ export default class HorizonChannelServiceMocks {
 		const logError = (err) => {
 			console.log(err);
 		};
-		
+
 		this.callMocks = await loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await loadMockModule(this.callMocks, `getClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
@@ -38,7 +38,7 @@ export default class HorizonChannelServiceMocks {
 		this.hasInsuranceProductsMock = await loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
-		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
+		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
@@ -97,7 +97,7 @@ export default class HorizonChannelServiceMocks {
 			return this.callMocks.getClientConsent;
 		}
 	}
-	
+
 	putClientConsent() {
 		if (this._mockSettings.putClientConsent.positiveCase) {
 			return this.callMocks.putClientConsent;
@@ -521,7 +521,7 @@ export default class HorizonChannelServiceMocks {
 		if (this._mockSettings.verifyKBA.positiveCase) {
 			const max = 4;
 			const correctAnswers = request?.questionList.filter(item => item.providedAnswer)
-														.length;
+				.length;
 			const reason = {
 				0: `ALLCORRECTLYANSWERED`,
 				1: `ONEWRONGANSWER`,
@@ -608,7 +608,7 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-	
+
 	ftspUnlockAgreement() {
 		if (this._mockSettings.ftspUnlockAgreement.positiveCase) {
 			return this.unlockFTSPMocks.unlockAgreement;
@@ -622,7 +622,7 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-	
+
 	settleAndClose() {
 		if (this._mockSettings.settleAndClose.positiveCase) {
 			return this.creditMocks.settleAndClose;
@@ -635,7 +635,7 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
-  
+
 	getWidgetById() {
 		if (this._mockSettings.getWidgetById.positiveCase) {
 			return this.widgetRegistryMocks.widgetDetails;
@@ -645,7 +645,7 @@ export default class HorizonChannelServiceMocks {
 			const httpError = new HttpStatusError();
 			httpError.status = 418;
 			httpError.message = `Short and stout!`;
-	
+
 			throw httpError;
 		});
 
@@ -673,11 +673,23 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	canOpenBudget() {
+		if (this._mockSettings.canOpenBudget.positiveCase) {
+			return this.budgetFacility.canOpenBudget;
+		}
+	}
+
 	delistCapitec() {
 		if (this._mockSettings.delistCapitec.positiveCase) {
 			return true;
 		}
 		return null;
+	}
+
+	calculateBudget() {
+		if (this._mockSettings.calculateBudget.positiveCase) {
+			return this.budgetFacility.calculateBudget;
+		}
 	}
 
 	moneyOut() {
