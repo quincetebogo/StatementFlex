@@ -296,10 +296,19 @@ export class EndCallSession extends Component {
 		 * to understand if its for 'Frand transfer'
 		 */
 		this.understandNeed = (this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed) ||
-							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED);
+							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED);//  || this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED);
 		this._setClassification(screenDetails);
 
-		if ((!this.understandNeed || this.categories.length !== 0) && (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key !== END_CALL_REASON.NEED_FULFILLED)) {
+		console.log('Need understood: ' + this.understandNeed);
+		console.log('Category length: ' + this.categories.length);
+		console.log('Category: ' + this.categories);
+		console.log('Endcall Reason: ' + this.endCallReason.key);
+		console.log('Call Transfered: ' + END_CALL_REASON.CALL_TRANSFERED);
+		console.log('Need Fulfilled: ' + END_CALL_REASON.NEED_FULFILLED);
+		console.log('Left condition: ' + (!this.understandNeed || this.categories.length !== 0));
+		console.log('Right condition: ' + (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key !== END_CALL_REASON.NEED_FULFILLED));
+
+		if ((!this.understandNeed || this.categories.length !== 0) && (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED)) {
 			return;
 		}
 
