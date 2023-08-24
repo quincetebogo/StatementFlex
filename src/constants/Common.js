@@ -109,7 +109,6 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
  * @readonly
  * @enum {Object} LANGUAGE_LIST
  */
-
 export const LANGUAGE_LIST = Object.freeze([
 	{ key: `ENGLISH`, value: `English` },
 	{ key: `AFRIKAANS`, value: `Afrikaans` },
@@ -123,3 +122,39 @@ export const LANGUAGE_LIST = Object.freeze([
 	{ key: `SESOTHO`, value: `Sesotho` },
 	{ key: `SETSWANA`, value: `Setswana` }
 ]);
+
+/**
+ * Available org units 
+ * 
+ * @readonly
+ * @enum {Object} ORG_UNITS
+ */
+export const ORG_UNITS = {
+	CLIENT_CARE: `Client Care`,
+	HELPDESK: `Helpdesk`,
+	CAPITEC_CONNECT: `Capitec Connect`
+};
+
+/**
+ * Roles to org units mappings
+ * key - roles
+ * value - orgunit
+ * @readonly
+ * @enum {Object} ROLES_TO_ORG_UNITS
+ */
+export const ROLES_TO_ORG_UNITS = {
+	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
+	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
+	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
+};
+
+/**
+ * Available features based on given role of an agent
+ * Client-care and Helpdesk are given access to All features on Horizon
+ * 
+ * @readonly
+ * @enum {Object} AVAILABLE_FEATURES_BY_ROLE
+ */
+export const AVAILABLE_FEATURES_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `search-other-need`, `transaction-history`]
+};

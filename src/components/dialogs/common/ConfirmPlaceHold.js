@@ -43,6 +43,7 @@ export class ConfirmPlaceHold extends Component {
 	// -------------------
 
 	connectedCallback() {
+		ineum(`page`, `Confirm Place Hold`);
 		super.connectedCallback();
 	}
 
