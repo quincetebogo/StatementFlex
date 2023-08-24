@@ -83,7 +83,7 @@ export class HorizonTooltip extends Tooltip {
 				message=${this.message}
 				position="${this.messagePosition}"
 				width="${this.width}"
-				style="white-space: pre-line; position: ${this.tooltipPosition ? this.tooltipPosition : `relative`}; top: ${this.top ? this.top : ``}; left: ${this.left ? this.left : ``}; bottom: ${this.bottom ? this.bottom : ``}; right: ${this.right ? this.right : ``};">
+				style="white-space: pre-line; position: ${this.tooltipPosition ? this.tooltipPosition : `relative`}; ${this.top ? `top: ${this.top}` : ``}; ${this.left ? `left: ${this.left}` : ``}; ${this.bottom ? `bottom: ${this.bottom}` : ``}; ${this.right ? `right: ${this.right}` : ``};">
 				<capitec-badge color="transparent" icon="status/info" iconSize="small"></capitec-badge>
 			</capitec-tooltip>
 		`;
