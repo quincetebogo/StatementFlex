@@ -194,7 +194,9 @@ export class SavingsPlan extends ViewBase {
 
 		if (saveProducts[this.accountViewType]) {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			
+			// TODO - NEED TO CHECK IF REMOVING THIS LINE IS SAFE
+			// await super.createAndClassifySubIncident();
 			
 			return saveProducts[this.accountViewType]();
 		}

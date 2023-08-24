@@ -296,10 +296,10 @@ export class EndCallSession extends Component {
 		 * to understand if its for 'Frand transfer'
 		 */
 		this.understandNeed = (this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed) ||
-							  this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED;
+							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED);
 		this._setClassification(screenDetails);
 
-		if ((!this.understandNeed || this.categories.length !== 0) && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
+		if ((!this.understandNeed || this.categories.length !== 0) && (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key !== END_CALL_REASON.NEED_FULFILLED)) {
 			return;
 		}
 

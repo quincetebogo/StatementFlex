@@ -294,7 +294,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+
+		// TODO - NEED TO CHECK IF REMOVING THIS LINE IS SAFE
+		// await super.createAndClassifySubIncident();
 
         this.savingsDetails = {
             "accountNumber": savingsLandingDetails.accountNumber,
@@ -370,7 +372,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.showTooltip="${need => this._showTooltip(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
-					@account-details="${() => this._accountDetails(this.landingPageInfo)}">
+					@="${() => this._accountDetails(this.landingPageInfo)}">
 				</horizon-savings-account>`
             : html``;
     }
@@ -551,10 +553,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     _renderSavingsAccountDetails() {
         return this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_DETAILS
             ? html`
-			<horizon-savings-account-details
+			<horizon-savings-
 				.savingsAccountDetails = "${this.savingsDetails}"
 				@back="${() => this._cancelAccountView()}">
-			</horizon-savings-account-details>`
+			</horizon-savings->`
             : html``;
     }
 
