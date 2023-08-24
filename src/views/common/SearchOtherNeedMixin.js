@@ -1,5 +1,6 @@
 import { RoleManager } from 'app/shell/RoleManager';
-const orgUnit = RoleManager.getInstance().isHelpDeskAgent ? `Helpdesk` : `Client Care`;
+
+const orgUnit = RoleManager.getInstance().orgUnit;
 
 /**
  * This mixin allows common search other need code to be mixed into different views. 

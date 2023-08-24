@@ -16,22 +16,40 @@ const RENDER_MODE = {
 	CARD_STOP_MODAL: 1
 };
 
+const TABLE_STYLE = {
+	HEADER_CELL: `width: 490px; font-size: 16px; font-weight: 600; letter-spacing: 0; line-height: 22px;`,
+	BODY_CELL: `width: 490px; text-align: left; font-size: 16px; letter-spacing: 0; line-height: 22px;`,
+	CELL_HEIGHT: `height: 22px; --theme-label-subtitle-font-weight: 600; --theme-label-font-color: #3A3A3A;
+`,
+	REASON_BUTTONS: `padding: 0px 0px 0px 14px; --theme-button-padding-top: 5.5px; --theme-button-padding-bottom: 5.5px; --theme-button-padding-left: 10px; --theme-button-padding-right: 10px; --theme-button-font-size: 14px;`
+};
+
+const DAMAGED = 0;
+const LOST = 1;
+const STOLEN = 2;
+const SUSPECTED_FRAUD = 3;
+const SUPPLEMENTARY_ACCESS_REVOKED = 4;
+
 const STOPREASONS = [
-	 {
+	{
 		key: `DAMAGED`,
 		value: `Card Damaged`
 	},
-	 {
+	{
 		key: `LOST`,
 		value: `Card Lost`
 	},
-	 {
+	{
 		key: `STOLEN`,
 		value: `Card Stolen`
 	},
-	 {
+	{
 		key: `SUSPECTED_FRAUD`,
 		value: `Suspected Fraud`
+	},
+	{
+		key: `SUPPLEMENTARY_ACCESS_REVOKED`,
+		value: `Supplementary Access Revoked`
 	}
 ];
 
@@ -62,7 +80,7 @@ export class StopCard extends Component {
 		this.cardsToStop = [];
 		this.isBusy = false;
 		this.hasCardsAvailable = false;
-		
+
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
@@ -116,7 +134,7 @@ export class StopCard extends Component {
 
 		this.hasCardsAvailable = this.cards.length > 0;
 		this._initialise();
-		
+
 		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD, {
 			"screen": TelemetryScreen.STOP_CARD
 		});
@@ -179,8 +197,8 @@ export class StopCard extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-  }
-	
+	}
+
 	_handleChannelServiceError() {
 		this.horizonRouter.navigateToSystemError();
 		return true;
@@ -202,7 +220,7 @@ export class StopCard extends Component {
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
-		
+
 		this.requestUpdate();
 	}
 
@@ -218,6 +236,38 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	addFieldsToCardsArray() {
+
+
+		this.cards.map((card, index) => {
+
+			card.rowIndex = index;
+			card.selected = false;
+			card.cardType = card.supplementaryCard ? `Supplementary Cards` : ``;
+			card.cardStopReason = STOPREASONS[LOST];
+			return card;
+		});
+
+		this.cards.sort((a, b) => {
+			const nameA = a.cardType.toUpperCase(); // ignore upper and lowercase
+			const nameB = b.cardType.toUpperCase(); // ignore upper and lowercase
+			// sort in an ascending order
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+			// names must be equal
+			return 0;
+		});
+
+		this.cards.map((card, index) => {
+			card.rowIndex = index;
+			return card;
+		});
+	}
 
 	_back() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -237,7 +287,7 @@ export class StopCard extends Component {
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -357,12 +407,12 @@ export class StopCard extends Component {
 
 	_renderStopCardContent() {
 		return this.hasCardsAvailable
-		? html`
+			? html`
 			${this._renderNotifyClient()}
 			${this._renderPrimaryCards()}
 			${this._renderSupplementaryCards()}
 			${this._renderVirtualCards()}`
-		: html`
+			: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
 			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>
 		`;
@@ -379,32 +429,32 @@ export class StopCard extends Component {
 
 	_renderPrimaryCards() {
 		return this.primaryCards.length > 0
-		? html`
+			? html`
 			<capitec-label type="strong" label="Primary card(s)"></capitec-label>
 			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
 				${this.primaryCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
-		: html``;
+			: html``;
 	}
 
 	_renderSupplementaryCards() {
 		return this.supplementaryCards.length > 0
-		? html`
+			? html`
 			<capitec-label type="strong" label="Supplementary card(s)"></capitec-label>
 			<capitec-content-box class="cardArtBox ${this.supplementaryCards.length > 3 ? `overflow` : ``}" layout="horizontal" noPadding>
 				${this.supplementaryCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
-		: html``;
+			: html``;
 	}
 
 	_renderVirtualCards() {
 		return this.virtualCards.length > 0
-		? html`
+			? html`
 			<capitec-label type="strong" label="Virtual card"></capitec-label>
 			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
 				${this.virtualCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
-		: html``;
+			: html``;
 	}
 
 	_renderCardArt(card) {
@@ -419,25 +469,46 @@ export class StopCard extends Component {
 			</horizon-card-art>`;
 	}
 
-	_renderCardArtAction(card) {
-		return html`
-			<capitec-content-box slot="cardAction" halign="left" valign="top" gap="clear">
-				<horizon-label
-					label="${card.cardDisplayName}"
-					value="${card.maskedCardNumber}">
-				</horizon-label>
-				<capitec-label label="Choose reason"></capitec-label>
-				<capitec-radio-group>
-					${STOPREASONS.map(item => html`
-						<capitec-radio
-							label="${item.value}"
-							@click="${(e) => this._onClickReason(item.key, card)}"
-							?checked="${item.key === card.cardStopReason}">
-						</capitec-radio>
-					`)}
-				</capitec-radio-group>
-			</capitec-content-box>
-		`;
+	_renderReasonButtons(rowData) {
+		if (rowData.selected) {
+			return html`
+					<div row="2" column="2" colspan="2" style="display: flex; align-items: center;">
+						<capitec-label label="Choose a Reason"
+									   style="line-height: 21px; width: 102px;">
+						</capitec-label>
+						<capitec-button type="clear" label="Card Damaged"
+										data-automation-id="stop-card-damaged"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[DAMAGED]}"
+										@click="${(e) => this._onClickReason(STOPREASONS[DAMAGED], rowData)}">
+						</capitec-button>
+						<capitec-button type="clear" label="Card Lost"
+										data-automation-id="stop-card-lost"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[LOST]}"
+										@click="${(e) => this._onClickReason(STOPREASONS[LOST], rowData)}">
+						</capitec-button>
+						<capitec-button type="clear" label="Card Stolen"
+										data-automation-id="stop-card-stolen"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[STOLEN]}"
+										@click="${(e) => this._onClickReason(STOPREASONS[STOLEN], rowData)}">
+						</capitec-button>
+						<capitec-button type="clear" label="Suspected Fraud"
+										data-automation-id="stop-card-fraud"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[SUSPECTED_FRAUD]}"
+										@click="${(e) => this._onClickReason(STOPREASONS[SUSPECTED_FRAUD], rowData)}">
+						</capitec-button>
+						<capitec-button type="clear" label="Supplementary Access Revoked"
+										data-automation-id="Supplementary Access Revoked"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED]}"
+										?hidden="${!rowData.supplementaryCard}"
+										@click="${(e) => this._onClickReason(STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED], rowData)}">
+						</capitec-button>
+					</div>`;
+		}
 	}
 
 	_renderStopCardModal() {
@@ -458,7 +529,7 @@ export class StopCard extends Component {
 
 	_renderFooter() {
 		return this.hasCardsAvailable
-		? html`
+			? html`
 			<capitec-content-box halign="left" gap="clear" layout="horizontal" class="footer">
 				<capitec-check
 					label="${this.checkBoxLbl}"
@@ -480,15 +551,15 @@ export class StopCard extends Component {
 					?disabled="${this.stopCardBtnDisabled}">
 				</capitec-button>
 			</capitec-content-box>`
-		: html``;
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
+		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="stop-card-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
-	
+
 }
 
 customElements.define(`horizon-stop-card`, StopCard);
