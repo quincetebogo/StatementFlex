@@ -205,6 +205,9 @@ export class SuccessScreen extends Component {
 					line-height: 24px;
 					text-align: center;
 				}
+				.successIcon {
+					display: var(--horizon-success-icon-display, block);
+				}
 			`
 		];
 	}
@@ -274,6 +277,7 @@ export class SuccessScreen extends Component {
 
 			<capitec-group id="id-msg-group" layout="horizontal">
 				<capitec-icon
+					class="successIcon"
 					size="default"
 					icon="status/success-trans">
 				</capitec-icon>
