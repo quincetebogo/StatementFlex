@@ -54,7 +54,6 @@ export class StopCardConfirm extends Component {
 				type: String,
 				attribute: `client-title`
 			},
-			stopReasons: { type: Array },
 
 			isBusy: { attribute: false }
 		};
@@ -231,7 +230,7 @@ export class StopCardConfirm extends Component {
 					</horizon-label>
 					<horizon-label row="1" column="2"
 						label="Reason"
-						value="${this.stopReasons.find(item => item.key === card.cardStopReason).value}">
+						value="${card.cardStopReason.value}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>`);
