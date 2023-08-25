@@ -435,8 +435,8 @@ export class StopCard extends Component {
 					${STOPREASONS.map(item => html`
 						<capitec-radio
 							label="${item.value}"
-							@click="${(e) => this._onClickReason(item.key, card)}"
-							?checked="${item.key === card.cardStopReason}">
+							@click="${(e) => this._onClickReason(item, card)}"
+							?checked="${item.key === card.cardStopReason.key}">
 						</capitec-radio>
 					`)}
 				</capitec-radio-group>
@@ -452,7 +452,6 @@ export class StopCard extends Component {
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
 					.cardsToStop="${this.cardsToStop}"
-					.stopReasons="${STOPREASONS}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-stop-card-confirm>
