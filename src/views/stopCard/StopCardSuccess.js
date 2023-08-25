@@ -64,7 +64,12 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	get incidentDescription() {
-		return `${this.notNowToSuspendChannels ? `Note: Access channels not suspended` : ``}`;
+		let description = ``;
+		this.stoppedCards.forEach(card => {
+			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
+		});
+
+		return `${description} ${this.notNowToSuspendChannels ? `\nNote: Access channels not suspended` : ``}`;
 	}
 
 	get app() {
@@ -699,7 +704,7 @@ export class StopCardSuccess extends ViewBase {
 							<horizon-alert-banner
 								type="info"
 								header="Note: "
-								label="Suspending App would suspend Internet Banking soft token.">
+								label="Suspending App will suspend Internet Banking soft token.">
 							</horizon-alert-banner>`
 						: html``
 					}
