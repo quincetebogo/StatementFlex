@@ -286,6 +286,7 @@ export class EndCallSession extends Component {
 		const isIncClosed = incidentState === super.HORIZON_NEED_STATUS.CLOSED || !this.currentIncidentRef || this.currentIncidentRef === `0`;
 		// should classify as per need?
 		// And enforcing this to false when the end call context includes in Recognize need by context
+
 		const classifyAsPerNeed = incidentState === super.HORIZON_NEED_STATUS.INPROGRESS &&
 								  STRACK_MAPPING[currentNeed] &&
 								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
@@ -296,17 +297,8 @@ export class EndCallSession extends Component {
 		 * to understand if its for 'Frand transfer'
 		 */
 		this.understandNeed = (this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed) ||
-							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED);//  || this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED);
+							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED);
 		this._setClassification(screenDetails);
-
-		console.log('Need understood: ' + this.understandNeed);
-		console.log('Category length: ' + this.categories.length);
-		console.log('Category: ' + this.categories);
-		console.log('Endcall Reason: ' + this.endCallReason.key);
-		console.log('Call Transfered: ' + END_CALL_REASON.CALL_TRANSFERED);
-		console.log('Need Fulfilled: ' + END_CALL_REASON.NEED_FULFILLED);
-		console.log('Left condition: ' + (!this.understandNeed || this.categories.length !== 0));
-		console.log('Right condition: ' + (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED || this.endCallReason.key !== END_CALL_REASON.NEED_FULFILLED));
 
 		if ((!this.understandNeed || this.categories.length !== 0) && (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED)) {
 			return;

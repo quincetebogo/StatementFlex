@@ -196,8 +196,9 @@ export class SavingsPlan extends ViewBase {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
 			
 			// TODO - NEED TO CHECK IF REMOVING THIS LINE IS SAFE
-			// await super.createAndClassifySubIncident();
+			await super.createAndClassifySubIncident(null, false);
 			
+			this.endCallContext = `BalanceEnquiry`;
 			return saveProducts[this.accountViewType]();
 		}
 	}

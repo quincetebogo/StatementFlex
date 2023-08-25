@@ -392,7 +392,8 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `DebiCheck`,
 	 `SearchOtherNeed`,
 	 `ProductEnquiry`,
-	 `LandingPage`
+	 `LandingPage`,
+	 `BalanceEnquiry`
  ]);
 
 /**
@@ -400,7 +401,7 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
  * @readonly
  * @enum {Object} RECOGNIZE_NEED_CONTEXTS
  */
-export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
+export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`, `BalanceEnquiry`]);
 
 
  /**
