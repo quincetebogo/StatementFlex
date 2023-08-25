@@ -704,7 +704,7 @@ export class StopCardSuccess extends ViewBase {
 							<horizon-alert-banner
 								type="info"
 								header="Note: "
-								label="Suspending App would suspend Internet Banking soft token.">
+								label="Suspending App will suspend Internet Banking soft token.">
 							</horizon-alert-banner>`
 						: html``
 					}
