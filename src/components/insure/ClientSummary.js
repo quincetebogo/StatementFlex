@@ -60,6 +60,8 @@ class ClientSummary extends Component {
 		this.funeralPolicies = null;
 		this.funeralArrearsPaymentAmount = 0;
 
+		this.lifeSummary = null;
+
 		this.showFuneralCancelPolicyDialog = false;
 		this.showFuneralEmailPlanDialog = false;
 		this.showFuneralPayPremiumDialog = false;
@@ -106,6 +108,7 @@ class ClientSummary extends Component {
 	 * @property {String} productCode policy product code
 	 * @property {Function} requestCallback policy product code
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
+	 * @property {Object} lifePolicies Contains clients life policies
 	 * 
 	 * @readonly
 	 * @static
@@ -115,6 +118,8 @@ class ClientSummary extends Component {
 			maxAllowedCover: { type: Number, state: true },
 			clientClaims: { type: Object, state: true },
 			funeralPolicies: { type: Object, state: true },
+			
+			lifePolicies: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -448,7 +453,7 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * event to open the cancel policy dialog
+	 * event to open the funeral cancel policy dialog
 	 * @param {string} contractReference contract reference
 	 * @returns {void} 
 	 */
@@ -456,6 +461,14 @@ class ClientSummary extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showFuneralCancelPolicyDialog = true;
+	}
+
+	/**
+	 * opens the life cancel policy dialog
+	 * @returns {void} 
+	 */
+	_openLifeCancelPolicyDialog() {
+		console.log(`start opening dialog here`);
 	}
 
 	/**
@@ -938,6 +951,35 @@ class ClientSummary extends Component {
 			.more-options-card{
 				gap: 0px;
 			}
+
+			.life-policy-box{
+				height: 96px;
+				min-height: auto;
+				padding-top: 15px;
+				padding-bottom: 15px;
+				background-color: rgb(243, 243, 243);
+				padding-left: 15px;
+				padding-right: 15px;
+				border-radius: 0px;
+			}
+
+			.life-policy{
+				min-height: auto;
+				height: 65px;
+				padding-top: 10px;
+				padding-bottom: 10px;
+				padding-left: 10px;
+				padding-right: 10px;
+				background-color: #ffffff;
+				border-radius: 4px;
+				border-width: 1px;
+				border-style: solid;
+				border-color: rgb(225, 225, 225);
+			}
+
+			.life-pol-label{
+				width: 180px;
+			}
 			`
 		];
 	}
@@ -1056,6 +1098,11 @@ class ClientSummary extends Component {
 				<capitec-tab
 					data-automation-id="insure-landing-life-policies-tab"
 					label="Life Cover">
+
+					<capitec-card class="life-policy-box" >
+						${this._renderLifePolicy()}
+					</capitec-card>
+
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
 						${this._renderLifePoliciesList()}
 					</capitec-content-box>
@@ -1073,6 +1120,82 @@ class ClientSummary extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 			</capitec-tab-group>`;
+	}
+
+	/**
+	 * render life policy 
+	 * @returns {html} html content for the life policy
+	 */
+	_renderLifePolicy() {
+		return html`
+			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
+				<!-- <capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center"> -->
+					<div style="display: flex; " >
+						<div>
+							<horizon-label
+								class="label-policy-number fixed-label"
+								data-automation-id="insure-policy-contract-reference"
+								label="One Cover policy"
+								textOverflow="ellipsis"
+								value="LC00001234">
+							</horizon-label>
+						</div>
+						<!-- <div class="vertical-line"></div> -->
+						<div>
+							<horizon-label
+								data-automation-id="insure-policy-start-date"
+								label="Total cover"
+								value="R1 000 000">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								data-automation-id="insure-policy-cancellation-date"
+								label="Debit order date"
+								value="23rd">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								data-automation-id="insure-policy-display-status"
+								label="Total monthly payment"
+								class = "life-pol-label"
+								value="R1 234">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								data-automation-id="insure-policy-display-status"
+								label="Arrears amount"
+								class = ""
+								value="R0.00">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								data-automation-id="insure-policy-display-status"
+								label="Status"
+								class = "Active"
+								value= "Active">
+							</horizon-label>
+						</div>
+
+						<capitec-overflow-menu label="Menu" style="z-index: 3000;">
+							<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>
+						</capitec-overflow-menu>
+					</div>
+				<!-- </capitec-group> -->
+			</capitec-card>
+		`;
 	}
 
 	/**
@@ -1182,7 +1305,9 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content the list of policies
 	*/
 	_renderLifePoliciesList() {
-		return html`LIFE LIST`;
+		return html`
+
+		`;
 	}
 
 	/**

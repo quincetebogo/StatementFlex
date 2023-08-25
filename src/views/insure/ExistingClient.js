@@ -9,6 +9,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
+import { InsureLifeService } from 'app/services/InsureLifeService';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { SavingsService } from 'app/services/SavingsService';
@@ -58,6 +59,7 @@ export class ExistingClient extends InsureViewBase {
 		this.callerPage = ``;
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.insureLifeService = new InsureLifeService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
 
@@ -99,6 +101,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} funeralArrearsAgreementDocument contains the arrears payment document details
 	 * @property {Boolean} funeralShowEstimateSuccessToast determine whether to show a success alert for estimate email
 	 * @property {Object} funeralPolicyArrears contains client arrears and payable accounts for funeral policy
+	 * @property {Object} lifePolicies contains clients life policies
 	 * 
 	 * @readonly
 	 * @static
@@ -116,6 +119,7 @@ export class ExistingClient extends InsureViewBase {
 			selectedFuneralPolicyDetails: { type: Object, state: true },
 			selectedFuneralPolicyContractReference: { type: String, state: true },
 			funeralPolicies: { type: Object, state: true },
+			lifePolicies: { type: Object, state: true },
 			funeralEstimateDetails: { type: Object, state: true },
 			funeralIssuePlanAgreementDocument: { type: Object, state: true },
 			funeralUpdatePlanAgreementDocument: { type: Object, state: true },
@@ -148,12 +152,14 @@ export class ExistingClient extends InsureViewBase {
 	 * Initialise Landing View 
 	 * 1. Fetch client funeral policies
 	 * 2. Fetch client instance claims
+	 * 3. Fetch client Life policies
 	 * 
 	 * @returns {void}
 	 */
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
+		this.lifePolicies = await this._retrieveClientLifePolicies();
 	}
 
 	// --- Document Generation
@@ -439,6 +445,24 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const resp = await this.insureService.clientSummary(request);
+		if (!resp.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	/**
+	 * Retrieve client summary containing all Life policies
+	 * @returns {Object} Client Life policies 
+	 */
+	async _retrieveClientLifePolicies() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientSummary(request);
 		if (!resp.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
@@ -1267,6 +1291,7 @@ export class ExistingClient extends InsureViewBase {
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 				.funeralGetPolicyArrears = "${() => this._retrieveFuneralPolicyArrears()}"
 				.funeralPolicyArrears = "${this.funeralPolicyArrears}"
+				.lifePolicies = "${this.lifePolicies}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
