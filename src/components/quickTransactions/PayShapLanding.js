@@ -1154,6 +1154,14 @@ export class PayShapLanding extends Component {
 		`);
 	}
 
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator data-automation-id="access-channels-loading-indicator"></capitec-loading-indicator>`;
+		};
+
+		return html``;
+	}
+
 	_renderNoResults() {
 		return html`
 			<capitec-group
