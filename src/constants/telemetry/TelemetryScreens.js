@@ -177,5 +177,7 @@ export const TelemetryScreen = {
 	PAY_SHAP_TRANSACTION_HISTORY: `Payshap transaction history tab`,
 	PAY_SHAP_UPDATE_MODAL: `Payshap update details modal`,
 	PAY_SHAP_PROOF_OF_PAYMENT: `Payshap proof of payment`,
-	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME: `Payshap proof of payment outcome`
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME: `Payshap proof of payment outcome`,
+
+	SYSTEM_ERROR: `Generic system error screen`
 };

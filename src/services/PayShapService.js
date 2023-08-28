@@ -175,6 +175,29 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
+	async payshapProofOfPayment(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		
+		if (await this.isMockEnabled(`payshapPop`)) {
+			return this.mock(`payshapPop`);
+		}
+
+		const url = `/payshap/proof-of-payment`;
+
+		return this.post(
+			url,
+			clientInfo,
+			this.setToken(),
+			`payshapPop`,
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
