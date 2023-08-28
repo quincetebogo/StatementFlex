@@ -80,6 +80,7 @@ export class SendSettlementQuote extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Settlement Quote Dialog`);
 	}
 
 	disconnectedCallback() {

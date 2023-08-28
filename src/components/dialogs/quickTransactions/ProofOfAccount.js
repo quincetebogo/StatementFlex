@@ -95,7 +95,7 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+		ineum(`page`, `Proof of Account Dialog`);
 		this._telemetry.startSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
 			"screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
