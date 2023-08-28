@@ -39,6 +39,8 @@ const STOPREASONS = [
 	}
 ];
 
+const SUPPLEMENTARY_ACCESS_REVOKED = `SUPPLEMENTARY_ACCESS_REVOKED`;
+
 /**
  * The StopCard component is the main component of the Horizon Stop Card View.
  *
@@ -436,7 +438,9 @@ export class StopCard extends Component {
 						<capitec-radio
 							label="${item.value}"
 							@click="${(e) => this._onClickReason(item, card)}"
-							?checked="${item.key === card.cardStopReason.key}">
+							?checked="${item.key === card.cardStopReason.key}"
+							?hidden="${card.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD &&
+									   item.key === SUPPLEMENTARY_ACCESS_REVOKED}">
 						</capitec-radio>
 					`)}
 				</capitec-radio-group>
