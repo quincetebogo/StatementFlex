@@ -72,18 +72,10 @@ export class StopCardSuccess extends ViewBase {
 		return `${description} ${this.notNowToSuspendChannels ? `\nNote: Access channels not suspended` : ``}`;
 	}
 
-	get app() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
+	get selectedACs() {
+		return this.channels.filter(item => item.selected && !item.disabled).length;
 	}
-
-	get internetBanking() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
-	}
-
-	get ussd() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
-	}
-
+	
 	get channelIcons() {
 		const app = `system/cards-action`;
 		const inet = `system/access-action`;
@@ -96,12 +88,20 @@ export class StopCardSuccess extends ViewBase {
 		};
 	}
 
-	get selectedACs() {
-		return this.channels.filter(item => item.selected && !item.disabled).length;
-	}
-
 	get selectedReasonAcs() {
 		return this.channels.filter(item => item.selected && Boolean(item.reason)).length;
+	}
+
+	get ussd() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
+	}
+
+	get internetBanking() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
+	}
+	
+	get app() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
 	}
 
 	// -------------------
