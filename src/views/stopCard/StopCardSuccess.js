@@ -72,6 +72,38 @@ export class StopCardSuccess extends ViewBase {
 		return `${description} ${this.notNowToSuspendChannels ? `\nNote: Access channels not suspended` : ``}`;
 	}
 
+	get selectedACs() {
+		return this.channels.filter(item => item.selected && !item.disabled).length;
+	}
+	
+	get channelIcons() {
+		const app = `system/cards-action`;
+		const inet = `system/access-action`;
+		const ussd = `system/call-outbound-action`;
+
+		return {
+			[ACCESS_CHANNELS_TYPE.APP]: app,
+			[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]: inet,
+			[ACCESS_CHANNELS_TYPE.USSD]: ussd
+		};
+	}
+
+	get selectedReasonAcs() {
+		return this.channels.filter(item => item.selected && Boolean(item.reason)).length;
+	}
+
+	get ussd() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
+	}
+
+	get internetBanking() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
+	}
+	
+	get app() {
+		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
