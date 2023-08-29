@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -60,7 +60,7 @@ class ClientSummary extends Component {
 		this.funeralPolicies = null;
 		this.funeralArrearsPaymentAmount = 0;
 
-		this.lifeSummary = null;
+		this.lifePolicies = null;
 
 		this.showFuneralCancelPolicyDialog = false;
 		this.showFuneralEmailPlanDialog = false;
@@ -327,8 +327,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_funeralPolicyExpanded(policyItem) {
-		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference &&
-			x.isExpanded === true);
+		const isExpanded = this.policiesList?.some(x => x.contractReference !== policyItem.contractReference && x.isExpanded === true);
 
 		policyItem.isExpanded = true;
 		this.policiesList = this.policiesList?.forEach(item => {
@@ -355,6 +354,43 @@ class ClientSummary extends Component {
 	 */
 	_funeralPolicyCollapsed(policyItem) {
 		policyItem.isExpanded = false;
+		this.requestUpdate();
+	}
+
+	/**
+	 * Expand Pocket Item
+	 * @param {Object} pocketItem - Pocket details 
+	 * @returns {void}
+	 */
+	_lifePolicyExpanded(pocketItem) {
+		const isExpanded = this.pocketList?.some(x => x.pocketType !== pocketItem.pocketType &&
+			x.isExpanded === true);
+
+		pocketItem.isExpanded = true;
+		this.pocketList = this.pocketList?.forEach(item => {
+			if (item.pocketType !== pocketItem.pocketType) {
+				item.isExpanded = false;
+			}
+		});
+
+		this.requestUpdate();
+		const parentElement = this.shadowRoot.getElementById(`client-pockets-box`);
+		const childElement = this.shadowRoot.getElementById(`horizon-expander-${pocketItem.pocketType}`);
+
+		if (isExpanded) {
+			parentElement.scrollTop = childElement.offsetTop - 445;
+		} else {
+			parentElement.scrollTop = childElement.offsetTop - 380;
+		}
+	}
+
+	/**
+	 * Collapse Pocket Item
+	 * @param {Object} pocketItem - Pocket details 
+	 * @returns {void}
+	 */
+	_lifePolicyCollapsed(pocketItem) {
+		pocketItem.isExpanded = false;
 		this.requestUpdate();
 	}
 
@@ -436,7 +472,7 @@ class ClientSummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	async _initialise() {
+	_initialise() {
 		// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
 		// await super.createAndClassifySubIncident(null, false);
 	}
@@ -980,6 +1016,29 @@ class ClientSummary extends Component {
 			.life-pol-label{
 				width: 180px;
 			}
+
+			.once-off-label-colour{
+				--theme-label-font-color: #009E96;
+				;
+			}
+
+			.monthly-label-colour{
+				--theme-label-font-color: #852CB3;
+				;
+			}
+
+			.education-label-colour{
+				--theme-label-font-color: #AA1580;
+				;
+			}
+
+			.pocket-type-label{
+				width: 22%;
+				padding-left: 20px;
+				font-size: unset;
+			}
+			
+
 			`
 		];
 	}
@@ -1103,8 +1162,8 @@ class ClientSummary extends Component {
 						${this._renderLifePolicy()}
 					</capitec-card>
 
-					<capitec-content-box  id="client-policies-box" class="accounts-box">
-						${this._renderLifePoliciesList()}
+					<capitec-content-box  id="client-pockets-box" class="accounts-box">
+						${this._renderLifePolicyPockets()}
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
@@ -1127,15 +1186,11 @@ class ClientSummary extends Component {
 	 * @returns {html} html content for the life policy
 	 */
 	_renderLifePolicy() {
+
+		this.lifePolicy = this.lifePolicies?.policies[0];
+
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
-				<!-- <capitec-group 
-					class="expander-header"
-					slot="custom-header"
-					layout="horizontal"
-					gap="clear"
-					halign="left"
-					valign="center"> -->
 					<div style="display: flex; " >
 						<div>
 							<horizon-label
@@ -1143,10 +1198,10 @@ class ClientSummary extends Component {
 								data-automation-id="insure-policy-contract-reference"
 								label="One Cover policy"
 								textOverflow="ellipsis"
-								value="LC00001234">
+								value="${this.lifePolicy.contractReference}">
 							</horizon-label>
 						</div>
-						<!-- <div class="vertical-line"></div> -->
+
 						<div>
 							<horizon-label
 								data-automation-id="insure-policy-start-date"
@@ -1181,8 +1236,8 @@ class ClientSummary extends Component {
 							<horizon-label
 								data-automation-id="insure-policy-display-status"
 								label="Status"
-								class = "Active"
-								value= "Active">
+								class = "${this.lifePolicy.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${this.lifePolicy.policyStatus}">
 							</horizon-label>
 						</div>
 
@@ -1304,10 +1359,95 @@ class ClientSummary extends Component {
 	 * Render list of Life Cover policies
 	 * @returns {html} The html content the list of policies
 	*/
-	_renderLifePoliciesList() {
-		return html`
+	_renderLifePolicyPockets() {
+		this.pocketList = this.lifePolicies?.policies[0]?.pockets;
 
-		`;
+		return html`${this.pocketList?.length > 0 ? this.pocketList?.map((pocketItem) => {
+			const sumCoverage = pocketItem?.coverage;
+			return html`
+		<horizon-expander
+			expandButtonAlignment="right"
+			id="horizon-expander-${pocketItem.pocketType}"
+			?expanded = "${pocketItem.isExpanded}" 
+			@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
+			@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}">
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<capitec-label type="strong"
+							class="pocket-type-label ${this._pocketLabelColour(pocketItem.pocketType)}"
+							label="${this._displayPocketType(pocketItem.pocketType)}">
+						</capitec-label>
+
+						<div class="vertical-line"></div>
+						
+						<horizon-label
+							data-automation-id="insure-pocket-cover-amount"
+							label="Cover amount"
+							value="R250 000">
+						</horizon-label>
+						
+						<horizon-label
+							data-automation-id="insure-pocket-debit-order-date"
+							label="Debit order date"
+							value="23rd">
+						</horizon-label>
+						
+						<horizon-label
+							data-automation-id="insure-pocket-payment-amount"
+							label="Payment amount"
+							value="R250.00">
+						</horizon-label>
+
+						<horizon-label
+							data-automation-id="insure-pocket-remaining-balance"
+							label="Remaining Balance"
+							class=""
+							value="R0.00">
+						</horizon-label>
+
+						<horizon-label
+							data-automation-id="insure-pocket-status"
+							label="Status"
+							class = "${pocketItem.coverage > 0 ? `active-status` : `inactive-status`}"
+							value="${pocketItem.coverage > 0 ? `Active` : `Cancelled`}">
+						</horizon-label>
+
+				</capitec-group>
+				<div slot="content">
+					<capitec-group 
+						class="expander-content" 
+						layout="vertical"
+						gap="none"
+						halign="left"
+						valign="center">
+							${this._renderLifeExpandedOptions(pocketItem)}
+					</capitec-group>
+				</div>
+		</horizon-expander>`;
+		}) : html``}`;
+	}
+
+	_displayPocketType(pocketType) {
+		if (pocketType === `OnceOffPayout`) {
+			return `Once Off Payout`;
+		} else if (pocketType === `MonthlyPayout`) {
+			return `Monthly Payout`;
+		}
+		return `Education Fund`;
+	}
+
+	_pocketLabelColour(pocketType) {
+		if (pocketType === `OnceOffPayout`) {
+			return `once-off-label-colour`;
+		} else if (pocketType === `MonthlyPayout`) {
+			return `monthly-label-colour`;
+		}
+		return `education-label-colour`;
 	}
 
 	/**
@@ -1335,6 +1475,91 @@ class ClientSummary extends Component {
 						</capitec-label>
 					</capitec-card>` : ``}
 			</capitec-group>`;
+	}
+
+	/**
+	 * Render Pocket options
+	 * @param {Object} pocketItem - each policy item
+	 * @returns {html} The html content of the each Policy options
+	 */
+	_renderLifeExpandedOptions(pocketItem) {
+
+		if (pocketItem.pocketType === `OnceOffPayout`) {
+ 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
+				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-reinstate"
+						class="button-margin" 
+						label="Beneficiaries" 
+						icon="system/history-action">
+					</horizon-option-button>
+
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-reinstate"
+						class="button-margin" 
+						label="De-activate once off payout" 
+						icon="system/history-action"
+						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.ONCEOFF)}">
+					</horizon-option-button>
+					
+				</capitec-group>
+			`; 
+		} else if (pocketItem.pocketType === `MonthlyPayout`) {
+			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
+				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-reinstate"
+						class="button-margin" 
+						label="Beneficiaries" 
+						icon="system/history-action"
+						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.MONTHLY)}">
+					</horizon-option-button>
+
+					<horizon-option-button 
+						data-automation-id="insure-policy-options-reinstate"
+						class="button-margin" 
+						label="De-activate monthly payout" 
+						icon="system/history-action">
+					</horizon-option-button>
+					
+				</capitec-group>
+			`; 
+		}
+
+		return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
+			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-reinstate"
+					class="button-margin" 
+					label="Children" 
+					icon="system/history-action"
+					@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.EDUCATION)}">
+				</horizon-option-button>
+
+				<horizon-option-button 
+					data-automation-id="insure-policy-options-reinstate"
+					class="button-margin" 
+					label="Cancel fund" 
+					icon="system/history-action">
+				</horizon-option-button>
+				
+			</capitec-group>
+		`; 
+		
+	}
+
+	/**
+	* Show pocket summary of selected pocket type
+	* @param {string} pocketType Pocket type chosen
+	* @returns {void}
+	*/
+	_openPocketSummary(pocketType) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-pocket-summary`, {
+			detail: {
+				pocketType: pocketType,
+				lifePolicy: this.lifePolicies.policies[0]
+			}
+		}));
 	}
 
 	/**
