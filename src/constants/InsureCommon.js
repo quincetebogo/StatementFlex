@@ -298,7 +298,7 @@ export const POLICY_RULES = Object.freeze({
 
 /**
  * Pocket types for Life cover policy
- * 
+ *
  * @readonly
  * @enum {Object} LIFE_POCKET_TYPES
  */
