@@ -7,8 +7,8 @@
 export const insureLifeClientSummary = {
 		"policies": [
 		  {
-			"contractReference": `string`,
-			"policyStatus": `string`,
+			"contractReference": `LC00001234`,
+			"policyStatus": `Active`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
 			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
 			"cancellationReason": `string`,
@@ -28,6 +28,16 @@ export const insureLifeClientSummary = {
 			"pockets": [
 			  {
 				"pocketType": `OnceOffPayout`,
+				"coverage": 250000,
+				"premium": 0
+			  },
+			  {
+				"pocketType": `MonthlyPayout`,
+				"coverage": 25000,
+				"premium": 0
+			  },
+			  {
+				"pocketType": `EducationFund`,
 				"coverage": 0,
 				"premium": 0
 			  }
