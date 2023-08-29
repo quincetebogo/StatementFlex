@@ -295,7 +295,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
 
-		// TODO - NEED TO CHECK IF REMOVING THIS LINE IS SAFE
 		await super.createAndClassifySubIncident(null, false);
 
         this.savingsDetails = {
