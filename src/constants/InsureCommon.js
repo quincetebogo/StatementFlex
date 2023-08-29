@@ -295,3 +295,15 @@ export const POLICY_RULES = Object.freeze({
 	POLICYPAUSE: `Policy Pause`,
 	MATERNITYWAIVER: `New Born Waiver`
 });
+
+/**
+ * Pocket types for Life cover policy
+ * 
+ * @readonly
+ * @enum {Object} LIFE_POCKET_TYPES
+ */
+export const LIFE_POCKET_TYPES = Object.freeze({
+	MONTHLY: `MonthlyPayout`,
+	EDUCATION: `Education`,
+	ONCEOFF: `OnceOffPayout`
+});

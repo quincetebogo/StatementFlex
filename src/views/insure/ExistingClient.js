@@ -27,6 +27,8 @@ import 'app/components/insure/funeral/FuneralPolicyTransactionHistory';
 import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 
+import 'app/components/insure/life/LifePocketSummary';
+
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
 const POLICY_TRANSACTION_HISTORY = {
@@ -75,6 +77,9 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralIssuePlanAgreementDocument = {};
 		this.funeralUpdatePlanAgreementDocument = {};
 		this.funeralShowEstimateSuccessToast = false;
+
+		this.selectedLifePocketType = ``;
+		this.selectedLifePolicy = ``;
 	}
 
 	// #endregion INITIALISATION
@@ -160,6 +165,7 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		console.log(this.lifePolicies);
 	}
 
 	// --- Document Generation
@@ -1060,6 +1066,17 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Prepare and navigate to Life Pocket Summary
+	 * @param {event} e e
+	 * @returns {void} 
+	 */
+	_goToLifePocketSummary(e) {
+		this.selectedLifePocketType = e.detail.pocketType;
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY);
+	}
+
+	/**
 	 * Send email from caller page
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1261,6 +1278,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderSuccessPage()}`;
 			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
 				return html`${this._renderClaimSummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY:
+				return html`${this._renderLifePocketSummaryPage()}`;
 			default:
 				return html``;
 		}
@@ -1301,6 +1320,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToFuneralTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
+				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}">
 			</horizon-insure-client-summary>`;
 	}
@@ -1426,6 +1446,20 @@ export class ExistingClient extends InsureViewBase {
 				.claimSummary="${this.claimSummary}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-claim-summary>`;
+	}
+
+	/**
+	 * Renders the pocket summary page, configured with the selected pocket type
+	 * 
+	 * @returns {html} html
+	 */
+	_renderLifePocketSummaryPage() {
+		return html`
+			<horizon-insure-life-pocket-summary 
+				.selectedPocketType="${this.selectedLifePocketType}"
+				.selectedLifePolicy="${this.selectedLifePolicy}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-pocket-summary>`;
 	}
 
 	/**
