@@ -1379,8 +1379,8 @@ class ClientSummary extends Component {
 					halign="left"
 					valign="center">
 						<capitec-label type="strong"
-							class="pocket-type-label ${this._pocketLabelColour(pocketItem.pocketType)}"
-							label="${this._displayPocketType(pocketItem.pocketType)}">
+							class="pocket-type-label ${this._pocketTypeLabelColour(pocketItem.pocketType)}"
+							label="${this._displayPocketTypeLabel(pocketItem.pocketType)}">
 						</capitec-label>
 
 						<div class="vertical-line"></div>
@@ -1432,7 +1432,7 @@ class ClientSummary extends Component {
 		}) : html``}`;
 	}
 
-	_displayPocketType(pocketType) {
+	_displayPocketTypeLabel(pocketType) {
 		if (pocketType === `OnceOffPayout`) {
 			return `Once Off Payout`;
 		} else if (pocketType === `MonthlyPayout`) {
@@ -1441,7 +1441,7 @@ class ClientSummary extends Component {
 		return `Education Fund`;
 	}
 
-	_pocketLabelColour(pocketType) {
+	_pocketTypeLabelColour(pocketType) {
 		if (pocketType === `OnceOffPayout`) {
 			return `once-off-label-colour`;
 		} else if (pocketType === `MonthlyPayout`) {
@@ -1491,15 +1491,15 @@ class ClientSummary extends Component {
 						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
 						label="Beneficiaries" 
-						icon="system/history-action">
+						icon="system/history-action"
+						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.ONCEOFF)}">
 					</horizon-option-button>
 
 					<horizon-option-button 
 						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
 						label="De-activate once off payout" 
-						icon="system/history-action"
-						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.ONCEOFF)}">
+						icon="system/history-action">
 					</horizon-option-button>
 					
 				</capitec-group>
