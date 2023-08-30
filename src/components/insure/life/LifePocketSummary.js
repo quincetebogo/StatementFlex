@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -20,7 +22,9 @@ class LifePocketSummary extends Component {
 	constructor() {
 		super();
 		this.selectedPocketType = ``;
+		this.selectedPocket = {};
 		this.selectedLifePolicy = {};
+		this.pocketBeneficiaries = {};
 	}
 
 	// #endregion INITIALISATION
@@ -50,8 +54,8 @@ class LifePocketSummary extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		console.log(`In pocket summary for type: ${this.selectedPocketType}`);
-		console.log(this.selectedLifePolicy);
+		this.selectedPocket = this.selectedLifePolicy.pockets.find(x => x.pocketType === this.selectedPocketType);
+		this._getPocketBeneficiaries();
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -85,6 +89,10 @@ class LifePocketSummary extends Component {
 		return ``;
 	}
 
+	/**
+	 * Determine message based on pocket type
+	 * @returns {string} message
+	 */
 	_getBeneficiaryInfoMessage() {
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return `Choose who gets a monthly payout (up to 2):`;
@@ -93,6 +101,34 @@ class LifePocketSummary extends Component {
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			return `Choose who gets a once off payout (up to 2):`;
 		}
+	}
+
+	/**
+	 * Calculate total arrears for policy
+	 * @param {*} policy policy with arrears
+	 * @returns {string} formatted total
+	 */
+	_calculateArrearsAmount(policy) {
+		let totalArrears = 0;
+		policy.arrears.forEach(arrears => {
+			totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+		});
+		return formatCurrency(totalArrears);
+	}
+
+	_getPocketBeneficiaries() {
+		this.pocketBeneficiaries = [];
+		this.selectedLifePolicy.beneficiaries.forEach(beneficiary => {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && beneficiary.monthlyPayoutBenefitAmount > 0) {
+				this.pocketBeneficiaries.push(beneficiary);
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && beneficiary.educationBenefitAmount > 0) {
+				this.pocketBeneficiaries.push(beneficiary);
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && beneficiary.onceOffPayoutBenefitAmount > 0) {
+				this.pocketBeneficiaries.push(beneficiary);
+			}
+		});
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -248,11 +284,11 @@ class LifePocketSummary extends Component {
 				gap="none"
 				halign="left"
 				valign="center">
-					<horizon-label label="Cover amount" value="AAAAAAA"></horizon-label>
-					<horizon-label label="Debit order date" value="AAAAAAA"></horizon-label>
-					<horizon-label label="Payment amount" value="AAAAAAA"></horizon-label>
-					<horizon-label label="Arrears amount" value="AAAAAAA"></horizon-label>
-					<horizon-label label="Status" value="AAAAAAA"></horizon-label>
+					<horizon-label label="Cover amount" value="${isNullorEmpty(this.selectedPocket?.coverage) ? `R0.00` : formatCurrency(this.selectedPocket?.coverage)}"></horizon-label>
+					<horizon-label label="Debit order date" value="${formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}"></horizon-label>
+					<horizon-label label="Payment amount" value="${isNullorEmpty(this.selectedLifePolicy?.nextCollectionAmount) ? `R0.00` : formatCurrency(this.selectedLifePolicy?.nextCollectionAmount)}"></horizon-label>
+					<horizon-label label="Arrears amount" value="${this._calculateArrearsAmount(this.selectedLifePolicy)}"></horizon-label>
+					<horizon-label label="Status" value="${this.selectedLifePolicy?.policyStatus}"></horizon-label>
 			</capitec-group>`;
 	}
 
@@ -267,6 +303,8 @@ class LifePocketSummary extends Component {
 			</div>
 
 			<div class="beneficiary-list">
+
+
 				<div class="beneficiary-card">
 					<div style="display: flex; gap:20px;">
 						<capitec-avatar size="large" value="Lorem Ipsum" color="#AAAAAA"></capitec-avatar>

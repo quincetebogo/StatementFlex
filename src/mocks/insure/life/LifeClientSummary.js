@@ -6,8 +6,8 @@
  */
 
 export const insureLifeClientSummary = {
-		"policies": [
-		  {
+	"policies": [
+		{
 			"contractReference": `LC00001234`,
 			"policyStatus": `Active`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
@@ -27,26 +27,26 @@ export const insureLifeClientSummary = {
 				"collectionDay": 0
 			},
 			"pockets": [
-			  {
-				"pocketType": `OnceOffPayout`,
-				"coverage": 250000,
-				"premium": 0
-			  },
-			  {
-				"pocketType": `MonthlyPayout`,
-				"coverage": 25000,
-				"premium": 0
-			  },
-			  {
-				"pocketType": `EducationFund`,
-				"coverage": 0,
-				"premium": 0
-			  }
+				{
+					"pocketType": `OnceOffPayout`,
+					"coverage": 250000,
+					"premium": 0
+				},
+				{
+					"pocketType": `MonthlyPayout`,
+					"coverage": 25000,
+					"premium": 0
+				},
+				{
+					"pocketType": `EducationFund`,
+					"coverage": 0,
+					"premium": 0
+				}
 			],
 			"arrears": [
 				{
 					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `string`,
+					"arrearsPaymentDueAmount": `0`,
 					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
 					"arrearsPaymentReceivedAmount": `string`,
 					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
@@ -57,7 +57,7 @@ export const insureLifeClientSummary = {
 					"firstName": `string`,
 					"lastName": `string`,
 					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 0,
+					"onceOffPayoutBenefitAmount": 400,
 					"educationBenefitAmount": 0,
 					"monthlyPayoutBenefitAmount": 0,
 					"bankDetails": {
