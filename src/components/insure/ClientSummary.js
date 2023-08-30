@@ -1037,6 +1037,10 @@ class ClientSummary extends Component {
 				padding-left: 20px;
 				font-size: unset;
 			}
+
+			.life-policy-div{
+				display: flex;
+			}
 			
 
 			`
@@ -1191,14 +1195,14 @@ class ClientSummary extends Component {
 
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
-					<div style="display: flex; " >
+					<div class="life-policy-div">
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
 								data-automation-id="insure-policy-contract-reference"
 								label="One Cover policy"
 								textOverflow="ellipsis"
-								value="${this.lifePolicy.contractReference}">
+								value="${this.lifePolicy?.contractReference}">
 							</horizon-label>
 						</div>
 
@@ -1236,12 +1240,12 @@ class ClientSummary extends Component {
 							<horizon-label
 								data-automation-id="insure-policy-display-status"
 								label="Status"
-								class = "${this.lifePolicy.policyStatus === `Active` ? `active-status` : `inactive-status`}"
-								value= "${this.lifePolicy.policyStatus}">
+								class = "${this.lifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${this.lifePolicy?.policyStatus}">
 							</horizon-label>
 						</div>
 
-						<capitec-overflow-menu label="Menu" style="z-index: 3000;">
+						<capitec-overflow-menu label="Menu">
 							<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>
@@ -1367,8 +1371,8 @@ class ClientSummary extends Component {
 			return html`
 		<horizon-expander
 			expandButtonAlignment="right"
-			id="horizon-expander-${pocketItem.pocketType}"
-			?expanded = "${pocketItem.isExpanded}" 
+			id="horizon-expander-${pocketItem?.pocketType}"
+			?expanded = "${pocketItem?.isExpanded}" 
 			@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
 			@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}">
 				<capitec-group 
@@ -1379,8 +1383,8 @@ class ClientSummary extends Component {
 					halign="left"
 					valign="center">
 						<capitec-label type="strong"
-							class="pocket-type-label ${this._pocketTypeLabelColour(pocketItem.pocketType)}"
-							label="${this._displayPocketTypeLabel(pocketItem.pocketType)}">
+							class="pocket-type-label ${this._pocketTypeLabelColour(pocketItem?.pocketType)}"
+							label="${this._displayPocketTypeLabel(pocketItem?.pocketType)}">
 						</capitec-label>
 
 						<div class="vertical-line"></div>
@@ -1413,8 +1417,8 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-pocket-status"
 							label="Status"
-							class = "${pocketItem.coverage > 0 ? `active-status` : `inactive-status`}"
-							value="${pocketItem.coverage > 0 ? `Active` : `Cancelled`}">
+							class = "${pocketItem?.coverage > 0 ? `active-status` : `inactive-status`}"
+							value="${pocketItem?.coverage > 0 ? `Active` : `Cancelled`}">
 						</horizon-label>
 
 				</capitec-group>
@@ -1433,21 +1437,24 @@ class ClientSummary extends Component {
 	}
 
 	_displayPocketTypeLabel(pocketType) {
-		if (pocketType === `OnceOffPayout`) {
-			return `Once Off Payout`;
-		} else if (pocketType === `MonthlyPayout`) {
+
+		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return `Monthly Payout`;
+		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			return `Education Fund`;
+		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return `Once Off Payout`;
 		}
-		return `Education Fund`;
 	}
 
 	_pocketTypeLabelColour(pocketType) {
-		if (pocketType === `OnceOffPayout`) {
-			return `once-off-label-colour`;
-		} else if (pocketType === `MonthlyPayout`) {
-			return `monthly-label-colour`;
+		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			return `Monthly Payout`;
+		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			return `Education Fund`;
+		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return `Once Off Payout`;
 		}
-		return `education-label-colour`;
 	}
 
 	/**
