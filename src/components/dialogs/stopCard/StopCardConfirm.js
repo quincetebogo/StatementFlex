@@ -118,6 +118,10 @@ export class StopCardConfirm extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
+	_getCardType(card) {
+		return card.cardDisplayName.includes(`Debit`) ? `debit` : `credit`;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -152,6 +156,12 @@ export class StopCardConfirm extends Component {
 					--theme-product-tile-hover-credit-border: 4px solid #E61414;
 					padding: 14px;
 					border-left: var(--theme-product-tile-hover-credit-border);
+				}
+				capitec-card.debit {
+					--theme-product-tile-hover-credit-border: 4px solid #009DE0;
+				}
+				capitec-card.credit {
+					--theme-product-tile-hover-credit-border: 4px solid #E61414;
 				}
 				capitec-card:last-child {
 					margin-bottom: 10px;
@@ -222,7 +232,7 @@ export class StopCardConfirm extends Component {
 
 	_renderConfirmStopCard() {
 		return this.cardsToStop.map(card => html`
-			<capitec-card>
+			<capitec-card class="${this._getCardType(card)}">
 				<capitec-group layout="grid" rows="uniform" columns="uniform">
 					<horizon-label row="1" column="1"
 						label="${card.cardDisplayName}"
