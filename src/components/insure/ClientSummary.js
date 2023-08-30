@@ -1038,7 +1038,7 @@ class ClientSummary extends Component {
 				font-size: unset;
 			}
 
-			.life-policy-div{
+			.life-policy-container{
 				display: flex;
 			}
 			
@@ -1195,7 +1195,7 @@ class ClientSummary extends Component {
 
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
-					<div class="life-policy-div">
+					<div class="life-policy-container">
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
@@ -1449,11 +1449,11 @@ class ClientSummary extends Component {
 
 	_pocketTypeLabelColour(pocketType) {
 		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
+			return `monthly-label-colour`;
 		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
+			return `education-label-colour`;
 		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
+			return `once-off-label-colour`;
 		}
 	}
 
