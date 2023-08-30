@@ -38,7 +38,7 @@ export const insureLifeClientSummary = {
 					"premium": 0
 				},
 				{
-					"pocketType": `EducationFund`,
+					"pocketType": `Education`,
 					"coverage": 0,
 					"premium": 0
 				}
