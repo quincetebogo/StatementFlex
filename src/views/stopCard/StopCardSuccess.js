@@ -69,7 +69,7 @@ export class StopCardSuccess extends ViewBase {
 			description += `Type: Stop Card\nStopped Card number: ${card.maskedCardNumber}\nCard Type: ${card.cardDisplayName}\nDate Stopped: ${formatDate(card.cardStoppedDate, `dd/mm/yyyy hh:mm:ss`)}\nReason for Card Stop: ${card.cardStopReason.value}\n\n`;
 		});
 
-		return `${description} ${this.notNowToSuspendChannels ? `\nNote: Access channels not suspended` : ``}`;
+		return `${description}${this.notNowToSuspendChannels ? `Note: Access channels not suspended` : ``}`;
 	}
 
 	get selectedACs() {
@@ -113,6 +113,7 @@ export class StopCardSuccess extends ViewBase {
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails?.stoppedCards || [];
+		this.notNowToSuspendChannels = screenDetails.notNowToSuspendChannels || this.notNowToSuspendChannels;
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		await this._initialise();
@@ -148,6 +149,7 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
+		this.horizonStore.clearScreenDetails();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -199,6 +201,7 @@ export class StopCardSuccess extends ViewBase {
 		this.notNowToSuspendChannels = true;
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_NOT_NOW, {});
 		this._updateIncidentState();
+		this._updateSuspendAcAction();
 	}
 
 	_suspendChannels() {
@@ -213,6 +216,7 @@ export class StopCardSuccess extends ViewBase {
 
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CANCEL, {});
 		this._updateIncidentState();
+		this._updateSuspendAcAction();
 	}
 
 	_selectAllToSuspend(e) {
@@ -272,6 +276,10 @@ export class StopCardSuccess extends ViewBase {
 	// ---------------
 
 	async _initialise() {
+		if (this.notNowToSuspendChannels) {
+			return;
+		}
+
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
@@ -382,6 +390,12 @@ export class StopCardSuccess extends ViewBase {
 		}
 
 		screenDetails.request = request;
+		this.horizonStore.setScreenDetails(screenDetails);
+	}
+
+	_updateSuspendAcAction() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.notNowToSuspendChannels = this.notNowToSuspendChannels;
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
