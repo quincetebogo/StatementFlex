@@ -31,6 +31,7 @@ const callTransferedResoltuion = (issueType) => {
  let UNCOMMON_REASONS = {};
  let PRODUCT_ENQUIRY_REASONS = {};
  let UNSUCCESSFUL_REASONS = {};
+ let BALANCE_ENQUIRY_REASONS = {};
 
 export const END_CALL_REASON = Object.freeze({
 	
@@ -156,7 +157,7 @@ export const END_CALL_REASON = Object.freeze({
 				mapping: `telephony-disconnected`
 			}
 		],
-		"verified": [
+		"verified": BALANCE_ENQUIRY_REASONS = [
 			{
 				key: NEED_FULFILLED,
 				value: `Need fulfilled`,
@@ -353,7 +354,8 @@ export const END_CALL_REASON = Object.freeze({
 	SearchOtherNeed: UNCOMMON_REASONS,
 	ProductEnquiry: PRODUCT_ENQUIRY_REASONS,
 	ServiceError: UNSUCCESSFUL_REASONS, 
-	SystemError: UNSUCCESSFUL_REASONS
+	SystemError: UNSUCCESSFUL_REASONS,
+	BalanceEnquiry: BALANCE_ENQUIRY_REASONS
 });
 
 /**
@@ -392,7 +394,8 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `DebiCheck`,
 	 `SearchOtherNeed`,
 	 `ProductEnquiry`,
-	 `LandingPage`
+	 `LandingPage`,
+	 `BalanceEnquiry`
  ]);
 
 /**
@@ -400,7 +403,7 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
  * @readonly
  * @enum {Object} RECOGNIZE_NEED_CONTEXTS
  */
-export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
+export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`, `BalanceEnquiry`]);
 
 
  /**
