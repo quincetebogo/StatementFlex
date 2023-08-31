@@ -118,7 +118,7 @@ class ClientSummary extends Component {
 			maxAllowedCover: { type: Number, state: true },
 			clientClaims: { type: Object, state: true },
 			funeralPolicies: { type: Object, state: true },
-			
+
 			lifePolicies: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
@@ -754,6 +754,30 @@ class ClientSummary extends Component {
 		window.setTimeout(() => this.showEmailEstimateSuccessToast = false, 3000);
 	}
 
+	/**
+	 * Add all pocket coverage together and format to currency
+	 * @returns {string} total cover
+	 */
+	_calculateLifeTotalCoverAmount() {
+		let totalCover = 0;
+		this.lifePolicies?.policies[0]?.pockets.forEach(pocket => {
+			totalCover += pocket.coverage;
+		});
+		return formatCurrency(totalCover);
+	}
+
+	/**
+	 * Calculate total arrears for life cover policy
+	 * @returns {string} formatted total
+	 */
+	_calculateLifeArrearsAmount() {
+		let totalArrears = 0;
+		this.lifePolicies?.policies[0]?.arrears.forEach(arrears => {
+			totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+		});
+		return totalArrears;
+	}
+
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -1033,7 +1057,7 @@ class ClientSummary extends Component {
 			}
 
 			.pocket-type-label{
-				width: 22%;
+				width: 195px;
 				padding-left: 20px;
 				font-size: unset;
 			}
@@ -1041,8 +1065,14 @@ class ClientSummary extends Component {
 			.life-policy-container{
 				display: flex;
 			}
-			
 
+			.payment-label{
+				width: 180px;
+			}
+
+			.life-arrears-notify{
+				padding: 0px 10px;
+			}
 			`
 		];
 	}
@@ -1161,7 +1191,16 @@ class ClientSummary extends Component {
 				<capitec-tab
 					data-automation-id="insure-landing-life-policies-tab"
 					label="Life Cover">
-
+					${this._calculateLifeArrearsAmount() > 0 
+						? html`
+						<horizon-alert-banner
+							type="unsuccessful-red"
+							class="life-arrears-notify"
+							header="Notify client:"
+							label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount())} and will lapse on ????/??/?? if payment is not received."
+							layout="horizontal">
+						</horizon-alert-banner>`
+						: html``}
 					<capitec-card class="life-policy-box" >
 						${this._renderLifePolicy()}
 					</capitec-card>
@@ -1190,55 +1229,45 @@ class ClientSummary extends Component {
 	 * @returns {html} html content for the life policy
 	 */
 	_renderLifePolicy() {
-
 		this.lifePolicy = this.lifePolicies?.policies[0];
-
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
 					<div class="life-policy-container">
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
-								data-automation-id="insure-policy-contract-reference"
 								label="One Cover policy"
 								textOverflow="ellipsis"
 								value="${this.lifePolicy?.contractReference}">
 							</horizon-label>
 						</div>
-
 						<div>
 							<horizon-label
-								data-automation-id="insure-policy-start-date"
 								label="Total cover"
-								value="R1 000 000">
+								value="${this._calculateLifeTotalCoverAmount()}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
-								data-automation-id="insure-policy-cancellation-date"
-								label="Debit order date"
-								value="23rd">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								data-automation-id="insure-policy-display-status"
 								label="Total monthly payment"
 								class = "life-pol-label"
-								value="R1 234">
+								value="${isNullorEmpty(this.lifePolicy?.totalPremium) ? `R0.00` : formatCurrency(this.lifePolicy?.totalPremium)}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
-								data-automation-id="insure-policy-display-status"
+								label="Debit order date"
+								value="${formatDate(this.lifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
 								label="Arrears amount"
-								class = ""
-								value="R0.00">
+								value="${formatCurrency(this._calculateLifeArrearsAmount())}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
-								data-automation-id="insure-policy-display-status"
 								label="Status"
 								class = "${this.lifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
 								value= "${this.lifePolicy?.policyStatus}">
@@ -1246,10 +1275,20 @@ class ClientSummary extends Component {
 						</div>
 
 						<capitec-overflow-menu label="Menu">
-							<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>
+							${this._calculateLifeArrearsAmount > 0 
+								? html`<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>`
+								: html``
+							}
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
-							<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>
-							<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>
+							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE` 
+								? html`<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>`
+								: html``
+							}
+							
+							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE` 
+								? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>`
+								: html``
+							}
 						</capitec-overflow-menu>
 					</div>
 				<!-- </capitec-group> -->
@@ -1392,35 +1431,15 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-pocket-cover-amount"
 							label="Cover amount"
-							value="R250 000">
+							value="${isNullorEmpty(pocketItem?.coverage) ? `R0.00` : formatCurrency(pocketItem?.coverage)}">
 						</horizon-label>
 						
 						<horizon-label
-							data-automation-id="insure-pocket-debit-order-date"
-							label="Debit order date"
-							value="23rd">
-						</horizon-label>
-						
-						<horizon-label
+						class="payment-label"
 							data-automation-id="insure-pocket-payment-amount"
 							label="Payment amount"
-							value="R250.00">
+							value="${isNullorEmpty(pocketItem?.premium) ? `R0.00` : formatCurrency(pocketItem?.premium)}">
 						</horizon-label>
-
-						<horizon-label
-							data-automation-id="insure-pocket-remaining-balance"
-							label="Remaining Balance"
-							class=""
-							value="R0.00">
-						</horizon-label>
-
-						<horizon-label
-							data-automation-id="insure-pocket-status"
-							label="Status"
-							class = "${pocketItem?.coverage > 0 ? `active-status` : `inactive-status`}"
-							value="${pocketItem?.coverage > 0 ? `Active` : `Cancelled`}">
-						</horizon-label>
-
 				</capitec-group>
 				<div slot="content">
 					<capitec-group 
@@ -1492,45 +1511,41 @@ class ClientSummary extends Component {
 	_renderLifeExpandedOptions(pocketItem) {
 
 		if (pocketItem.pocketType === `OnceOffPayout`) {
- 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
+			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
-						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
 						label="Beneficiaries" 
-						icon="system/history-action"
+						icon="system/profile-action"
 						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.ONCEOFF)}">
 					</horizon-option-button>
 
 					<horizon-option-button 
-						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
-						label="De-activate once off payout" 
-						icon="system/history-action">
+						label="De-activate" 
+						icon="system/delete-action">
 					</horizon-option-button>
 					
 				</capitec-group>
-			`; 
+			`;
 		} else if (pocketItem.pocketType === `MonthlyPayout`) {
 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
-						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
 						label="Beneficiaries" 
-						icon="system/history-action"
+						icon="system/profile-action"
 						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.MONTHLY)}">
 					</horizon-option-button>
 
 					<horizon-option-button 
-						data-automation-id="insure-policy-options-reinstate"
 						class="button-margin" 
-						label="De-activate monthly payout" 
-						icon="system/history-action">
+						label="De-activate" 
+						icon="system/delete-action">
 					</horizon-option-button>
 					
 				</capitec-group>
-			`; 
+			`;
 		}
 
 		return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
@@ -1539,20 +1554,20 @@ class ClientSummary extends Component {
 					data-automation-id="insure-policy-options-reinstate"
 					class="button-margin" 
 					label="Children" 
-					icon="system/history-action"
+					icon="system/profile-action"
 					@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.EDUCATION)}">
 				</horizon-option-button>
 
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-reinstate"
 					class="button-margin" 
-					label="Cancel fund" 
-					icon="system/history-action">
+					label="De-activate" 
+					icon="system/delete-action">
 				</horizon-option-button>
 				
 			</capitec-group>
-		`; 
-		
+		`;
+
 	}
 
 	/**
