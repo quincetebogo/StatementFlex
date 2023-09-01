@@ -69,6 +69,7 @@ export class ExistingClient extends InsureViewBase {
 		this.insuranceClaims = [];
 		this.successPageMessage = ``;
 		this.readOnly = false;
+		this.selectedInsureTabIndex = 0;
 
 		this.selectedFuneralPolicyContractReference = ``;
 		this.selectedFuneralPolicyDetails = {};
@@ -132,7 +133,8 @@ export class ExistingClient extends InsureViewBase {
 			funeralCancelAgreementDocument: { type: Object, state: true },
 			funeralArrearsAgreementDocument: { type: Object, state: true },
 			funeralShowEstimateSuccessToast: { type: Boolean, state: true },
-			funeralPolicyArrears: { type: Object, state: true }
+			funeralPolicyArrears: { type: Object, state: true },
+			selectedInsureTabIndex: { type: Number, state: true }
 		};
 	}
 
@@ -165,7 +167,6 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
-		console.log(this.lifePolicies);
 	}
 
 	// --- Document Generation
@@ -973,7 +974,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToClaimSummary(e) {
-		this.claimSummary = e.detail;
+		this.claimSummary = e.detail.claim;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
 	}
 
@@ -982,6 +984,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToFuneralPolicyEstimate() {
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
 	}
 
@@ -993,6 +996,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToFuneralSMSHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyItem.contractReference;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_SMS_HISTORY);
 	}
 
@@ -1003,6 +1007,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToFuneralCancelPolicySuccess(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.contractReference;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_CANCEL_POLICY_SUCCESS);
 	}
 
@@ -1033,6 +1038,7 @@ export class ExistingClient extends InsureViewBase {
 			const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 			this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
 		}
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
 	}
 
@@ -1047,6 +1053,7 @@ export class ExistingClient extends InsureViewBase {
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
 
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_SUMMARY);
 	}
 
@@ -1060,8 +1067,9 @@ export class ExistingClient extends InsureViewBase {
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
-
 		await this._retrieveFuneralPolicyTransactionHistory();
+
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
 	}
 
@@ -1073,6 +1081,8 @@ export class ExistingClient extends InsureViewBase {
 	_goToLifePocketSummary(e) {
 		this.selectedLifePocketType = e.detail.pocketType;
 		this.selectedLifePolicy = e.detail.lifePolicy;
+		
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY);
 	}
 
@@ -1311,6 +1321,7 @@ export class ExistingClient extends InsureViewBase {
 				.funeralGetPolicyArrears = "${() => this._retrieveFuneralPolicyArrears()}"
 				.funeralPolicyArrears = "${this.funeralPolicyArrears}"
 				.lifePolicies = "${this.lifePolicies}"
+				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
