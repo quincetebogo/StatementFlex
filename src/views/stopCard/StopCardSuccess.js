@@ -1,4 +1,4 @@
-import { ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { css, html } from 'platform/elements';
 import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
@@ -239,7 +239,7 @@ export class StopCardSuccess extends ViewBase {
 		this.channels[index].selected = event.detail.new;
 		this.channels[index].expanded = event.detail.new;
 
-		if (this.channels[index].channel === ACCESS_CHANNELS_TYPE.APP && this.tokenType === IB_TOKEN_TYPE.SOFT) {
+		if (this.channels[index].channel === ACCESS_CHANNELS_TYPE.APP && this.tokenType === IB_TOKEN_TYPE.SOFT && this.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE) {
 			const ibIndex = this.channels.findIndex(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
 			this.channels[ibIndex].selected = event.detail.new;
 		}
@@ -275,9 +275,9 @@ export class StopCardSuccess extends ViewBase {
 		this.horizonRouter.navigateToAccessChannelsOutcome();
 	}
 
-	_suspendReasonSelected(event, item) {
+	_suspendReasonSelected(event, item, key = null) {
 		const index = this.channels.findIndex(x => x.channel === item.channel);
-		this.channels[index].reason = event.currentTarget.label;
+		this.channels[index].reason = key || event.currentTarget.label;
 
 		this.requestUpdate();
 	}
@@ -374,7 +374,7 @@ export class StopCardSuccess extends ViewBase {
 			request.ussd = {
 				msisdn: this.accessChannels.msisdn,
 				cif: this.callerInformation.cifNumber,
-				reason: this.ussd?.reason
+				reason: ACCESS_CHANNELS_REASONS.DEFAULT
 			};
 			this.need = this.need || `cancel-ussd`;
 		}
@@ -848,8 +848,8 @@ export class StopCardSuccess extends ViewBase {
 					</capitec-radio>
 					<capitec-radio 
 						label="Cancelled remote banking"
-						?checked="${item.reason === `Cancelled remote banking`}"
-						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+						?checked="${item.reason === `ServiceCanceled`}"
+						@value-changed="${(event) => this._suspendReasonSelected(event, item, `ServiceCanceled`)}">
 					</capitec-radio>
 					<capitec-radio 
 						label="Faulty"
