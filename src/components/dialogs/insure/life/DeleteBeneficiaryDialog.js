@@ -12,6 +12,8 @@ class DeleteBeneficiaryDialog extends Component {
 
 	constructor() {
 		super();
+		this.selectedBeneficiary = {};
+		this.selectedBeneficiaryName = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -22,7 +24,7 @@ class DeleteBeneficiaryDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			
+			selectedBeneficiary: { type: String, state: true }
 		};
 	}
 
@@ -36,6 +38,7 @@ class DeleteBeneficiaryDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		this.selectedBeneficiaryName = `${this.selectedBeneficiary.firstName} ${this.selectedBeneficiary.lastName}`;
 	}
 
 	disconnectedCallback() {
@@ -59,6 +62,14 @@ class DeleteBeneficiaryDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
 	}
 
+	/**
+	 * confirm event from dialog footer button, fire delete beneficiary event
+	 * @returns {void} 
+	 */
+	_confirmClick() {
+		this.dispatchEvent(new CustomEvent(`delete-beneficiary`, {}));
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -77,7 +88,74 @@ class DeleteBeneficiaryDialog extends Component {
 				${INSURE_CSS}
 			
 				capitec-modal {
-					--theme-modal-header-background-color: #f7f7f7;
+					height: 326px;
+					width: 375;
+					border-radius: 5px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 10px;
+					--theme-modal-header-background-color: #F9EBDD;
+					--theme-modal-footer-padding: 0px 16px 17px 0px;
+				}
+
+				div[slot="header"] {
+					width: 375px;
+					--theme-modal-header-height: 64px;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -370px;
+					top: -13px;
+				}
+
+				div[slot="header"] > span {
+					height: 24px;
+					width: 300px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+				}
+
+				div[slot="body"] {
+					width: 420px;
+					height: 100px;
+				}
+
+				.body-box {
+					height: 100px;
+				}
+
+				.header-text {
+					padding-left: 0px;
+					height: 24px;
+					width: auto;
+					color: #000000;
+					font-family: "Hind Vadodara";
+					font-size: 14px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 28px;
+				}
+
+				capitec-icon {
+					font-size: 23px;
+					width: 20.31px;
+					margin-right: 0px;
+				}
+
+				#dialog-footer{
+					display: flex;
+					justify-content: end;
+					gap: 10px;
+				}
+				
+				.dialog-copy{
+					margin: 0px;
+					margin-bottom: 10px;
 				}
 				`
 		];
@@ -89,12 +167,23 @@ class DeleteBeneficiaryDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Delete Beneficiary" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
-				<div slot="body">
+			<capitec-modal type="free"  header-align="left"  style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+				<div slot="header">
+					<span>
+						<capitec-group layout="horizontal">
+							<capitec-icon size="medium" icon="status/warning-trans" style="height: 28px; width: 26px;"></capitec-icon>
+							<capitec-label class="header-text" label="Delete Beneficiary"></capitec-label>
+						</capitec-group>
+					</span>
+				</div>
+				<div slot="body" id="dialog-body">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer">
-					${this._renderDialogFooter()}
+				<div slot="footer" style="display: flex; flex-direction: column">
+					<hr>
+					<div id="dialog-footer">
+						${this._renderDialogFooter()}
+					</div>
 				</div>
 			</capitec-modal>
 		`;
@@ -107,7 +196,10 @@ class DeleteBeneficiaryDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		
+			<capitec-content-box gap="0px">
+				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> as a beneficiary</p>
+				<p class="dialog-copy">Do you wish to continue?</p>
+			</capitec-content-box>
 		`;
 	}
 
@@ -118,8 +210,8 @@ class DeleteBeneficiaryDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Back" @click="${() => this._backClick()}">
-				</capitec-button>
+			<capitec-button type="secondary" label="Cancel" @click="${() => this._backClick()}"></capitec-button>
+			<capitec-button type="primary" label="Confirm" @click="${() => this._confirmClick()}"></capitec-button>
 		`;
 	}
 

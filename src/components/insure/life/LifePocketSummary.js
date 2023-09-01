@@ -51,6 +51,7 @@ class LifePocketSummary extends Component {
 		return {
 			selectedPocketType: { type: String, state: true },
 			selectedLifePolicy: { type: Object, state: true },
+			selectedBeneficiary: { type: Object, state: true },
 			showEditBeneficiaryDialog: { type: Boolean, state: true },
 			showUpdateMoneyDialog: { type: Boolean, state: true },
 			showDeleteBeneficiaryDialog: { type: Boolean, state: true },
@@ -212,12 +213,22 @@ class LifePocketSummary extends Component {
 		this.showUpdateMoneyDialog = true;
 	}
 
-	_openDeleteBeneficiaryDialog() {
+	_openDeleteBeneficiaryDialog(beneficiary) {
+		this.selectedBeneficiary = beneficiary;
 		this.showDeleteBeneficiaryDialog = true;
 	}
 
 	_openAddBeneficiaryDialog() {
 		this.showAddBeneficiaryDialog = true;
+	}
+
+	/* Dialog Actions */
+	_deleteBeneficiaryFromPocket() {
+		// TODO:
+		// 1. Remove beneficiary and call update service
+		// 2. Show success or error toasts
+		// 3. Hide confirm dialog
+		this.showDeleteBeneficiaryDialog = false;
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -439,9 +450,9 @@ class LifePocketSummary extends Component {
 								value="${this._calculateAvailableBalanceBeneficiaryLevel(beneficiary)}">
 							</horizon-label>
 							<capitec-overflow-menu label="More">
-								<capitec-overflow-menu-item label="Edit ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child`: `Beneficiary`}" @click="${() => this._openEditBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
+								<capitec-overflow-menu-item label="Edit ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child` : `Beneficiary`}" @click="${() => this._openEditBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
 								<capitec-overflow-menu-item label="Update Money" @click="${() => this._openUpdateMoneyDialog(beneficiary)}"></capitec-overflow-menu-item>
-								<capitec-overflow-menu-item label="Delete ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child`: `Beneficiary`}" @click="${() => this._openDeleteBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
+								<capitec-overflow-menu-item label="Delete ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child` : `Beneficiary`}" @click="${() => this._openDeleteBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
 							</capitec-overflow-menu>
 						</div>
 					</div>
@@ -486,7 +497,10 @@ class LifePocketSummary extends Component {
 	_renderDeleteBeneficiaryDialog() {
 		return this.showDeleteBeneficiaryDialog === false ? ``
 			: html`
-				<horizon-insure-life-delete-beneficiary-dialog @close-dialog="${() => this.showDeleteBeneficiaryDialog = false}">
+				<horizon-insure-life-delete-beneficiary-dialog 
+					.selectedBeneficiary="${this.selectedBeneficiary}" 
+					@delete-beneficiary="${() => this._deleteBeneficiaryFromPocket()}"
+					@close-dialog="${() => this.showDeleteBeneficiaryDialog = false}">
 				</horizon-insure-life-delete-beneficiary-dialog>
 		`;
 	}
