@@ -22,6 +22,9 @@ export class AccessChannelsOutcome extends ViewBase {
 		this.retryReq = {};
 		this.retryCount = 0;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.toastDetail = ``;
+		this.toastHeader = ``;
+		this.toastType = ``;
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -157,6 +160,8 @@ export class AccessChannelsOutcome extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.result = screenDetails.result;
 		this.retryReq = screenDetails.request;
+		
+		this._setToastInfo();
 	}
 
 	_header() {
@@ -170,6 +175,21 @@ export class AccessChannelsOutcome extends ViewBase {
 			header = `Access channels suspended`;
 		}
 		return header;
+	}
+
+	_setToastInfo() {
+		this.toastDetail = this._header();
+
+		if (this.suspendedChannels.length === 0) {
+			this.toastType = `error`;
+			this.toastHeader = `Unsuccessful`;
+		} else if (this.unsuspendedChannels.length === 0) {
+			this.toastType = `success`;
+			this.toastHeader = `Successful`;
+		} else {
+			this.toastType = `warning`;
+			this.toastHeader = `Warning`;
+		}
 	}
 
 	// ---------
@@ -215,7 +235,9 @@ export class AccessChannelsOutcome extends ViewBase {
 				image="/images/verifyCaller/verify-client.svg"
 				left="${this.showTryAgain}"
 				right="Done"
-				toast="Statement sent"
+				toast="${this.toastDetail}"
+				toastHeader="${this.toastHeader}"
+				toastType="${this.toastType}"
 				@left-click=${() => this._tryAgain()}
 				@right-click=${() => this._doneClick()}
 				?subContent="${true}">
