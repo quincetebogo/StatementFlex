@@ -26,6 +26,8 @@ export class SuccessScreen extends Component {
 		this.secondaryToast = ``;
 		this.hasSubDetails = false;
 		this.subContent = false;
+		this.toastHeader = `Successful`;
+		this.toastType = `success`;
 	}
 
 	// ----------
@@ -57,7 +59,9 @@ export class SuccessScreen extends Component {
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
 			hasSubDetails: { type: Boolean },
-			subContent: { type: Boolean }
+			subContent: { type: Boolean },
+			toastHeader: { type: String },
+			toastType: { type: String }
 		};
 	}
 
@@ -237,8 +241,8 @@ export class SuccessScreen extends Component {
 			<capitec-toast 
 				?hidden="${!this.displayToast}" 
 				id="id-success-toast"
-				type="success"
-				header="Successful"
+				type="${this.toastType}"
+				header="${this.toastHeader}"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">

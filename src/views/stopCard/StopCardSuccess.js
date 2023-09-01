@@ -10,6 +10,7 @@ import { formatDate } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/common/HorizonExpander';
 
 const IB_TOKEN_TYPE = {
 	SOFT: `Soft Token`,
@@ -102,6 +103,10 @@ export class StopCardSuccess extends ViewBase {
 	
 	get app() {
 		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
+	}
+
+	get expandedTiles() {
+		return this.channels.filter(x => x.expanded).length;
 	}
 
 	// -------------------
@@ -242,6 +247,13 @@ export class StopCardSuccess extends ViewBase {
 		if (!event.detail.new) {
 			this.channels[index].reason = ``;
 		}
+
+		this.channels = this.channels.map(c => {
+										if (c.selected && Boolean(c.reason)) {
+											c.expanded = false;
+										}
+										return c;
+									});
 		this.requestUpdate();
 	}
 
@@ -266,8 +278,17 @@ export class StopCardSuccess extends ViewBase {
 	_suspendReasonSelected(event, item) {
 		const index = this.channels.findIndex(x => x.channel === item.channel);
 		this.channels[index].reason = event.currentTarget.label;
-		this.channels[index].expanded = false;
 
+		this.requestUpdate();
+	}
+
+	_expanded(item, e) {
+		item.expanded = true;
+		this.requestUpdate();
+	}
+
+	_collapsed(item, e) {
+		item.expanded = false;
 		this.requestUpdate();
 	}
 
@@ -518,7 +539,7 @@ export class StopCardSuccess extends ViewBase {
 					--horizon-label-value-margin-top: 6px;
 				}
 				.channelInfoLbl {
-					width: 234px;
+					width: 225px;
 				}
 				.channelStatusLbl {
 					width: 120px;
@@ -546,6 +567,31 @@ export class StopCardSuccess extends ViewBase {
 				capitec-radio-group > capitec-radio {
 					--theme-radio-width: 20px;
 					--theme-radio-height: 20px;
+				}
+				horizon-expander {
+					--theme-expander-width: 483px;
+					--theme-expander-height: 218px;
+					--theme-expander-header-height: 64px;
+					--theme-expander-header-padding: 0px 0px 0px 16px;
+					--theme-expander-indicator-right-margin: 0px 16px 0px 0px;
+				}
+				horizon-expander.disabled {
+					filter: grayscale(100%);
+				}
+				capitec-group[slot="custom-header"] {
+					width: 375px;
+				}
+				capitec-check.ac-tile {
+					--theme-check-label-spacing: 0px;
+				}
+				capitec-content-box[slot="content"] {
+					--theme-container-padding-top: 8px;
+					--theme-container-padding-bottom: 8px;
+					border: 1px solid rgb(225, 225, 225);
+					border-top: 0px;
+				}
+				.noPaddingRight {
+					padding-right: 0px;
 				}
 			`
 		];
@@ -712,7 +758,7 @@ export class StopCardSuccess extends ViewBase {
 		return this.confirmSuspendChannels
 			? html`
 			<capitec-modal type="form" header="Stop Access Channels">
-				<capitec-content-box slot="body" halign="right">
+				<capitec-content-box slot="body" halign="right" class="${this.expandedTiles > 1 ? `noPaddingRight` : ``}">
 					${this.tokenType === IB_TOKEN_TYPE.SOFT
 					? html`
 							<horizon-alert-banner
@@ -742,12 +788,16 @@ export class StopCardSuccess extends ViewBase {
 
 	_renderActiveAccessChannels() {
 		return this.channels.filter(item => item.status === ACCESS_CHANNEL_STATUS.ACTIVE)
-			.map((item, index) => html`
-								<capitec-card 
-									class="accessChannels ${item.disabled ? `disabled` : ``} ${item.expanded ? `expanded` : ``}">
-									<capitec-content-box>
-										<capitec-group layout="horizontal">
-											<capitec-icon size="medium" icon="${this.channelIcons[item.channel]}"></capitec-icon>
+							.map((item, index) => html`
+								<horizon-expander
+									class="${item.disabled ? `disabled` : ``}"
+									expandButtonAlignment="right"
+									icon="${this.channelIcons[item.channel]}"
+									?expanded="${item.expanded}"
+									?disabled="${!item.selected}"
+									@expand="${(e) => this._expanded(item, e)}"
+									@collapse="${(e) => this._collapsed(item, e)}">
+										<capitec-group slot="custom-header" layout="horizontal" valign="center">
 											<horizon-label
 												class="channelInfoLbl"
 												label="${item.label}"
@@ -759,14 +809,15 @@ export class StopCardSuccess extends ViewBase {
 												value="${item.status}">
 											</horizon-label>
 											<capitec-check
+												class="ac-tile"
 												?checked="${item.selected}" 
 												?disabled="${item.disabled}"
 												@value-change="${(event) => this._channelSelected(event, index)}">
 											</capitec-check>
 										</capitec-group>
-									</capitec-content-box>
-									${this._renderSuspendReasons(item)}
-								</capitec-card>`);
+										${this._renderSuspendReasons(item)}
+								</horizon-expander>
+							`);
 	}
 
 	_renderSuspendReasons(item) {
@@ -783,37 +834,36 @@ export class StopCardSuccess extends ViewBase {
 
 	_renderAppReasons(item) {
 		return html`
-			<capitec-content-box
-				class="reason ${item.expanded ? `show` : ``}">
-					<capitec-radio-group label="Choose a reason">
-						<capitec-radio 
-							label="Lost"
-							?checked="${item.reason === `Lost`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio 
-							label="Stolen"
-							?checked="${item.reason === `Stolen`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio 
-							label="Cancelled remote banking"
-							?checked="${item.reason === `Cancelled remote banking`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio 
-							label="Faulty"
-							?checked="${item.reason === `Faulty`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-					</capitec-radio-group>
+			<capitec-content-box slot="content">
+				<capitec-radio-group label="Choose a reason">
+					<capitec-radio 
+						label="Lost"
+						?checked="${item.reason === `Lost`}"
+						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Stolen"
+						?checked="${item.reason === `Stolen`}"
+						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Cancelled remote banking"
+						?checked="${item.reason === `Cancelled remote banking`}"
+						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Faulty"
+						?checked="${item.reason === `Faulty`}"
+						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+					</capitec-radio>
+				</capitec-radio-group>
 			</capitec-content-box>`;
 	}
 
 	_renderUssdReasons(item) {
 		return html`
 			<capitec-content-box
-				class="reason ${item.expanded ? `show` : ``}">
+				slot="content">
 					<capitec-radio-group label="Choose a reason">
 						<capitec-radio 
 							label="Do not use service enough"
@@ -857,7 +907,7 @@ export class StopCardSuccess extends ViewBase {
 	_renderIBReasons(item) {
 		return html`
 			<capitec-content-box
-				class="reason ${item.expanded ? `show` : ``}">
+				slot="content">
 					<capitec-radio-group label="Choose a reason">
 						<capitec-radio
 							label="Stolen"
