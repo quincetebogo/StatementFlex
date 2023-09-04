@@ -1,8 +1,10 @@
-import { Configuration, EventAggregator } from 'platform/core';
+import { Configuration, EventAggregator, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Router } from 'platform/Router';
+import { Instana } from 'app/services/instana';
 import { RoleManager } from 'app/shell/RoleManager';
+import { Router } from 'platform/Router';
+
 
 /**
  * The Horizon URL Schema. 
@@ -23,7 +25,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
-	INSURE_UNVERIFIED_CLIENT: `/insure/unverified-client`,
+	INSURE_BACKOFFICE: `/insure/backoffice`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
@@ -92,6 +94,13 @@ export class HorizonRouter {
 		this.router = Router.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		
+		// instana properties
+		this._InstanaKey = this._configuration.getSetting(`InstanaKey`);
+		this._InstanaHelper = Instana.getInstance();
+		this._InstanaHelper._instanaScript();
+		this._securityContext = SecurityContext.getInstance();
+		// this._InstanaKey = ``;
 		this.roleManager = RoleManager.getInstance();
 
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
@@ -106,6 +115,7 @@ export class HorizonRouter {
 
 	async _initialiseSTrackConfig() {
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+		this._InstanaKey = await this._configuration.getSetting(`InstanaKey`);
 	}
 
 	static getInstance() {
@@ -128,6 +138,8 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
+		
+		this._InstanaHelper._instanaScripts(this._securityContext, this._InstanaKey);
 	}
 
 	/**
@@ -215,8 +227,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
 	}
 
-	navigateToInsureUnverifiedClient() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT}`);
+	navigateToInsureBackOfficePage() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_BACKOFFICE}`);
 	}
 
 	navigateToQuickTransactionFavourites() {
@@ -317,7 +329,7 @@ export class HorizonRouter {
 	navigateToInsureLanding() {
 		// TODO: Navigation to the correct insure page
 		if (this.roleManager.isInsureAgent) {
-			this.navigateToInsureUnverifiedClient();
+			this.navigateToInsureBackOfficePage();
 			return;
 		}
 		this.navigateToInsureExistingClient();
@@ -745,20 +757,12 @@ export default horizonRoutes = [
 		*/
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
-	// {
-	// 	name: `horizon-prospective-client`,
-	// 	title: `Insure`,
-	// 	icon: null,
-	// 	path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-	// 	load: () => import(`../views/insure/ProspectiveClient`),
-	// 	onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	// },
 	{
-		name: `horizon-insure-unverified-client`,
+		name: `horizon-insure-backoffice`,
 		title: `Insure`,
 		icon: null,
-		path: HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT,
-		load: () => import(`../views/insure/InsureUnverifiedClient`),
+		path: HORIZON_ROUTES.INSURE_BACKOFFICE,
+		load: () => import(`../views/insure/InsureBackOffice`),
 		guard: () => true,
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},

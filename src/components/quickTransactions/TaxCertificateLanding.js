@@ -35,7 +35,7 @@ export class TaxCertificateLanding extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Tax Certificate Landing`);
 		this._checkForLeapYear();
 
 		await this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_NOT_AVAILABLE, {

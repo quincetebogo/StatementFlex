@@ -81,7 +81,8 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
 	SAVINGS_ACCOUNT: `savings-account`,
 	LBB: `lbb-account-enquiry`,
 	CREDIT: `credit-account-enquiry`,
-	SAVINGS_PLAN: `savings-plan-account-enquiry`
+	SAVINGS_PLAN: `savings-plan-account-enquiry`,
+	INSURE: `funeral-plan-summary`
 });
 
 /**
@@ -108,17 +109,52 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
  * @readonly
  * @enum {Object} LANGUAGE_LIST
  */
-
 export const LANGUAGE_LIST = Object.freeze([
-	`English`, 
-	`Afrikaans`, 
-	`isiZulu`,
-	`isiXhosa`, 
-	`Xitsonga`, 
-	`siSwati`,
-	`isiNdebele`, 
-	`Tshivenda`,
-	`Sepedi`,
-	`Sesotho`,
-	`Setswana`
+	{ key: `ENGLISH`, value: `English` },
+	{ key: `AFRIKAANS`, value: `Afrikaans` },
+	{ key: `ISIZULU`, value: `isiZulu` },
+	{ key: `ISIXHOSA`, value: `isiXhosa` },
+	{ key: `XITSONGA`, value: `Xitsonga` },
+	{ key: `SISWATI`, value: `siSwati` },
+	{ key: `ISINDEBELE`, value: `isiNdebele` },
+	{ key: `TSHIVENDA`, value: `Tshivenda` },
+	{ key: `SEPEDI`, value: `Sepedi` },
+	{ key: `SESOTHO`, value: `Sesotho` },
+	{ key: `SETSWANA`, value: `Setswana` }
 ]);
+
+/**
+ * Available org units 
+ * 
+ * @readonly
+ * @enum {Object} ORG_UNITS
+ */
+export const ORG_UNITS = {
+	CLIENT_CARE: `Client Care`,
+	HELPDESK: `Helpdesk`,
+	CAPITEC_CONNECT: `Capitec Connect`
+};
+
+/**
+ * Roles to org units mappings
+ * key - roles
+ * value - orgunit
+ * @readonly
+ * @enum {Object} ROLES_TO_ORG_UNITS
+ */
+export const ROLES_TO_ORG_UNITS = {
+	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
+	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
+	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
+};
+
+/**
+ * Available features based on given role of an agent
+ * Client-care and Helpdesk are given access to All features on Horizon
+ * 
+ * @readonly
+ * @enum {Object} AVAILABLE_FEATURES_BY_ROLE
+ */
+export const AVAILABLE_FEATURES_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `search-other-need`, `transaction-history`]
+};

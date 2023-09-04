@@ -943,6 +943,7 @@ class UpdatePlan extends Component {
 	 */
 	_tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
+
 	}
 
 	/**
@@ -1240,7 +1241,7 @@ class UpdatePlan extends Component {
 	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
-	_initialise() {
+	 _initialise() {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
@@ -1281,6 +1282,15 @@ class UpdatePlan extends Component {
 			}
 		});
 		this._openIneligibleLivesDialog();
+
+		// if (this.canReinstate === true) {
+		// 	await super._inicidentManager_(`funeral-plan-reissue`, () => this._toggleBusyFlag());
+		// 	await super.createAndClassifySubIncident();
+		// } else {
+		// 	await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
+		// 	await super.createAndClassifySubIncident();
+		// }
+
 
 	}
 

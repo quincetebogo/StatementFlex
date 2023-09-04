@@ -10,6 +10,7 @@
 		"cardServiceUrl": "https://cec-horizon-cs-card.platform-qa.int.capinet",
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-qa.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-qa.int.capinet",
+		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-qa.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-qa.int.capinet"
@@ -31,6 +32,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"				
 	},
+	"InstanaKey":"4mb-2iLPQaCN7OcC2oVicA",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -39,6 +41,7 @@
 	"LogRequestResponseModels" : false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
