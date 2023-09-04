@@ -133,7 +133,7 @@ export class ConfirmCallerDetails extends Component {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Confirm Caller Details`);
 		this._telemetry.startSpan(IDCallerEvents.CONFIRM_CALLER, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"initial-primary-need": null,

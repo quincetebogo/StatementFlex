@@ -2,6 +2,7 @@ import { Configuration, EventAggregator, ExecutionContext, Logger, NavigationCon
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { Shell, css, html } from 'platform/elements';
 
+// eslint-disable-next-line sort-imports
 import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -17,6 +18,7 @@ import 'app/components/shell/HorizonStatusBar';
 import 'app/shell/ModalController';
 
 import 'app/components/common/AlertBanner';
+
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -112,8 +114,8 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._casperScript(); 
-
+		// this._casperScript(); 
+		this._instanaHead();
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._stateChanged(state));
@@ -122,6 +124,25 @@ export class AppShell extends Shell {
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
+		
+		
+	}
+
+	async _instanaHead() {
+		const instanakey = await this._configuration.getSetting(`otherSystemsURL.sbl`);
+		const head = document.head || document.getElementsByTagName(`head`)[0];
+		const script = document.createElement(`script`);
+		script.innerHTML = `(function(s,t,a,n){s[t]||(s[t]=a,n=s[a]=function(){n.q.push(arguments)},
+		n.q=[],n.v=2,n.l=1*new Date)})(window,"InstanaEumObject","ineum");
+			ineum('reportingUrl', 'https://eum-blue-saas.instana.io');  
+			ineum('key', '${instanakey}');
+			ineum('trackSessions');
+			ineum('captureHeaders', [/./i]);
+			ineum('wrapEventHandlers', true);
+			ineum('wrapTimers', true);
+			`;
+		head.appendChild(script);
+
 	}
 
 	disconnectedCallback() {
@@ -196,6 +217,7 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
+
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		
@@ -216,11 +238,9 @@ export class AppShell extends Shell {
 			script.setAttribute(`type`, `text/javascript`);
 			script.setAttribute(`id`, `CASPerScript`);
 			script.setAttribute(`title`, `CASPer Widget`);
-
 			body.appendChild(script);
 		}
 	  }
-
 	// ---------
 	// RENDERING
 	// ---------

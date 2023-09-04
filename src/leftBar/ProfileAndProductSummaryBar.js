@@ -212,8 +212,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified`
-			&& (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit` || this.product === `SavingsAccount` || this.product === `Insure`)) {
+		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit` || this.product === `SavingsAccount` || this.product === `Insure`)) {
 			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}

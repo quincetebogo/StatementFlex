@@ -32,6 +32,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"				
 	},
+	"InstanaKey":"4mb-2iLPQaCN7OcC2oVicA",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -40,6 +41,7 @@
 	"LogRequestResponseModels" : false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
