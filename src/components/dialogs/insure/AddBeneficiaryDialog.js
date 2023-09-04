@@ -386,7 +386,7 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	_renderExtendedRelationships() {
 		return html`
-		<capitec-modal type="form" class="modal-body-label" header="Add Life Assured"
+		<capitec-modal type="form" class="modal-body-label" header="Add extended family" style="--theme-modal-header-color: black"
 			data-automation-id="horizon-insure-add-beneficiary-dialog" header-align="left">
 			<div slot="body" class="modal-body">
 				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear"
