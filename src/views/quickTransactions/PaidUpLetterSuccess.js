@@ -39,6 +39,10 @@ export class PaidUpLetterSuccess extends ViewBase {
 		};
 	}
 
+	get incidentDescription() {
+		return `Type: Paid Up Letter\nAccount List: ${this._formateAccountNames(this.succeededAccounts)}\nRecipient EmailID: ${this.emailAddress}`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -94,6 +98,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 	
 	_formateAccountNames(accounts) {

@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
 
 const MAX_LIVES_PER_POLICY = 22;
 
@@ -29,6 +32,11 @@ class AddLifeDialog extends Component {
 		this.currentTotalExtendedFamily = 0;
 		this.selectedRelationship = ``;
 		this.showExtendedList = false;
+
+		this.callerPage = 0;
+		this.beneToAdd = {};
+		this.showAddBeneficiaryOnly = false;
+		this.beneOnlyToAdd = {};
 	}
 
 	// #endregion INITIALIZE
@@ -107,8 +115,12 @@ class AddLifeDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
+		if (!isNullorEmpty(this.beneToAdd) && this.beneToAdd.relationship !== `Spouse` && this.beneToAdd.relationship !== `Parent` && this.beneToAdd.relationship !== `Child`) {
+			this.showExtendedList = true;
+		}
+
 		const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
-		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails } }));
+		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails, beneficiary: this.beneToAdd } }));
 		this.showExtendedList = false;
 	}
 
@@ -118,6 +130,7 @@ class AddLifeDialog extends Component {
 	 * @returns {void} 
 	 */
 	_relationshipSelect(event) {
+		this.showAddBeneficiaryOnly = false;
 		if (event.detail.new) {
 			this.selectedRelationship = event.target.id;
 			this.requestUpdate();
@@ -131,6 +144,64 @@ class AddLifeDialog extends Component {
 	_showExtendedFamilyList() {
 		this.showExtendedList = true;
 		this.selectedRelationship = ``;
+	}
+
+	_addExistingBeneficiary(life, event) {
+		this.showAddBeneficiaryOnly = false;
+
+		if (life.relationship === `BeneficiaryOnly`) {
+			this.beneOnlyToAdd = life;
+			this.showAddBeneficiaryOnly = true;
+		}
+
+		if (event.detail.new) {
+			this.selectedRelationship = life.relationship;
+			this.requestUpdate();
+			this.beneToAdd = life;
+		}
+	}
+
+	_checkCurrentTotal(life) {
+
+		if (life.relationship === `Spouse`) {
+			if (this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+
+				let count = 0;
+				this.currentLifesAssured.forEach(lifes => {
+					if (lifes.relationship === `Spouse`) {
+						count++;
+					}
+				});
+				if (count !== 1) {
+					return true;
+				}
+			}
+		} else if (life.relationship === `Parent`) {
+			if (this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+				return true;
+			}
+		} else if (life.relationship === `Child`) {
+			if (this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+				return true;
+			}
+		} else if (life.relationship !== `Spouse` && life.relationship !== `Parent` && life.relationship !== `Child` && life.relationship !== `BeneficiaryOnly`) {
+			if (this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	_addNewBeneOnly(event) {
+		this.showAddBeneficiaryOnly = false;
+		this.beneToAdd = this.beneOnlyToAdd;
+		this.selectedRelationship = event.detail.selectedRelationship;
+		this._addClick();
+	}
+
+	_closeBeneOnlyDialog() {
+		this.showAddBeneficiaryOnly = false;
+		this.requestUpdate();
 	}
 
 	// #endregion EVENT HANDLERS
@@ -154,13 +225,27 @@ class AddLifeDialog extends Component {
 				}
 				
 				#dialog-body{
-					height: 370px;
+					height: 424px;
+					padding: 0px;
 				}
 
 				.relationship-card{
 					padding: 10px; min-height: inherit; width: 100%;
 				}
-
+				.add-beneficiary{
+					border: 1px solid #e1e1e1; 
+					border-radius: 5px; 
+					padding: 10px; 
+					width: 100%;
+				}
+				.title{
+					padding-bottom: 5px; 
+				}
+				.subtitle{
+					padding-bottom: 5px;
+					font-weight: normal; 
+				}
+				
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
@@ -174,6 +259,7 @@ class AddLifeDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
+		${this._renderAddBeneficiaryOnly()}
 		<capitec-modal type="form" class="modal-body-label" header="Add Life Assured"
 			data-automation-id="horizon-insure-add-life-dialog" header-align="left" style="--theme-modal-header-color: black">
 			<div slot="body" class="modal-body">
@@ -206,7 +292,31 @@ class AddLifeDialog extends Component {
 	 */
 	_renderDefaultList() {
 		return html`
+
 		<capitec-radio-group>
+		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
+			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
+			${this.currentLifesAssured.filter((life) => life.lifeAssured === false).length === 0 ? html`
+				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
+			` : html``}
+			${this.currentLifesAssured.map((life) => html`
+				${life.lifeAssured === true ? html``
+				: html`
+					<!-- <div class="add-beneficiary"> -->
+					<capitec-card class="relationship-card">
+						<capitec-radio label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}: ${life.firstName} ${life.surname}"
+							@value-changed= "${(e) => this._addExistingBeneficiary(life, e)}"
+							.disabled= "${this._checkCurrentTotal(life)}">
+						</capitec-radio>
+					</capitec-card>
+					<!-- </div> -->
+				`}
+			`)}
+			<capitec-label label="Add new life assured" type="title" class="title"></capitec-label>
+		`
+				: html``}
+		
+		
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" data-automation-id="horizon-insure-add-life-dialog-relationship" 
 					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
@@ -385,6 +495,23 @@ class AddLifeDialog extends Component {
 		return html`
 		<capitec-button label="Back" data-automation-id="horizon-insure-add-life-dialog-back" @click="${() => this._backClick()}">
 		</capitec-button>`;
+
+
+	}
+
+	_renderAddBeneficiaryOnly() {
+		return this.showAddBeneficiaryOnly === false ? html``
+			: html`
+			<horizon-insure-add-beneficiary-only-la-dialog
+			.lives= "${this.currentLifesAssured}"
+			.selectedBene="${this.beneOnlyToAdd}"
+			.productParams="${this.productParams}"
+			@close-modal = "${() => this._closeBeneOnlyDialog()}"
+			@add = "${(e) => this._addNewBeneOnly(e)}"
+			>
+
+			</horizon-insure-add-beneficiary-only-la-dialog>
+		`;
 
 
 	}

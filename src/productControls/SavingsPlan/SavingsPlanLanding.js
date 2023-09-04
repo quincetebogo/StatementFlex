@@ -5,6 +5,8 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+
 /**
  * Savings Plan verified landing Product Control
  * 
@@ -31,8 +33,8 @@ export class SavingsPlanLanding extends Component {
 
 	constructor() {
 		super();
-
 		this.savingsPlanDetails = {};
+		this.isCapitecConnectAgent = false;
 	}
 
 	// -------------------
@@ -45,6 +47,18 @@ export class SavingsPlanLanding extends Component {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+	}
+
+	async updated() {
+		await this.updateComplete;
+	
+		const tabGroup = this.shadowRoot.getElementById(`save-tab-group`);
+	
+		if (tabGroup && this.isCapitecConnectAgent) {
+			const fixedTermTab = tabGroup.shadowRoot.querySelectorAll(`.tab`)[1];
+			fixedTermTab.style.backgroundColor = `#C7C7C7`;
+			fixedTermTab.style.pointerEvents = `none`;
+		}
 	}
 
 	// --------------
@@ -60,12 +74,17 @@ export class SavingsPlanLanding extends Component {
 	 *
 	 * @property {savingsPlanDetails} savingsPlanDetails - Data for verified savings plan account landing Page display.
 	 * @property {renderAlertBanner} renderAlertBanner - Callback function to parent component, used to get the alert banner message.
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 */
 
 	static get properties() {
 		return {
 			savingsPlanDetails: { type: Object },
-			renderAlertBanner: { type: Object }
+			renderAlertBanner: { type: Object },
+			isCapitecConnectAgent: { type: Boolean },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object }
 		};
 	}
 	
@@ -74,7 +93,7 @@ export class SavingsPlanLanding extends Component {
 	// --------------
 
 	_click(selection, savePlanDetails) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
+			this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
 	}
 
 	_viewInfo() {
@@ -162,12 +181,17 @@ export class SavingsPlanLanding extends Component {
 					border-top: 1px solid #E1E1E1;
 					border-bottom: 1px solid #E1E1E1;
 				}
+				capitec-tooltip {
+					padding-left: 15px;
+					padding-right: 15px;
+				}
+
 				.options-group {
 					height: 80px; 
 					margin: 17px 0px 15px 0px;
 					width: auto;
 				}
-				.options-group > horizon-option-button {
+				horizon-option-button {
 					width: 186px;
 					height: 80px;
 					margin-left: 16px;
@@ -362,7 +386,7 @@ export class SavingsPlanLanding extends Component {
 	_renderSavingsPlanLandingContent() {
 		return this.savingsPlanDetails.length > 0 
 		? html`
-			<capitec-tab-group class="tabs">
+			<capitec-tab-group class="tabs" id="save-tab-group">
 				<capitec-tab
 					data-automation-id="savings-plan-flexible-tab"
 					label="Flexible Savings">
@@ -549,24 +573,36 @@ export class SavingsPlanLanding extends Component {
 						data-automation-id="savings-plan-transaction-history"
 						label="Transaction History"
 						icon="system/time-action"
+						?showTooltip="${this.showTooltip(`transaction-history`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?disabled="${this.shouldDisableByRole(`transaction-history`)}"
 						@click="${() => this._click(`transaction-history`, item)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-statements"
 						label="Statements"
 						icon="system/documents-action"
+						?showTooltip="${this.showTooltip(`statements`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?disabled="${this.shouldDisableByRole(`statements`)}"
 						@click="${() => this._click(`statements`, item)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-tax-certificate"
 						label="Tax Certificate"
 						icon="system/sars-action" 
+						?showTooltip="${this.showTooltip(`tax-certificate`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?disabled="${this.shouldDisableByRole(`tax-certificate`)}"
 						@click="${() => this._click(`tax-certificate`, item)}">
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-unlock-ftsp"
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
+						?showTooltip="${this.showTooltip(`unlock-ftsp`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						?disabled="${this.shouldDisableByRole(`unlock-ftsp`)}"
 						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
 						@click="${() => this._click(`unlock-ftsp`, item)}">
 				</horizon-option-button>

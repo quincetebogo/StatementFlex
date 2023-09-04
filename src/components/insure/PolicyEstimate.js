@@ -361,7 +361,7 @@ class PolicyEstimate extends Component {
 	 * Initialize component when loaded / Add default life to list for calculator and list
 	 * @returns {void}
 	 */
-	 async _initialise() {
+	_initialise() {
 		let ageMessage = ``;
 		if (this.mainLifeDefaultAge < 18 || this.mainLifeDefaultAge > 64) {
 			ageMessage = `Only Main Life between the ages of 18 and 64 are allowed`;
@@ -390,8 +390,8 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
-		await super._inicidentManager_(`funeral-estimate`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		// await super._inicidentManager_(`funeral-plan-calculate-estimate`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 	}
 
 	/**
@@ -711,6 +711,7 @@ class PolicyEstimate extends Component {
 			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}"
+				.callerPage = "${INSURE_CALLER_PAGE.ESTIMATE}"
 				@add-new-life="${(e) => this._addLife(e)}"
 				@close-modal="${() => this.showAddLifeDialog = false}" >
 			</horizon-insure-add-life-dialog>`;

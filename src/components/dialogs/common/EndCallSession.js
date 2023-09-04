@@ -1,4 +1,4 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS, ROLES_WITH_END_CALL_CONTEXT } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
@@ -10,6 +10,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -20,6 +21,7 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
+import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
@@ -51,6 +53,10 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
+		this.numberOfCharacters = 0;
+		this.allowedCharacters = 10000;
+		this.endCallDescription = ``;
+		this.validNumberOfChars = true;
 
 		// Private Variables
 		this.category = ``;
@@ -76,6 +82,7 @@ export class EndCallSession extends Component {
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
@@ -108,7 +115,11 @@ export class EndCallSession extends Component {
 			category: { attribute: false },
 			need: { attribute: false },
 			issue: { attribute: false },
-			understandNeed: { attribute: false }
+			understandNeed: { attribute: false },
+			numberOfCharacters: { attribute: false },
+			allowedCharacters: { attribute: false },
+			endCallDescription: { attribute: false },
+			validNumberOfChars: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -121,14 +132,14 @@ export class EndCallSession extends Component {
 	// -------------------
 	async connectedCallback() {
 		super.connectedCallback();
-		
+		ineum(`page`, `End Call Dialog`);
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
 			"screen": TelemetryScreen.END_CALL
 		});
 
 		// Making end call reasons context sensitive 
 		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
-		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
+		this.endCallReasons = this._getEndCallReasons();
 		
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
@@ -180,6 +191,21 @@ export class EndCallSession extends Component {
 			} else {
 				this._classifyAndClose();
 			}
+			
+			// This is to set the description for the incident which is optional
+			if (!isNullorEmpty(this.endCallDescription)) {
+				
+				const getDesc = this.horizonIncidentManager.getDescription();
+				let description = ``;
+				
+				if (getDesc) {
+					description = `${getDesc}\n${this.endCallDescription}`;
+				} else {
+					description = `${this.endCallDescription}`;
+				}
+
+				this.horizonIncidentManager.setDescription(description);
+			}
 		}
 	}
 
@@ -193,6 +219,29 @@ export class EndCallSession extends Component {
 
 			this._prepopulateNeed();
 		}
+	}
+
+	_countNumberOfCharacters(event) {
+		if (event.detail.new !== null) {
+			this.numberOfCharacters = event.detail.new.length;
+			this.endCallDescription = event.detail.new;
+
+			const chars = event.detail.new.length;
+
+			this.validNumberOfChars = this._validateCharacters(chars);
+		}
+	}
+
+	_validateCharacters(chars) {
+
+		if (!isNullorEmpty(chars) && chars > this.allowedCharacters) {
+
+			this.alertBannerMessage = `You can only have ${this.allowedCharacters} characters in the description.`;
+ 			return false; 
+		}
+
+		this.alertBannerMessage = ``;
+		return true;
 	}
 
 	async _categoryChanged(e) {
@@ -594,6 +643,17 @@ export class EndCallSession extends Component {
 		return Object.prototype.hasOwnProperty.call(callerInformation, `cifNumber`) && callerInformation.cifNumber;
 	}
 
+	_getEndCallReasons() {
+		const orgUnit = RoleManager.getInstance().orgUnit;
+		const reasonsByRole = END_CALL_REASON_BY_ROLE[orgUnit];
+
+		if (ROLES_WITH_END_CALL_CONTEXT.includes(orgUnit)) {
+			return reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
+		}
+
+		return reasonsByRole;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -653,7 +713,7 @@ export class EndCallSession extends Component {
 				--theme-layout-gap-spacing: 16px;
 			  }
 
-			capitec-select {
+			capitec-select, capitec-text-box {
 				width: 100%;
 
 				--theme-layout-gap-spacing: 18px;
@@ -686,6 +746,15 @@ export class EndCallSession extends Component {
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 12px;
 			}
+
+			.descriptionGroup, horizon-text-box {
+				width: 100%;
+			}
+
+			.descriptionCharValidation {
+				color: #ff0000;
+				--theme-label-subtitle-font-weight: 600;
+			}
 			
 			horizon-alert-banner {
 				width: 100%;
@@ -694,9 +763,6 @@ export class EndCallSession extends Component {
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
 			}`
 		];
-	}
-
-	_mobileTemplate() {
 	}
 
 	_webTemplate() {
@@ -720,6 +786,7 @@ export class EndCallSession extends Component {
 							valign="top"
 							gap="clear">
 								${this._renderAlertBanner()}
+								${this._renderEndcallDescription()}
 								${this._renderChooseEndCallReason()}
 								${this._renderUnderstandNeed()}
 								${this._renderLoadingIndicator()}
@@ -752,6 +819,34 @@ export class EndCallSession extends Component {
 				select-mode="single"
 				error="${this.errors.endCallReason}">
 			</capitec-select>
+		`;
+	}
+
+	_renderEndcallDescription() {
+		return html`
+			<capitec-group class="descriptionGroup" layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-label
+					type="subtitle"
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
+					label="Add Description (optional)">
+				</capitec-label>
+				<capitec-spacer></capitec-spacer>
+				
+				<capitec-label
+					type="default"
+					class=${!this.validNumberOfChars ? `descriptionCharValidation` : ``}
+					label="${this.numberOfCharacters}/10000">
+				</capitec-label>
+			</capitec-group>
+
+			<horizon-text-box
+				id="endCallDescriptionId"
+				label="Is there additional information you would like to capture?"
+				?hideForLabel=${true}
+				maxLength="${!this.validNumberOfChars ? this.allowedCharacters : this.allowedCharacters + 1}"
+				@key-input="${(e) => this._countNumberOfCharacters(e)}"
+				@value-change="${(e) => this._countNumberOfCharacters(e)}">
+			</horizon-text-box>
 		`;
 	}
 
@@ -824,6 +919,7 @@ export class EndCallSession extends Component {
 					data-automation-id="end-call-session-end-call"
 					id="id-continue-button"
 					type="primary"
+					?disabled="${!this.validNumberOfChars}"
 					label="End Call"
 					@click="${() => this._endCallClick()}">
 				</capitec-button>

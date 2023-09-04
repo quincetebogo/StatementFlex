@@ -11,6 +11,7 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
+		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
 	},
@@ -31,6 +32,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
+	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -39,6 +41,7 @@
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -51,7 +54,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -97,7 +100,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -240,6 +243,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"budgetAccounts": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
@@ -249,7 +256,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -363,6 +370,30 @@
 		"settleAndClose": {
 			"enabled": false,
 			"positiveCase" : true
+		},
+		"payShapDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getInstitutions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"enlistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"delistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyOut": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyIn": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

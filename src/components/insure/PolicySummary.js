@@ -113,8 +113,8 @@ class PolicySummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	 async _initialise() {
-		await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		// await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident();
 	}
 
 	// #endregion PRIVATE FUNCTIONS

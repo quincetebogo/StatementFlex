@@ -164,6 +164,12 @@ import 'app/components/common/HorizonLabel';
 				horizon-label[value="Active"] {
 					--horizon-label-value-color: #70AF00;
 				}
+				horizon-label[value="Settled"] {
+					--horizon-label-value-color:#d4781c;
+				}
+				horizon-label[value="Close"] {
+					--horizon-label-value-color:#7C7C7C;
+				}
 				.transfer-button {
 					--theme-button-font-weight: 600;
 					--theme-button-default-background-color: #e31515;
@@ -198,20 +204,26 @@ import 'app/components/common/HorizonLabel';
 						</horizon-label>
 
 						<capitec-spacer></capitec-spacer>
-
-						<capitec-button
-							class="transfer-button"
-							data-automation-id="budget-account-details-transfer-button"
-							label="Transfer"
-							@click="${() => this._transferClick()}"
-							?disabled="${this.shouldDisable(`pay-budget`)}">
-						</capitec-button>
+						${this.accountDetails.budgetDetails[`Budget status`] === `Active` ? this._renderTransferButton() : ``}
+						
 				</capitec-title-bar>
 
 				${this.renderAlertBanner()}
 				${this._renderAccountDetails()}
 
 			</capitec-card>
+		`;
+	}
+
+	_renderTransferButton() {
+		return html`
+			<capitec-button
+				class="transfer-button"
+				data-automation-id="budget-account-details-transfer-button"
+				label="Transfer"
+				@click="${() => this._transferClick()}"
+				?disabled="${this.shouldDisable(`pay-budget`)}">
+			</capitec-button>
 		`;
 	}
 

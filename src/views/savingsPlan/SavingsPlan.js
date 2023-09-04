@@ -83,7 +83,7 @@ export class SavingsPlan extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;	
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	
 		// private properites
 		this.selectedAccountNumber = ``;
@@ -154,7 +154,7 @@ export class SavingsPlan extends ViewBase {
 		return {
 			landingPageInfo: { state: true },
 			accountViewType: { state: false },
-			alertBannerMessage: { state: true}
+			alertBannerMessage: { state: true }
 		};
 	}
 	
@@ -358,7 +358,8 @@ export class SavingsPlan extends ViewBase {
 				'icon': productInfo.icon,
 				'customIcon': productInfo.customIcon,
 				'order': productInfo.order,
-				'choosePeriod': productInfo.choosePeriod
+				'choosePeriod': productInfo.choosePeriod,
+				'name': productInfo.name
 			}
 		];
 		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_STATEMENTS_SELECT, {
@@ -828,6 +829,9 @@ export class SavingsPlan extends ViewBase {
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 				.renderAlertBanner="${() => this._renderAlertBanner()}"
+				?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
+				.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+				.showTooltip="${need => this._showTooltip(need)}"
 
 				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"

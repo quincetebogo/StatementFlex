@@ -48,6 +48,7 @@ export class DeclineDebiCheckMandate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Decline DebiCheck Dialog`);
 	}
 
 	// --------------

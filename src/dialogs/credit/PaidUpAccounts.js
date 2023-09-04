@@ -89,7 +89,7 @@ export class PaidUpAccounts extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Paid Up Letter Accounts Dialog`);
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this._initialise();
 	}
