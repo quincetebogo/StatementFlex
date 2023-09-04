@@ -26,15 +26,14 @@ const POLICY_TRANSACTION_HISTORY = {
 };
 
 /**
- * Implements the view for Insure unverified existing clients (i.e. the client has products)
- * This includes the view for third parties phoning in about an existing client.
+ * Implements the view for Insure Back Office agent. View is readonly and only allows investigations to take place, no interaction on clients policies
  *
  * 
  * @export
- * @class InsureUnverifiedView
+ * @class InsureBackOffice
  * @extends {View}
  */
-export class InsureUnverifiedView extends InsureViewBase {
+export class InsureBackOfficeView extends InsureViewBase {
 
 // #region INITIALISATION
 
@@ -464,4 +463,4 @@ static get properties() {
 
 	
 }
-customElements.define(`horizon-insure-unverified-client`, InsureUnverifiedView);
+customElements.define(`horizon-insure-backoffice`, InsureBackOfficeView);
