@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
@@ -91,7 +91,7 @@ class UpdatePlan extends Component {
 		this.agreementYWNBPAccepted = ``;
 		this.showYPAgreementDialog = false;
 		this.agreementYPAccepted = ``;
-		
+
 
 		this.agreementFCPAccepted = ``;
 		this.agreementYBPAccepted = ``;
@@ -114,8 +114,6 @@ class UpdatePlan extends Component {
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
-
-		this.roleplayerLength = 0;
 
 		this.beneOnlyRowId = 0;
 
@@ -189,7 +187,6 @@ class UpdatePlan extends Component {
 			showConfirmPlanUpdateDialog: { type: Boolean, state: true },
 			policyDetails: { type: Object, state: true },
 			collectionDay: { type: Number, state: true },
-			roleplayerLength: { type: Number, state: true },
 
 			currentTotalPremium: { string: `` },
 
@@ -250,7 +247,9 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_addLife(e) {
-		if (e.detail.beneficiary.length === 0) {
+		console.log(e);
+
+		if (JSON.stringify(e.detail.beneficiary) === `{}`) {
 			this.policyDetails.roleplayers.push({
 				title: ``,
 				gender: ``,
@@ -273,8 +272,6 @@ class UpdatePlan extends Component {
 				coverDetails: e.detail.coverDetails
 			});
 		} else {
-			// e.detail.beneficiary.lifeAssured = true;
-
 			this.policyDetails.roleplayers.forEach((life, index) => {
 				if (life.rowID === e.detail.beneficiary.rowID) {
 					this.policyDetails.roleplayers[index].lifeAssured = true;
@@ -288,7 +285,7 @@ class UpdatePlan extends Component {
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.isExtendedFamily = true;
 					}
-					
+
 					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
 						this.policyDetails.roleplayers[index].relationship,
 						this.productParams,
@@ -436,7 +433,7 @@ class UpdatePlan extends Component {
 					if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverAmount)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = ``;
 					}
-					
+
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
@@ -888,7 +885,7 @@ class UpdatePlan extends Component {
 
 		this.policyDetails.roleplayers.forEach(ele => {
 			ele.coverDetails.canSubmit = true;
-			
+
 
 			if (ele.lifeAssured === true) {
 
@@ -1077,7 +1074,6 @@ class UpdatePlan extends Component {
 	 */
 	_openAddBeneficiariesDialog() {
 		this.showAddBeneficiariesDialog = true;
-		this.roleplayerLength = this.policyDetails.roleplayers.length;
 	}
 
 	/**
@@ -1109,7 +1105,7 @@ class UpdatePlan extends Component {
 		});
 
 
-		if (!(this.agreementFCPAccepted === `yes` && 
+		if (!(this.agreementFCPAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
 			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
@@ -1148,7 +1144,7 @@ class UpdatePlan extends Component {
  */
 	async _reinstatePolicyPopup() {
 
-		if (!(this.agreementFCPAccepted === `yes` && 
+		if (!(this.agreementFCPAccepted === `yes` &&
 			this.agreementYBPAccepted === `yes` && this.agreementYROAAccepted === `yes` && this.agreementLAAccepted === `yes` &&
 			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
@@ -1241,7 +1237,7 @@ class UpdatePlan extends Component {
 	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
-	 _initialise() {
+	_initialise() {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
@@ -2606,7 +2602,7 @@ class UpdatePlan extends Component {
 			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.policyDetails.roleplayers}" 
 				.productParams="${this.productParams}"
-				.callerPage = "${`update`}"
+				.callerPage = "${INSURE_CALLER_PAGE.UPDATE_PLAN}"
 				@add-new-life="${(e) => this._addLife(e)}" 
 				@close-modal="${(e) => this._closeAddLifeDialog(e)}">
 			</horizon-insure-add-life-dialog>`;
@@ -2651,7 +2647,7 @@ class UpdatePlan extends Component {
 		return this.showAddBeneficiariesDialog === false ? html``
 			: html`
 		<horizon-insure-add-beneficiary-dialog
-			.roleplayerLength="${this.roleplayerLength}"
+			.roleplayerLength="${this.policyDetails.roleplayers.length}"
 			.rolePlayers="${this.policyDetails.roleplayers}"
 			.lifesAssured="${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && ele.beneficiary === false && ele.relationship !== `MainLife`)}"
 			@add-click="${(e) => this._addBeneficiaryClick(e)}" 

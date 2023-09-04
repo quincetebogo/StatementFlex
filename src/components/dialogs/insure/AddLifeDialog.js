@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
-import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
 
 const MAX_LIVES_PER_POLICY = 22;
@@ -33,10 +33,10 @@ class AddLifeDialog extends Component {
 		this.selectedRelationship = ``;
 		this.showExtendedList = false;
 
-		this.callerPage = ``;
-		this.beneToAdd = [];
+		this.callerPage = 0;
+		this.beneToAdd = {};
 		this.showAddBeneficiaryOnly = false;
-		this.beneOnlyToAdd = [];
+		this.beneOnlyToAdd = {};
 	}
 
 	// #endregion INITIALIZE
@@ -165,14 +165,14 @@ class AddLifeDialog extends Component {
 
 		if (life.relationship === `Spouse`) {
 			if (this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
-				
+
 				let count = 0;
 				this.currentLifesAssured.forEach(lifes => {
 					if (lifes.relationship === `Spouse`) {
 						count++;
 					}
 				});
-				if (count !== 1) { 
+				if (count !== 1) {
 					return true;
 				}
 			}
@@ -203,7 +203,7 @@ class AddLifeDialog extends Component {
 		this.showAddBeneficiaryOnly = false;
 		this.requestUpdate();
 	}
-	
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -225,7 +225,7 @@ class AddLifeDialog extends Component {
 				}
 				
 				#dialog-body{
-					height: 370px;
+					height: 424px;
 					padding: 0px;
 				}
 
@@ -239,9 +239,13 @@ class AddLifeDialog extends Component {
 					width: 100%;
 				}
 				.title{
-					padding: 10px; 
+					padding-bottom: 5px; 
 				}
-
+				.subtitle{
+					padding-bottom: 5px;
+					font-weight: normal; 
+				}
+				
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
@@ -290,13 +294,13 @@ class AddLifeDialog extends Component {
 		return html`
 
 		<capitec-radio-group>
-		${this.callerPage === `update` ? html`
+		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
 			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
 			${this.currentLifesAssured.filter((life) => life.lifeAssured === false).length === 0 ? html`
-				<capitec-label label="No beneficiaries to add" type="subtitle" class="title"></capitec-label>
+				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
-				${life.lifeAssured === true ? html`` 
+				${life.lifeAssured === true ? html``
 				: html`
 					<!-- <div class="add-beneficiary"> -->
 					<capitec-card class="relationship-card">
@@ -309,8 +313,8 @@ class AddLifeDialog extends Component {
 				`}
 			`)}
 			<capitec-label label="Add new life assured" type="title" class="title"></capitec-label>
-		` 
-		: html``}
+		`
+				: html``}
 		
 		
 			<capitec-card class="relationship-card">
@@ -496,8 +500,8 @@ class AddLifeDialog extends Component {
 	}
 
 	_renderAddBeneficiaryOnly() {
-		return this.showAddBeneficiaryOnly === false ? html`` 
-		: html`
+		return this.showAddBeneficiaryOnly === false ? html``
+			: html`
 			<horizon-insure-add-beneficiary-only-la-dialog
 			.lives= "${this.currentLifesAssured}"
 			.selectedBene="${this.beneOnlyToAdd}"
@@ -508,8 +512,8 @@ class AddLifeDialog extends Component {
 
 			</horizon-insure-add-beneficiary-only-la-dialog>
 		`;
-			
-		
+
+
 	}
 
 	// #endregion EVENT HANDLERS

@@ -27,13 +27,13 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 
 	constructor() {
 		super();
-		 
-		this.selectedBene = [];
+
+		this.selectedBene = {};
 		this.lives = [];
 		this.selectedRelationship = ``;
 		this.showExtendedList = false;
 
-		
+
 	}
 
 	// #endregion INITIALIZE
@@ -45,9 +45,9 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			selectedBene: { type: Array, state: true },
+			selectedBene: { type: Object, state: true },
 			lives: { type: Array, state: true }
-			
+
 		};
 	}
 
@@ -116,9 +116,9 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 			return Boolean(this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_CHILD);
 		} else if (relationship === `Parent`) {
 			return Boolean(this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_PARENT);
-		} 
-			return Boolean(this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_EXTENDED);
-		
+		}
+		return Boolean(this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_EXTENDED);
+
 	}
 
 	//  #endregion EVENT HANDLERS
@@ -131,7 +131,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 	 * @returns {void} 
 	 */
 	_addBeneRelationship() {
-		
+
 		this.dispatchEvent(new CustomEvent(`add`, { detail: { selectedRelationship: this.selectedRelationship } }));
 	}
 
