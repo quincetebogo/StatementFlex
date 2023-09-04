@@ -1314,7 +1314,7 @@ export class ExistingClient extends InsureViewBase {
 	async _clientVerified(event) {
 		super._clientVerified(event);
 		await this._initialise();
-		this.renderMode = RENDER_MODE.CLIENT_POLICIES;
+		this.renderMode = INSURE_RENDER_MODE?.CLIENT_POLICIES;
 	}
 
 	// #region RENDERING
@@ -1329,7 +1329,7 @@ export class ExistingClient extends InsureViewBase {
 		return [
 			super.styles,
 			css`
-			 ${INSURE_CSS}
+			${INSURE_CSS}
 			`
 		];
 	}
