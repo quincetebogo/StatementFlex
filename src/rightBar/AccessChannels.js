@@ -196,14 +196,15 @@ export class AccessChannels extends Component {
 		// If successfully suspended, update app status, else Error scenario
 
 		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.app?.status ? `succeeded` : `failure`
 		});
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && result?.app?.status) {
 			this.landingInfo.app.status = APP_STATUS.SUSPENDED;
 			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
@@ -273,23 +274,24 @@ export class AccessChannels extends Component {
 			}
 		};
 		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.ussd?.status ? `succeeded` : `failure`
 		});
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
-			return false;
+		if (returnValue.succeeded && result?.ussd?.status) {
+			this.landingInfo.ussd.status = `Inactive`;
+			this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
+			this._deepCopyStatus();
+			this._landingInfo();
+			return true;
 		}
 
-		this.landingInfo.ussd.status = `Inactive`;
-		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
-		this._deepCopyStatus();
-		this._landingInfo();
-		return true;
+		this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
+		return false;
 	}
 
 	async unblockSIM() {
@@ -421,13 +423,14 @@ export class AccessChannels extends Component {
 			ussd: null
 		};
 		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.inetbanking?.status ? `succeeded` : `failure`
 		});
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && result?.inetbanking?.status) {
 			this.landingInfo.internetBanking.status = `Suspended`;
 			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 			this.landingInfo.internetBanking.statusReason = suspendReason;
@@ -436,6 +439,8 @@ export class AccessChannels extends Component {
 			this._landingInfo();
 			return true;
 		}
+
+		this.logger.log(`error`, `Failed to suspend internet banking token`, `suspendInternetBanking`, returnValue.correlationId);
 		return false;
 	}
 
