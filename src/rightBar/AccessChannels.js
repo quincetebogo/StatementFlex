@@ -269,7 +269,7 @@ export class AccessChannels extends Component {
 			inetbanking: null,
 			ussd: {
 				msisdn: this.landingInfo.msisdn,
-				cif: this.cifNumber,
+				cif: `0${this.cifNumber}`,
 				reason: ACCESS_CHANNELS_REASONS.DEFAULT
 			}
 		};
