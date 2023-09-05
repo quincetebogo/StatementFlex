@@ -283,16 +283,16 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async policyTransactions(policyTransactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async policyPremiumHistory(policyTransactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
 			return this.mock(`insurePolicyTransactionHistory`, policyTransactionsRequest);
 		}
 
 		return this.post(
-			`/horizon-insurance/policy/transactions`,
+			`/horizon-insurance/policy/premium-history`,
 			policyTransactionsRequest,
 			this._setInsureHeaders(),
-			`policyTransactions`,
+			`policyPremiumHistory`,
 			null,
 			null,
 			900,

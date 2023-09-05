@@ -624,7 +624,7 @@ class PolicyTransactionHistory extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="transactionType"
+				field="premiumType"
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
