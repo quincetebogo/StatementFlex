@@ -42,6 +42,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update`,
 	PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
+	PAYSHAP_PROOF_OF_PAYMENT_OUTCOME: `/success/payshap-proof-of-payment`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
@@ -362,6 +363,10 @@ export class HorizonRouter {
 
 	navigateToProofOfAccountFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+	}
+
+    navigateToPayshapProofOfPaymentOutcome() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
 	}
 
 	_navigateToTapToPayUnsuccessful() {
@@ -758,12 +763,12 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	// {
-	// 	name: `horizon-prospective-client`,
-	// 	title: `Insure`,
-	// 	icon: null,
-	// 	path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-	// 	load: () => import(`../views/insure/ProspectiveClient`),
-	// 	onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	// name: `horizon-prospective-client`,
+	// title: `Insure`,
+	// icon: null,
+	// path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
+	// load: () => import(`../views/insure/ProspectiveClient`),
+	// onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	// },
 	{
 		name: `horizon-insure-unverified-client`,
@@ -1097,6 +1102,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PROOF_OF_PAYMENT_FAILURE,
 		load: () => import(`../views/credit/ProofOfPaymentFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-payshap-proof-of-payment-outcome`,
+		title: `PayshapProofOfPaymentOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME,
+		load: () => import(`../views/quickTransactions/PayshapProofOfPaymentOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
