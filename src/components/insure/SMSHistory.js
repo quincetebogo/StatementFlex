@@ -102,8 +102,8 @@ class SMSHistory extends Component {
 			// this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 
-		// await super._inicidentManager_(`funeral-sms-history`, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident();
+		await super._inicidentManager_(`funeral-sms-history`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**

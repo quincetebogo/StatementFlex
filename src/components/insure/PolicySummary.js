@@ -112,9 +112,9 @@ class PolicySummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	 async _initialise() {
-		// await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident();
+	async _initialise() {
+		await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -413,7 +413,7 @@ class PolicySummary extends Component {
 						data-automation-id="insure-policy-cancellation-date">
 					</horizon-label>
 				</capitec-group>
-				` 
+				`
 				: ``}
 
 			${this.policyDetails.status === `Cancelled`
@@ -428,7 +428,7 @@ class PolicySummary extends Component {
 						data-automation-id="insure-policy-cancellation-reason">
 					</horizon-label>
 				</capitec-group>
-				` 
+				`
 				: ``}
 		`;
 	}
