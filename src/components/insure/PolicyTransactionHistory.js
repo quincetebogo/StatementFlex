@@ -420,7 +420,7 @@ class PolicyTransactionHistory extends Component {
 				data-automation-id="transactions-back">
 			</capitec-image>
 			<capitec-label 
-				label="Transaction History"
+				label="Premium History"
 				type="title"
 				id="header-label">
 			</capitec-label>

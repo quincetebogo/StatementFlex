@@ -598,7 +598,7 @@ class ClientSummary extends Component {
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-transaction-history"
 				class="button-margin" 
-				label="Transaction History" 
+				label="Premium History" 
 				icon="system/transfer-action"
 				@click="${() => this._goToPolicyTransactionHistory(policyItem)}">
 			</horizon-option-button>`;
@@ -645,7 +645,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
-					label="Transaction History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}">
+					label="Premium History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.SMS_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/send-action" 
