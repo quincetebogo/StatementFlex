@@ -1100,7 +1100,8 @@ export class Favourites extends SavingsAccountBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"notificationType": event.detail.notificationType,
 			"emailAddress": event.detail.emailAddress,
-			"verifiedCellphoneNumber": this.callerInformation.verifiedCellphoneNumber
+			"verifiedCellphoneNumber": this.callerInformation.verifiedTelephoneNumber
+
 		};
 		const returnValue = await this.payShapService.payshapProofOfPayment(clientInfo, null, 1);
 
