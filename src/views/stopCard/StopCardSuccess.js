@@ -358,22 +358,24 @@ export class StopCardSuccess extends ViewBase {
 		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType === IB_TOKEN_TYPE.HARD) {
 			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels.app?.userRegNo);
 
-			if (!returnValue.succeeded) {
+			if (returnValue.succeeded && returnValue.result) {
+				const tokens = returnValue.result?.tokens;
+
+				request.inetbanking = {
+					cif: this.callerInformation.cifNumber,
+					tokenSerialNo: tokens.filter(t => t.tokenType !== IB_TOKEN_TYPE.SOFT).map(t => t.tokenSerialNo),
+					reason: this.internetBanking?.reason
+				};
+			} else {
 				this.logger.log(`error`, `Failed to load tokens to suspend internet banking`, `_formatSuspendChannelsRequest`, returnValue.correlationId);
 			}
-
-			request.inetbanking = {
-				cif: this.callerInformation.cifNumber,
-				tokenSerialNo: [`1234567890`],
-				reason: `Lost`
-			};
 			this.need = this.need || `suspend-token`;
 		}
 
 		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD])) {
 			request.ussd = {
 				msisdn: this.accessChannels.msisdn,
-				cif: this.callerInformation.cifNumber,
+				cif: `0${this.callerInformation.cifNumber}`,
 				reason: ACCESS_CHANNELS_REASONS.DEFAULT
 			};
 			this.need = this.need || `cancel-ussd`;
