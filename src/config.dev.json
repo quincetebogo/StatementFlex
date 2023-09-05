@@ -177,7 +177,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insurePolicyPremiumHistory": {
+		"insurePolicyTransactionHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
