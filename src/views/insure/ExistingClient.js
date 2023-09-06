@@ -640,24 +640,11 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} preparePlanResponse
 	 */
 	async _updatePlanPrepare(policyToUpdate) {
-		const quoteCalcRequest = {
-			"saveQuote": true,
-			"contractReference": policyToUpdate.contractReference,
-			"cifNumber": this.callerInformation.cifNumber,
-			"totalPremium": policyToUpdate.totalPremium,
-			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
-		};
-		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
-		if (!calculateQuoteResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-			this.handleToastError(calculateQuoteResp.exception);
-			return;
-		}
 
 		const prepareUpdateRequest = {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
-			"quoteNumber": calculateQuoteResp.result.quoteNumber,
+			"quoteNumber": policyToUpdate.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails
 		};
