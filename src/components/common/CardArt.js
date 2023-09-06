@@ -236,8 +236,6 @@ export class CardArt extends Component {
 					text-align: right;
 				}
 				capitec-label[type="default"] {
-					line-height: 12px;
-
 					--theme-layout-gap-spacing: 4px;
 					--theme-label-default-font-size: 12px;
 					--theme-label-default-font-weight: 500;
@@ -278,16 +276,18 @@ export class CardArt extends Component {
 					font-weight: 501;
 					--theme-label-line-height: 20px;
 					--theme-label-default-font-family: "Hind Vadodara";
-					--theme-layout-gap-spacing: 10px;
 				}
 
 				.toggle-group {
 					display: -webkit-inline-box;
-					margin-top: 18px;
 				}
 
 				capitec-toggle {
-					width: 31px;
+					width: 48px;
+				}
+
+				.card-img-group {
+					--theme-layout-gap-spacing: 0px;
 				}
 		
 			`

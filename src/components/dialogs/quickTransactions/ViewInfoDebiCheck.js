@@ -52,6 +52,7 @@ export class ViewInfoDebiCheck extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `View Info DebiCheck Dialog`);
 		this.isPending = this.debiCheckDetails.mandateStatus === `PENDING` && this.debiCheckDetails.canBeAuthenticated;
 
 		this._initialise();

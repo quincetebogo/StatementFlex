@@ -50,6 +50,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.checked = false;
 		this.alertBannerMessage = ``;
 		this.isBusy = false;
+		this.incidentCreated = false;
 
 		this.logger = Logger.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
@@ -63,7 +64,8 @@ export class VerifyBySecurityQuestions extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {Object} incidentDetails Incident details
+	 * @property {Object} incidentRefNumber Current incident reference number
+	 * @property {Boolean} incidentCreated - Indicates if an incident has been created yet (ref no can be blank due to closed incident)
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
 	 * @property {Object} finalAttempt Indicates if this is the final round of security questions
@@ -76,7 +78,8 @@ export class VerifyBySecurityQuestions extends Component {
 
 	static get properties() {
 		return {
-			incidentDetails: { type: Object },
+			incidentRefNumber: { type: String },
+			incidentCreated: { type: Boolean },
 			incomingCallDetails: { type: Object },
 			securityQuestions: { type: Object },
 			finalAttempt: { type: Boolean },
@@ -401,12 +404,16 @@ export class VerifyBySecurityQuestions extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
 					<horizon-caller-dialog class="main-container"
-							data-automation-id="verify-by-sq-dialog"					 
-							.incomingCallDetails="${this.incomingCallDetails}"
-							.incidentDetails="${this.incidentDetails}"
-							.isNeedSelectable=${false} 
+							data-automation-id="verify-by-sq-dialog"
+
 							headerLabel="${HEADER_LABEL}" 
+							incidentRefNumber="${this.incidentRefNumber}"
+							?incidentCreated="${this.incidentCreated}"
+							.incomingCallDetails="${this.incomingCallDetails}"
+							?isNeedSelectable="${false}"
+
 							@on-end-call="${() => this._endCallClick()}">
+
 						<div slot="body">
 							<capitec-content-box class="body-box">
 								${this._renderAlertBanner()}
@@ -505,7 +512,6 @@ export class VerifyBySecurityQuestions extends Component {
 			<horizon-end-call-session
 				data-automation-id="verify-by-sq-end-call-session"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
 				.callerInformation="${this.callerInformation}"
 				endCallContext='VerifyClient${status}'
 				@cancel="${() => this.renderMode = RENDER_MODE.SECURITY_QUESTIONS}">

@@ -80,9 +80,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -112,6 +110,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -167,6 +166,14 @@ export class AutomaticSavingsSuccess extends ViewBase {
 					<span>Interest sweep settings switched ${this.updatedLBSADetails.accountInterestSweepActive ? `on` : `off`}.</span>
 				</section>
 			`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
+		`;
 	}
 }
 

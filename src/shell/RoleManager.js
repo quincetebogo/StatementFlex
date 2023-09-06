@@ -1,4 +1,5 @@
 import { Configuration, SecurityContext } from 'platform/core';
+import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 
 /**
  * Agent role details records the details related to the role of an agent using Horizon.
@@ -29,19 +30,43 @@ import { Configuration, SecurityContext } from 'platform/core';
 
 	// Indicates if an agent is with Helpdest role
 	get isHelpDeskAgent() {
-		
 		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
 	get isAuthorised() {
-		return this.roles && (this.roles.length >= 1);
+		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`) || this.roles.includes(`insure-agent`);
+		return isAuthorised;
+	}
+
+	get isInsureAgent() {
+		return this.roles && this.roles.includes(`insure-agent`);
+	}
+
+	get isCapitecConnectAgent() {
+        return this.roles && this.roles.includes(`capitecconnect-agent`);
+    } 
+
+	get orgUnit() {
+		const filteredAndSorted = this.roles
+									.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
+									.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
+									.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
+		
+		if (filteredAndSorted.length > 0) {
+			return filteredAndSorted[0].orgUnit;
+		};
+
+		// Defaults to client care when filtered roles are empty - Yet to confirm
+		return ORG_UNITS.CLIENT_CARE;
 	}
 
 	async isSearchClientEnabled() {
-		const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
-		const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+		if (this.isAuthorised) {
+			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+			const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
 
-		return searchClientEnabledByConfig || searchClientEnabledByGroup;
+			return searchClientEnabledByConfig || searchClientEnabledByGroup;
+		}
+		return false;
 	}
-
 };

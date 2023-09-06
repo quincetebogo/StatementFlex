@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { ACCOUNT_TYPES } from 'app/constants/common';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
@@ -148,7 +148,7 @@ export class TransactionHistory extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Transaction History`);
 		await this._initialise();
 		await this._telemetry.startSpan(this.telemetryEvent.TRANSACTION_HISTORY, {});
 

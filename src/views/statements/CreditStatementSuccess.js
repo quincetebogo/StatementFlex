@@ -1,9 +1,11 @@
 import { css, html } from 'platform/elements';
+import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { STATEMENT_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 export class CreditStatementsSuccess extends ViewBase {
 
@@ -18,13 +20,32 @@ export class CreditStatementsSuccess extends ViewBase {
 		this.acNumber = ``;
 		this.accountName = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.productName = ``;
+		this.productType = ``;
+		this.monthRange = ``;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 	
-	// N/A
+	static get properties() {
+		return {
+			mailId: { state: false, attribute: false },
+			acNumber: { state: false, attribute: false },
+			accountName: { state: false, attribute: false }
+		};
+	}
+
+	get incidentDescription() {
+		let accountName = ``;
+		
+		if (this.productType === ACCOUNT_TYPES.CREDIT) {
+			accountName = `Account Name: ${this.accountName}\n`;
+		}
+
+		return `Type: ${this.productName}\n${accountName}Period: ${this.monthRange}\nRecipient EmailID: ${this.mailId}`;
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -42,7 +63,10 @@ export class CreditStatementsSuccess extends ViewBase {
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
-		this.accountName = screenDetails && screenDetails.accountType;
+		this.accountName = screenDetails && screenDetails.accountName;
+		this.productName = screenDetails && screenDetails.productName;
+		this.productType = screenDetails && screenDetails.productType;
+		this.monthRange = screenDetails && screenDetails.monthRange;
 
 		this._updateIncidentState();
 	}
@@ -83,9 +107,8 @@ export class CreditStatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	// ---------
@@ -110,6 +133,7 @@ export class CreditStatementsSuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
+			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
@@ -132,6 +156,14 @@ export class CreditStatementsSuccess extends ViewBase {
 							The statement for <b>${this.accountName}</b> account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 					</section>
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 }

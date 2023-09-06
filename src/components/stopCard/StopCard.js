@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -34,6 +35,7 @@ const DAMAGED = 0;
 const LOST = 1;
 const STOLEN = 2;
 const SUSPECTED_FRAUD = 3;
+const SUPPLEMENTARY_ACCESS_REVOKED = 4;
 
 const STOPREASONS = [
 	 {
@@ -51,6 +53,10 @@ const STOPREASONS = [
 	 {
 		key: `SUSPECTED_FRAUD`,
 		value: `Suspected Fraud`
+	},
+	{
+		key: `SUPPLEMENTARY_ACCESS_REVOKED`,
+		value: `Supplementary Access Revoked`
 	}
 ];
 
@@ -74,9 +80,9 @@ export class StopCard extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
-		// this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
@@ -90,8 +96,6 @@ export class StopCard extends Component {
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -257,11 +261,33 @@ export class StopCard extends Component {
 	// ---------------
 
 	addFieldsToCardsArray() {
+
+
 		this.cards.map((card, index) => {
+			
 			card.rowIndex = index;
 			card.selected = false;
 			card.cardType = card.supplementaryCard ? `Supplementary Cards` : ``;
 			card.cardStopReason = STOPREASONS[LOST];
+			return card;
+		});
+
+		this.cards.sort((a, b) => {
+			const nameA = a.cardType.toUpperCase(); // ignore upper and lowercase
+			const nameB = b.cardType.toUpperCase(); // ignore upper and lowercase  
+		  // sort in an ascending order
+			if (nameA < nameB) {
+			  return -1;
+			}
+			if (nameA > nameB) {
+			  return 1;
+			}
+			// names must be equal
+			return 0;
+		});
+
+		this.cards.map((card, index) => {
+			card.rowIndex = index;
 			return card;
 		});
 	}
@@ -552,6 +578,13 @@ export class StopCard extends Component {
 										.disabled="${rowData.cardStopReason === STOPREASONS[SUSPECTED_FRAUD]}"
 										@click="${(e) => this._onClickReason(STOPREASONS[SUSPECTED_FRAUD], rowData)}">
 						</capitec-button>
+						<capitec-button type="clear" label="Supplementary Access Revoked"
+										data-automation-id="Supplementary Access Revoked"
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.cardStopReason === STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED]}"
+										?hidden="${!rowData.supplementaryCard}"
+										@click="${(e) => this._onClickReason(STOPREASONS[SUPPLEMENTARY_ACCESS_REVOKED], rowData)}">
+						</capitec-button>
 					</div>`;
 		}
 	}
@@ -563,8 +596,6 @@ export class StopCard extends Component {
 					.cifNumber="${this.callerInformation.cifNumber}"
 					client-title="${this.callerInformation.title}"
 					.lastName="${this.callerInformation.lastName}"
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">

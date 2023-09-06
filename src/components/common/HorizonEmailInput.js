@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EMAIL_DOMAINS } from 'app/constants/common';
+import { EMAIL_DOMAINS } from 'app/constants/Common';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const ERROR_MESSAGE = {
@@ -294,6 +294,7 @@ export class HorizonEmailInput extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.emailLabel[type="subtitle"] {
+					margin-bottom:8px;
 					line-height: 24px;
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
@@ -315,7 +316,7 @@ export class HorizonEmailInput extends Component {
     				font-weight: var(--theme-input-font-weight);
 					line-height: normal;
 					letter-spacing: 0px;
-					top: -36px;
+					top: var(--theme-input-email-top, -36px);
 					position: relative;
 					color: #a9a9a9;
 					width: 100px;
@@ -334,7 +335,7 @@ export class HorizonEmailInput extends Component {
 					margin-bottom: 8px;
 				}
 				#confirmEmail-suggestion {
-					top: -52px;
+					top: var(--theme-input-confirm-email-top, -52px);
 				}
 			`
 		];

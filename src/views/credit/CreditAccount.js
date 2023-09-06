@@ -1,5 +1,5 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
-import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
@@ -52,6 +52,12 @@ const TRANSACTION_HISTORY = {
 	MONEY_TYPE: `BOTH`
 };
 
+const BUDGET_FACILITY = {
+	END_DATE: ``,
+	START_DATE: ``,
+	STATUS: `Active`
+};
+
 /** Credit Account View
  * 
  * @export
@@ -102,6 +108,7 @@ export class CreditAccount extends ViewBase {
 		this.transactionHistory = [];
 		this.accountDetails = {};
 		this.showTooltip = false;
+		this.budgetStatus = ``;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -148,7 +155,6 @@ export class CreditAccount extends ViewBase {
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 				
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 	
 				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -244,7 +250,7 @@ export class CreditAccount extends ViewBase {
 		};
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -272,6 +278,7 @@ export class CreditAccount extends ViewBase {
 			"budget-open-date": selectedAccountDetails.budgetDateTaken
 		});
 
+		this.budgetStatus = selectedAccountDetails.status === `CLOSE` ? `Closed` : formatStringAsPascalCase(selectedAccountDetails.status);
 		this.budgetAccountDetails = {
 			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
@@ -431,6 +438,9 @@ export class CreditAccount extends ViewBase {
 		screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
 		screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 		screenDetails.accountName = Object.keys(this.settleAndCloseDetails).find(key => this.settleAndCloseDetails[key] === this.settleAndCloseQuote.accountNumber);
+		screenDetails.type = this.selectedAccountDetails.type;
+		screenDetails.settlementAmount = this.settleAndCloseQuote.settlementAmount;
+		screenDetails.fromAccountNumber = settleAndClose.fromAccountNumber;
 
 		if (returnValue.succeeded) {
 
@@ -438,7 +448,7 @@ export class CreditAccount extends ViewBase {
 
 			screenDetails.settleAndCloseDocumentData = this.settleAndCloseDocument;
 
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.incidentDetails.currentNeed);
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.horizonIncidentManager.getCurrentNeed());
 			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToSettleAndCloseSuccess();
@@ -478,10 +488,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -545,7 +552,10 @@ export class CreditAccount extends ViewBase {
 			this.creditBalance = returnValue.result;
 
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-			await super.createAndClassifySubsIncident(null, false);
+			await super.createAndClassifySubIncident(null, false);
+
+			// setting inc status to not started for landing page needs
+			this._setIncidentNotstarted();
 
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -615,7 +625,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-	    await super.createAndClassifySubsIncident(null, false);
+	    await super.createAndClassifySubIncident(null, false);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -798,21 +808,30 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubsIncident(null, false);
+		await super.createAndClassifySubIncident(null, false);
 
-		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
-		const successfullServiceResponse = returnValue.succeeded;
+		const request = {
+			accountNumber: selectedAccountDetails.accountNumber,
+			status: BUDGET_FACILITY.STATUS,
+			startDateTime: BUDGET_FACILITY.START_DATE,
+			endDateTime: BUDGET_FACILITY.END_DATE
+		};
 
-		if (!successfullServiceResponse) {
-			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_viewBudgets`, returnValue.correlationId);
-			return;
-		}
-
-		this.budgetFacilityAccounts = returnValue.result;
+		this.budgetFacilityAccounts = await this.getBudgetFacilities(request);
 		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
 		this.budgetFacilityAccounts.productTypeCode = selectedAccountDetails.productTypeCode;
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+	}
+
+	async getBudgetFacilities(request) {
+		const returnValue = await this.creditService.budgetFacility(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_viewBudgets`, returnValue.correlationId);
+			return;
+		}
+		return returnValue.result;
 	}
 
 	async _productEnquiry() {
@@ -828,9 +847,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.incidentState;
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -889,9 +908,9 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.currentNeed = `view-budgets-credit-card`;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		const incidentState = this.horizonIncidentManager.incidentState;
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 		}
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
@@ -995,6 +1014,8 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_DETAILS_BACK, {});
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
+		// Making sure budget status is not carry forworded and on load only Active budgets are seen 
+		this.budgetStatus = ``;
 		this._setIncidentDone();
 	}
 
@@ -1148,8 +1169,10 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					.shouldDisable="${need => this._shouldDisable(need)}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1175,6 +1198,8 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.getBudgetFacilities="${(request) => this.getBudgetFacilities(request)}"
+					budgetStatus="${this.budgetStatus}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"

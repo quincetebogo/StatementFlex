@@ -57,14 +57,11 @@ export class AssignReasonDialog extends Component {
 	}
 
 	_onValueChanged(e) {
-		console.log(e);
 		this.checked = !this.checked;
-
 		if (this.checked) {
 			this.alertBannerMessage = ``;
 			this.selected = e.detail.key;
 		}
-
 	}
 
 	// --------------
