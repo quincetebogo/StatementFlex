@@ -5,7 +5,7 @@
  * @enum {Object} HIGH_RISK_TRANSACTIONS
  * 
  */
-export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `unlock-ftsp`];
+export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `unlock-ftsp`, `open-budget`];
 
 /**
  * Transactions that doesn't even require authentication to perform

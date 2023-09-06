@@ -1087,7 +1087,7 @@ export class CreditAccount extends ViewBase {
 
 		await this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_DETAILS_OPEN, {
 			canAdd: !returnValue.succeeded ? false : returnValue.result?.canAdd,
-			declineReason: !returnValue.succeeded ? `System error` : result?.declineReason
+			declineReason: !returnValue.succeeded ? `System error` : returnValue.result?.declineReason
 		});
 		return returnValue;
 	}
@@ -1269,7 +1269,7 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.canOpenBudget=${() => this._canOpenBudget()}
+					.canOpenBudgetAccount=${() => this._canOpenBudget()}
 					.getArrearsPayable=${() => this.ccDetails?.arrearsPayable}
 					.getBudgetFacilities="${(request) => this.getBudgetFacilities(request)}"
 					budgetStatus="${this.budgetStatus}"
