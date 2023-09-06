@@ -7,8 +7,6 @@ export class CallerDetails {
 		this.incomingTelephoneNumber = ``;
 		this.voiceReferenceNumber = ``;
 		this.ivrOptionCode = ``;
-		this.incidentReferenceNumber = ``;
-		this.incidentRecId = ``;
 		this.agentTelephoneNumber = ``;
 		this.nonClientFullName = ``;
 		this.nonClientCellPhone = ``;

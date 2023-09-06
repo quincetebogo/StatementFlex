@@ -1,4 +1,4 @@
-import { SignalRClient } from 'platform/core';
+import { Logger, SignalRClient } from 'platform/core';
 
 /**
  * Horizon signalR client
@@ -17,18 +17,24 @@ export class HorizonSignalRClient extends SignalRClient {
 		super({
 			baseUrlKey: `signalRUrl`,
 			hubName: `itahub`,
+			hubType: `eks`,
 			useAuthentication: true,
 			keepAlive: false
 		});
 
 		this.version = `v1`;
+		this._connectionId = ``;
+
+		this.logger = Logger.getInstance();
 	}
 
 	startConnection() {
+		super.onConnected(() => this._onConnected());
 		return super.startConnection();
 	}
 
 	stopConnection() {
+		delete this._connectionId; // disposing locally stored connection id
 		return super.stopConnection();
 	}
 
@@ -40,4 +46,29 @@ export class HorizonSignalRClient extends SignalRClient {
 		await super.off(`ita-verification-status`);
 	}
 
+	async getConnectionId() {
+		// Try to retrieve from Hubconnector
+		this._connectionId = await super.getConnectionId();
+
+		// If connection id retrieved from hub connector is empty get from server
+		if (!this._connectionId) {
+			this._connectionId = await super.invoke(`GetConnectionId`);
+		}
+
+		return this._connectionId;
+	}
+
+	_onConnected(callback = null) {
+
+		if (this._connectionId) {
+			this.logger.log(`warn`, `SignalR reconnection detected. Clearing old id:${this._connectionId}`, `_onConnected`);
+		}
+
+		// Delete local value for id.
+		delete this._connectionId;
+
+		if (typeof callback === `function`) {
+			return callback();
+		}
+	}
 }

@@ -3,10 +3,13 @@ import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { CardService } from 'app/services/CardService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { ORG_UNITS } from 'app/constants/Common';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { capitalizeString } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
@@ -27,6 +30,10 @@ const RENDER_MODE = Object.freeze({
 });
 
 const SAVINGS_ACCOUNT_TYPE = 300;
+
+const OPTIONS_UNAVAILABLE_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: [`update-card-limits`, `tap-to-pay`, `statements`, `tax-certificate`, `proof-of-account`, `paid-up-accounts`]
+};
 
 /**
  * Common component, renders related options based on the need and context of success/ failure.
@@ -96,11 +103,10 @@ export class RelatedOptions extends Component {
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.landingPageInfo = state.landingPageInfo;
 
-		const currNeed = this.incidentDetails.currentNeed;
-		this.options = relatedOptions[currNeed][this.context];
+		this.options = relatedOptions[this.horizonIncidentManager.getCurrentNeed()][this.context];
 	}
 
 	disconnectedCallback() {
@@ -139,6 +145,7 @@ export class RelatedOptions extends Component {
 		const proofOfAccount = () => this._proofOfAccount();
 		const transactionHistory = (option) => this._transactionHistory(option);
 		const paidUpAccounts = (option) => this._paidUpAccounts(option);
+		const payshapProofOfPayment = (option) => this._payshapProofOfPayment(option);
 
 		const actions = {
 			'stop-card': stopCard,
@@ -148,12 +155,12 @@ export class RelatedOptions extends Component {
 			'tax-certificate': taxCertificate,
 			'proof-of-account': proofOfAccount,
 			'transaction-history': transactionHistory,
-			'paid-up-accounts': paidUpAccounts
+			'paid-up-accounts': paidUpAccounts,
+			'payshap-proof-of-payment': payshapProofOfPayment
 		};
 
 			if (actions[item]) {
 				await super._inicidentManager_(item, () => this._toggleBusyFlag());
-				this._refreshIncidentDetails();
 				return actions[item](item);
 			}
 
@@ -165,11 +172,12 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
+		const incidentState = this.horizonIncidentManager.incidentState;
 		
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -194,10 +202,6 @@ export class RelatedOptions extends Component {
 		return this.callerInformation && this.callerInformation.verificationStatus === `verified`;
 	}
 
-	_refreshIncidentDetails() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -217,7 +221,7 @@ export class RelatedOptions extends Component {
 
 	async _stopCard() {
 
-		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
 
@@ -304,6 +308,11 @@ export class RelatedOptions extends Component {
 	}
 
 	_paidUpAccounts(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_payshapProofOfPayment(option) {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -416,6 +425,7 @@ export class RelatedOptions extends Component {
 			<horizon-option-button
 				label="${option.label}"
 				icon="${option.src}"
+				?disabled="${OPTIONS_UNAVAILABLE_BY_ROLE[RoleManager.getInstance().orgUnit]?.includes(item)}"
 				@click="${() => this._navigateToOption(item)}">
 			</horizon-option-button>
 		`;

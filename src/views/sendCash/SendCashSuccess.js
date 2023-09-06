@@ -4,6 +4,7 @@ import { NavigationContext } from 'platform/core';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 /**
  * Display an confirmation/success screen indicating the selected voucher has successfully placed on hold.
@@ -68,9 +69,7 @@ import 'app/components/common/SuccessScreen';
 	// ---------------
 
 	_updateIncidentState() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------
@@ -96,6 +95,7 @@ import 'app/components/common/SuccessScreen';
 		return html`
 			${this._renderSuccessScreen()}
 			${super._webTemplate()}
+			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -119,6 +119,14 @@ import 'app/components/common/SuccessScreen';
 				class="success-msg">
 				Due to <strong>${this.selectedReason}</strong>, the voucher number will be placed on hold and won't be redeemable.
 			</section>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 

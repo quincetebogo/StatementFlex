@@ -32,7 +32,7 @@ export class HorizonProductTile extends Component {
 	constructor() {
 
 		super();
-
+		
 		// Set the default property values.
 		this.label = ``;
 		this.subtitle = ``;
@@ -43,6 +43,9 @@ export class HorizonProductTile extends Component {
 		this.icon = ``;
         this.selected = false;
 		this.disabled = false;
+		this.showToolTip = false;
+		this.toolTipMessage = ``;
+		this.toolTipPosition = `top`;
 	}
 
 	/**
@@ -55,6 +58,9 @@ export class HorizonProductTile extends Component {
 	 * @property {Boolean} [navigational=false] - Whether to display navigation arrow for product tile
 	 * @property {String} [icon] - Whether to display/hide icon based on value
      * @property {String} [selected] - Boolean value tells menu is in active state or not
+	 * @property {Boolean} [showToolTip] - Boolean to show or hide a tooltip
+	 * @property {String} [toolTipMessage] - message displayed on tooltip
+	 * @property {String} [toolTipPosition] - To place the position of the tooltip
 	 * Note that "default" is still supported, but deprecated.
 	 */
 	static get properties() {
@@ -68,7 +74,10 @@ export class HorizonProductTile extends Component {
 			detailIcon: { type: Boolean },
 			icon: { type: String },
             selected: { type: Boolean },
-			disabled: { type: Boolean }
+			disabled: { type: Boolean },
+			showToolTip: {type: Boolean},
+			toolTipMessage: {type: String},
+			toolTipPosition: {type: String}
         };
 	}
 
@@ -209,7 +218,7 @@ export class HorizonProductTile extends Component {
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
 				}
 				.tile.transact:focus, .tile.transact.selected {
-					border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
+					border: var(--theme-product-tile-focus-transact-border, 2px solid #009DE0);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
 
@@ -249,6 +258,21 @@ export class HorizonProductTile extends Component {
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
 				/* Hove & Focus styles - End*/
+				
+				/* Overriding product tile component styles when tile is disabled */
+				.tile.disabled {
+					cursor: default;
+					filter: grayscale(100%);
+				}
+				.tile.disabled:hover {
+					border: var(--theme-product-tile-border, 1px solid #E1E1E1);
+					box-shadow: none;
+				}
+				.tile.disabled:focus, .tile.disabled.selected{
+					border: var(--theme-product-tile-border, 1px solid #E1E1E1);
+					box-shadow: none;
+				}
+				/* Overriding product tile component styles when tile is disabled - End */
 
 				.product {
 					height: calc(var(--theme-product-tile--height, 80px) - 3px);
@@ -457,16 +481,40 @@ export class HorizonProductTile extends Component {
 		return this._webTemplate();
 	}
 
+	_tileState() {
+		if (this.disabled) {
+			return ` disabled`;
+		}
+
+		if (this.selected) {
+			return ` selected`;
+		}
+
+		return ``;
+	}
+
 	/**
 	 * Generates the component template for web mode.
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_webTemplate() {
+		return this.showToolTip
+		? html`
+			<capitec-tooltip 
+				message=${this.toolTipMessage} 
+				position=${this.toolTipPosition}>
+				${this._renderButton()}
+			</capitec-tooltip>`
+		: html`
+			${this._renderButton()}
+		`;
+	} 
 
+	_renderButton() {
 		return html`
 			<button 
-				class="tile ${this.type ? this.type : `transact`}${this.disabled ? ` disabled` : this.selected ? ` selected` : ``}"
+				class="tile ${this.type ? this.type : `transact`}${this._tileState()}"
 				@click="${(e) => this._tileClicked(e)}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
@@ -485,7 +533,7 @@ export class HorizonProductTile extends Component {
 					</div>
 			</button>
 		`;
-	} 
+	}
 
 	_renderRadioIcon() {
 		return html`

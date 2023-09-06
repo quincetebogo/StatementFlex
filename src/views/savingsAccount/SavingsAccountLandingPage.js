@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/common';
+import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -95,7 +95,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
             if (actions[option]) {
                 await super._inicidentManager_(option, () => this._toggleBusyFlag());
-                this._refreshIncidentDetails();
                 return actions[option]();
             }
         };
@@ -126,13 +125,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     // PUBLIC METHODS
     // --------------
 
-    async _unloadTransactionHistory() {
+    _unloadTransactionHistory() {
         this.endCallContext = `LandingPage`;
         this.transactionHistory = [];
 
-        await super.classifyIncident(() => this._toggleBusyFlag());
+        // await super.classifyIncident(() => this._toggleBusyFlag());
 
-        this._setIncidentDone();
+        // this._setIncidentDone();
     }
 
     // ---------------
@@ -157,8 +156,14 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             if (returnValue.succeeded) {
                 this.landingPageInfo = returnValue.result;
 
-                await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-                await super.createAndClassifySubsIncident(null, false);
+				// Do not create subs inc on performing return to screen
+				if (!this.horizonStore.getReturnToScreen()) {
+					await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+					await super.createAndClassifySubIncident(null, false);
+
+					// setting inc status to not started for landing page needs
+					this._setIncidentNotstarted();
+				}
 
                 // Now we can update the information on the product buttons
                 this._updateLeftBar();
@@ -185,7 +190,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             "next-screen": TelemetryScreen.TRANSACTION_HISTORY
         });
 
-        await super.createAndClassifySubsIncident(null, false);
+        // await super.createAndClassifySubIncident(null, false);
         await this._getTransactionHistory();
     }
 
@@ -241,10 +246,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         }
     }
 
-    _exitTransactionHistory() {
-        this._setIncidentDone();
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
+	_exitTransactionHistory() {
+		// this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
     _getStatements() {
         this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_STATEMENTS, {
@@ -294,7 +299,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubsIncident();
+		await super.createAndClassifySubIncident();
 
         this.savingsDetails = {
             "accountNumber": savingsLandingDetails.accountNumber,
@@ -415,7 +420,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					.shouldDisable="${need => this._shouldDisable(need)}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
 					@account-details="${() => this._accountDetails(this.landingPageInfo)}">

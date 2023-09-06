@@ -76,7 +76,7 @@ export class PaidUpLetter extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Paid Up Letter Dialog`);
 		this._initialise();
 	}
 

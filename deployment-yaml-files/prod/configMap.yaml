@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    owner: {{ .Values.deployment.teamName }}
+  name: {{ .Values.deployment.applicationName }}
+  namespace: {{ .Values.deployment.namespace }}
+data:
+  LogLevel: "INFO"
+  FrameworkLogLevel: "WARN"
+  MetricsLogLevel: "INFO"
+  PlatformLogLevel: "WARN"
+  DatabusSourceSystem: "Horizon-UI"
+  DatabusResponsibleTeam: "Horizon"
+  TelemetryApiKeySecretName: "telemetrydatabussecret"
+  TelemetryApiId: "590sxhu0ql"
+  TelemetryApiUrl: "https://vpce-016593e81be685cee-bjf84jb2.execute-api.eu-west-1.vpce.amazonaws.com/prd/streams/r-890729160293-prd-ds-databus-tem-kinesis/record"
+  TelemetryOAuthUsernameSecretName: "axoncs_t_ch_username"
+  TelemetryOAuthPasswordSecretName: "axoncs_t_ch_password"

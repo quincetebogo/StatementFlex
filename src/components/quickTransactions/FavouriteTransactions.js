@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
-
 import 'app/components/common/OptionButton';
+
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
@@ -23,7 +24,6 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
-
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
@@ -47,7 +47,8 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
 	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
-	 * @property {Object} shouldDisable Callback function, returns true or false to disable need button
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 *
 	 * @readonly
@@ -59,7 +60,9 @@ export class FavouriteTransactions extends Component {
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
 			displayVerificationStatusToast: { type: Boolean },
-			shouldDisable: { type: Object },
+			isCapitecConnectAgent: { type: Boolean },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -234,7 +237,6 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
-
 	_renderTransactSection() {
 		const pendingMandates = this.landingPageInfo?.pendingMandateCount ?? ``;
 		return html`
@@ -244,19 +246,40 @@ export class FavouriteTransactions extends Component {
 					label="Transact">
 				</capitec-title-bar>
 				<capitec-button-bar>
+
+					<!-- Debicheck -->
 					<horizon-option-button
 						data-automation-id="favourite-transactions-debi-check"
 						badgeText="${pendingMandates}"
+						?showTooltip="${this.showTooltip(`debi-check`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
-						?disabled="${this.shouldDisable(`debi-check`)}">
+						?disabled="${this.shouldDisableByRole(`debi-check`)}">
 					</horizon-option-button>
+
+					<!-- Send Cash -->
 					<horizon-option-button
 						data-automation-id="favourites-transaction-send-cash"
 						icon="system/send-cash-action"
+						?disabled="${this.shouldDisableByRole(`send-cash`)}"
 						label="Send Cash"
+						?showTooltip="${this.showTooltip(`send-cash`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
 						@click="${() => this._optionSelectedClick(`send-cash`)}">
+					</horizon-option-button>
+
+					<!-- PayShap -->
+					<horizon-option-button
+						data-automation-id="favourites-transaction-payshap"
+						icon=""
+						img-src="/images/common/pay-shap-icon.svg"
+						label="PayShap"
+						?showTooltip="${this.showTooltip(`payshap`)}"
+						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						@click="${() => this._optionSelectedClick(`payshap`)}"
+						?disabled="${this.shouldDisableByRole(`payshap`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -266,29 +289,42 @@ export class FavouriteTransactions extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
 			<capitec-button-bar>
+				
+				<!-- Stop Card -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-stop-card"
 					label="Stop Card" 
 					icon="system/stop-card-action"
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`stop-card`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`stop-card`)}"
-					?disabled="${this.shouldDisable(`stop-card`)}">
+					?disabled="${this.shouldDisableByRole(`stop-card`)}">
 				</horizon-option-button>
+
+				<!-- Update Card Limits -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-update-card-limits"
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`update-card-limits`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.shouldDisable(`update-card-limits`)}">
+					?disabled="${this.shouldDisableByRole(`update-card-limits`)}">
 				</horizon-option-button>
+				</capitec-tooltip>
+
+				<!-- Tap to Pay -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-tap-to-pay"
 					label="Tap to Pay"
 					icon="system/contactless-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`tap-to-pay`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-					?disabled="${this.shouldDisable(`tap-to-pay`)}">
+					?disabled="${this.shouldDisableByRole(`tap-to-pay`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
@@ -298,46 +334,68 @@ export class FavouriteTransactions extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
 			<capitec-button-bar  style="visibility: visible;">
+
+				<!-- Statements -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-statements"
 					label="Statements" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`statements`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`statements`)}"
-					?disabled="${this.shouldDisable(`statements`)}">
+					?disabled="${this.shouldDisableByRole(`statements`)}">
 				</horizon-option-button>
+
+				<!-- Tax Certificate -->
 				<horizon-option-button
 					id="tax-certificate"
 					data-automation-id="favourite-transactions-tax-certificate"
 					label="Tax Certificate" 
 					icon="system/sars-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`tax-certificate`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
-					?disabled="${this.shouldDisable(`tax-certificate`)}">
+					?disabled="${this.shouldDisableByRole(`tax-certificate`)}">
 				</horizon-option-button>
+
+				<!-- Proof of Account -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-proof-of-account"
 					label="Proof of Account" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`proof-of-account`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-					?disabled="${this.shouldDisable(`proof-of-account`)}">
+					?disabled="${this.shouldDisableByRole(`proof-of-account`)}">
 				</horizon-option-button>
+
+				<!-- Settlement Quote -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-settlement-quote"
 					label="Settlement Quote" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`settlement-quote`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`settlement-quote`)}"
-					?disabled="${this.shouldDisable(`settlement-quote`)}">
+					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
 				</horizon-option-button>
+
+				<!-- Paid Up Letter -->
 				<horizon-option-button
 					label="Paid Up Letter" 
 					icon="system/documents-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`paid-up-accounts`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
-					?disabled="${this.shouldDisable(`paid-up-accounts`)}">
+					?disabled="${this.shouldDisableByRole(`paid-up-accounts`)}">
 				</horizon-option-button>
+				</capitec-tooltip>
+
 			</capitec-button-bar>
 		`;
 	}
@@ -346,13 +404,17 @@ export class FavouriteTransactions extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
 			<capitec-button-bar>
+				
+				<!-- Search Other Need -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-search-other-need"
 					label="Search Other Need" 
 					icon="system/search-action" 
 					iconSize="default"
+					?showTooltip="${this.showTooltip(`search-other-need`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`search-other-need`)}"
-					?disabled="${this.shouldDisable(`search-other-need`)}">
+					?disabled="${this.shouldDisableByRole(`search-other-need`)}">
 				</horizon-option-button>
 			</capitec-button-bar>
 		`;
