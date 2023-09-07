@@ -224,7 +224,7 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!issuePlanAgreementResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(issuePlanAgreementResponse.exception);
 			return;
 		}
@@ -275,7 +275,7 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
 
 		if (!updatePlanAgreementResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(updatePlanAgreementResponse.exception);
 			return;
 		}
@@ -390,7 +390,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.clientSummary(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -412,7 +412,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.policySummary(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -435,7 +435,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.policyReissue(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -495,7 +495,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(result.exception);
 			return;
 		}
@@ -537,7 +537,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -590,7 +590,7 @@ export class ExistingClient extends InsureViewBase {
 			this.policyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(returnValue.exception);
 		}
 	}
@@ -611,7 +611,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(calculateQuoteResp.exception);
 			return;
 		}
@@ -651,7 +651,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(prepareUpdateResp.exception);
 			return;
 		}
@@ -730,7 +730,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(createPolicyResponse.exception);
 			return;
 		}
@@ -785,7 +785,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -844,7 +844,7 @@ export class ExistingClient extends InsureViewBase {
 				this.policyDetails.deductionDetails = policyResponse.deductionDetails;
 				delete this.policyDetails.eligibleRoleplayers;
 			} else {
-				// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+				this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 				this.handleToastError(calcResponse.exception);
 				return;
 			}
@@ -876,7 +876,7 @@ export class ExistingClient extends InsureViewBase {
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			return estimateWithCoverDetails;
 		}
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		this.handleToastError(resp.exception);
 		return null;
 
@@ -911,7 +911,7 @@ export class ExistingClient extends InsureViewBase {
 			this._goToCancelPolicySuccess(e);
 
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -941,7 +941,7 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -966,7 +966,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			return resp.result;
 		}
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		this.handleToastError(resp.exception);
 		return null;
 
@@ -1126,7 +1126,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
@@ -1162,7 +1162,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
@@ -1209,7 +1209,7 @@ export class ExistingClient extends InsureViewBase {
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(emailResponse.exception);
 			return;
 		}
@@ -1218,7 +1218,7 @@ export class ExistingClient extends InsureViewBase {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.emailEstimateSuccess = true;
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
 	}
@@ -1269,7 +1269,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(requestCallbackResp.exception);
 		}
 	}
@@ -1288,7 +1288,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const arrearsResp = await this.insureService.Arrears(arrearsRequest);
 		if (!arrearsResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
