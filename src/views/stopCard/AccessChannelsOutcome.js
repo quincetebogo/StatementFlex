@@ -162,6 +162,12 @@ export class AccessChannelsOutcome extends ViewBase {
 		this.retryReq = screenDetails.request;
 		
 		this._setToastInfo();
+
+		/**
+		 * Publishing the event to refresh AC menu
+		 * Subscribed by: Accecc channels right bar
+		 */
+		this.eventAggregator.publish(`horizon-access-channels-reload`, {});
 	}
 
 	_header() {
