@@ -8,6 +8,7 @@
  export const ACCESS_CHANNELS_TYPE = Object.freeze({
 	APP: `app`,
 	INTERNET_BANKING: `internetBanking`,
+	INETBANKING: `inetbanking`,
 	USSD: `ussd`,
 	NOTIFICATIONS: `notification`
 });

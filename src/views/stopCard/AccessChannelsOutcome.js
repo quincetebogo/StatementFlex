@@ -137,7 +137,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 			if (channelRes.status) {
 				this.retryReq[channelName] = null;
-				const index = request.channels.indexOf(CHANNEL_TYPE[channelName]);
+				const index = request.channels.indexOf(channelName.toUpperCase());
 				this.retryReq.channels.splice(index, 1);
 			}
 
