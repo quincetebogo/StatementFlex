@@ -49,6 +49,7 @@ export class AccessChannels extends Component {
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.reloadACEvent = this.eventAggregator.subscribe(`horizon-access-channels-reload`, () => this._refreshACInfo());
 	}
 
 	// ----------
@@ -123,6 +124,7 @@ export class AccessChannels extends Component {
 	disconnectedCallback() {
 		// Unsubscribe from store.
 		this.stateChangeSub.unsubscribe();
+		this.reloadACEvent.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -597,6 +599,13 @@ export class AccessChannels extends Component {
 
 	_updateIncidentState(state) {
 		this.horizonIncidentManager.incidentState = state;
+	}
+
+	async _refreshACInfo() {
+		this._deepCopyStatus();
+		await this._landingInfo();
+
+		this.requestUpdate();
 	}
 
 	// ---------

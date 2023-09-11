@@ -137,7 +137,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 			if (channelRes.status) {
 				this.retryReq[channelName] = null;
-				const index = request.channels.indexOf(CHANNEL_TYPE[channelName]);
+				const index = request.channels.indexOf(channelName.toUpperCase());
 				this.retryReq.channels.splice(index, 1);
 			}
 
@@ -162,6 +162,12 @@ export class AccessChannelsOutcome extends ViewBase {
 		this.retryReq = screenDetails.request;
 		
 		this._setToastInfo();
+
+		/**
+		 * Publishing the event to refresh AC menu
+		 * Subscribed by: Accecc channels right bar
+		 */
+		this.eventAggregator.publish(`horizon-access-channels-reload`, {});
 	}
 
 	_header() {
