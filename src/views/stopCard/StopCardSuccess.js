@@ -355,7 +355,7 @@ export class StopCardSuccess extends ViewBase {
 			this.need = this.need || `suspend-app`;
 		}
 
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType === IB_TOKEN_TYPE.HARD) {
+		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType !== IB_TOKEN_TYPE.SOFT) {
 			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels.app?.userRegNo);
 
 			if (returnValue.succeeded && returnValue.result) {
@@ -386,11 +386,11 @@ export class StopCardSuccess extends ViewBase {
 	_updateScreenDetails(request, response) {
 		const screenDetails = {};
 		screenDetails.result = request.channels.map(item => {
-			const channelRes = response[item.toLowerCase()];
+			const channelRes = response && response[item.toLowerCase()];
 
 			return {
 				channel: item.toLowerCase(),
-				status: channelRes.status
+				status: channelRes?.status || false
 			};
 		});
 
@@ -927,9 +927,9 @@ export class StopCardSuccess extends ViewBase {
 							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
 						</capitec-radio>
 						<capitec-radio 
-							label="ServiceCanceled"
+							label="Service cancellation"
 							?checked="${item.reason === `ServiceCanceled`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
+							@value-changed="${(event) => this._suspendReasonSelected(event, item, `ServiceCanceled`)}">
 						</capitec-radio>
 					</capitec-radio-group>
 			</capitec-content-box>`;
