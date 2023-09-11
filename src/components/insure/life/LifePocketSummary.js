@@ -7,7 +7,7 @@ import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { UpdateBeneficiaryDialog } from 'app/components/dialogs/insure/life/UpdateBeneficiaryDialog';
 import { UpdateMoneyDialog } from 'app/components/dialogs/insure/life/UpdateMoneyDialog';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-
+import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
 /**
  * Policy summary component showing details of single policy with its role players
@@ -97,7 +97,7 @@ class LifePocketSummary extends Component {
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return `Monthly Payout - Beneficiaries`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund - Children`;
+			return `Education Fund - Beneficiaries`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			return `Once Off Payout - Beneficiaries`;
 		}
@@ -112,7 +112,7 @@ class LifePocketSummary extends Component {
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return `Choose who gets a monthly payout (up to 2):`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Choose whose education to pay for:`;
+			return `Choose whose education to pay for (up to 10):`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			return `Choose who gets a once off payout (up to 2):`;
 		}
@@ -193,7 +193,7 @@ class LifePocketSummary extends Component {
 	 * @returns {boolean} should allow flag
 	 */
 	_allowAddBeneficiary() {
-		if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && this.pocketBeneficiaries.length <= 9) {
 			return true;
 		}
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && this.pocketBeneficiaries.length <= 1) {
@@ -398,7 +398,7 @@ class LifePocketSummary extends Component {
 				gap="none"
 				halign="left"
 				valign="center">
-					<horizon-label label="Cover amount" value="${isNullorEmpty(this.selectedPocket?.coverage) ? `R0.00` : formatCurrency(this.selectedPocket?.coverage)}"></horizon-label>
+					<horizon-label label="Cover amount" value="${isNullorEmpty(this.selectedPocket?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(this.selectedPocket?.coverage))}"></horizon-label>
 					<horizon-label label="Debit order date" value="${formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}"></horizon-label>
 					<horizon-label label="Payment amount" value="${isNullorEmpty(this.selectedPocket?.premium) ? `R0.00` : formatCurrency(this.selectedPocket?.premium)}"></horizon-label>
 					<horizon-label label="Arrears amount" value="${this._calculateArrearsAmount(this.selectedLifePolicy)}"></horizon-label>
@@ -450,9 +450,9 @@ class LifePocketSummary extends Component {
 								value="${this._calculateAvailableBalanceBeneficiaryLevel(beneficiary)}">
 							</horizon-label>
 							<capitec-overflow-menu label="More">
-								<capitec-overflow-menu-item label="Edit ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child` : `Beneficiary`}" @click="${() => this._openEditBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
+								<capitec-overflow-menu-item label="Edit Beneficiary" @click="${() => this._openEditBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
 								<capitec-overflow-menu-item label="Update Money" @click="${() => this._openUpdateMoneyDialog(beneficiary)}"></capitec-overflow-menu-item>
-								<capitec-overflow-menu-item label="Delete ${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Child` : `Beneficiary`}" @click="${() => this._openDeleteBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
+								<capitec-overflow-menu-item label="Delete Beneficiary" @click="${() => this._openDeleteBeneficiaryDialog(beneficiary)}"></capitec-overflow-menu-item>
 							</capitec-overflow-menu>
 						</div>
 					</div>
@@ -461,7 +461,7 @@ class LifePocketSummary extends Component {
 
 			${this._allowAddBeneficiary() === true
 				? html`
-					<capitec-button @click="${() => this._openAddBeneficiaryDialog()}"  id="add-beneficiary-button" icon="system/add-action" label="${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? `Add a child` : `Add another beneficiary`}"></capitec-button>
+					<capitec-button @click="${() => this._openAddBeneficiaryDialog()}"  id="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>
 				` : html``}
 		`;
 	}
