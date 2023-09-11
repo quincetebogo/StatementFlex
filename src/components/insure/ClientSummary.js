@@ -7,6 +7,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -791,7 +792,7 @@ class ClientSummary extends Component {
 		this.lifePolicies?.policies[0]?.pockets.forEach(pocket => {
 			totalCover += pocket.coverage;
 		});
-		return formatCurrency(totalCover);
+		return formatCurrencyInsureCoverAmount(formatCurrency(totalCover));
 	}
 
 	/**
@@ -1165,8 +1166,8 @@ class ClientSummary extends Component {
 							@click="${() => this.showLodgeClaimInfoDialog = true}">
 						</capitec-button>
 					`}
-					${this._renderGetFuneralEstimateButton()}
-					${this.readOnlyMode === true ? html``
+					${this.selectedInsureTabIndex === 0 ? this._renderGetFuneralEstimateButton() : html``}
+					${this.readOnlyMode === true || this.selectedInsureTabIndex !== 0 ? html``
 				: html`
 							<capitec-overflow-menu label="Menu" icon="system/more-white">
 								<capitec-overflow-menu-item icon="system/phone-call-action" label="Request callback" 
@@ -1476,7 +1477,7 @@ class ClientSummary extends Component {
 							<horizon-label
 								data-automation-id="insure-pocket-cover-amount"
 								label="Cover amount"
-								value="${isNullorEmpty(pocketItem?.coverage) ? `R0.00` : formatCurrency(pocketItem?.coverage)}">
+								value="${isNullorEmpty(pocketItem?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(pocketItem?.coverage))}">
 							</horizon-label>
 							
 							<horizon-label
@@ -1587,7 +1588,6 @@ class ClientSummary extends Component {
 						label="De-activate" 
 						icon="system/delete-action">
 					</horizon-option-button>
-					
 				</capitec-group>
 			`;
 		}
@@ -1597,7 +1597,7 @@ class ClientSummary extends Component {
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-reinstate"
 					class="button-margin" 
-					label="Children" 
+					label="Beneficiaries" 
 					icon="system/profile-action"
 					@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.EDUCATION)}">
 				</horizon-option-button>
@@ -1608,10 +1608,8 @@ class ClientSummary extends Component {
 					label="De-activate" 
 					icon="system/delete-action">
 				</horizon-option-button>
-				
 			</capitec-group>
 		`;
-
 	}
 
 	/**

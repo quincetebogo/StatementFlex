@@ -118,7 +118,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
-				
+
 			}
 
 			// Over max cover
@@ -378,4 +378,15 @@ export function getAgeFromIDNumber(southAfricanIDNumber) {
 	const ageDifMs = Date.now() - birthdate.getTime();
 	const ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+/**
+ * Format Horizon currency string to Insure cover amount standard
+ * 
+ * @export
+ * @param {String} currencyString Horizon formatted currency string
+ * @returns {string} cover amount with decimals
+ */
+export function formatCurrencyInsureCoverAmount(currencyString) {
+	return currencyString.split(`.`)[0];
 }
