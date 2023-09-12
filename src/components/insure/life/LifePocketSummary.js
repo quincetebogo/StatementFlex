@@ -10,7 +10,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
 /**
- * Policy summary component showing details of single policy with its role players
+ * Pocket summary component showing details of single policy pocket with its role players
  * 
  * Events Raised 
  * -------------
@@ -525,7 +525,7 @@ window.customElements.define(`horizon-insure-life-pocket-summary`, LifePocketSum
  * When back arrow button is clicked, navigate
  *
  * @example
- * <horizon-insure-life-policy-summary ... @navigate-back="${this._handler}"></horizon-insure-life-policy-summary>
+ * <horizon-insure-life-pocket-summary ... @navigate-back="${this._handler}"></horizon-insure-life-pocket-summary>
  *
  * @event LifePocketSummary#navigate-back
  * @type {Object} - N/A

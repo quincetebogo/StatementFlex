@@ -198,6 +198,20 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Fire navigate event to Policy Summary for Life Cover
+	 * @param {String} lifePolicy selected life policy
+	 * @returns {void}
+	 */
+	_goToLifePolicySummary(lifePolicy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-policy-summary`, {
+			detail: {
+				lifePolicy: lifePolicy,
+				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Policy Transaction History
 	 * @param {object} policyItem policy item details
 	 * @returns {void}
@@ -1079,21 +1093,6 @@ class ClientSummary extends Component {
 				width: 180px;
 			}
 
-			.once-off-label-colour{
-				--theme-label-font-color: #009E96;
-				;
-			}
-
-			.monthly-label-colour{
-				--theme-label-font-color: #852CB3;
-				;
-			}
-
-			.education-label-colour{
-				--theme-label-font-color: #AA1580;
-				;
-			}
-
 			.pocket-type-label{
 				width: 195px;
 				padding-left: 20px;
@@ -1276,7 +1275,8 @@ class ClientSummary extends Component {
 								class="label-policy-number fixed-label"
 								label="One Cover policy"
 								textOverflow="ellipsis"
-								value="${this.lifePolicy?.contractReference}">
+								value="${this.lifePolicy?.contractReference}"
+								@click="${() => this._goToLifePolicySummary(this.lifePolicy)}">
 							</horizon-label>
 						</div>
 						<div>

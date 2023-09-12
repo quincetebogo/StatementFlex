@@ -19,28 +19,28 @@ export const insureLifeClientSummary = {
 			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
 			"nextCollectionAmount": 0,
 			"bankDetails": {
-				"accountName": `string`,
-				"branchCode": `string`,
-				"accountNumber": `string`,
-				"bank": `string`,
-				"accountType": `Bond`,
-				"collectionDay": 0
+				"accountName": `Miss Mirriam Nxopo`,
+				"branchCode": `470010`,
+				"accountNumber": `1196035138`,
+				"bank": `CAPITEC BANK LIMITED`,
+				"accountType": `Savings`,
+				"collectionDay": 11
 			},
 			"pockets": [
 				{
 					"pocketType": `OnceOffPayout`,
 					"coverage": 25000,
-					"premium": 251
+					"premium": 261
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 25000,
+					"coverage": 12500,
 					"premium": 251
 				},
 				{
 					"pocketType": `Education`,
-					"coverage": 25000,
-					"premium": 251
+					"coverage": 0,
+					"premium": 241
 				}
 			],
 			"arrears": [
@@ -65,7 +65,7 @@ export const insureLifeClientSummary = {
 					"lastName": `Dave`,
 					"rolePlayer": `string`,
 					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 12500,
+					"educationBenefitAmount": 0,
 					"monthlyPayoutBenefitAmount": 12500,
 					"bankDetails": {
 						"accountName": `string`,
@@ -84,8 +84,8 @@ export const insureLifeClientSummary = {
 					"lastName": `Mark`,
 					"rolePlayer": `string`,
 					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 12500,
-					"monthlyPayoutBenefitAmount": 12500,
+					"educationBenefitAmount": 0,
+					"monthlyPayoutBenefitAmount": 0,
 					"bankDetails": {
 						"accountName": `string`,
 						"branchCode": `string`,
