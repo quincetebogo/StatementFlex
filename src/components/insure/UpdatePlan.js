@@ -84,6 +84,7 @@ class UpdatePlan extends Component {
 		this.disableBranchCode = true;
 		this.showUpdateValidationDialog = false;
 		this.showIneligibleLivesDialog = false;
+		this.defaultSavingsAccountNumber = ``;
 
 		this.showLAAgreementDialog = false;
 		this.agreementLAAccepted = ``;
@@ -198,6 +199,7 @@ class UpdatePlan extends Component {
 			showReinstatePolicyAgreementDialog: { type: Boolean, state: true },
 			showReinstatePaymentAgreementDocument: { type: Boolean, state: true },
 			createPolicyResponse: { type: Boolean, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
 
 			issuePlanAgreementDocument: { type: Object, state: true },
 			reinstatePaymentAgreementDocument: { type: Object, state: true },
@@ -790,8 +792,19 @@ class UpdatePlan extends Component {
 				this.disableBranchCode = true;
 			}
 
-			this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
-			this.accountNumErrorMsg = `Account number is a required field`;
+			if (this.policyDetails.deductionDetails.bankDetails.bank === `CAPITEC BANK`) {
+				if (this.defaultSavingsAccountNumber === ``) {
+					this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
+					this.accountNumErrorMsg = `Account number is a required field`;
+				} else {
+					this.policyDetails.deductionDetails.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
+					this.accountNumErrorMsg = ``;
+				}
+			} else {
+				this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
+				this.accountNumErrorMsg = `Account number is a required field`;
+			}
+			this.requestUpdate();
 		}
 
 		this.requestUpdate();
@@ -2139,7 +2152,7 @@ class UpdatePlan extends Component {
 
 							<!-- Beneficiaries -->
 							${this.policyDetails.roleplayers.map((beneficiary) => html` ${beneficiary.beneficiary === true
-				? html`
+					? html`
 							<capitec-label label="Remove" @click="${() => this._openRemoveBeneficiaryDialog(beneficiary)}"
 								type="subtitle" class="stronger link"
 								style="position: relative; width: fit-content; left: 613px; top: 43px;">
