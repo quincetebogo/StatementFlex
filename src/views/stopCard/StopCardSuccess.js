@@ -356,7 +356,7 @@ export class StopCardSuccess extends ViewBase {
 		}
 
 		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType !== IB_TOKEN_TYPE.SOFT) {
-			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels.app?.userRegNo);
+			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels?.internetBanking?.userRegNo);
 
 			if (returnValue.succeeded && returnValue.result) {
 				const tokens = returnValue.result?.tokens;
