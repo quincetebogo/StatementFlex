@@ -78,6 +78,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.readOnly = false;
 		this.emailEstimateSuccess = false;
+		this.defaultSavingsAccountNumber = ``;
 		// this.auditTransactionHistory = {};
 
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
@@ -143,7 +144,8 @@ export class ExistingClient extends InsureViewBase {
 			renderMode: { type: Number },
 			claims: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
-			clientArrears: { type: Object, state: true }
+			clientArrears: { type: Object, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true }
 
 		};
 	}
@@ -177,7 +179,7 @@ export class ExistingClient extends InsureViewBase {
 			this.clientPolicies = [];
 		} else {
 			await this._retrieveClientSummary();
-			// this.accountDetails = await this._retrieveAccountDetails();
+			await this._getSavingsAccountDetails();
 			this.claims = await this._retrieveClaims();
 		}
 	}
@@ -395,6 +397,19 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		this.clientPolicies = resp.result;
+	}
+
+	// Attempt to get global one savings account number to pre populate, if fails, continue
+	async _getSavingsAccountDetails() {
+		const landingRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+			getGenericData: true
+		};
+
+		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+		console.log(returnValue.result.accountNumber);
+		this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
 	}
 
 	/**
@@ -1453,6 +1468,7 @@ export class ExistingClient extends InsureViewBase {
 				.policyDetails="${this.policyDetails}"
 				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
+				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
