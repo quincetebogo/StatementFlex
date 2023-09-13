@@ -61,6 +61,7 @@ export default class HorizonChannelServiceMocks {
     	this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -220,6 +221,14 @@ export default class HorizonChannelServiceMocks {
 	savingsPlanLanding(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.savingsPlanLanding.positiveCase) {
 			return this.savingsAccountMocks.savingsPlanDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+	getClientProducts(cifNumber) {
+		if (this._mockSettings.savingsPlanLanding.positiveCase) {
+			return this.savingsAccountMocks.getClientProducts;
 		}
 
 		// Code for a negative case could come here

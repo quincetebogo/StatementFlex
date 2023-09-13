@@ -7,7 +7,8 @@ const DEFAULT_SUBTITLE = {
 	LIVE_BETTER_SAVINGS: `Supercharge your savings`,
 	SAVINGS_PLAN: `Let your money make money`,
 	INSURE: `One plan, more cover`,
-	CREDIT: `Rethink credit, realise dreams`
+	CREDIT: `Rethink credit, realise dreams`,
+	CAPITEC_CONNECT: `Prepaid that last longer`
 };
 
 /**
@@ -169,6 +170,17 @@ export class ProductButtonPanel extends Component {
 				icon="product/live-better"
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
 				?selected="${this.selectedButton === `LiveBetter`}"
+				data-automation-id="product-button-panel-live-better">
+			</horizon-product-tile>
+			<horizon-product-tile
+				class="product-button"
+				type="live-better"
+				label="Capitec Connect"
+				subtitle="${this.subtitle.capitecConnect ? this.subtitle.capitecConnect : DEFAULT_SUBTITLE.CAPITEC_CONNECT}"
+				detail="${this.detail.capitecConnect ? this.detail.capitecConnect : ``}"
+				icon="product/cellphone"
+				@click="${() => this._productButtonClick(`CapitecConnect`)}"
+				?selected="${this.selectedButton === `CapitecConnect`}"
 				data-automation-id="product-button-panel-live-better">
 			</horizon-product-tile>
 		`;

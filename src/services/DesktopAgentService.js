@@ -409,8 +409,25 @@ export class DesktopAgentService {
 			this._eventAggregator.publish(`prompt-start-desktopagent`);
 			// this.connectionTries = 0;
 		} else if (this._productLandingPagesActive()) {
+
+			// Don't route the capitec teamleaders away from the page.
+			if(this._checkCapitecConnectTeamLeader()) {
+				return;
+			}
+
 			this.HorizonRouter.navigateToWaitingForCall();
 		}
+	}
+
+	// If the user is a capitec connect teamleader and the page is capitec connect don't re-route.
+	_checkCapitecConnectTeamLeader() {
+		let rolemanager = RoleManager.getInstance();
+		if(rolemanager.isCapitecConnectTeamleader && this._navigationContext.current.path === '/product/capitec-connect') {
+			console.log('teamleader')
+			return true;
+		}
+
+		return false;
 	}
 
 	_productLandingPagesActive() {

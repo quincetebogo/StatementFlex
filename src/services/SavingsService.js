@@ -276,7 +276,11 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	// Get client Products
 
-	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`getClientProducts`)) {
+			return this.mock(`getClientProducts`, request.cifNumber);
+		}
+
 		const requestObject = {
 			"cifNumber": request.cifNumber,
 			"productStatus": request.status

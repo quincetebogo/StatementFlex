@@ -51,7 +51,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -145,7 +145,7 @@
 			"positiveCase": true
 		},
 		"savingsPlanTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
@@ -154,6 +154,10 @@
 		},
 		"savingsPlanLanding": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientProducts": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
