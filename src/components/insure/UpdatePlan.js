@@ -249,8 +249,6 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_addLife(e) {
-		console.log(e);
-
 		if (JSON.stringify(e.detail.beneficiary) === `{}`) {
 			this.policyDetails.roleplayers.push({
 				title: ``,
