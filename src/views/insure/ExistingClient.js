@@ -29,6 +29,7 @@ import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 import '../../components/insure/life/LifeSuccess';
 
 import 'app/components/insure/life/LifePocketSummary';
+import 'app/components/insure/life/LifePolicySummary';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -1202,6 +1203,17 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Prepare and navigate to Life Policy Summary
+	 * @param {event} e e
+	 * @returns {void} 
+	 */
+	_goToLifePolicySummary(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
+	}
+
+	/**
 	 * Send email from caller page
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1420,6 +1432,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderLifePocketSummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SUCCESS:
 				return html`${this._renderLifeSuccessPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
+				return html`${this._renderLifePolicySummaryPage()}`;
 			default:
 				return html``;
 		}
@@ -1465,6 +1479,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-policy-transaction-history="${(e) => this._goToFuneralTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
+				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}">
 			</horizon-insure-client-summary>`;
 	}
@@ -1608,6 +1623,19 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Renders the pocket summary page, configured with the selected pocket type
+	 * 
+	 * @returns {html} html
+	 */
+	_renderLifePolicySummaryPage() {
+		return html`
+			<horizon-insure-life-policy-summary 
+				.selectedLifePolicy="${this.selectedLifePolicy}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-policy-summary >`;
+	}
+
+	/**
+	 * Renders the Life Success page
 	 * 
 	 * @returns {html} html
 	 */

@@ -112,7 +112,7 @@ class FuneralPolicySummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	 async _initialise() {
+	async _initialise() {
 		// await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
 		// await super.createAndClassifySubIncident();
 	}
