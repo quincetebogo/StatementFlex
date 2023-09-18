@@ -2236,7 +2236,8 @@ class UpdatePlan extends Component {
 								<capitec-text-field label="Account Number" type="numeric" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.accountNumber}"
 									error = "${this.accountNumErrorMsg}"
-									@value-changed = "${(e) => this._accountNumberChange(e)}">
+									@value-changed = "${(e) => this._accountNumberChange(e)}"
+									?disabled = "${this.defaultSavingsAccountNumber !== `` && this.policyDetails?.deductionDetails?.bankDetails?.bank === `CAPITEC BANK`}">
 								</capitec-text-field>
 							</div>
 		
