@@ -26,6 +26,7 @@ import 'app/components/insure/funeral/FuneralSMSHistory';
 import 'app/components/insure/funeral/FuneralPolicyTransactionHistory';
 import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
+import '../../components/insure/life/LifeSuccess';
 
 import 'app/components/insure/life/LifePocketSummary';
 
@@ -81,6 +82,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.selectedLifePocketType = ``;
 		this.selectedLifePolicy = ``;
+		this.lifeSuccessPageMessages = {};
 	}
 
 	// #endregion INITIALISATION
@@ -108,6 +110,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Boolean} funeralShowEstimateSuccessToast determine whether to show a success alert for estimate email
 	 * @property {Object} funeralPolicyArrears contains client arrears and payable accounts for funeral policy
 	 * @property {Object} lifePolicies contains clients life policies
+	 * @property {Object} lifeCancelAgreementDocument contains the cancel policy document details
 	 * 
 	 * @readonly
 	 * @static
@@ -134,7 +137,9 @@ export class ExistingClient extends InsureViewBase {
 			funeralArrearsAgreementDocument: { type: Object, state: true },
 			funeralShowEstimateSuccessToast: { type: Boolean, state: true },
 			funeralPolicyArrears: { type: Object, state: true },
-			selectedInsureTabIndex: { type: Number, state: true }
+			selectedInsureTabIndex: { type: Number, state: true },
+			lifeCancelAgreementDocument: { type: Object, state: true },
+			lifeSuccessPageMessages: { type: Object, state: true }
 		};
 	}
 
@@ -343,6 +348,103 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		this.requestUpdate();
+	}
+
+	/**
+	 * Cancel Life Policy Agreement
+	 * @param {String} contractReference contractReference
+	 * @param {string} cancelReason cancelReason
+	 * @param {boolean} saveToDocumentum saveToDocumentum
+	 * @returns {void}  
+	 */
+	async _generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum) {
+		const dob = new Date(this.callerInformation.birthdate);
+		const lifeCancelPolicyAgreementDetails = {
+			"documentFormat": `PDF`,
+			"saveDocumentToDocumentum": saveToDocumentum,
+			"markDocumentsAsAccepted": saveToDocumentum,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
+			"clientDetails": {
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.lastName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": dob.toISOString()
+			},
+			"input": {
+				"cancellationReason": cancelReason
+			}
+		};
+
+		const resp = await this.insureLifeService.lifeCancelPolicyAgreement(lifeCancelPolicyAgreementDetails, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			this.lifeCancelAgreementDocument = resp.result;
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.requestUpdate();
+	}
+
+	/**
+	 * Cancel Life Policy 
+	 * @param {event} e e
+	 * @returns {void}  
+	 */
+	async _cancelLifePolicy(e) {
+		const lifeCancelPayload = 
+			{
+				"cancellationReason": e.detail.cancellationReason,
+				"policyNumber": e.detail.contractReference,
+				"documents": [
+				  {
+					"documentCode": e.detail.documentDetails.documentCode,
+					"documentName": e.detail.documentDetails.documentName,
+					"guid": e.detail.documentDetails.documentDetails.guid
+				  }
+				]
+			};
+
+		const resp = await this.insureLifeService.lifeCancelPolicy(lifeCancelPayload, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			// this.lifeCancelAgreementDocument = resp.result;
+			this._generateDocumentsLifeCancel(e.detail.contractReference, e.detail.cancellationReason, true);
+			const lifeEmailSuccess = this._sendLifeEmail(e);
+			this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
+			this.clientConfirmedEmail = e.detail.emailAddress;
+			this._goToLifeSuccess(e);
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.requestUpdate();
+		
+	}
+
+	_buildLifeSuccessMessage(lifeEmailSuccess, callerPage, emailAddress, contractRef) {
+		const successPageMessage = {};
+		successPageMessage.actionSuccessLabel = ``;
+		successPageMessage.emailMessage = ``;
+		successPageMessage.emailSuccess = lifeEmailSuccess;
+
+
+		if (callerPage === INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG) {
+			successPageMessage.actionSuccessLabel = `The policy has been cancelled`;
+			if (lifeEmailSuccess) {
+				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else {
+				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
+			}
+		}
+
+		return successPageMessage;
 	}
 
 	/**
@@ -968,6 +1070,7 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = newMode;
 	}
 
+
 	/**
 	 * Fetch latest claim details and render Claim Summary 
 	 * @param {event} e e
@@ -981,9 +1084,10 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Navigate to Funeral Estimate screen
+	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToFuneralPolicyEstimate() {
+	_goToFuneralPolicyEstimate(e) {
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
 	}
@@ -1009,6 +1113,17 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedFuneralPolicyContractReference = e.detail.contractReference;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_CANCEL_POLICY_SUCCESS);
+	}
+
+	/**
+	 * Prepare and navigate Cancel Policy Success
+	 * @param {event} e e
+	 * @returns {void} 
+	 */
+	_goToLifeSuccess(e) {
+		// this.selectedFuneralPolicyContractReference = e.detail.contractReference;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
 
 	/**
@@ -1130,6 +1245,19 @@ export class ExistingClient extends InsureViewBase {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
+	}
+
+	/**
+	 * Send life email from caller page
+	 * @param {event} e e
+	 * @returns {void} 
+	  */
+	_sendLifeEmail(e) {
+		const emailLifeDocumentsPayload = {
+
+		};
+		console.log(`Email sending`);
+		return false;
 	}
 
 	/**
@@ -1290,6 +1418,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderClaimSummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY:
 				return html`${this._renderLifePocketSummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_SUCCESS:
+				return html`${this._renderLifeSuccessPage()}`;
 			default:
 				return html``;
 		}
@@ -1322,10 +1452,13 @@ export class ExistingClient extends InsureViewBase {
 				.funeralPolicyArrears = "${this.funeralPolicyArrears}"
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
+				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
+				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
+				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
-				@navigate-to-estimate="${() => this._goToFuneralPolicyEstimate()}"
+				@navigate-to-estimate="${(e) => this._goToFuneralPolicyEstimate(e)}"
 				@navigate-to-update-plan="${(e) => this._goToFuneralUpdatePlan(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToFuneralPolicySummary(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
@@ -1471,6 +1604,21 @@ export class ExistingClient extends InsureViewBase {
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-pocket-summary>`;
+	}
+
+	/**
+	 * Renders the pocket summary page, configured with the selected pocket type
+	 * 
+	 * @returns {html} html
+	 */
+	_renderLifeSuccessPage() {
+		return html`
+			<horizon-insure-life-success 
+				.successMessages="${this.lifeSuccessPageMessages}"
+				.email = "${this.clientConfirmedEmail}"
+				.sendEmail="${(emailAddress) => this._sendLifeEmail(emailAddress)}"
+				@navigate-to-summary="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-success>`;
 	}
 
 	/**

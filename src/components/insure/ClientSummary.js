@@ -19,6 +19,7 @@ import 'app/components/dialogs/insure/funeral/PayPremiumDialog';
 import 'app/components/dialogs/insure/funeral/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/funeral/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
+import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -74,6 +75,8 @@ class ClientSummary extends Component {
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
 
+		this.showLifeCancelPolicyDialog = false;
+
 		this.telemetryEvents = {};
 	}
 
@@ -110,6 +113,7 @@ class ClientSummary extends Component {
 	 * @property {Function} requestCallback policy product code
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
 	 * @property {Object} lifePolicies Contains clients life policies
+	 * @property {Function} generateDocumentsLifeCancel Callback function to fetch Cancel Policy Agreement
 	 * 
 	 * @readonly
 	 * @static
@@ -152,7 +156,11 @@ class ClientSummary extends Component {
 			productCode: { type: String, state: true },
 			showEmailEstimateSuccessToast: { type: Boolean, state: true },
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
-			requestCallback: { type: Object, state: true }
+			requestCallback: { type: Object, state: true },
+
+			showLifeCancelPolicyDialog: { type: Boolean, state: true },
+			generateDocumentsLifeCancel: { type: Object, state: true },
+			lifeCancelAgreementDocument: { type: Object, state: true }
 		};
 	}
 
@@ -242,6 +250,24 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Life Cancel Policy event
+	 * @param {event} e event
+	 * @returns {void}
+	 */
+	_lifeCancelPolicyConfirm(e) {
+		this.dispatchEvent(new CustomEvent(`life-cancel-policy`, {
+			detail: {
+				contractReference: this.contractReferenceToCancel,
+				cancellationReason: e.detail.cancellationReason,
+				emailAddress: e.detail.emailAddress,
+				documentDetails: e.detail.documentDetails,
+				callerPage: INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY,
+				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate to SMS History
 	 * 
 	 * @param {Object} policyItem policy item
@@ -300,6 +326,16 @@ class ClientSummary extends Component {
 	 */
 	async _generateDocumentsFuneralCancel(contractReference, cancelReason) {
 		await this.generateDocumentsFuneralCancel(contractReference, cancelReason, false);
+	}
+
+	/**
+	 * Get the Life Cancel Policy Document
+	 *
+	 * @param {String} cancelReason cancel Reason
+	 * @returns {void}
+	 */
+	async _generateDocumentsLifeCancel(cancelReason) {
+		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
 	}
 
 	/**
@@ -518,10 +554,12 @@ class ClientSummary extends Component {
 
 	/**
 	 * opens the life cancel policy dialog
+	 * @param {string} contractReference contract reference
 	 * @returns {void} 
 	 */
-	_openLifeCancelPolicyDialog() {
-
+	_openLifeCancelPolicyDialog(contractReference) {
+		this.contractReferenceToCancel = contractReference;
+		this.showLifeCancelPolicyDialog = true;
 	}
 
 	/**
@@ -1139,6 +1177,7 @@ class ClientSummary extends Component {
 			${this._renderFuneralPayPremiumConfirmationDialog()}
 			${this._renderFuneralPayPremiumAgreementDialog()}
 			${this._renderFuneralCancelPolicyDialog()}
+			${this._renderLifeCancelPolicyDialog()}
 		`;
 	}
 
@@ -1323,7 +1362,7 @@ class ClientSummary extends Component {
 			}
 							
 							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(this.lifePolicy?.contractReference)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -1850,6 +1889,22 @@ class ClientSummary extends Component {
 			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 			@cancel-click="${() => this.showRequestCallbackDialog = false}">
 			</horizon-insure-request-callback-dialog>
+		`;
+	}
+	
+	/**
+	 * Life Cancel Policy dialog
+	 * @returns {html} Dialog contect
+	 */
+	_renderLifeCancelPolicyDialog() {
+		return this.showLifeCancelPolicyDialog === false ? html``
+			: html`
+			<horizon-insure-life-cancel-policy-dialog
+			@agree="${(e) => this._lifeCancelPolicyConfirm(e)}"
+			@close-modal="${() => this.showLifeCancelPolicyDialog = false}"
+			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
+			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
+			</horizon-insure-life-cancel-policy-dialog>
 		`;
 	}
 
