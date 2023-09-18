@@ -420,7 +420,7 @@ class PolicyTransactionHistory extends Component {
 				data-automation-id="transactions-back">
 			</capitec-image>
 			<capitec-label 
-				label="Transaction History"
+				label="Premium History"
 				type="title"
 				id="header-label">
 			</capitec-label>
@@ -624,7 +624,7 @@ class PolicyTransactionHistory extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="transactionType"
+				field="premiumType"
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column

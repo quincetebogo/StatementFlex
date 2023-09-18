@@ -280,13 +280,13 @@ export class InsureBackOfficeView extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyPremiumHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
 				.map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
-					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
+					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
