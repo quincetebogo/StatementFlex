@@ -272,7 +272,6 @@ class PolicyTransactionHistory extends Component {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
-
 		await super._inicidentManager_(`funeral-transaction-history`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 	}
@@ -640,11 +639,6 @@ class PolicyTransactionHistory extends Component {
 				size="120px">
 			</capitec-table-column>
 			<capitec-spacer></capitec-spacer>
-			<capitec-table-column
-				label="Reason"
-				field="reason"
-				size="250px">
-			</capitec-table-column>
 		`;
 	}
 
@@ -655,9 +649,9 @@ class PolicyTransactionHistory extends Component {
 	_renderNoResults() {
 		let noResultsMessage;
 		if (this.startDate) {
-			noResultsMessage = `No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
+			noResultsMessage = `No policy premiums made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
 		} else {
-			noResultsMessage = `Adjust filters to see policy transactions`;
+			noResultsMessage = `Adjust filters to see policy premium history`;
 		}
 
 

@@ -408,7 +408,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-		console.log(returnValue.result.accountNumber);
 		this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
 	}
 
