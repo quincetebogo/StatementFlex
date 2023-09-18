@@ -982,9 +982,10 @@ export class ExistingClient extends InsureViewBase {
 
 	/**
 	 * Navigate to Funeral Estimate screen
+	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToFuneralPolicyEstimate() {
+	_goToFuneralPolicyEstimate(e) {
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
 	}
@@ -1339,7 +1340,7 @@ export class ExistingClient extends InsureViewBase {
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
-				@navigate-to-estimate="${() => this._goToFuneralPolicyEstimate()}"
+				@navigate-to-estimate="${(e) => this._goToFuneralPolicyEstimate(e)}"
 				@navigate-to-update-plan="${(e) => this._goToFuneralUpdatePlan(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToFuneralPolicySummary(e)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"

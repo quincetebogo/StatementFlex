@@ -801,9 +801,9 @@ class ClientSummary extends Component {
 	 * Add all pocket coverage together and format to currency
 	 * @returns {string} total cover
 	 */
-	_calculateLifeTotalCoverAmount() {
+	_calculateLifeTotalCoverAmount(policy) {
 		let totalCover = 0;
-		this.lifePolicies?.policies[0]?.pockets.forEach(pocket => {
+		policy?.pockets?.forEach(pocket => {
 			totalCover += pocket.coverage;
 		});
 		return formatCurrencyInsureCoverAmount(formatCurrency(totalCover));
@@ -811,11 +811,12 @@ class ClientSummary extends Component {
 
 	/**
 	 * Calculate total arrears for life cover policy
+	 * @param {Object} policy tab event
 	 * @returns {string} formatted total
 	 */
-	_calculateLifeArrearsAmount() {
+	_calculateLifeArrearsAmount(policy) {
 		let totalArrears = 0;
-		this.lifePolicies?.policies[0]?.arrears.forEach(arrears => {
+		policy?.arrears?.forEach(arrears => {
 			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
 		});
 		return totalArrears;
@@ -878,14 +879,27 @@ class ClientSummary extends Component {
 				--theme-icon-size-medium: 24px;
 			}
 			.accounts-box {
+				overflow: initial;
 				width: auto;
-				height: 500px;
+				height: auto;
+				min-height: 500px;
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 16px;
 				--theme-container-padding-top: 0px;
 				--theme-layout-gap-spacing: 0px;
 			}
+
+			.life-policies-box {
+				overflow: initial;
+				width: auto;
+				height: auto;
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-top: 0px;
+				--theme-layout-gap-spacing: 0px;
+			}
+
 			capitec-group > capitec-title-bar {
 				--theme-titlebar-min-height: 32px;
 				--theme-titlebar-padding: 0px 16px 0px 16px;
@@ -1041,10 +1055,6 @@ class ClientSummary extends Component {
 				margin-bottom: 20px;
 			}
 
-			#no-results-box-inner{
-				padding: 20px; margin-top: 10px;
-			}
-
 			#policies-container{
 				margin-bottom:20px;
 			}
@@ -1073,6 +1083,7 @@ class ClientSummary extends Component {
 				padding-left: 15px;
 				padding-right: 15px;
 				border-radius: 0px;
+				margin-bottom: 15px;
 			}
 
 			.life-policy{
@@ -1087,6 +1098,7 @@ class ClientSummary extends Component {
 				border-width: 1px;
 				border-style: solid;
 				border-color: rgb(225, 225, 225);
+				margin-bottom: 15px;
 			}
 
 			.life-pol-label{
@@ -1110,7 +1122,10 @@ class ClientSummary extends Component {
 			.life-arrears-notify{
 				padding: 0px 10px;
 			}
-			`
+
+			#inactive-life-policies-title{
+				margin-bottom: 10px;
+			}`
 		];
 	}
 
@@ -1160,7 +1175,7 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.funeralPolicies?.summaryDetails?.policies.length === 0 || this.readOnlyMode === true ? `` : html`
+					${this.readOnlyMode === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this.showLodgeClaimInfoDialog = true}">
 						</capitec-button>
@@ -1175,7 +1190,7 @@ class ClientSummary extends Component {
 							</capitec-overflow-menu>
 						`}
 				</capitec-title-bar>
-				${this.funeralPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResults()}` : html`${this._renderPoliciesLandingContent()}`}
+				${this._renderInsureTabs()}
 		</capitec-card>`;
 	}
 
@@ -1214,39 +1229,25 @@ class ClientSummary extends Component {
 	 * Render Landing page for Policies & Claims
 	 * @returns {html} The html content of the Policies & Claims tabs
 	 */
-	_renderPoliciesLandingContent() {
+	_renderInsureTabs() {
 		return html`
 			<capitec-tab-group @tab-select="${(e) => this._selectInsureTab(e)}"  selectedIndex="${this.selectedInsureTabIndex}">
 				<capitec-tab
 					data-automation-id="insure-landing-funeral-policies-tab"
 					label="Funeral Plan">
 					<capitec-content-box  id="client-policies-box" class="accounts-box">
-						${this._renderFuneralPoliciesList()}
+						${this.funeralPolicies?.summaryDetails?.policies.length === 0 ? html`${this._renderNoResultsFuneralTab()}` : html`${this._renderFuneralPoliciesList()}`}
 					</capitec-content-box>
 					${this._renderFooter()}
 				</capitec-tab>
+
 				<capitec-tab
 					data-automation-id="insure-landing-life-policies-tab"
 					label="Life Cover">
-					${this._calculateLifeArrearsAmount() > 0
-				? html`
-						<horizon-alert-banner
-							type="unsuccessful-red"
-							class="life-arrears-notify"
-							header="Notify client:"
-							label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount())} and will lapse on ????/??/?? if payment is not received."
-							layout="horizontal">
-						</horizon-alert-banner>`
-				: html``}
-					<capitec-card class="life-policy-box" >
-						${this._renderLifePolicy()}
-					</capitec-card>
-
-					<capitec-content-box  id="client-pockets-box" class="accounts-box">
-						${this._renderLifePolicyPockets()}
-					</capitec-content-box>
+					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
 					${this._renderFooter()}
 				</capitec-tab>
+
 				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">
@@ -1259,89 +1260,6 @@ class ClientSummary extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 			</capitec-tab-group>`;
-	}
-
-	/**
-	 * render life policy 
-	 * @returns {html} html content for the life policy
-	 */
-	_renderLifePolicy() {
-		this.lifePolicy = this.lifePolicies?.policies[0];
-		return html`
-			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
-					<div class="life-policy-container">
-						<div>
-							<horizon-label
-								class="label-policy-number fixed-label"
-								label="One Cover policy"
-								textOverflow="ellipsis"
-								value="${this.lifePolicy?.contractReference}"
-								@click="${() => this._goToLifePolicySummary(this.lifePolicy)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Total cover"
-								value="${this._calculateLifeTotalCoverAmount()}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Total monthly payment"
-								class = "life-pol-label"
-								value="${isNullorEmpty(this.lifePolicy?.totalPremium) ? `R0.00` : formatCurrency(this.lifePolicy?.totalPremium)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Debit order date"
-								value="${formatDate(this.lifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Arrears amount"
-								value="${formatCurrency(this._calculateLifeArrearsAmount())}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Status"
-								class = "${this.lifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
-								value= "${this.lifePolicy?.policyStatus}">
-							</horizon-label>
-						</div>
-
-						<capitec-overflow-menu label="Menu">
-							${this._calculateLifeArrearsAmount > 0
-				? html`<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>`
-				: html``
-			}
-							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
-							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>`
-				: html``
-			}
-							
-							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>`
-				: html``
-			}
-
-							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
-				: html``
-			}
-
-							${this.lifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Decrease Cover"></capitec-overflow-menu-item>`
-				: html``
-			}
-						</capitec-overflow-menu>
-					</div>
-				<!-- </capitec-group> -->
-			</capitec-card>
-		`;
 	}
 
 	/**
@@ -1448,12 +1366,135 @@ class ClientSummary extends Component {
 
 	/**
 	 * Render list of Life Cover policies
+	 * @returns {html} The html content the list of Policies
+	 */
+	_renderLifePoliciesList() {
+		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE`);
+		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE`);
+
+		return html`
+				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
+					<horizon-alert-banner
+						type="unsuccessful-red"
+						class="life-arrears-notify"
+						header="Notify client:"
+						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse on ????/??/?? if payment is not received."
+						layout="horizontal">
+					</horizon-alert-banner>`
+				: html``}
+
+				${isNullorEmpty(activeLifePolicy) ? html`` 
+				: html`
+					<div>
+						<capitec-card class="life-policy-box" >
+							${this._renderActiveLifePolicy(activeLifePolicy)}
+						</capitec-card>
+
+						<capitec-content-box  id="client-pockets-box" class="life-policies-box">
+							${this._renderActiveLifePolicyPockets(activeLifePolicy)}
+						</capitec-content-box>
+					</div>
+				`}
+				<div>
+					<capitec-content-box id="client-pockets-box" class="life-policies-box">
+						${this._renderNonActiveLifePolicies(nonActiveLifePolicies)}
+					</capitec-content-box>
+				</div>
+		`;
+	}
+
+	/**
+	 * render life policy 
+	 * @param {Object} activeLifePolicy active life policy
+	 * @returns {html} html content for the life policy
+	 */
+	_renderActiveLifePolicy(activeLifePolicy) {
+		return html`
+			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
+					<div class="life-policy-container">
+						<div>
+							<horizon-label
+								class="label-policy-number fixed-label"
+								label="One Cover policy"
+								textOverflow="ellipsis"
+								value="${activeLifePolicy?.contractReference}"
+								@click="${() => this._goToLifePolicySummary(activeLifePolicy)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total cover"
+								value="${this._calculateLifeTotalCoverAmount(activeLifePolicy)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total monthly payment"
+								class = "life-pol-label"
+								value="${isNullorEmpty(activeLifePolicy?.totalPremium) ? `R0.00` : formatCurrency(activeLifePolicy?.totalPremium)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Debit order date"
+								value="${formatDate(activeLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Arrears amount"
+								value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Status"
+								class = "${activeLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${activeLifePolicy?.policyStatus}">
+							</horizon-label>
+						</div>
+
+						<capitec-overflow-menu label="Menu">
+							${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
+				? html`<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>`
+				: html``
+			}
+							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>`
+				: html``
+			}
+							
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Decrease Cover"></capitec-overflow-menu-item>`
+				: html``
+			}
+						</capitec-overflow-menu>
+					</div>
+				<!-- </capitec-group> -->
+			</capitec-card>
+		`;
+	}
+
+	/**
+	 * Render current active life cover policy
+	 * @param {Object} activeLifePolicy active life policy
 	 * @returns {html} The html content the list of policies
 	*/
-	_renderLifePolicyPockets() {
-		this.pocketList = this.lifePolicies?.policies[0]?.pockets;
+	_renderActiveLifePolicyPockets(activeLifePolicy) {
+		const pocketList = activeLifePolicy?.pockets;
 
-		return html`${this.pocketList?.length > 0 ? this.pocketList?.map((pocketItem) => html`
+		return html`${pocketList?.length > 0 ? pocketList?.map((pocketItem) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
 				id="horizon-expander-${pocketItem?.pocketType}"
@@ -1498,6 +1539,63 @@ class ClientSummary extends Component {
 						</capitec-group>
 					</div>
 			</horizon-expander>`) : html``}`;
+	}
+
+	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
+		return html`
+			${nonActiveLifePolicies.length === 0 ? html``
+				: html`<capitec-label label="Inactive Life Policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
+			${nonActiveLifePolicies.map((pol) => html`
+			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
+					<div class="life-policy-container">
+						<div>
+							<horizon-label
+								class="label-policy-number fixed-label"
+								label="One Cover policy"
+								textOverflow="ellipsis"
+								value="${pol?.contractReference}"
+								@click="${() => this._goToLifePolicySummary(pol)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total cover"
+								value="${this._calculateLifeTotalCoverAmount(pol)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total monthly payment"
+								class = "life-pol-label"
+								value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Debit order date"
+								value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Arrears amount"
+								value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Status"
+								class = "${pol?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${pol?.policyStatus}">
+							</horizon-label>
+						</div>
+
+						<capitec-overflow-menu label="Menu">
+							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+						</capitec-overflow-menu>
+					</div>
+			</capitec-card>`)
+		}`;
 	}
 
 	_displayPocketTypeLabel(pocketType) {
@@ -1628,14 +1726,13 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render message when no results found
+	 * Render message when no results found for funeral policies
 	 * @returns {html} The html content of No results
 	 */
-	_renderNoResults() {
-		return html`${isNullorEmpty(this.funeralPolicies) ? ``
-			: html`
+	_renderNoResultsFuneralTab() {
+		return html`
 			<capitec-content-box id="no-results-box">
-				<div id="no-results-box-inner">
+				<div>
 					<capitec-label label="Features of Funeral Cover" class="strong-label"></capitec-label>
 					<table id='benefits-table'>
 						<tr>
@@ -1707,7 +1804,36 @@ class ClientSummary extends Component {
 					</table>
 				</div>
 			</capitec-content-box>
-		`}`;
+		`;
+	}
+
+	/**
+	 * Render message when no results found for life policies
+	 * @returns {html} The html content of No results
+	 */
+	_renderNoResultsLifeTab() {
+		return html`
+		<capitec-content-box class="accounts-box">
+			<capitec-content-box id="no-results-box">
+				<div>
+					<capitec-label label="Features of Life Cover" class="strong-label"></capitec-label>
+					<table id='benefits-table'>
+						<tr>
+							<td>Something Awesome</td>
+							<td>
+								<div>R100 000 - Main Life</div>
+								<div>R100 000 - Spouse</div>
+								<div>R20 000 - Children (0 - 5 years) </div>
+								<div>R50 000 - Children (6 - 13 years) </div>
+								<div>R60 000 - Children (14 - 25 years) </div>
+								<div>R50 000 - Parents </div>
+								<div>R50 000 - Extended Family</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</capitec-content-box>
+		</capitec-content-box>`;
 	}
 
 	/**
