@@ -7,6 +7,8 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 import 'app/views/product/CreditProduct';
 
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+
 /**
  * Credit Account verified landing Product Control
  * 
@@ -40,10 +42,24 @@ export class CreditAccountLanding extends Component {
 	
 	connectedCallback() {
 		super.connectedCallback();
+		// ineum('user', '{userID}', 'Lungile', null);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+	}
+	
+	// Disable fixed-term credit accounts on runtime for Capitec connect agents
+	async updated() {
+		await this.updateComplete;
+	
+		const tabGroup = this.shadowRoot.getElementById(`credit-tab-group`);
+	
+		if (tabGroup && this.isCapitecConnectAgent) {
+			const fixedTermTab = tabGroup.shadowRoot.querySelectorAll(`.tab`)[1];
+			fixedTermTab.style.backgroundColor = `#C7C7C7`;
+			fixedTermTab.style.pointerEvents = `none`;
+		}
 	}
 
 	// --------------
@@ -66,6 +82,8 @@ export class CreditAccountLanding extends Component {
 	 * @property {fixedTermCreditAccounts} fixedTermCreditAccounts 
 	 * @property {budgetAccountsSummary} budgetAccountsSummary
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable need button
+	 * @property {Object} showTooltip Callback function, returns true or false to display tooltip
 	 *
 	 */
 	 static get properties() {
@@ -73,7 +91,9 @@ export class CreditAccountLanding extends Component {
 			flexibleCreditAccounts: { type: Array },
 			fixedTermCreditAccounts: { type: Array },
 			budgetAccountsSummary: { type: Object },
-			shouldDisable: { type: Object },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
+			isCapitecConnectAgent: { type: Boolean },
 			renderAlertBanner: { type: Object, attribute: false },
 			selectedTab: { type: String }
 		};
@@ -93,6 +113,9 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_accountDetails(creditType, productType, accountNumber) {
+		if (productType === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent) {
+			return;
+		}
 		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { creditType: creditType, productType: productType, accountNumber: accountNumber } }));
 	}
 
@@ -102,6 +125,14 @@ export class CreditAccountLanding extends Component {
 
 	_viewInfo() {
 		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
+	}
+
+	_CheckTermLoanBalanceSettleAndClose(amount) {
+		let balance = parseFloat(amount.substring(1));
+		if (balance <= 0) {
+			return true;
+		}
+		return false;
 	}
 
 	// --------------
@@ -219,10 +250,13 @@ export class CreditAccountLanding extends Component {
 				horizon-expander[expanded] {
 					box-shadow: 0 6px 10px 0.25px rgb(0 0 0 / 7%);
 				}
+				horizon-expander[disabled] {
+					--theme-expander-background-color: #E1E1E1;
+				}
 				.expander-budget-facility {
 					--theme-expander-header-height: 112px;
 				}
-				.expander-header > capitec-icon {
+				.info-icon {
 					--theme-icon-size-default: 20px;
 					--theme-layout-gap-spacing: 0px;
 					margin-left: 16px;
@@ -269,36 +303,6 @@ export class CreditAccountLanding extends Component {
 				}
 				.expander-content > capitec-title-bar {
 					border-top: 0px;
-				}
-				.budget-banner {
-					--theme-titlebar-min-height: 48px;
-				}
-				.budget-banner:hover {
-    				--theme-type-default-background: rgba(0,157,224,0.1);
-				}
-				.budget-banner > horizon-label {
-					width: 158px;
-					padding-left: 16px;
-					--theme-titlebar-item-gap: 0px;
-					--horizon-label-value-margin-top: 2px;
-					--horizon-label-text-height: 12px;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 12px;
-					--horizon-label-value-font-size: 14px;;
-				}
-				.budget-banner > horizon-label[label="Total budget balance"] {
-					margin-left: 90px;
-				}
-				.budget-banner > horizon-label[label="Total budget instalment (monthly)"] {
-					width: auto;
-				}
-				.budget-banner > capitec-hyperlink {
-					--theme-hyperlink-font-size: 14px;
-					--theme-font-weight: 600;
-					--theme-hyperlink-color: #009DE0;
-				}
-				.budget-banner:hover > capitec-hyperlink {
-    				text-decoration: underline;
 				}
 
 				/* No results available styles */
@@ -350,7 +354,7 @@ export class CreditAccountLanding extends Component {
 	_renderContent() {
 		return this.flexibleCreditAccounts.length > 0 || this.fixedTermCreditAccounts.length > 0
 		? html`
-			<capitec-tab-group class="tabs" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
+			<capitec-tab-group class="tabs" id="credit-tab-group" selectedIndex="${this.selectedTab === CREDIT_TYPE.FIXED ? 1 : 0}">
 				<capitec-tab
 					data-automation-id="credit-account-flexible-credit-tab"
 					label="Flexible Credit">
@@ -395,7 +399,8 @@ export class CreditAccountLanding extends Component {
 		return this.flexibleCreditAccounts.map((item, index) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
-				.expanded="${index === 0}">
+				.expanded="${index === 0 && !(item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent)}"
+				?disabled="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}">
 					<capitec-group
 						class="expander-header"
 						slot="custom-header"
@@ -403,7 +408,12 @@ export class CreditAccountLanding extends Component {
 						gap="clear"
 						halign="left"
 						valign="center">
+						<capitec-tooltip 
+							message="${TOOLTIP_MESSAGE}"
+							position="left-edge"
+							?hidden="${!(item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent)}">
 							<capitec-icon
+								class="info-icon"
 								data-automation-id="credit-account-flexible-credit-info"
 								icon="system/info-action"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
@@ -415,6 +425,23 @@ export class CreditAccountLanding extends Component {
 								value="${item.accountNumber}"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
 							</horizon-label>
+						</capitec-tooltip>
+							<capitec-icon
+								class="info-icon"
+								data-automation-id="credit-account-flexible-credit-info"
+								icon="system/info-action"
+								?hidden="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}"
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
+							</capitec-icon>
+							<horizon-label 
+								data-automation-id="credit-account-access-facility"
+								class="label-account-number"
+								label="${item.productTypeDescription}"
+								value="${item.accountNumber}"
+								?hidden="${item.type === PRODUCTS.ACCESS_FACILITY && this.isCapitecConnectAgent}"
+								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
+							</horizon-label>
+
 							<div class="vertical-line"></div>
 							<horizon-label
 								data-automation-id="credit-account-balance"
@@ -450,40 +477,10 @@ export class CreditAccountLanding extends Component {
 							gap="none"
 							halign="left"
 							valign="center">
-								${this._renderBudgetDetailsBar(item)}
 								${this._renderOptionsGroup(item.category, item.type, item)}
 						</capitec-group>
 					</div>
 			</horizon-expander>`);
-	}
-
-	_renderBudgetDetailsBar(item) {
-		return item.type === PRODUCTS.CREDIT_CARD &&
-				(this.budgetAccountsSummary.totalBudgetBalance && this.budgetAccountsSummary.totalBudgetBalance !== `R0.00`) &&
-				(this.budgetAccountsSummary.totalBudgetInstallmentAmount && this.budgetAccountsSummary.totalBudgetInstallmentAmount !== `R0.00`)
-					? html`
-						<capitec-title-bar
-							type="default"
-							label="Budget facilities"
-							class="budget-banner">
-								<horizon-label
-									label="Total budget balance"
-									value="${this.budgetAccountsSummary.totalBudgetBalance}">
-								</horizon-label>
-								<horizon-label
-									label="Total budget instalment (monthly)"
-									value="${this.budgetAccountsSummary.totalBudgetInstallmentAmount}">
-								</horizon-label>
-								
-								<capitec-spacer></capitec-spacer>
-
-								<capitec-hyperlink 
-									label="View details" 
-									@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
-									inline>
-								</capitec-hyperlink>
-						</capitec-title-bar>`
-					: html``;
 	}
 
 	_renderFixedTermAccounts() {
@@ -499,6 +496,7 @@ export class CreditAccountLanding extends Component {
 						halign="left"
 						valign="center">
 							<capitec-icon
+								class="info-icon"
 								data-automation-id="credit-account-fixed-term-info"
 								icon="system/info-action"
 								@click="${() => this._accountDetails(item.category, item.type, item.accountNumber)}">
@@ -577,38 +575,62 @@ export class CreditAccountLanding extends Component {
 	}
 
 	_renderCreditCardOptions(selectedAccountDetails) {
+			
 		return html`
 			<horizon-option-button 
 					data-automation-id="credit-account-transaction-history"
 					label="Transaction History"
 					icon="system/time-action"
-					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`transaction-history`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`transaction-history`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`transaction-history`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-statements"
 					label="Statements"
 					icon="system/documents-action"
-					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`statements`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`statements`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`statements`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settlement-quote"
 					label="Settlement Quote"
 					icon="system/documents-action"
-					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`settlement-quote`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
 					label="Paid up Letter"
 					icon="system/documents-action"
 					?hidden="${true}"
-					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}">
+					@click="${() => this._click(`paid-up-letter`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`paid-up-letter`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`paid-up-letter`)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-settle-close"
 					label="Settle & Close"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
-					?disabled="${this.shouldDisable(`settle-close`)}">
+					?showTooltip="${this.showTooltip(`settle-close`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`settle-close`)}">
+			</horizon-option-button>
+			<horizon-option-button
+					data-automation-id="credit-account-budget-facility"
+					label="Budget Facility"
+					img-src="/images/credit/calculator.svg"
+					@click="${() => this._click(`view-budgets`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
+					?showTooltip="${this.showTooltip(`view-budgets`)}"
+					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?disabled="${this.shouldDisableByRole(`view-budgets`)}">
 			</horizon-option-button>
 		`;
 	}
@@ -677,7 +699,8 @@ export class CreditAccountLanding extends Component {
 					label="Settle Loan"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FIXED, PRODUCTS.TERM_LOAN, selectedAccountDetails)}"
-					?disabled="${this.shouldDisable(`settle-close`)}">
+					?hidden="${this._CheckTermLoanBalanceSettleAndClose(selectedAccountDetails.currentBalance)}"
+					?disabled="${this.shouldDisableByRole(`settle-close`)}">
 			</horizon-option-button>
 		`;
 	}

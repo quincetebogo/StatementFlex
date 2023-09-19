@@ -1,9 +1,12 @@
 import { ACCOUNT_INTCAT_ENUM, ERRORS, NOTIFICATION_MESSAGE, PERIOD_TYPE, RANGE_SELECTOR, RENDER_MODE, STATEMENTS_STEPS, TIME_PERIOD } from 'app/constants/Statements';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE } from 'app/constants/Common';
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-
 import { calculateDays, formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+// import { Instana } from 'app/services/instana';
+import { SecurityContext } from 'platform/core';
+
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
@@ -62,6 +65,7 @@ export class StatementsDialog extends Component {
 		this.confirmEmailLabel = `Confirm email`;
 		this.periodType = PERIOD_TYPE.STATIC;
 		this.selectedMonths = [];
+		this._securityContext = SecurityContext.getInstance();
 		this.disableSend = false;
 		this.selectedPeriodLabel = ``;
 	}
@@ -105,7 +109,7 @@ export class StatementsDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Statement Dialog`);
 		this.STEPPER_STEPS = [...STATEMENTS_STEPS];
 		this._initialise();
 	}
@@ -1028,8 +1032,7 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
-						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}"
-						?disabled="${Boolean(this.disableSend)}">
+						?hidden="${this.currentStep !== this.STEPPER_STEPS.length - 1 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						data-automation-id="statements-dialog-close"

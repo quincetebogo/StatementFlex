@@ -32,6 +32,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
+	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -40,6 +41,7 @@
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -52,7 +54,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -241,6 +243,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"budgetAccounts": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
@@ -386,6 +392,10 @@
 			"positiveCase": true
 		},
 		"moneyIn": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"payshapPop": {
 			"enabled": false,
 			"positiveCase": true
 		}
