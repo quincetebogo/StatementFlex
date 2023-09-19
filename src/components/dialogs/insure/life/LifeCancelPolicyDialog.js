@@ -316,7 +316,6 @@ class LifeCancelPolicyDialog extends Component {
 					--theme-product-tile-subtitle-height: 20px;
 					--theme-product-tile-subtitle-font-size: 16px;
 					--theme-product-tile-heading-margin-left: 16px;
-					--theme-product-tile-heading-margin-left: 6px;
 					--theme-layout-gap-spacing: 8px;
 					--theme-product-tile-title-font-weight: 600;
 					--theme-radio-disabled-border-color: #E1E1E1;
