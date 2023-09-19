@@ -44,7 +44,7 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
+		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -66,6 +66,7 @@ export default class HorizonChannelServiceMocks {
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -563,8 +564,10 @@ export default class HorizonChannelServiceMocks {
 				'Settled': `settledCreditCardBudgetList`,
 				'Closed': `closedCreditCardBudgetList`
 			};
-			const response = { ...this.budgetFacility.budgetAccountDetails.details, 
-								[STATUS[status]]: this.budgetFacility.budgetAccountDetails[status] };
+			const response = {
+				...this.budgetFacility.budgetAccountDetails.details,
+				[STATUS[status]]: this.budgetFacility.budgetAccountDetails[status]
+			};
 
 			return response;
 		}
@@ -702,6 +705,13 @@ export default class HorizonChannelServiceMocks {
 	moneyIn() {
 		if (this._mockSettings.moneyIn.positiveCase) {
 			return this.payShapMocks.moneyInResponse;
+		}
+		return null;
+	}
+
+	payshapPop() {
+		if (this._mockSettings.payshapPop.positiveCase) {
+			return this.payShapMocks.payshapPopResponse;
 		}
 		return null;
 	}
