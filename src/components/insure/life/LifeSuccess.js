@@ -200,17 +200,17 @@ class LifeSuccessPage extends Component {
 				<div>
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
-					<capitec-label class="label" type="title" label="${this.successMessages.actionSuccessLabel}"></capitec-label>
+					<capitec-label class="label" type="title" label="${this.successMessages?.actionSuccessLabel}"></capitec-label>
 
 					<div class="success-message">
-						<capitec-icon size="medium" icon="status/${this.successMessages.emailSuccess ? `success` : `error`}" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
-						<p>${unsafeHTML(this.successMessages.emailMessage)}</p>
+						<capitec-icon size="medium" icon="status/${this.successMessages?.emailSuccess ? `success` : `error`}" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
+						<p>${unsafeHTML(this.successMessages?.emailMessage)}</p>
 					</div>
 
 					<div class="button-row">
 						
-						${this.successMessages.emailSuccess ? html`
-							<capitec-button label="Done" class="capitec-button-medium" type="${this.successMessages.emailSuccess ? `primary` : `secondary`}" @click="${() => this._navigateToSummary()}"
+						${this.successMessages?.emailSuccess ? html`
+							<capitec-button label="Done" class="capitec-button-medium" type="${this.successMessages?.emailSuccess ? `primary` : `secondary`}" @click="${() => this._navigateToSummary()}"
 								data-automation-id="">
 							</capitec-button>
 						` 
