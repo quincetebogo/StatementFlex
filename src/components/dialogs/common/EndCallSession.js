@@ -25,6 +25,7 @@ import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
+const WHATSAPP_HINT = `*This will send a Whatsapp to the client`;
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -74,6 +75,7 @@ export class EndCallSession extends Component {
 			issue: ``
 		};
 		this.callerInformation = {};
+		this.endCallReasonsHintText = null; 
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -119,7 +121,8 @@ export class EndCallSession extends Component {
 			numberOfCharacters: { attribute: false },
 			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
-			validNumberOfChars: { type: Boolean, attribute: false }
+			validNumberOfChars: { type: Boolean, attribute: false },
+			endCallReasonsHintText: { attribute: false }
 		};
 	}
 
@@ -215,6 +218,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
+			this.endCallReasonsHintText = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE ? WHATSAPP_HINT : null;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -630,9 +634,13 @@ export class EndCallSession extends Component {
 			const req = {
 				endReason: this.endCallReason.key,
 				title: this.callerInformation.title,
+				firstName: this.callerInformation.firstName,
 				lastName: this.callerInformation.lastName,
 				cif: this.callerInformation.cifNumber,
-				clientNeed: this.incomingCallDetails.ivrOptionCode
+				clientNeed: this.incomingCallDetails.ivrOptionCode,
+				outboundNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber
+
 			};
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
@@ -817,7 +825,8 @@ export class EndCallSession extends Component {
 				tabindex=3
 				value="${this.endCallReason.value || ``}"
 				select-mode="single"
-				error="${this.errors.endCallReason}">
+				error="${this.errors.endCallReason}"
+				.hint="${this.endCallReasonsHintText}">
 			</capitec-select>
 		`;
 	}
