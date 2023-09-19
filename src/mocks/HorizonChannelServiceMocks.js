@@ -66,6 +66,7 @@ export default class HorizonChannelServiceMocks {
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -690,6 +691,13 @@ export default class HorizonChannelServiceMocks {
 	moneyIn() {
 		if (this._mockSettings.moneyIn.positiveCase) {
 			return this.payShapMocks.moneyInResponse;
+		}
+		return null;
+	}
+
+	payshapPop() {
+		if (this._mockSettings.payshapPop.positiveCase) {
+		return this.payShapMocks.payshapPopResponse;
 		}
 		return null;
 	}
