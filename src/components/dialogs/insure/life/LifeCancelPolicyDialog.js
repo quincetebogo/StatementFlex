@@ -110,7 +110,7 @@ class LifeCancelPolicyDialog extends Component {
 		// 	"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
 		// 	"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
 		// });
-		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
+		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
 	}
 
 	//  #endregion EVENT HANDLERS

@@ -2025,7 +2025,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-cancel-policy-dialog
 			@agree="${(e) => this._lifeCancelPolicyConfirm(e)}"
-			@close-modal="${() => this.showLifeCancelPolicyDialog = false}"
+			@close-dialog="${() => this.showLifeCancelPolicyDialog = false}"
 			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
 			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
 			</horizon-insure-life-cancel-policy-dialog>
