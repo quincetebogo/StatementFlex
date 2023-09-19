@@ -56,8 +56,8 @@ class ClientSummary extends Component {
 	constructor() {
 		super();
 
-		this.horizonInsureStore = HorizonInsureStore.getInstance();
-		this.roleManager = RoleManager.getInstance();
+		this._horizonInsureStore = HorizonInsureStore.getInstance();
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.clientClaims = null;
 		this.funeralPolicies = null;
@@ -536,9 +536,9 @@ class ClientSummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	async _initialise() {
-		await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+	_initialise() {
+		// await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+		// await super.createAndClassifySubIncident(null, false);
 	}
 
 	/**
@@ -706,7 +706,7 @@ class ClientSummary extends Component {
 				return html`<horizon-option-button 
 				data-automation-id="insure-policy-options-transaction-history"
 				class="button-margin" 
-				label="Premium History" 
+				label="Transaction History" 
 				icon="system/transfer-action"
 				@click="${() => this._goToFuneralPolicyTransactionHistory(policyItem)}">
 			</horizon-option-button>`;
@@ -753,7 +753,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
-					label="Premium History" @click="${() => this._goToPolicyTransactionHistory(policyItem)}">
+					label="Transaction History" @click="${() => this._goToFuneralPolicyTransactionHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.SMS_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/send-action" 
