@@ -19,12 +19,12 @@ export const insureLifeClientSummary = {
 			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
 			"nextCollectionAmount": 0,
 			"bankDetails": {
-				"accountName": `Miss Mirriam Nxopo`,
-				"branchCode": `470010`,
-				"accountNumber": `1196035138`,
-				"bank": `CAPITEC BANK LIMITED`,
-				"accountType": `Savings`,
-				"collectionDay": 11
+				"accountName": `Mr Cool Dave`,
+				"branchCode": `012454`,
+				"accountNumber": `55897854`,
+				"bank": `CAPITEC BANK`,
+				"accountType": `Bond`,
+				"collectionDay": 21
 			},
 			"pockets": [
 				{

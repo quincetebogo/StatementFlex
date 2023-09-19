@@ -21,6 +21,8 @@ import 'app/components/dialogs/insure/funeral/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/funeral/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 
+import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
+
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
 /**
@@ -62,6 +64,7 @@ class ClientSummary extends Component {
 		this.funeralArrearsPaymentAmount = 0;
 
 		this.lifePolicies = null;
+		this.selectedLifePolicy = null;
 
 		this.showFuneralCancelPolicyDialog = false;
 		this.showFuneralEmailPlanDialog = false;
@@ -74,6 +77,7 @@ class ClientSummary extends Component {
 		this.showRequestCallbackDialog = false;
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
+		this.showLifeUpdateBankDetailsDialog = false;
 
 		this.telemetryEvents = {};
 	}
@@ -144,6 +148,7 @@ class ClientSummary extends Component {
 			showLodgeClaimInfoDialog: { type: Boolean, state: true },
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
+			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
 			selectedInsureTabIndex: { type: Number, state: true },
 			selectedFlow: { type: String, state: true },
@@ -153,7 +158,9 @@ class ClientSummary extends Component {
 			productCode: { type: String, state: true },
 			showEmailEstimateSuccessToast: { type: Boolean, state: true },
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
-			requestCallback: { type: Object, state: true }
+			requestCallback: { type: Object, state: true },
+
+			selectedLifePolicy: { type: Object, state: true }
 		};
 	}
 
@@ -537,6 +544,17 @@ class ClientSummary extends Component {
 	 */
 	_openLifeCancelPolicyDialog() {
 
+	}
+
+	/**
+	 * opens the life cancel policy dialog
+	 * @param {Object} selectedPolicy policy being updated
+	 * @returns {void} 
+	 */
+	_openLifeUpdateBankDetailsDialog(selectedPolicy) {
+		console.log(`_openLifeUpdateBankDetailsDialog`);
+		this.showLifeUpdateBankDetailsDialog = true;
+		this.selectedLifePolicy = selectedPolicy;
 	}
 
 	/**
@@ -1154,6 +1172,8 @@ class ClientSummary extends Component {
 			${this._renderFuneralPayPremiumConfirmationDialog()}
 			${this._renderFuneralPayPremiumAgreementDialog()}
 			${this._renderFuneralCancelPolicyDialog()}
+
+			${this._renderLifeUpdateBankDetailsDialog()}
 		`;
 	}
 
@@ -1383,7 +1403,7 @@ class ClientSummary extends Component {
 					</horizon-alert-banner>`
 				: html``}
 
-				${isNullorEmpty(activeLifePolicy) ? html`` 
+				${isNullorEmpty(activeLifePolicy) ? html``
 				: html`
 					<div>
 						<capitec-card class="life-policy-box" >
@@ -1460,8 +1480,9 @@ class ClientSummary extends Component {
 				: html``
 			}
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+
 							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Bank Details"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 							
@@ -1543,9 +1564,9 @@ class ClientSummary extends Component {
 
 	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
 		return html`
-			${nonActiveLifePolicies.length === 0 ? html``
+			${nonActiveLifePolicies?.length === 0 ? html``
 				: html`<capitec-label label="Inactive Life Policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
-			${nonActiveLifePolicies.map((pol) => html`
+			${nonActiveLifePolicies?.map((pol) => html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
 					<div class="life-policy-container">
 						<div>
@@ -1595,7 +1616,7 @@ class ClientSummary extends Component {
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
-		}`;
+			}`;
 	}
 
 	_displayPocketTypeLabel(pocketType) {
@@ -1974,6 +1995,20 @@ class ClientSummary extends Component {
 			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 			@cancel-click="${() => this.showRequestCallbackDialog = false}">
 			</horizon-insure-request-callback-dialog>
+		`;
+	}
+
+	/**
+	 * Life Update banking details dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderLifeUpdateBankDetailsDialog() {
+		return this.showLifeUpdateBankDetailsDialog === false ? html``
+			: html`
+			<horizon-insure-life-update-bank-details-dialog
+			.policy="${this.selectedLifePolicy}"
+			@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}">
+			</horizon-insure-life-update-bank-details-dialog>
 		`;
 	}
 
