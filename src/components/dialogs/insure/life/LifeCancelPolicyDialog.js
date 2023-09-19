@@ -158,7 +158,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @param {event} e e
 	 * @returns {void}
 	 */
-	_valueSelected(e) {
+	_reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this._getLifeCancelAgreement();
 		this.currentStep = RENDER_MODE.AGREEMENT;
@@ -418,7 +418,7 @@ class LifeCancelPolicyDialog extends Component {
 							.items= "${this.cancelationReasons}"
 							display-field="text"
 							id-field="code"
-							@value-change = "${(e) => this._valueSelected(e)}">
+							@value-change = "${(e) => this._reasonSelected(e)}">
 						</capitec-select>
 					</div>
 				</capitec-content-box>
