@@ -176,5 +176,33 @@ export class InsureLifeService extends ChannelServiceBase {
 		);
 	}
 
+	// Docs
+
+	/**
+	 * Cancels the specified policy and cancels all mandates linked to the policy
+	 *
+	 * @param {lifeCancelPolicyAgreementRequest} [lifeCancelPolicyAgreementRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeCancelPolicyAgreement(lifeCancelPolicyAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
+			return this.mock(`generateAgreement`, lifeCancelPolicyAgreementRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life/document/generate/cancel-policy-agreement`,
+			lifeCancelPolicyAgreementRequest,
+			this._setInsureHeaders(),
+			`lifeCancelPolicyAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion PUBLIC METHODS
 }
