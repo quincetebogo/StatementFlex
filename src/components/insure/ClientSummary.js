@@ -9,6 +9,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -840,7 +841,7 @@ class ClientSummary extends Component {
 		this.lifePolicies?.policies[0]?.pockets.forEach(pocket => {
 			totalCover += pocket.coverage;
 		});
-		return formatCurrency(totalCover);
+		return formatCurrencyInsureCoverAmount(formatCurrency(totalCover));
 	}
 
 	/**
@@ -1639,7 +1640,7 @@ class ClientSummary extends Component {
 							<horizon-label
 								data-automation-id="insure-pocket-cover-amount"
 								label="Cover amount"
-								value="${isNullorEmpty(pocketItem?.coverage) ? `R0.00` : formatCurrency(pocketItem?.coverage)}">
+								value="${isNullorEmpty(pocketItem?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(pocketItem?.coverage))}">
 							</horizon-label>
 							
 							<horizon-label

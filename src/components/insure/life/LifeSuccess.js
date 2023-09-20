@@ -210,13 +210,11 @@ class LifeSuccessPage extends Component {
 					<div class="button-row">
 						
 						${this.successMessages?.emailSuccess ? html`
-							<capitec-button label="Done" class="capitec-button-medium" type="${this.successMessages?.emailSuccess ? `primary` : `secondary`}" @click="${() => this._navigateToSummary()}"
-								data-automation-id="">
+							<capitec-button label="Done" class="capitec-button-medium" type="${this.successMessages?.emailSuccess ? `primary` : `secondary`}" @click="${() => this._navigateToSummary()}">
 							</capitec-button>
 						` 
 						: html`
-							<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._sendEmail()}"
-								data-automation-id="">
+							<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._sendEmail()}">
 							</capitec-button>
 						`}
 						

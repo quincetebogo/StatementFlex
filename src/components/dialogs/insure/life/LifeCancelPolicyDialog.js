@@ -12,7 +12,7 @@ const STEPS = {
 	AGREEMENT: 2
 };
 
-const ERROR_MESSAGE = {
+const ERROR_MESSAGES = {
 	EMAIL_REQUIRED: `Complete all fields to continue`,
 	INVALID_EMAIL: `Enter a valid email address`,
 	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
@@ -45,7 +45,7 @@ class LifeCancelPolicyDialog extends Component {
 		this.showCancelAgreement = false;
 		this.email = ``;
 		this.confirmEmail = ``;
-		this.alertBannerMessage = ``;
+		this.emailAlertBannerMessage = ``;
 		this.agreeToTermsCheckSelected = false;
 	}
 
@@ -67,7 +67,7 @@ class LifeCancelPolicyDialog extends Component {
 			showCancelAgreement: { type: Boolean, state: true },
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
-			alertBannerMessage: { type: String, state: true },
+			emailAlertBannerMessage: { type: String, state: true },
 			agreeToTermsCheckSelected: { type: Boolean, state: true }
 		};
 	}
@@ -163,9 +163,9 @@ class LifeCancelPolicyDialog extends Component {
 		this.confirmEmail = e.detail.confirmEmail;
 
 		if (e.detail.invalidFormat) {
-			this.alertBannerMessage = ERROR_MESSAGE.INVALID_EMAIL;
+			this.emailAlertBannerMessage = ERROR_MESSAGES.INVALID_EMAIL;
 		} else if (e.detail.mismatched) {
-			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_MISMATCH;
+			this.emailAlertBannerMessage = ERROR_MESSAGES.EMAIL_MISMATCH;
 		}
 	}
 
@@ -175,7 +175,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {void}
 	 */
 	_clearAlerts() {
-		this.alertBannerMessage = ``;
+		this.emailAlertBannerMessage = ``;
 	}
 
 	/**
@@ -185,9 +185,9 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
-			this.alertBannerMessage = ERROR_MESSAGE.EMAIL_REQUIRED;
+			this.emailAlertBannerMessage = ERROR_MESSAGES.EMAIL_REQUIRED;
 		}
-		return isNullorEmpty(this.alertBannerMessage);
+		return isNullorEmpty(this.emailAlertBannerMessage);
 	}
 
 	/**
@@ -327,10 +327,10 @@ class LifeCancelPolicyDialog extends Component {
 		return html`
 			${this._renderAgreementDialog()}
 			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Policy" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 848px; --theme-modal-body-padding: 0px 0px 50px 0px;">
-				<div slot="body" style="${this.alertBannerMessage === `` ? `height: 500px` : `height: 600px`}">
+				<div slot="body" style="${this.emailAlertBannerMessage === `` ? `height: 500px` : `height: 600px`}">
 					${this._renderDialogBody()}
 				</div>
-				<div slot="footer" data-automation-id="horizon-insure-cancel-policy-dialog-footer">
+				<div slot="footer">
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
@@ -374,7 +374,7 @@ class LifeCancelPolicyDialog extends Component {
 							layout="vertical">
 						</horizon-alert-banner>
 					</div>
-					<div class="select" data-automation-id="horizon-insure-cancel-policy-dialog-cancelation-reason">
+					<div class="select" >
 						<capitec-select 
 							class="select-box"
 							label="Cancellation Reason" 
@@ -402,7 +402,7 @@ class LifeCancelPolicyDialog extends Component {
 						labelTwo="Confirm email"
 						email="${this.email}"
 						confirmEmail="${this.confirmEmail}"
-						?showRequiredError="${this.alertBannerMessage === ERROR_MESSAGE.EMAIL_REQUIRED}"
+						?showRequiredError="${this.emailAlertBannerMessage === ERROR_MESSAGES.EMAIL_REQUIRED}"
 						@value-changed="${(e) => this._emailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
@@ -452,7 +452,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {html} html content 
 	 */
 	_renderEmailAlertBanner() {
-		return this.alertBannerMessage 
+		return this.emailAlertBannerMessage 
 		? html`
 			<capitec-alert-banner type="unsuccessful-red" class= "alert">
 				<capitec-group layout="horizontal">
@@ -461,7 +461,7 @@ class LifeCancelPolicyDialog extends Component {
 						label="Notify:">
 					</capitec-label>
 					<capitec-label
-						label="${this.alertBannerMessage}">
+						label="${this.emailAlertBannerMessage}">
 					</capitec-label>
 				</capitec-group>
 			</capitec-alert-banner>`
