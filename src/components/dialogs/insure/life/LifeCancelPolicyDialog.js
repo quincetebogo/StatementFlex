@@ -44,7 +44,6 @@ class LifeCancelPolicyDialog extends Component {
 		this.selectedReason = ``;
 		this.currentStep = RENDER_MODE.REASON;
 		this._telemetry = HorizonTelemetry.getInstance();
-		this.telemetryEvents = {};
 		this.lifeCancelAgreementDetails = {};
 		this.showCancelAgreement = false;
 		this.email = ``;
@@ -84,16 +83,14 @@ class LifeCancelPolicyDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-		this.telemetryEvents = CancelPolicyEvents;
-		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
 		this._initialise();
 	}
 
-	async disconnectedCallback() {
+	disconnectedCallback() {
 		super.disconnectedCallback();
-		await this._telemetry.endSpan(this.telemetryEvents.CANCEL_POLICY, {});
+		
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
@@ -106,10 +103,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
-		// this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_CLOSE, {
-		// 	"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
-		// 	"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
-		// });
+		
 		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
 	}
 
@@ -117,7 +111,7 @@ class LifeCancelPolicyDialog extends Component {
 
 	//  #region PRIVATE METHODS
 
-	async _initialise() {
+	_initialise() {
 		// await super._inicidentManager_(`funeral-plan-cancel`, null);
 		// await super.createAndClassifySubIncident();
 
@@ -129,10 +123,6 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {void} 
 	 */
 	 _agreeClick() {
-		// this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_AGREE, {
-		// 	"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
-		// 	"next-screen": TelemetryScreen.INSURE_CANCEL_PLAN_SUCCESS
-		// });
 		
 		const isEmailInputValid = this._validateEmailAddress();
 		
