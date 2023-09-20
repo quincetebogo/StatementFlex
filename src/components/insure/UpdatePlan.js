@@ -82,6 +82,7 @@ class UpdatePlan extends Component {
 		this.showReinstatePaymentAgreementDocument = false;
 		this.showValidationConfirmDialog = false;
 		this.disableBranchCode = true;
+		this.disableAccountNumber = true;
 		this.showUpdateValidationDialog = false;
 		this.showIneligibleLivesDialog = false;
 		this.defaultSavingsAccountNumber = ``;
@@ -210,6 +211,7 @@ class UpdatePlan extends Component {
 			disclosureValidationMessage: { type: Object, state: true },
 			showUpdateValidationDialog: { type: Boolean, state: true },
 			disableBranchCode: { type: Boolean, state: true },
+			disableAccountNumber: { type: Boolean, state: true },
 			onUpdateValidationMessage: { type: Object, state: true },
 			showIneligibleLivesDialog: { type: Object, state: true }
 		};
@@ -790,17 +792,20 @@ class UpdatePlan extends Component {
 				this.disableBranchCode = true;
 			}
 
-			if (this.policyDetails.deductionDetails.bankDetails.bank === `CAPITEC BANK`) {
+			if (this.policyDetails.deductionDetails.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
 				if (this.defaultSavingsAccountNumber === ``) {
 					this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
 					this.accountNumErrorMsg = `Account number is a required field`;
+					this.disableAccountNumber = false;
 				} else {
 					this.policyDetails.deductionDetails.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
 					this.accountNumErrorMsg = ``;
+					this.disableAccountNumber = true;
 				}
 			} else {
 				this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
 				this.accountNumErrorMsg = `Account number is a required field`;
+				this.disableAccountNumber = false;
 			}
 			this.requestUpdate();
 		}
@@ -1254,6 +1259,8 @@ class UpdatePlan extends Component {
 		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
+		this.disableAccountNumber = this._disableAccountNumber();
+
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			const relationship = this.policyDetails.roleplayers[index].relationship;
@@ -1656,8 +1663,11 @@ class UpdatePlan extends Component {
 				value="${formatDateToInsure(roleplayer?.dateOfBirth)}" error="${roleplayer?.coverDetails?.ageMessage}">
 			</capitec-text-field>
 		`;
+	}
 
-
+	_disableAccountNumber() {
+		const isDisabled = this.defaultSavingsAccountNumber !== `` && this.policyDetails?.deductionDetails?.bankDetails?.bank.toUpperCase() === `CAPITEC BANK`;
+		return isDisabled;
 	}
 
 	// #endregion PRIVATE Functions
@@ -2235,10 +2245,10 @@ class UpdatePlan extends Component {
 									value="${this.policyDetails.deductionDetails?.bankDetails?.accountNumber}"
 									error = "${this.accountNumErrorMsg}"
 									@value-changed = "${(e) => this._accountNumberChange(e)}"
-									?disabled = "${this.defaultSavingsAccountNumber !== `` && this.policyDetails?.deductionDetails?.bankDetails?.bank === `CAPITEC BANK`}">
+									.disabled = "${this.disableAccountNumber}">
 								</capitec-text-field>
 							</div>
-		
+
 							<div class="calc-card-row">
 								<capitec-select label="Account Type" .items="${this.accountTypeOptions}" display-field="text"
 									id-field="code" style="width: 50%"
