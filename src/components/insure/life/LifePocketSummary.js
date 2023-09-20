@@ -1,11 +1,11 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { AddBeneficiaryDialog } from 'app/components/dialogs/insure/life/AddBeneficiaryDialog';
-import { DeleteBeneficiaryDialog } from 'app/components/dialogs/insure/life/DeleteBeneficiaryDialog';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
-import { UpdateBeneficiaryDialog } from 'app/components/dialogs/insure/life/UpdateBeneficiaryDialog';
-import { UpdateMoneyDialog } from 'app/components/dialogs/insure/life/UpdateMoneyDialog';
+import { LifeAddBeneficiaryDialog } from '../../dialogs/insure/life/LifeAddBeneficiaryDialog';
+import { LifeDeleteBeneficiaryDialog } from '../../dialogs/insure/life/LifeDeleteBeneficiaryDialog';
+import { LifeUpdateBeneficiaryDialog } from 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
+import { LifeUpdateMoneyDialog } from 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 

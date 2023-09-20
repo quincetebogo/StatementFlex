@@ -3,10 +3,10 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 /**
  * @export
- * @class AddBeneficiaryDialog
+ * @class LifeAddBeneficiaryDialog
  * @extends {Component}
  */
-class AddBeneficiaryDialog extends Component {
+class LifeAddBeneficiaryDialog extends Component {
 
 	// #region INITIALIZE
 
@@ -128,7 +128,7 @@ class AddBeneficiaryDialog extends Component {
 
 }
 
-window.customElements.define(`horizon-insure-life-add-beneficiary-dialog`, AddBeneficiaryDialog);
+window.customElements.define(`horizon-insure-life-add-beneficiary-dialog`, LifeAddBeneficiaryDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
@@ -136,6 +136,6 @@ window.customElements.define(`horizon-insure-life-add-beneficiary-dialog`, AddBe
  * @example
  * <horizon-insure-life-add-beneficiary-dialog ... @close-dialog="${this._handler}"></horizon-insure-life-add-beneficiary-dialog>
  *
- * @event AddBeneficiaryDialog#close-modal
+ * @event LifeAddBeneficiaryDialog#close-modal
  * @type {Object} - N/A
  */

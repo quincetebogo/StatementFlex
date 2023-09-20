@@ -6,7 +6,7 @@
  */
 export const insureLifeGetPolicy = {
 	"policy": {
-		"contractReference": `string`,
+		"contractReference": `ILC120321`,
 		"policyStatus": `string`,
 		"policyStartDate": `2023-08-21T13:14:46.216Z`,
 		"actualCancellationDate": `2023-08-21T13:14:46.216Z`,
@@ -17,12 +17,12 @@ export const insureLifeGetPolicy = {
 		"nextCollectionDate": `2023-08-21T13:14:46.216Z`,
 		"nextCollectionAmount": 0,
 		"bankDetails": {
-		  "accountName": `string`,
-		  "branchCode": `string`,
-		  "accountNumber": `string`,
-		  "bank": `string`,
+		  "accountName": `Mr Cool Dave`,
+		  "branchCode": `012454`,
+		  "accountNumber": `55897854`,
+		  "bank": `ABSA BANK`,
 		  "accountType": `Bond`,
-		  "collectionDay": 0
+		  "collectionDay": 21
 		},
 		"pockets": [
 		  {

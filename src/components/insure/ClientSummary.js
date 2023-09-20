@@ -24,6 +24,8 @@ import 'app/components/dialogs/insure/funeral/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 
+import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
+
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
 /**
@@ -65,6 +67,7 @@ class ClientSummary extends Component {
 		this.funeralArrearsPaymentAmount = 0;
 
 		this.lifePolicies = null;
+		this.selectedLifePolicy = null;
 
 		this.showFuneralCancelPolicyDialog = false;
 		this.showFuneralEmailPlanDialog = false;
@@ -77,6 +80,7 @@ class ClientSummary extends Component {
 		this.showRequestCallbackDialog = false;
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
+		this.showLifeUpdateBankDetailsDialog = false;
 
 		this.showLifeCancelPolicyDialog = false;
 
@@ -150,6 +154,7 @@ class ClientSummary extends Component {
 			showLodgeClaimInfoDialog: { type: Boolean, state: true },
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
+			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
 			selectedInsureTabIndex: { type: Number, state: true },
 			selectedFlow: { type: String, state: true },
@@ -161,6 +166,7 @@ class ClientSummary extends Component {
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 
+			selectedLifePolicy: { type: Object, state: true },
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true }
@@ -572,6 +578,17 @@ class ClientSummary extends Component {
 	_openLifeCancelPolicyDialog(contractReference) {
 		this.contractReferenceToCancel = contractReference;
 		this.showLifeCancelPolicyDialog = true;
+	}
+
+	/**
+	 * opens the life cancel policy dialog
+	 * @param {Object} selectedPolicy policy being updated
+	 * @returns {void} 
+	 */
+	_openLifeUpdateBankDetailsDialog(selectedPolicy) {
+		console.log(`_openLifeUpdateBankDetailsDialog`);
+		this.showLifeUpdateBankDetailsDialog = true;
+		this.selectedLifePolicy = selectedPolicy;
 	}
 
 	/**
@@ -1225,6 +1242,7 @@ class ClientSummary extends Component {
 			${this._renderFuneralPayPremiumConfirmationDialog()}
 			${this._renderFuneralPayPremiumAgreementDialog()}
 			${this._renderFuneralCancelPolicyDialog()}
+			${this._renderLifeUpdateBankDetailsDialog()}
 			${this._renderLifeCancelPolicyDialog()}
 		`;
 	}
@@ -1611,6 +1629,130 @@ class ClientSummary extends Component {
 
 	/**
 	 * Render list of Life Cover policies
+	 * @returns {html} The html content the list of Policies
+	 */
+	_renderLifePoliciesList() {
+		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE`);
+		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE`);
+
+		return html`
+				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
+					<horizon-alert-banner
+						type="unsuccessful-red"
+						class="life-arrears-notify"
+						header="Notify client:"
+						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse on ????/??/?? if payment is not received."
+						layout="horizontal">
+					</horizon-alert-banner>`
+				: html``}
+
+				${isNullorEmpty(activeLifePolicy) ? html``
+				: html`
+					<div>
+						<capitec-card class="life-policy-box" >
+							${this._renderActiveLifePolicy(activeLifePolicy)}
+						</capitec-card>
+
+						<capitec-content-box  id="client-pockets-box" class="life-policies-box">
+							${this._renderActiveLifePolicyPockets(activeLifePolicy)}
+						</capitec-content-box>
+					</div>
+				`}
+				<div>
+					<capitec-content-box id="client-pockets-box" class="life-policies-box">
+						${this._renderNonActiveLifePolicies(nonActiveLifePolicies)}
+					</capitec-content-box>
+				</div>
+		`;
+	}
+
+	/**
+	 * render life policy 
+	 * @param {Object} activeLifePolicy active life policy
+	 * @returns {html} html content for the life policy
+	 */
+	_renderActiveLifePolicy(activeLifePolicy) {
+		return html`
+			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
+					<div class="life-policy-container">
+						<div>
+							<horizon-label
+								class="label-policy-number fixed-label"
+								label="One Cover policy"
+								textOverflow="ellipsis"
+								value="${activeLifePolicy?.contractReference}"
+								@click="${() => this._goToLifePolicySummary(activeLifePolicy)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total cover"
+								value="${this._calculateLifeTotalCoverAmount(activeLifePolicy)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total monthly payment"
+								class = "life-pol-label"
+								value="${isNullorEmpty(activeLifePolicy?.totalPremium) ? `R0.00` : formatCurrency(activeLifePolicy?.totalPremium)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Debit order date"
+								value="${formatDate(activeLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Arrears amount"
+								value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Status"
+								class = "${activeLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${activeLifePolicy?.policyStatus}">
+							</horizon-label>
+						</div>
+
+						<capitec-overflow-menu label="Menu">
+							${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
+				? html`<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>`
+				: html``
+			}
+							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
+							
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog()}"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Manage Cover"></capitec-overflow-menu-item>`
+				: html``
+			}
+						</capitec-overflow-menu>
+					</div>
+				<!-- </capitec-group> -->
+			</capitec-card>
+		`;
+	}
+
+	/**
+	 * Render current active life cover policy
+	 * @param {Object} activeLifePolicy active life policy
 	 * @returns {html} The html content the list of policies
 	*/
 	_renderLifePolicyPockets() {
@@ -1661,6 +1803,63 @@ class ClientSummary extends Component {
 						</capitec-group>
 					</div>
 			</horizon-expander>`) : html``}`;
+	}
+
+	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
+		return html`
+			${nonActiveLifePolicies?.length === 0 ? html``
+				: html`<capitec-label label="Inactive Life Policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
+			${nonActiveLifePolicies?.map((pol) => html`
+			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
+					<div class="life-policy-container">
+						<div>
+							<horizon-label
+								class="label-policy-number fixed-label"
+								label="One Cover policy"
+								textOverflow="ellipsis"
+								value="${pol?.contractReference}"
+								@click="${() => this._goToLifePolicySummary(pol)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total cover"
+								value="${this._calculateLifeTotalCoverAmount(pol)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Total monthly payment"
+								class = "life-pol-label"
+								value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Debit order date"
+								value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Arrears amount"
+								value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
+							</horizon-label>
+						</div>
+						<div>
+							<horizon-label
+								label="Status"
+								class = "${pol?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+								value= "${pol?.policyStatus}">
+							</horizon-label>
+						</div>
+
+						<capitec-overflow-menu label="Menu">
+							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+						</capitec-overflow-menu>
+					</div>
+			</capitec-card>`)
+			}`;
 	}
 
 	_displayPocketTypeLabel(pocketType) {
@@ -2030,6 +2229,20 @@ class ClientSummary extends Component {
 			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
 			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
 			</horizon-insure-life-cancel-policy-dialog>
+		`;
+	}
+
+	/**
+	 * Life Update banking details dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderLifeUpdateBankDetailsDialog() {
+		return this.showLifeUpdateBankDetailsDialog === false ? html``
+			: html`
+			<horizon-insure-life-update-bank-details-dialog
+			.policy="${this.selectedLifePolicy}"
+			@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}">
+			</horizon-insure-life-update-bank-details-dialog>
 		`;
 	}
 
