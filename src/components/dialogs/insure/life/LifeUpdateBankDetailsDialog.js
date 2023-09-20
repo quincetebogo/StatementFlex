@@ -3,7 +3,6 @@ import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
-
 const STEPS = {
 	PAYMENT_DETAILS: 1,
 	AGREEMENT: 2
@@ -42,6 +41,15 @@ class LifeUpdateBankDetailsDialog extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {Object} policy Policy being updated
+	 * @property {Number} currentStep Index of current step on stepper
+	 * @property {Number} collectionDay Collection day formatted value
+	 * @property {Boolean} branchCodeDisabled Flag to control when to disable branch code
+	 * @property {String} accountNumberErrorMsg Error message for invalid or blank account numbers
+	 * @property {Boolean} showAgreementDocumentDialog Flag to control when to show agreement dialog
+	 * @property {String} emailAddress Email address to send agreement too
+	 * @property {String} confirmedEmailAddress Confirmed email address to send agreement too
+	 * @property {String} emailAlertBannerMessage Error message for email addresses
 	 */
 	static get properties() {
 		return {
@@ -50,7 +58,6 @@ class LifeUpdateBankDetailsDialog extends Component {
 			collectionDay: { type: Number, state: true },
 			branchCodeDisabled: { type: Boolean, state: true },
 			accountNumberErrorMsg: { type: String, state: true },
-
 			showAgreementDocumentDialog: { type: Boolean, state: true },
 			emailAddress: { type: String, state: true },
 			confirmedEmailAddress: { type: String, state: true },
@@ -71,6 +78,10 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.collectionDay = this.policy.bankDetails.collectionDay;
 	}
 
+	/**
+	 * Disconnected from DOM callback
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
@@ -80,8 +91,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 	// #region PRIVATE METHODS
 
-	/** change format of the bank returned to match the format of banks in the list
-	 * @returns {String} null
+	/** Change format of the bank returned to match the format of banks in the list
+	 * @returns {String} Bank name
 	 */
 	_getBankName() {
 		let bank = this.bankNameOptions.find(banks => banks.code === this.policy?.bankDetails?.bank.toUpperCase().trim());
@@ -92,9 +103,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 	}
 
 	/**
-	 * change format of the collection day value returned to match the format of the collection day list
-	 * 
-	 *  @returns {String} day text
+	 * Change format of the collection day value returned to match the format of the collection day list
+	 *  @returns {String} day formatted text
 	 */
 	_getCollectionDay() {
 		if (!this.collectionDay) {
@@ -108,6 +118,11 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 	// #region EVENT HANDLERS
 
+	/**
+	 * Bank name change handler
+	 * @param {Object} e event
+	 * @returns {void}  
+	 */
 	_bankNameChanged(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.policy.bankDetails.bank = e.detail.new.code;
@@ -125,33 +140,37 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.requestUpdate();
 	}
 
+	/**
+	 * Collection day change handler
+	 * @param {Object} e event
+	 * @returns {void}  
+	 */
 	_collectionDayChanged(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.policy.bankDetails.collectionDay = e.detail.new.code;
 		}
 	}
 
+	/**
+	 * Update banking details service call
+	 * @returns {void}  
+	 */
 	_updatePaymentDetails() {
 		// CALL Service
 		this.currentStep = STEPS.AGREEMENT;
 	}
 
+	/**
+	 * Send email event
+	 * @returns {void}  
+	 */
 	_sendEmail() {
 		// Navigate to success page
 		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
 	}
 
 	/**
-	 * event to show the agreement dialog
-	 * 
-	 * @returns {void}
-	 */
-	_showAgreement() {
-		this.showAgreementDocumentDialog = true;
-	}
-
-	/**
-	 * back event from dialog footer button, closes modal & reset toggles 
+	 * Back event from dialog footer button, closes dialog
 	 * @returns {void} 
 	 */
 	_backClick() {
@@ -214,12 +233,12 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 				.banking-form-body{
 					padding: 40px 20px 0px 20px; 
-					min-height: 380px;
+					min-height: 400px;
 				}
 
 				.agreement-form-body{
 					padding: 5px 5px 0px;
-					min-height: 390px;
+					min-height: 400px;
 				}
 
 				.title-label{
@@ -249,11 +268,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 	/**
 	 * Render modal body section
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogBody() {
-
 		return html`
 			<capitec-stepper
 				layout="horizontal"
@@ -316,7 +333,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 			${this.currentStep === STEPS.AGREEMENT ? html`
 				<div class="agreement-form-body">
 					<capitec-content-box>
-						<horizon-product-tile class="view-document" type="default" label="Life Cover Agreement" subtitle="Life Policy" icon="" @click="${() => this._showAgreement()}">
+						<horizon-product-tile class="view-document" type="default" label="Life Cover Agreement" subtitle="Life Policy" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
 							<capitec-label slot="detail" type="strong" label="View Document">
 							</capitec-label>
 						</horizon-product-tile>
@@ -341,7 +358,6 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 	/**
 	 * Render modal footer section
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogFooter() {
@@ -355,15 +371,14 @@ class LifeUpdateBankDetailsDialog extends Component {
 		` : html``}
 				
 		${this.currentStep === STEPS.AGREEMENT ? html`
-			<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Send" @click="${() => this._sendEmail()}">
+			<capitec-button  slot="footer" type="primary" label="Send" @click="${() => this._sendEmail()}">
 			</capitec-button>
 		` : html``}
 		`;
 	}
 
 	/**
-	 * render the alert banner
-	 * 
+	 * Render email alert banner
 	 * @returns {html} html content 
 	 */
 	_renderAlertBanner() {
@@ -384,8 +399,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	}
 
 	/**
-	 * render the agreement dialog
-	 * 
+	 * Render the agreement dialog
 	 * @returns {html} html content 
 	 */
 	_renderAgreementDialog() {

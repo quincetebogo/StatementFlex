@@ -1497,7 +1497,7 @@ class ClientSummary extends Component {
 			}
 
 							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Decrease Cover"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Manage Cover"></capitec-overflow-menu-item>`
 				: html``
 			}
 						</capitec-overflow-menu>
