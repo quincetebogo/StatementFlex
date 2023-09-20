@@ -340,7 +340,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 
 						<capitec-label type="title" label="Email policy agreement" class="title-label"></capitec-label>
 
-						${this._renderAlertBanner()}
+						${this._renderEmailAlertBanner()}
 						<horizon-email-input
 							labelOne="Enter email address"
 							labelTwo="Confirm email"
@@ -381,7 +381,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * Render email alert banner
 	 * @returns {html} html content 
 	 */
-	_renderAlertBanner() {
+	_renderEmailAlertBanner() {
 		return this.emailAlertBannerMessage
 			? html`
 			<capitec-alert-banner type="unsuccessful-red" class="alert">
