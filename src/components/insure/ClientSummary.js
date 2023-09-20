@@ -1574,10 +1574,10 @@ class ClientSummary extends Component {
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total premium"
-							value="${this._totalPremiumDisplay(policyItem)}">
-						</horizon-label>` : html``}
-				
-						${policyItem.status === `Cancelled` || policyItem.status === `Lapsed`
+							value="${this._funeralTotalPremiumLabel(policyItem)}">
+						</horizon-label>`
+					: html``}
+					${policyItem.status === `Cancelled`
 					? html``
 
 					: html`
@@ -1604,7 +1604,7 @@ class ClientSummary extends Component {
 							${this._renderFuneralExpandedOptions(policyItem)}
 					</capitec-group>
 				</div>
-		</horizon-expander>`;
+		</horizon-expander>`
 		}) : html``}`;
 	}
 

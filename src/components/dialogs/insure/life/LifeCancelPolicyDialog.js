@@ -1,16 +1,13 @@
 import { Component, css, html } from 'platform/elements';
 import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
-import { CancelPolicyEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { formatDateToInsure } from 'app/utils/insureUtils';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/dialogs/insure/AgreementDialog';
 
 // Lookups
 
-const RENDER_MODE = {
+const STEPS = {
 	REASON: 1,
 	AGREEMENT: 2
 };
@@ -42,14 +39,14 @@ class LifeCancelPolicyDialog extends Component {
 
 		this.cancelationReasons = CANCELATION_REASONS;
 		this.selectedReason = ``;
-		this.currentStep = RENDER_MODE.REASON;
+		this.currentStep = STEPS.REASON;
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.lifeCancelAgreementDetails = {};
 		this.showCancelAgreement = false;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.alertBannerMessage = ``;
-		this.checkSelected = false;
+		this.agreeCheckSelected = false;
 	}
 
 	// #endregion INITIALIZE
@@ -71,7 +68,7 @@ class LifeCancelPolicyDialog extends Component {
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			alertBannerMessage: { type: String, state: true },
-			checkSelected: { type: Boolean, state: true }
+			agreeCheckSelected: { type: Boolean, state: true }
 		};
 	}
 
@@ -138,7 +135,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {void}
 	 */
 	_backClick() {
-		this.currentStep = RENDER_MODE.REASON;
+		this.currentStep = STEPS.REASON;
 
 	}
 
@@ -151,7 +148,7 @@ class LifeCancelPolicyDialog extends Component {
 	_reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this._getLifeCancelAgreement();
-		this.currentStep = RENDER_MODE.AGREEMENT;
+		this.currentStep = STEPS.AGREEMENT;
 		// this.requestUpdate();
 	}
 
@@ -227,9 +224,9 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_checkBoxChange(e) {
 		if (e.detail.new) {
-			this.checkSelected = true;
+			this.agreeCheckSelected = true;
 		} else {
-			this.checkSelected = false;
+			this.agreeCheckSelected = false;
 		}
 	}
 
@@ -326,12 +323,6 @@ class LifeCancelPolicyDialog extends Component {
 					width: 816px
 				}
 
-				.modal{
-					--theme-modal-header-color: black;
-					--theme-modal-alert-m-l-xl-width: 848px;
-					--theme-modal-body-padding: 0px 0px 50px 0px;
-				}
-
 				.title-label{
 					margin-bottom: 10px;
 					margin-top: 10px;
@@ -352,7 +343,7 @@ class LifeCancelPolicyDialog extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Policy" class="modal">
+			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Policy" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 848px; --theme-modal-body-padding: 0px 0px 50px 0px;">
 				<div slot="body" style="${this.alertBannerMessage === `` ? `height: 500px` : `height: 600px`}">
 					${this._renderDialogBody()}
 				</div>
@@ -390,7 +381,7 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_renderDialogBodyContent() {
 		return html`
-			${this.currentStep === 1 ? html`
+			${this.currentStep === STEPS.REASON ? html`
 				<capitec-content-box>
 					<div class="alert-banner">
 						<horizon-alert-banner
@@ -414,7 +405,7 @@ class LifeCancelPolicyDialog extends Component {
 			` 
 			: html`
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this._showAgreement()}">
+					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this.showCancelAgreement = true}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 					</horizon-product-tile>
@@ -455,11 +446,11 @@ class LifeCancelPolicyDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 
-				${this.currentStep === RENDER_MODE.AGREEMENT ? html`
+				${this.currentStep === STEPS.AGREEMENT ? html`
 						<capitec-button class="button" slot="footer" type="secondary" label="Back"
 							@click="${() => this._backClick()}">
 						</capitec-button>
-						<capitec-button class="button" slot="footer" type="primary" label="Agree" ?disabled="${!this.checkSelected}"
+						<capitec-button class="button" slot="footer" type="primary" label="Agree" ?disabled="${!this.agreeCheckSelected}"
 							@click="${() => this._agreeClick()}">
 						</capitec-button>
 					` 
@@ -504,7 +495,7 @@ class LifeCancelPolicyDialog extends Component {
 		: html`
 			<horizon-insure-agreement-dialog
 			.agreementContent="${this.lifeCancelAgreementDetails?.documentContent.value}"
-			@back-click="${() => this._closeAgreementDialog()}">
+			@back-click="${() => this.showCancelAgreement = false}">
 			</horizon-insure-agreement-dialog>
 		`;
 	}
