@@ -46,7 +46,7 @@ class LifeCancelPolicyDialog extends Component {
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.alertBannerMessage = ``;
-		this.agreeCheckSelected = false;
+		this.agreeToTermsCheckSelected = false;
 	}
 
 	// #endregion INITIALIZE
@@ -68,7 +68,7 @@ class LifeCancelPolicyDialog extends Component {
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			alertBannerMessage: { type: String, state: true },
-			agreeCheckSelected: { type: Boolean, state: true }
+			agreeToTermsCheckSelected: { type: Boolean, state: true }
 		};
 	}
 
@@ -198,23 +198,6 @@ class LifeCancelPolicyDialog extends Component {
 		await this.getLifeCancelPolicyDocument(this.selectedReason);
 	}
 
-	/**
-	 * event to show the agreement dialog
-	 * 
-	 * @returns {void}
-	 */
-	_showAgreement() {
-		this.showCancelAgreement = true;
-	}
-
-	/**
-	 * event to close the agreement dialog
-	 * 
-	 * @returns {void}
-	 */
-	_closeAgreementDialog() {
-		this.showCancelAgreement = false;
-	}
 
 	/**
 	 * event to see whether the check box was selected 
@@ -224,9 +207,9 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_checkBoxChange(e) {
 		if (e.detail.new) {
-			this.agreeCheckSelected = true;
+			this.agreeToTermsCheckSelected = true;
 		} else {
-			this.agreeCheckSelected = false;
+			this.agreeToTermsCheckSelected = false;
 		}
 	}
 
@@ -412,7 +395,7 @@ class LifeCancelPolicyDialog extends Component {
 
 					<capitec-label type="title" label="Email cancellation agreement" class="title-label"></capitec-label>
 
-					${this._renderAlertBanner()}
+					${this._renderEmailAlertBanner()}
 
 					<horizon-email-input
 						labelOne="Enter email address"
@@ -450,7 +433,7 @@ class LifeCancelPolicyDialog extends Component {
 						<capitec-button class="button" slot="footer" type="secondary" label="Back"
 							@click="${() => this._backClick()}">
 						</capitec-button>
-						<capitec-button class="button" slot="footer" type="primary" label="Agree" ?disabled="${!this.agreeCheckSelected}"
+						<capitec-button class="button" slot="footer" type="primary" label="Agree" ?disabled="${!this.agreeToTermsCheckSelected}"
 							@click="${() => this._agreeClick()}">
 						</capitec-button>
 					` 
@@ -468,7 +451,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * 
 	 * @returns {html} html content 
 	 */
-	_renderAlertBanner() {
+	_renderEmailAlertBanner() {
 		return this.alertBannerMessage 
 		? html`
 			<capitec-alert-banner type="unsuccessful-red" class= "alert">
