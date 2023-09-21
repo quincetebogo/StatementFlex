@@ -25,7 +25,6 @@ import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
-const WHATSAPP_HINT = `*This will send a Whatsapp to the client`;
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -75,7 +74,7 @@ export class EndCallSession extends Component {
 			issue: ``
 		};
 		this.callerInformation = {};
-		this.whatsappInfoMessage = null; 
+		this.whatsappInfoMessage = false; 
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -218,7 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
-			this.whatsappInfoMessage = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE ? WHATSAPP_HINT : null;
+			this.whatsappInfoMessage = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
