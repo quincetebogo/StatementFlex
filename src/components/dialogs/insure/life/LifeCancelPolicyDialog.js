@@ -258,7 +258,7 @@ class LifeCancelPolicyDialog extends Component {
 				}
 
 				.cancel-policy-modal{
-					--theme-modal-alert-m-l-xl-width: 840px;
+					--theme-modal-alert-m-l-xl-width: 520px;
 				}
 
 				capitec-modal {
