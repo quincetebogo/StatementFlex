@@ -18,7 +18,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/insure/ClientSummary';
 import 'app/components/insure/EmailPlanSuccess';
 import 'app/components/insure/ClaimSummary';
-import 'app/components/insure/SuccessPage';
+import 'app/components/insure/funeral/FuneralSuccessPage';
 import 'app/components/insure/funeral/FuneralPolicyEstimate';
 import 'app/components/insure/funeral/FuneralUpdatePlan';
 import 'app/components/insure/funeral/FuneralPolicySummary';
@@ -26,8 +26,8 @@ import 'app/components/insure/funeral/FuneralSMSHistory';
 import 'app/components/insure/funeral/FuneralPolicyTransactionHistory';
 import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
-import '../../components/insure/life/LifeSuccess';
 
+import 'app/components/insure/life/LifeSuccess';
 import 'app/components/insure/life/LifePocketSummary';
 import 'app/components/insure/life/LifePolicySummary';
 
