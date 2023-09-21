@@ -1,6 +1,7 @@
 import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS, ROLES_WITH_END_CALL_CONTEXT } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
+import { checkForValidSACellNumber, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
@@ -13,7 +14,6 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 import 'platform/components/popups/Modal';
@@ -25,7 +25,6 @@ import 'app/components/common/HorizonTextBox';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `You must complete all fields to end call`;
-const WHATSAPP_HINT = `*This will send a Whatsapp to the client`;
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -75,7 +74,7 @@ export class EndCallSession extends Component {
 			issue: ``
 		};
 		this.callerInformation = {};
-		this.endCallReasonsHintText = null; 
+		this.whatsappInfoMessage = false; 
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -122,7 +121,7 @@ export class EndCallSession extends Component {
 			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
 			validNumberOfChars: { type: Boolean, attribute: false },
-			endCallReasonsHintText: { attribute: false }
+			whatsappInfoMessage: { attribute: false }
 		};
 	}
 
@@ -218,7 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
-			this.endCallReasonsHintText = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE ? WHATSAPP_HINT : null;
+			this.whatsappInfoMessage = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -769,6 +768,14 @@ export class EndCallSession extends Component {
 
 				--theme-icon-size-default: 26px;
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
+			}
+			capitec-alert-banner{ 
+				--theme-toast-width: 658px;
+				--theme-toast-padding: 12px;
+				--theme-toast-box-shadow: 0px;
+				--theme-toast-detail-line-height: 24px;
+				--theme-toast-title-line-height: 24px;
+				z-index: 1000;
 			}`
 		];
 	}
@@ -825,10 +832,22 @@ export class EndCallSession extends Component {
 				tabindex=3
 				value="${this.endCallReason.value || ``}"
 				select-mode="single"
-				error="${this.errors.endCallReason}"
-				.hint="${this.endCallReasonsHintText}">
+				error="${this.errors.endCallReason}">
 			</capitec-select>
+
+			${this._renderWhatsappInfoBanner()}
 		`;
+	}
+
+	_renderWhatsappInfoBanner() {
+		return this.whatsappInfoMessage && checkForValidSACellNumber(this.incomingCallDetails.incomingTelephoneNumber)
+		? html`
+			<capitec-alert-banner 
+				type="info"
+				header="Note: "
+				label=" This will send a WhatsApp to the client apologising for the call disconnecting.">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderEndcallDescription() {

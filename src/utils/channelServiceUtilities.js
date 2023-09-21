@@ -316,3 +316,27 @@ export function maskString(str, num = 4, maskChar = `*`) {
 export function formatProxyId(str) {
 	return str ? str.replace(`+27-`, `0`) : `-`;
 }
+
+/**
+ * Check if the Cell number is a Valid South African Cell phone number 
+ * South African Cell phone number begins with the following suffixes 
+ * All (06)* *** ****
+ * All (07)* *** ****
+ * 081, 082, 083, 084, 085
+ * 
+ * @param {string} cellNumber Input string
+ * 
+ * @returns {Boolean} Is the incomingNumber valid
+ */
+export function checkForValidSACellNumber(cellNumber) {
+	
+	// check for 10 digit long
+	if (RegExp(/^0\d{9}$/).test(cellNumber)) {
+		if (cellNumber.substring(0, 2) === `06` || cellNumber.substring(0, 2) === `07` || cellNumber.substring(0, 3) === `081` ||
+			cellNumber.substring(0, 3) === `082` || cellNumber.substring(0, 3) === `083` || cellNumber.substring(0, 3) === `084` ||
+			cellNumber.substring(0, 3) === `085`) {
+				return true;
+		}
+	}
+	return false;
+}
