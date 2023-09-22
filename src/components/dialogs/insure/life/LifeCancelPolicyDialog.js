@@ -303,7 +303,7 @@ class LifeCancelPolicyDialog extends Component {
 				}
 
 				.select-box{
-					width: 816px
+					width: 490px;
 				}
 
 				.title-label{
@@ -312,7 +312,7 @@ class LifeCancelPolicyDialog extends Component {
 				}
 
 				.check-box{
-					--theme-check-width: 38px;
+					--theme-check-width: 65px;
 				}
 
 				`
@@ -326,8 +326,8 @@ class LifeCancelPolicyDialog extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Policy" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 848px; --theme-modal-body-padding: 0px 0px 50px 0px;">
-				<div slot="body" style="${this.emailAlertBannerMessage === `` ? `height: 500px` : `height: 600px`}">
+			<capitec-modal type="alert" class="cancel-policy-modal" header="Cancel Policy" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 520px; --theme-modal-body-padding: 0px 0px 50px 0px;">
+				<div slot="body" style="${this.emailAlertBannerMessage === `` ? `height: 540px` : `height: 660px`} ">
 					${this._renderDialogBody()}
 				</div>
 				<div slot="footer">
