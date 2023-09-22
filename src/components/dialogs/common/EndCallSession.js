@@ -217,7 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
-			this.whatsappInfoMessage = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE;
+			this.whatsappInfoMessage = this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE && this.endCallReason.value !== `Need incomplete - Transaction Failed`;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -629,9 +629,14 @@ export class EndCallSession extends Component {
 	}
 
 	async _endSession() {
+		// Bypassing sending Whatsapp message when end-call reason selected is {key: NEED_INCOMEPLETE, value: `Need incomplete - Transaction Failed`}
+		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
+
+		const endReason = this.endCallReason.value === `Need incomplete - Transaction Failed` ? 4 : this.endCallReason.key;
+
 		if (this._isCifNumberValid(this.callerInformation)) {
 			const req = {
-				endReason: this.endCallReason.key,
+				endReason: endReason,
 				title: this.callerInformation.title,
 				firstName: this.callerInformation.firstName,
 				lastName: this.callerInformation.lastName,
