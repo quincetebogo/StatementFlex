@@ -244,7 +244,22 @@ class LifeUpdateBankDetailsDialog extends Component {
 				.title-label{
 					margin-top: 20px;
 					margin-bottom: 10px;
-				}`
+				}
+				
+				.view-document {
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-detail-top: 20px;
+					--theme-product-tile-detail-right: 16px;
+				}
+				.view-document > capitec-label[type="strong"] {
+					line-height: 20px;
+					cursor: pointer;
+
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600;
+				}
+				`
 		];
 	}
 

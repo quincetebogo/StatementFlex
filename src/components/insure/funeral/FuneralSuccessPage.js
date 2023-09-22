@@ -15,10 +15,10 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  * navigate-back
  *  
  * @export
- * @class SuccessPage
+ * @class FuneralSuccessPage
  * @extends {Component}
  */
-class SuccessPage extends Component {
+class FuneralSuccessPage extends Component {
 
 	// #region INITIALISATION
 
@@ -255,7 +255,7 @@ class SuccessPage extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`horizon-insure-success-page`, SuccessPage);
+window.customElements.define(`horizon-insure-success-page`, FuneralSuccessPage);
 
 
 /**
@@ -264,7 +264,7 @@ window.customElements.define(`horizon-insure-success-page`, SuccessPage);
  * @example
  * <horizon-insure-success-page ... @navigate-back="${this._handler}"></horizon-insure-success-page>
  *
- * @event SuccessPage#navigate-back
+ * @event FuneralSuccessPage#navigate-back
  * @type {Object} - N/A
  */
 
@@ -274,6 +274,6 @@ window.customElements.define(`horizon-insure-success-page`, SuccessPage);
  * @example
  * <horizon-insure-success-page ... @send-email="${this._handler}"></horizon-insure-success-page>
  *
- * @event SuccessPage#send-email
+ * @event FuneralSuccessPage#send-email
  * @type {Object} - N/A
  */
