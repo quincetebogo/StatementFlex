@@ -10,6 +10,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/dialogs/common/SuspendAccessChannels';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
@@ -38,6 +39,7 @@ export class AccessChannels extends Component {
 		this.isBusy = false;
 		this.showSideSheet = false;
 		this.landingInfo = {};
+		this.showSuspendChannels = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
@@ -68,7 +70,8 @@ export class AccessChannels extends Component {
 			status: { state: true },
 			showSideSheet: { state: true },
 			selectedAccessChannelType: { state: true },
-			canPerformHighRiskActions: { state: true }
+			canPerformHighRiskActions: { state: true },
+			showSuspendChannels: { state: true }
 		};
 	}
 
@@ -510,6 +513,18 @@ export class AccessChannels extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
+	_suspendChannels() {
+		// telemtry for suspend comes here
+		this.showSuspendChannels = true;
+		this.showSideSheet = !this.showSideSheet;
+	}
+
+	_cancelSuspendChannels() {
+		// telemtry for cancel comes here
+		this.showSuspendChannels = false;
+		this.showSideSheet = !this.showSideSheet;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -564,6 +579,13 @@ export class AccessChannels extends Component {
 		this.horizonIncidentManager.incidentState = state;
 	}
 
+	async _confirmSuspend(request, need) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
+
+		return returnValue;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -592,7 +614,8 @@ export class AccessChannels extends Component {
 			${this._renderInternetBankingPanel()}
 			${this._renderAppPanel()}
 			${this._renderUSSD()}
-			${this._renderNotificationsPanel()}`;
+			${this._renderNotificationsPanel()}
+			${this._renderSuspendChannels()}`;
 	}
 
 	_renderAccessChannels() {
@@ -621,7 +644,7 @@ export class AccessChannels extends Component {
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
 					@toggle-token-suspend-reasons="${(event) => this._toggleInternetBankingSuspendReasons(event)}"
-					@toggle-token-suspend-panel="${(event) => this._toggleInternetBankingSuspendTokenPanel(event)}"
+					@toggle-token-suspend-panel="${() => this._suspendChannels()}"
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-internet-banking-profile-details>`
 			: html``;
@@ -639,7 +662,7 @@ export class AccessChannels extends Component {
 					.suspendApp = "${(suspendReason, userRegNo) => this._performAction(`suspend-app`, { reason: suspendReason, regNo: userRegNo })}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
-					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
+					@toggle-app-suspend-reasons="${() => this._suspendChannels()}"
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 				</capitec-pc-app-profile-details>`
 			: html``;
@@ -661,7 +684,7 @@ export class AccessChannels extends Component {
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 					.renderVerificationAlertBanner="${() => this.renderVerificationAlertBanner()}"
 
-					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+					@toggle-ussd-cancel-reasons="${() => this._suspendChannels()}"
 					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-ussd-profile-details>`
 			: html``;
@@ -718,6 +741,19 @@ export class AccessChannels extends Component {
 					label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch."
 					layout="vertical">
 				</horizon-alert-banner>`;
+	}
+
+	_renderSuspendChannels() {
+		return this.showSuspendChannels
+			? html`
+				<horizon-suspend-access-channels
+					cifNumber="${this.cifNumber}"
+					.accessChannels="${this.landingInfo}"
+					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
+					@cancel="${() => this._cancelSuspendChannels()}"
+					@suspended="${() => this.showSuspendChannels = false}">
+				</horizon-suspend-access-channels>`
+			: html``;
 	}
 
 }

@@ -281,4 +281,26 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
+	// Suspend multiple channels
+	async suspendChannels(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		
+		if (await this.isMockEnabled(`suspendChannels`)) {
+			return this.mock(`suspendChannels`, request);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/suspendChannels`;
+		return this.post(
+			url, 
+			request,
+			this.setToken(), 
+			`suspendChannels`, 
+			null, 
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
