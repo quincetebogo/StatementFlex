@@ -46,14 +46,14 @@ export const insureLifeClientSummary = {
 			"arrears": [
 				{
 					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
+					"arrearsPaymentDueAmount": 200,
 					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
 					"arrearsPaymentReceivedAmount": `string`,
 					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
 				},
 				{
 					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
+					"arrearsPaymentDueAmount": 150,
 					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
 					"arrearsPaymentReceivedAmount": `string`,
 					"arrearsPaymentReceivedDate": `2023-07-21T09:10:46.110Z`
