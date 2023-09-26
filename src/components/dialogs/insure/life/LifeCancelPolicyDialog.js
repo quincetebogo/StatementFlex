@@ -1,6 +1,5 @@
+import { CANCELATION_REASONS, EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { CANCELATION_REASONS } from 'app/constants/InsureCommon';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/dialogs/insure/AgreementDialog';
@@ -12,18 +11,12 @@ const STEPS = {
 	AGREEMENT: 2
 };
 
-const ERROR_MESSAGES = {
-	EMAIL_REQUIRED: `Complete all fields to continue`,
-	INVALID_EMAIL: `Enter a valid email address`,
-	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
-};
-
 /**
  * cancel policy dialog 
  * 
  * Events Raised 
  * -------------
- * close-modal
+ * close-dialog
  * agree
  *  
  * @export
@@ -40,9 +33,8 @@ class LifeCancelPolicyDialog extends Component {
 		this.cancelationReasons = CANCELATION_REASONS;
 		this.selectedReason = ``;
 		this.currentStep = STEPS.REASON;
-		this._telemetry = HorizonTelemetry.getInstance();
 		this.lifeCancelAgreementDetails = {};
-		this.showCancelAgreement = false;
+		this.showAgreementDialog = false; // change name
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailAlertBannerMessage = ``;
@@ -53,18 +45,12 @@ class LifeCancelPolicyDialog extends Component {
 
 	// #region PROPERTIES
 
-	/**
-	 * @property {Function} getCancelPolicyDocument Callback function to fetch Life Cancel Policy Agreement
-	 * @property {Number} currentStep Callback function to fetch Cancel Policy Agreement
-	 * @property {Boolean} showCancelAgreement determines whether to show the agreement dialog
-	 * 
-	 */
 	static get properties() {
 		return {
 			currentStep: { type: Number, state: true },
 			getLifeCancelPolicyDocument: { type: Object, state: true },
 			lifeCancelAgreementDetails: { type: Object, state: true },
-			showCancelAgreement: { type: Boolean, state: true },
+			showAgreementDialog: { type: Boolean, state: true },
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
@@ -82,7 +68,6 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -107,12 +92,6 @@ class LifeCancelPolicyDialog extends Component {
 	//  #endregion EVENT HANDLERS
 
 	//  #region PRIVATE METHODS
-
-	_initialise() {
-		// await super._inicidentManager_(`funeral-plan-cancel`, null);
-		// await super.createAndClassifySubIncident();
-
-	}
 
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to success page
@@ -163,9 +142,9 @@ class LifeCancelPolicyDialog extends Component {
 		this.confirmEmail = e.detail.confirmEmail;
 
 		if (e.detail.invalidFormat) {
-			this.emailAlertBannerMessage = ERROR_MESSAGES.INVALID_EMAIL;
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.INVALID_EMAIL;
 		} else if (e.detail.mismatched) {
-			this.emailAlertBannerMessage = ERROR_MESSAGES.EMAIL_MISMATCH;
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_MISMATCH;
 		}
 	}
 
@@ -185,7 +164,7 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_validateEmailAddress() {
 		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
-			this.emailAlertBannerMessage = ERROR_MESSAGES.EMAIL_REQUIRED;
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED;
 		}
 		return isNullorEmpty(this.emailAlertBannerMessage);
 	}
@@ -388,7 +367,7 @@ class LifeCancelPolicyDialog extends Component {
 			` 
 			: html`
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this.showCancelAgreement = true}">
+					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 					</horizon-product-tile>
@@ -402,7 +381,7 @@ class LifeCancelPolicyDialog extends Component {
 						labelTwo="Confirm email"
 						email="${this.email}"
 						confirmEmail="${this.confirmEmail}"
-						?showRequiredError="${this.emailAlertBannerMessage === ERROR_MESSAGES.EMAIL_REQUIRED}"
+						?showRequiredError="${this.emailAlertBannerMessage === EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED}"
 						@value-changed="${(e) => this._emailValueChanged(e)}"
 						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
@@ -474,11 +453,11 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {html} html content 
 	 */
 	_renderAgreementDialog() {
-		return this.showCancelAgreement === false ? html``
+		return this.showAgreementDialog === false ? html``
 		: html`
 			<horizon-insure-agreement-dialog
 			.agreementContent="${this.lifeCancelAgreementDetails?.documentContent.value}"
-			@back-click="${() => this.showCancelAgreement = false}">
+			@back-click="${() => this.showAgreementDialog = false}">
 			</horizon-insure-agreement-dialog>
 		`;
 	}
@@ -491,10 +470,10 @@ class LifeCancelPolicyDialog extends Component {
 window.customElements.define(`horizon-insure-life-cancel-policy-dialog`, LifeCancelPolicyDialog);
 
 /**
- * send close modal event to the consuming componant when 'cancel' is clicked
+ * send close dialog event to the consuming componant when 'cancel' is clicked
  *
  * @example
- * <horizon-insure-cancel-policy-dialog ... @close-modal="${this._handler}"></horizon-insure-cancel-policy-dialog>
+ * <horizon-insure-cancel-policy-dialog ... @close-dialog="${this._handler}"></horizon-insure-cancel-policy-dialog>
  *
  * @event CancelPolicyDialog#close-modal
  * @type {Object} - N/A

@@ -308,3 +308,15 @@ export const LIFE_POCKET_TYPES = Object.freeze({
 	EDUCATION: `Education`,
 	ONCEOFF: `OnceOffPayout`
 });
+
+/**
+ * error messages for incorrect email address
+ *
+ * @readonly
+ * @enum {Object} EMAIL_ADDRESS_ERROR_MESSAGES
+ */
+export const EMAIL_ADDRESS_ERROR_MESSAGES = Object.freeze({
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
+});
