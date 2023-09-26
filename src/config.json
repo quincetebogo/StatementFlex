@@ -400,6 +400,10 @@
 		"insureLifeGetPolicy": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureLifePayArrears": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

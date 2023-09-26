@@ -575,6 +575,10 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	_openLifePayArrearsDialog(selectedPolicy) {
+
+		// Call get arrears service
+		
+
 		this.showLifePayArrearsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
 	}

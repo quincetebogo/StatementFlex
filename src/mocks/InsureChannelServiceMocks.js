@@ -67,6 +67,7 @@ export default class InsureChannelServiceMocks {
 		this.lifeCancelPolicyMocks = await this._loadMockModule(this.lifeCancelPolicyMocks, `insureLifeCancelPolicy`, () => import(`../mocks/insure/life/LifeCancelPolicy`).catch(err => logError(err)));
 		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
 		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
+		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
 	}
 
 	// #region FUNERAL
@@ -308,6 +309,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeGetArrears() {
 		if (this._mockSettings.insureLifeGetArrears.positiveCase) {
 			return this.lifeGetArrearsMocks.insureLifeGetArrears;
+		}
+		return null;
+	}
+	
+	/**
+	 * Pay Arrears policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifePayArrears() {
+		if (this._mockSettings.insureLifePayArrears.positiveCase) {
+			return this.lifePayArrearsMocks.insureLifePayArrears;
 		}
 		return null;
 	}
