@@ -642,7 +642,7 @@ export class EndCallSession extends Component {
 				lastName: this.callerInformation.lastName,
 				cif: this.callerInformation.cifNumber,
 				clientNeed: this.incomingCallDetails.ivrOptionCode,
-				outboundNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				cellphone: this.incomingCallDetails.incomingTelephoneNumber,
 				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber
 
 			};
