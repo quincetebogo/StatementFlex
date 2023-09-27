@@ -2573,7 +2573,7 @@ class UpdatePlan extends Component {
 			${!this._checkBeneficiaryDobRule(roleplayer)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
-						value="${formatDate(roleplayer?.dateOfBirth)}">
+						value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
 					</capitec-text-field>`
 				: html`
 					
