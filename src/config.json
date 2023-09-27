@@ -394,6 +394,10 @@
 		"moneyIn": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

@@ -256,25 +256,8 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.contractReference;
 
-		const docGenerateRequestPayload = {
-			"documentFormat": `PDF`,
-			"saveDocumentToDocumentum": true,
-			"markDocumentsAsAccepted": true,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": this.contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.surname,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString()
-			},
-			"contractReference": this.contractReference
-		};
 
-		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(docGenerateRequestPayload);
+		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!updatePlanAgreementResponse.succeeded) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
@@ -408,7 +391,9 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-		this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
+		if (!isNullorEmpty(returnValue?.result?.accountNumber)) {
+			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
+		}
 	}
 
 	/**
@@ -672,7 +657,7 @@ export class ExistingClient extends InsureViewBase {
 
 		this.contractReference = prepareUpdateResp.result.contractReference;
 
-		await this._generateDocumentsForUpdatePlan(true);
+		await this._generateDocumentsForUpdatePlan(false);
 
 		// let agreementRequest = {
 		// "documentFormat": "PDF",
@@ -1145,6 +1130,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
+		await this._generateDocumentsForUpdatePlan(true);
 		this.successMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.contractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
