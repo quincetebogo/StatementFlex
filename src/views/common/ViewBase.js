@@ -12,6 +12,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
+import { PayShapService } from 'app/services/PayShapService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
 
@@ -59,6 +60,7 @@ export class ViewBase extends View {
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
+		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();

@@ -100,6 +100,7 @@ class UpdatePlan extends Component {
 		this.agreementYROAAccepted = ``;
 		this.accountNumErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
+		this.accountTypeErrorMsg = ``;
 
 		this.policyDetails = {};
 		this.prepareUpdateResponse = {};
@@ -213,7 +214,9 @@ class UpdatePlan extends Component {
 			disableBranchCode: { type: Boolean, state: true },
 			disableAccountNumber: { type: Boolean, state: true },
 			onUpdateValidationMessage: { type: Object, state: true },
-			showIneligibleLivesDialog: { type: Object, state: true }
+			showIneligibleLivesDialog: { type: Object, state: true },
+
+			accountTypeErrorMsg: { type: String, state: true }
 		};
 	}
 
@@ -859,6 +862,17 @@ class UpdatePlan extends Component {
 			this.accountNumErrorMsg = `Account number is a required field`;
 		} else {
 			this.accountNumErrorMsg = ``;
+		}
+	}
+
+	accountTypeChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.policyDetails.deductionDetails.bankDetails.accountType = e.detail.new.code;
+		}
+		if (isNullorEmpty(e.detail.new)) {
+			this.accountTypeErrorMsg = `Account type is a required field`;
+		} else {
+			this.accountTypeErrorMsg = ``;
 		}
 	}
 
@@ -2252,7 +2266,10 @@ class UpdatePlan extends Component {
 							<div class="calc-card-row">
 								<capitec-select label="Account Type" .items="${this.accountTypeOptions}" display-field="text"
 									id-field="code" style="width: 50%"
-									value="${this.policyDetails.deductionDetails?.bankDetails?.accountType}">
+									value="${this.policyDetails.deductionDetails?.bankDetails?.accountType}"
+									error = "${this.accountTypeErrorMsg}"
+									?disabled = "${Boolean(this.canReinstate)}"
+									@value-changed= "${(e) => this.accountTypeChange(e)}">
 								</capitec-select>
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.branchCode}"
