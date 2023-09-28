@@ -184,6 +184,7 @@ export class SuspendAccessChannels extends Component {
 	// ---------------
 
 	_initialise() {
+		this.dispatchEvent(new CustomEvent(`onLoad`, {}));
 		// Coverting result into Channels array
 		this.channels.push({ ...this.accessChannels.app, channel: ACCESS_CHANNELS_TYPE.APP, label: `App` });
 		this.channels.push({ ...this.accessChannels.internetBanking, channel: ACCESS_CHANNELS_TYPE.INTERNET_BANKING, label: `Internet Banking` });

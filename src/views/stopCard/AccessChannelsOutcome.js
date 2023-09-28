@@ -1,8 +1,8 @@
-import { ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { css, html } from 'platform/elements';
+import { ACCESS_CHANNELS_TYPE } from 'app/constants/AccessChannels';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { NavigationContext } from 'platform/core';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { SUSPEND_CHANNELS_EVENTS } from 'app/constants/telemetry/events/AccessChannels';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -94,9 +94,10 @@ export class AccessChannelsOutcome extends ViewBase {
 		
 		this._initialise();
 		
-		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {
+		this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {
 			SuspendChannels: this.suspendedChannels.join(`, `),
-			UnsuspendChannels: this.unsuspendedChannels.join(`, `)
+			UnsuspendChannels: this.unsuspendedChannels.join(`, `),
+			Result: this.toastDetail
 		});
 		this._updateIncidentState();
 	}
@@ -104,16 +105,16 @@ export class AccessChannelsOutcome extends ViewBase {
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 		
-		await this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {}, true, true);
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		// await this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME_DONE, {});
-		// await this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {}, true, true);
+	async _doneClick() {
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_DONE, {});
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonStore.clearScreenDetails();
@@ -122,7 +123,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	async _tryAgain() {
 		this.retryCount++;
-		await this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME_TRY_AGAIN, {});
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_TRY_AGAIN, {});
 
 		const returnValue = await this.accessChannelService.suspendChannels(this.retryReq);
 
@@ -134,6 +135,8 @@ export class AccessChannelsOutcome extends ViewBase {
 	}
 
 	_notNow() {
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_NOT_NOW, {});
+
 		this.stopcardLater = true;
 		this.alertStopcard = false;
 		this._updateIncidentState();
@@ -141,6 +144,8 @@ export class AccessChannelsOutcome extends ViewBase {
 	}
 
 	_stopCard() {
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE, {});
+
 		this.alertStopcard = false;
 		this.horizonRouter.navigateToStopCard();
 	}

@@ -1,8 +1,8 @@
 import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { AccessChannelsEvents, SUSPEND_CHANNELS_EVENTS } from 'app/constants/telemetry/events/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -513,14 +513,17 @@ export class AccessChannels extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
-	_suspendChannels() {
-		// telemtry for suspend comes here
+	async _suspendChannels() {
+		await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}_SUSPEND`]);
+
 		this.showSuspendChannels = true;
 		this.showSideSheet = !this.showSideSheet;
 	}
 
-	_cancelSuspendChannels() {
-		// telemtry for cancel comes here
+	async _cancelSuspendChannels() {
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL);
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS);
+
 		this.showSuspendChannels = false;
 		this.showSideSheet = !this.showSideSheet;
 	}
@@ -581,6 +584,10 @@ export class AccessChannels extends Component {
 
 	async _confirmSuspend(request, need) {
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
+			'channels': request.channels
+		});
+
 		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
 
 		return returnValue;
@@ -750,6 +757,7 @@ export class AccessChannels extends Component {
 					cifNumber="${this.cifNumber}"
 					.accessChannels="${this.landingInfo}"
 					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
+					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS)}"
 					@cancel="${() => this._cancelSuspendChannels()}"
 					@suspended="${() => this.showSuspendChannels = false}">
 				</horizon-suspend-access-channels>`
