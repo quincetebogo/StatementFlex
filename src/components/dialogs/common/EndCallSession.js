@@ -217,7 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
-			this.whatsappInfoMessage = !this.callerInformation.isNonClient && this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE && this.endCallReason.value !== `Need incomplete - Transaction Failed`;
+			this.whatsappInfoMessage = this._isCifNumberValid(this.callerInformation) && this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE && this.endCallReason.value !== `Need incomplete - Transaction Failed`;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -845,7 +845,8 @@ export class EndCallSession extends Component {
 	}
 
 	_renderWhatsappInfoBanner() {
-		return this.whatsappInfoMessage && checkForValidSACellNumber(this.incomingCallDetails.incomingTelephoneNumber)
+		const x = `0789789789`;
+		return this.whatsappInfoMessage && checkForValidSACellNumber(x)
 		? html`
 			<capitec-alert-banner 
 				type="info"
