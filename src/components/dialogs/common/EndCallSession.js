@@ -845,8 +845,7 @@ export class EndCallSession extends Component {
 	}
 
 	_renderWhatsappInfoBanner() {
-		const x = `0789789789`;
-		return this.whatsappInfoMessage && checkForValidSACellNumber(x)
+		return this.whatsappInfoMessage && checkForValidSACellNumber(this.incomingCallDetails.incomingTelephoneNumber)
 		? html`
 			<capitec-alert-banner 
 				type="info"
