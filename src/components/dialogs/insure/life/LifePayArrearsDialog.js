@@ -1,9 +1,11 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { validateEmailAddressCombo } from 'app/utils/insureUtils';
 import { EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/dialogs/insure/AgreementDialog';
+import 'app/components/dialogs/insure/life/LifePayArrearsConfirmationDialog';
 import 'app/components/insure/InsureAccountSelect';
 
 const STEPS = {
@@ -11,6 +13,11 @@ const STEPS = {
 	AGREEMENT: 2
 };
 
+const ARREARS_ERROR_MESSAGES = {
+	NO_ACCOUNT_SELECTED: `Select an account to pay from`,
+	NO_ARREARS_SELECTED: `Select arrears amount to pay`,
+	INSUFFICIENT_FUNDS: `Insufficient funds: Payment cannot exceed available balance`
+};
 
 /**
  * Life pay arrears dialog
@@ -30,12 +37,21 @@ class LifePayArrearsDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = STEPS.ARREARS_DETAILS;
-		this.lifePayArrearsAgreementDetails = {};
+		this.accountSelected = false;
+
+		this.agreementDetails = {};
 		this.showAgreementDialog = false;
+
+		this.currentStep = STEPS.ARREARS_DETAILS;
 		this.email = ``;
 		this.confirmEmail = ``;
 		this.emailAlertBannerMessage = ``;
+		this.arrearsAlertBannerMessage = ``;
+		this.showConfirmationDialog = false;
+
+		this.totalPolicyArrears = 0;
+		this.totalSelectedArrears = 0;
+		this.selectedArrears = [];
 	}
 
 	// #endregion INITIALIZE
@@ -45,14 +61,26 @@ class LifePayArrearsDialog extends Component {
 	static get properties() {
 		return {
 			policy: { type: Object, state: true },
-			lifePayArrearsAgreementDetails: { type: Object, state: true },
+			insufficientFunds: { type: Boolean, state: true },
+			payableAccounts: { type: Object, state: true },
+			accountSelected: { type: Boolean, state: true },
+			selectedAccountNumber: { type: String, state: true },
+			selectedAccountType: { type: String, state: true },
+			selectedArrears: { type: Object, state: true },
+
+			executeGenerateAgreementDocument: { type: Object, state: true },
+			executePayArrears: { type: Object, state: true },
+
+			agreementDetails: { type: Object, state: true },
 			generatePayArrearsDocument: { type: Object, state: true },
 			showAgreementDialog: { type: Boolean, state: true },
 
 			currentStep: { type: Number, state: true },
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
-			emailAlertBannerMessage: { type: String, state: true }
+			emailAlertBannerMessage: { type: String, state: true },
+			arrearsAlertBannerMessage: { type: String, state: true },
+			showConfirmationDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -66,72 +94,71 @@ class LifePayArrearsDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
 	}
 
+	/**
+	 * Callback when component disconnected from DOM
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
 
-	//  #region EVENT HANDLERS
-
-	/**
-	 * Cancel event from dialog footer button, closes modal & reset toggles 
-	 * 
-	 * @returns {void} 
-	 */
-	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
-	}
-
-	//  #endregion EVENT HANDLERS
-
 	//  #region PRIVATE METHODS
 
+	_initialise() {
+		this.policy.arrears.forEach(arrears => {
+			this.totalPolicyArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+		});
+
+		// Relook how will we get this data?
+		this.payableAccounts = [
+			{
+				"accountName": `SAVINGS ACCOUNT`,
+				"branchCode": `470010`,
+				"accountNumber": `2009939669`,
+				"bank": `Capitec Bank`,
+				"accountType": `Savings`,
+				"availableBalance": 120,
+				"currentBalance": 250
+			},
+			{
+				"accountName": `SAVINGS PLAN`,
+				"branchCode": `470010`,
+				"accountNumber": `2009939660`,
+				"bank": `Capitec Bank`,
+				"accountType": `Savings`,
+				"availableBalance": 200,
+				"currentBalance": 250
+			}
+		];
+	}
+
 	/**
-	 * agree event from dialog footer button, closes modal and navigates to success page
-	 * 
-	 * @returns {void} 
+	 * Change event when checkbox is clicked
+	 * @param {*} arrear current arrears object
+	 * @param {*} index checkbox index
+	 * @param {*} e event
+	 * @returns {void}
 	 */
-	// _agreeClick() {
-	// 	const isEmailInputValid = this._validateEmailAddress();
-	// 	if (!isEmailInputValid) {
-	// 		return;
-	// 	}
-	// 	this.dispatchEvent(new CustomEvent(`agree`, { detail: { emailAddress: this.email, documentDetails: this.lifePayArrearsAgreementDetails } }));
-	// }
-
-	// HERE
-	// _arrearsCheckedChange(e, outstanding) {
-	// 	if (e.detail.new === true) {
-	// 		this.payArrears.arrears.push({
-	// 			dueDate: selected.dueDate,
-	// 			amount: selected.amount,
-	// 			objectID: selected.objectID
-	// 		});
-
-	// 		this.amount += outstanding.amount;
-	// 		this.checked += 1;
-
-	// 		this.errorMessage = ``;
-	// 	} else if (e.detail.new === false) {
-	// 		const index = this.payArrears.arrears.map(object => object.objectID).indexOf(selected.objectID);
-	// 		this.payArrears.arrears.splice(index, 1);
-
-	// 		this.insufficient = false;
-	// 		this.optionSelected = true;
-	// 		this.amount -= outstanding.amount;
-	// 		this.checked -= 1;
-	// 	}
-
-	// 	this.requestUpdate();
-
-	// }
-
-
-	_checkEvent(selected, e) {
-
+	_arrearsCheckedChange(arrear, index, e) {
+		if (e.detail.new === true) {
+			this.totalSelectedArrears += arrear.arrearsPaymentDueAmount;
+			this.selectedArrears.push({
+				dueDate: arrear.arrearsPaymentDueDate,
+				amount: arrear.arrearsPaymentDueAmount,
+				objectId: arrear.arrearsID
+			});
+		} else {
+			this.insufficientFunds = false;
+			this.accountSelected = true;
+			this.totalSelectedArrears -= arrear.arrearsPaymentDueAmount;
+			this.selectedArrears.splice(index, 1);
+		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -139,13 +166,12 @@ class LifePayArrearsDialog extends Component {
 	 * 
 	 * @returns {void}
 	 */
-	_backClick() {
-		this.currentStep = STEPS.REASON;
+	_backToArrearsStep() {
+		this.currentStep = STEPS.ARREARS_DETAILS;
 	}
 
 	/**
-	 * change event for email address
-	 * 
+	 * Change event for email address
 	 * @param {event} e e
 	 * @returns {void}
 	 */
@@ -161,17 +187,7 @@ class LifePayArrearsDialog extends Component {
 	}
 
 	/**
-	 * Clear alert banner message 
-	 * 
-	 * @returns {void}
-	 */
-	_clearAlerts() {
-		this.emailAlertBannerMessage = ``;
-	}
-
-	/**
-	 * validation checks for email address
-	 * 
+	 * Validation checks for email address
 	 * @returns {boolean} boolean for whether the alert banner message is empty or not
 	 */
 	_validateEmailAddress() {
@@ -181,13 +197,107 @@ class LifePayArrearsDialog extends Component {
 		return isNullorEmpty(this.emailAlertBannerMessage);
 	}
 
+	/**
+	 * Clear alert banner message 
+	 * @returns {void}
+	 */
+	_clearAlerts() {
+		this.emailAlertBannerMessage = ``;
+		this.arrearsAlertBannerMessage = ``;
+	}
+
+	/**
+	 * Event from account select box containing the selected account
+	 * @param {*} e event
+	 * @returns {void}
+	 */
+	_accountSelected(e) {
+		this.accountSelected = e.detail.optionSelected;
+		this.insufficientFunds = false;
+		this.arrearsAlertBannerMessage = ``;
+
+		this.selectedAccountNumber = e.detail.accountNumber;
+		this.selectedAccountType = e.detail.accountType;
+	}
+
+	/**
+	 * Check if all validation has passed, then process arrears request
+	 * @returns {void}
+	 */
+	_settleArrearsValidate() {
+		const indexOfPayableAccount = this.payableAccounts.map(x => x.accountNumber).indexOf(this.selectedAccountNumber);
+		if (this.payableAccounts[indexOfPayableAccount]?.availableBalance < this.totalSelectedArrears) {
+			this.insufficientFunds = true;
+		}
+
+		if (this.accountSelected === false) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
+			return;
+		}
+
+		if (this.totalSelectedArrears === 0) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+			return;
+		}
+
+		if (this.insufficientFunds === true) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+			return;
+		}
+
+		this.arrearsAlertBannerMessage = ``;
+		this.showConfirmationDialog = true;
+	}
+
 	//  #endregion PRIVATE METHODS
+
+	//  #region EVENT HANDLERS
+
+	/**
+	 * Cancel event from dialog footer button, closes dialog & reset toggles 
+	 * @returns {void} 
+	 */
+	_cancelClick() {
+		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
+	}
+
+	/**
+	 * Event from pay confirmation dialog
+	 * @param {event} event Contains 'processPayment' boolean for further processing
+	 * @returns {void}
+	 */
+	async _payDetailsConfirmation(event) {
+		this.showConfirmationDialog = false;
+		if (event.detail.processPayment === false) {
+			return;
+		}
+
+		const agreementResult = await this.executeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
+		this.agreementDetails = agreementResult.result;
+		this.currentStep = STEPS.AGREEMENT;
+	}
+
+	/**
+	 * Process payment and navigate to result page
+	 * @returns {void}
+	 */
+	async _processPayment() {
+		const isEmailInputValid = validateEmailAddressCombo(this.email, this.confirmEmail);
+		if (isEmailInputValid === false) {
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.INVALID_EMAIL;
+			return;
+		}
+
+		const paymentResult = await this.executePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
+		const agreementResult = await this.executeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
+	}
+
+	//  #endregion EVENT HANDLERS
 
 	//  #region RENDERING
 
 	/**
 	 * Generates the component stylesheet.
-	 *
 	 * @readonly
 	 * @static
 	 * @returns {css} CSS for the component.
@@ -196,13 +306,7 @@ class LifePayArrearsDialog extends Component {
 		return [
 			super.styles,
 			css`
-				
 				${INSURE_CSS}
-
-				.pay-arrears-dialog{
-					--theme-modal-alert-m-l-xl-width: 520px;
-				}
-
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 					--theme-modal-header-color: black; 
@@ -210,6 +314,55 @@ class LifePayArrearsDialog extends Component {
 					--theme-modal-alert-m-l-xl-width: 840px;
 					--theme-modal-body-padding: 0;
 					z-index: 99;
+				}
+
+				horizon-product-tile {
+					--theme-product-tile--height: 64px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 16px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
+					--theme-radio-disabled-border-color: #E1E1E1;
+					--theme-radio-disabled-background-color: #F7F7F7;
+				}
+
+				.pay-arrears-dialog{
+					--theme-modal-alert-m-l-xl-width: 520px;
+				}
+
+				.arrears-form-body{
+					padding: 0px; 
+					margin: 0px 15px 0px 15px;
+					min-height: 400px;
+				}
+
+				#arrears-info-banner{
+					margin-bottom: 10px;
+				}
+
+				.account-selectbox{
+					margin-bottom: 15px;
+					margin-top: 5px;
+				}
+
+				.arrears-checkbox-group{
+					margin-top: 10px;
+					display: block;
+				}
+
+				.checkbox{
+					border: 1px solid #e1e1e1;
+					border-radius: 5px;
+					padding: 10px;
+					margin-bottom: 10px;
+				}
+
+				#arrears-title-label{
+					margin-bottom: 10px;
+					margin-top: 0px;
 				}
 
 				.view-document {
@@ -227,25 +380,6 @@ class LifePayArrearsDialog extends Component {
 					--theme-label-strong-font-weight: 600;
 				}
 
-				.arrears-form-body{
-					padding: 0px; 
-					margin: 0px 15px 0px 15px;
-					min-height: 400px;
-				}
-
-				horizon-product-tile {
-					--theme-product-tile--height: 64px;
-					--theme-product-tile-title-height: 20px;
-					--theme-product-tile-title-font-size: 16px;
-					--theme-product-tile-subtitle-height: 20px;
-					--theme-product-tile-subtitle-font-size: 16px;
-					--theme-product-tile-heading-margin-left: 16px;
-					--theme-layout-gap-spacing: 8px;
-					--theme-product-tile-title-font-weight: 600;
-					--theme-radio-disabled-border-color: #E1E1E1;
-					--theme-radio-disabled-background-color: #F7F7F7;
-				}
-
 				.alert{
 					--theme-toast-width: 100%;
 					margin-bottom: 20px;
@@ -256,27 +390,8 @@ class LifePayArrearsDialog extends Component {
 					width: 100%;
 				}
 				
-				.email-title-label{
-					margin: 10px 20px;
-				}
-				
-				.checkbox{
-					border: 1px solid #e1e1e1;
-					border-radius: 5px;
-					padding: 10px;
-					margin-bottom: 10px;
-				}
-
-				#arrears-title-label{
-					margin-bottom: 20px;
-					margin-top: 10px;
-				}
-
-				#arrears-transaction-preview{
-					display: flex; 
-					justify-content: space-between; 
-					margin-top: 10px;
-					margin-bottom:10px;
+				.emailAddressInput{
+					margin: 10px 0px;
 				}
 				`
 		];
@@ -289,6 +404,7 @@ class LifePayArrearsDialog extends Component {
 	_webTemplate() {
 		return html`
 				${this._renderAgreementDialog()}
+				${this._renderConfirmationDialog()}
 				<capitec-modal type="free" header="${this.policy?.contractReference} - Life Cover Arrears">
 					<div slot="body" style="width: 520px;">
 						${this._renderDialogBody()}
@@ -313,56 +429,64 @@ class LifePayArrearsDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			${this.currentStep === STEPS.ARREARS_DETAILS ? html`
-				<capitec-content-box>
-					<div class="alert-banner">
-						<horizon-alert-banner
-							type="info"
-							header="Notify client:"
-							label="The arrears payment amount is R???.??"
-							layout="vertical">
-						</horizon-alert-banner>
-					</div>
+			<div style="${this.currentStep === STEPS.ARREARS_DETAILS ? `display: block` : `display: none`}">
+				<capitec-content-box gap="10px;">
+					<horizon-alert-banner
+						id="arrears-info-banner"
+						type="info"
+						header="Notify client:"
+						label="The arrears payment amount is ${formatCurrency(this.totalPolicyArrears)}"
+						layout="vertical">
+					</horizon-alert-banner>
+
+					${this.arrearsAlertBannerMessage === `` ? html`` : html`
+					<horizon-alert-banner
+						type="error"
+						header="Notify client:"
+						label="${this.arrearsAlertBannerMessage}"
+						layout="vertical">
+					</horizon-alert-banner>`}
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
 					<capitec-label type="subtitle" label="Choose an account"></capitec-label>
 					<insure-account-select 
 						class="account-selectbox"
-						@option-selected="${(e) => null}"
-						.accountDetails = "${null}" .insufficient = "${null}" .label= "${`Please select`}">
+						@option-selected="${(e) => this._accountSelected(e)}"
+						.accountDetails = "${this.payableAccounts}" 
+						.insufficient = "${this.insufficientFunds}" 
+						.label= "${`Please select`}"
+						.selectBoxWidth=${`490px`}>
 					</insure-account-select>
-					<div id="arrears-transaction-preview">
-						<capitec-label type="subtitle" label="Arrears amount payable"></capitec-label>
-						<capitec-label type="subtitle" label="Total arrears amount: ${formatCurrency(0)}"></capitec-label>
-					</div>
-					<capitec-check-group>
-						${this.policy?.arrears?.map((outstanding, index) => html`
+
+					<capitec-label type="subtitle" label="Choose arrears to pay"></capitec-label>
+					<capitec-check-group class="arrears-checkbox-group">
+						${this.policy?.arrears?.map((arrear, index) => html`
 							${index === 0 ? html`
-								<capitec-check class="checkbox" label="${formatDate(outstanding.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(outstanding.arrearsPaymentDueAmount)}"
-									@value-change="${(e) => this._arrearsCheckedChange(outstanding, index, e)}">
+								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
+									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
 								</capitec-check>
 							` : html`
-								<capitec-check class="checkbox" label="${formatDate(outstanding.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(outstanding.arrearsPaymentDueAmount)}"
-									@value-change="${(e) => this._arrearsCheckedChange(outstanding, index, e)}">
+								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
+									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
 								</capitec-check>
 								`}
 						`)}
 					</capitec-check-group>
 				</div>
-			`
-				: html`
+			</div>
+			
+			<div style="${this.currentStep === STEPS.AGREEMENT ? `display: block` : `display: none`}">
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
-						<capitec-label slot="detail" type="strong" label="View Document" >
+					<horizon-product-tile class="view-document" type="default" label="Life Cover Arrears Agreement" subtitle="Life Policy" icon="" @click="${() => this.showAgreementDialog = true}">
+						<capitec-label slot="detail" type="strong" label="View Document">
 						</capitec-label>
 					</horizon-product-tile>
-
-					<capitec-label type="title" label="Email cancellation agreement" class="email-title-label"></capitec-label>
 
 					${this._renderEmailAlertBanner()}
 
 					<horizon-email-input
+						class="emailAddressInput"
 						labelOne="Enter email address"
 						labelTwo="Confirm email"
 						email="${this.email}"
@@ -372,8 +496,8 @@ class LifePayArrearsDialog extends Component {
 						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
 				</capitec-content-box>
-			`}
-		`;
+			</div>
+			`;
 	}
 
 	/**
@@ -382,52 +506,43 @@ class LifePayArrearsDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-
-				${this.currentStep === STEPS.AGREEMENT ? html`
-						<capitec-button class="button" slot="footer" type="secondary" label="Back"
-							@click="${() => this._backClick()}">
-						</capitec-button>
-						<capitec-button class="button" slot="footer" type="primary" label="Agree"
-							@click="${() => this._agreeClick()}">
-						</capitec-button>
-					`
+			${this.currentStep === STEPS.AGREEMENT ? html`
+					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back"
+						@click="${() => this._backToArrearsStep()}">
+					</capitec-button>
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Pay"
+						@click="${() => this._processPayment()}">
+					</capitec-button>
+				`
 				: html`
-						<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
-							@click="${() => this._cancelClick()}">
-						</capitec-button>
-						<capitec-button class="button" slot="footer" type="primary" label="Settle"
-							@click="${() => this._settleArrears()}">
-						</capitec-button>
-					`}
-				
+					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel"
+						@click="${() => this._cancelClick()}">
+					</capitec-button>
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next"
+						@click="${() => this._settleArrearsValidate()}">
+					</capitec-button>
+			`}
 		`;
 	}
 
 	/**
 	 * Render the alert banner
-	 * 
 	 * @returns {html} html content 
 	 */
 	_renderEmailAlertBanner() {
 		return this.emailAlertBannerMessage
 			? html`
-			<capitec-alert-banner type="unsuccessful-red" class= "alert">
-				<capitec-group layout="horizontal">
-					<capitec-label
-						type="subtitle"
-						label="Notify:">
-					</capitec-label>
-					<capitec-label
-						label="${this.emailAlertBannerMessage}">
-					</capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>`
+			<horizon-alert-banner
+				type="error"
+				header="Notify client:"
+				label="${this.emailAlertBannerMessage}"
+				layout="vertical">
+			</horizon-alert-banner>`
 			: html``;
 	}
 
 	/**
 	 * Render the agreement dialog
-	 * 
 	 * @returns {html} html content 
 	 */
 	_renderAgreementDialog() {
@@ -435,10 +550,27 @@ class LifePayArrearsDialog extends Component {
 			? html``
 			: html`
 				<horizon-insure-agreement-dialog
-				.agreementContent="${this.lifePayArrearsAgreementDetails?.documentContent.value}"
+				.agreementContent="${this.agreementDetails?.documentContent?.value}"
 				@back-click="${() => this.showAgreementDialog = false}">
 				</horizon-insure-agreement-dialog>
 			`;
+	}
+
+	/**
+	 * Render the confirmation / are you sure / dialog
+	 * @returns {html} html content 
+	 */
+	_renderConfirmationDialog() {
+		return this.showConfirmationDialog === false
+			? html``
+			: html`
+			<horizon-insure-life-pay-arrears-confirmation-dialog
+				.contractReference="${this.policy?.contractReference}"
+				.amountToPay="${this.totalSelectedArrears}"
+				.accountToPayFrom="${this.selectedAccountNumber}"
+				@close-dialog="${(e) => this._payDetailsConfirmation(e)}">
+			</horizon-insure-life-pay-arrears-confirmation-dialog>
+		`;
 	}
 
 	// #endregion RENDERING
@@ -447,11 +579,11 @@ class LifePayArrearsDialog extends Component {
 window.customElements.define(`horizon-insure-life-pay-arrears-dialog`, LifePayArrearsDialog);
 
 /**
- * send close modal event to the consuming component when 'cancel' is clicked
+ * Send close dialog event to the consuming component when 'cancel' is clicked
  *
  * @example
- * <horizon-insure-life-pay-arrears-dialog ... @close-modal="${this._handler}"></horizon-insure-life-pay-arrears-dialog
+ * <horizon-insure-life-pay-arrears-dialog ... @close-dialog="${this._handler}"></horizon-insure-life-pay-arrears-dialog
  *
- * @event LifePayArrearsDialog#close-modal
+ * @event LifePayArrearsDialog#close-dialog
  * @type {Object} - N/A
  */

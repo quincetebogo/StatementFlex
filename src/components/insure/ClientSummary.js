@@ -170,7 +170,10 @@ class ClientSummary extends Component {
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
 			showLifePayArrearsDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
-			lifeCancelAgreementDocument: { type: Object, state: true }
+			lifeCancelAgreementDocument: { type: Object, state: true },
+
+			executeGenerateAgreementDocument: { type: Object, state: true },
+			executePayArrears: { type: Object, state: true }
 		};
 	}
 
@@ -2067,6 +2070,8 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
 			.policy="${this.selectedLifePolicy}"
+			.executeGenerateAgreementDocument="${this.executeGenerateAgreementDocument}"
+			.executePayArrears="${this.executePayArrears}"
 			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
 			</horizon-insure-life-pay-arrears-dialog>
 		`;

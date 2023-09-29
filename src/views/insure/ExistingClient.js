@@ -393,23 +393,67 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Pay Life Policy Arrears Agreement
+	 * @param {String} contractReference contractReference
+	 * @param {Object} selectedArrears selectedArrears
+	 * @param {string} accountSelected accountSelected
+	 * @param {boolean} saveToDocumentum saveToDocumentum
+	 * @returns {Object} resp
+	 */
+	async _generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum) {
+		const generateDocumentRequest = {
+			"documentFormat": `PDF`,
+			"saveDocumentToDocumentum": saveToDocumentum,
+			"markDocumentsAsAccepted": saveToDocumentum,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": false,
+			"clientDetails": {
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyContractReference": contractReference,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.lastName,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": new Date(this.callerInformation.birthdate).toISOString()
+			},
+			"input": {
+				"policyNumber": contractReference,
+				"payArrearsModel": {
+					"contractReference": contractReference,
+					"arrears": selectedArrears,
+					"fromAccount": accountSelected,
+					"cifNumber": this.callerInformation.cifNumber,
+					"paidWithClaims": false
+				}
+			}
+		};
+
+		const resp = await this.insureLifeService.lifePayArrearsAgreement(generateDocumentRequest, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			return resp;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
+	/**
 	 * Cancel Life Policy 
 	 * @param {event} e e
 	 * @returns {void}  
 	 */
 	async _cancelLifePolicy(e) {
-		const lifeCancelPayload = 
-			{
-				"cancellationReason": e.detail.cancellationReason,
-				"policyNumber": e.detail.contractReference,
-				"documents": [
-				  {
+		const lifeCancelPayload =
+		{
+			"cancellationReason": e.detail.cancellationReason,
+			"policyNumber": e.detail.contractReference,
+			"documents": [
+				{
 					"documentCode": e.detail.documentDetails.documentCode,
 					"documentName": e.detail.documentDetails.documentName,
 					"guid": e.detail.documentDetails.documentDetails.guid
-				  }
-				]
-			};
+				}
+			]
+		};
 
 		const resp = await this.insureLifeService.lifeCancelPolicy(lifeCancelPayload, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -426,7 +470,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		this.requestUpdate();
-		
+
 	}
 
 	_buildLifeSuccessMessage(lifeEmailSuccess, callerPage, emailAddress, contractRef) {
@@ -959,6 +1003,29 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Pay arrears for active life policy
+	 * @param {string} contractReference contractReference
+	 * @param {string} accountSelected accountSelected
+	 * @param {string} selectedArrears selectedArrears
+	 * @returns {object} resp
+	 */
+	async _payArrearsLife(contractReference, accountSelected, selectedArrears) {
+		const payArrears = {
+			"contractReference": contractReference,
+			"arrears": selectedArrears,
+			"cifNumber": this.callerInformation.cifNumber,
+			"fromAccount": accountSelected
+		};
+
+		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			return resp;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
+	/**
 	 * gets clients arrears and payable accounts
 	 * 
 	 * @returns {void} 
@@ -1197,7 +1264,7 @@ export class ExistingClient extends InsureViewBase {
 	_goToLifePocketSummary(e) {
 		this.selectedLifePocketType = e.detail.pocketType;
 		this.selectedLifePolicy = e.detail.lifePolicy;
-		
+
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY);
 	}
@@ -1468,6 +1535,10 @@ export class ExistingClient extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
+				
+				.executeGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
+				.executePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
+
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"

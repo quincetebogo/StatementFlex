@@ -23,7 +23,7 @@ export const insureLifeClientSummary = {
 				"branchCode": `012454`,
 				"accountNumber": `55897854`,
 				"bank": `CAPITEC BANK`,
-				"accountType": `Bond`,
+				"accountType": `Savings`,
 				"collectionDay": 21
 			},
 			"pockets": [
@@ -45,6 +45,7 @@ export const insureLifeClientSummary = {
 			],
 			"arrears": [
 				{
+					"arrearsID": `1`,
 					"arrearsPaymentStatus": `string`,
 					"arrearsPaymentDueAmount": 200,
 					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
@@ -52,6 +53,7 @@ export const insureLifeClientSummary = {
 					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
 				},
 				{
+					"arrearsID": `2`,
 					"arrearsPaymentStatus": `string`,
 					"arrearsPaymentDueAmount": 150,
 					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
@@ -72,7 +74,7 @@ export const insureLifeClientSummary = {
 						"branchCode": `string`,
 						"accountNumber": `string`,
 						"bank": `string`,
-						"accountType": `Bond`,
+						"accountType": `Savings`,
 						"collectionDay": 0
 					},
 					"relationship": `MainLife`,
@@ -91,7 +93,7 @@ export const insureLifeClientSummary = {
 						"branchCode": `string`,
 						"accountNumber": `string`,
 						"bank": `string`,
-						"accountType": `Bond`,
+						"accountType": `Savings`,
 						"collectionDay": 0
 					},
 					"relationship": `MainLife`,
@@ -176,7 +178,7 @@ export const insureLifeClientSummary = {
 						"branchCode": `string`,
 						"accountNumber": `string`,
 						"bank": `string`,
-						"accountType": `Bond`,
+						"accountType": `Savings`,
 						"collectionDay": 0
 					},
 					"relationship": `MainLife`,
@@ -261,7 +263,7 @@ export const insureLifeClientSummary = {
 						"branchCode": `string`,
 						"accountNumber": `string`,
 						"bank": `string`,
-						"accountType": `Bond`,
+						"accountType": `Savings`,
 						"collectionDay": 0
 					},
 					"relationship": `MainLife`,
@@ -280,7 +282,7 @@ export const insureLifeClientSummary = {
 						"branchCode": `string`,
 						"accountNumber": `string`,
 						"bank": `string`,
-						"accountType": `Bond`,
+						"accountType": `Savings`,
 						"collectionDay": 0
 					},
 					"relationship": `MainLife`,
