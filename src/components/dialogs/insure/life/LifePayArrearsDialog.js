@@ -72,6 +72,7 @@ class LifePayArrearsDialog extends Component {
 
 			executeLifeGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
+			executeLifeArrearsSendEmail: { type: Object, state: true },
 
 			agreementDetails: { type: Object, state: true },
 			generatePayArrearsDocument: { type: Object, state: true },
