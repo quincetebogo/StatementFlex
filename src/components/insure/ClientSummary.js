@@ -172,8 +172,9 @@ class ClientSummary extends Component {
 			generateDocumentsLifeCancel: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
 
-			executeGenerateAgreementDocument: { type: Object, state: true },
-			executePayArrears: { type: Object, state: true }
+			executeLifeGenerateAgreementDocument: { type: Object, state: true },
+			executeLifePayArrears: { type: Object, state: true },
+			executeLifeArrearsSendEmail: { type: Object, state: true }
 		};
 	}
 
@@ -553,11 +554,12 @@ class ClientSummary extends Component {
 
 	/**
 	 * opens the life cancel policy dialog
-	 * @param {Object} policy policy selected
+	 * @param {Object} selectedPolicy policy selected
 	 * @returns {void} 
 	 */
-	_openLifeCancelPolicyDialog(policy) {
-		this.contractReferenceToCancel = policy?.contractReference;
+	_openLifeCancelPolicyDialog(selectedPolicy) {
+		this.contractReferenceToCancel = selectedPolicy?.contractReference;
+		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeCancelPolicyDialog = true;
 	}
 
@@ -1170,6 +1172,7 @@ class ClientSummary extends Component {
 
 			.life-arrears-notify{
 				padding: 0px 10px;
+				margin: 0px 10px;
 			}
 
 			#inactive-life-policies-title{
@@ -2041,6 +2044,7 @@ class ClientSummary extends Component {
 			<horizon-insure-life-cancel-policy-dialog
 			@agree="${(e) => this._lifeCancelPolicyConfirm(e)}"
 			@close-dialog="${() => this.showLifeCancelPolicyDialog = false}"
+			.policy="${this.selectedLifePolicy}"
 			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
 			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
 			</horizon-insure-life-cancel-policy-dialog>
@@ -2070,8 +2074,9 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
 			.policy="${this.selectedLifePolicy}"
-			.executeGenerateAgreementDocument="${this.executeGenerateAgreementDocument}"
-			.executePayArrears="${this.executePayArrears}"
+			.executeLifeGenerateAgreementDocument="${this.executeLifeGenerateAgreementDocument}"
+			.executeLifePayArrears="${this.executeLifePayArrears}"
+			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
 			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
 			</horizon-insure-life-pay-arrears-dialog>
 		`;

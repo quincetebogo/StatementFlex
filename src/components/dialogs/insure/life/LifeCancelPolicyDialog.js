@@ -51,6 +51,7 @@ class LifeCancelPolicyDialog extends Component {
 			getLifeCancelPolicyDocument: { type: Object, state: true },
 			lifeCancelAgreementDetails: { type: Object, state: true },
 			showAgreementDialog: { type: Boolean, state: true },
+			selectedReason: { type: String, state: true },
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
@@ -127,7 +128,6 @@ class LifeCancelPolicyDialog extends Component {
 	_reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this._getLifeCancelAgreement();
-		this.currentStep = STEPS.AGREEMENT;
 		// this.requestUpdate();
 	}
 
@@ -325,7 +325,7 @@ class LifeCancelPolicyDialog extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal type="free" class="cancel-policy-modal" header="Cancel Policy">
+			<capitec-modal type="free" class="cancel-policy-modal" header="${this.policy?.contractReference} - Cancel Policy">
 				<div slot="body" style="width: 520px;">
 					${this._renderDialogBody()}
 				</div>
@@ -430,7 +430,8 @@ class LifeCancelPolicyDialog extends Component {
 						<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel"
 							@click="${() => this._cancelClick()}">
 						</capitec-button>
-						<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Agree"
+						<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next"
+							?disabled="${!this.selectedReason}"
 							@click="${() => this.currentStep = STEPS.AGREEMENT}">
 						</capitec-button>
 					`}

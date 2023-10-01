@@ -1,18 +1,20 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { validateEmailAddressCombo } from 'app/utils/insureUtils';
 import { EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { validateEmailAddressCombo } from 'app/utils/insureUtils';
 import 'app/components/dialogs/insure/AgreementDialog';
 import 'app/components/dialogs/insure/life/LifePayArrearsConfirmationDialog';
 import 'app/components/insure/InsureAccountSelect';
 
+// Dialog steps
 const STEPS = {
 	ARREARS_DETAILS: 1,
 	AGREEMENT: 2
 };
 
+// Error message options for arrears form
 const ARREARS_ERROR_MESSAGES = {
 	NO_ACCOUNT_SELECTED: `Select an account to pay from`,
 	NO_ARREARS_SELECTED: `Select arrears amount to pay`,
@@ -68,8 +70,8 @@ class LifePayArrearsDialog extends Component {
 			selectedAccountType: { type: String, state: true },
 			selectedArrears: { type: Object, state: true },
 
-			executeGenerateAgreementDocument: { type: Object, state: true },
-			executePayArrears: { type: Object, state: true },
+			executeLifeGenerateAgreementDocument: { type: Object, state: true },
+			executeLifePayArrears: { type: Object, state: true },
 
 			agreementDetails: { type: Object, state: true },
 			generatePayArrearsDocument: { type: Object, state: true },
@@ -272,7 +274,7 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		const agreementResult = await this.executeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
+		const agreementResult = await this.executeLifeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}
@@ -288,8 +290,9 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		const paymentResult = await this.executePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
-		const agreementResult = await this.executeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
+		await this.executeLifePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
+		const agreementResult = await this.executeLifeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
+		await this.executeLifeArrearsSendEmail(this.policy.contractReference, formatCurrency(this.totalSelectedArrears), this.email, agreementResult);
 	}
 
 	//  #endregion EVENT HANDLERS

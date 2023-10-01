@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS, } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -1025,6 +1025,27 @@ export class ExistingClient extends InsureViewBase {
 		return null;
 	}
 
+	/** Email and navigate after success  
+	 * @param {string} contractReference contractReference of policy
+	 * @param {string} totalPaid total arrears settled
+	 * @param {string} email email to send agreement too
+	 * @param {string} agreementResult result from CDS call
+	 * @returns {void}
+	*/
+	_payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult) {
+
+		// TODO: Attempt to send email 
+		const emailSent = true;
+
+		this.lifeSuccessPageMessages = {
+			emailSuccess: emailSent,
+			actionSuccessLabel: `Life Cover arrears was successfully paid`,
+			emailMessage: `Your life cover policy of <b>${contractReference}</b> arrears was settled with <b>${totalPaid}</b>` 
+		};
+		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
+	}
+
 	/**
 	 * gets clients arrears and payable accounts
 	 * 
@@ -1536,8 +1557,9 @@ export class ExistingClient extends InsureViewBase {
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				
-				.executeGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
-				.executePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
+				.executeLifeGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
+				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
+				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
