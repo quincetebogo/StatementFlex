@@ -70,7 +70,7 @@ class LifePayArrearsDialog extends Component {
 			selectedAccountType: { type: String, state: true },
 			selectedArrears: { type: Object, state: true },
 
-			executeLifeGenerateAgreementDocument: { type: Object, state: true },
+			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
 			executeLifeArrearsSendEmail: { type: Object, state: true },
 
@@ -275,7 +275,7 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		const agreementResult = await this.executeLifeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
+		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}
@@ -292,7 +292,7 @@ class LifePayArrearsDialog extends Component {
 		}
 
 		await this.executeLifePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
-		const agreementResult = await this.executeLifeGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
+		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
 		await this.executeLifeArrearsSendEmail(this.policy.contractReference, formatCurrency(this.totalSelectedArrears), this.email, agreementResult);
 	}
 

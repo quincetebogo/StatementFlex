@@ -172,7 +172,7 @@ class ClientSummary extends Component {
 			generateDocumentsLifeCancel: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
 
-			executeLifeGenerateAgreementDocument: { type: Object, state: true },
+			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
 			executeLifeArrearsSendEmail: { type: Object, state: true }
 		};
@@ -2074,7 +2074,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
 			.policy="${this.selectedLifePolicy}"
-			.executeLifeGenerateAgreementDocument="${this.executeLifeGenerateAgreementDocument}"
+			.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
 			.executeLifePayArrears="${this.executeLifePayArrears}"
 			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
 			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
