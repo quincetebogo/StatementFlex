@@ -23,6 +23,7 @@ import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
+import 'app/components/dialogs/insure/life/LifePayArrearsDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -80,6 +81,7 @@ class ClientSummary extends Component {
 
 		this.showLifeUpdateBankDetailsDialog = false;
 		this.showLifeCancelPolicyDialog = false;
+		this.showLifePayArrearsDialog = false;
 
 		this.telemetryEvents = {};
 	}
@@ -166,8 +168,13 @@ class ClientSummary extends Component {
 			// CHeck...
 			selectedLifePolicy: { type: Object, state: true },
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
+			showLifePayArrearsDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
-			lifeCancelAgreementDocument: { type: Object, state: true }
+			lifeCancelAgreementDocument: { type: Object, state: true },
+
+			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
+			executeLifePayArrears: { type: Object, state: true },
+			executeLifeArrearsSendEmail: { type: Object, state: true }
 		};
 	}
 
@@ -547,11 +554,12 @@ class ClientSummary extends Component {
 
 	/**
 	 * opens the life cancel policy dialog
-	 * @param {Object} policy policy selected
+	 * @param {Object} selectedPolicy policy selected
 	 * @returns {void} 
 	 */
-	_openLifeCancelPolicyDialog(policy) {
-		this.contractReferenceToCancel = policy?.contractReference;
+	_openLifeCancelPolicyDialog(selectedPolicy) {
+		this.contractReferenceToCancel = selectedPolicy?.contractReference;
+		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeCancelPolicyDialog = true;
 	}
 
@@ -564,6 +572,22 @@ class ClientSummary extends Component {
 		this.showLifeUpdateBankDetailsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
 	}
+
+	
+	/**
+	 * opens the life cancel policy dialog
+	 * @param {Object} selectedPolicy policy being updated
+	 * @returns {void} 
+	 */
+	_openLifePayArrearsDialog(selectedPolicy) {
+
+		// Call get arrears service
+		
+
+		this.showLifePayArrearsDialog = true;
+		this.selectedLifePolicy = selectedPolicy;
+	}
+
 
 	/**
 	 * Fire navigate event to Claim Summary
@@ -1148,6 +1172,7 @@ class ClientSummary extends Component {
 
 			.life-arrears-notify{
 				padding: 0px 10px;
+				margin: 0px 10px;
 			}
 
 			#inactive-life-policies-title{
@@ -1183,6 +1208,7 @@ class ClientSummary extends Component {
 			${this._renderFuneralCancelPolicyDialog()}
 			${this._renderLifeUpdateBankDetailsDialog()}
 			${this._renderLifeCancelPolicyDialog()}
+			${this._renderLifePayArrearsDialog()}
 		`;
 	}
 
@@ -1485,7 +1511,7 @@ class ClientSummary extends Component {
 
 						<capitec-overflow-menu label="Menu">
 							${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
-				? html`<capitec-overflow-menu-item label="Pay Arrears"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 			
@@ -1507,7 +1533,7 @@ class ClientSummary extends Component {
 			}
 
 							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Decrease Cover"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Manage Cover"></capitec-overflow-menu-item>`
 				: html``
 			}
 						</capitec-overflow-menu>
@@ -2018,6 +2044,7 @@ class ClientSummary extends Component {
 			<horizon-insure-life-cancel-policy-dialog
 			@agree="${(e) => this._lifeCancelPolicyConfirm(e)}"
 			@close-dialog="${() => this.showLifeCancelPolicyDialog = false}"
+			.policy="${this.selectedLifePolicy}"
 			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
 			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
 			</horizon-insure-life-cancel-policy-dialog>
@@ -2035,6 +2062,23 @@ class ClientSummary extends Component {
 			.policy="${this.selectedLifePolicy}"
 			@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}">
 			</horizon-insure-life-update-bank-details-dialog>
+		`;
+	}
+
+	/**
+	 * Life pay arrears dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderLifePayArrearsDialog() {
+		return this.showLifePayArrearsDialog === false ? html``
+			: html`
+			<horizon-insure-life-pay-arrears-dialog
+			.policy="${this.selectedLifePolicy}"
+			.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
+			.executeLifePayArrears="${this.executeLifePayArrears}"
+			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
+			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
+			</horizon-insure-life-pay-arrears-dialog>
 		`;
 	}
 

@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -6,12 +6,6 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 const STEPS = {
 	PAYMENT_DETAILS: 1,
 	AGREEMENT: 2
-};
-
-const ERROR_MESSAGES = {
-	EMAIL_REQUIRED: `Complete all fields to continue`,
-	INVALID_EMAIL: `Enter a valid email address`,
-	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
 };
 
 /**
@@ -359,11 +353,11 @@ class LifeUpdateBankDetailsDialog extends Component {
 						<horizon-email-input
 							labelOne="Enter email address"
 							labelTwo="Confirm email"
-							email="${this.emailAddress}"
-							confirmEmail="${this.confirmedEmailAddress}"
-							?showRequiredError="${this.emailAlertBannerMessage === ERROR_MESSAGES.EMAIL_REQUIRED}"
+							email="${this.email}"
+							confirmEmail="${this.confirmEmail}"
+							?showRequiredError="${this.emailAlertBannerMessage === EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED}"
 							@value-changed="${(e) => this._emailValueChanged(e)}"
-							.callBack="${() => this.emailAlertBannerMessage = ``}">
+							.callBack="${() => this._clearAlerts()}">
 						</horizon-email-input>
 					</capitec-content-box>
 				</div>

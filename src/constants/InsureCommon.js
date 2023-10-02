@@ -320,3 +320,15 @@ export const EMAIL_ADDRESS_ERROR_MESSAGES = Object.freeze({
 	INVALID_EMAIL: `Enter a valid email address`,
 	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
 });
+
+/**
+ * Tabs for Insure product
+ *
+ * @readonly
+ * @enum {Object} INSURE_TABS
+ */
+export const INSURE_TABS = Object.freeze({
+	FUNERAL: 0,
+	LIFE: 1,
+	CLAIMS: 2
+});
