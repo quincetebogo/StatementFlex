@@ -206,7 +206,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -398,6 +398,10 @@
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifePayArrears": {
 			"enabled": true,
 			"positiveCase": true
 		}

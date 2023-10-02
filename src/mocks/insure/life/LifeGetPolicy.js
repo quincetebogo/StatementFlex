@@ -21,7 +21,7 @@ export const insureLifeGetPolicy = {
 		  "branchCode": `012454`,
 		  "accountNumber": `55897854`,
 		  "bank": `ABSA BANK`,
-		  "accountType": `Bond`,
+		  "accountType": `Savings`,
 		  "collectionDay": 21
 		},
 		"pockets": [
@@ -53,7 +53,7 @@ export const insureLifeGetPolicy = {
 			  "branchCode": `string`,
 			  "accountNumber": `string`,
 			  "bank": `string`,
-			  "accountType": `Bond`,
+			  "accountType": `Savings`,
 			  "collectionDay": 0
 			},
 			"relationship": `MainLife`,

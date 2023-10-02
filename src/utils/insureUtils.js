@@ -1,7 +1,9 @@
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { PRODUCT_ID } from 'app/constants/InsureCommon';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 export const TODAY_DATE = new Date();
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
@@ -389,4 +391,25 @@ export function getAgeFromIDNumber(southAfricanIDNumber) {
  */
 export function formatCurrencyInsureCoverAmount(currencyString) {
 	return currencyString.split(`.`)[0];
+}
+
+/**
+ * Validate both email address values against a regex pattern and return a validity boolean
+ * 
+ * @export
+ * @param {String} email Email address
+ * @param {String} confirmEmail Confirm email address
+ * @returns {boolean} valid flag
+ */
+export function validateEmailAddressCombo(email, confirmEmail) {
+	if (isNullorEmpty(email)) {
+		return false;
+	}
+	if (email !== confirmEmail) {
+		return false;
+	}
+	if (!isNullorEmpty(email) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(email)) {
+		return false;
+	}
+	return true;
 }
