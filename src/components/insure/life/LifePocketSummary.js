@@ -512,7 +512,10 @@ class LifePocketSummary extends Component {
 	_renderAddBeneficiaryDialog() {
 		return this.showAddBeneficiaryDialog === false ? ``
 			: html`
-				<horizon-insure-life-add-beneficiary-dialog @close-dialog="${() => this.showAddBeneficiaryDialog = false}">
+				<horizon-insure-life-add-beneficiary-dialog 
+				.selectedPocket = "${this.selectedPocket}"
+				.pocketBeneficiaries = "${this.pocketBeneficiaries}"
+				@close-dialog="${() => this.showAddBeneficiaryDialog = false}">
 				</horizon-insure-life-add-beneficiary-dialog>
 		`;
 	}
