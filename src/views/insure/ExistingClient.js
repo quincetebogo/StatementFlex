@@ -478,7 +478,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _printEstimate(e) {
-		await this._calculateClientEstimate(e);
+		this.estimate = await this._calculateClientEstimate(e);
 		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
