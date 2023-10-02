@@ -1,14 +1,19 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { getAgeFromDob } from 'app/utils/insureUtils';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const STEPS = {
 	BENEFICIARY_DETAILS: 1,
 	GUARDIAN_DETAILS: 2,
 	MONEY_ALLOCATION: 3
+};
+
+const VALIDATION_ERRORS = {
+	REQUIRED_FIELD: `Required Field`, 
+	BENE_OVER_18: `Beneficiary must be under 18`
 };
 
 /**
@@ -45,6 +50,7 @@ class LifeAddBeneficiaryDialog extends Component {
 
 			currentStep: { type: Number, state: true },
 			newBeneficiary: { type: Object, state: true },
+			newBeneficiaryErrors: { type: Object, state: true },
 			guardianDetails: { type: Object, state: true },
 			selectedPocket: { type: Object, state: true }
 			
@@ -93,8 +99,6 @@ class LifeAddBeneficiaryDialog extends Component {
 				"gender": ``,
 				"dateOfBirth": ``
 		};
-
-		console.log(`this.newBeneficiary :>> `, this.newBeneficiary);
 	}
 
 	// #endregion PRIVATE METHODS
@@ -116,31 +120,29 @@ class LifeAddBeneficiaryDialog extends Component {
 	_nextClick() {
 		let errors = false;
 		if (this.currentStep === STEPS.BENEFICIARY_DETAILS) {
-			if (isNullorEmpty(this.newBeneficiary.firstName)) {
-				this.newBeneficiaryErrors.firstName = `Required Field`;
-				this.requestUpdate();
+			if (isNullorEmpty(this.newBeneficiary?.firstName)) {
+				this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 				errors = true;
 			}
-			if (isNullorEmpty(this.newBeneficiary.lastName)) {
-				this.newBeneficiaryErrors.lastName = `Required Field`;
-				this.requestUpdate();
+			if (isNullorEmpty(this.newBeneficiary?.lastName)) {
+				this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 				errors = true;
 			}
-			if (isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
-				this.newBeneficiaryErrors.dateOfBirth = `Required Field`;
-				this.requestUpdate();
+			if (isNullorEmpty(this.newBeneficiary?.dateOfBirth)) {
+				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 				errors = true;
 			}
-			if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
-				console.log(`getAgeFromDob(this.newBeneficiary.dateOfBirth) :>> `, getAgeFromDob(this.newBeneficiary.dateOfBirth));
-				this.newBeneficiaryErrors.dateOfBirth = `Beneficiary must be under 18`;
+			if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) > 18) {
+				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
 				errors = true;
 			}
 
 			if (errors === true) {
+				this.requestUpdate();
 				return;
 			}
 
+			console.log(this.newBeneficiaryErrors);
 			this.newBeneficiaryErrors.firstName = ``;
 			this.newBeneficiaryErrors.lastName = ``;
 			this.newBeneficiaryErrors.dateOfBirth = ``;
@@ -149,7 +151,8 @@ class LifeAddBeneficiaryDialog extends Component {
 		} else {
 			this.currentStep = STEPS.MONEY_ALLOCATION;
 		}
-			
+
+		this.requestUpdate();
 	}
 
 	/**
@@ -177,15 +180,20 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneNameChange(e) {
+	_firstNameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.newBeneficiary.firstName = e.detail.new;
-			if (isNullorEmpty(this.newBeneficiary.firstName)) {
-				this.newBeneficiaryErrors.firstName = `Required Field`;
+			if (beneficiary) {
+				this.newBeneficiary.firstName = e.detail.new;
+				if (isNullorEmpty(this.newBeneficiary.firstName)) {
+					this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.newBeneficiaryErrors.firstName = ``;
+				}
 			} else {
-				this.newBeneficiaryErrors.firstName = ``;
+				// guardian deets
 			}
 		}
 		this.requestUpdate();
@@ -195,15 +203,20 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * Event fired when a beneficiary SURNAME value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneSurnameChange(e) {
+	_surnameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.newBeneficiary.lastName = e.detail.new;
-			if (isNullorEmpty(this.newBeneficiary.lastName)) {
-				this.newBeneficiaryErrors.lastName = `Required Field`;
+			if (beneficiary) {
+				this.newBeneficiary.lastName = e.detail.new;
+				if (isNullorEmpty(this.newBeneficiary.lastName)) {
+					this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.newBeneficiaryErrors.lastName = ``;
+				}
 			} else {
-				this.newBeneficiaryErrors.lastName = ``;
+				// guardian deets
 			}
 		}
 		this.requestUpdate();
@@ -213,40 +226,48 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * Event fired when a beneficiary ID value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneIDChange(e) {
+	_idChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			// find out about this, no id field for bene
+			if (beneficiary) {
+				// find out about this, no id field for bene
+			} else {
+				// guardian deets
+			}
 		}
-		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary DoB value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneDobChange(e) {
+	_dobChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.newBeneficiary.dateOfBirth = e.detail.new.date;
-			const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
-			if (wrongTimeZone === true) {
-				let dob = this.newBeneficiary.dateOfBirth;
-				const timezone = `+02:00`;
-				dob = dob.replace(timezone, ``);
-				this.newBeneficiary.dateOfBirth = dob;
-			}
-			
-			if (isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
-				this.newBeneficiaryErrors.dateOfBirth = `Required Field`;
+			if (beneficiary) {
+				this.newBeneficiary.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
+				if (wrongTimeZone === true) {
+					let dob = this.newBeneficiary.dateOfBirth;
+					const timezone = `+02:00`;
+					dob = dob.replace(timezone, ``);
+					this.newBeneficiary.dateOfBirth = dob;
+				}
+				
+				if (isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
+					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.newBeneficiaryErrors.dateOfBirth = ``;
+				}
+				if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
+					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+				}
 			} else {
-				this.newBeneficiaryErrors.dateOfBirth = ``;
-			}
-			if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
-				console.log(`getAgeFromDob(this.newBeneficiary.dateOfBirth) :>> `, getAgeFromDob(this.newBeneficiary.dateOfBirth));
-				this.newBeneficiaryErrors.dateOfBirth = `Beneficiary must be under 18`;
+				// guardian deets
 			}
 		}
 		this.requestUpdate();
@@ -256,104 +277,34 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneCellphoneNumChange(e) {
+	_cellphoneNumChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			// find out about this, no cell field for bene
+			if (beneficiary) {
+				// find out about this, no cell field for bene
+			} else {
+				// guardian deets
+			}
 		}
-		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary EMAIL value changes
 	 * 
 	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
 	 * @returns {void}
 	 */
-	_beneEmailChange(e) {
+	_emailChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			// find out about this, no email field for bene
+			if (beneficiary) {
+				// find out about this, no email field for bene
+			} else {
+				// guardian deets
+			}
 		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian FIRST NAME value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianNameChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian SURNAME value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianSurnameChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian ID value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianIdChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian DoB value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianDobChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian CELL NUMBER value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianCellNumberChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a guardian EMAIL value changes
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_guardianEmailChange(e) {
-		if (e.detail.old !== e.detail.new) {
-			// find out about this, where does guardian go?
-		}
-		this.requestUpdate();
 	}
 
 	/**
@@ -518,42 +469,38 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_renderBeneDetails() {
 		return html`
-			<!-- <div class="grouping" >
-				<capitec-select label="Choose Relationship" display-field="text" id-field="code" style="width: 100%" >
-				</capitec-select>
-			</div> -->
 		
 			<div class="grouping" >
 				<capitec-text-field label="First Name" style="width: 50%" 
 					error="${this.newBeneficiaryErrors?.firstName === undefined ? `` : this.newBeneficiaryErrors.firstName}"
-					@value-changed="${(e) => this._beneNameChange(e)}">
+					@value-changed="${(e) => this._firstNameChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" 
 					error="${this.newBeneficiaryErrors?.lastName === undefined ? `` : this.newBeneficiaryErrors.lastName}"
-					@value-changed="${(e) => this._beneSurnameChange(e)}">
+					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
 			</div>
 
 			<div class="grouping" >
 				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
-					@value-changed="${(e) => this._beneIDChange(e)}">
+					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
 					error="${this.newBeneficiaryErrors?.dateOfBirth === undefined ? `` : this.newBeneficiaryErrors.dateOfBirth}"
-					@value-changed="${(e) => this._beneDobChange(e)}">
+					@value-changed="${(e) => this._dobChange(e, true)}">
 				</capitec-date-time-picker>
 			</div>
 
 			<div class="grouping" >
 				<capitec-text-field label="Cellphone number (optional)" style="width: 50%" maxlength="10" type="numeric"
-					@value-changed="${(e) => this._beneCellphoneNumChange(e)}">
+					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Email address (optional)" style="width: 50%"
-					@value-changed="${(e) => this._beneEmailChange(e)}" >
+					@value-changed="${(e) => this._emailChange(e, true)}" >
 				</capitec-text-field>
 			</div>
 		
@@ -569,32 +516,32 @@ class LifeAddBeneficiaryDialog extends Component {
 		return html`
 		<div class="grouping" >
 				<capitec-text-field label="First Name" style="width: 50%" 
-					@value-changed="${(e) => this._guardianNameChange(e)}">
+					@value-changed="${(e) => this._firstNameChange(e, false)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" 
-					@value-changed="${(e) => this._guardianSurnameChange(e)}">
+					@value-changed="${(e) => this._surnameChange(e, false)}">
 				</capitec-text-field>
 			</div>
 
 			<div class="grouping" >
 				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
-					@value-changed="${(e) => this._guardianIdChange(e)}">
+					@value-changed="${(e) => this._idChange(e, false)}">
 				</capitec-text-field>
 			
 				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					@value-changed="${(e) => this._guardianDobChange(e)}">
+					@value-changed="${(e) => this._dobChange(e, false)}">
 				</capitec-date-time-picker>
 			</div>
 
 			<div class="grouping" >
 				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength="10" type="numeric"
-					@value-changed="${(e) => this._guardianCellNumberChange(e)}">
+					@value-changed="${(e) => this._cellNumberChange(e, false)}">
 				</capitec-text-field>
 
 				<capitec-text-field label="Email address (optional)" style="width: 50%"
-					@value-changed="${(e) => this._guardianEmailChange(e)}">
+					@value-changed="${(e) => this._emailChange(e, false)}">
 				</capitec-text-field>
 				
 			</div>
@@ -617,7 +564,7 @@ class LifeAddBeneficiaryDialog extends Component {
 				<div style="display: flex; gap: 40px;">
 					<horizon-label
 						label="Allocated amount"
-						value="${formatCurrency(this.selectedPocket.coverage)}">
+						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.selectedPocket.coverage))}">
 					</horizon-label>
 
 					<horizon-label
@@ -627,7 +574,7 @@ class LifeAddBeneficiaryDialog extends Component {
 				</div>
 			</div>
 
-			<div class="beneficiary-card"> <!-- TODO:class name needs change-->
+			<div class="beneficiary-card"> 
 				<div style="display: flex; gap:20px;">
 					<capitec-toggle label="Split the amount" @value-changed="${(e) => this._splitAmount()}"></capitec-toggle>
 				</div>
