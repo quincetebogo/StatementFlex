@@ -28,10 +28,10 @@ class LifeAddBeneficiaryDialog extends Component {
 	constructor() {
 		super();
 
-		this.actioningChild = true;
+		this.isChild = false;
 
 		this.currentStep = STEPS.BENEFICIARY_DETAILS;
-		this.pocketBeneficiaries = {};
+		this.newPocketBeneficiaries = [];
 		this.newBeneficiary = {};
 		this.newBeneficiaryErrors = {};
 		this.guardianDetails = {};
@@ -52,7 +52,9 @@ class LifeAddBeneficiaryDialog extends Component {
 			newBeneficiary: { type: Object, state: true },
 			newBeneficiaryErrors: { type: Object, state: true },
 			guardianDetails: { type: Object, state: true },
-			selectedPocket: { type: Object, state: true }
+			selectedPocket: { type: Object, state: true },
+			newPocketBeneficiaries: { type: Array, state: true }
+			
 			
 		};
 	}
@@ -99,6 +101,10 @@ class LifeAddBeneficiaryDialog extends Component {
 				"gender": ``,
 				"dateOfBirth": ``
 		};
+		
+		this.pocketBeneficiaries.forEach(beneficiary => {
+			this.newPocketBeneficiaries.push(beneficiary);
+		});
 	}
 
 	// #endregion PRIVATE METHODS
@@ -142,12 +148,17 @@ class LifeAddBeneficiaryDialog extends Component {
 				return;
 			}
 
-			console.log(this.newBeneficiaryErrors);
 			this.newBeneficiaryErrors.firstName = ``;
 			this.newBeneficiaryErrors.lastName = ``;
 			this.newBeneficiaryErrors.dateOfBirth = ``;
+			if (this.isChild) {
+				this.currentStep = STEPS.GUARDIAN_DETAILS;
+			} else {
+				this.currentStep = STEPS.MONEY_ALLOCATION;
+			}
+
+			this.newPocketBeneficiaries.push(this.newBeneficiary);
 			
-			this.currentStep = STEPS.GUARDIAN_DETAILS;
 		} else {
 			this.currentStep = STEPS.MONEY_ALLOCATION;
 		}
@@ -162,8 +173,15 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_backClick() {
 		if (this.currentStep === STEPS.MONEY_ALLOCATION) {
-			this.currentStep = STEPS.GUARDIAN_DETAILS;
+			if (this.isChild) {
+				this.currentStep = STEPS.GUARDIAN_DETAILS;
+			} else {
+				this.newPocketBeneficiaries.splice(this.newPocketBeneficiaries.length - 1, 1);
+				this.currentStep = STEPS.BENEFICIARY_DETAILS;
+			} 
+			
 		} else {
+			this.newPocketBeneficiaries.splice(this.newPocketBeneficiaries.length - 1, 1);
 			this.currentStep = STEPS.BENEFICIARY_DETAILS;
 		}
 	}
@@ -263,9 +281,12 @@ class LifeAddBeneficiaryDialog extends Component {
 				} else {
 					this.newBeneficiaryErrors.dateOfBirth = ``;
 				}
-				if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
-					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+				if (this.isChild) {
+					if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
+						this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+					}
 				}
+				
 			} else {
 				// guardian deets
 			}
@@ -306,6 +327,22 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 		}
 	}
+	
+	_allocatedAmountChange(e, index) {
+		
+		if (e.detail.old !== e.detail.new) {
+			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+				this.newPocketBeneficiaries[index].educationBenefitAmount = e.detail.new;
+			}
+			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				this.newPocketBeneficiaries[index].monthlyPayoutBenefitAmount = e.detail.new;
+			}
+			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				this.newPocketBeneficiaries[index].onceOffPayoutBenefitAmount = e.detail.new;
+			}
+		}
+		this.requestUpdate();
+	}
 
 	/**
 	 * Event fired to equally split the coverage amount between beneficiaries in the pocket
@@ -326,13 +363,13 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * @returns {Number} number 
 	 */
 	_getBenePocketAllocation(beneficiary) {
-		if (this.selectedPocket.pocketType = LIFE_POCKET_TYPES.EDUCATION) {
+		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
 			return beneficiary.educationBenefitAmount;
 		}
-		if (this.selectedPocket.pocketType = LIFE_POCKET_TYPES.MONTHLY) {
+		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return beneficiary.monthlyPayoutBenefitAmount;
 		}
-		if (this.selectedPocket.pocketType = LIFE_POCKET_TYPES.ONCEOFF) {
+		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			return beneficiary.onceOffPayoutBenefitAmount;
 		}
 	}
@@ -345,14 +382,61 @@ class LifeAddBeneficiaryDialog extends Component {
 	_calculateRemainingBalance() {
 		let remainingBalance = this.selectedPocket.coverage;
 
-		if (this.pocketBeneficiaries.length > 0) {
-			this.pocketBeneficiaries.forEach(bene => {
+		if (this.newPocketBeneficiaries.length > 0) {
+			this.newPocketBeneficiaries.forEach(bene => {
 				remainingBalance -= this._getBenePocketAllocation(bene);
 			});
 		}
+		this.requestUpdate();
+		return formatCurrencyInsureCoverAmount(formatCurrency(remainingBalance));
+	}
 
-		return formatCurrency(remainingBalance);
+	_determineSteps() {
+		let steps = [];
+		if (this.isChild) {
+			steps = [{ title: `Child details (under 18)` }, { title: `Caregiver details` }, { title: `Allocate cover` }];
+			return steps;
 		}
+		steps = [{ title: `Beneficiary details` }, { title: `Allocate cover` }];
+		return steps;
+	}
+
+	_determinePocketLabel() {
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			return `Education Fund`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			return `Monthly Payout`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return `Once Off Payout`;
+		}
+	}
+
+	_determinePocketIcon() {
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			return `/insure_education_pocket`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			return `/insure_monthly_pocket`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return `/insure_onceoff_pocket`;
+		}
+	}
+
+	_determinePocketClass() {
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			return `education-label`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			return `monthly-label`;
+		}
+		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return `onceoff-label`;
+		}
+	}
+
 
 	// #endregion EVENT HANDLERS
 
@@ -403,6 +487,16 @@ class LifeAddBeneficiaryDialog extends Component {
 					--theme-label-font-color: #AA1580;
 				}
 
+				.monthly-label{
+					align-self: center;
+					--theme-label-font-color: #852CB3;
+				}
+
+				.onceoff-label{
+					align-self: center;
+					--theme-label-font-color: #009E96;
+				}
+				
 				.pocket-card{ 
 					background-color: #F4F4F4;
 					display: flex;
@@ -443,7 +537,7 @@ class LifeAddBeneficiaryDialog extends Component {
 		return html`
 			<capitec-stepper
 				layout="horizontal"
-				.steps="${[{ title: `Child details(under 18)` }, { title: `Guardian details` }, { title: `Money Allocation` }]}"
+				.steps="${this._determineSteps()}"
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
@@ -557,13 +651,13 @@ class LifeAddBeneficiaryDialog extends Component {
 		return html`
 			<div class="pocket-card"> 
 				<div style="display: flex; gap:20px;">
-					<capitec-icon icon="/insure_education_pocket" size="large"></capitec-icon>
-					<capitec-label label="Education Fund" type="subtitle" class="education-label"></capitec-label>
+					<capitec-icon icon="${this._determinePocketIcon()}" size="large"></capitec-icon>
+					<capitec-label label="${this._determinePocketLabel()}" type="subtitle" class="${this._determinePocketClass()}"></capitec-label>
 				</div>
 
 				<div style="display: flex; gap: 40px;">
 					<horizon-label
-						label="Allocated amount"
+						label="Cover amount"
 						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.selectedPocket.coverage))}">
 					</horizon-label>
 
@@ -580,7 +674,7 @@ class LifeAddBeneficiaryDialog extends Component {
 				</div>
 			</div>
 
-			${this.pocketBeneficiaries?.map((beneficiary, index) => html`
+			${this.newPocketBeneficiaries?.map((beneficiary, index) => html`
 				<div class="beneficiary-card">
 					<div style="display: flex; gap:20px;">
 						<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
@@ -590,7 +684,8 @@ class LifeAddBeneficiaryDialog extends Component {
 						</horizon-label>
 					</div>
 					<div style="display: flex; gap: 20px;">
-						<capitec-text-field type="currency" value="${this._getBenePocketAllocation(beneficiary)}">
+						<capitec-text-field type="currency" value="${this._getBenePocketAllocation(beneficiary)}"
+							@value-change="${(e) => this._allocatedAmountChange(e, index)}">
 						</capitec-text-field>
 					</div>
 				</div>
