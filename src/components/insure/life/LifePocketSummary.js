@@ -29,12 +29,13 @@ class LifePocketSummary extends Component {
 		this.selectedPocketType = ``;
 		this.selectedLifePolicy = {};
 		this.selectedPocket = {};
-		this.pocketBeneficiaries = {};
+		this.pocketBeneficiaries = [];
 
 		this.showEditBeneficiaryDialog = false;
 		this.showUpdateMoneyDialog = false;
 		this.showDeleteBeneficiaryDialog = false;
 		this.showAddBeneficiaryDialog = false;
+		this.isChild = false;
 	}
 
 	// #endregion INITIALISATION
@@ -56,6 +57,7 @@ class LifePocketSummary extends Component {
 			showUpdateMoneyDialog: { type: Boolean, state: true },
 			showDeleteBeneficiaryDialog: { type: Boolean, state: true },
 			showAddBeneficiaryDialog: { type: Boolean, state: true },
+			isChild: { type: Boolean, state: true }
 		};
 	}
 
@@ -219,6 +221,11 @@ class LifePocketSummary extends Component {
 	}
 
 	_openAddBeneficiaryDialog() {
+		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			this.isChild = true;
+		} else {
+			this.isChild = false;
+		}
 		this.showAddBeneficiaryDialog = true;
 	}
 
@@ -513,6 +520,7 @@ class LifePocketSummary extends Component {
 		return this.showAddBeneficiaryDialog === false ? ``
 			: html`
 				<horizon-insure-life-add-beneficiary-dialog 
+				.isChild = "${this.isChild}"
 				.selectedPocket = "${this.selectedPocket}"
 				.pocketBeneficiaries = "${this.pocketBeneficiaries}"
 				@close-dialog="${() => this.showAddBeneficiaryDialog = false}">
