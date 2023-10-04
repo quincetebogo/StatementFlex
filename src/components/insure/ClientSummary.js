@@ -73,6 +73,7 @@ class ClientSummary extends Component {
 		this.emailEstimateSuccess = false;
 		this.showRequestCallbackDialog = false;
 		this.requestCallbackSuccess = false;
+		this.showEarlyCollectionDialog = false;
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
@@ -143,6 +144,7 @@ class ClientSummary extends Component {
 			showLodgeClaimInfoDialog: { type: Boolean, state: true },
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
+			showEarlyCollectionDialog: { type: Boolean, state: true },
 
 			selectedFlow: { type: String, state: true },
 			selectedContractRef: { type: String, state: true },
@@ -249,6 +251,16 @@ class ClientSummary extends Component {
 	_goToSMSHistory(policyItem) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_SMS_HISTORY, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, { detail: { policyItem: policyItem } }));
+	}
+
+	/**
+	 * Open dialog for early collection options
+	 * @param {Object} policyItem policyItem
+	 * @returns {void}
+	 */
+	_openEarlyCollectionOPTInDialog(policyItem) {
+		this.selectedPolicyItem = policyItem;
+		this.showEarlyCollectionDialog = true;
 	}
 
 	/**
@@ -539,6 +551,7 @@ class ClientSummary extends Component {
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
+		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
 	}
 
 	/**
@@ -651,6 +664,12 @@ class ClientSummary extends Component {
 				return html`<capitec-overflow-menu-item icon="system/send-action" 
 					label="SMS History" @click="${() => this._goToSMSHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN:
+				return html`<capitec-overflow-menu-item
+					@click="${() => this.showEarlyCollectionDialog = true}"
+					icon="system/send-action" 
+					label="Early Collection OPT-IN">
+				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
 		}
@@ -715,6 +734,8 @@ class ClientSummary extends Component {
 		}
 		return displayStatus;
 	}
+
+
 
 
 	/**
@@ -1030,6 +1051,7 @@ class ClientSummary extends Component {
 			${this._renderCFPAgreementDialog()}
 			${this._renderInsureEmailDialog()}
 			${this._renderRequestCallbackDialog()}
+			${this._renderEarlyCollectionsDialog()}
 		`;
 	}
 
@@ -1592,6 +1614,20 @@ class ClientSummary extends Component {
 				</capitec-toast>
 
 	`;
+	}
+
+	/**
+	 * Render dialog for early collection options
+	 * @returns {void}
+	 */
+	_renderEarlyCollectionsDialog() {
+		return this.showEarlyCollectionDialog === false ? html``
+			: html`
+			<horizon-insure-request-callback-dialog
+			.toggleOption ="${null}"
+			@cancel-click="${() => this.showEarlyCollectionDialog = false}">
+			</horizon-insure-request-callback-dialog>
+		`;
 	}
 
 	// #endregion RENDERING
