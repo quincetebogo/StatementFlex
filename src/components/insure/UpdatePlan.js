@@ -2551,7 +2551,7 @@ class UpdatePlan extends Component {
 				
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
-					?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
+					?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`}"
 					error="${roleplayer?.coverDetails?.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
