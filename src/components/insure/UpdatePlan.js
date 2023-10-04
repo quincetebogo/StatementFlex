@@ -25,6 +25,7 @@ import 'app/components/dialogs/insure/IneligibleLivesDialog';
 import 'app/components/dialogs/insure/LAAgreementDialog';
 import 'app/components/dialogs/insure/YWNBPAgreementDialog';
 import 'app/components/dialogs/insure/YPAgreementDialog';
+import 'app/components/dialogs/insure/PolicyRulesWarningDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -93,7 +94,8 @@ class UpdatePlan extends Component {
 		this.agreementYWNBPAccepted = ``;
 		this.showYPAgreementDialog = false;
 		this.agreementYPAccepted = ``;
-
+		this.showPolicyRulesWarningDialog = false;
+		this.policyRulesDialogContent = {};
 
 		this.agreementFCPAccepted = ``;
 		this.agreementYBPAccepted = ``;
@@ -174,6 +176,8 @@ class UpdatePlan extends Component {
 			showYWNBPAgreementDialog: { type: Boolean, state: true },
 			showYPAgreementDialog: { type: Boolean, state: true },
 			showValidationConfirmDialog: { type: Boolean, state: true },
+			showPolicyRulesWarningDialog: { type: Boolean, state: true },
+			policyRulesDialogContent: { type: Object, state: true },
 
 			agreementYPAccepted: { type: String, state: true },
 			agreementYWNBPAccepted: { type: String, state: true },
@@ -402,6 +406,25 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_openRemoveLifeAssuredDialog(roleplayer, index) {
+
+		if (this.policyDetails?.policyRule === `MaternityWaiver`) {
+			this.showPolicyRulesWarningDialog = true;
+			this.policyRulesDialogContent = {
+				header: `Action not allowed`,
+				body: `No changes can be made to the policy when the Newborn Premium Waiver benefit is active.`
+			};
+			return;
+		}
+
+		if (this.policyDetails?.policyRule === `PolicyPause`) {
+			this.showPolicyRulesWarningDialog = true;
+			this.policyRulesDialogContent = {
+				header: `Action not allowed`,
+				body: `No changes can be made to the policy when the Voluntary policy pause benefit is active.`
+			};
+			return;
+		}
+
 		this.showRemoveLifeAssuredDialog = true;
 		if (!roleplayer.firstName) {
 			this.lifeAssuredToRemoveDescription = roleplayer.relationship;
@@ -1087,6 +1110,23 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_openAddLifeDialog() {
+		if (this.policyDetails?.policyRule === `MaternityWaiver`) {
+			this.showPolicyRulesWarningDialog = true;
+			this.policyRulesDialogContent = {
+				header: `Action not allowed`,
+				body: `No changes can be made to the policy when the Newborn Premium Waiver benefit is active.`
+			};
+			return;
+		}
+
+		if (this.policyDetails?.policyRule === `PolicyPause`) {
+			this.showPolicyRulesWarningDialog = true;
+			this.policyRulesDialogContent = {
+				header: `Action not allowed`,
+				body: `No changes can be made to the policy when the Voluntary policy pause benefit is active.`
+			};
+			return;
+		}
 		this.showAddRelationshipDialog = true;
 	}
 
@@ -1332,7 +1372,6 @@ class UpdatePlan extends Component {
 		if (this.canReinstate === true && this.policyDetails.ineligibleRoleplayers.length > 0) {
 			this.showIneligibleLivesDialog = true;
 		}
-
 	}
 
 	/**
@@ -1970,7 +2009,8 @@ class UpdatePlan extends Component {
 		${this._renderReinstatePolicyAgreementDialog()}
 		${this._renderValidationConfirmDialog()}
 		${this._renderUpdateValidationDialog()}
-		${this._renderIneligibleLivesDialog()}`;
+		${this._renderIneligibleLivesDialog()}
+		${this._renderPolicyPauseWarningDialog()}`;
 	}
 
 	/**
@@ -2827,6 +2867,18 @@ class UpdatePlan extends Component {
 			</horizon-insure-ineligible-lives-dialog>
 		
 		`;
+	}
+
+	/**
+	 * Render Dialog for Ineligible lives dialog 
+	 * @returns {html} html content
+	 */
+	_renderPolicyPauseWarningDialog() {
+		return this.showPolicyRulesWarningDialog === false ? `` : html`
+			<horizon-insure-funeral-policy-rules-warning 
+				.content="${this.policyRulesDialogContent}"
+				@close-dialog = "${() => this.showPolicyRulesWarningDialog = false}" >
+			</horizon-insure-funeral-policy-rules-warning>`;
 	}
 
 	// #endregion
