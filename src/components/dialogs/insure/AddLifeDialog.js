@@ -115,10 +115,19 @@ class AddLifeDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
-		if (!isNullorEmpty(this.beneToAdd) && this.beneToAdd.relationship !== `Spouse` && this.beneToAdd.relationship !== `Parent` && this.beneToAdd.relationship !== `Child`) {
+		if (this.selectedRelationship === `Spouse` || this.selectedRelationship === `Parent` || this.selectedRelationship === `Child`) {
+			this.showExtendedList = false;
+		}
+		
+		if (Object.keys(this.beneToAdd).length !== 0 && (this.beneToAdd?.relationship !== `Spouse` || this.beneToAdd?.relationship !== `Parent` || this.beneToAdd?.relationship !== `Child`)) {
 			this.showExtendedList = true;
 		}
 
+		if (this.selectedRelationship === `BeneficiaryOnly`) {
+			this.showExtendedList = false;
+			this.showAddBeneficiaryOnly = true;
+			return;
+		}
 		const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
 		this.dispatchEvent(new CustomEvent(`add-new-life`, { detail: { relationship: this.selectedRelationship, coverDetails: coverDetails, beneficiary: this.beneToAdd } }));
 		this.showExtendedList = false;
@@ -131,6 +140,7 @@ class AddLifeDialog extends Component {
 	 */
 	_relationshipSelect(event) {
 		this.showAddBeneficiaryOnly = false;
+		this.beneToAdd = {};
 		if (event.detail.new) {
 			this.selectedRelationship = event.target.id;
 			this.requestUpdate();
