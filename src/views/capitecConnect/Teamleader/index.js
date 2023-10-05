@@ -73,8 +73,33 @@ export class CapitecConnectTeamLeader extends View {
 		// AVAILABLE, LOCKED, ACCEPTED, DECLINED, FLAGGED
 		console.log("searchReversals")
 		console.log(filters)
+		
+		//
+		const request = {
+			cif: "118292863372",
+			channel: "kHUKfYaKlx8dhuuoPoml1z7UT",
+			msisdn: "27193639391",
+			amount: 0,
+			transactionReference: "c9cd1324-24d1-11ee-be56-0242ac120002",
+			transactionDate: "2023-10-04"
+		  };
+
+		const status = `AVAILABLE`;
+
+		const pageable = {
+			"page": 0,
+			"size": 5,
+			"sort": [
+			  "string"
+			]
+		  }
+
+		const records = await this.connectService.getReversals(request, status, pageable);
+		//
+
 		console.log(renderSet)
-		const records = [
+
+		const recordsMock = [
 			{
 			  "businessTransactionReference": "TX12345",
 			  "amount": 100.00,
