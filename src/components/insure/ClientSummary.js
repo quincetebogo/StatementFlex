@@ -21,6 +21,7 @@ import 'app/components/dialogs/insure/CancelPolicyDialog';
 import 'app/components/insure/ClientClaimsSummary';
 import 'app/components/dialogs/insure/CFPAgreementDialog';
 import 'app/components/dialogs/insure/RequestCallbackDialog';
+import 'app/components/dialogs/insure/EarlyCollectionOptionsDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -153,8 +154,8 @@ class ClientSummary extends Component {
 			productCode: { type: String, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
-			requestCallback: { type: Object, state: true }
-
+			requestCallback: { type: Object, state: true },
+			updateEarlyCollectionPreferences: { type: Object, state: true }
 		};
 	}
 
@@ -666,9 +667,9 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN:
 				return html`<capitec-overflow-menu-item
-					@click="${() => this.showEarlyCollectionDialog = true}"
+					@click="${() => this._openEarlyCollectionOPTInDialog(policyItem)}"
 					icon="system/send-action" 
-					label="Early Collection OPT-IN">
+					label="Early Collection Options">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
@@ -1623,10 +1624,11 @@ class ClientSummary extends Component {
 	_renderEarlyCollectionsDialog() {
 		return this.showEarlyCollectionDialog === false ? html``
 			: html`
-			<horizon-insure-request-callback-dialog
-			.toggleOption ="${null}"
-			@cancel-click="${() => this.showEarlyCollectionDialog = false}">
-			</horizon-insure-request-callback-dialog>
+			<horizon-insure-early-collection-options-dialog
+				.policy="${this.selectedPolicyItem}"
+				.updateEarlyCollectionPreferences="${this.updateEarlyCollectionPreferences}"
+				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
+			</horizon-insure-early-collection-options-dialog>
 		`;
 	}
 

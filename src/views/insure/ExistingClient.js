@@ -1295,6 +1295,25 @@ export class ExistingClient extends InsureViewBase {
 		this.clientArrears = arrearsResp?.result;
 	}
 
+	/**
+	 * Update client elect preferences for type
+	 * @param {Object} electRequest Update selected preference request
+	 * @returns {void} 
+	 */
+	async _updateElectOptions(electRequest) {
+		electRequest.cifNumber = this.callerInformation.cifNumber;
+		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+
+		const electResp = await this.insureService.SetElectOptions(electRequest);
+
+		if (!electResp.succeeded) {
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(electResp.exception);
+			return;
+		}
+		await this._retrieveClientSummary();
+	}
+
 	// #endregion EVENT HANDLER
 
 
@@ -1407,6 +1426,7 @@ export class ExistingClient extends InsureViewBase {
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 				.getArrears = "${() => this._getArrears()}"
 				.clientArrears = "${this.clientArrears}"
+				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"

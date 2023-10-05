@@ -208,7 +208,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -396,6 +396,10 @@
 			"positiveCase": true
 		},
 		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureElectOption": {
 			"enabled": false,
 			"positiveCase": true
 		}
