@@ -62,9 +62,9 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	_setToggleLabel() {
 		if (this.optedOutOfEarlyCollection === true) {
-			this.earlyCollectionLabel = `Client is opted IN for Early December Collections`;
-		} else {
 			this.earlyCollectionLabel = `Client is opted OUT for Early December Collections`;
+		} else {
+			this.earlyCollectionLabel = `Client is opted IN for Early December Collections`;
 		}
 	}
 
