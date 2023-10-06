@@ -513,7 +513,7 @@ class AddBeneficiaryDialog extends Component {
 		return this.showExtendedRelationships === true 
 		? html`
 		<capitec-button slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
-		</capitec-button></capitec-button>
+		</capitec-button>
 		` 
 		: html`
 		<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">

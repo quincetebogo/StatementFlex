@@ -386,6 +386,7 @@ class UpdatePlan extends Component {
 		if (this.policyDetails.roleplayers[this.lifeAssuredToRemove].beneficiary === true) {
 			if (this.policyDetails.roleplayers[this.lifeAssuredToRemove].rowID === this.beneOnlyRowId) {
 				this.policyDetails.roleplayers[this.lifeAssuredToRemove].relationship = `BeneficiaryOnly`;
+				this.beneOnlyRowId = 0;
 			}
 			this.policyDetails.roleplayers[this.lifeAssuredToRemove].lifeAssured = false;
 		} else {
@@ -943,7 +944,13 @@ class UpdatePlan extends Component {
 			if (ele.lifeAssured === true) {
 
 				// Name and surname
-				if (ele.firstName === `` || ele.surname === ``) {
+				if (ele.firstName === ``) {
+					ele.coverDetails.firstNameErrorMessage = `First name is a required field`;
+					ele.coverDetails.canSubmit = false;
+				}
+
+				if (ele.surname === ``) {
+					ele.coverDetails.surnameErrorMessage = `Surname is a required field`;
 					ele.coverDetails.canSubmit = false;
 				}
 
