@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { CARD_DISPLAY_TYPES } from 'app/constants/Common';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -17,12 +18,6 @@ const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	UPDATE_LIMITS: 1,
 	DISCARD: 2
-};
-
-const CARD_DISPLAY_TYPES = {
-	PRIMARY_CARD: `Primary_Card`,
-	SUPPLEMENTARY_CARD: `Supplementary_Card`,
-	VIRTUAL_CARD: `Virtual_Card`
 };
 
 const CARD_TYPE_MAPPING = {
