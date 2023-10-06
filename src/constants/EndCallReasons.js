@@ -431,7 +431,7 @@ export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
 			mapping: `general-product-enquiry`
 		},
 		{
-			key: NEED_HANDED_OFF,
+			key: NEED_ASSIGNED,
 			value: `Query escalation`,
 			mapping: `general-product-enquiry`
 		},

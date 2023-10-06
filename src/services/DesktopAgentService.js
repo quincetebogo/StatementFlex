@@ -134,7 +134,7 @@ export class DesktopAgentService {
 			// We validate the information received and discard anything unexpected that may 
 			// have been injected into the event.
 
-			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber.trim(), DesktopAgentService.incomingTelephoneNumberValidation);
 
 			if (newCallEvent.incomingTelephoneNumber === 0) {
 				if (eventData.IncomingTelephoneNumber.toLowerCase() !== `anonymous`) {
