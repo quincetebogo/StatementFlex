@@ -210,7 +210,7 @@ export const ClientSummary = {
 				"commencementDate": `2022-05-02T22:00:00.0000000+00:00`,
 				"status": `Cancelled`,
 				"displayStatus": `Cancelled`,
-				"earlyDecemberCollectionParticipating": false,
+				"isOptedOutForEarlyCollection": false,
 				"deductionDetails": {
 					"collectionMethod": `EFT`,
 					"mandateReferenceNumber": ``,
@@ -611,7 +611,7 @@ export const ClientSummary = {
 				"commencementDate": `2022-06-12T22:00:00.0000000+00:00`,
 				"status": `Active`,
 				"displayStatus": `Active`,
-				"earlyDecemberCollectionParticipating": true,
+				"isOptedOutForEarlyCollection": true,
 				"deductionDetails": {
 					"collectionMethod": `EFT`,
 					"mandateReferenceNumber": ``,
@@ -1012,7 +1012,7 @@ export const ClientSummary = {
 				"commencementDate": `2021-04-02T22:00:00.0000000+00:00`,
 				"status": `Active`,
 				"displayStatus": `Active`,
-				"earlyDecemberCollectionParticipating": false,
+				"isOptedOutForEarlyCollection": false,
 				"deductionDetails": {
 					"collectionMethod": `EFT`,
 					"mandateReferenceNumber": ``,
@@ -1262,7 +1262,7 @@ export const ClientSummary = {
 				"commencementDate": `2020-04-02T22:00:00.0000000+00:00`,
 				"status": `PendingInForce`,
 				"displayStatus": `Pending In Force`,
-				"earlyDecemberCollectionParticipating": false,
+				"isOptedOutForEarlyCollection": false,
 				"deductionDetails": {
 					"collectionMethod": `EFT`,
 					"mandateReferenceNumber": ``,
@@ -1676,7 +1676,7 @@ export const ClientSummary = {
 				"commencementDate": `2020-03-02T22:00:00.0000000+00:00`,
 				"status": `InForce`,
 				"displayStatus": `In Force`,
-				"earlyDecemberCollectionParticipating": true,
+				"isOptedOutForEarlyCollection": false,
 				"deductionDetails": {
 					"collectionMethod": `EFT`,
 					"mandateReferenceNumber": ``,

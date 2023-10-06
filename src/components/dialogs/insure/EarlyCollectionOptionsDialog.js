@@ -21,7 +21,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 		super();
 
 		this.policy = {};
-		this.earlyCollectionActive = false;
+		this.optedOutOfEarlyCollection = false;
 	}
 
 	// #endregion INITIALIZE
@@ -35,7 +35,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	static get properties() {
 		return {
 			policy: { type: Object, state: true },
-			earlyCollectionActive: { type: String, state: true },
+			optedOutOfEarlyCollection: { type: String, state: true },
 			earlyCollectionLabel: { type: String, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true }
 		};
@@ -49,7 +49,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this.earlyCollectionActive = this.policy.earlyDecemberCollectionParticipating;
+		this.optedOutOfEarlyCollection = this.policy.isOptedOutForEarlyCollection;
 
 		this._setToggleLabel();
 	}
@@ -61,7 +61,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_setToggleLabel() {
-		if (this.earlyCollectionActive === true) {
+		if (this.optedOutOfEarlyCollection === true) {
 			this.earlyCollectionLabel = `Client is opted IN for Early December Collections`;
 		} else {
 			this.earlyCollectionLabel = `Client is opted OUT for Early December Collections`;
@@ -77,7 +77,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 		const updatePrefsRequest = {
 			contractReference: this.policy.contractReference,
 			option: `EarlyCollection`,
-			participating: this.earlyCollectionActive
+			participating: this.optedOutOfEarlyCollection
 		};
 
 		const updatePrefsResponse = await this.updateEarlyCollectionPreferences(updatePrefsRequest);
@@ -98,7 +98,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 * @returns {void} 
 	*/
 	_preferenceChange(e) {
-		this.earlyCollectionActive = e.detail.new;
+		this.optedOutOfEarlyCollection = e.detail.new;
 		this._setToggleLabel();
 	}
 
@@ -145,7 +145,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 					Morbi nec tellus sit amet diam tristique mattis at non augue. Curabitur fermentum viverra cursus. Vestibulum
 					</p>
-					<capitec-toggle @value-change="${(e) => this._preferenceChange(e)}" .checked="${this.earlyCollectionActive}" .label="${this.earlyCollectionLabel}"></capitec-toggle>
+					<capitec-toggle @value-change="${(e) => this._preferenceChange(e)}" .checked="${this.optedOutOfEarlyCollection}" .label="${this.earlyCollectionLabel}"></capitec-toggle>
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
