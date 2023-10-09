@@ -79,62 +79,6 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
-	// App profile details 
-	async suspendApp(reason, userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-
-		if (await this.isMockEnabled(`suspendApp`)) {
-			return this.mock(`suspendApp`);
-		}
-
-		const url = `/clientcare-accesschannels-${this._version}/app/suspend`;
-		return this.post(
-			url,
-			{
-				"reason": reason,
-				"userRegNo": userRegNo
-			},
-			this.setToken(), 
-			`suspendApp`,
-			false,
-			null,
-			null,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	async cancelUSSD(cifNumber, msisdn, reason, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-
-		if (await this.isMockEnabled(`cancelUSSD`)) {
-			return this.mock(`cancelUSSD`);
-		}
-
-		const request =
-		{
-			"msisdn": `${msisdn}`,
-			"cif": `0${cifNumber}`,
-			"reason": `${reason}`
-		};
-
-		const url = `/clientcare-accesschannels-${this._version}/ussd/cancel`;
-
-		return this.post(
-			url,
-			request,
-			this.setToken(),
-			`cancelUSSD`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
 	// Internet Banking details
 	internetBankingLanding(userRegNo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const request = {
@@ -179,30 +123,6 @@ export class AccessChannelService extends ChannelServiceBase {
 			null,
 			null,
 			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	async suspendToken(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-
-		const url = `/clientcare-accesschannels-${this._version}/internet-banking/suspend-token`;
-
-		return this.post(
-			url,
-			{
-				"cif": request.cifNumber,
-				"tokenSerialNo": request.tokenSerialNo,
-				"reason": request.reason
-			},
-			// request,
-			this.setToken(),
-			`suspendToken`,
-			null,
-			null,
-			null,
 			null,
 			errorHandler,
 			autoRetries
@@ -281,4 +201,26 @@ export class AccessChannelService extends ChannelServiceBase {
 		);
 	}
 
+	// Suspend multiple channels
+	async suspendChannels(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		
+		if (await this.isMockEnabled(`suspendChannels`)) {
+			return this.mock(`suspendChannels`);
+		}
+
+		const url = `/clientcare-accesschannels-${this._version}/suspendChannels`;
+		return this.post(
+			url, 
+			request,
+			this.setToken(), 
+			`suspendChannels`, 
+			null, 
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
