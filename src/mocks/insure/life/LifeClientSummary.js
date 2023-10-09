@@ -8,7 +8,7 @@
 export const insureLifeClientSummary = {
 	"policies": [
 		{
-			"contractReference": `LC00001234`,
+			"contractReference": `LP00001234`,
 			"policyStatus": `Active`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
 			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
@@ -114,7 +114,7 @@ export const insureLifeClientSummary = {
 			"collectionDay": 0
 		},
 		{
-			"contractReference": `LC00001288`,
+			"contractReference": `LP00001288`,
 			"policyStatus": `Cancelled`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
 			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
@@ -199,7 +199,7 @@ export const insureLifeClientSummary = {
 			"collectionDay": 0
 		},
 		{
-			"contractReference": `LC00001299`,
+			"contractReference": `LP00001299`,
 			"policyStatus": `Lapsed`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
 			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
@@ -303,7 +303,7 @@ export const insureLifeClientSummary = {
 			"collectionDay": 0
 		},
 		{
-			"contractReference": `LC00001389`,
+			"contractReference": `LP00001389`,
 			"policyStatus": `Lapsed`,
 			"policyStartDate": `2023-08-21T09:10:46.110Z`,
 			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,

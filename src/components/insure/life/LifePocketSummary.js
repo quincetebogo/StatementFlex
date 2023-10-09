@@ -406,11 +406,9 @@ class LifePocketSummary extends Component {
 				halign="left"
 				valign="center">
 					<horizon-label label="Cover amount" value="${isNullorEmpty(this.selectedPocket?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(this.selectedPocket?.coverage))}"></horizon-label>
-					<horizon-label label="Debit order date" value="${formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}"></horizon-label>
-					<horizon-label label="Payment amount" value="${isNullorEmpty(this.selectedPocket?.premium) ? `R0.00` : formatCurrency(this.selectedPocket?.premium)}"></horizon-label>
-					<horizon-label label="Arrears amount" value="${this._calculateArrearsAmount(this.selectedLifePolicy)}"></horizon-label>
 					<horizon-label label="Remaining balance" value="${this._calculateRemainingBalancePocketLevel()}"></horizon-label>
-					<horizon-label label="Status" value="${this.selectedLifePolicy?.policyStatus}"></horizon-label>
+					<horizon-label label="Debit order date" value="${formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}"></horizon-label>
+					<horizon-label label="Premium" value="${isNullorEmpty(this.selectedPocket?.premium) ? `R0.00` : formatCurrency(this.selectedPocket?.premium)}"></horizon-label>
 			</capitec-group>`;
 	}
 
@@ -440,10 +438,9 @@ class LifePocketSummary extends Component {
 					<div class="beneficiary-card">
 						<div style="display: flex; gap:20px;">
 							<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-							<horizon-label
-								label="${beneficiary.relationship}"
-								value="${beneficiary.firstName} ${beneficiary.lastName}">
-							</horizon-label>
+							<capitec-label
+								label="${beneficiary.firstName} ${beneficiary.lastName}">
+							</capitec-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
 							${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? html`` : html`
@@ -453,7 +450,7 @@ class LifePocketSummary extends Component {
 								</horizon-label>
 							`}
 							<horizon-label
-								label="Available balance"
+								label="Cover amount"
 								value="${this._calculateAvailableBalanceBeneficiaryLevel(beneficiary)}">
 							</horizon-label>
 							<capitec-overflow-menu label="More">
