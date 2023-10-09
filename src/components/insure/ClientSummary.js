@@ -669,7 +669,7 @@ class ClientSummary extends Component {
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openEarlyCollectionOPTInDialog(policyItem)}"
 					icon="system/send-action" 
-					label="Early Collection Options">
+					label="Early December collection">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
