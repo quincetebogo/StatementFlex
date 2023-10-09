@@ -798,6 +798,7 @@ export class AccessChannels extends Component {
 		return this.showSuspendChannels
 			? html`
 				<horizon-suspend-access-channels
+					context="ac"
 					cifNumber="${this.cifNumber}"
 					.accessChannels="${this.landingInfo}"
 					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"

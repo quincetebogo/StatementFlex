@@ -38,6 +38,7 @@ export class SuspendAccessChannels extends Component {
 		this.confirmSuspendChannels = false;
 		this.notNowToSuspendChannels = false;
 		this.need = ``;
+		this.context = ``;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -51,6 +52,7 @@ export class SuspendAccessChannels extends Component {
 
 	static get properties() {
 		return {
+			context: { type: String },
 			cifNumber: { type: String },
 			accessChannels: { type: Object },
 			suspendChannels: { type: Object },
@@ -176,7 +178,7 @@ export class SuspendAccessChannels extends Component {
 
 		this._updateScreenDetails(request, returnValue.result);
 		this.dispatchEvent(new CustomEvent(`suspended`, {}));
-		this.horizonRouter.navigateToAccessChannelsOutcome(`ac`);
+		this.horizonRouter.navigateToAccessChannelsOutcome(this.context);
 	}
 
 	// ---------------
