@@ -79,6 +79,7 @@
 	"unblock-sim": `UNBLOCK_SIM`,
 	"active-full-menu-ussd": `ACTIVE_REDUCED_MENU_USSD`,
 	"view-notification": `NOTIFICATIONS`,
+	"suspend-channels": `SUSPEND_CHANNELS`,
 
 	// Credit
 	"transaction-history-credit-card": `VIEW_TRANSACTION_HISTORY_CREDIT_CARD`, //
