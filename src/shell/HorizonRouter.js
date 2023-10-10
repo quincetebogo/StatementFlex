@@ -517,8 +517,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE}`);
 	}
 
-	navigateToAccessChannelsOutcome() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}`);
+	navigateToAccessChannelsOutcome(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/${context}`);
 	}
 
 	/**
@@ -1217,7 +1217,7 @@ export default horizonRoutes = [
 		name: `horizon-access-channels-outcome`,
 		title: `HorizonAccessChannelsOutcome`,
 		icon: null,
-		path: HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME,
+		path: `${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/:context`,
 		load: () => import(`../views/stopCard/AccessChannelsOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}

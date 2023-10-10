@@ -398,6 +398,10 @@
 		"payshapPop": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"suspendChannels": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

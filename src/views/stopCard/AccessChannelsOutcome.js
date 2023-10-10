@@ -1,8 +1,10 @@
-import { ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
 import { css, html } from 'platform/elements';
+import { ACCESS_CHANNELS_TYPE } from 'app/constants/AccessChannels';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { NavigationContext } from 'platform/core';
+import { SUSPEND_CHANNELS_EVENTS } from 'app/constants/telemetry/events/AccessChannels';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
@@ -25,6 +27,11 @@ export class AccessChannelsOutcome extends ViewBase {
 		this.toastDetail = ``;
 		this.toastHeader = ``;
 		this.toastType = ``;
+		this.cards = [];
+		this.alertStopcard = false;
+		this.stopcardLater = false;
+
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -32,6 +39,12 @@ export class AccessChannelsOutcome extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	static get properties() {
+		return {
+			alertStopcard: { type: Boolean, attribute: false }
+		};
+	}
 	
 	get incidentDescription() {
 		let desc = ``;
@@ -39,6 +52,8 @@ export class AccessChannelsOutcome extends ViewBase {
 		if (this.unsuspendedChannels.length > 0) {
 			desc = `\nUnsuspended channels: ${this._formatLabel(this.unsuspendedChannels)}`;
 		}
+		desc = `${desc}${this.stopcardLater ? `\n\nNote: Card(s) not stopped` : ``}`;
+
 		return `Suspended channels: ${this._formatLabel(this.suspendedChannels)}${desc}`;
 	}
 
@@ -62,6 +77,14 @@ export class AccessChannelsOutcome extends ViewBase {
 		return this.result.filter(item => item.status).map(item => this.channelName[item.channel]);
 	}
 
+	get screenDetails() {
+		return this.horizonStore.getScreenDetails();
+	}
+
+	get hasCards() {
+		return this.cards?.length > 0;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -71,9 +94,10 @@ export class AccessChannelsOutcome extends ViewBase {
 		
 		this._initialise();
 		
-		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {
+		this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {
 			SuspendChannels: this.suspendedChannels.join(`, `),
-			UnsuspendChannels: this.unsuspendedChannels.join(`, `)
+			UnsuspendChannels: this.unsuspendedChannels.join(`, `),
+			Result: this.toastDetail
 		});
 		this._updateIncidentState();
 	}
@@ -81,7 +105,7 @@ export class AccessChannelsOutcome extends ViewBase {
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 		
-		await this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {}, true, true);
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 	}
 
 	// --------------
@@ -89,8 +113,8 @@ export class AccessChannelsOutcome extends ViewBase {
 	// --------------
 
 	async _doneClick() {
-		await this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME_DONE, {});
-		await this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME, {}, true, true);
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_DONE, {});
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonStore.clearScreenDetails();
@@ -99,7 +123,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	async _tryAgain() {
 		this.retryCount++;
-		await this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_OUTCOME_TRY_AGAIN, {});
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_TRY_AGAIN, {});
 
 		const returnValue = await this.accessChannelService.suspendChannels(this.retryReq);
 
@@ -108,6 +132,22 @@ export class AccessChannelsOutcome extends ViewBase {
 			return;
 		}
 		this._updateScreenDetails(this.retryReq, returnValue);
+	}
+
+	_notNow() {
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_NOT_NOW, {});
+
+		this.stopcardLater = true;
+		this.alertStopcard = false;
+		this._updateIncidentState();
+		this.requestUpdate();
+	}
+
+	_stopCard() {
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE, {});
+
+		this.alertStopcard = false;
+		this.horizonRouter.navigateToStopCard();
 	}
 
 	// ---------------
@@ -156,7 +196,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		this.requestUpdate();
 	}
 
-	_initialise() {
+	async _initialise() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.result = screenDetails.result;
 		this.retryReq = screenDetails.request;
@@ -168,6 +208,12 @@ export class AccessChannelsOutcome extends ViewBase {
 		 * Subscribed by: Accecc channels right bar
 		 */
 		this.eventAggregator.publish(`horizon-access-channels-reload`, {});
+
+		const { pathParams } = this.navigationContext.current;
+		if (pathParams.context === `ac`) {
+			await this._getCards();
+			this.alertStopcard = this.hasCards;
+		}
 	}
 
 	_header() {
@@ -198,6 +244,30 @@ export class AccessChannelsOutcome extends ViewBase {
 		}
 	}
 
+	async _getCards() {
+		this.cards = this.screenDetails && this.screenDetails?.cards;
+		// If its not null or undefined, return.
+		if (!isNullorEmpty(this.cards)) {
+			return;
+		}
+
+		const returnValue = await this.cardService.identifyCaller(
+								this.callerInformation,
+								this.currentIncident
+							);
+
+		if (returnValue.succeeded) {
+			const screenDetails = this.screenDetails;
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.cards = screenDetails.cards;
+			return true;
+		}
+
+		this.logger.log(`error`, `Unable to get cards`, `_getCards`, returnValue.correlationId);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -216,6 +286,22 @@ export class AccessChannelsOutcome extends ViewBase {
 				.noContent {
 					--horizon-success-icon-display: none;
 				}
+				capitec-modal[type="onboard"] {
+					--theme-modal-body-padding: 24px;
+					--theme-modal-footer-padding: 0px;
+				}
+				capitec-modal[type="onboard"] > capitec-content-box[slot="body"] {
+					border: none;
+				}
+				capitec-label[type="subtitle"] {
+					text-align: center;
+				}
+				capitec-button {
+					--theme-button-padding-top: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-right: 22px;
+				}
 			`
 		];
 	}
@@ -230,6 +316,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 			${super._webTemplate()}
 			${this._renderRelatedOptions()}
+			${this._renderAlertStopCard()}
 		`;
 	}
 
@@ -297,6 +384,30 @@ export class AccessChannelsOutcome extends ViewBase {
 				context="Success">
 			</horizon-related-options>
 		`;
+	}
+
+	_renderAlertStopCard() {
+		return this.alertStopcard
+		? html`
+			<capitec-modal type="onboard">
+				<capitec-content-box slot="body" layout="vertical" halign="center" valign="center" noPadding>
+					<capitec-image src="platform/illustrations/debicheck.svg"></capitec-image>
+					<capitec-label type="title" label="Stop Card(s)"></capitec-label>
+					<capitec-label type="subtitle" label="Does the client wish to stop their physical or virtual card as part of this process?"></capitec-label>
+					<capitec-group layout="horizontal">
+						<capitec-button
+							label="Not Now"
+							@click="${() => this._notNow()}">
+						</capitec-button>
+						<capitec-button
+							type="primary"
+							label="Stop Card"
+							@click="${() => this._stopCard()}">
+						</capitec-button>
+					</capitec-group>
+				</capitec-content-box>
+			</capitec-modal>`
+		: html``;
 	}
 }
 
