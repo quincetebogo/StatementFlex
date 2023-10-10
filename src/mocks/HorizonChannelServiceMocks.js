@@ -701,4 +701,17 @@ export default class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	suspendChannels(request) {
+		const status = {
+			status: this._mockSettings.suspendChannels.positiveCase
+		};
+
+		return {
+			accessChannels: request.channels,
+			app: status,
+			inetbanking: status,
+			ussd: status
+		};
+	}
 }
