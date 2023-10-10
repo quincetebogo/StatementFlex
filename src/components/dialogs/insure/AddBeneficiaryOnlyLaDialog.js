@@ -5,6 +5,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 const MAX_LIVES_PER_POLICY = 22;
 const MAX_AGE_SPOUSE = 65;
 const MIN_AGE_SPOUSE = 26;
+const MIN_AGE_PARENT = 26;
 const MAX_AGE_PARENT = 85;
 const MAX_AGE_EXTENDED = 85;
 const MAX_AGE_CHILD = 25;
@@ -115,7 +116,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 		} else if (relationship === `Child`) {
 			return Boolean(this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_CHILD);
 		} else if (relationship === `Parent`) {
-			return Boolean(this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_PARENT);
+			return Boolean(this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_PARENT || getAgeFromDob(this.selectedBene?.dateOfBirth) < MIN_AGE_PARENT);
 		}
 		return Boolean(this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.lives.length === MAX_LIVES_PER_POLICY || getAgeFromDob(this.selectedBene?.dateOfBirth) > MAX_AGE_EXTENDED);
 
