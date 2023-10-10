@@ -120,14 +120,12 @@ class LifePayArrearsConfirmationDialog extends Component {
 					<span>
 						<capitec-group layout="horizontal">
 							<capitec-icon size="medium" icon="status/warning-trans" style="height: 28px; width: 26px;"></capitec-icon>
-							<capitec-label class="header-text" label="Confirm"></capitec-label>
+							<capitec-label class="header-text" label="Confirm payment"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
 				<div slot="body" style="width: 360px; padding: 20px;">
-					<capitec-label label="You are about to settle Life Cover arrears to the amount of ${formatCurrency(this.amountToPay)} for Life Cover policy ${this.contractReference}, from account ${this.accountToPayFrom}" type="subtitle"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-label label="Do you want to continue?" type="subtitle"></capitec-label>
+					<capitec-label label="Confirm that you want to pay ${formatCurrency(this.amountToPay)} to Life Plan ${this.contractReference}, from account ${this.accountToPayFrom}. Do you wish to continue?" type="subtitle"></capitec-label>
 				</div>
 				<div slot="footer">
 					<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">

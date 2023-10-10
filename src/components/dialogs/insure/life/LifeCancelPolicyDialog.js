@@ -288,12 +288,17 @@ class LifeCancelPolicyDialog extends Component {
 				}
 				
 				#termsCheckboxGroup{
-					top: -20px;
-    				position: relative;
+					display: flex;
+					justify-content:start;
+				}
+
+				#termsCheckboxGroup > p{
+					margin: 0px;
 				}
 
 				.check-box{
-					--theme-check-width: 65px;
+					margin-top: 6px;
+					--theme-check-width: 23px;
 				}
 
 				.check-box > .content{
@@ -365,7 +370,7 @@ class LifeCancelPolicyDialog extends Component {
 						<horizon-alert-banner
 							type="warning"
 							header="Notify client:"
-							label="By cancelling this policy, they will no longer have any benefit on this policy. Ensure they have carefully considered the effects before continuing with cancellation"
+							label="By cancelling this policy your loved ones will no longer have cover. Make sure you carefully considered the effects before continuing with the cancellation"
 							layout="vertical">
 						</horizon-alert-banner>
 					</div>
@@ -384,7 +389,7 @@ class LifeCancelPolicyDialog extends Component {
 
 			<div class="formBody" style="${this.currentStep === STEPS.AGREEMENT ? `display: block` : `display: none`}">
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Policy" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
+					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Plan" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 					</horizon-product-tile>
@@ -401,11 +406,17 @@ class LifeCancelPolicyDialog extends Component {
 						.callBack="${() => this._clearAlerts()}">
 					</horizon-email-input>
 
-					<capitec-check-group id="termsCheckboxGroup">
-						<capitec-check label="I have read and understand the terms of the Capitec Life Cancellation Agreement. By checking the tick box and continuing, I electronically sign the agreement and confirm my acceptance of all terms contained in the agreement."
-							@value-change="${(e) => this._checkBoxChange(e)}" class="check-box">
-						</capitec-check>
-					</capitec-check-group>
+					<div id="termsCheckboxGroup">
+						<capitec-check-group >
+							<capitec-check label=""
+								@value-change="${(e) => this._checkBoxChange(e)}" class="check-box">
+							</capitec-check>
+				
+						</capitec-check-group>
+						<p>
+						I have read and understand the terms of the Cancellation Agreement. By checking the tick box and continuing, I electronically sign the agreement and confirm my acceptance of all terms contained in the agreement
+						</p>
+					</div>
 				</capitec-content-box>
 			</div>
 		`;

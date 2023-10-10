@@ -573,7 +573,7 @@ class ClientSummary extends Component {
 		this.selectedLifePolicy = selectedPolicy;
 	}
 
-	
+
 	/**
 	 * opens the life cancel policy dialog
 	 * @param {Object} selectedPolicy policy being updated
@@ -582,7 +582,7 @@ class ClientSummary extends Component {
 	_openLifePayArrearsDialog(selectedPolicy) {
 
 		// Call get arrears service
-		
+
 
 		this.showLifePayArrearsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
@@ -1153,7 +1153,7 @@ class ClientSummary extends Component {
 			}
 
 			.life-pol-label{
-				width: 180px;
+				width: 150px;
 			}
 
 			.pocket-type-label{
@@ -1167,7 +1167,7 @@ class ClientSummary extends Component {
 			}
 
 			.payment-label{
-				width: 180px;
+				width: 150px;
 			}
 
 			.life-arrears-notify{
@@ -1298,7 +1298,7 @@ class ClientSummary extends Component {
 
 				<capitec-tab
 					data-automation-id="insure-landing-life-policies-tab"
-					label="Life Cover">
+					label="Life Plan">
 					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
 					${this._renderFooter()}
 				</capitec-tab>
@@ -1470,7 +1470,7 @@ class ClientSummary extends Component {
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
-								label="One Cover policy"
+								label="Life Plan"
 								textOverflow="ellipsis"
 								value="${activeLifePolicy?.contractReference}"
 								@click="${() => this._goToLifePolicySummary(activeLifePolicy)}">
@@ -1484,7 +1484,7 @@ class ClientSummary extends Component {
 						</div>
 						<div>
 							<horizon-label
-								label="Total monthly payment"
+								label="Premium"
 								class = "life-pol-label"
 								value="${isNullorEmpty(activeLifePolicy?.totalPremium) ? `R0.00` : formatCurrency(activeLifePolicy?.totalPremium)}">
 							</horizon-label>
@@ -1510,35 +1510,37 @@ class ClientSummary extends Component {
 						</div>
 
 						<capitec-overflow-menu label="Menu">
-							${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
-				? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html``
-			}
+
 			
 			<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
 
 			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html``
-			}
-							
-							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
 				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-							${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
-				? html`<capitec-overflow-menu-item label="Manage Cover"></capitec-overflow-menu-item>`
+			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
-						</capitec-overflow-menu>
-					</div>
-				<!-- </capitec-group> -->
+
+			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
+				? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+				</capitec-overflow-menu>
+			</div>
 			</capitec-card>
 		`;
 	}
@@ -1573,15 +1575,13 @@ class ClientSummary extends Component {
 							<div class="vertical-line"></div>
 							
 							<horizon-label
-								data-automation-id="insure-pocket-cover-amount"
 								label="Cover amount"
 								value="${isNullorEmpty(pocketItem?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(pocketItem?.coverage))}">
 							</horizon-label>
 							
 							<horizon-label
 							class="payment-label"
-								data-automation-id="insure-pocket-payment-amount"
-								label="Payment amount"
+								label="Premium"
 								value="${isNullorEmpty(pocketItem?.premium) ? `R0.00` : formatCurrency(pocketItem?.premium)}">
 							</horizon-label>
 					</capitec-group>
@@ -1601,14 +1601,14 @@ class ClientSummary extends Component {
 	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
 		return html`
 			${nonActiveLifePolicies?.length === 0 ? html``
-				: html`<capitec-label label="Inactive Life Policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
+				: html`<capitec-label label="Inactive policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
 			${nonActiveLifePolicies?.map((pol) => html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
 					<div class="life-policy-container">
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
-								label="One Cover policy"
+								label="Life Plan"
 								textOverflow="ellipsis"
 								value="${pol?.contractReference}"
 								@click="${() => this._goToLifePolicySummary(pol)}">
@@ -1622,7 +1622,7 @@ class ClientSummary extends Component {
 						</div>
 						<div>
 							<horizon-label
-								label="Total monthly payment"
+								label="Premium"
 								class = "life-pol-label"
 								value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
 							</horizon-label>
@@ -1873,20 +1873,9 @@ class ClientSummary extends Component {
 		<capitec-content-box class="accounts-box">
 			<capitec-content-box id="no-results-box">
 				<div>
-					<capitec-label label="Features of Life Cover" class="strong-label"></capitec-label>
+					<capitec-label label="Features of Life Plan" class="strong-label"></capitec-label>
 					<table id='benefits-table'>
-						<tr>
-							<td>Something Awesome</td>
-							<td>
-								<div>R100 000 - Main Life</div>
-								<div>R100 000 - Spouse</div>
-								<div>R20 000 - Children (0 - 5 years) </div>
-								<div>R50 000 - Children (6 - 13 years) </div>
-								<div>R60 000 - Children (14 - 25 years) </div>
-								<div>R50 000 - Parents </div>
-								<div>R50 000 - Extended Family</div>
-							</td>
-						</tr>
+						
 					</table>
 				</div>
 			</capitec-content-box>

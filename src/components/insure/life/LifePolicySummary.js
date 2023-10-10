@@ -277,6 +277,10 @@ class LifePolicySummary extends Component {
 					padding-left: 20px;
 					font-size: unset;
 				}
+
+				.arrears{
+					--horizon-label-value-color: #C83C37 !important;
+				}
 			`
 		];
 	}
@@ -315,7 +319,7 @@ class LifePolicySummary extends Component {
 		return html`
 			<capitec-title-bar type="insure" class="insure-title-bar">
 				<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToClientPoliciesPage()}" />
-				<capitec-label label="Life Cover" type="title" class="title-bar-label"></capitec-label>
+				<capitec-label label="Life Plan" type="title" class="title-bar-label"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 			</capitec-title-bar>`;
 	}
@@ -368,7 +372,8 @@ class LifePolicySummary extends Component {
 						value="${formatCurrency(this.selectedLifePolicy?.totalPremium)}">
 					</horizon-label>
 					<horizon-label
-						label="Arrears"
+						label="Arrears amount"
+						class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
 						value="${formatCurrency(this._calculateArrearsAmount(this.selectedLifePolicy))}">
 					</horizon-label>
 					<horizon-label
@@ -438,7 +443,7 @@ class LifePolicySummary extends Component {
 						</capitec-label>
 
 						<div class="vertical-line"></div>
-						<horizon-label label="Total Beneficiaries"
+						<horizon-label label="Beneficiaries"
 							value="${onceOffBeneficiaries.length}">
 						</horizon-label>
 						<horizon-label label="Cover Amount"
@@ -474,7 +479,7 @@ class LifePolicySummary extends Component {
 							.label="${this._displayPocketTypeLabel(LIFE_POCKET_TYPES.MONTHLY)}">
 						</capitec-label>
 						<div class="vertical-line"></div>
-						<horizon-label label="Total Beneficiaries"
+						<horizon-label label="Beneficiaries"
 							value="${monthlyBeneficiaries.length}">
 						</horizon-label>
 						<horizon-label label="Cover Amount"
@@ -510,7 +515,7 @@ class LifePolicySummary extends Component {
 							.label="${this._displayPocketTypeLabel(LIFE_POCKET_TYPES.EDUCATION)}">
 						</capitec-label>
 						<div class="vertical-line"></div>
-						<horizon-label label="Total Beneficiaries"
+						<horizon-label label="Beneficiaries"
 							value="${educationBeneficiaries.length}">
 						</horizon-label>
 						<horizon-label label="Cover Amount"
@@ -538,10 +543,9 @@ class LifePolicySummary extends Component {
 					<div class="beneficiary-card">
 						<div style="display: flex; gap:20px;">
 							<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-							<horizon-label
-								label="${beneficiary.relationship}"
-								value="${beneficiary.firstName} ${beneficiary.lastName}">
-							</horizon-label>
+							<capitec-label
+								label="${beneficiary.firstName} ${beneficiary.lastName}">
+							</capitec-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
 							${pocketType === LIFE_POCKET_TYPES.EDUCATION ? html`` : html`
@@ -569,7 +573,7 @@ class LifePolicySummary extends Component {
 		const deductionDetails = this.selectedLifePolicy?.bankDetails;
 
 		return html`
-		<capitec-title-bar type="default" label="Bank details">
+		<capitec-title-bar type="default" label="Payment details">
 		</capitec-title-bar>
 		<capitec-content-box  class="details-box">
 			<horizon-expander

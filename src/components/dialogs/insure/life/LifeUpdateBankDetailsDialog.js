@@ -155,6 +155,33 @@ class LifeUpdateBankDetailsDialog extends Component {
 	}
 
 	/**
+	 * Change event for email address
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_emailValueChanged(e) {
+		this.email = e.detail.email;
+		this.confirmEmail = e.detail.confirmEmail;
+
+		if (e.detail.invalidFormat) {
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.INVALID_EMAIL;
+		} else if (e.detail.mismatched) {
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_MISMATCH;
+		}
+	}
+
+	/**
+	 * Validation checks for email address
+	 * @returns {boolean} boolean for whether the alert banner message is empty or not
+	 */
+	_validateEmailAddress() {
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED;
+		}
+		return isNullorEmpty(this.emailAlertBannerMessage);
+	}
+
+	/**
 	 * Send email event
 	 * @returns {void}  
 	 */
@@ -342,12 +369,10 @@ class LifeUpdateBankDetailsDialog extends Component {
 			${this.currentStep === STEPS.AGREEMENT ? html`
 				<div class="agreement-form-body">
 					<capitec-content-box>
-						<horizon-product-tile class="view-document" type="default" label="Life Cover Agreement" subtitle="Life Policy" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
+						<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Plan" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
 							<capitec-label slot="detail" type="strong" label="View Document">
 							</capitec-label>
 						</horizon-product-tile>
-
-						<capitec-label type="title" label="Email policy agreement" class="title-label"></capitec-label>
 
 						${this._renderEmailAlertBanner()}
 						<horizon-email-input
@@ -372,15 +397,15 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 		${this.currentStep === STEPS.PAYMENT_DETAILS ? html`
-			<capitec-button class="capitec-button-medium" slot="footer" type="secondary" label="Cancel" @click="${() => this._backClick()}">
+			<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._backClick()}">
 			</capitec-button>
 
-			<capitec-button class="capitec-button-medium" slot="footer" type="primary" label="Update" @click="${() => this._updatePaymentDetails()}">
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._updatePaymentDetails()}">
 			</capitec-button>
 		` : html``}
 				
 		${this.currentStep === STEPS.AGREEMENT ? html`
-			<capitec-button  slot="footer" type="primary" label="Send" @click="${() => this._sendEmail()}">
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._sendEmail()}">
 			</capitec-button>
 		` : html``}
 		`;
@@ -391,20 +416,16 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @returns {html} html content 
 	 */
 	_renderEmailAlertBanner() {
+
 		return this.emailAlertBannerMessage
-			? html`
-			<capitec-alert-banner type="unsuccessful-red" class="alert">
-				<capitec-group layout="horizontal">
-					<capitec-label
-						type="subtitle"
-						label="Notify:">
-					</capitec-label>
-					<capitec-label
-						label="${this.emailAlertBannerMessage}">
-					</capitec-label>
-				</capitec-group>
-			</capitec-alert-banner>`
-			: html``;
+		? html`
+		<horizon-alert-banner
+			type="error"
+			header="Notify client:"
+			label="${this.emailAlertBannerMessage}"
+			layout="vertical">
+		</horizon-alert-banner>`
+		: html``;
 	}
 
 	/**

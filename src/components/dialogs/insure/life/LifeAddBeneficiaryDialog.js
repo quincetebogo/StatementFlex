@@ -581,7 +581,7 @@ class LifeAddBeneficiaryDialog extends Component {
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
 			
-				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
+				<capitec-date-time-picker style="width: 50%;" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
 					error="${this.newBeneficiaryErrors?.dateOfBirth === undefined ? `` : this.newBeneficiaryErrors.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e, true)}">
@@ -651,8 +651,8 @@ class LifeAddBeneficiaryDialog extends Component {
 		return html`
 			<div class="pocket-card"> 
 				<div style="display: flex; gap:20px;">
-					<capitec-icon icon="${this._determinePocketIcon()}" size="large"></capitec-icon>
-					<capitec-label label="${this._determinePocketLabel()}" type="subtitle" class="${this._determinePocketClass()}"></capitec-label>
+					<capitec-icon .icon="${this._determinePocketIcon()}" size="large"></capitec-icon>
+					<capitec-label .label="${this._determinePocketLabel()}" type="subtitle" class="${this._determinePocketClass()}"></capitec-label>
 				</div>
 
 				<div style="display: flex; gap: 40px;">
@@ -678,10 +678,9 @@ class LifeAddBeneficiaryDialog extends Component {
 				<div class="beneficiary-card">
 					<div style="display: flex; gap:20px;">
 						<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-						<horizon-label
-							label="${beneficiary.relationship}"
-							value="${beneficiary.firstName} ${beneficiary.lastName}">
-						</horizon-label>
+						<capitec-label
+							label="${beneficiary.firstName} ${beneficiary.lastName}">
+						</capitec-label>
 					</div>
 					<div style="display: flex; gap: 20px;">
 						<capitec-text-field type="currency" value="${this._getBenePocketAllocation(beneficiary)}"

@@ -122,7 +122,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 
 				div[slot="body"] {
 					width: 420px;
-					height: 100px;
+					height: 70px;
 				}
 
 				.body-box {
@@ -135,7 +135,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 					width: auto;
 					color: #000000;
 					font-family: "Hind Vadodara";
-					font-size: 14px;
+					font-size: 16px;
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 28px;
@@ -196,9 +196,8 @@ class LifeDeleteBeneficiaryDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			<capitec-content-box gap="0px">
+			<capitec-content-box gap="0px" >
 				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> as a beneficiary</p>
-				<p class="dialog-copy">Do you wish to continue?</p>
 			</capitec-content-box>
 		`;
 	}
