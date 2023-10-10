@@ -350,7 +350,7 @@ export class LandingPage extends ViewBase {
 		if (success) {
 			this.preferenceToastDetails = { type: `success`, header: `Success`, detail: `Preferred language updated.` };
 		} else {
-			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language not update failed.` };
+			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language update failed.` };
 		}
 		
 		this.displayToast = true;

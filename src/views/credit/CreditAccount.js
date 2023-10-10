@@ -52,6 +52,12 @@ const TRANSACTION_HISTORY = {
 	MONEY_TYPE: `BOTH`
 };
 
+const BUDGET_FACILITY = {
+	END_DATE: ``,
+	START_DATE: ``,
+	STATUS: `Active`
+};
+
 /** Credit Account View
  * 
  * @export
@@ -102,6 +108,7 @@ export class CreditAccount extends ViewBase {
 		this.transactionHistory = [];
 		this.accountDetails = {};
 		this.showTooltip = false;
+		this.budgetStatus = ``;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -271,6 +278,7 @@ export class CreditAccount extends ViewBase {
 			"budget-open-date": selectedAccountDetails.budgetDateTaken
 		});
 
+		this.budgetStatus = selectedAccountDetails.status === `CLOSE` ? `Closed` : formatStringAsPascalCase(selectedAccountDetails.status);
 		this.budgetAccountDetails = {
 			budgetAccountNumber: selectedAccountDetails.budgetAccountNumber,
 			budgetName: formatStringAsPascalCase(selectedAccountDetails.budgetName),
@@ -430,6 +438,9 @@ export class CreditAccount extends ViewBase {
 		screenDetails.settleAndCloseCreditOption = this.settleAndCloseCreditOption;
 		screenDetails.settleAndCloseAccountNumber = this.settleAndCloseQuote.accountNumber;
 		screenDetails.accountName = Object.keys(this.settleAndCloseDetails).find(key => this.settleAndCloseDetails[key] === this.settleAndCloseQuote.accountNumber);
+		screenDetails.type = this.selectedAccountDetails.type;
+		screenDetails.settlementAmount = this.settleAndCloseQuote.settlementAmount;
+		screenDetails.fromAccountNumber = settleAndClose.fromAccountNumber;
 
 		if (returnValue.succeeded) {
 
@@ -799,19 +810,28 @@ export class CreditAccount extends ViewBase {
 
 		await super.createAndClassifySubIncident(null, false);
 
-		const returnValue = await this.creditService.budgetFacility(selectedAccountDetails.accountNumber);
-		const successfullServiceResponse = returnValue.succeeded;
+		const request = {
+			accountNumber: selectedAccountDetails.accountNumber,
+			status: BUDGET_FACILITY.STATUS,
+			startDateTime: BUDGET_FACILITY.START_DATE,
+			endDateTime: BUDGET_FACILITY.END_DATE
+		};
 
-		if (!successfullServiceResponse) {
-			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_viewBudgets`, returnValue.correlationId);
-			return;
-		}
-
-		this.budgetFacilityAccounts = returnValue.result;
+		this.budgetFacilityAccounts = await this.getBudgetFacilities(request);
 		this.budgetFacilityAccounts.creditCardNumber = selectedAccountDetails.accountNumber;
 		this.budgetFacilityAccounts.productTypeCode = selectedAccountDetails.productTypeCode;
 
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+	}
+
+	async getBudgetFacilities(request) {
+		const returnValue = await this.creditService.budgetFacility(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to retrieve client credit card budget details from credit service.`, `_viewBudgets`, returnValue.correlationId);
+			return;
+		}
+		return returnValue.result;
 	}
 
 	async _productEnquiry() {
@@ -994,6 +1014,8 @@ export class CreditAccount extends ViewBase {
 		this._telemetry.logEvent(CreditEvents.CREDIT_BUDGET_DETAILS_BACK, {});
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {});
 
+		// Making sure budget status is not carry forworded and on load only Active budgets are seen 
+		this.budgetStatus = ``;
 		this._setIncidentDone();
 	}
 
@@ -1147,8 +1169,10 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					.shouldDisable="${need => this._shouldDisable(need)}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
 					@account-details="${(e) => this._accountDetails(e)}"
@@ -1174,6 +1198,8 @@ export class CreditAccount extends ViewBase {
 					.budgetFacilityAccounts="${this.budgetFacilityAccounts}"
 					.shouldDisable="${need => this._shouldDisable(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.getBudgetFacilities="${(request) => this.getBudgetFacilities(request)}"
+					budgetStatus="${this.budgetStatus}"
 					@on-loading="${() => this._telemetry.startSpan(CreditEvents.CREDIT_BUDGET_DETAILS, {})}"
 					@back="${() => this._backFromBudgetAccountsView()}"
 					@account-details="${(event) => this._viewBudgetDetails(event.detail.selectedAccountDetails)}"
