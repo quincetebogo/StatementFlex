@@ -7,6 +7,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
+import 'app/components/stopCard/CardHistory';
 
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
@@ -30,6 +31,9 @@ export class StopCardLandingPage extends ViewBase {
 		
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.displayToast = false;
+		this.cardsDetails = {};
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		
 	}
 
 	// --------------
@@ -37,7 +41,8 @@ export class StopCardLandingPage extends ViewBase {
 	// --------------
 	static get properties() {
 		return {
-			displayToast: { attribute: false }
+			displayToast: { attribute: false },
+			renderMode: { attribute: false }
 		};
 	}
 	
@@ -108,6 +113,24 @@ export class StopCardLandingPage extends ViewBase {
 		}
 	}
 
+	async _cardHistory(_event) {
+
+		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
+
+		if (returnValue.succeeded) {
+
+			this.cardsDetails = this.horizonStore.getScreenDetails();
+			this.cardsDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(this.cardsDetails);
+
+			this.renderMode = RENDER_MODE.CARD_HISTORY_VIEW;
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+		
+		
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -122,6 +145,11 @@ export class StopCardLandingPage extends ViewBase {
 
 	_toggleToastDisplay() {
 		this.displayToast = false;
+	}
+
+	_setIncidentDone() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -156,20 +184,23 @@ export class StopCardLandingPage extends ViewBase {
 		return html`
 			${this._renderStopCardComponent()}
 			${this._renderVerifiedToast()}
+			${this._renderCardHistoy()}
 			${super._webTemplate()}
 		`;
 	}
 
 	_renderStopCardComponent() {
-		return html`
+		return this.renderMode === RENDER_MODE.MAIN_PAGE
+		? html`
 			<horizon-stop-card
 				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				@cards-stopped="${(event) => this._stoppedCards(event)}">
+				@cards-stopped="${(event) => this._stoppedCards(event)}"
+				@card-history="${(event) => this._cardHistory(event)}">
 			</horizon-stop-card>
-			${this._renderLoadingIndicator()}
-		`;
+			${this._renderLoadingIndicator()}`
+		: html``;
 	}
 
 	_renderLoadingIndicator() {
@@ -191,6 +222,16 @@ export class StopCardLandingPage extends ViewBase {
 				</capitec-toast>`;
 		}
 		return html``;
+	}
+
+	_renderCardHistoy() {
+		return this.renderMode === RENDER_MODE.CARD_HISTORY_VIEW
+		? html`
+			<horizon-card-history
+				.cardHistoryDetails = "${this.cardsDetails || []}" 
+				@back = "${() => this._setIncidentDone()}">
+			</horizon-card-history>`
+		: html``;
 	}
 }
 
