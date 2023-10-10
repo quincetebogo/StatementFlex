@@ -81,6 +81,8 @@ export class ExistingClient extends InsureViewBase {
 		this.defaultSavingsAccountNumber = ``;
 		// this.auditTransactionHistory = {};
 
+		this.showInsureSuccessToast = false;
+
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 	}
@@ -145,7 +147,8 @@ export class ExistingClient extends InsureViewBase {
 			claims: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
 			clientArrears: { type: Object, state: true },
-			defaultSavingsAccountNumber: { type: String, state: true }
+			defaultSavingsAccountNumber: { type: String, state: true },
+			showInsureSuccessToast: { type: Boolean, state: true }
 
 		};
 	}
@@ -1305,12 +1308,16 @@ export class ExistingClient extends InsureViewBase {
 		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
 
 		const electResp = await this.insureService.SetElectOptions(electRequest);
-
 		if (!electResp.succeeded) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-			this.handleToastError(electResp.exception);
+			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
+			this.showInsureErrorToast = true;
 			return;
 		}
+		
+		this.showInsureSuccessToast = true;
+		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
 		await this._retrieveClientSummary();
 	}
 
@@ -1364,6 +1371,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 		${super._webTemplate()}
 		${this._renderErrorToast()}
+		${this._renderSuccessToast()}
 		${this._renderLandingPage()}`;
 	}
 
@@ -1611,6 +1619,24 @@ export class ExistingClient extends InsureViewBase {
 				detail="${this.insureErrorToastMessage}" 
 				@click="${() => this.showInsureErrorToast = false}">
 			</capitec-toast>`;
+	}
+
+	/**
+	 * Renders the Generic Success toast
+	 * @returns {html} html content
+	 */
+	_renderSuccessToast() {
+		return html`
+			<capitec-toast
+				?hidden="${!this.showInsureSuccessToast}"
+				class="toast"
+				type="success"
+				Header="Successful"
+				layout = "vertical"
+				detail = "${this.insureSuccessToastMessage}"
+				@click = "${() => this.showInsureSuccessToast = false}">
+			</capitec-toast>
+		`;
 	}
 
 	// #endregion RENDERING

@@ -50,24 +50,9 @@ export class EarlyCollectionOptionsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.isOptedIn = !this.policy.isOptedOutForEarlyCollection;
-
-		this._setToggleLabel();
 	}
 
 	// #region EVENT HANDLERS
-
-	/**
-	 * Set label when toggle changes
-	 * @returns {void}
-	 */
-	_setToggleLabel() {
-		if (this.isOptedIn === true) {
-			this.earlyCollectionLabel = `Opt in of Early December collection`;
-		} else {
-			this.earlyCollectionLabel = `Opt out of Early December collection`;
-		}
-	}
-
 
 	/**
 	 * Accept terms and close dialog 
@@ -79,8 +64,8 @@ export class EarlyCollectionOptionsDialog extends Component {
 			option: `EarlyCollection`,
 			participating: !this.isOptedIn
 		};
-		const updatePrefsResponse = await this.updateEarlyCollectionPreferences(updatePrefsRequest);
-		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { accepted: false } }));
+		await this.updateEarlyCollectionPreferences(updatePrefsRequest);
+		this.dispatchEvent(new CustomEvent(`close-dialog`));
 	}
 
 	/**
@@ -88,7 +73,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 * @returns {void} 
 	*/
 	_closeDialog() {
-		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { accepted: false } }));
+		this.dispatchEvent(new CustomEvent(`close-dialog`));
 	}
 
 	/**
@@ -99,7 +84,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 	*/
 	_preferenceChange(e, optIn) {
 		this.isOptedIn = optIn;
-		this._setToggleLabel();
 	}
 
 	// #endregion EVENT HANDLERS
@@ -153,7 +137,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 						<capitec-group layout="grid" rows="auto" columns="auto" gap="10px">
 							<capitec-radio
 								id="optedIN"
-								label="Opt IN of Early December collection"
+								label="Opt IN to Early December collection"
 								?checked = "${this.isOptedIn === true}"
 								@value-changed="${(e) => this._preferenceChange(e, true)}"
 								row="1" column="1">
