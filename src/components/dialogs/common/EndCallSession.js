@@ -1,6 +1,7 @@
 import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS, ROLES_WITH_END_CALL_CONTEXT } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
+import { checkForValidSACellNumber, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
@@ -13,7 +14,6 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 import 'platform/components/popups/Modal';
@@ -74,6 +74,7 @@ export class EndCallSession extends Component {
 			issue: ``
 		};
 		this.callerInformation = {};
+		this.whatsappInfoMessage = false; 
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -119,7 +120,8 @@ export class EndCallSession extends Component {
 			numberOfCharacters: { attribute: false },
 			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
-			validNumberOfChars: { type: Boolean, attribute: false }
+			validNumberOfChars: { type: Boolean, attribute: false },
+			whatsappInfoMessage: { attribute: false }
 		};
 	}
 
@@ -215,6 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
+			this.whatsappInfoMessage = this._isCifNumberValid(this.callerInformation) && this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE && this.endCallReason.value !== `Need incomplete - Transaction Failed`;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -627,13 +630,22 @@ export class EndCallSession extends Component {
 	}
 
 	async _endSession() {
+		// Bypassing sending Whatsapp message when end-call reason selected is {key: NEED_INCOMEPLETE, value: `Need incomplete - Transaction Failed`}
+		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
+
+		const endReason = this.endCallReason.value === `Need incomplete - Transaction Failed` ? 4 : this.endCallReason.key;
+
 		if (this._isCifNumberValid(this.callerInformation)) {
 			const req = {
-				endReason: this.endCallReason.key,
+				endReason: endReason,
 				title: this.callerInformation.title,
+				firstName: this.callerInformation.firstName,
 				lastName: this.callerInformation.lastName,
 				cif: this.callerInformation.cifNumber,
-				clientNeed: this.incomingCallDetails.ivrOptionCode
+				clientNeed: this.incomingCallDetails.ivrOptionCode,
+				cellphone: this.incomingCallDetails.incomingTelephoneNumber,
+				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber
+
 			};
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
@@ -762,6 +774,14 @@ export class EndCallSession extends Component {
 
 				--theme-icon-size-default: 26px;
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
+			}
+			capitec-alert-banner{ 
+				--theme-toast-width: 658px;
+				--theme-toast-padding: 12px;
+				--theme-toast-box-shadow: 0px;
+				--theme-toast-detail-line-height: 24px;
+				--theme-toast-title-line-height: 24px;
+				z-index: 1000;
 			}`
 		];
 	}
@@ -820,7 +840,20 @@ export class EndCallSession extends Component {
 				select-mode="single"
 				error="${this.errors.endCallReason}">
 			</capitec-select>
+
+			${this._renderWhatsappInfoBanner()}
 		`;
+	}
+
+	_renderWhatsappInfoBanner() {
+		return this.whatsappInfoMessage && checkForValidSACellNumber(this.incomingCallDetails.incomingTelephoneNumber)
+		? html`
+			<capitec-alert-banner 
+				type="info"
+				header="Note: "
+				label=" This will send a WhatsApp to the client apologising for the call disconnecting.">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderEndcallDescription() {
