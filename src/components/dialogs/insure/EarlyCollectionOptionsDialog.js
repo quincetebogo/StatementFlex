@@ -21,7 +21,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 		super();
 
 		this.policy = {};
-		this.optedOutOfEarlyCollection = false;
+		this.isOptedIn = true;
 	}
 
 	// #endregion INITIALIZE
@@ -35,7 +35,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	static get properties() {
 		return {
 			policy: { type: Object, state: true },
-			optedOutOfEarlyCollection: { type: String, state: true },
+			isOptedIn: { type: String, state: true },
 			earlyCollectionLabel: { type: String, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true }
 		};
@@ -49,7 +49,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this.optedOutOfEarlyCollection = this.policy.isOptedOutForEarlyCollection;
+		this.isOptedIn = !this.policy.isOptedOutForEarlyCollection;
 
 		this._setToggleLabel();
 	}
@@ -61,10 +61,10 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_setToggleLabel() {
-		if (this.optedOutOfEarlyCollection === true) {
-			this.earlyCollectionLabel = `Client is opted OUT for Early December Collections`;
+		if (this.isOptedIn === true) {
+			this.earlyCollectionLabel = `Opt in of Early December collection`;
 		} else {
-			this.earlyCollectionLabel = `Client is opted IN for Early December Collections`;
+			this.earlyCollectionLabel = `Opt out of Early December collection`;
 		}
 	}
 
@@ -77,9 +77,8 @@ export class EarlyCollectionOptionsDialog extends Component {
 		const updatePrefsRequest = {
 			contractReference: this.policy.contractReference,
 			option: `EarlyCollection`,
-			participating: this.optedOutOfEarlyCollection
+			participating: !this.isOptedIn
 		};
-
 		const updatePrefsResponse = await this.updateEarlyCollectionPreferences(updatePrefsRequest);
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { accepted: false } }));
 	}
@@ -95,10 +94,11 @@ export class EarlyCollectionOptionsDialog extends Component {
 	/**
 	 * Toggle switch 
 	 * @param {e} e event
+	 * @param {boolean} optIn optIn
 	 * @returns {void} 
 	*/
-	_preferenceChange(e) {
-		this.optedOutOfEarlyCollection = e.detail.new;
+	_preferenceChange(e, optIn) {
+		this.isOptedIn = optIn;
 		this._setToggleLabel();
 	}
 
@@ -128,6 +128,10 @@ export class EarlyCollectionOptionsDialog extends Component {
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
+
+				.body-box{
+					padding: 0px;
+				}
 			`
 		];
 	}
@@ -138,14 +142,33 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Early Collections Preferences" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Early December collection" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-					Morbi nec tellus sit amet diam tristique mattis at non augue. Curabitur fermentum viverra cursus. Vestibulum
+					Due to early pay dates, we'll collect your December funeral plan (${this.policy?.contractReference}) premium early. IF you opt out,  your premium will be collected on your nominated debit order date.
 					</p>
-					<capitec-toggle @value-change="${(e) => this._preferenceChange(e)}" .checked="${this.optedOutOfEarlyCollection}" .label="${this.earlyCollectionLabel}"></capitec-toggle>
+					
+					<capitec-radio-group>
+						<capitec-group layout="grid" rows="auto" columns="auto" gap="10px">
+							<capitec-radio
+								id="optedIN"
+								label="Opt IN of Early December collection"
+								?checked = "${this.isOptedIn === true}"
+								@value-changed="${(e) => this._preferenceChange(e, true)}"
+								row="1" column="1">
+							</capitec-radio>
+							<capitec-radio
+								id="optedOUT"
+								label="Opt OUT of Early December collection"
+								?checked = "${this.isOptedIn === false}"
+								@value-changed="${(e) => this._preferenceChange(e, false)}"
+								row="2" column="1">
+							</capitec-radio>
+						</capitec-group>
+					</capitec-radio-group>
+
+
 				</capitec-content-box>
 			</div>
 			${this._renderDialogFooter()}
