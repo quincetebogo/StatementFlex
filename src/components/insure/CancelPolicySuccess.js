@@ -82,10 +82,13 @@ class CancelPolicySuccess extends Component {
 	 * Event to open the email plan dialog
 	 * @return {void} 
 	 */
-	_openEmailPlanDialog() {
+	async _openEmailPlanDialog() {
 		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 		this.showEmailPlanDialog = true;
+
+		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**

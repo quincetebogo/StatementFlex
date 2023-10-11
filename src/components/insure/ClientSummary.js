@@ -192,6 +192,15 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
+	async _tabChange(e) {
+		if (e.detail.selectedIndex === 1) {
+			await super._inicidentManager_(`view-insurance-claim-summary`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+			return;
+		}
+			await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+	}
 
 	/**
 	 * Fire navigate event to Policy Summary
@@ -332,9 +341,11 @@ class ClientSummary extends Component {
 	 * @param {String} contractRef Policy contract reference
 	 * @returns {void} 
 	 */
-	_showEmailPlanDialog(contractRef) {
+	async _showEmailPlanDialog(contractRef) {
 		this.emailContractRef = contractRef;
 		this.showEmailPlanDialog = true;
+		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**
@@ -472,6 +483,8 @@ class ClientSummary extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		await this._getArrears();
 		this.showPayPremiumDialog = true;
+		await super._inicidentManager_(`funeral-plan-pay-arrears`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	async _getArrears() {
@@ -483,10 +496,13 @@ class ClientSummary extends Component {
 	 * @param {string} contractReference contract reference
 	 * @returns {void} 
 	 */
-	_openCancelPolicyDialog(contractReference) {
+	async _openCancelPolicyDialog(contractReference) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
+		await super._inicidentManager_(`funeral-plan-cancel`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+
 	}
 
 	/**
@@ -718,10 +734,17 @@ class ClientSummary extends Component {
 	 * Show dialog explaining how to Lodge a Claim
 	 * @returns {void}
 	 */
-	_openClaimInfoDialog() {
+	_closeClaimInfoDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
 		this.showLodgeClaimInfoDialog = false;
 	}
+
+	async _openClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = true;
+		await super._inicidentManager_(`lodge-insurance-claim`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+	}
+
 
 	/**
 	 * Status to show on policy
@@ -1138,8 +1161,8 @@ class ClientSummary extends Component {
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.readOnlyMode === true ? `` : html`
-						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
-							@click="${() => this.showLodgeClaimInfoDialog = true}">
+						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+							@click="${() => this._openClaimInfoDialog()}">
 						</capitec-button>
 					`}
 					
@@ -1196,7 +1219,7 @@ class ClientSummary extends Component {
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
-			<capitec-tab-group>
+			<capitec-tab-group @tab-select="${(e) => this._tabChange(e)}">
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
@@ -1537,7 +1560,7 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
+			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._closeClaimInfoDialog()}">
 			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 

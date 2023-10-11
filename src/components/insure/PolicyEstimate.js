@@ -334,13 +334,15 @@ class PolicyEstimate extends Component {
 	 * Invoke this function when Agree button is clicked on Email Estimate Popup
 	 * @returns {void}
 	 */
-	_acceptPrintEstimate() {
+	async _acceptPrintEstimate() {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_PRINT, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
 		});
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
+		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**
