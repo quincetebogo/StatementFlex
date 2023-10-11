@@ -341,9 +341,11 @@ class ClientSummary extends Component {
 	 * @param {String} contractRef Policy contract reference
 	 * @returns {void} 
 	 */
-	_showEmailPlanDialog(contractRef) {
+	async _showEmailPlanDialog(contractRef) {
 		this.emailContractRef = contractRef;
 		this.showEmailPlanDialog = true;
+		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	/**
