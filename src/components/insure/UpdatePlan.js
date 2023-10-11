@@ -998,8 +998,20 @@ class UpdatePlan extends Component {
 	 * @param {event} e e
 	 * @return {void} 
 	 */
-	_tabChange(e) {
+	async _tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
+		console.log(this.selectedTabIndex);
+		if (this.selectedTabIndex === 0) {
+			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+			return;
+		} else if (this.selectedTabIndex === 1) {
+			await super._inicidentManager_(`funeral-plan-update-beneficiaries`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+			return;
+		}
+			await super._inicidentManager_(`funeral-plan-update-payment-details`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
 
 	}
 
