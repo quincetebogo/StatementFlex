@@ -145,6 +145,10 @@ export class StopCard extends Component {
 		this.requestUpdate();
 	}
 
+	_onCardHistoryClick() {
+		this.dispatchEvent(new CustomEvent(`card-history`, {}));
+	}
+
 	_onStopCards() {
 		this.cardsToStop = this.cards.map(card => (
 			{
@@ -358,6 +362,11 @@ export class StopCard extends Component {
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar label="Stop Card(s)" icon="system/arrow-left-action" @click-icon="${() => this._back()}">
+				<capitec-button
+					label="Card History"
+					type="clear" data-automation-id="card-history" style ="margin-left:700px; border:1px solid #009DE0;"
+					@click="${() => this._onCardHistoryClick()}">
+				</capitec-button>
 			</capitec-title-bar>`;
 	}
 

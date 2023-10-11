@@ -48,6 +48,7 @@ export const QuickTransactionEvents = {
 	STOP_CARD_ASSIGN: `call.fulfill-need.stop-card.assign`,
 	STOP_CARD_ASSIGN_CONFIRM: `call.fulfill-need.stop-card.assign.confirm`,
 	STOP_CARD_ASSIGN_CANCEL: `call.fulfill-need.stop-card.assign.cancel`,
+	CARD_HISTORY: `call.fulfill-need.stop-card.cardHistory`,
 
 	// Proof of Account
 	PROOF_OF_ACCOUNT: `call.fulfill-need.proof-of-account`,
