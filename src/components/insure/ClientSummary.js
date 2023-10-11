@@ -732,10 +732,17 @@ class ClientSummary extends Component {
 	 * Show dialog explaining how to Lodge a Claim
 	 * @returns {void}
 	 */
-	_openClaimInfoDialog() {
+	_closeClaimInfoDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
 		this.showLodgeClaimInfoDialog = false;
 	}
+
+	async _openClaimInfoDialog() {
+		this.showLodgeClaimInfoDialog = true;
+		await super._inicidentManager_(`lodge-insurance-claim`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+	}
+
 
 	/**
 	 * Status to show on policy
@@ -1152,8 +1159,8 @@ class ClientSummary extends Component {
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.readOnlyMode === true ? `` : html`
-						<capitec-button type="white" class="capitec-button-medium"  label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
-							@click="${() => this.showLodgeClaimInfoDialog = true}">
+						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
+							@click="${() => this._openClaimInfoDialog()}">
 						</capitec-button>
 					`}
 					
@@ -1551,7 +1558,7 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._openClaimInfoDialog()}">
+			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._closeClaimInfoDialog()}">
 			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 
