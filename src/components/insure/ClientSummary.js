@@ -481,6 +481,8 @@ class ClientSummary extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		await this._getArrears();
 		this.showPayPremiumDialog = true;
+		await super._inicidentManager_(`funeral-plan-pay-arrears`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 
 	async _getArrears() {
