@@ -492,10 +492,13 @@ class ClientSummary extends Component {
 	 * @param {string} contractReference contract reference
 	 * @returns {void} 
 	 */
-	_openCancelPolicyDialog(contractReference) {
+	async _openCancelPolicyDialog(contractReference) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
+		await super._inicidentManager_(`funeral-plan-cancel`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+
 	}
 
 	/**
