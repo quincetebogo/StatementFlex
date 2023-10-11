@@ -192,6 +192,15 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
+	async _tabChange(e) {
+		if (e.detail.selectedIndex === 1) {
+			await super._inicidentManager_(`view-insurance-claim-summary`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+			return;
+		}
+			await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident();
+	}
 
 	/**
 	 * Fire navigate event to Policy Summary
@@ -1196,7 +1205,7 @@ class ClientSummary extends Component {
 	 */
 	_renderPoliciesLandingContent() {
 		return html`
-			<capitec-tab-group>
+			<capitec-tab-group @tab-select="${(e) => this._tabChange(e)}">
 				<capitec-tab
 					data-automation-id="insure-landing-policies-tab"
 					label="Policies">
