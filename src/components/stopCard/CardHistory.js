@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-// eslint-disable-next-line sort-imports
 import { HorizonStore } from 'app/store/HorizonStore';
-
 
 /**
  * StopCard Details View
@@ -15,16 +13,18 @@ import { HorizonStore } from 'app/store/HorizonStore';
  * @class CardHistory
  * @extends {Component}
  */
-
-	const months = [
-		``, `January`, `February`, `March`, `April`, `May`, `June`,
-		`July`, `August`, `September`, `October`, `November`, `December`
-	];
-
-	const cardStopReason = [
-				`LOST`, `STOLEN`, `DAMAGED`, `ACCOUNT_CLOSED`, `EXPIRED`, `SUSPECTED_FRAUD`,
-				`RESTRICTED`, `SARB_INSTRUCTION`, `FOREX_CONTRAVENTION`, `CARD_NOT_REQUIRED_BY_CLIENT`
-			];
+	const CARD_STOP_REASON = {
+				LOST: `Lost`,
+				STOLEN: `Stolen`,
+				DAMAGED: `Damaged`,
+				ACCOUNT_CLOSED: `Account closed`,
+				EXPIRED: `Expired`,
+				SUSPECTED_FRAUD: `Suspected fraud`,
+				RESTRICTED: `Restricted`,
+				SARB_INSTRUCTION: `Sarb instruction`,
+				FOREX_CONTRAVENTION: `Forex contravention`,
+				CARD_NOT_REQUIRED_BY_CLIENT: `Card not required by client`
+	};
 
 	const FILTERCARD_BY = {
 		CARD_TYPE: `CARD_TYPE`,
@@ -89,13 +89,12 @@ export class CardHistory extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 * @property {cardHistory} cardHistory Data for verified fixed term savings plan display
+	 * @property {cardHistory} cardHistory Stopped card details
 	 *
 	 */
 	static get properties() {
 		return {
 			cardHistoryDetails: { type: Object }
-		    
 		};
 	}
 
@@ -164,8 +163,8 @@ export class CardHistory extends Component {
 				
 			this.filterStopCards = Array.from(new Set([...searchTextResult.flat()]));
 			this.searchFilterflag = true;
-			this._collectionStopCards();
 		}
+		this._collectionStopCards();
 		this.requestUpdate();
 	}
 
@@ -179,7 +178,7 @@ export class CardHistory extends Component {
 		if (this.filterStopCards.length === 0 && this.searchFilterflag === false) {
 			this.filterStopCards = this.cardHistoryDetails.cards;
 		}
-		this.filterStopCards.sort((a, b) => new Date(a.CardStopDate) - new Date(b.CardStopDate));
+		this.filterStopCards.sort((a, b) => new Date(a.cardStopDate) - new Date(b.cardStopDate));
 		this.primaryCardLists = [];
 		this.supCardLists = [];
 		this.virtualCardLists = [];
@@ -187,7 +186,7 @@ export class CardHistory extends Component {
 		for (let i = 0; i < this.filterStopCards.length; i++) {
 			const cardDisplayName = this.filterStopCards[i].cardDisplayName.toLowerCase();
 
-			const cardStopDate = this.filterStopCards[i].CardStopDate.replace(`+0000`, ``).split(` `);
+			const cardStopDate = this.filterStopCards[i].cardStopDate.replace(`+0000`, ``).split(` `);
 			const stopDate = `${formatDate(cardStopDate[0], `dd mmm yyyy`)}, ${cardStopDate[1].split(`.`)[0]}`;
 			Object.assign(this.filterStopCards[i], { [`cardStopDateTime`]: stopDate });
 
@@ -593,7 +592,7 @@ _displayStopCardDetails(cardType) {
 						</horizon-label>
 						<horizon-label
 							label="Reason"
-							value=${cardStopReason[card.cardStopReason]}>
+							value=${CARD_STOP_REASON[card.cardStopReason]}>
 						</horizon-label>
 						
 		</capitec-group>
@@ -652,11 +651,11 @@ _displayStopCardDetails(cardType) {
 customElements.define(`horizon-card-history`, CardHistory);
 
 /**
-* When left arrow on the title bar is clicked to go back
+* When left arrow on the title bar is clicked to go back to the Stop card landing screen
 *
 * @example
-* <horizon-savings-account-details ... @back="${this._handler}"></horizon-savings-account-details>
+* <horizon-card-history ... @back="${this._handler}"></horizon-card-history>
 *
-* @event MainSavingsAccountDetails#back
+* @event CardHistory#back
 * @type {Object} - N/A
 */
