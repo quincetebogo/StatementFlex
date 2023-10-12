@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { NavigationContext } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatDate } from 'app/utils/channelServiceUtilities';
@@ -43,6 +44,7 @@ export class StopCardSuccess extends ViewBase {
 		this.accessChannels = {};
 
 		this._telemetry = HorizonTelemetry.instance;
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -80,6 +82,9 @@ export class StopCardSuccess extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails?.stoppedCards || [];
 		this.notNowToSuspendChannels = screenDetails.notNowToSuspendChannels || this.notNowToSuspendChannels;
+
+		const { pathParams } = this.navigationContext.current;
+		this.context = pathParams.context || this.context;
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		await this._initialise();
@@ -201,7 +206,7 @@ export class StopCardSuccess extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-		if (this.notNowToSuspendChannels) {
+		if (this.notNowToSuspendChannels || this.context === `ac`) {
 			return;
 		}
 
@@ -576,7 +581,7 @@ export class StopCardSuccess extends ViewBase {
 					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
 					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS)}"
 					@cancel="${() => this._cancelSuspendChannels()}"
-					@suspended="${() => this.showSuspendChannels = false}">
+					@suspended="${() => this.confirmSuspendChannels = false}">
 				</horizon-suspend-access-channels>`
 			: html``;
 	}

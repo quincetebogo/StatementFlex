@@ -209,12 +209,12 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
 	}
 
-	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
+	navigateToStopCard(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_PAGE}/${context}`);
 	}
 
-	navigateToStoppedCards() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
+	navigateToStoppedCards(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE}/${context}`);
 	}
 
 	navigateToStopCardFailed() {
@@ -727,7 +727,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-landing-page`,
 		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_PAGE,
+		path: `${HORIZON_ROUTES.CARD_STOP_PAGE}/:context`,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
@@ -735,7 +735,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-success`,
 		title: `StopCardSuccess`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
+		path: `${HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE}/:context`,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},

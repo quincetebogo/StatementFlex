@@ -1,5 +1,6 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -29,7 +30,9 @@ export class StopCardLandingPage extends ViewBase {
 		this.cards = this.screenDetails && this.screenDetails.cards;
 		
 		this._telemetry = HorizonTelemetry.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.displayToast = false;
+		this.context = `sc`; // stop card
 	}
 
 	// --------------
@@ -56,6 +59,9 @@ export class StopCardLandingPage extends ViewBase {
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
 			"screen": TelemetryScreen.STOP_CARD
 		});
+
+		const { pathParams } = this.navigationContext.current;
+		this.context = pathParams.context || this.context;
 	}
 
 	disconnectedCallback() {
@@ -104,7 +110,7 @@ export class StopCardLandingPage extends ViewBase {
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
 		} else {
-			this.horizonRouter.navigateToStoppedCards();
+			this.horizonRouter.navigateToStoppedCards(this.context);
 		}
 	}
 
