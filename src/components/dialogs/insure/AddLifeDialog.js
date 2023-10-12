@@ -82,10 +82,10 @@ class AddLifeDialog extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
-		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === `Spouse`).length;
-		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === `Child`).length;
-		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === `Parent`).length;
-		this.currentTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent`).length;
+		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === `Spouse` && life.lifeAssured === true).length;
+		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === `Child` && life.lifeAssured === true).length;
+		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === `Parent` && life.lifeAssured === true).length;
+		this.currentTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent` && life.lifeAssured === true).length;
 		this.selectedRelationship = ``;
 	}
 
@@ -178,7 +178,7 @@ class AddLifeDialog extends Component {
 
 				let count = 0;
 				this.currentLifesAssured.forEach(lifes => {
-					if (lifes.relationship === `Spouse`) {
+					if (lifes.relationship === `Spouse` && life.lifeAssured === true) {
 						count++;
 					}
 				});
@@ -312,14 +312,12 @@ class AddLifeDialog extends Component {
 			${this.currentLifesAssured.map((life) => html`
 				${life.lifeAssured === true ? html``
 				: html`
-					<!-- <div class="add-beneficiary"> -->
 					<capitec-card class="relationship-card">
 						<capitec-radio label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}: ${life.firstName} ${life.surname}"
 							@value-changed= "${(e) => this._addExistingBeneficiary(life, e)}"
 							.disabled= "${this._checkCurrentTotal(life)}">
 						</capitec-radio>
 					</capitec-card>
-					<!-- </div> -->
 				`}
 			`)}
 			<capitec-label label="Add new life assured" type="title" class="title"></capitec-label>

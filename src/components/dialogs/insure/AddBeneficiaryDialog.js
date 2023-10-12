@@ -317,7 +317,19 @@ class AddBeneficiaryDialog extends Component {
 							</horizon-product-tile>
 						</capitec-group>
 
-						${this._renderSpouse()}
+						<capitec-group class="relationships" layout="horizontal">
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Spouse"
+								subtitle="Only one allowed between the ages of 18 - 64 years."
+								detail=""
+								@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
+								?selected="${this.selectedRelationship === `Spouse`}"
+								>
+							</horizon-product-tile>
+						</capitec-group>
+
 						<capitec-label label="Add new beneficiary" type="title"></capitec-label>
 						<capitec-group class="relationships" layout="horizontal">
 							<horizon-product-tile
@@ -340,43 +352,6 @@ class AddBeneficiaryDialog extends Component {
 				</div>
 			</capitec-modal>
 		`;
-	}
-
-	_renderSpouse() {
-
-		const foundSpouse = this.rolePlayers.find((life) => life.relationship === `Spouse`);
-
-			if (isNullorEmpty(foundSpouse)) {
-				return html`
-					<capitec-group class="relationships" layout="horizontal">
-						<horizon-product-tile
-							data-automation-id="statements-dialog-one-month-period"
-							type="radio-button"
-							label="Spouse"
-							subtitle="Only one allowed between the ages of 18 - 64 years."
-							detail=""
-							@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
-							?selected="${this.selectedRelationship === `Spouse`}"
-							>
-						</horizon-product-tile>
-					</capitec-group>
-				`;
-			}
-			return html`
-				<capitec-group class="relationships" layout="horizontal">
-					<horizon-product-tile
-						data-automation-id="statements-dialog-one-month-period"
-						type="radio-button"
-						label="Spouse"
-						subtitle="Only one allowed between the ages of 18 - 64 years."
-						detail=""
-						?disabled= "${true}"
-						@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
-						?selected="${this.selectedRelationship === `Spouse`}"
-						>
-					</horizon-product-tile>
-				</capitec-group>
-			`;
 	}
 
 	/**
