@@ -352,7 +352,7 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/LoadConfirmedClientStopCard`;
 
 		const model = {
-			'incident': incident,
+			'incidentRecId': incident.currentIncident.incidentId,
 			'idNumber': callerInformation.southAfricanIDNumber,
 			'nonClientFullName': callerInformation.nonClientFullName,
 			'nonClientCellPhone': callerInformation.nonClientCellPhone,

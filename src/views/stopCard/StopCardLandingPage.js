@@ -115,7 +115,7 @@ export class StopCardLandingPage extends ViewBase {
 
 	async _cardHistory(_event) {
 
-		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.incomingCallDetails, this.horizonIncidentManager.getIncidentDetails());
+		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.horizonIncidentManager.getIncidentDetails());
 
 		if (returnValue.succeeded) {
 
