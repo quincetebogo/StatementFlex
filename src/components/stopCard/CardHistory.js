@@ -178,7 +178,7 @@ export class CardHistory extends Component {
 		if (this.filterStopCards.length === 0 && this.searchFilterflag === false) {
 			this.filterStopCards = this.cardHistoryDetails.cards;
 		}
-		this.filterStopCards.sort((a, b) => new Date(a.cardStopDate) - new Date(b.cardStopDate));
+		this.filterStopCards.sort((a, b) => new Date(b.cardStopDate) - new Date(a.cardStopDate));
 		this.primaryCardLists = [];
 		this.supCardLists = [];
 		this.virtualCardLists = [];
@@ -592,7 +592,7 @@ _displayStopCardDetails(cardType) {
 						</horizon-label>
 						<horizon-label
 							label="Reason"
-							value=${CARD_STOP_REASON[card.cardStopReason]}>
+							value=${CARD_STOP_REASON[card.cardStopReason] || card.cardStopReason}>
 						</horizon-label>
 						
 		</capitec-group>
@@ -639,7 +639,7 @@ _displayStopCardDetails(cardType) {
 						class="document-icon"/>
 					<capitec-label
 						class="no-Cardresults"
-						label="No card found"
+						label="No results found"
 						type="strong">
 					</capitec-label>
 			</capitec-group>`
