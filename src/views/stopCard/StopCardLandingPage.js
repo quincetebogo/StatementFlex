@@ -1,5 +1,6 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -25,15 +26,16 @@ export class StopCardLandingPage extends ViewBase {
 
 	constructor() {
 		super();
-		
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.cards = this.screenDetails && this.screenDetails.cards;
-		
+
 		this._telemetry = HorizonTelemetry.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.displayToast = false;
 		this.cardsDetails = {};
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		
+		this.context = `sc`; // stop card
 	}
 
 	// --------------
@@ -45,7 +47,7 @@ export class StopCardLandingPage extends ViewBase {
 			renderMode: { attribute: false }
 		};
 	}
-	
+
 	// ------------------
 	// LIFCYCLE OVERRIDES
 	// ------------------
@@ -58,9 +60,12 @@ export class StopCardLandingPage extends ViewBase {
 		this.landingPageInfo = state.landingPageInfo;
 		this._updateLeftBar();
 
-		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
+		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
 			"screen": TelemetryScreen.STOP_CARD
 		});
+
+		const { pathParams } = this.navigationContext.current;
+		this.context = pathParams.context || this.context;
 	}
 
 	disconnectedCallback() {
@@ -95,13 +100,13 @@ export class StopCardLandingPage extends ViewBase {
 		// The stop card incident can be closed if all cards were stopped successfully.
 		// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
 		const screenDetails = this.horizonStore.getScreenDetails();
-		
+
 		screenDetails.stoppedCards = event.detail.stoppedCards;
 		screenDetails.cardStopAttemptMade = true;
 		screenDetails.stoppedCardsFailed = stoppedCardsFailed;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
 		}, true);
@@ -109,7 +114,7 @@ export class StopCardLandingPage extends ViewBase {
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
 		} else {
-			this.horizonRouter.navigateToStoppedCards();
+			this.horizonRouter.navigateToStoppedCards(this.context);
 		}
 	}
 
@@ -127,8 +132,8 @@ export class StopCardLandingPage extends ViewBase {
 		} else {
 			this.horizonRouter.navigateToSystemError();
 		}
-		
-		
+
+
 	}
 
 	// ---------------
@@ -191,7 +196,7 @@ export class StopCardLandingPage extends ViewBase {
 
 	_renderStopCardComponent() {
 		return this.renderMode === RENDER_MODE.MAIN_PAGE
-		? html`
+			? html`
 			<horizon-stop-card
 				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
@@ -200,11 +205,11 @@ export class StopCardLandingPage extends ViewBase {
 				@card-history="${(event) => this._cardHistory(event)}">
 			</horizon-stop-card>
 			${this._renderLoadingIndicator()}`
-		: html``;
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
+		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="stop-card-landing-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
@@ -226,12 +231,12 @@ export class StopCardLandingPage extends ViewBase {
 
 	_renderCardHistoy() {
 		return this.renderMode === RENDER_MODE.CARD_HISTORY_VIEW
-		? html`
+			? html`
 			<horizon-card-history
 				.cardHistoryDetails = "${this.cardsDetails || []}" 
 				@back = "${() => this._setIncidentDone()}">
 			</horizon-card-history>`
-		: html``;
+			: html``;
 	}
 }
 

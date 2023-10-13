@@ -147,7 +147,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE, {});
 
 		this.alertStopcard = false;
-		this.horizonRouter.navigateToStopCard();
+		this.horizonRouter.navigateToStopCard(`ac`);
 	}
 
 	// ---------------
