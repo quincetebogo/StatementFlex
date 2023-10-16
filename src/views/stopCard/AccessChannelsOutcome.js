@@ -253,7 +253,8 @@ export class AccessChannelsOutcome extends ViewBase {
 
 		const returnValue = await this.cardService.identifyCaller(
 								this.callerInformation,
-								this.currentIncident
+								this.currentIncident,
+								() => true
 							);
 
 		if (returnValue.succeeded) {
