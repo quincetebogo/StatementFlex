@@ -39,6 +39,7 @@ export class SuspendAccessChannels extends Component {
 		this.notNowToSuspendChannels = false;
 		this.need = ``;
 		this.context = ``;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -57,7 +58,8 @@ export class SuspendAccessChannels extends Component {
 			accessChannels: { type: Object },
 			suspendChannels: { type: Object },
 			alertSuspendChannels: { type: Boolean, attribute: false },
-			confirmSuspendChannels: { type: Boolean, attribute: false }
+			confirmSuspendChannels: { type: Boolean, attribute: false },
+			isBusy: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -283,6 +285,10 @@ export class SuspendAccessChannels extends Component {
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -406,6 +412,7 @@ export class SuspendAccessChannels extends Component {
 					?disabled="${this.selectedACs === 0 || this.selectedACs !== this.selectedReasonAcs}">
 				</capitec-button>
 			</capitec-modal>
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -554,6 +561,15 @@ export class SuspendAccessChannels extends Component {
 						</capitec-radio>
 					</capitec-radio-group>
 			</capitec-content-box>`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+		? html`
+			<capitec-loading-indicator
+				data-automation-id="suspend-channels-loading-indicator">
+			</capitec-loading-indicator>`
+		: html``;
 	}
 }
 window.customElements.define(`horizon-suspend-access-channels`, SuspendAccessChannels);
