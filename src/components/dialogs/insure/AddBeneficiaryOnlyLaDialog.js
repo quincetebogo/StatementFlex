@@ -62,6 +62,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
 	}
 
 	/**
@@ -70,10 +71,10 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
-		this.currentTotalSpouse = this.lives.filter((life) => life.relationship === `Spouse`).length;
-		this.currentTotalChild = this.lives.filter((life) => life.relationship === `Child`).length;
-		this.currentTotalParent = this.lives.filter((life) => life.relationship === `Parent`).length;
-		this.currentTotalExtendedFamily = this.lives.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent`).length;
+		this.currentTotalSpouse = this.lives.filter((life) => life.relationship === `Spouse` && life.lifeAssured === true).length;
+		this.currentTotalChild = this.lives.filter((life) => life.relationship === `Child` && life.lifeAssured === true).length;
+		this.currentTotalParent = this.lives.filter((life) => life.relationship === `Parent` && life.lifeAssured === true).length;
+		this.currentTotalExtendedFamily = this.lives.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent` && life.lifeAssured === true).length;
 		this.selectedRelationship = ``;
 	}
 
@@ -350,7 +351,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 					data-automation-id="horizon-insure-add-life-dialog-relationship" 
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
-					@value-changed="${() => this.selectedRelationship = `ExtendedFamily`}">
+					@value-changed="${() => this.selectedRelationship = `ExtendedSpouse`}">
 				</capitec-radio>
 			</capitec-card>
 		
