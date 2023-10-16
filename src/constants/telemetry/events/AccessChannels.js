@@ -13,6 +13,7 @@
 	ACCESS_CHANNELS_TILE_INTERNET_BANKING: `call.fulfill-need.access-channels.internet-banking`,
 	ACCESS_CHANNELS_TILE_USSD: `call.fulfill-need.access-channels.ussd`,
 	ACCESS_CHANNELS_TILE_NOTIFICATIONS: `call.fulfill-need.access-channels.notifications`,
+	ACCESS_CHANNELS_TILE_INETBANKING: `call.fulfill-need.access-channels.internet-banking`,
 
 	// App profile details
 	ACCESS_CHANNELS: `call.fulfill-need.access-channels`,
@@ -24,8 +25,9 @@
 	ACCESS_CHANNELS_APP_UNSUSPEND: `call.fulfill-need.access-channels.app.unsuspend`,
 
 	// Internet banking details
+	ACCESS_CHANNELS_INETBANKING: `call.fulfill-need.access-channels.internet-banking`,
 	ACCESS_CHANNELS_INTERNET_BANKING: `call.fulfill-need.access-channels.internet-banking`,
-	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND: `call.fulfill-need.access-channels.internet-banking.suspend`,
+	ACCESS_CHANNELS_INETBANKING_SUSPEND: `call.fulfill-need.access-channels.internet-banking.suspend`,
 	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `call.fulfill-need.access-channels.internet-banking.suspend-security-token`,
 	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.next`,
 	ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK: `call.fulfill-need.access-channels.internet-banking.suspend-security-token.back`,
