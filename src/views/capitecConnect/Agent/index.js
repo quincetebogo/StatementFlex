@@ -2,10 +2,12 @@ import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import './Recharges'
+import { formatPhoneNumber } from "../../../utils/channelServiceUtilities";
 import SecurityContext from 'platform/SecurityContext';
-import { SavingsService } from '../../../services/SavingsService';
+import { SavingsService } from 'app/services/SavingsService';
+// import { CapitecConnectService } from 'app/services/CapitecConnectService';
 /**
- * Capitec Connect teamleader View
+ * Capitec Connect Agent View
  *
  * Events Raised
  * -------------
@@ -15,7 +17,7 @@ import { SavingsService } from '../../../services/SavingsService';
  * @class CapitecConnectAgent
  */
 export class CapitecConnectAgent extends View {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -26,7 +28,7 @@ export class CapitecConnectAgent extends View {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-	
+
 		// private properites
 		this.loading = true;
 
@@ -37,7 +39,7 @@ export class CapitecConnectAgent extends View {
 			{ value: "90", text: "90 Days" },
 		];
 
-		this.availableFilters = ["All", "Airtime", "Minutes", "Data", "SMSs"]
+		this.availableFilters = ["All", "Airtime", "Minutes", "Data", "SMS"]
 
 
 		// State variables
@@ -54,156 +56,108 @@ export class CapitecConnectAgent extends View {
 		this.totalPendingReversals = 10;
 		this.totalCompletedReversals = 10;
 	}
-	
+
 	static get properties() {
 		return {
 			selectedReversal: { type: Object },
-			showConfirmModal: {type: Boolean},
-			reversalAction: {type: String},
-			selectedDate: {type: Object},
-			searchValue: {type: String},
-			activeFilters: {type: Array},
-			totalEscalatedReversals: {type : Number},
-			totalPendingReversals: {type : Number},
-			totalCompletedReversals: {type : Number}
+			showConfirmModal: { type: Boolean },
+			reversalAction: { type: String },
+			selectedDate: { type: Object },
+			searchValue: { type: String },
+			activeFilters: { type: Array },
+			totalEscalatedReversals: { type: Number },
+			totalPendingReversals: { type: Number },
+			totalCompletedReversals: { type: Number }
 		};
 	}
 
-	
 
-	async searchReversals(renderSet , filters , selectedAccount ) {
 
-		function formatDate(daysToSubtract) {
-			var newDate = new Date();
-			newDate.setDate(newDate.getDate() - daysToSubtract);
-		  
-			var year = newDate.getFullYear();
-			var month = String(newDate.getMonth() + 1).padStart(2, '0');
-			var day = String(newDate.getDate()).padStart(2, '0');
-		  
-			var formattedDate = year + '-' + month + '-' + day;
-			return formattedDate;
+	async searchReversals(renderSet, filters, selectedAccount) {
+		function formatDate(inputDate) {
+			const options = { day: '2-digit', month: 'short', year: 'numeric' };
+			const date = new Date(inputDate);
+			return date.toLocaleDateString('en-za', options);
 		}
 
-		const response = await this.savingsService.savingsPlanTransactionHistory({
-			"accountNumber": selectedAccount.accountNumber,
-			"startDate": formatDate(0),
-			"endDate": formatDate(parseInt(filters.selectedDate.value)),
-			"startAtIndex": renderSet.currentPageIndex,
-			"maxResults": renderSet.numOfPagingRows,
-			"moneyType": "OUT"
-		});
+		function formatCellphoneNumber(cellphoneNumber) {
+			cellphoneNumber = cellphoneNumber.replace(/\s/g, ''); // first remove the spaces
 
-		console.log(response)
-
-		return {
-			records: response.result?.transactions || [],
-			totalRecords: response.results?.transactions?.length || 0
+			if (cellphoneNumber.length === 11) {
+				return `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
+			} else if (cellphoneNumber.length === 10) {
+				return `${cellphoneNumber.substr(0, 3)} ${cellphoneNumber.substr(3, 3)} ${cellphoneNumber.substr(6, 4)}`;
+			} else {
+				// Handle invalid input here if necessary
+				return "000 000 0000";
+			}
 		}
 
-		// console.log(result)
+		function getDateInPast(days) {
+			const today = new Date();
+			const pastDate = new Date(today);
+			pastDate.setDate(today.getDate() - days);
+			const year = pastDate.getFullYear();
+			const month = String(pastDate.getMonth() + 1).padStart(2, '0');
+			const day = String(pastDate.getDate()).padStart(2, '0');
+			return `${year}-${month}-${day}`;
+		}
 
-		// console.log(SecurityContext.username)
-		// // AVAILABLE, LOCKED, ACCEPTED, DECLINED, FLAGGED
-		// console.log("searchReversals")
-		// console.log(filters)
-		// console.log(renderSet)
-		// const records = [
-		// 	{
-		// 	  "businessTransactionReference": "TX12345",
-		// 	  "amount": 100.00,
-		// 	  "msisdn": "1234567890",
-		// 	  "markedBy": "John Doe",
-		// 	  "reason": "Incorrect Charge",
-		// 	  "additionalComments": "Please review",
-		// 	  "actionState": "AVAILABLE",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "PENDING",
-		// 	  "actionedBy": "Jane Smith",
-		// 	  "createdAt": "2023-08-01T10:00:00Z",
-		// 	  "updatedAt": "2023-08-01T11:30:00Z",
-		// 	  "locked": false,
-		// 	  "complete": false
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX67890",
-		// 	  "amount": 50.00,
-		// 	  "msisdn": "9876543210",
-		// 	  "markedBy": "Alice Smith",
-		// 	  "reason": "Fraudulent Transaction",
-		// 	  "additionalComments": "Urgent attention needed",
-		// 	  "actionState": "LOCKED",
-		// 	  "lockedTo": "cp349869",
-		// 	  "transactionState": "PROCESSING",
-		// 	  "actionedBy": "Bob Anderson",
-		// 	  "createdAt": "2023-08-02T15:00:00Z",
-		// 	  "updatedAt": "2023-08-02T16:45:00Z",
-		// 	  "locked": true,
-		// 	  "complete": false
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX54321",
-		// 	  "amount": 75.00,
-		// 	  "msisdn": "5551234567",
-		// 	  "markedBy": "Eve Brown",
-		// 	  "reason": "Customer Request",
-		// 	  "additionalComments": "Approved by supervisor",
-		// 	  "actionState": "ACCEPTED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "SUCCESSFUL",
-		// 	  "actionedBy": "Alice Johnson",
-		// 	  "createdAt": "2023-08-03T08:30:00Z",
-		// 	  "updatedAt": "2023-08-03T09:15:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX98765",
-		// 	  "amount": 120.00,
-		// 	  "msisdn": "3334445555",
-		// 	  "markedBy": "Bob Anderson",
-		// 	  "reason": "Billing Error",
-		// 	  "additionalComments": "Investigate root cause",
-		// 	  "actionState": "DECLINED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "FAILED",
-		// 	  "actionedBy": "John Doe",
-		// 	  "createdAt": "2023-08-04T12:15:00Z",
-		// 	  "updatedAt": "2023-08-04T13:30:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX24680",
-		// 	  "amount": 200.00,
-		// 	  "msisdn": "7778889999",
-		// 	  "markedBy": "Jane Smith",
-		// 	  "reason": "User Error",
-		// 	  "additionalComments": "Reprocess payment",
-		// 	  "actionState": "FLAGGED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "CANCELED",
-		// 	  "actionedBy": "Alice Smith",
-		// 	  "createdAt": "2023-08-05T14:45:00Z",
-		// 	  "updatedAt": "2023-08-05T15:20:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	}
-		// ];
+		function isArray(obj) {
+			return typeof obj === "object" && obj.length // arrays are objects and have length
+		}
 
-		// return new Promise((resolve, reject) => {
-		// 	setTimeout(() => {
-		// 		const retrievedRecords = records.filter(item => item.actionState === state);
-		// 		const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
-		// 		resolve({
-		// 			records: returnValue || [],
-		// 			totalRecords: retrievedRecords?.length || 0
-		// 		});
-		// 	}, 1000);
-		// });
+		try {
+			var qry_args = {};
+
+			if (isArray(this.activeFilters.bundelType) && this.activeFilters.bundelType.filter(e => e !== "All").length) {
+				qry_args.bundleTypes = this.activeFilters.bundelType.filter(e => e !== "All").map(e => {
+					e = e.toUpperCase();
+					return e;
+				});
+			}
+
+			qry_args.transactionDate = {
+				startDate: getDateInPast(this.activeFilters.selectedDate.value),
+				endDate: getDateInPast(0)
+			};
+
+			const response = await this.capitecConnectService.rechargeHistory(
+				qry_args, {
+					page: typeof this.currentPageIndex === "number" ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+					sort: [ "transactionDate", "msisdn" ],
+					size: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
+				}, {
+					startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
+					maxResults: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
+				}
+			);
+
+			var r = response.result.content;
+
+			r = r.map(e => {
+				e.transactionDate = formatDate(e.transactionDate);
+				e.msisdn = formatCellphoneNumber(e.msisdn);
+				return e;
+			});
+
+			response.result.content = r;
+
+			return {
+				records: response.result?.content || [],
+				totalRecords: response.result.totalElements // for pagination reasons this is not the returned resultset's length
+			}
+		} catch (error) {
+			console.error(error);
+
+			return {
+				records: [],
+				totalRecords: 0
+			};
+		}
 	}
 
-	async lock(){
+	async lock() {
 		alert('lock')
 	}
 
@@ -217,7 +171,7 @@ export class CapitecConnectAgent extends View {
 		console.log(selectedReversal)
 		alert(type)
 	}
-	
+
 
 	static get styles() {
 		return [
@@ -272,11 +226,15 @@ export class CapitecConnectAgent extends View {
 					--theme-button-padding-top: 14px;
 					--theme-button-padding-bottom: 14px;
 				}
+				table tbody tr td:nth-child(4) {
+					color: blue;
+					text-align: center;
+				}
 			`
 		];
 	}
 
-	
+
 
 	_mobileTemplate() {
 		this._webTemplate();
@@ -326,13 +284,13 @@ export class CapitecConnectAgent extends View {
 				</capitec-group>
 		</capitec-card>`;
 	}
-	
+
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/live-better-white.svg"/>`
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
 			;
 	}
-	
+
 }
 
 customElements.define(`horizon-capitec-connect-agent`, CapitecConnectAgent);

@@ -36,6 +36,7 @@ export default class HorizonChannelServiceMocks {
 		this.securityQuestionMocks = await loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
+		this.capitecConnectRechargeHistoryMocks = await loadMockModule(this.capitecConnectRechargeHistoryMocks, `capitecConnectRechargeHistory`, () => import(`../mocks/CapitecConnectRechargeMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
@@ -229,6 +230,23 @@ export default class HorizonChannelServiceMocks {
 	getClientProducts(cifNumber) {
 		if (this._mockSettings.savingsPlanLanding.positiveCase) {
 			return this.savingsAccountMocks.getClientProducts;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	capitecConnectRechargeHistory(capitecConnectRechargeHistoryRequest) {
+		// Code for a negative case could come here
+		if (this._mockSettings.capitecConnectRechargeHistory.positiveCase) {
+			const result = {
+				content: this.capitecConnectRechargeHistoryMocks.rechargeMockData.content.slice(
+					capitecConnectRechargeHistoryRequest.startAtIndex,
+					capitecConnectRechargeHistoryRequest.startAtIndex + capitecConnectRechargeHistoryRequest.maxResults
+				),
+				totalElements: this.capitecConnectRechargeHistoryMocks.rechargeMockData.totalElements || 50
+			};
+			return result;
 		}
 
 		// Code for a negative case could come here
