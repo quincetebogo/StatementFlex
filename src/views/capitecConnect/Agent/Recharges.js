@@ -2,6 +2,7 @@ import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration, NavigationContext } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { SavingsService } from '../../../services/SavingsService';
+import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { CreditService } from '../../../services/CreditService';
 import { ViewBase } from '../../common/ViewBase';
 import { HorizonStore } from '../../../store/HorizonStore';
@@ -34,6 +35,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		// this.horizonStore = HorizonStore.getInstance();
 
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		// this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
@@ -46,7 +48,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			{ value: "90", text: "90 Days" },
 		];
 
-		this.availableBundleFilters = ["All", "Airtime", "Minutes", "Data", "SMSs"]
+		this.pagingRows = [10,20,50];
+		this.numOfPagingRows = 10;
+		this.currentPageIndex = 1;
+
+		this.availableBundleFilters = ["All", "Airtime", "Minutes", "Data", "SMS"]
 
 		// State variables
 		// this.searchValue = "";
@@ -284,7 +290,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	async _retrieveRecharges(renderSet) {
+		this.numOfPagingRows = renderSet.numOfPagingRows;
+		this.currentPageIndex = renderSet.currentPageIndex;
+
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, this.selectedSavingsProduct);
+		// console.log(pagedItemsToReturn);
 		return {
 			pagedItems: pagedItemsToReturn.records,
 			totalCount: pagedItemsToReturn.totalRecords
@@ -295,20 +305,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		
 		return html`
 		<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
-		<capitec-button-bar >
-			<capitec-select 
-				label="Account" 
-				.items="${this.savingsProducts}" 
-				.value="${this.selectedSavingsProduct}"
-				@value-change="${(e) => {this.selectedSavingsProduct = e.detail.new; this.onFilter();}}"
-				display-field="accountType"
-				id-field="accountNumber">
-			</capitec-select>
-			<capitec-spacer></capitec-spacer>
-		</capitec-button-bar>
 		<capitec-button-bar>
-			
-			
 			<capitec-search-field label="Search" value="${this.activeFilters.searchValue}" @value-change="${(e) => {this.activeFilters.searchValue = e.detail.new; this.onFilter();}}" focussed>
 			</capitec-search-field>
 			<capitec-select 
@@ -331,12 +328,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			})}
 		</capitec-button-bar>
 
-		<capitec-label label="Active Filters"></capitec-label>
 		<capitec-button-bar>
+			<capitec-label type="strong" label="Active Filters:"></capitec-label>
 			${this.activeFilters.searchValue ? html`<capitec-chip label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
 			${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== "NonSelected" ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
-			
-
 			${this.activeFilters.bundelType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
 			<capitec-spacer></capitec-spacer>
 		</capitec-button-bar>
@@ -344,15 +339,17 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		
 		<capitec-table style="" 
 				displayMode="Paging" 
-				groupField="month" 
+				groupField="month"
+				numOfPagingRows="${this.numOfPagingRows}"
+				pagingRows="[${this.pagingRows.join(',')}]"
 				.dataHandler="${(renderSet) => this._retrieveRecharges(renderSet)}"
 				expandable="right" 
 				.expandRenderer="${(item) => this._expandRenderer(item)}">
-			<capitec-table-column label="Transaction Date" field="createdAt"></capitec-table-column>
-			<capitec-table-column label="Beneficiary Name" field="beneficiaryName"></capitec-table-column>
-			<capitec-table-column label="Cellphone" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Channel" field="channel"></capitec-table-column>
-			<capitec-table-column label="Product" field="product"></capitec-table-column>
+			<capitec-table-column label="Transaction Date" field="transactionDate"></capitec-table-column>
+			<capitec-table-column label="Beneficiary Name" field="recharges" .renderer="${this._renderBeneficiaryName}"></capitec-table-column>
+			<capitec-table-column label="Cellphone Number" field="msisdn"></capitec-table-column>
+			<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
+			<capitec-table-column label="Product" field="bundleType"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
@@ -365,6 +362,14 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		${this.showConfirmModal ? this._renderConfirmModal() : null}
 
 		`;
+	}
+
+	_renderTag(item, fieldName, value) {
+		return html`<capitec-tag label="${value.toUpperCase()}" type="info"></capitec-tag>`;
+	}
+
+	_renderBeneficiaryName(item, fieldName, value) {
+		return value[0]?.beneficiaryName;
 	}
 
 	_expandRenderer (item) {
@@ -516,7 +521,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/live-better-white.svg"/>`
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
 			;
 	}
 	

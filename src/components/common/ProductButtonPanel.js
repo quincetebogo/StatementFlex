@@ -174,7 +174,7 @@ export class ProductButtonPanel extends Component {
 			</horizon-product-tile>
 			<horizon-product-tile
 				class="product-button"
-				type="live-better"
+				type="capitec-connect"
 				label="Capitec Connect"
 				subtitle="${this.subtitle.capitecConnect ? this.subtitle.capitecConnect : DEFAULT_SUBTITLE.CAPITEC_CONNECT}"
 				detail="${this.detail.capitecConnect ? this.detail.capitecConnect : ``}"

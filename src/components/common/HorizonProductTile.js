@@ -284,9 +284,16 @@ export class HorizonProductTile extends Component {
 					background-color: var(--theme-product-tile-insure-colour, #5D737E);
 				}
 
-				 .product.live-better {
-				 	background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
-				 }
+				.product.live-better {
+					background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
+				}
+
+				.product.capitec-connect {
+					--theme-product-tile-capitec-connect-colour: url(images/common/mask-capitec-connect.png);
+					background: var(--theme-product-tile-capitec-connect-colour, #FFFFFF);
+					background-size: cover;
+					background-repeat: no-repeat;
+				}
 
 				.heading {
 					margin-left: var(--theme-product-tile-heading-margin-left, 20px);
@@ -330,7 +337,8 @@ export class HorizonProductTile extends Component {
 					color: var(--theme-product-tile-insure-colour, #5D737E);
 				}
 
-				.title.live-better {
+				.title.live-better,
+				.title.capitec-connect {
 					color: var(--theme-product-tile-live-better-colour, #1629DA);
 				}
 
@@ -523,6 +531,14 @@ export class HorizonProductTile extends Component {
 			return html`
 				<div class="product ${this.type ? this.type : `transact`}">
 					<img alt="liveBetter" src="images/common/mask.png" style="object-fit: fill">
+				</div>
+			`;
+		}
+
+		if (this.type === `capitec-connect`) {
+			return html`
+				<div class="product ${this.type ? this.type : `transact`}">
+					<img alt="liveBetter" src="images/liveBetter/capitec-connect-white.svg" style="object-fit: fill">
 				</div>
 			`;
 		}
