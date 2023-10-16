@@ -288,7 +288,7 @@ class UpdatePlan extends Component {
 						this.beneOnlyRowId = life.rowID;
 					}
 					this.policyDetails.roleplayers[index].relationship = e.detail.relationship;
-
+					this.policyDetails.roleplayers[index].coverDetails = e.detail.coverDetails;
 					if (this.policyDetails.roleplayers[index].relationship === `Spouse` || this.policyDetails.roleplayers[index].relationship === `Parent` || this.policyDetails.roleplayers[index].relationship === `Child`) {
 						this.policyDetails.roleplayers[index].coverDetails.isExtendedFamily = false;
 					} else {
@@ -1341,16 +1341,18 @@ class UpdatePlan extends Component {
 			if (relationship === `MainLife` || relationship === `Parent` || relationship === `Spouse` || relationship === `Child`) {
 				isExtendedFamily = false;
 			}
-
-			this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
-				relationship,
-				this.productParams,
-				this.policyDetails.roleplayers[index].coverAmount,
-				index === 0 ? this.maxAllowedCover : 0,
-				getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
-				isExtendedFamily,
-				false
-			);
+			if (this.policyDetails.roleplayers[index].lifeAssured === true) {
+				this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
+					relationship,
+					this.productParams,
+					this.policyDetails.roleplayers[index].coverAmount,
+					index === 0 ? this.maxAllowedCover : 0,
+					getAgeFromDob(this.policyDetails.roleplayers[index].dateOfBirth),
+					isExtendedFamily,
+					false
+				);
+			}
+			
 		}
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
