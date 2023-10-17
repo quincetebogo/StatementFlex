@@ -4,6 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import './Recharges'
 import SecurityContext from 'platform/SecurityContext';
 import { SavingsService } from '../../../services/SavingsService';
+import { ConnectService } from '../../../services/ConnectService';
 /**
  * Capitec Connect teamleader View
  *
@@ -26,7 +27,7 @@ export class CapitecConnectAgent extends View {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-	
+
 		// private properites
 		this.loading = true;
 

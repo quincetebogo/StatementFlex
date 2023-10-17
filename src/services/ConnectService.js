@@ -9,6 +9,21 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
  * @extends {ChannelServiceBase}
  */
 export class ConnectService extends ChannelServiceBase {
+		// --------------
+	// INITIALISATION
+	// --------------
+	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
+		super(
+			toggleBusyFunc, 
+			defaultErrorHandlerFunc, 
+			`serviceURIs.connectServiceUrl`, 
+			`HorizonChannelService`, 
+			`v1`, 
+			() => import(`../mocks/HorizonChannelServiceMocks.js`)
+		);
+
+		this._version_2 = `v2`;
+	}
 	// Get reversals
 
 	async getReversals(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
