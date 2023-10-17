@@ -186,8 +186,8 @@ export class CardHistory extends Component {
 		for (let i = 0; i < this.filterStopCards.length; i++) {
 			const cardDisplayName = this.filterStopCards[i].cardDisplayName.toLowerCase();
 
-			const cardStopDate = this.filterStopCards[i].cardStopDate.replace(`+0000`, ``).split(` `);
-			const stopDate = `${formatDate(cardStopDate[0], `dd mmm yyyy`)}, ${cardStopDate[1].split(`.`)[0]}`;
+			const cardStopDate = new Date(this.filterStopCards[i].cardStopDate);
+			const stopDate = `${formatDate(cardStopDate, `dd mmm yyy, hh:mm:ss`)}`;
 			Object.assign(this.filterStopCards[i], { [`cardStopDateTime`]: stopDate });
 
 			if (cardDisplayName.includes(`virtual`)) {
