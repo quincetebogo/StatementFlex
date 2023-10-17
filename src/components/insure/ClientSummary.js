@@ -78,6 +78,7 @@ class ClientSummary extends Component {
 
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this.isOnlyProductEnquiry = true;
 	}
 
 	// #endregion INITIALISATION
@@ -155,7 +156,9 @@ class ClientSummary extends Component {
 			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
-			updateEarlyCollectionPreferences: { type: Object, state: true }
+			updateEarlyCollectionPreferences: { type: Object, state: true },
+
+			isOnlyProductEnquiry: { type: Boolean, state: true }
 		};
 	}
 
@@ -470,8 +473,11 @@ class ClientSummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-		await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+		if (this.isOnlyProductEnquiry === true) {
+			await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident(null, false);
+		}
+		
 	}
 
 	/**
@@ -758,8 +764,6 @@ class ClientSummary extends Component {
 		}
 		return displayStatus;
 	}
-
-
 
 
 	/**

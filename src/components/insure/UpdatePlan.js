@@ -981,12 +981,14 @@ class UpdatePlan extends Component {
 			}
 
 			// build list for validation dialog
-			if (ele.coverDetails.canSubmit === false) {
-				onUpdateValidations.lives.push({
-					name: ele.firstName,
-					surname: ele.surname
-				});
-				onUpdateValidations.validated = false;
+			if (ele.lifeAssured === true) {
+				if (ele.coverDetails.canSubmit === false) {
+					onUpdateValidations.lives.push({
+						name: ele.firstName,
+						surname: ele.surname
+					});
+					onUpdateValidations.validated = false;
+				}
 			}
 
 		});
@@ -1000,7 +1002,6 @@ class UpdatePlan extends Component {
 	 */
 	async _tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
-		console.log(this.selectedTabIndex);
 		if (this.selectedTabIndex === 0) {
 			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident();
@@ -1351,6 +1352,9 @@ class UpdatePlan extends Component {
 					isExtendedFamily,
 					false
 				);
+			}
+			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
+				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
 			
 		}
