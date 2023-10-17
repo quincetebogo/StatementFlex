@@ -87,6 +87,7 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			cards: { type: Array },
+			shouldDisableByRole: { type: Object },
 
 			hasCardsAvailable: { type: Boolean, attribute: false },
 			selectedCardCount: { type: Number, attribute: false },
@@ -365,7 +366,8 @@ export class StopCard extends Component {
 				<capitec-button
 					label="Card History"
 					type="clear" data-automation-id="card-history" style ="margin-left:700px; border:1px solid #009DE0;"
-					@click="${() => this._onCardHistoryClick()}">
+					@click="${() => this._onCardHistoryClick()}"
+					?hidden="${this.shouldDisableByRole(`card-history`)}">
 				</capitec-button>
 			</capitec-title-bar>`;
 	}
