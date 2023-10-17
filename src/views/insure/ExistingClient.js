@@ -229,11 +229,12 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!issuePlanAgreementResponse.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(issuePlanAgreementResponse.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 
 	}
@@ -263,11 +264,12 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!updatePlanAgreementResponse.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(updatePlanAgreementResponse.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
 
 	}
@@ -437,11 +439,12 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.policyReissue(request);
 		if (!resp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		return resp.result;
 	}
 
@@ -497,10 +500,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(result.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		return result;
 	}
 
@@ -537,8 +542,10 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
@@ -578,6 +585,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const returnValue = await this.insureService.policyPremiumHistory(premiumHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
+			super.isOnlyProductEnquiry = false;
 			const formattedTrans = returnValue.result.transactions.
 				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `DebitOrderReceipt` || ele.premiumType === `AdHocReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
@@ -592,6 +600,7 @@ export class ExistingClient extends InsureViewBase {
 			this.policyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		} else {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(returnValue.exception);
 		}
@@ -613,11 +622,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(calculateQuoteResp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		// Map back to array
 		const calculatedQuote = calculateQuoteResp.result;
 		const adjustedRoleplayers = calculateQuoteResp.result.lifesAssured.map((life) => {
@@ -653,11 +663,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(prepareUpdateResp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.contractReference = prepareUpdateResp.result.contractReference;
 
 		await this._generateDocumentsForUpdatePlan(false);
@@ -732,10 +743,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(createPolicyResponse.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		this.contractReference = createPolicyResponse.result.contractReference;
 
 		await this._generateDocumentsForReinstate(false);
@@ -785,8 +798,10 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
@@ -846,6 +861,7 @@ export class ExistingClient extends InsureViewBase {
 				this.policyDetails.deductionDetails = policyResponse.deductionDetails;
 				delete this.policyDetails.eligibleRoleplayers;
 			} else {
+				super.isOnlyProductEnquiry = false;
 				this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 				this.handleToastError(calcResponse.exception);
 				return;
@@ -874,10 +890,12 @@ export class ExistingClient extends InsureViewBase {
 		});
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			return estimateWithCoverDetails;
 		}
+		super.isOnlyProductEnquiry = false;
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		this.handleToastError(resp.exception);
 		return null;
@@ -911,8 +929,9 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this._getCancelPolicyDocument(e.detail.contractReference, e.detail.cancellationReason, true);
 			this._goToCancelPolicySuccess(e);
-
+			super.isOnlyProductEnquiry = false;
 		} else {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
@@ -936,6 +955,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.contractReference = e.detail.payArrears.contractReference;
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 			this.amountToPay = sumArrears;
@@ -943,6 +963,7 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
@@ -966,9 +987,11 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			return resp.result;
 		}
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		super.isOnlyProductEnquiry = false;
 		this.handleToastError(resp.exception);
 		return null;
 
@@ -1128,6 +1151,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1165,6 +1189,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1212,10 +1237,12 @@ export class ExistingClient extends InsureViewBase {
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(emailResponse.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
@@ -1272,9 +1299,11 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(requestCallbackResp.exception);
 		}
+		super.isOnlyProductEnquiry = false;
 	}
 
 	/**
@@ -1309,12 +1338,13 @@ export class ExistingClient extends InsureViewBase {
 
 		const electResp = await this.insureService.SetElectOptions(electRequest);
 		if (!electResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
 			this.showInsureErrorToast = true;
 			return;
 		}
-		
+		super.isOnlyProductEnquiry = false;
 		this.showInsureSuccessToast = true;
 		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
@@ -1435,6 +1465,7 @@ export class ExistingClient extends InsureViewBase {
 				.getArrears = "${() => this._getArrears()}"
 				.clientArrears = "${this.clientArrears}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
+				.isOnlyProductEnquiry = "${super.isOnlyProductEnquiry}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
