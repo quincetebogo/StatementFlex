@@ -119,6 +119,13 @@ export class StopCardLandingPage extends ViewBase {
 	}
 
 	async _cardHistory(_event) {
+		this._telemetry.logEvent(QuickTransactionEvents.CARD_HISTORY, { 
+			"screen": TelemetryScreen.STOP_CARD,
+			"next-screen": TelemetryScreen.CARD_HISTORY_PAGE
+		});
+
+		await super._inicidentManager_(`card-history`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 
 		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.horizonIncidentManager.getIncidentDetails());
 
@@ -201,6 +208,7 @@ export class StopCardLandingPage extends ViewBase {
 				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
+				.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}"
 				@card-history="${(event) => this._cardHistory(event)}">
 			</horizon-stop-card>
