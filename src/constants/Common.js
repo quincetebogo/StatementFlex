@@ -14,7 +14,7 @@ export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget
  * @enum {Object} LOW_RISK_TRANSACTIONS
  * 
  */
-export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
+export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`, `card-history`];
 
 /**
  * Transactions that doesn't even require authentication to perform
