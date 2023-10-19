@@ -630,9 +630,10 @@ export class ExistingClient extends InsureViewBase {
 		super.isOnlyProductEnquiry = false;
 		// Map back to array
 		const calculatedQuote = calculateQuoteResp.result;
-		const adjustedRoleplayers = calculateQuoteResp.result.lifesAssured.map((life) => {
+		const adjustedRoleplayers = calculatedQuote.lifesAssured.map((life) => {
 			const foundPlayer = policyToCalc.roleplayers.find((ele) => ele.rowID === life.rowID);
 			life.coverDetails = foundPlayer.coverDetails;
+			life.benefitPayout = foundPlayer.benefitPayout;
 			return life;
 		});
 
