@@ -23,7 +23,8 @@ import { HorizonStore } from 'app/store/HorizonStore';
 				RESTRICTED: `Restricted`,
 				SARB_INSTRUCTION: `Sarb instruction`,
 				FOREX_CONTRAVENTION: `Forex contravention`,
-				CARD_NOT_REQUIRED_BY_CLIENT: `Card not required by client`
+				CARD_NOT_REQUIRED_BY_CLIENT: `Card not required by client`,
+				SUPPLEMENTARY_ACCESS_REVOKED: `Supplementary access revoked`
 	};
 
 	const FILTERCARD_BY = {
