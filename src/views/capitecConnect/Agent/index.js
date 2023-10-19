@@ -71,46 +71,11 @@ export class CapitecConnectAgent extends View {
 		};
 	}
 
-
-
-	async searchReversals(renderSet, filters, selectedAccount) {
-		function formatDate(inputDate) {
-			const options = { day: '2-digit', month: 'short', year: 'numeric' };
-			const date = new Date(inputDate);
-			return date.toLocaleDateString('en-za', options);
-		}
-
-		function formatCellphoneNumber(cellphoneNumber) {
-			cellphoneNumber = cellphoneNumber.replace(/\s/g, ''); // first remove the spaces
-
-			if (cellphoneNumber.length === 11) {
-				return `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
-			} else if (cellphoneNumber.length === 10) {
-				return `${cellphoneNumber.substr(0, 3)} ${cellphoneNumber.substr(3, 3)} ${cellphoneNumber.substr(6, 4)}`;
-			} else {
-				// Handle invalid input here if necessary
-				return "000 000 0000";
-			}
-		}
-
-		function getDateInPast(days) {
-			const today = new Date();
-			const pastDate = new Date(today);
-			pastDate.setDate(today.getDate() - days);
-			const year = pastDate.getFullYear();
-			const month = String(pastDate.getMonth() + 1).padStart(2, '0');
-			const day = String(pastDate.getDate()).padStart(2, '0');
-			return `${year}-${month}-${day}`;
-		}
-
-		function isArray(obj) {
-			return typeof obj === "object" && obj.length // arrays are objects and have length
-		}
-
+	async searchRecharges(renderSet, filters, selectedAccount) {
 		try {
 			var qry_args = {};
 
-			if (isArray(this.activeFilters.bundelType) && this.activeFilters.bundelType.filter(e => e !== "All").length) {
+			if (this.isArray(this.activeFilters.bundelType) && this.activeFilters.bundelType.filter(e => e !== "All").length) {
 				qry_args.bundleTypes = this.activeFilters.bundelType.filter(e => e !== "All").map(e => {
 					e = e.toUpperCase();
 					return e;
@@ -118,8 +83,8 @@ export class CapitecConnectAgent extends View {
 			}
 
 			qry_args.transactionDate = {
-				startDate: getDateInPast(this.activeFilters.selectedDate.value),
-				endDate: getDateInPast(0)
+				startDate: this.getDateInPast(this.activeFilters.selectedDate.value),
+				endDate: this.getDateInPast(0)
 			};
 
 			const response = await this.capitecConnectService.rechargeHistory(
@@ -136,8 +101,8 @@ export class CapitecConnectAgent extends View {
 			var r = response.result.content;
 
 			r = r.map(e => {
-				e.transactionDate = formatDate(e.transactionDate);
-				e.msisdn = formatCellphoneNumber(e.msisdn);
+				e.friendlyDate = this.formatDate(e.transactionDate);
+				e.msisdn = this.formatCellphoneNumber(e.msisdn);
 				return e;
 			});
 
@@ -171,7 +136,6 @@ export class CapitecConnectAgent extends View {
 		console.log(selectedReversal)
 		alert(type)
 	}
-
 
 	static get styles() {
 		return [
@@ -234,8 +198,6 @@ export class CapitecConnectAgent extends View {
 		];
 	}
 
-
-
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -266,7 +228,7 @@ export class CapitecConnectAgent extends View {
 						<capitec-tab label="Recharge History" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-recharges
 								style="width:100%"
-								.searchReversals="${this.searchReversals}"
+								.searchRecharges="${this.searchRecharges}"
 								.lock="${this.lock}"
 								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"

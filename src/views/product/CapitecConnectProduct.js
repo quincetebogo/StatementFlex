@@ -40,21 +40,21 @@ export class CapitecConnectProduct extends ProductPageBase {
 
 	_webTemplate() {
 		// If it is a teamleader with the connect role we should display the teamleader page.
-		if(RoleManager.getInstance().isCapitecConnectTeamleader) {
-			return html`
-			<div>
-				<horizon-capitec-connect-teamleader></horizon-capitec-connect-teamleader>
-			</div>
-			`;
-		}
+		// if(RoleManager.getInstance().isCapitecConnectTeamleader) {
+		// 	return html`
+		// 	<div>
+		// 		<horizon-capitec-connect-teamleader></horizon-capitec-connect-teamleader>
+		// 	</div>
+		// 	`;
+		// }
 
-		if(RoleManager.getInstance().isCapitecConnectAgent) {
+		// if(RoleManager.getInstance().isCapitecConnectAgent) {
 			return html`
 			<div>
 				<horizon-capitec-connect-agent></horizon-capitec-connect-agent>
 			</div>
 			`;
-		}
+		// }
 
 		// We should display the agent role.
 		return html`

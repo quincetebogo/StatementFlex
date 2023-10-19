@@ -113,6 +113,53 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		};
 	}
 
+	formatDate(inputDate, options) {
+		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
+		const date = new Date(inputDate);
+		return date.toLocaleDateString('en-za', options);
+	}
+
+	getTimeFromDate(dateString) {
+		const date = new Date(dateString);
+		const hours = date.getHours().toString().padStart(2, '0');
+		const minutes = date.getMinutes().toString().padStart(2, '0');
+		const seconds = date.getSeconds().toString().padStart(2, '0');
+		return `${hours}:${minutes}:${seconds}`;
+	}
+
+	formatCellphoneNumber(cellphoneNumber) {
+		cellphoneNumber = cellphoneNumber.replace(/\s/g, ''); // first remove the spaces
+
+		if (cellphoneNumber.length === 11) {
+			return `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
+		} else if (cellphoneNumber.length === 10) {
+			return `${cellphoneNumber.substr(0, 3)} ${cellphoneNumber.substr(3, 3)} ${cellphoneNumber.substr(6, 4)}`;
+		} else {
+			// Handle invalid input here if necessary
+			return "000 000 0000";
+		}
+	}
+
+	getDateInPast(days) {
+		const today = new Date();
+		const pastDate = new Date(today);
+		pastDate.setDate(today.getDate() - days);
+		const year = pastDate.getFullYear();
+		const month = String(pastDate.getMonth() + 1).padStart(2, '0');
+		const day = String(pastDate.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
+	isArray(obj) {
+		return typeof obj === "object" && obj.length // arrays are objects and have length
+	}
+
+	toTitleCase(inputString) {
+		return inputString.replace(/\w\S*/g, function (text) {
+		  return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
+		});
+	}
+
 	_errorHandler() {
 		alert('error')
 	}
@@ -293,7 +340,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.numOfPagingRows = renderSet.numOfPagingRows;
 		this.currentPageIndex = renderSet.currentPageIndex;
 
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, this.selectedSavingsProduct);
+		const pagedItemsToReturn = await this.searchRecharges(renderSet, this.activeFilters, this.selectedSavingsProduct);
 		// console.log(pagedItemsToReturn);
 		return {
 			pagedItems: pagedItemsToReturn.records,
@@ -345,11 +392,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				.dataHandler="${(renderSet) => this._retrieveRecharges(renderSet)}"
 				expandable="right" 
 				.expandRenderer="${(item) => this._expandRenderer(item)}">
-			<capitec-table-column label="Transaction Date" field="transactionDate"></capitec-table-column>
+			<capitec-table-column label="Transaction Date" field="friendlyDate"></capitec-table-column>
 			<capitec-table-column label="Beneficiary Name" field="recharges" .renderer="${this._renderBeneficiaryName}"></capitec-table-column>
 			<capitec-table-column label="Cellphone Number" field="msisdn"></capitec-table-column>
 			<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
-			<capitec-table-column label="Product" field="bundleType"></capitec-table-column>
+			<capitec-table-column label="Product" .renderer="${this._renderProductName}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
@@ -372,107 +419,219 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return value[0]?.beneficiaryName;
 	}
 
+	_renderProductName(item, fieldName, value) {
+		var product = item.bundleType;
+
+		if (item.recharges.length) {
+			product = item.recharges[0].bundleType;
+		}
+
+		return product;
+	}
+
 	_expandRenderer (item) {
+		var channel = this.toTitleCase(item.channel);
+		var product = item.bundleType;
+		var typeOfRecharge = '';
+		var statusOfRecharge = '';
+		var accountNumber = '-';
+		var transferAccount = '-';
+		var transactionCode = item.transactionReference || "-";
+		var journalNumber = '-';
+
+		if (item.recharges.length) {
+			product = item.recharges[0].bundleType;
+			typeOfRecharge = this.toTitleCase(item.recharges[0].type);
+		}
+
+		if (item.transactions.length) {
+			statusOfRecharge = this.toTitleCase(item.transactions[0].status);
+			accountNumber = item.transactions[0].accountNumber;
+
+			if (typeOfRecharge === '') {
+				typeOfRecharge = this.toTitleCase(item.transactions[0].type);
+			}
+		}
+
+		product = this.toTitleCase(product);
+
+		if (statusOfRecharge != '') {
+			statusOfRecharge = `[${statusOfRecharge}] `;
+		}
+
 		return html`
-			<capitec-content-box>
-				<capitec-label type="default" label="${item.description}"></capitec-label>
-				
-				<capitec-content-box layout="grid">
-					<capitec-label label="Heading: " column="1" row="1">${item.statementDescription}</capitec-label>
-					<div column="1" row="2">
-						<capitec-label label="Transaction Type: " >${item.transTypeDesc}</capitec-label>
-						<capitec-label label="Transaction Code: " >${item.transactionId}</capitec-label>
-						<capitec-label label="Account: " >${item.accountNumber}</capitec-label>
-						<capitec-label label="Processed Date: " >${item.transactionDate}</capitec-label>
-					</div>
-				
-					<div column="2" row="2">
-						<capitec-label label="Posting Date: " >${item.postingDate}</capitec-label>
-						<capitec-label label="Includes VAT*: " >${item.includesVAT}</capitec-label>
-						<capitec-label label="Teller*: " >${item.teller}</capitec-label>
-						<capitec-label label="Journal Number*: " >${item.journalNumber}</capitec-label>
-					</div>
+			<capitec-spacer></capitec-spacer>
 
-					<div column="3" row="2">
-						<capitec-label label="Branch*: " >${item.branch}</capitec-label>
-						<capitec-label label="External Terminal ID*: " >${item.externalTerminalId}</capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-					</div>
+			<capitec-group layout="grid" gap="clear">
+				<div column="1" row="1" colspan="4">
+					<capitec-label type="strong" label="Statement Description: ${statusOfRecharge}${channel} ${product} ${typeOfRecharge} - Capitec Connect"></capitec-label>
+				</div>
 
-					<div column="4" row="2">
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-					</div>
-					<capitec-button label="Recharge Status" column="3" row="3" @click="${() => {this.selectedRechargeView = item; }}"></capitec-button>
-					<capitec-button label="Escalate For Reversal" column="4" row="3" @click="${() => {this.selectedReversal = item; }}"></capitec-button>
-				</capitec-content-box>
-			</capitec-content-box>
+				<div column="1" row="2">
+					<capitec-label label="Transaction Type:"></capitec-label>
+					<capitec-label type="strong" label="${typeOfRecharge}"></capitec-label>
+				</div>
+				<div column="1" row="3">
+					<capitec-label label="Transaction Code:"></capitec-label>
+					<capitec-label type="strong" label="${transactionCode}"></capitec-label>
+				</div>
+				<div column="1" row="4">
+					<capitec-label label="External Terminal ID:"></capitec-label>
+					<capitec-label type="strong" label="-"></capitec-label>
+				</div>
+
+				<div column="2" row="2">
+					<capitec-label label="Account:"></capitec-label>
+					<capitec-label type="strong" label="${accountNumber}"></capitec-label>
+				</div>
+				<div column="2" row="3">
+					<capitec-label label="Processed Date:"></capitec-label>
+					<capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
+				</div>
+				<div column="2" row="4">
+					<capitec-label label="Teller:"></capitec-label>
+					<capitec-label type="strong" label="-"></capitec-label>
+				</div>
+
+				<div column="3" row="2">
+					<capitec-label label="Transfer Account:"></capitec-label>
+					<capitec-label type="strong" label="${transferAccount}"></capitec-label>
+				</div>
+				<div column="3" row="3">
+					<capitec-label label="Includes VAT:"></capitec-label>
+					<capitec-label type="strong" label="Yes"></capitec-label>
+				</div>
+				<div column="3" row="4">
+					<capitec-label label="Branch:"></capitec-label>
+					<capitec-label type="strong" label="-"></capitec-label>
+				</div>
+
+				<div column="4" row="2">
+					<capitec-label label="Posting Date:"></capitec-label>
+					<capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
+				</div>
+				<div column="4" row="3">
+					<capitec-label label="Journal Number:"></capitec-label>
+					<capitec-label type="strong" label="${journalNumber}"></capitec-label>
+				</div>
+
+				<div column="1" row="5" colspan="4">
+					<capitec-spacer></capitec-spacer>
+				</div>
+
+				<div column="1" row="6" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
+					<capitec-hyperlink style="margin-right: 16px; margin-top: 10px" label="Recharge Status" @click="${() => {this.selectedRechargeView = item; }}"></capitec-hyperlink>
+					<capitec-hyperlink style="margin-top: 10px;" label="Escalate For Reversal" @click="${() => {this.selectedReversal = item; }}"></capitec-hyperlink>
+				</div>
+			</capitec-group>
 		`;
 	}
 
 	_renderRechargeStatusModal() {
-		return html`
-		<capitec-modal type="form" header="Recharge Status ">
-			<capitec-content-box slot="body" layout="grid">
-				<div column="1" row="1">
-					<capitec-label type="strong" label="Declined" ></capitec-label>
-					<capitec-label label="Airtime Purchase Request" ></capitec-label>
-					</br>
-					<capitec-label label="Message ID" ></capitec-label>
-					<capitec-label label="Time" ></capitec-label>
-					<capitec-label label="Origin" ></capitec-label>
-					<capitec-label label="Merchant ID" ></capitec-label>
-				</div>
-				<div column="2" row="1">
-					</br>
-					<capitec-label label="001" ></capitec-label>
-					</br>
+		var bundleType = this.selectedRechargeView.bundleType ? this.selectedRechargeView.bundleType + " " : "";
+		var type = '';
+		var status = '';
+		var messageId = '-';
+		var merchantId = '-';
+		var productId = '-';
+		var errorType = '-';
+		var errorMessage = '-';
+		var quantityMeasurement = "";
+		var time = this.getTimeFromDate(this.selectedRechargeView.transactionDate);
 
-					<capitec-label label="Message ID" ></capitec-label>
-					<capitec-label label="Time" ></capitec-label>
-					<capitec-label label="Origin" ></capitec-label>
-					<capitec-label label="Merchant ID" ></capitec-label>
+		if (this.selectedRechargeView.transactions.length > 0) {
+			type = this.selectedRechargeView.transactions[0].type + " ";
+			status = this.selectedRechargeView.transactions[0].status;
+			errorMessage = this.selectedRechargeView.transactions[0].statusReason;
+		}
+		
+		if (this.selectedRechargeView.recharges.length > 0) {
+			if (this.selectedRechargeView.recharges[0].bundleType !== "") {
+				type = this.selectedRechargeView.recharges[0].type + " ";
+				bundleType = this.selectedRechargeView.recharges[0].bundleType + " ";
+			};
+
+			if (this.selectedRechargeView.recharges[0].status !== "") {
+				status = this.selectedRechargeView.recharges[0].status;
+			};
+
+			if (this.selectedRechargeView.recharges[0].statusReason) {
+				errorMessage = this.selectedRechargeView.recharges[0].statusReason;
+			}
+
+			productId = this.selectedRechargeView.recharges[0].productId;
+			quantityMeasurement = this.selectedRechargeView.recharges[0].quantityMeasurement;
+		}
+
+		return html`
+		<capitec-modal type="form" header="Recharge Status">
+			<capitec-content-box slot="body" layout="grid">
+				<div row="1" column="1">
+					<capitec-label type="strong" label="${status}"></capitec-label>
+					<capitec-label type="strong" label="${bundleType}${type}Request"></capitec-label>
 				</div>
-				<hr>
-				<div column="1" row="2">
-					<capitec-label label="Channel" ></capitec-label>
-					<capitec-label label="MSISDN" ></capitec-label>
-					<capitec-label label="MNO" ></capitec-label>
-					<capitec-label label="Product ID" ></capitec-label>
-					<capitec-label label="Product Name" ></capitec-label>
-					<capitec-label label="Product Type" ></capitec-label>
-					<capitec-label label="Request Amount" ></capitec-label>
-					</br>
-					<capitec-label label="Error Type" ></capitec-label>
-					<capitec-label label="Error Message" ></capitec-label>
-					</br>
-					<capitec-label label="Comment" ></capitec-label>
-					</br>
-					<capitec-label type="strong" label="Friday 14th" ></capitec-label>
-					<capitec-label type="strong" label="15:03 - 15:10" ></capitec-label>
+				<div row="1" column="2">
+					<br>
+					<capitec-label type="strong" label="${this.selectedRechargeView.transactionReference}"></capitec-label>
 				</div>
-				<div column="2" row="2">
-					<capitec-label label="Channel" ></capitec-label>
-					<capitec-label label="MSISDN" ></capitec-label>
-					<capitec-label label="MNO" ></capitec-label>
-					<capitec-label label="Product ID" ></capitec-label>
-					<capitec-label label="Product Name" ></capitec-label>
-					<capitec-label label="Product Type" ></capitec-label>
-					<capitec-label label="Request Amount" ></capitec-label>
-					</br>
-					<capitec-label label="Error Type" ></capitec-label>
-					<capitec-label label="Error Message" ></capitec-label>
-					</br>
-					<capitec-label label="Comment" ></capitec-label>
+
+				<div row="2" column="1">
+					<capitec-label label="Message ID"></capitec-label>
+					<capitec-label label="Time"></capitec-label>
+					<capitec-label label="Origin"></capitec-label>
+					<capitec-label label="Merchant ID"></capitec-label>
+				</div>
+				<div row="2" column="2">
+					<capitec-label label="${messageId}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.friendlyDate} ${time}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.cif}"></capitec-label>
+					<capitec-label label="${merchantId}"></capitec-label>
+				</div>
+
+				<div row="3" column="1" colspan="2">
+					<hr>
+				</div>
+
+				<div row="4" column="1">
+					<capitec-label label="Channel"></capitec-label>
+					<capitec-label label="MSISDN"></capitec-label>
+					<capitec-label label="MNO"></capitec-label>
+					<capitec-label label="Product ID"></capitec-label>
+					<capitec-label label="Product Name"></capitec-label>
+					<capitec-label label="Product Type"></capitec-label>
+					<capitec-label label="Request Amount"></capitec-label>
+				</div>
+				<div row="4" column="2">
+					<capitec-label label="${this.toTitleCase(this.selectedRechargeView.channel)}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.msisdn}"></capitec-label>
+					<capitec-label label="Capitec Connect"></capitec-label>
+					<capitec-label label="${productId}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.productName}"></capitec-label>
+					<capitec-label label="${bundleType}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.amount} (${quantityMeasurement.toLowerCase()})"></capitec-label>
+				</div>
+
+				<capitec-spacer></capitec-spacer>
+
+				<div row="5" column="1">
+					<capitec-label label="Error Type"></capitec-label>
+					<capitec-label label="Error Message"></capitec-label>
+				</div>
+				<div row="5" column="2">
+					<capitec-label label="${errorType}"></capitec-label>
+					<capitec-label label="${errorMessage}"></capitec-label>
+				</div>
+
+				<capitec-spacer></capitec-spacer>
+
+				<div row="6" column="1" colspan="2">
+					<capitec-label type="strong" label="${this.formatDate(this.selectedRechargeView.transactionDate, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}"></capitec-label>
+					<capitec-label type="strong" label="${time}"></capitec-label>
 				</div>
 			</capitec-content-box>
-			
+
 			<capitec-button slot="footer" type="primary" label="Close" @click="${() => {this.selectedRechargeView = null;}}"></capitec-button>
-			</capitec-modal>
-		`;
+		</capitec-modal>`;
 	}
 
 	_renderReversalModal() {
