@@ -2333,7 +2333,6 @@ class UpdatePlan extends Component {
 									id-field="code" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.accountType}"
 									error = "${this.accountTypeErrorMsg}"
-									?disabled = "${Boolean(this.canReinstate)}"
 									@value-changed= "${(e) => this.accountTypeChange(e)}">
 								</capitec-select>
 								<capitec-text-field label="Branch Code" type="numeric" style="width: 50%"
