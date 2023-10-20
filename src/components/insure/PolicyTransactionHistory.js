@@ -649,7 +649,7 @@ class PolicyTransactionHistory extends Component {
 	_renderNoResults() {
 		let noResultsMessage;
 		if (this.startDate) {
-			noResultsMessage = `No policy premiums made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
+			noResultsMessage = `No transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
 		} else {
 			noResultsMessage = `Adjust filters to see policy premium history`;
 		}
