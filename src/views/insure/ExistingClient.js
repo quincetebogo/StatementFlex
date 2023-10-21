@@ -195,12 +195,8 @@ export class ExistingClient extends InsureViewBase {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 			const landingResult = await this.quickTransactionService.favouritesLanding(landingRequest);
-			this._updateLeftBar(landingResult?.result);
+			this.horizonStore.setProductButtonState(landingResult?.result);
 		}
-	}
-
-	_updateLeftBar(landingResult) {
-		this.horizonStore.setProductButtonState(landingResult);
 	}
 
 	/**
