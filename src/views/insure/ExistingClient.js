@@ -13,6 +13,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -61,6 +62,9 @@ export class ExistingClient extends InsureViewBase {
 		this.configuration = Configuration.getInstance();
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
 		this.roleManager = RoleManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
@@ -184,7 +188,19 @@ export class ExistingClient extends InsureViewBase {
 			await this._retrieveClientSummary();
 			await this._getSavingsAccountDetails();
 			this.claims = await this._retrieveClaims();
+			
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+			};
+			const landingResult = await this.quickTransactionService.favouritesLanding(landingRequest);
+			this._updateLeftBar(landingResult?.result);
 		}
+	}
+
+	_updateLeftBar(landingResult) {
+		this.horizonStore.setProductButtonState(landingResult);
 	}
 
 	/**
