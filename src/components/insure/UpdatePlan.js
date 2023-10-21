@@ -1203,7 +1203,7 @@ class UpdatePlan extends Component {
 			return;
 		}
 
-		const onUpdateValidations = this._validateOnUpdate();
+		const onUpdateValidations = this._beneficiaryValidations();
 
 		if (onUpdateValidations.validated === false || onUpdateValidations.bankingDetailsValid === false) {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
@@ -1239,6 +1239,14 @@ class UpdatePlan extends Component {
 			this.agreementYWNBPAccepted === `yes` && this.agreementYPAccepted === `yes`)) {
 			this.showValidationConfirmDialog = true;
 			this.disclosureValidationMessage = this._generateDisclosureValidationMessage();
+			return;
+		}
+
+		const onReinstateValidations = this._beneficiaryValidations();
+
+		if (onReinstateValidations.validated === false || onReinstateValidations.bankingDetailsValid === false) {
+			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onReinstateValidations);
+			this.showUpdateValidationDialog = true;
 			return;
 		}
 
@@ -1417,12 +1425,12 @@ class UpdatePlan extends Component {
 	 * validate fields on beneficiary tab and banking details tab when update button is clicked
 	 * @returns {Boolean} boolean
 	 */
-	_validateOnUpdate() {
-		const onUpdateValidations = {};
-		onUpdateValidations.lives = [];
-		onUpdateValidations.validated = true;
-		onUpdateValidations.bankingDetailsValid = true;
-		onUpdateValidations.lifeAssured = false;
+	_beneficiaryValidations() {
+		const beneValidations = {};
+		beneValidations.lives = [];
+		beneValidations.validated = true;
+		beneValidations.bankingDetailsValid = true;
+		beneValidations.lifeAssured = false;
 		let payoutsMatch = false;
 
 		let totalPayout = 0;
@@ -1448,7 +1456,7 @@ class UpdatePlan extends Component {
 				}
 
 				// Contact details
-				if (isNullorEmpty(ele.contactDetails?.cellphone) && isNullorEmpty(ele.contactDetails?.email)) {
+				if (isNullorEmpty(ele.contactDetails?.cellphone)) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.cellphoneNumberErrorMessage = `Please enter a cellphone number`;
 				}
@@ -1494,21 +1502,21 @@ class UpdatePlan extends Component {
 
 			// Banking Details
 			if (isNullorEmpty(this.policyDetails.deductionDetails?.bankDetails?.accountNumber)) {
-				onUpdateValidations.bankingDetailsValid = false;
+				beneValidations.bankingDetailsValid = false;
 				this.accountNumErrorMsg = `Account number is a required field`;
 			}
 
 			// Build list for validation dialog
 			if (ele.coverDetails.canUpdate === false) {
-				onUpdateValidations.lives.push({
+				beneValidations.lives.push({
 					name: ele.firstName,
 					surname: ele.surname
 				});
-				onUpdateValidations.validated = false;
+				beneValidations.validated = false;
 			}
 
 		});
-		return onUpdateValidations;
+		return beneValidations;
 	}
 
 	/**
