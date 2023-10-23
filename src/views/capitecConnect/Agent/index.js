@@ -48,9 +48,10 @@ export class CapitecConnectAgent extends View {
 		this.activeFilters = [];
 
 		this.selectedReversal = null;
-		this.reversalAction = null;
-		this.showConfirmModal = false;
 
+		this.showConfirmModal = false;
+		this.showSuccessModal = false;
+		this.showFailureModal = false;
 
 		this.totalEscalatedReversals = 10;
 		this.totalPendingReversals = 10;
@@ -71,55 +72,35 @@ export class CapitecConnectAgent extends View {
 		};
 	}
 
-	async searchRecharges(renderSet, filters, selectedAccount) {
-		try {
-			var qry_args = {};
+	async searchRecharges(renderSet, filters, isEscalationDetails = false) {
+		var qry_args = {},
+			pg_args = {},
+			mock_args = {};
 
-			if (this.isArray(this.activeFilters.bundelType) && this.activeFilters.bundelType.filter(e => e !== "All").length) {
-				qry_args.bundleTypes = this.activeFilters.bundelType.filter(e => e !== "All").map(e => {
-					e = e.toUpperCase();
-					return e;
-				});
-			}
-
-			qry_args.transactionDate = {
-				startDate: this.getDateInPast(this.activeFilters.selectedDate.value),
-				endDate: this.getDateInPast(0)
-			};
-
-			const response = await this.capitecConnectService.rechargeHistory(
-				qry_args, {
-					page: typeof this.currentPageIndex === "number" ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-					sort: [ "transactionDate", "msisdn" ],
-					size: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
-				}, {
-					startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
-					maxResults: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
-				}
-			);
-
-			var r = response.result.content;
-
-			r = r.map(e => {
-				e.friendlyDate = this.formatDate(e.transactionDate);
-				e.msisdn = this.formatCellphoneNumber(e.msisdn);
+		if (this.isArray(filters.bundelType) && filters.bundelType.filter(e => e !== "All").length) {
+			qry_args.bundleTypes = filters.bundelType.filter(e => e !== "All").map(e => {
+				e = e.toUpperCase();
 				return e;
 			});
-
-			response.result.content = r;
-
-			return {
-				records: response.result?.content || [],
-				totalRecords: response.result.totalElements // for pagination reasons this is not the returned resultset's length
-			}
-		} catch (error) {
-			console.error(error);
-
-			return {
-				records: [],
-				totalRecords: 0
-			};
 		}
+
+		qry_args.transactionDate = {
+			startDate: this.getDateInPast(filters.selectedDate.value),
+			endDate: this.getDateInPast(0)
+		};
+
+		pg_args = {
+			page: typeof this.currentPageIndex === "number" ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [ "transactionDate", "msisdn" ],
+			size: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
+		};
+
+		mock_args = {
+			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
+			maxResults: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
+		}
+
+		return this.capitecConnectService.rechargeHistory(qry_args, pg_args, mock_args, isEscalationDetails);
 	}
 
 	async lock() {
@@ -128,13 +109,14 @@ export class CapitecConnectAgent extends View {
 
 	async unlock() {
 		alert('unlock')
-
 	}
 
-	async actionReversal(type, selectedReversal) {
-		console.log(type)
-		console.log(selectedReversal)
-		alert(type)
+	async actionReversal(selectedReversal, reason, comment) {
+		return this.capitecConnectService.escalateForReversal(
+			selectedReversal.transactionReference,
+			reason,
+			comment
+		);
 	}
 
 	static get styles() {
@@ -229,6 +211,7 @@ export class CapitecConnectAgent extends View {
 							<horizon-capitec-connect-agent-recharges
 								style="width:100%"
 								.searchRecharges="${this.searchRecharges}"
+								.getEscalationDetail="${this.getEscalationDetail}"
 								.lock="${this.lock}"
 								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"
