@@ -201,7 +201,7 @@ export class CreditAccount extends ViewBase {
 
 	get ccAccNumber() {
 		const ccDetails = this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
-		return ccDetails?.accountNumber;
+		return ccDetails?.maskedAccountNumber;
 	}
 
 	get ccDetails() {
