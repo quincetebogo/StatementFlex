@@ -77,7 +77,7 @@ class SuccessPage extends Component {
 	// #region PRIVATE METHODS
 
 	_updateIncidentState() {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// #endregion PRIVATE METHODS
@@ -88,7 +88,7 @@ class SuccessPage extends Component {
 	 * Display email dialog
 	 * @returns {void}
 	 */
-	_emailClick() {
+	async _emailClick() {
 		this.showEmailPlanDialog = true;
 
 		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
@@ -96,6 +96,8 @@ class SuccessPage extends Component {
 		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 		}
+		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
 	}
 	
 	/**

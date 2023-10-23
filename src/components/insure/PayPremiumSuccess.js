@@ -81,7 +81,7 @@ class PayPremiumSuccess extends Component {
 // #region PRIVATE METHODS
 
 	_updateIncidentState() {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 // #endregion PRIVATE METHODS
@@ -111,10 +111,12 @@ _backToSummaryPage() {
  * open email plan dialog event
  * @returns {void} 
  */
-_openEmailPlanDialog() {
+async _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
+	await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
+	await super.createAndClassifySubIncident();
 }
 
 /**

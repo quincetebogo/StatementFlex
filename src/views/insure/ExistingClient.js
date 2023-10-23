@@ -8,10 +8,13 @@ import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/insure/ClientSummary';
@@ -58,6 +61,10 @@ export class ExistingClient extends InsureViewBase {
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this.roleManager = RoleManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), () => true);
 
 		this.productParams = {};
 		this.policyTransactionHistory = {};
@@ -75,7 +82,10 @@ export class ExistingClient extends InsureViewBase {
 
 		this.readOnly = false;
 		this.emailEstimateSuccess = false;
+		this.defaultSavingsAccountNumber = ``;
 		// this.auditTransactionHistory = {};
+
+		this.showInsureSuccessToast = false;
 
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
@@ -140,7 +150,9 @@ export class ExistingClient extends InsureViewBase {
 			renderMode: { type: Number },
 			claims: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
-			clientArrears: { type: Object, state: true }
+			clientArrears: { type: Object, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
+			showInsureSuccessToast: { type: Boolean, state: true }
 
 		};
 	}
@@ -169,9 +181,22 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _initialise() {
-		await this._retrieveClientSummary();
-		// this.accountDetails = await this._retrieveAccountDetails();
-		this.claims = await this._retrieveClaims();
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		if (callerInfo && callerInfo.verificationStatus !== `verified` && !this.roleManager.isInsureAgent) {
+			this.clientPolicies = [];
+		} else {
+			await this._retrieveClientSummary();
+			await this._getSavingsAccountDetails();
+			this.claims = await this._retrieveClaims();
+			
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+			};
+			const landingResult = await this.quickTransactionService.favouritesLanding(landingRequest);
+			this.horizonStore.setProductButtonState(landingResult?.result);
+		}
 	}
 
 	/**
@@ -216,11 +241,12 @@ export class ExistingClient extends InsureViewBase {
 		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!issuePlanAgreementResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(issuePlanAgreementResponse.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
 
 	}
@@ -250,11 +276,12 @@ export class ExistingClient extends InsureViewBase {
 		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!updatePlanAgreementResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(updatePlanAgreementResponse.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.updatePlanAgreementDocument = updatePlanAgreementResponse.result;
 
 	}
@@ -365,11 +392,25 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.clientSummary(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
 		this.clientPolicies = resp.result;
+	}
+
+	// Attempt to get global one savings account number to pre populate, if fails, continue
+	async _getSavingsAccountDetails() {
+		const landingRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+			getGenericData: true
+		};
+
+		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+		if (!isNullorEmpty(returnValue?.result?.accountNumber)) {
+			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
+		}
 	}
 
 	/**
@@ -387,7 +428,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.policySummary(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -410,11 +451,12 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const resp = await this.insureService.policyReissue(request);
 		if (!resp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		return resp.result;
 	}
 
@@ -454,7 +496,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _printEstimate(e) {
-		await this._calculateClientEstimate(e);
+		this.estimate = await this._calculateClientEstimate(e);
 		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -470,10 +512,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const result = await this.insureService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(result.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		return result;
 	}
 
@@ -510,9 +554,11 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.cancelPolicyDocumentDetails = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return;
 		}
@@ -528,7 +574,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
-		const transactionHistoryRequest = {
+		const premiumHistoryRequest = {
 			contractReference: this.contractReference,
 			transactionDateType: `TransactionDate`,
 			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
@@ -549,12 +595,13 @@ export class ExistingClient extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyPremiumHistory(premiumHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
+			super.isOnlyProductEnquiry = false;
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement` || ele.transactionType === `Submit`).map((item) => {
+				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `DebitOrderReceipt` || ele.premiumType === `AdHocReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
-					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
+					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
@@ -565,7 +612,8 @@ export class ExistingClient extends InsureViewBase {
 			this.policyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.POLICY_TRANSACTION_HISTORY;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(returnValue.exception);
 		}
 	}
@@ -586,16 +634,18 @@ export class ExistingClient extends InsureViewBase {
 
 		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(calculateQuoteResp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		// Map back to array
 		const calculatedQuote = calculateQuoteResp.result;
-		const adjustedRoleplayers = calculateQuoteResp.result.lifesAssured.map((life) => {
+		const adjustedRoleplayers = calculatedQuote.lifesAssured.map((life) => {
 			const foundPlayer = policyToCalc.roleplayers.find((ele) => ele.rowID === life.rowID);
 			life.coverDetails = foundPlayer.coverDetails;
+			life.benefitPayout = foundPlayer.benefitPayout;
 			return life;
 		});
 
@@ -615,35 +665,23 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} preparePlanResponse
 	 */
 	async _updatePlanPrepare(policyToUpdate) {
-		const quoteCalcRequest = {
-			"saveQuote": true,
-			"contractReference": policyToUpdate.contractReference,
-			"cifNumber": this.callerInformation.cifNumber,
-			"totalPremium": policyToUpdate.totalPremium,
-			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
-		};
-		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
-		if (!calculateQuoteResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-			this.handleToastError(calculateQuoteResp.exception);
-			return;
-		}
 
 		const prepareUpdateRequest = {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
-			"quoteNumber": calculateQuoteResp.result.quoteNumber,
+			"quoteNumber": policyToUpdate.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails
 		};
 
 		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(prepareUpdateResp.exception);
 			return;
 		}
-
+		super.isOnlyProductEnquiry = false;
 		this.contractReference = prepareUpdateResp.result.contractReference;
 
 		await this._generateDocumentsForUpdatePlan(false);
@@ -718,10 +756,12 @@ export class ExistingClient extends InsureViewBase {
 
 		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(createPolicyResponse.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		this.contractReference = createPolicyResponse.result.contractReference;
 
 		await this._generateDocumentsForReinstate(false);
@@ -771,9 +811,11 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.arrearsPaymentDocumentDetails = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -832,7 +874,8 @@ export class ExistingClient extends InsureViewBase {
 				this.policyDetails.deductionDetails = policyResponse.deductionDetails;
 				delete this.policyDetails.eligibleRoleplayers;
 			} else {
-				// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+				super.isOnlyProductEnquiry = false;
+				this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 				this.handleToastError(calcResponse.exception);
 				return;
 			}
@@ -860,11 +903,13 @@ export class ExistingClient extends InsureViewBase {
 		});
 		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
 			return estimateWithCoverDetails;
 		}
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		super.isOnlyProductEnquiry = false;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		this.handleToastError(resp.exception);
 		return null;
 
@@ -897,9 +942,10 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			this._getCancelPolicyDocument(e.detail.contractReference, e.detail.cancellationReason, true);
 			this._goToCancelPolicySuccess(e);
-
+			super.isOnlyProductEnquiry = false;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -922,6 +968,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			this.contractReference = e.detail.payArrears.contractReference;
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
 			this.amountToPay = sumArrears;
@@ -929,7 +976,8 @@ export class ExistingClient extends InsureViewBase {
 			this._getArrearsPaymentDocument(this.contractReference, e.detail.payArrears, e.detail.fromAccount, true);
 			this._navigateToSubView(INSURE_RENDER_MODE.PAY_PREMIUM_SUCCESS);
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return null;
 		}
@@ -943,7 +991,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _retrieveCommsHistory(contractReference, fromDate, toDate) {
-		
+
 		const commsHistoryDetails = {
 			"contractReference": contractReference,
 			"fromDate": fromDate,
@@ -952,9 +1000,11 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
 			return resp.result;
 		}
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		super.isOnlyProductEnquiry = false;
 		this.handleToastError(resp.exception);
 		return null;
 
@@ -1114,7 +1164,8 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
@@ -1151,7 +1202,8 @@ export class ExistingClient extends InsureViewBase {
 
 		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
@@ -1198,16 +1250,18 @@ export class ExistingClient extends InsureViewBase {
 		this._getAgreementAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
 		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(emailResponse.exception);
 			return;
 		}
+		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.emailEstimateSuccess = true;
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 			this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		}
 	}
@@ -1258,9 +1312,11 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(requestCallbackResp.exception);
 		}
+		super.isOnlyProductEnquiry = false;
 	}
 
 	/**
@@ -1277,14 +1333,45 @@ export class ExistingClient extends InsureViewBase {
 
 		const arrearsResp = await this.insureService.Arrears(arrearsRequest);
 		if (!arrearsResp.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 		this.clientArrears = arrearsResp?.result;
 	}
 
+	/**
+	 * Update client elect preferences for type
+	 * @param {Object} electRequest Update selected preference request
+	 * @returns {void} 
+	 */
+	async _updateElectOptions(electRequest) {
+		electRequest.cifNumber = this.callerInformation.cifNumber;
+		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+
+		const electResp = await this.insureService.SetElectOptions(electRequest);
+		if (!electResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
+			this.showInsureErrorToast = true;
+			return;
+		}
+		super.isOnlyProductEnquiry = false;
+		this.showInsureSuccessToast = true;
+		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
+		await this._retrieveClientSummary();
+	}
+
 	// #endregion EVENT HANDLER
+
+
+	async _clientVerified(event) {
+		super._clientVerified(event);
+		await this._initialise();
+		this.renderMode = INSURE_RENDER_MODE?.CLIENT_POLICIES;
+	}
 
 	// #region RENDERING
 
@@ -1298,7 +1385,7 @@ export class ExistingClient extends InsureViewBase {
 		return [
 			super.styles,
 			css`
-			 ${INSURE_CSS}
+			${INSURE_CSS}
 			`
 		];
 	}
@@ -1327,6 +1414,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 		${super._webTemplate()}
 		${this._renderErrorToast()}
+		${this._renderSuccessToast()}
 		${this._renderLandingPage()}`;
 	}
 
@@ -1385,10 +1473,12 @@ export class ExistingClient extends InsureViewBase {
 				.arrearsPaymentDocumentDetails="${this.arrearsPaymentDocumentDetails}"
 				.getCancelPolicyDocument="${(contractReference, cancelReason, saveToDocumentum) => this._getCancelPolicyDocument(contractReference, cancelReason, saveToDocumentum)}"
 				.getArrearsPaymentDocument="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._getArrearsPaymentDocument(contractReference, payArrears, fromAccount, saveToDocumentum)}"
-				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
+				.maxAllowedCover="${this.clientPolicies?.length === 0 || isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
 				.getArrears = "${() => this._getArrears()}"
 				.clientArrears = "${this.clientArrears}"
+				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
+				.isOnlyProductEnquiry = "${super.isOnlyProductEnquiry}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
@@ -1398,7 +1488,8 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				@send-email = "${(e) => this._sendEmail(e)}">
+				@send-email = "${(e) => this._sendEmail(e)}"
+				@verify-now = ${() => this._verifyClick()}>
 			</horizon-insure-client-summary>`;
 	}
 
@@ -1434,6 +1525,7 @@ export class ExistingClient extends InsureViewBase {
 				.policyDetails="${this.policyDetails}"
 				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
+				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -1571,6 +1663,24 @@ export class ExistingClient extends InsureViewBase {
 				detail="${this.insureErrorToastMessage}" 
 				@click="${() => this.showInsureErrorToast = false}">
 			</capitec-toast>`;
+	}
+
+	/**
+	 * Renders the Generic Success toast
+	 * @returns {html} html content
+	 */
+	_renderSuccessToast() {
+		return html`
+			<capitec-toast
+				?hidden="${!this.showInsureSuccessToast}"
+				class="toast"
+				type="success"
+				Header="Successful"
+				layout = "vertical"
+				detail = "${this.insureSuccessToastMessage}"
+				@click = "${() => this.showInsureSuccessToast = false}">
+			</capitec-toast>
+		`;
 	}
 
 	// #endregion RENDERING
