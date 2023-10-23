@@ -107,6 +107,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			selectedReversal: { type: Object },
 			selectedRechargeView: {type: Object},
 			showConfirmModal: {type: Boolean},
+			showSuccessModal: {type: Boolean},
+			showFailureModal: {type: Boolean},
 			reversalAction: {type: String},
 			activeFilters: {type: Object},
 			showTable: {type : Boolean},
@@ -349,24 +351,16 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		try {
 			const response = await this.actionReversal(this.selectedReversal, this.reason.value, this.comment);
 
-			/* The success modal "close" functionality doesn't work for some reason... */
-			// this.showSuccessModal = response.succeeded;
-			// this.showFailureModal = !response.succeeded;
-
-			/* So I choose to do alerts instead */
-			alert(`The transaction has been successfully escalated to the team lead.`);
+			this.showSuccessModal = response.succeeded;
+			this.showFailureModal = !response.succeeded;
 
 			return response;
 		} catch (error) {
 			alert('An error occurred while processing your request');
 			console.error(error);
 
-			/* The failure modal "close" functionality doesn't work for some reason... */
-			// this.showSuccessModal = false;
-			// this.showFailureModal = true;
-
-			/* So I choose to do alerts instead */
-			alert(`The transaction could not be escalated at this time. Please try again later.`);
+			this.showSuccessModal = false;
+			this.showFailureModal = true;
 
 			return {};
 		}
@@ -821,7 +815,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				</div>
 				<capitec-button 
 					slot="footer" 
-					type="primary" 
+					type="clear" 
 					label="Done"
 					@click="${() => this.showSuccessModal = false}">
 				</capitec-button>
