@@ -224,6 +224,14 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return `${year}-${month}-${day}`;
 	}
 
+	sortObjectsByDateDescending(array, dateKey) {
+		return array.sort((a, b) => {
+			const dateA = new Date(a[dateKey]);
+			const dateB = new Date(b[dateKey]);
+			return dateB - dateA;
+		});
+	}
+
 	formatCellphoneNumber(cellphoneNumber) {
 		cellphoneNumber = cellphoneNumber.replace(/\s/g, ''); // first remove the spaces
 
@@ -520,6 +528,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var postingDate = item.transactionDate;
 		var processedDate = '-';
 
+		// Sorting these so that the FIRST "success" [0] is the first item to be referenced
+		item.recharges = this.sortObjectsByDateDescending(item.recharges, 'transactionDateTime');
+		item.transactions = this.sortObjectsByDateDescending(item.transactions, 'transactionDateTime');
+
 		if (item.recharges.length) {
 			product = product ? product : item.recharges[0].bundleType;
 			typeOfRecharge = this.toTitleCase(item.recharges[0].type);
@@ -532,6 +544,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			}
 		}
 
+		/* Overwrite (if value exists) with transaction details because we are using the "transaction details" and we want transaction information */
 		if (item.transactions.length) {
 			var successfulTransaction = item.transactions.filter(v => v.status.toLowerCase().includes('success'));
 			typeOfRecharge = typeOfRecharge === '' ? this.toTitleCase(item.transactions[0].type) : typeOfRecharge;
@@ -646,42 +659,50 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var startTime = this.getTimeFromDate(this.selectedRechargeView.transactionDate),
 			endTime = '';
 
+		// Sorting these so that the FIRST "success" [0] is the first item to be referenced
+		this.selectedRechargeView.recharges = this.sortObjectsByDateDescending(this.selectedRechargeView.recharges, 'transactionDateTime');
+		this.selectedRechargeView.transactions = this.sortObjectsByDateDescending(this.selectedRechargeView.transactions, 'transactionDateTime');
+
 		if (this.selectedRechargeView.transactions.length > 0) {
+			const successfulTransaction = this.selectedRechargeView.transactions.filter(v => v.status.toLowerCase().includes('success'));
+
 			type = this.selectedRechargeView.transactions[0].type + " ";
 			status = this.selectedRechargeView.transactions[0].status;
 			errorMessage = this.selectedRechargeView.transactions[0].statusReason;
 
-			this.selectedRechargeView.transactions.forEach(t => {
-				if (endTime === '' || this.compareDates(t.transactionDateTime, endTime) > 0) {
-					endTime = t.transactionDateTime;
-				}
-			});
+			endTime = this.selectedRechargeView.transactions[0].transactionDateTime;
+			endTime = endTime !== '' ? ` - ${this.getTimeFromDate(endTime)}` : endTime;
 
-			if (endTime !== '') {
-				endTime = ` - ${this.getTimeFromDate(endTime)}`;
+			if (successfulTransaction.length > 0) {
+				type = successfulTransaction[0].type + " ";
+				status = successfulTransaction[0].status;
+				errorMessage = successfulTransaction[0].statusReason;
 			}
 		}
 		
+		/* Overwrite (if value exists) with recharges because we are using the recharge modal and we want the recharge information */
 		if (this.selectedRechargeView.recharges.length > 0) {
-			if (this.selectedRechargeView.recharges[0].bundleType !== "") {
-				type = this.selectedRechargeView.recharges[0].type + " ";
-				bundleType = this.selectedRechargeView.recharges[0].bundleType + " ";
-			};
-
-			if (this.selectedRechargeView.recharges[0].status !== "") {
-				status = this.selectedRechargeView.recharges[0].status;
-			};
-
-			if (this.selectedRechargeView.recharges[0].statusReason) {
-				errorMessage = this.selectedRechargeView.recharges[0].statusReason;
-			}
+			const successfulRecharge = this.selectedRechargeView.recharges.filter(v => v.status.toLowerCase().includes('success'));
 
 			productId = this.selectedRechargeView.recharges[0].productId;
 			quantityMeasurement = this.selectedRechargeView.recharges[0].quantityMeasurement;
 
-			if (quantityMeasurement !== '') {
-				quantityMeasurement = ` (${quantityMeasurement.toLowerCase()})`;
+			bundleType = this.selectedRechargeView.recharges[0].bundleType ? this.selectedRechargeView.recharges[0].bundleType + " " : bundleType;
+			type = this.selectedRechargeView.recharges[0].type ? this.selectedRechargeView.recharges[0].type + " " : type;
+
+			status = this.selectedRechargeView.recharges[0].status ? this.selectedRechargeView.recharges[0].status : status;
+			errorMessage = this.selectedRechargeView.recharges[0].statusReason ? this.selectedRechargeView.recharges[0].statusReason : errorMessage;
+
+			if (successfulRecharge.length > 0) {
+				productId = successfulRecharge[0].productId;
+				quantityMeasurement = successfulRecharge[0].quantityMeasurement;
+				bundleType = successfulRecharge[0].bundleType + " ";
+				type = successfulRecharge[0].type + " ";
+				status = successfulRecharge[0].status;
+				errorMessage = successfulRecharge[0].statusReason;
 			}
+
+			quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
 		}
 
 		return html`
