@@ -640,6 +640,13 @@ class UpdatePlan extends Component {
 								rolePlayer.coverDetails.idErrorMessageLA = ``;
 							}
 						}
+
+						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
+						if (!isNullorEmpty(dateOfBirth)) {
+							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
+							this.policyDetails.roleplayers[index].coverDetails.ageMessage = ``;
+						}
+
 						if (rolePlayer.lifeAssured === true) {
 							// Cover Details
 							this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
@@ -666,13 +673,6 @@ class UpdatePlan extends Component {
 								rolePlayer.coverDetails.idNumberErrorMessage = `Beneficiary must be 18 years or older`;
 							}
 						}
-
-						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
-						if (!isNullorEmpty(dateOfBirth)) {
-							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
-							this.policyDetails.roleplayers[index].coverDetails.ageMessage = ``;
-						}
-
 
 						if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverDetails?.ageMessage)) {
 							rolePlayer.coverDetails.disableDoB = false;
