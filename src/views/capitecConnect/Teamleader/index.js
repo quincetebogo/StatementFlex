@@ -1,7 +1,7 @@
 import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { ConnectService } from 'app/services/ConnectService';
+import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import './EscalatedReversals';
 import './PendingReversals';
 import './CompletedReversals';
@@ -28,7 +28,7 @@ export class CapitecConnectTeamLeader extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.connectService = new ConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -82,7 +82,8 @@ export class CapitecConnectTeamLeader extends View {
 			// ]
 		  }
 
-		const records = await this.connectService.getReversals(state, pagination_args);
+		const records = await this.capitecConnectService.getReversals(state, pagination_args);
+		console.log("records", records)
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -117,17 +118,17 @@ export class CapitecConnectTeamLeader extends View {
 			const requestObject = {
 				cpNumber: SecurityContext.username,
 			}
-			var reversalDetails = await this.connectService.LockReversal(transactionReference, requestObject);
+			var reversalDetails = await this.capitecConnectService.LockReversal(transactionReference, requestObject);
 			console.log("reversalDetails lock", reversalDetails)
 		} else if(type === "Unlock") {
-			var reversalDetails = await this.connectService.UnlockReversal(transactionReference);
+			var reversalDetails = await this.capitecConnectService.UnlockReversal(transactionReference);
 			console.log("reversalDetails unlock", reversalDetails)
 		} else if(type === "Pending") {
-			var reversalDetails = await this.connectService.FlagReversal(transactionReference);
+			var reversalDetails = await this.capitecConnectService.FlagReversal(transactionReference);
 		} else if(type === "Decline") {
-			var reversalDetails = await this.connectService.ProcessReversal(transactionReference, false);
+			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, false);
 		} else if(type === "Approve") {
-			var reversalDetails = await this.connectService.ProcessReversal(transactionReference, true);
+			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, true);
 		}
 
 		return new Promise((resolve, reject) => {

@@ -1,7 +1,7 @@
 import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { ConnectService } from 'app/services/ConnectService';
+import { CapitecConnectService } from 'app/services/CapitecConnectService';
 
 /**
  * Capitec Connect teamleader View
@@ -24,7 +24,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.connectService = new ConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	
 		// private properites
 		this.loading = true;

@@ -5,10 +5,10 @@ import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelSe
  * Channel Service Methods for Connect flow
  *
  * @export
- * @class ConnectService
+ * @class CapitecConnectService
  * @extends {ChannelServiceBase}
  */
-export class ConnectService extends ChannelServiceBase {
+export class CapitecConnectService extends ChannelServiceBase {
 		// --------------
 	// INITIALISATION
 	// --------------
@@ -16,7 +16,7 @@ export class ConnectService extends ChannelServiceBase {
 		super(
 			toggleBusyFunc,
 			defaultErrorHandlerFunc,
-			`serviceURIs.connectServiceUrl`,
+			`serviceURIs.capitecConnectServiceUrl`,
 			`CapitecConnectChannelService`,
 			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)

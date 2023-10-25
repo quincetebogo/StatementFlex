@@ -13,7 +13,7 @@
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
-		"connectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
