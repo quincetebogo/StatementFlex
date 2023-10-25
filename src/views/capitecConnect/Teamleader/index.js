@@ -4,7 +4,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ConnectService } from 'app/services/ConnectService';
 import './EscalatedReversals';
 import './PendingReversals';
+import './CompletedReversals';
 import SecurityContext from 'platform/SecurityContext';
+// import { request } from 'http';
 /**
  * Capitec Connect teamleader View
  *
@@ -70,130 +72,32 @@ export class CapitecConnectTeamLeader extends View {
 		};
 	}
 
-	async searchReversals(renderSet , filters , state  ) {
-		console.log(SecurityContext.username)
-		// AVAILABLE, LOCKED, ACCEPTED, DECLINED, FLAGGED
-		console.log("searchReversals")
-		console.log(filters)
-		
-		//
-		const request = {
-			cif: "118292863372",
-			channel: "kHUKfYaKlx8dhuuoPoml1z7UT",
-			msisdn: "27193639391",
-			amount: 0,
-			transactionReference: "c9cd1324-24d1-11ee-be56-0242ac120002",
-			transactionDate: "2023-10-04"
-		  };
+	async searchReversals(renderSet , filters , state) {
 
-		const status = `AVAILABLE`;
-
-		const pageable = {
+		const pagination_args = {
 			"page": 0,
-			"size": 5,
-			"sort": [
-			  "string"
-			]
+			"size": 10,
+			// "sort":[
+			// 	"transactionDate,desc"
+			// ]
 		  }
 
-		const records = await this.connectService.getReversals(request, status, pageable);
-		//
-
-		console.log(renderSet)
-
-		const recordsMock = [
-			{
-			  "businessTransactionReference": "TX12345",
-			  "amount": 100.00,
-			  "msisdn": "1234567890",
-			  "markedBy": "John Doe",
-			  "reason": "Incorrect Charge",
-			  "additionalComments": "Please review",
-			  "actionState": "AVAILABLE",
-			  "lockedTo": null,
-			  "transactionState": "PENDING",
-			  "actionedBy": "Jane Smith",
-			  "createdAt": "2023-08-01T10:00:00Z",
-			  "updatedAt": "2023-08-01T11:30:00Z",
-			  "locked": false,
-			  "complete": false
-			},
-			{
-			  "businessTransactionReference": "TX67890",
-			  "amount": 50.00,
-			  "msisdn": "9876543210",
-			  "markedBy": "Alice Smith",
-			  "reason": "Fraudulent Transaction",
-			  "additionalComments": "Urgent attention needed",
-			  "actionState": "LOCKED",
-			  "lockedTo": "cp349869",
-			  "transactionState": "PROCESSING",
-			  "actionedBy": "Bob Anderson",
-			  "createdAt": "2023-08-02T15:00:00Z",
-			  "updatedAt": "2023-08-02T16:45:00Z",
-			  "locked": true,
-			  "complete": false
-			},
-			{
-			  "businessTransactionReference": "TX54321",
-			  "amount": 75.00,
-			  "msisdn": "5551234567",
-			  "markedBy": "Eve Brown",
-			  "reason": "Customer Request",
-			  "additionalComments": "Approved by supervisor",
-			  "actionState": "ACCEPTED",
-			  "lockedTo": null,
-			  "transactionState": "SUCCESSFUL",
-			  "actionedBy": "Alice Johnson",
-			  "createdAt": "2023-08-03T08:30:00Z",
-			  "updatedAt": "2023-08-03T09:15:00Z",
-			  "locked": false,
-			  "complete": true
-			},
-			{
-			  "businessTransactionReference": "TX98765",
-			  "amount": 120.00,
-			  "msisdn": "3334445555",
-			  "markedBy": "Bob Anderson",
-			  "reason": "Billing Error",
-			  "additionalComments": "Investigate root cause",
-			  "actionState": "DECLINED",
-			  "lockedTo": null,
-			  "transactionState": "FAILED",
-			  "actionedBy": "John Doe",
-			  "createdAt": "2023-08-04T12:15:00Z",
-			  "updatedAt": "2023-08-04T13:30:00Z",
-			  "locked": false,
-			  "complete": true
-			},
-			{
-			  "businessTransactionReference": "TX24680",
-			  "amount": 200.00,
-			  "msisdn": "7778889999",
-			  "markedBy": "Jane Smith",
-			  "reason": "User Error",
-			  "additionalComments": "Reprocess payment",
-			  "actionState": "FLAGGED",
-			  "lockedTo": null,
-			  "transactionState": "CANCELED",
-			  "actionedBy": "Alice Smith",
-			  "createdAt": "2023-08-05T14:45:00Z",
-			  "updatedAt": "2023-08-05T15:20:00Z",
-			  "locked": false,
-			  "complete": true
-			}
-		];
+		const records = await this.connectService.getReversals(state, pagination_args);
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
-				const retrievedRecords = records.filter(item => item.actionState === state);
+				const retrievedRecords = records.result.content.filter(item => item.actionState === state);
 				const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
 				if(state === "AVAILABLE" ) {
-					this.totalEscalatedReversals = retrievedRecords?.length;
+					this.totalEscalatedReversals = records.result.totalElements;
 				}
 				
-				if(state === "LOCKED" ) {
-					this.totalPendingReversals = retrievedRecords?.length;
+				if(state === "FLAGGED" ) {
+					this.totalPendingReversals = records.result.totalElements;
+				}
+
+				if(state === "COMPLETED" ) {
+					this.totalCompletedReversals = records.result.totalElements;
 				}
 
 				resolve({
@@ -204,19 +108,35 @@ export class CapitecConnectTeamLeader extends View {
 		});
 	}
 
-	async lock(){
-		alert('lock')
-	}
+	async reversalActions(type, selectedReversal) {
+		console.info("type", type)
+		console.info("selectedReversal", selectedReversal)
+		const transactionReference = selectedReversal.transactionReference;
 
-	async unlock() {
-		alert('unlock')
+		if(type === "Lock"){
+			const requestObject = {
+				cpNumber: SecurityContext.username,
+			}
+			var reversalDetails = await this.connectService.LockReversal(transactionReference, requestObject);
+			console.log("reversalDetails lock", reversalDetails)
+		} else if(type === "Unlock") {
+			var reversalDetails = await this.connectService.UnlockReversal(transactionReference);
+			console.log("reversalDetails unlock", reversalDetails)
+		} else if(type === "Pending") {
+			var reversalDetails = await this.connectService.FlagReversal(transactionReference);
+		} else if(type === "Decline") {
+			var reversalDetails = await this.connectService.ProcessReversal(transactionReference, false);
+		} else if(type === "Approve") {
+			var reversalDetails = await this.connectService.ProcessReversal(transactionReference, true);
+		}
 
-	}
-
-	async actionReversal(type, selectedReversal) {
-		console.log(type)
-		console.log(selectedReversal)
-		alert(type)
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				resolve({
+					reversalDetails: reversalDetails || [],
+				});
+			}, 1000);
+		});
 	}
 	
 
@@ -308,8 +228,7 @@ export class CapitecConnectTeamLeader extends View {
 							<horizon-capitec-connect-teamleader-escalated-reversals
 									style="width:100%"
 									.searchReversals="${this.searchReversals}"
-									.lock="${this.lock}"
-									.unlock="${this.unlock}"
+									.reversalActions="${this.reversalActions}"
 									.actionReversal="${this.actionReversal}"
 							></horizon-capitec-connect-teamleader-escalated-reversals>
 							
@@ -320,15 +239,19 @@ export class CapitecConnectTeamLeader extends View {
 							<horizon-capitec-connect-teamleader-pending-reversals
 									style="width:100%"
 									.searchReversals="${this.searchReversals}"
-									.lock="${this.lock}"
-									.unlock="${this.unlock}"
+									.reversalActions="${this.reversalActions}"
 									.actionReversal="${this.actionReversal}"
 							></horizon-capitec-connect-teamleader-pending-reversals>
 						</capitec-tab>
 						
 						<capitec-tab label="Completed Reversals ${this.totalCompletedReversals}" layout="vertical" halign="center">
-						<div reversals="total" @search="">
-						</div>
+						
+						<horizon-capitec-connect-teamleader-completed-reversals
+									style="width:100%"
+									.searchReversals="${this.searchReversals}"
+									.reversalActions="${this.reversalActions}"
+									.actionReversal="${this.actionReversal}"
+							></horizon-capitec-connect-teamleader-completed-reversals>
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>

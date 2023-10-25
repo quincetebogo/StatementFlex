@@ -4,7 +4,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import './Recharges'
 import SecurityContext from 'platform/SecurityContext';
 import { SavingsService } from '../../../services/SavingsService';
-import { ConnectService } from '../../../services/ConnectService';
 /**
  * Capitec Connect teamleader View
  *

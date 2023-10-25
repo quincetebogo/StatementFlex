@@ -24,7 +24,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.connectService = new ConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.connectService = new ConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	
 		// private properites
 		this.loading = true;
@@ -61,6 +61,14 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			activeFilters: {type: Object},
 			showTable: {type : Boolean}
 		};
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_errorHandler() {
+		alert('error')
 	}
 	
 	_filterClick(value) {
@@ -114,7 +122,18 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			this.requestUpdate();
 		}, 100);
 	}
-	
+
+	toTitleCase(inputString) {
+		return inputString.replace(/\w\S*/g, function (text) {
+		  return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
+		});
+	}
+
+	formatDate(inputDate, options) {
+		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
+		const date = new Date(inputDate);
+		return date.toLocaleDateString('en-za', options);
+	}
 
 	static get styles() {
 		return [
@@ -184,7 +203,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 	}
 
 	async _renderCollection(renderSet) {
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "LOCKED");
+		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
 		return {
 			pagedItems: pagedItemsToReturn.records,
 			totalCount: pagedItemsToReturn.totalRecords
@@ -239,7 +258,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			<capitec-table-column label="Transaction Date" field="createdAt"></capitec-table-column>
 			<capitec-table-column label="Agent Name" field="actionedBy"></capitec-table-column>
 			<capitec-table-column label="Client Name" field="markedBy"></capitec-table-column>
-			<capitec-table-column label="Account" field="account"></capitec-table-column>
+			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
 			<capitec-table-column label="Network" render="${() => "CAPITEC CONNECT"}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
@@ -250,74 +269,77 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 
 		
 
-		${this.selectedReversal && this._renderReversalModal()}
+		${this.selectedReversal && this._renderReversalModal(this.selectedReversal)}
 		${this.showConfirmModal ? this._renderConfirmModal() : null}
 
 		`;
 	}
 
 	_expandRenderer (item) {
+		var channel = this.toTitleCase(item.channel);
+		var bundleType = item.bundleType ? this.toTitleCase(item.bundleType) : '-';
+		var typeOfRecharge = item.type ? this.toTitleCase(item.type) : '-'
+		var accountNumber = item.accountNumber ? item.accountNumber : '-';
+		var processingDate = item.processingDate ? this.formatDate(item.processingDate) : '-';
+		var postingDate = item.postingDate ? this.formatDate(item.postingDate) : '-';
+		var journalReference = item.journalReference ? item.journalReference : '-';
+
 		return html`
 			<capitec-content-box>
-				<capitec-label type="default" label="${item.description}"></capitec-label>
+				<capitec-label type="default" label=""></capitec-label>
 				
 				<capitec-content-box layout="grid">
-					<capitec-label label="Heading: " column="1" row="1">${item.statementDescription}</capitec-label>
+					<capitec-label type="strong" label="Statement description: ${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
 					<div column="1" row="2">
-						<capitec-label label="Transaction Type: " >${item.transTypeDesc}</capitec-label>
-						<capitec-label label="Transaction Code: " >${item.transactionId}</capitec-label>
-						<capitec-label label="Account: " >${item.accountNumber}</capitec-label>
-						<capitec-label label="Processed Date: " >${item.transactionDate}</capitec-label>
+						<capitec-label label="Transaction Type" ></capitec-label>
+						<capitec-label type="strong" label="${typeOfRecharge}" ></capitec-label>
+						<capitec-label label="Account" ></capitec-label>
+						<capitec-label type="strong" label="${accountNumber}" ></capitec-label>
 					</div>
 				
 					<div column="2" row="2">
-						<capitec-label label="Posting Date: " >${item.postingDate}</capitec-label>
-						<capitec-label label="Includes VAT*: " >${item.includesVAT}</capitec-label>
-						<capitec-label label="Teller*: " >${item.teller}</capitec-label>
-						<capitec-label label="Journal Number*: " >${item.journalNumber}</capitec-label>
+						<capitec-label label="Posting Date" ></capitec-label>
+						<capitec-label type="strong" label="${postingDate}" ></capitec-label>
+						<capitec-label label="Journal Number" >j</capitec-label>
+						<capitec-label type="strong" label="${journalReference}" >j</capitec-label>
 					</div>
 
 					<div column="3" row="2">
-						<capitec-label label="Branch*: " >${item.branch}</capitec-label>
-						<capitec-label label="External Terminal ID*: " >${item.externalTerminalId}</capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
+						<capitec-label label="Processed Date" ></capitec-label>
+						<capitec-label type="strong" label="${processingDate}" ></capitec-label>
 					</div>
-
-					<div column="4" row="2">
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-						<capitec-label label="Description: " ></capitec-label>
-					</div>
-					<capitec-button label="View Reversal Request" column="4" row="3" @click="${() => {this.selectedReversal = item; this.lock()}}"></capitec-button>
+					<capitec-button label="View Reversal Request" column="4" row="3" @click="${() => {this.selectedReversal = item; this.reversalActions("Lock", this.selectedReversal)}}"></capitec-button>
 				</capitec-content-box>
 			</capitec-content-box>
 		`;
 	}
 
-	_renderReversalModal() {
+	_renderReversalModal(selectedReversal) {
+		var status = selectedReversal.status ? selectedReversal.status : '-';
+		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
+		var createdAt = selectedReversal.createdAt ? selectedReversal.createdAt : '-';
+		var channel = selectedReversal.channel ? this.toTitleCase(selectedReversal.channel) : '-';
+		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
+		var productId = selectedReversal.productId ? selectedReversal.productId : '-';
+		var productName = selectedReversal.productName ? selectedReversal.productName : '-';
+		var bundleType = selectedReversal.bundleType ? this.toTitleCase(selectedReversal.bundleType) : '-';
+		var amount = selectedReversal.amount ? selectedReversal.amount : '-';
+		var statusReason = selectedReversal.statusReason ? selectedReversal.statusReason : '-';
+		var reason = selectedReversal.reason ? selectedReversal.reason : '-';
+		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
+
 		return html`
-		<capitec-modal type="form" header="Capitec Connect Recharge Reversal ">
-			<capitec-content-box slot="body" layout="grid">
+		<capitec-modal type="form" header="Reversal request">
+			<capitec-content-box slot="body" layout="grid" style="height: 500px;">
 				<div column="1" row="1">
-					<capitec-label type="strong" label="Declined" ></capitec-label>
-					<capitec-label label="Airtime Purchase Request" ></capitec-label>
-					</br>
+					<capitec-label type="strong" label="${status}" ></capitec-label>
 					<capitec-label label="Message ID" ></capitec-label>
 					<capitec-label label="Time" ></capitec-label>
-					<capitec-label label="Origin" ></capitec-label>
-					<capitec-label label="Merchant ID" ></capitec-label>
 				</div>
 				<div column="2" row="1">
 					</br>
-					<capitec-label label="001" ></capitec-label>
-					</br>
-
-					<capitec-label label="Message ID" ></capitec-label>
-					<capitec-label label="Time" ></capitec-label>
-					<capitec-label label="Origin" ></capitec-label>
-					<capitec-label label="Merchant ID" ></capitec-label>
+					<capitec-label label="${transactionReference}" ></capitec-label>
+					<capitec-label label="${createdAt}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="1" row="2">
@@ -329,44 +351,46 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 					<capitec-label label="Product Type" ></capitec-label>
 					<capitec-label label="Request Amount" ></capitec-label>
 					</br>
-					<capitec-label label="Error Type" ></capitec-label>
 					<capitec-label label="Error Message" ></capitec-label>
 					</br>
+					<capitec-label label="Reason for reversal" ></capitec-label>
 					<capitec-label label="Comment" ></capitec-label>
 					</br>
 					<capitec-label type="strong" label="Friday 14th" ></capitec-label>
 					<capitec-label type="strong" label="15:03 - 15:10" ></capitec-label>
 				</div>
+				<hr>
 				<div column="2" row="2">
-					<capitec-label label="Channel" ></capitec-label>
-					<capitec-label label="MSISDN" ></capitec-label>
-					<capitec-label label="MNO" ></capitec-label>
-					<capitec-label label="Product ID" ></capitec-label>
-					<capitec-label label="Product Name" ></capitec-label>
-					<capitec-label label="Product Type" ></capitec-label>
-					<capitec-label label="Request Amount" ></capitec-label>
+					<capitec-label label="${channel}" ></capitec-label>
+					<capitec-label label="${msisdn}" ></capitec-label>
+					<capitec-label label="Capitec Connect" ></capitec-label>
+					<capitec-label label="${productId}" ></capitec-label>
+					<capitec-label label="${productName}" ></capitec-label>
+					<capitec-label label="${bundleType}" ></capitec-label>
+					<capitec-label label="${amount}" ></capitec-label>
 					</br>
-					<capitec-label label="Error Type" ></capitec-label>
-					<capitec-label label="Error Message" ></capitec-label>
+					<capitec-label label="${statusReason}" ></capitec-label>
 					</br>
-					<capitec-label label="Comment" ></capitec-label>
+					<capitec-label label="${reason}" ></capitec-label>
+					<capitec-label label="${additionalComments}" ></capitec-label>	
 				</div>
 			</capitec-content-box>
 			
-			<capitec-button slot="footer" type="secondary" label="Close" @click="${() => {this.selectedReversal = null; this.unlock()}}"></capitec-button>
+			<capitec-button slot="footer" type="secondary" label="Close" @click="${() => {this.selectedReversal = null; this.reversalActions("Unlock", selectedReversal)}}"></capitec-button>
 			<capitec-button slot="footer" type="secondary" label="Pending" @click="${() => {this.reversalAction = "Pending"; this.showConfirmModal = true; }}" ></capitec-button>
 			<capitec-button slot="footer" type="secondary" label="Decline" @click="${() => {this.reversalAction = "Decline"; this.showConfirmModal = true; }}"></capitec-button>
 			<capitec-button slot="footer" type="primary" label="Approve" @click="${() => {this.reversalAction = "Approve"; this.showConfirmModal = true; }}"></capitec-button>
 			</capitec-modal>
 		`;
 	}
+	
 	_renderConfirmModal() {
 		return html`
 			<capitec-modal type="alert" header="Are you sure?">
 				<div slot="body">
 					You are going to ${this.reversalAction} the following ${this.selectedReversal.amount}
 				</div>
-				<capitec-button slot="footer" type="primary" @click="${() => {this.actionReversal(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null}}" label="Yes"></capitec-button>
+				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null; location.reload()}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
 			</capitec-modal>
 		`;
