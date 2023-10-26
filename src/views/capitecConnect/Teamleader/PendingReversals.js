@@ -209,6 +209,24 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			totalCount: pagedItemsToReturn.totalRecords
 		};
 	}
+
+	formatTime(inputDate, options) {
+		options = options || { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+		const date = new Date(inputDate);
+		return date.toLocaleTimeString(options);
+	}
+
+	formatDate(inputDate, options) {
+		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
+		const date = new Date(inputDate);
+		return date.toLocaleDateString('en-za', options);
+	}
+
+	formatModalDate(inputDate, options) {
+		options = options || { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' };
+		const date = new Date(inputDate);
+		return date.toLocaleDateString('en-za', options);
+	}
 	
 	_render() {
 		
@@ -256,11 +274,11 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 				.expandRenderer="${(item) => this._expandRenderer(item)}">
 			<capitec-table-column label="Business Transaction Reference" field="businessTransactionReference"></capitec-table-column>
 			<capitec-table-column label="Transaction Date" field="createdAt"></capitec-table-column>
-			<capitec-table-column label="Agent Name" field="actionedBy"></capitec-table-column>
-			<capitec-table-column label="Client Name" field="markedBy"></capitec-table-column>
+			<capitec-table-column label="Agent Name" field="markedByName"></capitec-table-column>
+			<capitec-table-column label="Client Name" field=""></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Network" render="${() => "CAPITEC CONNECT"}"></capitec-table-column>
+			<capitec-table-column label="Network" field="Capitec Connect"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
@@ -317,7 +335,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 	_renderReversalModal(selectedReversal) {
 		var status = selectedReversal.status ? selectedReversal.status : '-';
 		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
-		var createdAt = selectedReversal.createdAt ? selectedReversal.createdAt : '-';
+		var postingDate = selectedReversal.postingDate ? selectedReversal.postingDate : '-';
 		var channel = selectedReversal.channel ? this.toTitleCase(selectedReversal.channel) : '-';
 		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
 		var productId = selectedReversal.productId ? selectedReversal.productId : '-';
@@ -327,6 +345,8 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		var statusReason = selectedReversal.statusReason ? selectedReversal.statusReason : '-';
 		var reason = selectedReversal.reason ? selectedReversal.reason : '-';
 		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
+		var modalDate = selectedReversal.postingDate ? this.formatModalDate(selectedReversal.postingDate) : '-';
+		var modalTime = selectedReversal.postingDate ? this.formatTime(selectedReversal.postingDate) : '-';
 
 		return html`
 		<capitec-modal type="form" header="Reversal request">
@@ -339,7 +359,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 				<div column="2" row="1">
 					</br>
 					<capitec-label label="${transactionReference}" ></capitec-label>
-					<capitec-label label="${createdAt}" ></capitec-label>
+					<capitec-label label="${postingDate}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="1" row="2">
@@ -356,8 +376,8 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 					<capitec-label label="Reason for reversal" ></capitec-label>
 					<capitec-label label="Comment" ></capitec-label>
 					</br>
-					<capitec-label type="strong" label="Friday 14th" ></capitec-label>
-					<capitec-label type="strong" label="15:03 - 15:10" ></capitec-label>
+					<capitec-label type="strong" label="${modalDate}" ></capitec-label>
+					<capitec-label type="strong" label="${modalTime}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="2" row="2">
@@ -377,7 +397,6 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			</capitec-content-box>
 			
 			<capitec-button slot="footer" type="secondary" label="Close" @click="${() => {this.selectedReversal = null; this.reversalActions("Unlock", selectedReversal)}}"></capitec-button>
-			<capitec-button slot="footer" type="secondary" label="Pending" @click="${() => {this.reversalAction = "Pending"; this.showConfirmModal = true; }}" ></capitec-button>
 			<capitec-button slot="footer" type="secondary" label="Decline" @click="${() => {this.reversalAction = "Decline"; this.showConfirmModal = true; }}"></capitec-button>
 			<capitec-button slot="footer" type="primary" label="Approve" @click="${() => {this.reversalAction = "Approve"; this.showConfirmModal = true; }}"></capitec-button>
 			</capitec-modal>

@@ -210,6 +210,12 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		});
 	}
 
+	formatTime(inputDate, options) {
+		options = options || { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+		const date = new Date(inputDate);
+		return date.toLocaleTimeString(options);
+	}
+
 	formatDate(inputDate, options) {
 		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
 		const date = new Date(inputDate);
@@ -223,7 +229,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 	
 	_render() {
-		
+		var network = "Capitec Connect"
 		return html`
 		<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 		<capitec-button-bar>
@@ -272,7 +278,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Client Name" field=""></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Network" render="${() => "CAPITEC CONNECT"}"></capitec-table-column>
+			<capitec-table-column label="Network" field="${network}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
@@ -329,7 +335,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	_renderReversalModal(selectedReversal) {
 		var status = selectedReversal.status ? selectedReversal.status : '-';
 		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
-		var createdAt = selectedReversal.createdAt ? selectedReversal.createdAt : '-';
+		var postingDate = selectedReversal.postingDate ? selectedReversal.postingDate : '-';
 		var channel = selectedReversal.channel ? this.toTitleCase(selectedReversal.channel) : '-';
 		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
 		var productId = selectedReversal.productId ? selectedReversal.productId : '-';
@@ -339,8 +345,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		var statusReason = selectedReversal.statusReason ? selectedReversal.statusReason : '-';
 		var reason = selectedReversal.reason ? selectedReversal.reason : '-';
 		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
-		// console.log("modal date", this.formatModalDate(selectedReversal.createdAt));
-		var modalDate = selectedReversal.createdAt ? this.formatModalDate(selectedReversal.createdAt) : '-';
+		var modalDate = selectedReversal.postingDate ? this.formatModalDate(selectedReversal.postingDate) : '-';
+		var modalTime = selectedReversal.postingDate ? this.formatTime(selectedReversal.postingDate) : '-';
 		//productId
 		//status
 		//statusReason
@@ -356,7 +362,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				<div column="2" row="1">
 					</br>
 					<capitec-label label="${transactionReference}" ></capitec-label>
-					<capitec-label label="${createdAt}" ></capitec-label>
+					<capitec-label label="${postingDate}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="1" row="2">
@@ -374,7 +380,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 					<capitec-label label="Comment" ></capitec-label>
 					</br>
 					<capitec-label type="strong" label="${modalDate}" ></capitec-label>
-					<capitec-label type="strong" label="15:03 - 15:10" ></capitec-label>
+					<capitec-label type="strong" label="${modalTime}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="2" row="2">
@@ -394,7 +400,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			</capitec-content-box>
 			
 			<capitec-button slot="footer" type="secondary" label="Close" @click="${() => {this.selectedReversal = null; this.reversalActions("Unlock", selectedReversal)}}"></capitec-button>
-			<capitec-button slot="footer" type="secondary" label="Pending" @click="${() => {this.reversalAction = "Pending"; this.showConfirmModal = true; }}" ></capitec-button>
+			<capitec-button slot="footer" type="secondary" label="Pending" @click="${() => {this.reversalAction = "Flag"; this.showConfirmModal = true; }}" ></capitec-button>
 			<capitec-button slot="footer" type="secondary" label="Decline" @click="${() => {this.reversalAction = "Decline"; this.showConfirmModal = true; }}"></capitec-button>
 			<capitec-button slot="footer" type="primary" label="Approve" @click="${() => {this.reversalAction = "Approve"; this.showConfirmModal = true; }}"></capitec-button>
 			</capitec-modal>
@@ -405,9 +411,9 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		return html`
 			<capitec-modal type="alert" header="Are you sure?">
 				<div slot="body">
-					You are going to ${this.reversalAction} the following ${this.selectedReversal.amount}
+					You are going to ${this.reversalAction} the following R${this.selectedReversal.amount}
 				</div>
-				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null; location.reload()}}" label="Yes"></capitec-button>
+				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null;}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
 			</capitec-modal>
 		`;
