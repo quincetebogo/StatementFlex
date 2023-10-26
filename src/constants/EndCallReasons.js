@@ -1,3 +1,5 @@
+import { ORG_UNITS } from "app/constants/Common";
+
 const callTransferedResoltuion = (issueType) => {
 	const returnValue = issueType === `Fraud Engagement Transfer` ? `Fraud Transfer` : ``;
 	return returnValue;
@@ -13,9 +15,9 @@ const callTransferedResoltuion = (issueType) => {
  * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
  * End call contexts confluence https://confluence.capitecbank.co.za:8443/display/HOR/User+Story+1%3A+End+call+session+-+Enhanced
  */
- const NEED_FULFILLED = 0;
+ const NEED_FULFILLED = 0; 
  const NEED_INCOMPLETE = 1;
- const NEED_ASSIGNED = 2; 
+ const NEED_ASSIGNED = 2;
  const NEED_HANDED_OFF = 3;
  const FAILED_VERIFICATION = 4;
  const FOLLOW_UP = 5;
@@ -393,10 +395,60 @@ export const RECOGNIZE_NEED_REASONS = Object.freeze([
 	 `LandingPage`
  ]);
 
- /**
- * Enum - For the below end call contexts, we need to recognize need when incident not classified
- * 
+/**
+ *
  * @readonly
  * @enum {Object} RECOGNIZE_NEED_CONTEXTS
  */
 export const RECOGNIZE_NEED_CONTEXTS = Object.freeze([`TransactionHistory`]);
+
+
+ /**
+ * The end call reasons based on agent role.
+ * @readonly
+ * @enum {Object} END_CALL_REASON_BY_ROLE
+ */
+ export const END_CALL_REASON_BY_ROLE = Object.freeze({
+	[ORG_UNITS.CAPITEC_CONNECT]: [
+		{
+			key: NEED_INCOMPLETE,
+			value: `Abandoned request`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `failed-verification`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `External factor`,
+			mapping: `language-transfer`
+		},
+		{
+			key: NEED_FULFILLED,
+			value: `Query closed`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Query escalation`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Query resolved`,
+			mapping: `call-transfer`,
+			getResolution: callTransferedResoltuion
+		}
+	],
+	[ORG_UNITS.CLIENT_CARE]: END_CALL_REASON,
+	[ORG_UNITS.HELPDESK]: END_CALL_REASON
+});
+
+ /**
+ * Roles structured with end call context
+ * @readonly
+ * @enum {Object} ROLES_WITH_END_CALL_CONTEXT
+ */
+export const ROLES_WITH_END_CALL_CONTEXT = [ORG_UNITS.CLIENT_CARE, ORG_UNITS.HELPDESK];

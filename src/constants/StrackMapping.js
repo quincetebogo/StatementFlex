@@ -25,7 +25,7 @@
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
 
 	// Savings account
-	"transaction-history": `TRANSACTION_HISTORY`,
+	// "transaction-history": `TRANSACTION_HISTORY`,
 	"statements-transact": `STATEMENTS`,
 
 	// Savings plan
@@ -79,6 +79,7 @@
 	"unblock-sim": `UNBLOCK_SIM`,
 	"active-full-menu-ussd": `ACTIVE_REDUCED_MENU_USSD`,
 	"view-notification": `NOTIFICATIONS`,
+	"suspend-channels": `SUSPEND_CHANNELS`,
 
 	// Credit
 	"transaction-history-credit-card": `VIEW_TRANSACTION_HISTORY_CREDIT_CARD`, //
@@ -105,5 +106,38 @@
 	"savings-account": `SAVINGS_ACCOUNT`,
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
-	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`
+	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+
+	// Update client language preference
+	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
+
+	// PayShap
+	"payshap": `PAYSHAP_ENQUIRY`,
+	"set-capitec-as-default-bank": `SET_CAPITEC_AS_DEFAULT_BANK`,
+	"remove-capitec-as-default-bank": `REMOVE_CAPITEC_AS_DEFAULT_BANK`,
+	"payshap-pop": `PAYSHAP_POP`,
+
+	// Insure 
+	"funeral-update": `FUNERAL_UPDATE`,
+	"funeral-arrears-payment": `FUNERAL_ARREARS_PAYMENT`,
+	"funeral-cancellation": `FUNERAL_CANCELLATION`,
+	"funeral-estimate": `FUNERAL_ESTIMATE`,
+	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
+	"funeral-reissue": `FUNERAL_REISSUE`,
+	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`,
+
+	"funeral-plan-summary": `FUNERAL_PLAN_SUMMARY`,
+	"funeral-sms-history": `FUNERAL_SMS_HISTORY`,
+	"funeral-transaction-history": `FUNERAL_TRANSACTION_HISTORY`,
+	"lodge-insurance-claim": `LODGE_INSURANCE_CLAIM`,
+	"view-insurance-claim-summary": `VIEW_INSURANCE_CLAIM_SUMMARY`,
+	"funeral-plan-update-beneficiaries": `FUNERAL_PLAN_UPDATE_BENEFICIARIES`,
+	"funeral-plan-update-lives": `FUNERAL_PLAN_UPDATE_LIVES`,
+	"funeral-plan-update-payment-details": `FUNERAL_PLAN_UPDATE_PAYMENT_DETAILS`,
+	"funeral-plan-pay-arrears": `FUNERAL_PLAN_PAY_ARREARS`,
+	"funeral-plan-cancel": `FUNERAL_PLAN_CANCEL`,
+	"funeral-plan-calculate-estimate": `FUNERAL_PLAN_CALCULATE_ESTIMATE`,
+	"funeral-plan-send-document": `FUNERAL_PLAN_SEND_DOCUMENT`,
+	"funeral-plan-reissue": `FUNERAL_PLAN_REISSUE`
+
 });

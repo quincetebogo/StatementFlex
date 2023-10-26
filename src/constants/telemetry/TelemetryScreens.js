@@ -84,12 +84,15 @@ export const TelemetryScreen = {
     ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN: `Access Channels Internet Banking Suspend Security Token`,
     ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS: `Access Channels Internet Banking Suspend Tokens`,
     ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON: `Access Channels Internet Banking Suspend Reason`,
+    ACCESS_CHANNELS_INTERNET_BANKING_OUTCOME: `Access Channels Internet Banking Outcome screen`,
 
     ACCESS_CHANNELS_APP: `Access Channels App`,
     ACCESS_CHANNELS_APP_SUSPEND_REASON: `Access Channels App Suspend Reasons`,
+    ACCESS_CHANNELS_APP_OUTCOME: `Access Channels App Outcome screen`,
 
     ACCESS_CHANNELS_USSD: `Access Channels Ussd`,
     ACCESS_CHANNELS_USSD_CANCEL_USSD: `Access Channels Ussd cancel Ussd`,
+    ACCESS_CHANNELS_USSD_OUTCOME: `Access Channels Ussd Outcome screen`,
 
     ACCESS_CHANNELS_NOTIFICATIONS: `Access Channels Notifications`,
     ACCESS_CHANNELS_NOTIFICATIONS_UPDATE: `Access Channels Notifications Update`,
@@ -167,5 +170,14 @@ export const TelemetryScreen = {
 	INSURE_SMS_HISTORY: `Insure SMS History screen`,
 
 	INSURE_SUCCESS: `Insure Successful Transaction screen`,
-	INSURE_SEND_EMAIL_DIALOG: `Send Email dialog`
+	INSURE_SEND_EMAIL_DIALOG: `Send Email dialog`,
+
+	PAY_SHAP_DETAILS: `Payshap details tab`,
+	PAY_SHAP_INSTITUTIONS: `Payshap institutions tab`,
+	PAY_SHAP_TRANSACTION_HISTORY: `Payshap transaction history tab`,
+	PAY_SHAP_UPDATE_MODAL: `Payshap update details modal`,
+	PAY_SHAP_PROOF_OF_PAYMENT: `Payshap proof of payment`,
+	PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME: `Payshap proof of payment outcome`,
+
+	SYSTEM_ERROR: `Generic system error screen`
 };

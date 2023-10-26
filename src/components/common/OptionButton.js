@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { Button } from 'platform/components/buttons/Button'; 
+import 'platform/components/popups/Tooltip';
 
 /**
  * A button control with an icon above a label.
@@ -32,6 +33,9 @@ export class OptionButton extends Button {
 		this.iconPlacement = `top`;
 		this.type = `clear`;
 		this.badgeText = null;
+		this.showTooltip = false;
+		this.tooltipMessage = null;
+		this.tooltipPosition = `left-edge`;
 	}
 
 	// ----------
@@ -46,6 +50,9 @@ export class OptionButton extends Button {
 	 * @property {String} [iconSize] - Used in conjunction with the icon attribute. This is a <capitec-icon>, icon size setting.
 	 * @property {String} [img-src] - Path to an image to display. This will only be displayed if icon is NOT provided.
 	 * @property {String} [badgeText] - Optional number to display in a badge, top right hand.
+	 * @property {String} [showTooltip] - display a tooltip or not
+	 * @property {String} [tooltipMessage] - The tooltip text.
+	 * @property {String} [tooltipPosition] - Position of the tooltip.
 	 */
 	static get properties() {
 		return {
@@ -54,7 +61,10 @@ export class OptionButton extends Button {
 			image: { type: String, attribute: `img-src` },
 			disabled: { type: Boolean },
 			iconSize: { type: String },
-			badgeText: { type: String }
+			badgeText: { type: String },
+			showTooltip: { type: Boolean },
+			tooltipMessage: { type: String },
+			tooltipPosition: { type: String }
 		};
 	}
 
@@ -136,9 +146,23 @@ export class OptionButton extends Button {
 	}
 
 	_webTemplate() {
+		return this.showTooltip
+		? html`
+			<capitec-tooltip 
+				message=${this.tooltipMessage} 
+				position=${this.tooltipPosition}>
+				${this._renderButton()}
+			</capitec-tooltip>`
+		: html`
+			${this._renderButton()}
+		`;
+	}
+
+	_renderButton() {
 		return html`
 			<button
 				class="button option-button icon-${this.iconPlacement} ${this.type ? this.type : `secondary`} ${this.disabled ? `disabled` : ``}" 
+				@click="${this._buttonClicked}" 
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					${this.renderBadge()}
