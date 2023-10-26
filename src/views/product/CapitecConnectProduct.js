@@ -1,9 +1,9 @@
 import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { RoleManager } from '../../shell/RoleManager';
 import { html } from 'platform/elements';
 import 'app/components/product/CnetProductInfo';
-import 'app/views/capitecConnect/Teamleader/index'
-import 'app/views/capitecConnect/Agent/index'
-import { RoleManager } from '../../shell/RoleManager';
+import 'app/views/capitecConnect/Teamleader/index';
+import 'app/views/capitecConnect/Agent/index';
 
 /**
  * This page allows an agent to view Live Better Savings Account information while waiting for an incoming call
@@ -40,15 +40,15 @@ export class CapitecConnectProduct extends ProductPageBase {
 
 	_webTemplate() {
 		// If it is a teamleader with the connect role we should display the teamleader page.
-		if(RoleManager.getInstance().isCapitecConnectTeamleader) {
-			return html`
-			<div>
-				<horizon-capitec-connect-teamleader></horizon-capitec-connect-teamleader>
-			</div>
-			`;
-		}
+		// if(RoleManager.getInstance().isCapitecConnectTeamleader) {
+		// return html`
+		// <div>
+		// <horizon-capitec-connect-teamleader></horizon-capitec-connect-teamleader>
+		// </div>
+		// `;
+		// }
 
-		if(RoleManager.getInstance().isCapitecConnectAgent) {
+		if (RoleManager.getInstance().isCapitecConnectAgent) {
 			return html`
 			<div>
 				<horizon-capitec-connect-agent></horizon-capitec-connect-agent>

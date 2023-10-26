@@ -1,11 +1,13 @@
 import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import './Recharges'
+import { SavingsService } from 'app/services/SavingsService';
 import SecurityContext from 'platform/SecurityContext';
-import { SavingsService } from '../../../services/SavingsService';
+import { formatPhoneNumber } from "../../../utils/channelServiceUtilities";
+import './Recharges';
+// import { CapitecConnectService } from 'app/services/CapitecConnectService';
 /**
- * Capitec Connect teamleader View
+ * Capitec Connect Agent View
  *
  * Events Raised
  * -------------
@@ -15,7 +17,7 @@ import { SavingsService } from '../../../services/SavingsService';
  * @class CapitecConnectAgent
  */
 export class CapitecConnectAgent extends View {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -32,192 +34,92 @@ export class CapitecConnectAgent extends View {
 
 		// Static variables
 		this.dateRanges = [
-			{ value: "30", text: "30 Days" },
-			{ value: "60", text: "60 Days" },
-			{ value: "90", text: "90 Days" },
+			{ value: `30`, text: `30 Days` },
+			{ value: `60`, text: `60 Days` },
+			{ value: `90`, text: `90 Days` }
 		];
 
-		this.availableFilters = ["All", "Airtime", "Minutes", "Data", "SMSs"]
+		this.availableFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 
 
 		// State variables
-		this.searchValue = "";
+		this.searchValue = ``;
 		this.selectedDate = this.dateRanges[0];
 		this.activeFilters = [];
 
 		this.selectedReversal = null;
-		this.reversalAction = null;
-		this.showConfirmModal = false;
 
+		this.showConfirmModal = false;
+		this.showSuccessModal = false;
+		this.showFailureModal = false;
 
 		this.totalEscalatedReversals = 10;
 		this.totalPendingReversals = 10;
 		this.totalCompletedReversals = 10;
 	}
-	
+
 	static get properties() {
 		return {
 			selectedReversal: { type: Object },
-			showConfirmModal: {type: Boolean},
-			reversalAction: {type: String},
-			selectedDate: {type: Object},
-			searchValue: {type: String},
-			activeFilters: {type: Array},
-			totalEscalatedReversals: {type : Number},
-			totalPendingReversals: {type : Number},
-			totalCompletedReversals: {type : Number}
+			showConfirmModal: { type: Boolean },
+			reversalAction: { type: String },
+			selectedDate: { type: Object },
+			searchValue: { type: String },
+			activeFilters: { type: Array },
+			totalEscalatedReversals: { type: Number },
+			totalPendingReversals: { type: Number },
+			totalCompletedReversals: { type: Number }
 		};
 	}
 
-	
+	async searchRecharges(renderSet, filters, isEscalationDetails = false) {
+		var mockArgs = {},
+			pgArgs = {},
+			queryArgs = {};
 
-	async searchReversals(renderSet , filters , selectedAccount ) {
-
-		function formatDate(daysToSubtract) {
-			var newDate = new Date();
-			newDate.setDate(newDate.getDate() - daysToSubtract);
-		  
-			var year = newDate.getFullYear();
-			var month = String(newDate.getMonth() + 1).padStart(2, '0');
-			var day = String(newDate.getDate()).padStart(2, '0');
-		  
-			var formattedDate = year + '-' + month + '-' + day;
-			return formattedDate;
+		if (this.isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
+				e = e.toUpperCase();
+				return e;
+			});
 		}
 
-		const response = await this.savingsService.savingsPlanTransactionHistory({
-			"accountNumber": selectedAccount.accountNumber,
-			"startDate": formatDate(0),
-			"endDate": formatDate(parseInt(filters.selectedDate.value)),
-			"startAtIndex": renderSet.currentPageIndex,
-			"maxResults": renderSet.numOfPagingRows,
-			"moneyType": "OUT"
-		});
+		queryArgs.msisdn = filters.searchValue;
 
-		console.log(response)
+		queryArgs.transactionDate = {
+			startDate: this.getDateInPast(filters.selectedDate.value),
+			endDate: this.getDateInPast(0)
+		};
 
-		return {
-			records: response.result?.transactions || [],
-			totalRecords: response.results?.transactions?.length || 0
-		}
+		pgArgs = {
+			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [`transactionDate`, `msisdn`],
+			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
 
-		// console.log(result)
+		mockArgs = {
+			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
+			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
 
-		// console.log(SecurityContext.username)
-		// // AVAILABLE, LOCKED, ACCEPTED, DECLINED, FLAGGED
-		// console.log("searchReversals")
-		// console.log(filters)
-		// console.log(renderSet)
-		// const records = [
-		// 	{
-		// 	  "businessTransactionReference": "TX12345",
-		// 	  "amount": 100.00,
-		// 	  "msisdn": "1234567890",
-		// 	  "markedBy": "John Doe",
-		// 	  "reason": "Incorrect Charge",
-		// 	  "additionalComments": "Please review",
-		// 	  "actionState": "AVAILABLE",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "PENDING",
-		// 	  "actionedBy": "Jane Smith",
-		// 	  "createdAt": "2023-08-01T10:00:00Z",
-		// 	  "updatedAt": "2023-08-01T11:30:00Z",
-		// 	  "locked": false,
-		// 	  "complete": false
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX67890",
-		// 	  "amount": 50.00,
-		// 	  "msisdn": "9876543210",
-		// 	  "markedBy": "Alice Smith",
-		// 	  "reason": "Fraudulent Transaction",
-		// 	  "additionalComments": "Urgent attention needed",
-		// 	  "actionState": "LOCKED",
-		// 	  "lockedTo": "cp349869",
-		// 	  "transactionState": "PROCESSING",
-		// 	  "actionedBy": "Bob Anderson",
-		// 	  "createdAt": "2023-08-02T15:00:00Z",
-		// 	  "updatedAt": "2023-08-02T16:45:00Z",
-		// 	  "locked": true,
-		// 	  "complete": false
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX54321",
-		// 	  "amount": 75.00,
-		// 	  "msisdn": "5551234567",
-		// 	  "markedBy": "Eve Brown",
-		// 	  "reason": "Customer Request",
-		// 	  "additionalComments": "Approved by supervisor",
-		// 	  "actionState": "ACCEPTED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "SUCCESSFUL",
-		// 	  "actionedBy": "Alice Johnson",
-		// 	  "createdAt": "2023-08-03T08:30:00Z",
-		// 	  "updatedAt": "2023-08-03T09:15:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX98765",
-		// 	  "amount": 120.00,
-		// 	  "msisdn": "3334445555",
-		// 	  "markedBy": "Bob Anderson",
-		// 	  "reason": "Billing Error",
-		// 	  "additionalComments": "Investigate root cause",
-		// 	  "actionState": "DECLINED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "FAILED",
-		// 	  "actionedBy": "John Doe",
-		// 	  "createdAt": "2023-08-04T12:15:00Z",
-		// 	  "updatedAt": "2023-08-04T13:30:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	},
-		// 	{
-		// 	  "businessTransactionReference": "TX24680",
-		// 	  "amount": 200.00,
-		// 	  "msisdn": "7778889999",
-		// 	  "markedBy": "Jane Smith",
-		// 	  "reason": "User Error",
-		// 	  "additionalComments": "Reprocess payment",
-		// 	  "actionState": "FLAGGED",
-		// 	  "lockedTo": null,
-		// 	  "transactionState": "CANCELED",
-		// 	  "actionedBy": "Alice Smith",
-		// 	  "createdAt": "2023-08-05T14:45:00Z",
-		// 	  "updatedAt": "2023-08-05T15:20:00Z",
-		// 	  "locked": false,
-		// 	  "complete": true
-		// 	}
-		// ];
-
-		// return new Promise((resolve, reject) => {
-		// 	setTimeout(() => {
-		// 		const retrievedRecords = records.filter(item => item.actionState === state);
-		// 		const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
-		// 		resolve({
-		// 			records: returnValue || [],
-		// 			totalRecords: retrievedRecords?.length || 0
-		// 		});
-		// 	}, 1000);
-		// });
+		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
 	}
 
-	async lock(){
-		alert('lock')
+	async lock () {
+		alert(`lock`);
 	}
 
-	async unlock() {
-		alert('unlock')
-
+	async unlock () {
+		alert(`unlock`);
 	}
 
-	async actionReversal(type, selectedReversal) {
-		console.log(type)
-		console.log(selectedReversal)
-		alert(type)
+	async actionReversal (selectedReversal, reason, comment) {
+		return this.capitecConnectService.escalateForReversal(
+			selectedReversal.transactionReference,
+			reason,
+			comment
+		);
 	}
-	
 
 	static get styles() {
 		return [
@@ -272,11 +174,13 @@ export class CapitecConnectAgent extends View {
 					--theme-button-padding-top: 14px;
 					--theme-button-padding-bottom: 14px;
 				}
+				table tbody tr td:nth-child(4) {
+					color: blue;
+					text-align: center;
+				}
 			`
 		];
 	}
-
-	
 
 	_mobileTemplate() {
 		this._webTemplate();
@@ -293,7 +197,7 @@ export class CapitecConnectAgent extends View {
 			<capitec-card class="product-info">
 				<capitec-title-bar
 					data-automation-id="cnet-product-info-title-bar"
-					class="liveBetter"
+					class="transact"
 					type="primary">
 						${this._renderIcon()}
 						<capitec-label
@@ -308,11 +212,12 @@ export class CapitecConnectAgent extends View {
 						<capitec-tab label="Recharge History" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-recharges
 								style="width:100%"
-								.searchReversals="${this.searchReversals}"
+								.searchRecharges="${this.searchRecharges}"
+								.getEscalationDetail="${this.getEscalationDetail}"
 								.lock="${this.lock}"
 								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"
-								></horizon-capitec-connect-agent-recharges>							
+								></horizon-capitec-connect-agent-recharges>
 						</capitec-tab>
 						
 						<capitec-tab label="Advances" layout="vertical" halign="left">
@@ -326,13 +231,12 @@ export class CapitecConnectAgent extends View {
 				</capitec-group>
 		</capitec-card>`;
 	}
-	
+
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/live-better-white.svg"/>`
-			;
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`;
 	}
-	
+
 }
 
 customElements.define(`horizon-capitec-connect-agent`, CapitecConnectAgent);

@@ -1,17 +1,21 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
-// import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 
 /**
- * Channel Service Methods for Connect flow
+ * Channel Service Methods for CapitecConnect Account/Plan/Product documents
  *
  * @export
  * @class CapitecConnectService
  * @extends {ChannelServiceBase}
  */
+
 export class CapitecConnectService extends ChannelServiceBase {
-		// --------------
+
+	// --------------
 	// INITIALISATION
 	// --------------
+
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
 			toggleBusyFunc,
@@ -21,6 +25,8 @@ export class CapitecConnectService extends ChannelServiceBase {
 			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
+		
+		this.desktopAgentService = DesktopAgentService.getInstance();
 	}
 
 	// Get reversals
@@ -134,4 +140,86 @@ export class CapitecConnectService extends ChannelServiceBase {
 		return str;
 	}
 
+	sanitizeJsonObject(jsonObject, keyList) {
+		if (!jsonObject || typeof jsonObject !== 'object' || !Array.isArray(keyList)) {
+			return false; // Invalid input, return null or handle the error accordingly
+		}
+
+		const sanitizedObject = {};
+
+		for (const key of keyList) {
+			if (jsonObject.hasOwnProperty(key)) {
+				sanitizedObject[key] = jsonObject[key];
+			}
+		}
+
+		return sanitizedObject;
+	}
+
+	async rechargeHistory(qry_args = {}, pagination_args = {}, capitecConnectRechargeHistory, isForEscalationDetails = false) {
+		// if (await this.isMockEnabled(`capitecConnectRechargeHistory`) && !isForEscalationDetails) {
+		// 	return this.mock(`capitecConnectRechargeHistory`, capitecConnectRechargeHistory);
+		// }
+
+		pagination_args = {
+			"page": pagination_args.page || 0,
+			"size": pagination_args.size || 1,
+			"sort": typeof pagination_args.sort === "object" && pagination_args.sort.length > 0 ? pagination_args.sort : ["cif"]
+		}
+
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			[ "cif", "channel", "msisdn", "amount", "type", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
+		);
+
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: rechargeHistory()");
+			return [];
+		}
+
+		const url = !isForEscalationDetails ?
+			`/${this._version}/api/horizon/recharges/search?${this.convertJsonToUriString(pagination_args)}`
+			: `/v1/api/horizon/recharges/reverse/actions/AVAILABLE/search`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			!isForEscalationDetails ? `capitecConnectRechargeHistory` : `capitecConnectEscalationHistory`,
+			null,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	async escalateForReversal(ref = null, reason = '', comments = '') {
+		if (typeof ref !== "string") {
+			console.error("Recharge reference number invalid.");
+			return [];
+		}
+
+		const cpNumber = this.desktopAgentService._securityContext.username;
+		const url = `/v1/api/horizon/recharges/${ref}/reverse`;
+		const request = {
+            cpNumber: cpNumber,
+            reversalReason: reason,
+            additionalComments: comments
+        };
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`capitecConnectRechargeEscalation`,
+			null,
+			null,
+			2000,
+			null,
+			() => console.log('[capitecConnectRechargeEscalation] request failed.'),
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }

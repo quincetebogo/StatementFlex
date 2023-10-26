@@ -2,6 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
 		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-dev.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff",
 		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
 		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
 		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
@@ -140,6 +141,10 @@
 		"stopCard": {
 			"enabled": false,
 			"positiveCase": false
+		},
+		"capitecConnectRechargeHistory": {
+			"enabled": true,
+			"positiveCase": true
 		},
 		"transactionHistory": {
 			"enabled": false,
