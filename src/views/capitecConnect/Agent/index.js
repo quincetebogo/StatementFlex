@@ -1,10 +1,10 @@
 import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import './Recharges'
-import { formatPhoneNumber } from "../../../utils/channelServiceUtilities";
-import SecurityContext from 'platform/SecurityContext';
 import { SavingsService } from 'app/services/SavingsService';
+import SecurityContext from 'platform/SecurityContext';
+import { formatPhoneNumber } from "../../../utils/channelServiceUtilities";
+import './Recharges';
 // import { CapitecConnectService } from 'app/services/CapitecConnectService';
 /**
  * Capitec Connect Agent View
@@ -34,16 +34,16 @@ export class CapitecConnectAgent extends View {
 
 		// Static variables
 		this.dateRanges = [
-			{ value: "30", text: "30 Days" },
-			{ value: "60", text: "60 Days" },
-			{ value: "90", text: "90 Days" },
+			{ value: `30`, text: `30 Days` },
+			{ value: `60`, text: `60 Days` },
+			{ value: `90`, text: `90 Days` }
 		];
 
-		this.availableFilters = ["All", "Airtime", "Minutes", "Data", "SMS"]
+		this.availableFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 
 
 		// State variables
-		this.searchValue = "";
+		this.searchValue = ``;
 		this.selectedDate = this.dateRanges[0];
 		this.activeFilters = [];
 
@@ -73,45 +73,47 @@ export class CapitecConnectAgent extends View {
 	}
 
 	async searchRecharges(renderSet, filters, isEscalationDetails = false) {
-		var qry_args = {},
-			pg_args = {},
-			mock_args = {};
+		var mockArgs = {},
+			pgArgs = {},
+			queryArgs = {};
 
-		if (this.isArray(filters.bundelType) && filters.bundelType.filter(e => e !== "All").length) {
-			qry_args.bundleTypes = filters.bundelType.filter(e => e !== "All").map(e => {
+		if (this.isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
 				e = e.toUpperCase();
 				return e;
 			});
 		}
 
-		qry_args.transactionDate = {
+		queryArgs.msisdn = filters.searchValue;
+
+		queryArgs.transactionDate = {
 			startDate: this.getDateInPast(filters.selectedDate.value),
 			endDate: this.getDateInPast(0)
 		};
 
-		pg_args = {
-			page: typeof this.currentPageIndex === "number" ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [ "transactionDate", "msisdn" ],
-			size: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
+		pgArgs = {
+			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [`transactionDate`, `msisdn`],
+			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
 		};
 
-		mock_args = {
+		mockArgs = {
 			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
-			maxResults: typeof this.numOfPagingRows == "number" ? this.numOfPagingRows : 10
-		}
+			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
 
-		return this.capitecConnectService.rechargeHistory(qry_args, pg_args, mock_args, isEscalationDetails);
+		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
 	}
 
-	async lock() {
-		alert('lock')
+	async lock () {
+		alert(`lock`);
 	}
 
-	async unlock() {
-		alert('unlock')
+	async unlock () {
+		alert(`unlock`);
 	}
 
-	async actionReversal(selectedReversal, reason, comment) {
+	async actionReversal (selectedReversal, reason, comment) {
 		return this.capitecConnectService.escalateForReversal(
 			selectedReversal.transactionReference,
 			reason,
@@ -195,7 +197,7 @@ export class CapitecConnectAgent extends View {
 			<capitec-card class="product-info">
 				<capitec-title-bar
 					data-automation-id="cnet-product-info-title-bar"
-					class="liveBetter"
+					class="transact"
 					type="primary">
 						${this._renderIcon()}
 						<capitec-label
@@ -215,7 +217,7 @@ export class CapitecConnectAgent extends View {
 								.lock="${this.lock}"
 								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"
-								></horizon-capitec-connect-agent-recharges>							
+								></horizon-capitec-connect-agent-recharges>
 						</capitec-tab>
 						
 						<capitec-tab label="Advances" layout="vertical" halign="left">
@@ -232,8 +234,7 @@ export class CapitecConnectAgent extends View {
 
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
-			;
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`;
 	}
 
 }
