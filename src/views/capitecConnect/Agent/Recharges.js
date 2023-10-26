@@ -1,12 +1,13 @@
 import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration, NavigationContext } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { SavingsService } from '../../../services/SavingsService';
+import { ACCOUNT_TYPE_CODE } from '../../../constants/Common';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { CreditService } from '../../../services/CreditService';
-import { ViewBase } from '../../common/ViewBase';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from '../../../store/HorizonStore';
-import { ACCOUNT_TYPE_CODE } from '../../../constants/Common';
+import { SavingsService } from '../../../services/SavingsService';
+import { ViewBase } from '../../common/ViewBase';
+
 /**
  * Capitec Connect teamleader View
  *
@@ -43,24 +44,24 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		// Static variables
 		this.dateRanges = [
-			{ value: "30", text: "30 Days" },
-			{ value: "60", text: "60 Days" },
-			{ value: "90", text: "90 Days" },
+			{ value: `30`, text: `30 Days` },
+			{ value: `60`, text: `60 Days` },
+			{ value: `90`, text: `90 Days` }
 		];
 
-		this.pagingRows = [10,20,50];
+		this.pagingRows = [10, 20, 50];
 		this.numOfPagingRows = 10;
 		this.currentPageIndex = 1;
 
-		this.availableBundleFilters = ["All", "Airtime", "Minutes", "Data", "SMS"]
+		this.availableBundleFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 
 		// State variables
-		// this.searchValue = "";
+		// this.searchValue = ``;
 		// this.selectedDate = this.dateRanges[0];
 		this.activeFilters = {
-			selectedDate:this.dateRanges[0],
-			searchValue: "",
-			bundelType:["All"]
+			selectedDate: this.dateRanges[0],
+			searchValue: ``,
+			bundleType: [`All`]
 		};
 
 		this.selectedReversal = null;
@@ -74,7 +75,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.showTable = false;
 
 		this.reason = null;
-		this.comment = "";
+		this.comment = ``;
 
 		this.clientCif = null;
 
@@ -105,19 +106,20 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	static get properties() {
 		return {
 			selectedReversal: { type: Object },
-			selectedRechargeView: {type: Object},
-			showConfirmModal: {type: Boolean},
-			showSuccessModal: {type: Boolean},
-			showFailureModal: {type: Boolean},
-			reversalAction: {type: String},
-			activeFilters: {type: Object},
-			showTable: {type : Boolean},
-			reason: {type: Object},
-			comment: {type: String},
-			callerInformation: {type: Object},
-			clientCif: {type: String},
-			savingsProducts : {type: Array},
-			selectedSavingsProduct : {type: Object},
+			selectedRechargeView: { type: Object },
+			showConfirmModal: { type: Boolean },
+			showSuccessModal: { type: Boolean },
+			showFailureModal: { type: Boolean },
+			reversalAction: { type: String },
+			activeFilters: { type: Object },
+			showTable: { type: Boolean },
+			reason: { type: Object },
+			comment: { type: String },
+			callerInformation: { type: Object },
+			clientCif: { type: String },
+			savingsProducts: { type: Array },
+			selectedSavingsProduct: { type: Object },
+			validationMessage: { type: String }
 		};
 	}
 
@@ -180,16 +182,16 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	/* UTILITIES:start */
 	formatDate(inputDate, options) {
-		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
+		options = options || { day: `2-digit`, month: `short`, year: `numeric` };
 		const date = new Date(inputDate);
-		return date.toLocaleDateString('en-za', options);
+		return date.toLocaleDateString(`en-za`, options);
 	}
 
 	getTimeFromDate(dateString) {
 		const date = new Date(dateString);
-		const hours = date.getHours().toString().padStart(2, '0');
-		const minutes = date.getMinutes().toString().padStart(2, '0');
-		const seconds = date.getSeconds().toString().padStart(2, '0');
+		const hours = date.getHours().toString().padStart(2, `0`);
+		const minutes = date.getMinutes().toString().padStart(2, `0`);
+		const seconds = date.getSeconds().toString().padStart(2, `0`);
 		return `${hours}:${minutes}:${seconds}`;
 	}
 
@@ -219,8 +221,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		const pastDate = new Date(today);
 		pastDate.setDate(today.getDate() - days);
 		const year = pastDate.getFullYear();
-		const month = String(pastDate.getMonth() + 1).padStart(2, '0');
-		const day = String(pastDate.getDate()).padStart(2, '0');
+		const month = String(pastDate.getMonth() + 1).padStart(2, `0`);
+		const day = String(pastDate.getDate()).padStart(2, `0`);
 		return `${year}-${month}-${day}`;
 	}
 
@@ -233,40 +235,40 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	formatCellphoneNumber(cellphoneNumber) {
-		cellphoneNumber = cellphoneNumber.replace(/\s/g, ''); // first remove the spaces
+		cellphoneNumber = cellphoneNumber.replace(/\s/g, ``); // first remove the spaces
 
 		if (cellphoneNumber.length === 11) {
 			return `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
 		} else if (cellphoneNumber.length === 10) {
 			return `${cellphoneNumber.substr(0, 3)} ${cellphoneNumber.substr(3, 3)} ${cellphoneNumber.substr(6, 4)}`;
-		} else {
-			// Handle invalid input here if necessary
-			return "000 000 0000";
 		}
+		// Handle invalid input here if necessary
+		return `000 000 0000`;
 	}
 
 	isArray(obj) {
-		return typeof obj === "object" && obj.length // arrays are objects and have length
+		return typeof obj === `object` && obj.length; // arrays are objects and have length
 	}
 
 	isJson(obj) {
-		return typeof obj === "object" && !obj.length // json object have no length
+		return typeof obj === `object` && !obj.length; // json object have no length
 	}
 
 	toTitleCase(inputString) {
 		return inputString.replace(/\w\S*/g, function (text) {
 			return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
 		});
-	}
+	};
+
 	/* UTILITIES:end */
 
 	_errorHandler() {
-		alert('error')
+		alert(`error`);
 	}
 
 	async _initialise() {
-		console.log('Initialise')
-		console.log(this.clientCif)
+		console.log(`Initialise`);
+		console.log(this.clientCif);
 		this.retrieveSavingsAccounts();
         // if (this.callerInformation?.verificationStatus === `unverified`) {
         //     this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
@@ -283,7 +285,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
         //         this.landingPageInfo = returnValue.result;
 
         //         await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		// 		await super.createAndClassifySubIncident(null, false);
+		// await super.createAndClassifySubIncident(null, false);
 
         //         // Now we can update the information on the product buttons
         //         this._updateLeftBar();
@@ -296,22 +298,22 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	async retrieveSavingsAccounts() {
 		// Remove before deploying.
 		if (!this.clientCif) {
-			this.clientCif = '283605510';
+			this.clientCif = `283605510`;
 		}
 
 		const response = await this.savingsService.getClientProducts({
-			"cifNumber": this.clientCif,
-			"productStatus": "ALL"
+			'cifNumber': this.clientCif,
+			'productStatus': `ALL`
 		}, this._errorHandler);
 
 
 		this.savingsProducts = response.result.savingsProducts.map(item => {
-			item.accountType = Object.keys(ACCOUNT_TYPE_CODE).find(key => ACCOUNT_TYPE_CODE[key] === item.accountType)
+			item.accountType = Object.keys(ACCOUNT_TYPE_CODE).find(key => ACCOUNT_TYPE_CODE[key] === item.accountType);
 
 			return item;
 		});
 
-		this.selectedSavingsProduct = this.savingsProducts.find(item => item.accountType === "PRIMARY_SAVINGS");
+		this.selectedSavingsProduct = this.savingsProducts.find(item => item.accountType === `PRIMARY_SAVINGS`);
 
 		this.showTable = true;
 	}
@@ -320,39 +322,39 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.renderSet = renderSet;
 		this.numOfPagingRows = this.renderSet.numOfPagingRows;
 		this.currentPageIndex = this.renderSet.currentPageIndex;
+		this.searchValue = this.renderSet.searchValue;
 
 		// /* For getting the escalation details for the current page */
 		// this.searchRecharges(renderSet, this.activeFilters, true)
 		// .then(e => {
-		// 	this.escalationDetail.loaded = e.succeeded;
-		// 	this.escalationDetail.data = e.result.content;
+		// this.escalationDetail.loaded = e.succeeded;
+		// this.escalationDetail.data = e.result.content;
 		// });
+			try {
+				const response = await this.searchRecharges(this.renderSet, this.activeFilters);
 
-		try {
-			const response = await this.searchRecharges(this.renderSet, this.activeFilters);
+				var r = response.result.content;
 
-			var r = response.result.content;
+				r = r.map(e => {
+					e.friendlyDate = this.formatDate(e.transactionDate);
+					e.msisdn = this.formatCellphoneNumber(e.msisdn);
+					return e;
+				});
 
-			r = r.map(e => {
-				e.friendlyDate = this.formatDate(e.transactionDate);
-				e.msisdn = this.formatCellphoneNumber(e.msisdn);
-				return e;
-			});
+				response.result.content = r;
 
-			response.result.content = r;
+				return {
+					pagedItems: response.result?.content || [],
+					totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
+				};
+			} catch (error) {
+				console.error(error);
 
-			return {
-				pagedItems: response.result?.content || [],
-				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
+				return {
+					pagedItems: [],
+					totalCount: 0
+				};
 			}
-		} catch (error) {
-			console.error(error);
-
-			return {
-				pagedItems: [],
-                totalCount: 0
-			}
-		}
 	}
 
 	async _actionReversal() {
@@ -364,7 +366,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			return response;
 		} catch (error) {
-			alert('An error occurred while processing your request');
+			alert(`An error occurred while processing your request`);
 			console.error(error);
 
 			this.showSuccessModal = false;
@@ -375,42 +377,53 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_filterClick(value) {
-		let index = this.activeFilters.bundelType.findIndex(item => item === value);
-		let bundelType = [...this.activeFilters.bundelType];
+		let index = this.activeFilters.bundleType.findIndex(item => item === value);
+		let bundleType = [...this.activeFilters.bundleType];
 
 		// Un-Select
-		if(index !== -1) {
+		if (index !== -1) {
 
-			if(this.activeFilters.bundelType.length === 1) {
+			if (this.activeFilters.bundleType.length === 1) {
 				// Auto to all
-				this.activeFilters.bundelType = ['All'];
+				this.activeFilters.bundleType = [`All`];
 				this.onFilter();
 				return;
 			} 
 				
-			bundelType.splice(index, 1);
+			bundleType.splice(index, 1);
 
-			this.activeFilters.bundelType = bundelType;
+			this.activeFilters.bundleType = bundleType;
 			this.onFilter();
 			return;
 		}
 
 		// Select
-		if(value === "All") {
-			this.activeFilters.bundelType = [value];
+		if (value === `All`) {
+			this.activeFilters.bundleType = [value];
 		} else {
-			if(value !== "All") {
+			if (value !== `All`) {
 				// Check if all is selected
-				let indexA = this.activeFilters.bundelType.findIndex(item => item === 'All');
-				if(indexA > -1) {
+				let indexA = this.activeFilters.bundleType.findIndex(item => item === `All`);
+				if (indexA > -1) {
 					// All is selected
-					bundelType.splice(indexA, 1);
+					bundleType.splice(indexA, 1);
 				}
 			} 
 			
-			bundelType.push(value)
-			this.activeFilters.bundelType = [...bundelType];
+			bundleType.push(value);
+			this.activeFilters.bundleType = [...bundleType];
 		}
+
+		this.onFilter();
+		return;
+	}
+
+	_isValidNumberFormat(val) {
+		return (/^27[0-9]{9}$/).test(val);
+	}
+
+	_filterSearchboxClick(value) {
+		this.activeFilters.searchValue = ``;
 
 		this.onFilter();
 		return;
@@ -418,7 +431,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	onFilter() {
 		this.showTable = false;
-		this.requestUpdate();
+		// this.requestUpdate();
 
 		setTimeout(() => {
 			this.showTable = true;
@@ -441,21 +454,28 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return html`
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-button-bar>
-					<capitec-search-field label="Search" value="${this.activeFilters.searchValue}" @value-change="${(e) => {this.activeFilters.searchValue = e.detail.new; this.onFilter();}}" focussed></capitec-search-field>
+					<capitec-search-field label="Search mobile number" 
+					value="${this.activeFilters.searchValue}" 
+					hint="e.g. 2784000000"
+					@value-change="${(e) => { 
+						this.activeFilters.searchValue = e.detail.new; 
+						this.onFilter(); 
+					}}" focussed></capitec-search-field>
 
 					<capitec-select 
 						label="Select date" 
 						.items="${this.dateRanges}" 
 						.value="${this.activeFilters.selectedDate}"
-						@value-change="${(e) => {this.activeFilters.selectedDate = e.detail.new; this.onFilter();}}"
+						@value-change="${(e) => { 
+							this.activeFilters.selectedDate = e.detail.new; 
+							this.onFilter(); 
+						}}"
 						display-field="text"
 						id-field="value">
 					</capitec-select>
 
-					<capitec-spacer></capitec-spacer>
-
 					${this.availableBundleFilters.map(item => {
-						if (this.activeFilters?.bundelType.includes(item)) {
+						if (this.activeFilters?.bundleType.includes(item)) {
 							return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
 						}
 
@@ -465,9 +485,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 				<capitec-button-bar>
 					<capitec-label type="strong" label="Active Filters:"></capitec-label>
-					${this.activeFilters.searchValue ? html`<capitec-chip label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
-					${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== "NonSelected" ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
-					${this.activeFilters.bundelType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
+					${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${() => this._filterSearchboxClick(item)}" label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
+					${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== `NonSelected` ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
+					${this.activeFilters.bundleType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
 					<capitec-spacer></capitec-spacer>
 				</capitec-button-bar>
 
@@ -476,7 +496,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						displayMode="Paging" 
 						groupField="month"
 						numOfPagingRows="${this.numOfPagingRows}"
-						pagingRows="[${this.pagingRows.join(',')}]"
+						pagingRows="[${this.pagingRows.join(`,`)}]"
 						.dataHandler="${(renderSet) => this._retrieveRecharges(renderSet)}"
 						expandable="right" 
 						.expandRenderer="${(item) => this._expandRenderer(item)}">
@@ -492,9 +512,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			${this.selectedRechargeView ? this._renderRechargeStatusModal() : null}
 			${this.selectedReversal && this._renderReversalModal()}
-			${this.showSuccessModal ? this._renderSuccessModal() : ''}
-			${this.showFailureModal ? this._renderFailureModal() : ''}
-			${this.showConfirmModal ? this._renderConfirmModal() : ''}
+			${this.showSuccessModal ? this._renderSuccessModal() : ``}
+			${this.showFailureModal ? this._renderFailureModal() : ``}
+			${this.showConfirmModal ? this._renderConfirmModal() : ``}
 		`;
 	}
 
@@ -517,27 +537,27 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_expandRenderer (item) {
+		var accountNumber = `-`;
 		var channel = this.toTitleCase(item.channel);
-		var product = item.bundleType;
-		var typeOfRecharge = '';
-		var statusOfRecharge = '';
-		var accountNumber = '-';
-		var transferAccount = '-';
-		var transactionCode = item.transactionReference || "-";
-		var journalNumber = '-';
+		var journalNumber = `-`;
 		var postingDate = item.transactionDate;
-		var processedDate = '-';
+		var processedDate = `-`;
+		var product = item.bundleType;
+		var statusOfRecharge = ``;
+		var transferAccount = `-`;
+		var transactionCode = item.transactionReference || `-`;
+		var typeOfRecharge = ``;
 
-		// Sorting these so that the FIRST "success" [0] is the first item to be referenced
-		item.recharges = this.sortObjectsByDateDescending(item.recharges, 'transactionDateTime');
-		item.transactions = this.sortObjectsByDateDescending(item.transactions, 'transactionDateTime');
+		// Sorting these so that the FIRST success [0] is the first item to be referenced
+		item.recharges = this.sortObjectsByDateDescending(item.recharges, `transactionDateTime`);
+		item.transactions = this.sortObjectsByDateDescending(item.transactions, `transactionDateTime`);
 
 		if (item.recharges.length) {
 			product = product ? product : item.recharges[0].bundleType;
 			typeOfRecharge = this.toTitleCase(item.recharges[0].type);
 			statusOfRecharge = this.toTitleCase(item.recharges[0].status);
 
-			var successfulRecharge = item.recharges.filter(v => v.status.toLowerCase().includes('success'));
+			var successfulRecharge = item.recharges.filter(v => v.status.toLowerCase().includes(`success`));
 
 			if (successfulRecharge.length > 0) {
 				postingDate = successfulRecharge[0].transactionDateTime;
@@ -546,8 +566,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		/* Overwrite (if value exists) with transaction details because we are using the "transaction details" and we want transaction information */
 		if (item.transactions.length) {
-			var successfulTransaction = item.transactions.filter(v => v.status.toLowerCase().includes('success'));
-			typeOfRecharge = typeOfRecharge === '' ? this.toTitleCase(item.transactions[0].type) : typeOfRecharge;
+			var successfulTransaction = item.transactions.filter(v => v.status.toLowerCase().includes(`success`));
+			typeOfRecharge = typeOfRecharge === `` ? this.toTitleCase(item.transactions[0].type) : typeOfRecharge;
 			processedDate = item.transactions[0].transactionDateTime;
 			accountNumber = item.transactions[0].accountNumber;
 
@@ -566,12 +586,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		product = this.toTitleCase(product);
 
-		if (statusOfRecharge != '') {
+		if (statusOfRecharge !== ``) {
 			statusOfRecharge = `[${statusOfRecharge}] `;
 		}
 
-		postingDate = postingDate ? this.formatDate(postingDate) + ' ' + this.getTimeFromDate(postingDate) : postingDate;
-		processedDate = processedDate !== '-' ? this.formatDate(processedDate) + ' ' + this.getTimeFromDate(processedDate) : processedDate;
+		postingDate = postingDate ? this.formatDate(postingDate) + ` ` + this.getTimeFromDate(postingDate) : postingDate;
+		processedDate = processedDate !== `-` ? this.formatDate(processedDate) + ` ` + this.getTimeFromDate(processedDate) : processedDate;
 
 		return html`
 			<capitec-spacer></capitec-spacer>
@@ -626,19 +646,18 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						style="margin-right: 16px;
 						margin-top: 10px"
 						label="Recharge Status"
-						@click="${() => {this.selectedRechargeView = item;}}">
+						@click="${() => { this.selectedRechargeView = item; }}">
 					</capitec-hyperlink>
-					${!item.reversible ?
-					html`<capitec-hyperlink
+					${!item.reversible 
+					? html`<capitec-hyperlink
 						style="margin-top: 10px;"
 						label="Escalate For Reversal"
 						disabled>
 					</capitec-hyperlink>`
-					:
-					html`<capitec-hyperlink
+					: html`<capitec-hyperlink
 						style="margin-top: 10px;"
 						label="Escalate For Reversal"
-						@click="${() => {this.selectedReversal = item;}}">
+						@click="${() => { this.selectedReversal = item; }}">
 					</capitec-hyperlink>`
 					}
 				</div>
@@ -647,34 +666,34 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_renderRechargeStatusModal() {
-		var bundleType = this.selectedRechargeView.bundleType ? this.selectedRechargeView.bundleType + " " : "";
-		var type = '';
-		var status = '';
-		var messageId = '-';
-		var merchantId = '-';
-		var productId = '-';
-		var errorType = '-';
-		var errorMessage = '-';
-		var quantityMeasurement = "";
-		var startTime = this.getTimeFromDate(this.selectedRechargeView.transactionDate),
-			endTime = '';
+		var bundleType = this.selectedRechargeView.bundleType ? this.selectedRechargeView.bundleType + ` ` : ``;
+		var endTime = ``;
+		var errorType = `-`;
+		var errorMessage = `-`;
+		var messageId = `-`;
+		var merchantId = `-`;
+		var productId = `-`;
+		var quantityMeasurement = ``;
+		var startTime = this.getTimeFromDate(this.selectedRechargeView.transactionDate);
+			var status = ``;
+			var type = ``;
 
-		// Sorting these so that the FIRST "success" [0] is the first item to be referenced
-		this.selectedRechargeView.recharges = this.sortObjectsByDateDescending(this.selectedRechargeView.recharges, 'transactionDateTime');
-		this.selectedRechargeView.transactions = this.sortObjectsByDateDescending(this.selectedRechargeView.transactions, 'transactionDateTime');
+		// Sorting these so that the FIRST success [0] is the first item to be referenced
+		this.selectedRechargeView.recharges = this.sortObjectsByDateDescending(this.selectedRechargeView.recharges, `transactionDateTime`);
+		this.selectedRechargeView.transactions = this.sortObjectsByDateDescending(this.selectedRechargeView.transactions, `transactionDateTime`);
 
 		if (this.selectedRechargeView.transactions.length > 0) {
-			const successfulTransaction = this.selectedRechargeView.transactions.filter(v => v.status.toLowerCase().includes('success'));
+			const successfulTransaction = this.selectedRechargeView.transactions.filter(v => v.status.toLowerCase().includes(`success`));
 
-			type = this.selectedRechargeView.transactions[0].type + " ";
+			type = this.selectedRechargeView.transactions[0].type + ` `;
 			status = this.selectedRechargeView.transactions[0].status;
 			errorMessage = this.selectedRechargeView.transactions[0].statusReason;
 
 			endTime = this.selectedRechargeView.transactions[0].transactionDateTime;
-			endTime = endTime !== '' ? ` - ${this.getTimeFromDate(endTime)}` : endTime;
+			endTime = endTime !== `` ? ` - ${this.getTimeFromDate(endTime)}` : endTime;
 
 			if (successfulTransaction.length > 0) {
-				type = successfulTransaction[0].type + " ";
+				type = successfulTransaction[0].type + ` `;
 				status = successfulTransaction[0].status;
 				errorMessage = successfulTransaction[0].statusReason;
 			}
@@ -682,13 +701,13 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		
 		/* Overwrite (if value exists) with recharges because we are using the recharge modal and we want the recharge information */
 		if (this.selectedRechargeView.recharges.length > 0) {
-			const successfulRecharge = this.selectedRechargeView.recharges.filter(v => v.status.toLowerCase().includes('success'));
+			const successfulRecharge = this.selectedRechargeView.recharges.filter(v => v.status.toLowerCase().includes(`success`));
 
 			productId = this.selectedRechargeView.recharges[0].productId;
 			quantityMeasurement = this.selectedRechargeView.recharges[0].quantityMeasurement;
 
-			bundleType = this.selectedRechargeView.recharges[0].bundleType ? this.selectedRechargeView.recharges[0].bundleType + " " : bundleType;
-			type = this.selectedRechargeView.recharges[0].type ? this.selectedRechargeView.recharges[0].type + " " : type;
+			bundleType = this.selectedRechargeView.recharges[0].bundleType ? this.selectedRechargeView.recharges[0].bundleType + ` ` : bundleType;
+			type = this.selectedRechargeView.recharges[0].type ? this.selectedRechargeView.recharges[0].type + ` ` : type;
 
 			status = this.selectedRechargeView.recharges[0].status ? this.selectedRechargeView.recharges[0].status : status;
 			errorMessage = this.selectedRechargeView.recharges[0].statusReason ? this.selectedRechargeView.recharges[0].statusReason : errorMessage;
@@ -696,8 +715,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			if (successfulRecharge.length > 0) {
 				productId = successfulRecharge[0].productId;
 				quantityMeasurement = successfulRecharge[0].quantityMeasurement;
-				bundleType = successfulRecharge[0].bundleType + " ";
-				type = successfulRecharge[0].type + " ";
+				bundleType = successfulRecharge[0].bundleType + ` `;
+				type = successfulRecharge[0].type + ` `;
 				status = successfulRecharge[0].status;
 				errorMessage = successfulRecharge[0].statusReason;
 			}
@@ -767,12 +786,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<capitec-spacer></capitec-spacer>
 
 				<div row="6" column="1" colspan="2">
-					<capitec-label type="strong" label="${this.formatDate(this.selectedRechargeView.transactionDate, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}"></capitec-label>
+					<capitec-label type="strong" label="${this.formatDate(this.selectedRechargeView.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
 					<capitec-label type="strong" label="${startTime}${endTime}"></capitec-label>
 				</div>
 			</capitec-group>
 
-			<capitec-button slot="footer" type="primary" label="Close" @click="${() => {this.selectedRechargeView = null;}}"></capitec-button>
+			<capitec-button slot="footer" type="primary" label="Close" @click="${() => { this.selectedRechargeView = null; }}"></capitec-button>
 		</capitec-modal>`;
 	}
 
@@ -781,23 +800,25 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		<capitec-modal type="form" header="Escalate for Reversal ">
 			<capitec-content-box slot="body" layout="flex" style="min-height:300px;display: flex;flex-direction: column;gap: 1em;">
 				<capitec-label label="You are about to escalate this transaction to a Connect team lead for reversal."></capitec-label>
-				<capitec-label label="Choose a reason" type"title"></capitec-label>
+				<capitec-label label="Choose a reason" type="title"></capitec-label>
 				<capitec-select 
 					label="Choose a reason" 
-					.items="${[{
-						label: "Product not received",
-						value: "Product not received."
-					},{
-						label: "Other",
-						value: "other"
-					}]}" 
+					.items="${[ 
+						{
+							label: `Product not received`,
+							value: `Product not received.`
+						}, {
+							label: `Other`,
+							value: `other`
+						}
+					]}" 
 					@value-change="${(e) => this.reason = e.detail.new}"
 					display-field="label"
 					id-field="value">
 				</capitec-select>
 
-				${this.reason?.value === 'other' ? 
-				html`
+				${this.reason?.value === `other` 
+				? html`
 					<capitec-text-box
 				 		label="Add description (optional) ${this.comment.length}/5000"
 						@key-input="${(e) => this.comment = e.detail.new}"
@@ -806,7 +827,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				: null}
 			</capitec-content-box>
 
-			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => {this.selectedReversal = null; /* this.unlock() */}}"></capitec-button>
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => { this.selectedReversal = null; /* this.unlock() */ }}"></capitec-button>
 			<capitec-button slot="footer" type="primary" label="Confirm" @click="${() => this.showConfirmModal = true}"></capitec-button>
 			</capitec-modal>
 		`;
@@ -818,7 +839,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<div slot="body">
 					Are you sure you want to escalate this transaction?
 				</div>
-				<capitec-button slot="footer" type="primary" @click="${() => {this._actionReversal(); this.selectedReversal = null; this.showConfirmModal = false}}" label="Yes"></capitec-button>
+				<capitec-button slot="footer" type="primary" @click="${() => { 
+					this._actionReversal(); 
+					this.selectedReversal = null; 
+					this.showConfirmModal = false;
+					}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
 			</capitec-modal>
 		`;
@@ -865,9 +890,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
-			;
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`;
 	}
+
 	/* RENDERS:end */
 }
 
