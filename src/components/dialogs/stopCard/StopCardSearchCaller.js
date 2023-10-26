@@ -7,6 +7,7 @@ import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { SEARCH_OPTIONS } from 'app/constants/SearchOptions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { validateAccountNumber } from 'app/utils/accountNumberValidator';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -20,9 +21,20 @@ const RENDER_MODE = Object.freeze({
 
 const HEADER_LABEL = `Search Caller Details`;
 
+const ERROR_CODE = Object.freeze({
+	2401: `UNABLE_TO_SIGN_IN`,
+	2402: `BANCS_ERROR`,
+	2403: `TELLER_NOT_FOUND`,
+	2404: `CAPABILITY_LEVELS` 
+});
+
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
 	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
+	UNABLE_TO_SIGN_IN: `Your teller account is suspended. Log a request on the service desk to resolve.`,
+	BANCS_ERROR: `There is an error on our core system (BANCS). Log a ticket to escalate this`,
+	TELLER_NOT_FOUND: `Your teller number is inactive or invalid. Log a request on the service desk to resolve.`,
+	CAPABILITY_LEVELS: `Your teller access level is too low. Log a request on the service desk to resolve.`,
 	REQUIRED_FIELDS_EMPTY: {
 		ALERT_BANNER: `All fields are required`,
 		SEARCH_TEXT: `This is a Required field`,
@@ -49,6 +61,10 @@ const ERROR_MESSAGES = {
 			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
+	},
+	INVALID_ACCOUNT_NUMBER: {
+		ALERT_BANNER: `Invalid account number`,
+		FIELD_ERROR: `Please enter a valid account number`
 	}
 };
 
@@ -154,7 +170,7 @@ export class StopCardSearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Stop Card Search Caller Dialog`);
 		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
 		});
@@ -233,9 +249,11 @@ export class StopCardSearchCaller extends Component {
 				return true;
 			} else if (this.currentIncident === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-				} else {
+			} else if (!returnValue.succeeded && returnValue.exception?.output?.errorCode) {
+				this.alertBannerMessage = ERROR_MESSAGES[ERROR_CODE[returnValue.exception.output.errorCode]];
+			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-				}
+			}
 		}
 	}
 
@@ -310,6 +328,14 @@ export class StopCardSearchCaller extends Component {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
 			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
+		}
+		
+		if (this.identificationMethods.key === `2`) {
+			if (!validateAccountNumber(this.searchFieldText)) {
+				this.errMessage.searchFieldText = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.ALERT_BANNER;
+				return false;
+			}
 		}
 
 		return true;

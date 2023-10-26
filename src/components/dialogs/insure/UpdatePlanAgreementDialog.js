@@ -142,17 +142,11 @@ class UpdatePlanAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 
-			<capitec-expander-group modeset="single">
-				<div class="expander">
-					<capitec-expander expandbuttonalignment="left" label="View Policy Schedule" class="pdf-viewer" ?expanded="${true}"
-						data-automation-id="horizon-insure-pay-premium-agreement-dialog-view-policy-schedule">
+					<capitec-content-box style="height: 700px; width: 800px;">
 						<iframe title="UpdatePlanAgreement" height = "100%" frameborder = "0"
 							src="data:application/pdf;base64,${this.planAgreementContent}#view=fitH">
 						</iframe>
-					</capitec-expander>
-				</div>
-				 
-			</capitec-expander-group>
+					</capitec-content-box>
 
 		`;
 	}

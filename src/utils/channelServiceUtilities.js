@@ -217,6 +217,8 @@ export function formatDate(value, format) {
 	const monthName = getMonthName(month);
 	const year = dateTime.getFullYear();
 	const time = dateTime.toTimeString().substring(0, 5);
+	const formattedMonth = String(month + 1).padStart(2, `0`);
+	const day = String(date).padStart(2, `0`);
 
 	let formattedDate = ``;
 
@@ -235,12 +237,13 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		case `yyyy-mm-dd`:
-			const formattedMonth = String(month + 1).padStart(2, `0`);
-			const day = String(date).padStart(2, `0`);
 			formattedDate = `${year}-${formattedMonth}-${day}`;
 			break;
 		case `dd mmm yyy hh:mm:ss`:
 			formattedDate = `${date} ${monthName} ${year} ${time}`;
+			break;
+		case `dd/mm/yyyy hh:mm:ss`:
+			formattedDate = `${day}/${formattedMonth}/${year} ${time}`;
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
@@ -304,4 +307,39 @@ export function capitalizeString(str) {
  */
 export function maskString(str, num = 4, maskChar = `*`) {
 	return str.slice(0, -num).replace(/./g, maskChar) + str.slice(-num);
+}
+
+/**
+ * Formatting the Payshap ID/Name
+ * 
+ * @param {string} str Input string
+ * 
+ * @returns {string} Default format for redndering Payshap ID/Name
+ */
+export function formatProxyId(str) {
+	return str ? str.replace(`+27-`, `0`) : `-`;
+}
+
+/**
+ * Check if the Cell number is a Valid South African Cell phone number 
+ * South African Cell phone number begins with the following suffixes 
+ * All (06)* *** ****
+ * All (07)* *** ****
+ * 081, 082, 083, 084, 085
+ * 
+ * @param {string} cellNumber Input string
+ * 
+ * @returns {Boolean} Is the incomingNumber valid
+ */
+export function checkForValidSACellNumber(cellNumber) {
+	
+	// check for 10 digit long
+	if (RegExp(/^0\d{9}$/).test(cellNumber)) {
+		if (cellNumber.substring(0, 2) === `06` || cellNumber.substring(0, 2) === `07` || cellNumber.substring(0, 3) === `081` ||
+			cellNumber.substring(0, 3) === `082` || cellNumber.substring(0, 3) === `083` || cellNumber.substring(0, 3) === `084` ||
+			cellNumber.substring(0, 3) === `085`) {
+				return true;
+		}
+	}
+	return false;
 }

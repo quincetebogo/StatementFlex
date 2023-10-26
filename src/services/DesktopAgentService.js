@@ -134,7 +134,7 @@ export class DesktopAgentService {
 			// We validate the information received and discard anything unexpected that may 
 			// have been injected into the event.
 
-			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber.trim(), DesktopAgentService.incomingTelephoneNumberValidation);
 
 			if (newCallEvent.incomingTelephoneNumber === 0) {
 				if (eventData.IncomingTelephoneNumber.toLowerCase() !== `anonymous`) {
@@ -294,15 +294,10 @@ export class DesktopAgentService {
 			const currentdate = d.toISOString();
 			const newCallEvent = new NewCallEvent();
 
-			const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
-			const vdn = isHelpDeskAgent 
-				? await this._configuration.getSetting(`HelpDeskVDN`)
-				: await this._configuration.getSetting(`ClientCareVDN`);
-
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
 			newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
 			newCallEvent.agentTelephoneNumber = `000000`;
-			newCallEvent.VDN = vdn;
+			newCallEvent.VDN = await this._getVdn();
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
 
@@ -385,6 +380,11 @@ export class DesktopAgentService {
 			return;
 		}
 
+		// Insure the agent has the correct authorisation 
+		if (!RoleManager.getInstance().isAuthorised) {
+			return;
+		}
+
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
@@ -440,5 +440,18 @@ export class DesktopAgentService {
 		}
 
 		return false;
+	}
+
+	_getVdn() {
+		const isHelpDeskAgent = RoleManager.getInstance().isHelpDeskAgent;
+		const isCapitecConnectAgent = RoleManager.getInstance().isCapitecConnectAgent;
+
+		if (isCapitecConnectAgent) {
+			return this._configuration.getSetting(`CapitecConnectVDN`);
+		} else if (isHelpDeskAgent) {
+			return this._configuration.getSetting(`HelpDeskVDN`);
+		}
+		return this._configuration.getSetting(`ClientCareVDN`);
+
 	}
 }

@@ -12,8 +12,10 @@
 		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
+		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
@@ -21,17 +23,18 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://SBLDEV01.int.capinet:8102/",
-		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"sbl": "https://cbwsbldev01.capitecbank.fin.sky:8092/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443",
 		"cnet": "https://capitecbank.sharepoint.com/SitePages/Home.aspx",
 		"strack": "https://strack-dev.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
-		"branch-locator": "https://www.capitecbank.co.za/branch-locator/",
-		"live-better": "https://www.capitecbank.co.za/live-better/live-better-savings-account",
+		"branch-locator": "https://www.capitecbank.co.za/branches",
+		"live-better": "https://www.capitecbank.co.za/live-better",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
-		"partner-benefits": "https://www.capitecbank.co.za/bank-better-live-better/articles/benefits/",
-		"fees": "https://www.capitecbank.co.za/global-one/transact/fees/"
+		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
+		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
+	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -40,6 +43,7 @@
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -98,7 +102,7 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
@@ -249,6 +253,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"budgetAccounts": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"budgetTransferFromAccounts": {
 			"enabled": false,
 			"positiveCase": true
@@ -258,7 +266,7 @@
 			"positiveCase": true
 		},
 		"emailProofOfPayment": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"sendSettlementQuoteEmail": {
@@ -372,6 +380,34 @@
 		"settleAndClose": {
 			"enabled": false,
 			"positiveCase" : true
+		},
+		"payShapDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getInstitutions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"enlistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"delistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyOut": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyIn": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

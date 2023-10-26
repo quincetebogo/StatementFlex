@@ -13,7 +13,6 @@ import { base64ToBlobUrl } from 'app/utils/channelServiceUtilities';
 import { creditMixin } from 'app/views/credit/CreditMixin';
 
 import 'app/components/dialogs/common/StatementsDialog';
-import 'app/components/common/RelatedOptions';
 
 /**
  * Statements dialog is used to view/send statements from the Quick transaction & corresponding product screens.
@@ -118,7 +117,7 @@ export class Statements extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Statement Dialog`);
 		// Fetching the telemetry events object at runtime based on product type
 		// const type = this.type || `Default`;
 		const { STATEMENT_EVENTS } = await this.telemetryEvents[this.accountType]();
@@ -387,8 +386,8 @@ export class Statements extends Component {
 			'statement-period': statement.statementDateRange.parseInterval,
 			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
 		});
-
-		const returnValue = await this.savingsService.sendStatement(statement);
+		
+		const returnValue = await this.savingsService.sendStatement(statement, null, 1);
 		this._updateScreenDetails(request);
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);
@@ -414,10 +413,10 @@ export class Statements extends Component {
 
 				return data;
 			});
-			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails);
+			returnValue = await this.creditService.flexibleStatementEmail(this.creditProducts[this.selectedProduct.name], request.accountNumber, request.emailAddress, this.cifNumber, this.title, this.lastName, statementDetails, null, 1);
 		} else if (request.accountType === `FIXED_TERM_CREDIT`) {
 
-			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName);
+			returnValue = await this.creditService.fixedStatementEmail(request.accountNumber, request.emailAddress, request.startDate, request.endDate, this.creditDateInterval[request.dateInterval], this.cifNumber, this.title, this.lastName, null, 1);
 		}
 
 		this._updateScreenDetails(request);
@@ -438,9 +437,14 @@ export class Statements extends Component {
 	_updateScreenDetails(request) {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
+		// Inc description
+		screenDetails.productName = this.selectedProduct.name;
+		screenDetails.period = !request.startDate && !request.endDate ? `${request.dateIntervalLabel}` : `${request.startDate} to ${request.endDate}`;
+		screenDetails.productType = this.selectedProduct.category;
+		screenDetails.monthRange = !request.dateIntervalLabel ? request.monthInterval.join(`,`) : `${request.dateIntervalLabel}`;
 		screenDetails.emailAddress = request.emailAddress;
 		screenDetails.accountNumber = request.accountNumber;
-		screenDetails.accountType = request.accountName;
+		screenDetails.accountName = request.accountName;
 		screenDetails.telemetryEvent = this.telemetryEvent;
 
 		this.horizonStore.setScreenDetails(screenDetails);
@@ -487,7 +491,6 @@ export class Statements extends Component {
 				@view-fees="${() => this._viewFees()}">
 			</horizon-statements-dialog>
 			${this._renderCcsModal()}
-			${this._renderRelatedOptions()}
 		`;
 	}
 
@@ -505,14 +508,6 @@ export class Statements extends Component {
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
 		: html``;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				context="Success">
-			</horizon-related-options>
-		`;
 	}
 }
 
