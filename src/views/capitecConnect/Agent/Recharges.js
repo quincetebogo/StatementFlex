@@ -56,8 +56,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.availableBundleFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 
 		// State variables
-		// this.searchValue = ``;
-		// this.selectedDate = this.dateRanges[0];
+		this.searchValue = ``;
 		this.activeFilters = {
 			selectedDate: this.dateRanges[0],
 			searchValue: ``,
@@ -77,7 +76,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.reason = null;
 		this.comment = ``;
 
-		this.clientCif = null;
+		this.clientCif = ``;
 
 		this.savingsProducts = null;
 		this.selectedSavingsProduct = null;
@@ -90,8 +89,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		/*
+			When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
+		*/
 		this.clientCif = this.callerInformation?.cif;
-		
 
 		this._initialise();
 
@@ -269,53 +270,36 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	async _initialise() {
 		console.log(`Initialise`);
 		console.log(this.clientCif);
-		this.retrieveSavingsAccounts();
-        // if (this.callerInformation?.verificationStatus === `unverified`) {
-        //     this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-        // } else {
-        //     const landingRequest = {
-        //         cifNumber: this.callerInformation.cifNumber,
-        //         nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-        //         getGenericData: true
-        //     };
 
-        //     const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+		// Remove before deploying.
+		// if (!this.clientCif) {
+		// 	this.clientCif = `386017913`;
+		// }
+		this.showTable = true;
 
-        //     if (returnValue.succeeded) {
-        //         this.landingPageInfo = returnValue.result;
+		// if (this.callerInformation?.verificationStatus === `unverified`) {
+		// 	this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+		// } else {
+		// 	const landingRequest = {
+		// 		cifNumber: this.callerInformation.cifNumber,
+		// 		nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+		// 		getGenericData: true
+		// 	};
 
-        //         await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+		// 	const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+
+		// 	if (returnValue.succeeded) {
+		// 		this.landingPageInfo = returnValue.result;
+
+		// 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
 		// await super.createAndClassifySubIncident(null, false);
 
-        //         // Now we can update the information on the product buttons
-        //         this._updateLeftBar();
-        //         this.endCallContext = `LandingPage`;
-        //         this.renderMode = RENDER_MODE.MAIN_PAGE;
-        //     }
-        // }
-	}
-
-	async retrieveSavingsAccounts() {
-		// Remove before deploying.
-		if (!this.clientCif) {
-			this.clientCif = `283605510`;
-		}
-
-		const response = await this.savingsService.getClientProducts({
-			'cifNumber': this.clientCif,
-			'productStatus': `ALL`
-		}, this._errorHandler);
-
-
-		this.savingsProducts = response.result.savingsProducts.map(item => {
-			item.accountType = Object.keys(ACCOUNT_TYPE_CODE).find(key => ACCOUNT_TYPE_CODE[key] === item.accountType);
-
-			return item;
-		});
-
-		this.selectedSavingsProduct = this.savingsProducts.find(item => item.accountType === `PRIMARY_SAVINGS`);
-
-		this.showTable = true;
+		// 		// Now we can update the information on the product buttons
+		// 		this._updateLeftBar();
+		// 		this.endCallContext = `LandingPage`;
+		// 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		// 	}
+		// }
 	}
 
 	async _retrieveRecharges(renderSet) {
@@ -324,37 +308,40 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		// /* For getting the escalation details for the current page */
-		// this.searchRecharges(renderSet, this.activeFilters, true)
-		// .then(e => {
-		// this.escalationDetail.loaded = e.succeeded;
-		// this.escalationDetail.data = e.result.content;
-		// });
-			try {
-				const response = await this.searchRecharges(this.renderSet, this.activeFilters);
+		try {
+			/*
+				When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
+			*/
+			var filters = this.activeFilters;
 
-				var r = response.result.content;
-
-				r = r.map(e => {
-					e.friendlyDate = this.formatDate(e.transactionDate);
-					e.msisdn = this.formatCellphoneNumber(e.msisdn);
-					return e;
-				});
-
-				response.result.content = r;
-
-				return {
-					pagedItems: response.result?.content || [],
-					totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
-				};
-			} catch (error) {
-				console.error(error);
-
-				return {
-					pagedItems: [],
-					totalCount: 0
-				};
+			if (this.clientCif) {
+				filters.cif = this.clientCif;
 			}
+
+			const response = await this.searchRecharges(this.renderSet, filters);
+
+			var r = response.result.content;
+
+			r = r.map(e => {
+				e.friendlyDate = this.formatDate(e.transactionDate);
+				e.msisdn = this.formatCellphoneNumber(e.msisdn);
+				return e;
+			});
+
+			response.result.content = r;
+
+			return {
+				pagedItems: response.result?.content || [],
+				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
+			};
+		} catch (error) {
+			console.error(error);
+
+			return {
+				pagedItems: [],
+				totalCount: 0
+			};
+		}
 	}
 
 	async _actionReversal() {
@@ -473,6 +460,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						display-field="text"
 						id-field="value">
 					</capitec-select>
+
+					<capitec-spacer></capitec-spacer>
 
 					${this.availableBundleFilters.map(item => {
 						if (this.activeFilters?.bundleType.includes(item)) {
