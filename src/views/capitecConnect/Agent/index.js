@@ -41,11 +41,13 @@ export class CapitecConnectAgent extends View {
 
 		this.availableFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 
-
 		// State variables
 		this.searchValue = ``;
-		this.selectedDate = this.dateRanges[0];
-		this.activeFilters = [];
+		this.activeFilters = {
+			selectedDate: this.dateRanges[0],
+			searchValue: ``,
+			bundleType: [`All`]
+		};
 
 		this.selectedReversal = null;
 
@@ -84,7 +86,13 @@ export class CapitecConnectAgent extends View {
 			});
 		}
 
-		queryArgs.msisdn = filters.searchValue;
+		if (filters.searchValue) {
+			queryArgs.msisdn = filters.searchValue;
+		}
+
+		if (filters.cif) {
+			queryArgs.cif = filters.cif;
+		}
 
 		queryArgs.transactionDate = {
 			startDate: this.getDateInPast(filters.selectedDate.value),
