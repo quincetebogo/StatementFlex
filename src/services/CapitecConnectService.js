@@ -55,11 +55,11 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 	
-	async LockReversal(transactionReference, requestObject) {
+	async LockReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/lock`;
 		return this.put(
 			url, 
-			requestObject, 
+			{}, 
 			this.setToken(), 
 			`getClientProducts`, 
 			null, 
@@ -87,11 +87,11 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
-	async FlagReversal(transactionReference, requestObject) {
+	async FlagReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/flag`;
 		return this.put(
 			url, 
-			requestObject, 
+			{}, 
 			this.setToken(), 
 			`getClientProducts`, 
 			null, 
