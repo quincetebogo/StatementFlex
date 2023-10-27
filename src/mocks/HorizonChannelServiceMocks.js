@@ -36,6 +36,7 @@ export default class HorizonChannelServiceMocks {
 		this.securityQuestionMocks = await loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
+		this.capitecConnectRechargeHistoryMocks = await loadMockModule(this.capitecConnectRechargeHistoryMocks, `capitecConnectRechargeHistory`, () => import(`../mocks/CapitecConnectRechargeMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));  
@@ -44,8 +45,7 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
-		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err))); 		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -53,15 +53,15 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
+		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
-		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		  this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		  this.creditMocks = await loadMockModule(this.creditMocks, `settleAndCloseQuote`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+    	this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
@@ -226,6 +226,31 @@ export default class HorizonChannelServiceMocks {
 	savingsPlanLanding(cifNumber, mandateId, registerId) {
 		if (this._mockSettings.savingsPlanLanding.positiveCase) {
 			return this.savingsAccountMocks.savingsPlanDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+	getClientProducts(cifNumber) {
+		if (this._mockSettings.savingsPlanLanding.positiveCase) {
+			return this.savingsAccountMocks.getClientProducts;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	capitecConnectRechargeHistory(capitecConnectRechargeHistoryRequest) {
+		// Code for a negative case could come here
+		if (this._mockSettings.capitecConnectRechargeHistory.positiveCase) {
+			const result = {
+				content: this.capitecConnectRechargeHistoryMocks.rechargeMockData.content.slice(
+					capitecConnectRechargeHistoryRequest.startAtIndex,
+					capitecConnectRechargeHistoryRequest.startAtIndex + capitecConnectRechargeHistoryRequest.maxResults
+				),
+				totalElements: this.capitecConnectRechargeHistoryMocks.rechargeMockData.totalElements || 50
+			};
+			return result;
 		}
 
 		// Code for a negative case could come here
@@ -651,7 +676,7 @@ export default class HorizonChannelServiceMocks {
 		});
 
 		return errPromise;
-	}
+	}  
 
 	payShapDetails() {
 		if (this._mockSettings.payShapDetails.positiveCase) {

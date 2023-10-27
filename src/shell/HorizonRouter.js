@@ -20,6 +20,7 @@ const HORIZON_ROUTES = Object.freeze({
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
 	PRODUCT_LIVE_BETTER: `/product/live-better`,
+	PRODUCT_CAPITEC_CONNECT: `/product/capitec-connect`,
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
@@ -209,6 +210,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
 	}
 
+	navigateToCapitecConnetProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT);
+	}
+
 	navigateToStopCard() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
@@ -314,7 +319,8 @@ export class HorizonRouter {
 		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
-		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
+		const capitecConnect = () => this.navigateToCapitecConnetProduct();
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`); 
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -324,7 +330,8 @@ export class HorizonRouter {
 			Credit: credit,
 			SavingsPlan: savingsPlan,
 			LiveBetter: liveBetterSavings,
-			ProductEnquiry: productEnquiry
+			ProductEnquiry: productEnquiry,
+			CapitecConnect: capitecConnect
 		}[ivrOption]();
 	};
 
@@ -721,6 +728,15 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_LIVE_BETTER,
 		load: () => import(`../views/product/LiveBetterProduct`),
 		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+	},
+	{
+		name: `horizon-capitec-connect-product`,
+		title: `CapitecConnectProductView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT,
+		load: () => import(`../views/product/CapitecConnectProduct`),
+		// guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{

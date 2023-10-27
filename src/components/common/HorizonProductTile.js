@@ -257,6 +257,14 @@ export class HorizonProductTile extends Component {
 					border: var(--theme-product-tile-focus-insure-border, 2px solid #5D737E);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
+				.title.capitec-connect:hover {
+					border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
+					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
+				.tile.capitec-connect:focus, .tile.capitec-connect.selected {
+					border: var(--theme-product-tile-focus-transact-border, 2px solid #009DE0);
+					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
+				}
 				/* Hove & Focus styles - End*/
 				
 				/* Overriding product tile component styles when tile is disabled */
@@ -308,9 +316,15 @@ export class HorizonProductTile extends Component {
 					background-color: var(--theme-product-tile-insure-colour, #5D737E);
 				}
 
-				 .product.live-better {
-				 	background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
-				 }
+				.product.live-better {
+					background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
+				}
+
+				.product.capitec-connect {
+					background-color: var(--theme-product-tile-transact-colour, #009DE0);
+					background-size: cover;
+					background-repeat: no-repeat;
+				}
 
 				.heading {
 					margin-left: var(--theme-product-tile-heading-margin-left, 20px);
@@ -356,6 +370,10 @@ export class HorizonProductTile extends Component {
 
 				.title.live-better {
 					color: var(--theme-product-tile-live-better-colour, #1629DA);
+				}
+
+				.title.capitec-connect {
+					color: var(--theme-product-transact-colour, #009DE0);
 				}
 
 				.subtitle {
@@ -559,6 +577,14 @@ export class HorizonProductTile extends Component {
 			return html`
 				<div class="product ${this.type ? this.type : `transact`}">
 					<img alt="liveBetter" src="images/common/mask.png" style="object-fit: fill">
+				</div>
+			`;
+		}
+
+		if (this.type === `capitec-connect`) {
+			return html`
+				<div class="product ${this.type ? this.type : `transact`}">
+					<img alt="liveBetter" src="images/liveBetter/capitec-connect-white.svg" style="object-fit: fill">
 				</div>
 			`;
 		}
