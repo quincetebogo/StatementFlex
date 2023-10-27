@@ -347,10 +347,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
 		var modalDate = selectedReversal.postingDate ? this.formatModalDate(selectedReversal.postingDate) : '-';
 		var modalTime = selectedReversal.postingDate ? this.formatTime(selectedReversal.postingDate) : '-';
-		//productId
-		//status
-		//statusReason
-		//date
+
 		return html`
 		<capitec-modal type="form" header="Reversal request">
 			<capitec-content-box slot="body" layout="grid" style="height: 500px;">
