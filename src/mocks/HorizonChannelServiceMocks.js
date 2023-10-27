@@ -582,6 +582,21 @@ export default class HorizonChannelServiceMocks {
 		return errPromise;
 	}
 
+	budgetAccounts(status) {
+		if (this._mockSettings.budgetAccounts.positiveCase) {
+			const STATUS = {
+				'Active': `activeCreditCardBudgetList`,
+				'Settled': `settledCreditCardBudgetList`,
+				'Closed': `closedCreditCardBudgetList`
+			};
+			const response = { ...this.budgetFacility.budgetAccountDetails.details, 
+								[STATUS[status]]: this.budgetFacility.budgetAccountDetails[status] };
+
+			return response;
+		}
+		return null;
+	}
+
 	budgetTransferFromAccounts() {
 		if (this._mockSettings.budgetTransferFromAccounts.positiveCase) {
 			return this.budgetFacility.payBudgetModalDetails;
