@@ -63,6 +63,11 @@ export default class HorizonChannelServiceMocks {
     	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -658,4 +663,53 @@ export default class HorizonChannelServiceMocks {
 
 		return errPromise;
 	}  
+
+	payShapDetails() {
+		if (this._mockSettings.payShapDetails.positiveCase) {
+			return this.payShapMocks.payShapDetails;
+		}
+		return null;
+	}
+
+	getInstitutions() {
+		if (this._mockSettings.getInstitutions.positiveCase) {
+			return this.payShapMocks.institutionsList;
+		}
+		return null;
+	}
+
+	enlistCapitec() {
+		if (this._mockSettings.enlistCapitec.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	delistCapitec() {
+		if (this._mockSettings.delistCapitec.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	moneyOut() {
+		if (this._mockSettings.moneyOut.positiveCase) {
+			return this.payShapMocks.moneyOutResponse;
+		}
+		return null;
+	}
+
+	moneyIn() {
+		if (this._mockSettings.moneyIn.positiveCase) {
+			return this.payShapMocks.moneyInResponse;
+		}
+		return null;
+	}
+
+	payshapPop() {
+		if (this._mockSettings.payshapPop.positiveCase) {
+		return this.payShapMocks.payshapPopResponse;
+		}
+		return null;
+	}
 }
