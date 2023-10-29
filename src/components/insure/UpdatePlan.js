@@ -1336,7 +1336,13 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _initialise() {
-		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+		
+		this.canReinstate = this.policyDetails.canReinstate;
+		if (this.canReinstate === false) {
+			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+		} else {
+			this.maxAllowedCover = this.policyDetails.roleplayers[0].coverAmount;
+		}
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
 		this.disableAccountNumber = this._disableAccountNumber();
