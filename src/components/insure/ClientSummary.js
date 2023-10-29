@@ -157,6 +157,8 @@ class ClientSummary extends Component {
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
+			setComponentNeed: { type: Object, state: true },
+			setComponentNeedStatusComplete: { type: Object, state: true },
 
 			isOnlyProductEnquiry: { type: Boolean, state: true }
 		};
@@ -197,12 +199,10 @@ class ClientSummary extends Component {
 
 	async _tabChange(e) {
 		if (e.detail.selectedIndex === 1) {
-			await super._inicidentManager_(`view-insurance-claim-summary`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`view-insurance-claim-summary`);
 			return;
 		}
-			await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-summary`);
 	}
 
 	/**
@@ -347,8 +347,8 @@ class ClientSummary extends Component {
 	async _showEmailPlanDialog(contractRef) {
 		this.emailContractRef = contractRef;
 		this.showEmailPlanDialog = true;
-		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`funeral-plan-send-document`);
+
 	}
 
 	/**
@@ -474,8 +474,8 @@ class ClientSummary extends Component {
 
 	async _initialise() {
 		if (this.isOnlyProductEnquiry === true) {
-			await super._inicidentManager_(LANDING_PAGE_NEEDS.INSURE, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident(null, false);
+			await this.setComponentNeed(LANDING_PAGE_NEEDS.INSURE);
+
 		}
 		
 	}
@@ -489,8 +489,7 @@ class ClientSummary extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		await this._getArrears();
 		this.showPayPremiumDialog = true;
-		await super._inicidentManager_(`funeral-plan-pay-arrears`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`funeral-plan-pay-arrears`);
 	}
 
 	async _getArrears() {
@@ -506,8 +505,7 @@ class ClientSummary extends Component {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
 		this.showCancelPolicyDialog = true;
-		await super._inicidentManager_(`funeral-plan-cancel`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`funeral-plan-cancel`);
 
 	}
 
@@ -740,15 +738,15 @@ class ClientSummary extends Component {
 	 * Show dialog explaining how to Lodge a Claim
 	 * @returns {void}
 	 */
-	_closeClaimInfoDialog() {
+	async _closeClaimInfoDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
 		this.showLodgeClaimInfoDialog = false;
+		await this.setComponentNeedStatusComplete();
 	}
 
 	async _openClaimInfoDialog() {
 		this.showLodgeClaimInfoDialog = true;
-		await super._inicidentManager_(`lodge-insurance-claim`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`lodge-insurance-claim`);
 	}
 
 

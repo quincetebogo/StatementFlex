@@ -199,6 +199,15 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	async _setComponentNeed(need) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident();
+	}
+
+	_setComponentNeedStatusComplete() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	}
+
 	/**
 	 * Get main life age from birthdate
 	 * @returns {Number} age
@@ -1479,6 +1488,8 @@ export class ExistingClient extends InsureViewBase {
 				.clientArrears = "${this.clientArrears}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.isOnlyProductEnquiry = "${super.isOnlyProductEnquiry}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payPolicy(e)}"
 				@cancel-policy="${(e) => this._cancelPolicy(e)}"
@@ -1507,6 +1518,7 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeDefaultAge="${this._getMainLifeAge()}"
 				.mainLifeDefaultGender="${this._getMainLifeGender()}"
 				.maxAllowedCover="${isNullorEmpty(this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.clientPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-policy-estimate>`;
@@ -1526,6 +1538,7 @@ export class ExistingClient extends InsureViewBase {
 				.productParams="${this.productParams}"
 				.initiateReinstatePolicy="${(policyToReinstate) => this._initiateReinstatePolicy(policyToReinstate)}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
 				@updatePlanAccept="${(e) => this._updatePlanAccept(e)}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -1540,6 +1553,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-policy-summary 
 				.policyDetails="${this.policyDetails}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@navigate-to-update-plan="${(e) => this._goToUpdatePlan(e)}" 
 				@unloading="${() => this._unloadClientPolicies()}">
@@ -1554,6 +1569,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-cancel-policy-success
 				.contractReference = ${this.contractReference}
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@send-email = "${(e) => this._sendEmail(e)}" 
 				@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-cancel-policy-success>`;
@@ -1568,6 +1585,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-email-plan-success 
 				.contractReference = ${this.contractReference}
 				.confirmedEmail="${this.confirmedEmail}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-email-plan-success>
@@ -1583,6 +1601,8 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-pay-premium-success-page 
 				.amountToPay = "${this.amountToPay}" 
 				.contractReference = "${this.contractReference}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -1600,6 +1620,8 @@ export class ExistingClient extends InsureViewBase {
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-policy-transaction-history>`;
@@ -1616,6 +1638,8 @@ export class ExistingClient extends InsureViewBase {
 				.contractReference=${this.policyNumber} 
 				.contactNumber=${this.callerInformation.verifiedTelephoneNumber}
 				.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-sms-history-page>`;
 	}
@@ -1643,6 +1667,8 @@ export class ExistingClient extends InsureViewBase {
 				.successMessage="${this.successMessage}" 
 				.callerPage = "${this.callerPage}" 
 				.contractReference = "${this.contractReference}"
+				.setComponentNeed = "${(need) => this._setComponentNeed(need)}"
+				.setComponentNeedStatusComplete = "${() => this._setComponentNeedStatusComplete()}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${(e) => this._rerenderClientSummary(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;

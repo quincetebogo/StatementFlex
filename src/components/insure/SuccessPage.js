@@ -54,7 +54,9 @@ class SuccessPage extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true },
 			callerPage: { type: String },
 			contractReference: { type: String },
-			titleMessage: { type: String }
+			titleMessage: { type: String },
+			setComponentNeed: { type: Object, state: true },
+			setComponentNeedStatusComplete: { type: Object, state: true }
 		};
 	}
 	// #endregion PROPERTIES
@@ -76,8 +78,8 @@ class SuccessPage extends Component {
 
 	// #region PRIVATE METHODS
 
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	async _updateIncidentState() {
+		await this.setComponentNeedStatusComplete();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -96,8 +98,8 @@ class SuccessPage extends Component {
 		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 		}
-		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`funeral-plan-send-document`);
+
 	}
 	
 	/**

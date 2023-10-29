@@ -47,7 +47,9 @@ class CancelPolicySuccess extends Component {
 
 			showEmailPlanDialog: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
-			titleMessage: { type: String, state: true }
+			titleMessage: { type: String, state: true },
+			setComponentNeed: { type: Object, state: true },
+			setComponentNeedStatusComplete: { type: Object, state: true }
 		};
 	}
 
@@ -69,8 +71,8 @@ class CancelPolicySuccess extends Component {
 
 	// #region PRIVATE METHODS
 
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	async _updateIncidentState() {
+		await this.setComponentNeedStatusComplete();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -87,8 +89,7 @@ class CancelPolicySuccess extends Component {
 
 		this.showEmailPlanDialog = true;
 
-		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+		await this.setComponentNeed(`funeral-plan-send-document`);
 	}
 
 	/**

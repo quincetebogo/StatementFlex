@@ -56,7 +56,9 @@ class PayPremiumSuccess extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true },
 			amountToPay: { type: Object },
 			contractReference: { type: Object },
-			titleMessage: { type: String }
+			titleMessage: { type: String },
+			setComponentNeed: { type: Object, state: true },
+			setComponentNeedStatusComplete: { type: Object, state: true }
 		};
 	}
 
@@ -80,8 +82,8 @@ class PayPremiumSuccess extends Component {
 
 // #region PRIVATE METHODS
 
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	async _updateIncidentState() {
+		await this.setComponentNeedStatusComplete();
 	}
 
 // #endregion PRIVATE METHODS
@@ -115,8 +117,7 @@ async _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
-	await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-	await super.createAndClassifySubIncident();
+	await this.setComponentNeed(`funeral-plan-send-document`);
 }
 
 /**

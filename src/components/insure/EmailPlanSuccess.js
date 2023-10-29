@@ -40,7 +40,8 @@ class EmailPlanSuccess extends Component {
 		return {
 			showSuccessAlert: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
-			confirmedEmail: { type: Object, state: true }
+			confirmedEmail: { type: Object, state: true },
+			setComponentNeedStatusComplete: { type: Object, state: true }
 		};
 	}
 
@@ -63,8 +64,8 @@ class EmailPlanSuccess extends Component {
 
 // #region PRIVATE METHODS
 
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+	async _updateIncidentState() {
+		await this.setComponentNeedStatusComplete();
 	}
 
 // #endregion PRIVATE METHODS

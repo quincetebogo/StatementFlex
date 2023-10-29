@@ -219,6 +219,7 @@ class UpdatePlan extends Component {
 			disableAccountNumber: { type: Boolean, state: true },
 			onUpdateValidationMessage: { type: Object, state: true },
 			showIneligibleLivesDialog: { type: Object, state: true },
+			setComponentNeed: { type: Object, state: true },
 
 			accountTypeErrorMsg: { type: String, state: true }
 		};
@@ -1003,16 +1004,13 @@ class UpdatePlan extends Component {
 	async _tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
 		if (this.selectedTabIndex === 0) {
-			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-update-lives`);
 			return;
 		} else if (this.selectedTabIndex === 1) {
-			await super._inicidentManager_(`funeral-plan-update-beneficiaries`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-update-beneficiaries`);
 			return;
 		}
-			await super._inicidentManager_(`funeral-plan-update-payment-details`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-update-payment-details`);
 
 	}
 
@@ -1387,11 +1385,9 @@ class UpdatePlan extends Component {
 		this._openIneligibleLivesDialog();
 
 		if (this.canReinstate === true) {
-			await super._inicidentManager_(`funeral-plan-reissue`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-reissue`);
 		} else {
-			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
+			await this.setComponentNeed(`funeral-plan-update-lives`);
 		}
 
 
