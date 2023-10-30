@@ -756,6 +756,7 @@ class UpdatePlan extends Component {
 	_beneficiaryPayoutValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			let totalPayout = 0;
+			const totalCover = parseFloat(this.policyDetails.roleplayers[0].coverAmount);
 
 			this.policyDetails.roleplayers.forEach(ele => {
 				if (ele.rowID === rowID) {
@@ -766,7 +767,7 @@ class UpdatePlan extends Component {
 				}
 			});
 
-			if (this.policyDetails.roleplayers[0].coverAmount !== totalPayout) {
+			if (totalCover !== totalPayout) {
 				this.policyDetails.roleplayers.forEach(ele => {
 					if (ele.beneficiary === true) {
 						ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
@@ -1436,6 +1437,7 @@ class UpdatePlan extends Component {
 		let payoutsMatch = false;
 
 		let totalPayout = 0;
+		const totalCover = parseFloat(this.policyDetails.roleplayers[0].coverAmount);
 
 		this.policyDetails.roleplayers.forEach(ben => {
 			if (ben.beneficiary === true) {
@@ -1443,7 +1445,7 @@ class UpdatePlan extends Component {
 			}
 		});
 
-		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
+		if (totalCover === totalPayout) {
 			payoutsMatch = true;
 		}
 
