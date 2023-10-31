@@ -224,7 +224,8 @@ class PolicyEstimate extends Component {
 			genderType: `Male`,
 			age: ``,
 			rowID: this.estimate.lifesAssured.length,
-			coverDetails: event.detail.coverDetails
+			coverDetails: event.detail.coverDetails,
+			lifeAssured: true
 		};
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
@@ -707,6 +708,7 @@ class PolicyEstimate extends Component {
 	 * @return {html} Html for the dialog
 	 */
 	_renderAddLifeDialog() {
+		console.log(`this.estimate :>> `, this.estimate);
 		return this.showAddLifeDialog === false ? ``
 			: html`
 			<horizon-insure-add-life-dialog 
