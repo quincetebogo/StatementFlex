@@ -73,10 +73,7 @@ class PolicyTransactionHistory extends Component {
 			policyTransactionHistory: { type: Object },
 			getPolicyTransactionHistory: { type: Object },
 			disposeData: { type: Object },
-			hideLoadMore: { type: Boolean, state: true },
-
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			hideLoadMore: { type: Boolean, state: true }
 		};
 	}
 
@@ -118,7 +115,6 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void}
 	 */
 	async _backToSummaryPage() {
-		await this.setComponentNeedStatusComplete();
 		this._telemetry.logEvent(this.telemetryEvents.TRANSACTION_HISTORY_BACK, {
 			"screen": TelemetryScreen.INSURE_TRANSACTION_HISTORY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
@@ -276,8 +272,6 @@ class PolicyTransactionHistory extends Component {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
-
-		await this.setComponentNeed(`funeral-transaction-history`);
 	}
 
 	/**

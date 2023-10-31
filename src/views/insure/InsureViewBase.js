@@ -82,6 +82,11 @@ export class InsureViewBase extends ViewBase {
 		return resp.result;
 	}
 
+	async setInsureIncident(need){
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(null, false);
+	}
+
 	/**
 	 * Error callback for channel services
 	 * @param {Object} ex Error from Channel Service 

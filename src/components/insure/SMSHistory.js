@@ -59,10 +59,7 @@ class SMSHistory extends Component {
 			contactNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
 			getCommsHistory: { type: Object, state: true },
-			filteredData: { type: Object, state: true },
-
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			filteredData: { type: Object, state: true }
 		};
 	}
 
@@ -104,9 +101,6 @@ class SMSHistory extends Component {
 			this.filteredData = this.commsHistory?.results.filter(item => new Date(item.sentAt) >= new Date(this.startDate) && new Date(item.sentAt) <= new Date(this.endDate));
 			// this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
-
-		await this.setComponentNeed(`funeral-sms-history`);
-
 	}
 
 	/**
@@ -225,8 +219,6 @@ class SMSHistory extends Component {
 	 * @return {void} 
 	 */
 	async _backToSummaryPage() {
-
-		await this.setComponentNeedStatusComplete();
 		this._telemetry.logEvent(this.telemetryEvents.SMS_HISTORY_BACK, {
 			"screen": TelemetryScreen.INSURE_SMS_HISTORY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY

@@ -41,9 +41,7 @@ class PolicySummary extends Component {
 	 */
 	static get properties() {
 		return {
-			policyDetails: { type: Object, state: true },
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			policyDetails: { type: Object, state: true }
 		};
 	}
 
@@ -90,7 +88,6 @@ class PolicySummary extends Component {
 	 * @returns {void} 
 	 */
 	async _backToClientPoliciesPage() {
-		await this.setComponentNeedStatusComplete();
 		this._telemetry.logEvent(this.telemetryEvents.POLICY_SUMMARY_BACK, {
 			"screen": TelemetryScreen.INSURE_POLICY_SUMMARY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
@@ -117,7 +114,6 @@ class PolicySummary extends Component {
 
 	async _initialise() {
 
-		await this.setComponentNeed(`funeral-plan-summary`);
 	}
 
 	// #endregion PRIVATE FUNCTIONS

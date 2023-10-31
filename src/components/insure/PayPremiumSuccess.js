@@ -56,9 +56,7 @@ class PayPremiumSuccess extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true },
 			amountToPay: { type: Object },
 			contractReference: { type: Object },
-			titleMessage: { type: String },
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			titleMessage: { type: String }
 		};
 	}
 
@@ -73,18 +71,11 @@ class PayPremiumSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
-		
-		this._updateIncidentState();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 // #region PRIVATE METHODS
-
-	async _updateIncidentState() {
-		await this.setComponentNeedStatusComplete();
-	}
 
 // #endregion PRIVATE METHODS
 
@@ -117,7 +108,6 @@ async _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
-	await this.setComponentNeed(`funeral-plan-send-document`);
 }
 
 /**

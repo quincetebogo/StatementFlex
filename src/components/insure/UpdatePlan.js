@@ -219,7 +219,6 @@ class UpdatePlan extends Component {
 			disableAccountNumber: { type: Boolean, state: true },
 			onUpdateValidationMessage: { type: Object, state: true },
 			showIneligibleLivesDialog: { type: Object, state: true },
-			setComponentNeed: { type: Object, state: true },
 
 			accountTypeErrorMsg: { type: String, state: true }
 		};
@@ -1004,15 +1003,16 @@ class UpdatePlan extends Component {
 	 */
 	async _tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
-		if (this.selectedTabIndex === 0) {
-			await this.setComponentNeed(`funeral-plan-update-lives`);
-			return;
-		} else if (this.selectedTabIndex === 1) {
-			await this.setComponentNeed(`funeral-plan-update-beneficiaries`);
-			return;
-		}
-			await this.setComponentNeed(`funeral-plan-update-payment-details`);
-
+		if (this.canReinstate === false) {
+			if (this.selectedTabIndex === 0) {
+				this.setInsureIncident(`funeral-plan-update-lives`);
+				return;
+			} else if (this.selectedTabIndex === 1) {
+				this.setInsureIncident(`funeral-plan-update-beneficiaries`);
+				return;
+			}
+			this.setInsureIncident(`funeral-plan-update-payment-details`);
+		} 
 	}
 
 	/**
@@ -1337,7 +1337,7 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _initialise() {
-		
+
 		this.canReinstate = this.policyDetails.canReinstate;
 		if (this.canReinstate === false) {
 			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
@@ -1367,7 +1367,7 @@ class UpdatePlan extends Component {
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
-			
+
 		}
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
@@ -1388,14 +1388,6 @@ class UpdatePlan extends Component {
 			}
 		});
 		this._openIneligibleLivesDialog();
-
-		if (this.canReinstate === true) {
-			await this.setComponentNeed(`funeral-plan-reissue`);
-		} else {
-			await this.setComponentNeed(`funeral-plan-update-lives`);
-		}
-
-
 	}
 
 	/**

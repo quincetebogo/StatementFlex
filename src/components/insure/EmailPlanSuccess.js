@@ -40,8 +40,7 @@ class EmailPlanSuccess extends Component {
 		return {
 			showSuccessAlert: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
-			confirmedEmail: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			confirmedEmail: { type: Object, state: true }
 		};
 	}
 
@@ -56,17 +55,11 @@ class EmailPlanSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
-
-		this._updateIncidentState();
 	}
 
 	// #endregion
 
 // #region PRIVATE METHODS
-
-	async _updateIncidentState() {
-		await this.setComponentNeedStatusComplete();
-	}
 
 // #endregion PRIVATE METHODS
 
