@@ -414,7 +414,7 @@ class ClientSummary extends Component {
 		this.selectedPolicyItem = policyItem;
 
 		if (policyItem === null) {
-			this.productCode = `Capitec`;
+			this.productCode = `CapitecSanlam`;
 		} else {
 			this.productCode = policyItem.productCode;
 		}
