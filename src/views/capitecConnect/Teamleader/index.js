@@ -2,9 +2,11 @@ import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import './EscalatedReversals';
 import './PendingReversals';
 import './CompletedReversals';
+import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
 // import { request } from 'http';
 /**
@@ -29,6 +31,7 @@ export class CapitecConnectTeamLeader extends View {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -52,10 +55,8 @@ export class CapitecConnectTeamLeader extends View {
 		this.reversalAction = null;
 		this.showConfirmModal = false;
 
-
 		this.totalEscalatedReversals = 0;
 		this.totalPendingReversals = 0;
-		this.totalCompletedReversals = 0;
 	}
 	
 	static get properties() {
@@ -68,7 +69,6 @@ export class CapitecConnectTeamLeader extends View {
 			activeFilters: {type: Array},
 			totalEscalatedReversals: {type : Number},
 			totalPendingReversals: {type : Number},
-			totalCompletedReversals: {type : Number}
 		};
 	}
 
@@ -85,6 +85,17 @@ export class CapitecConnectTeamLeader extends View {
 		const records = await this.capitecConnectService.getReversals(state, pagination_args);
 		console.log("records", records)
 
+		const searchClient = {
+			identificationMethod: 2,
+			searchValue: "000000001"//this.searchFieldText
+		};
+
+		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
+		const identifiedClient = returnValue.result;
+
+		console.info("returnValue", returnValue);
+		console.info("identifiedClient", identifiedClient);
+
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
 				const retrievedRecords = records.result.content.filter(item => item.actionState === state);
@@ -97,9 +108,9 @@ export class CapitecConnectTeamLeader extends View {
 					this.totalPendingReversals = records.result.totalElements;
 				}
 
-				if(state === "COMPLETED" ) {
-					this.totalCompletedReversals = records.result.totalElements;
-				}
+				// if(state === "COMPLETED" ) {
+				// 	this.totalCompletedReversals = records.result.totalElements;
+				// }
 
 				resolve({
 					records: returnValue || [],
@@ -109,39 +120,46 @@ export class CapitecConnectTeamLeader extends View {
 		});
 	}
 
-	async reversalActions(type, selectedReversal) {
-		console.info("type", type)
+	async reversalActions(action, selectedReversal) {
+		console.info("type", action)
 		console.info("selectedReversal", selectedReversal)
 		const transactionReference = selectedReversal.businessTransactionReference;
 
-		if(type === "Lock"){
-			const requestObject = {
-				cpNumber: SecurityContext.username,
-			}
-			var reversalDetails = await this.capitecConnectService.LockReversal(transactionReference, requestObject);
+		if(action === "Lock"){
+			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
 			console.log("reversalDetails lock", reversalDetails)
-		} else if(type === "Unlock") {
-			var reversalDetails = await this.capitecConnectService.UnlockReversal(transactionReference);
+		} else if(action === "Unlock") {
+			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
 			console.log("reversalDetails unlock", reversalDetails)
-		} else if(type === "Flag") {
-			const requestObject = {
-				cpNumber: SecurityContext.username,
-			}
-			var reversalDetails = await this.capitecConnectService.FlagReversal(transactionReference, requestObject);
+			// if (reversalDetails.succeeded) {
+			// 	this.horizonRouter.navigateToProcessReversalSuccess();
+			// } else {
+			// 	this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
+			// }
+		} else if(action === "Flag") {
+			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
 			console.log("reversalDetails flag", reversalDetails)
-		} else if(type === "Decline") {
-			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, false);
-		} else if(type === "Approve") {
-			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, true);
+		} else if(action === "Decline") {
+			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
+			console.info("Decline reversal", reversalDetails)
+		} else if(action === "Approve") {
+			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
+			console.info("Approve reversal", reversalDetails)
+			if (reversalDetails.succeeded) {
+				this.horizonRouter.navigateToProcessReversalSuccess();
+			} else {
+				this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
+			}
 		}
 
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				resolve({
-					reversalDetails: reversalDetails || [],
-				});
-			}, 1000);
-		});
+		return reversalDetails;
+		// return new Promise((resolve, reject) => {
+		// 	setTimeout(() => {
+		// 		resolve({
+		// 			reversalDetails: reversalDetails || [],
+		// 		});
+		// 	}, 1000);
+		// });
 	}
 	
 
@@ -249,7 +267,7 @@ export class CapitecConnectTeamLeader extends View {
 							></horizon-capitec-connect-teamleader-pending-reversals>
 						</capitec-tab>
 						
-						<capitec-tab label="Completed Reversals ${this.totalCompletedReversals}" layout="vertical" halign="center">
+						<capitec-tab label="Completed Reversals" layout="vertical" halign="center">
 						
 						<horizon-capitec-connect-teamleader-completed-reversals
 									style="width:100%"
