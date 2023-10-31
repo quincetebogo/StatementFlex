@@ -895,7 +895,6 @@ export class ExistingClient extends InsureViewBase {
 			return estimateWithCoverDetails;
 		}
 
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.handleToastError(resp.exception);
 		return null;
 
