@@ -1341,8 +1341,6 @@ class UpdatePlan extends Component {
 		this.canReinstate = this.policyDetails.canReinstate;
 		if (this.canReinstate === false) {
 			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
-		} else {
-			this.maxAllowedCover = this.policyDetails.roleplayers[0].coverAmount;
 		}
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
