@@ -120,7 +120,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			clientCif: { type: String },
 			savingsProducts: { type: Array },
 			selectedSavingsProduct: { type: Object },
-			validationMessage: { type: String }
+			validationMessage: { type: String },
+			searchValue: { type: String }
 		};
 	}
 
@@ -235,16 +236,26 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		});
 	}
 
-	formatCellphoneNumber(cellphoneNumber) {
+	formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
 		cellphoneNumber = cellphoneNumber.replace(/\s/g, ``); // first remove the spaces
 
-		if (cellphoneNumber.length === 11) {
-			return `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
-		} else if (cellphoneNumber.length === 10) {
-			return `${cellphoneNumber.substr(0, 3)} ${cellphoneNumber.substr(3, 3)} ${cellphoneNumber.substr(6, 4)}`;
+		if (cellphoneNumber.startsWith('0')) {
+			// Replace the '0' with '27' using the replace method
+			cellphoneNumber = cellphoneNumber.replace(/^0/, '27');
 		}
-		// Handle invalid input here if necessary
-		return `000 000 0000`;
+
+		if (cellphoneNumber.length === 11) {
+			cellphoneNumber = `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
+		} else {
+			// Handle invalid input here if necessary
+			cellphoneNumber = ``;
+		}
+
+		if (withoutSpaces) {
+			cellphoneNumber = cellphoneNumber.replace(/\s/g, ``);
+		}
+
+		return cellphoneNumber;
 	}
 
 	isArray(obj) {
@@ -324,7 +335,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			r = r.map(e => {
 				e.friendlyDate = this.formatDate(e.transactionDate);
-				e.msisdn = this.formatCellphoneNumber(e.msisdn);
+				e.friendlyMsisdn = this.formatCellphoneNumber(e.msisdn);
 				return e;
 			});
 
@@ -348,8 +359,13 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		try {
 			const response = await this.actionReversal(this.selectedReversal, this.reason.value, this.comment);
 
-			this.showSuccessModal = response.succeeded;
-			this.showFailureModal = !response.succeeded;
+			if (response.result.errorCode) {
+				this.showSuccessModal = !response.succeeded;
+				this.showFailureModal = response.succeeded;
+			} else {
+				this.showSuccessModal = response.succeeded;
+				this.showFailureModal = !response.succeeded;
+			}
 
 			return response;
 		} catch (error) {
@@ -491,7 +507,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						.expandRenderer="${(item) => this._expandRenderer(item)}">
 					<capitec-table-column label="Transaction Date" field="friendlyDate"></capitec-table-column>
 					<capitec-table-column label="Beneficiary Name" field="recharges" .renderer="${this._renderBeneficiaryName}"></capitec-table-column>
-					<capitec-table-column label="Cellphone Number" field="msisdn"></capitec-table-column>
+					<capitec-table-column label="Cellphone Number" field="friendlyMsisdn"></capitec-table-column>
 					<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
 					<capitec-table-column label="Product" .renderer="${this._renderProductName}"></capitec-table-column>
 					<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
@@ -587,7 +603,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			<capitec-group layout="grid" gap="clear">
 				<div column="1" row="1" colspan="4">
-					<capitec-label type="strong" label="Statement Description: ${channel} ${product} ${typeOfRecharge} Capitec Connect"></capitec-label>
+					<capitec-label type="strong" label="Description: ${channel} ${product} ${typeOfRecharge} Capitec Connect"></capitec-label>
 				</div>
 
 				<div column="1" row="2">
@@ -753,7 +769,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				</div>
 				<div row="4" column="2">
 					<capitec-label label="${this.toTitleCase(this.selectedRechargeView.channel)}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.msisdn}"></capitec-label>
+					<capitec-label label="${this.selectedRechargeView.friendlyMsisdn}"></capitec-label>
 					<capitec-label label="Capitec Connect"></capitec-label>
 					<capitec-label label="${productId}"></capitec-label>
 					<capitec-label label="${this.selectedRechargeView.productName}"></capitec-label>
@@ -805,19 +821,20 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					display-field="label"
 					id-field="value">
 				</capitec-select>
-
-				${this.reason?.value === `other` 
-				? html`
-					<capitec-text-box
-				 		label="Add description (optional) ${this.comment.length}/5000"
-						@key-input="${(e) => this.comment = e.detail.new}"
-						maxLength="50">
-					</capitec-text-box>`
-				: null}
+				<capitec-text-box
+					label="Add description (optional) ${this.comment.length}/5000"
+					@key-input="${(e) => this.comment = e.detail.new}"
+					maxLength="50">
+				</capitec-text-box>
 			</capitec-content-box>
 
-			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => { this.selectedReversal = null; /* this.unlock() */ }}"></capitec-button>
-			<capitec-button slot="footer" type="primary" label="Confirm" @click="${() => this.showConfirmModal = true}"></capitec-button>
+			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => { this.selectedReversal = null; this.reason = null; this.comment = '' }}"></capitec-button>
+			${this.reason?.value ?
+				html`<capitec-button slot="footer" type="primary" label="Confirm" @click="${() => this.showConfirmModal = true}"></capitec-button>`
+				:
+				html`<capitec-button slot="footer" type="primary" label="Confirm" disabled></capitec-button>`
+			}
+			
 			</capitec-modal>
 		`;
 	}
@@ -871,7 +888,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer" 
 					type="clear" 
 					label="Done"
-					@click="${this.showFailureModal = false}">
+					@click="${() => this.showFailureModal = false}">
 				</capitec-button>
 			</capitec-modal>
 		`;
