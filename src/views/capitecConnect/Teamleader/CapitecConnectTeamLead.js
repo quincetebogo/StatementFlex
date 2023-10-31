@@ -110,25 +110,15 @@ export class CapitecConnectTeamLeader extends View {
 	}
 
 	async reversalActions(type, selectedReversal) {
-		console.info("type", type)
-		console.info("selectedReversal", selectedReversal)
 		const transactionReference = selectedReversal.businessTransactionReference;
 
 		if(type === "Lock"){
-			const requestObject = {
-				cpNumber: SecurityContext.username,
-			}
-			var reversalDetails = await this.capitecConnectService.LockReversal(transactionReference, requestObject);
-			console.log("reversalDetails lock", reversalDetails)
+			var reversalDetails = await this.capitecConnectService.LockReversal(transactionReference);
 		} else if(type === "Unlock") {
 			var reversalDetails = await this.capitecConnectService.UnlockReversal(transactionReference);
 			console.log("reversalDetails unlock", reversalDetails)
 		} else if(type === "Flag") {
-			const requestObject = {
-				cpNumber: SecurityContext.username,
-			}
-			var reversalDetails = await this.capitecConnectService.FlagReversal(transactionReference, requestObject);
-			console.log("reversalDetails flag", reversalDetails)
+			var reversalDetails = await this.capitecConnectService.FlagReversal(transactionReference);
 		} else if(type === "Decline") {
 			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, false);
 		} else if(type === "Approve") {
