@@ -2,7 +2,6 @@ import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
-import { ClientProfileService } from 'app/services/ClientProfileService';
 import './EscalatedReversals';
 import './PendingReversals';
 import './CompletedReversals';
@@ -31,7 +30,6 @@ export class CapitecConnectTeamLeader extends View {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -84,17 +82,6 @@ export class CapitecConnectTeamLeader extends View {
 
 		const records = await this.capitecConnectService.getReversals(state, pagination_args);
 		console.log("records", records)
-
-		const searchClient = {
-			identificationMethod: 2,
-			searchValue: "000000001"//this.searchFieldText
-		};
-
-		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
-		const identifiedClient = returnValue.result;
-
-		console.info("returnValue", returnValue);
-		console.info("identifiedClient", identifiedClient);
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -235,7 +222,7 @@ export class CapitecConnectTeamLeader extends View {
 			<capitec-card class="product-info">
 				<capitec-title-bar
 					data-automation-id="cnet-product-info-title-bar"
-					class="liveBetter"
+					class="transact"
 					type="primary">
 						${this._renderIcon()}
 						<capitec-label
@@ -283,7 +270,7 @@ export class CapitecConnectTeamLeader extends View {
 	
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/live-better-white.svg"/>`
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
 			;
 	}
 	
