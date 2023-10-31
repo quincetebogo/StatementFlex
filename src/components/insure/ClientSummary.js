@@ -6,7 +6,6 @@ import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/common/OptionButton';
@@ -157,10 +156,8 @@ class ClientSummary extends Component {
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true },
-
-			isOnlyProductEnquiry: { type: Boolean, state: true }
+			isOnlyProductEnquiry: { type: Boolean, state: true },
+			setInsureIncident: { type: Object, state: true },
 		};
 	}
 
@@ -199,10 +196,10 @@ class ClientSummary extends Component {
 
 	async _tabChange(e) {
 		if (e.detail.selectedIndex === 1) {
-			await this.setComponentNeed(`view-insurance-claim-summary`);
+			this.setInsureIncident(`view-insurance-claim-summary`);
 			return;
 		}
-			await this.setComponentNeed(`funeral-plan-summary`);
+		this.setInsureIncident(`funeral-plan-summary`);
 	}
 
 	/**
@@ -345,10 +342,9 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	async _showEmailPlanDialog(contractRef) {
+		this.setInsureIncident(`funeral-plan-send-document`);
 		this.emailContractRef = contractRef;
 		this.showEmailPlanDialog = true;
-		await this.setComponentNeed(`funeral-plan-send-document`);
-
 	}
 
 	/**
@@ -473,11 +469,7 @@ class ClientSummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-		if (this.isOnlyProductEnquiry === true) {
-			await this.setComponentNeed(LANDING_PAGE_NEEDS.INSURE);
 
-		}
-		
 	}
 
 	/**
@@ -486,10 +478,10 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	async _openPayPremiumDialog() {
+		this.setInsureIncident(`funeral-plan-pay-arrears`);
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_PAY_POLICY, {});
 		await this._getArrears();
 		this.showPayPremiumDialog = true;
-		await this.setComponentNeed(`funeral-plan-pay-arrears`);
 	}
 
 	async _getArrears() {
@@ -504,9 +496,8 @@ class ClientSummary extends Component {
 	async _openCancelPolicyDialog(contractReference) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_CANCEL_POLICY, {});
 		this.contractReferenceToCancel = contractReference;
+		this.setInsureIncident(`funeral-plan-cancel`);
 		this.showCancelPolicyDialog = true;
-		await this.setComponentNeed(`funeral-plan-cancel`);
-
 	}
 
 	/**
@@ -741,12 +732,11 @@ class ClientSummary extends Component {
 	async _closeClaimInfoDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
 		this.showLodgeClaimInfoDialog = false;
-		await this.setComponentNeedStatusComplete();
 	}
 
 	async _openClaimInfoDialog() {
+		this.setInsureIncident(`lodge-insurance-claim`);
 		this.showLodgeClaimInfoDialog = true;
-		await this.setComponentNeed(`lodge-insurance-claim`);
 	}
 
 

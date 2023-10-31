@@ -47,9 +47,7 @@ class CancelPolicySuccess extends Component {
 
 			showEmailPlanDialog: { type: Boolean, state: true },
 			contractReference: { type: String, state: true },
-			titleMessage: { type: String, state: true },
-			setComponentNeed: { type: Object, state: true },
-			setComponentNeedStatusComplete: { type: Object, state: true }
+			titleMessage: { type: String, state: true }
 		};
 	}
 
@@ -63,17 +61,11 @@ class CancelPolicySuccess extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._updateIncidentState();
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
-
-	async _updateIncidentState() {
-		await this.setComponentNeedStatusComplete();
-	}
 
 	// #endregion PRIVATE METHODS
 
@@ -86,10 +78,7 @@ class CancelPolicySuccess extends Component {
 	 */
 	async _openEmailPlanDialog() {
 		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
-
 		this.showEmailPlanDialog = true;
-
-		await this.setComponentNeed(`funeral-plan-send-document`);
 	}
 
 	/**

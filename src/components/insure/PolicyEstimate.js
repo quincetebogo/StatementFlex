@@ -83,8 +83,7 @@ class PolicyEstimate extends Component {
 			showAddLifeDialog: { type: Boolean, state: true },
 			showPrintEstimateDialog: { type: Boolean, state: true },
 			showEmailPlanDialog: { type: Boolean, state: true },
-			showMaxAllowedCoverDialog: { type: Boolean, state: true },
-			setComponentNeed: { type: Object, state: true }
+			showMaxAllowedCoverDialog: { type: Boolean, state: true }
 		};
 	}
 
@@ -343,7 +342,6 @@ class PolicyEstimate extends Component {
 		});
 		this.showPrintEstimateDialog = false;
 		this.showEmailPlanDialog = true;
-		await this.setComponentNeed(`funeral-plan-send-document`);
 	}
 
 	/**
@@ -393,7 +391,6 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
-		await this.setComponentNeed(`funeral-plan-calculate-estimate`);
 	}
 
 	/**
