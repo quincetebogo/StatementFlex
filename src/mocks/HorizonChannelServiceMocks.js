@@ -45,8 +45,7 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelsDetails`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));    
-		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err))); 		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -54,7 +53,7 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
+		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		  this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -63,6 +62,11 @@ export default class HorizonChannelServiceMocks {
     	this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
     	this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -85,7 +89,7 @@ export default class HorizonChannelServiceMocks {
 
 	searchCaller() {
 		if (this._mockSettings.searchCaller.positiveCase) {
-			return mockedCaller = this.callMocks.searchCaller;
+			return this.callMocks.searchCaller;
 		}
 	}
 
@@ -578,6 +582,21 @@ export default class HorizonChannelServiceMocks {
 		return errPromise;
 	}
 
+	budgetAccounts(status) {
+		if (this._mockSettings.budgetAccounts.positiveCase) {
+			const STATUS = {
+				'Active': `activeCreditCardBudgetList`,
+				'Settled': `settledCreditCardBudgetList`,
+				'Closed': `closedCreditCardBudgetList`
+			};
+			const response = { ...this.budgetFacility.budgetAccountDetails.details, 
+								[STATUS[status]]: this.budgetFacility.budgetAccountDetails[status] };
+
+			return response;
+		}
+		return null;
+	}
+
 	budgetTransferFromAccounts() {
 		if (this._mockSettings.budgetTransferFromAccounts.positiveCase) {
 			return this.budgetFacility.payBudgetModalDetails;
@@ -658,4 +677,53 @@ export default class HorizonChannelServiceMocks {
 
 		return errPromise;
 	}  
+
+	payShapDetails() {
+		if (this._mockSettings.payShapDetails.positiveCase) {
+			return this.payShapMocks.payShapDetails;
+		}
+		return null;
+	}
+
+	getInstitutions() {
+		if (this._mockSettings.getInstitutions.positiveCase) {
+			return this.payShapMocks.institutionsList;
+		}
+		return null;
+	}
+
+	enlistCapitec() {
+		if (this._mockSettings.enlistCapitec.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	delistCapitec() {
+		if (this._mockSettings.delistCapitec.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	moneyOut() {
+		if (this._mockSettings.moneyOut.positiveCase) {
+			return this.payShapMocks.moneyOutResponse;
+		}
+		return null;
+	}
+
+	moneyIn() {
+		if (this._mockSettings.moneyIn.positiveCase) {
+			return this.payShapMocks.moneyInResponse;
+		}
+		return null;
+	}
+
+	payshapPop() {
+		if (this._mockSettings.payshapPop.positiveCase) {
+		return this.payShapMocks.payshapPopResponse;
+		}
+		return null;
+	}
 }

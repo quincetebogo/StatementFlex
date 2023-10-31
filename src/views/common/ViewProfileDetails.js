@@ -1,6 +1,6 @@
 import { css, html } from 'platform/elements';
+import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -43,7 +43,7 @@ export class ViewProfileDetails extends ViewBase {
 		super.connectedCallback();
 
 		this.clientDetails = {
-			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: formatStringAsPascalCase(this.callerInformation.languagePreference)
+			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
 		};
 	}
 
@@ -66,7 +66,8 @@ export class ViewProfileDetails extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_updateProfileDetails() {
+	async _updateProfileDetails() {
+		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
 		this.showUpdatePreferenceModal = true;
 	}
 	
@@ -84,7 +85,7 @@ export class ViewProfileDetails extends ViewBase {
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = preferredlanguage;
+			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
 		}
 		
 	}
@@ -221,6 +222,7 @@ export class ViewProfileDetails extends ViewBase {
 			${this._renderViewProfileDetails()}
 			${this._renderUpdateProfileDetailsModal()}
 			${this._renderLoadingIndicator()}
+			${super._webTemplate()}
 		`;
 	}
 

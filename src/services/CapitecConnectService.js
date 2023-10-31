@@ -203,10 +203,8 @@ export class CapitecConnectService extends ChannelServiceBase {
 			return [];
 		}
 
-		const cpNumber = this.desktopAgentService._securityContext.username;
 		const url = `/v1/api/horizon/recharges/${ref}/reverse`;
 		const request = {
-            cpNumber: cpNumber,
             reversalReason: reason,
             additionalComments: comments
         };

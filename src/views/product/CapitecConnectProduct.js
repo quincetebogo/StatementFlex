@@ -1,8 +1,8 @@
 import { ProductPageBase } from 'app/views/product/ProductPageBase';
 import { html } from 'platform/elements';
 import 'app/components/product/CnetProductInfo';
-import 'app/views/capitecConnect/Teamleader/index'
-import 'app/views/capitecConnect/Agent/index'
+import 'app/views/capitecConnect/Teamleader/CapitecConnectTeamLead'
+import 'app/views/capitecConnect/Agent/CapitecConnectAgent'
 import { RoleManager } from '../../shell/RoleManager';
 
 /**
