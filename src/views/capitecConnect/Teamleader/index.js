@@ -71,17 +71,21 @@ export class CapitecConnectTeamLeader extends View {
 	}
 
 	async searchReversals(renderSet , filters , state) {
+		const query_args = {}
 
 		const pagination_args = {
-			"page": 0,
-			"size": 10,
+			"page": typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0,
+			"size": typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10,
 			"sort":[
 				"processingDate,desc"
 			]
-		  }
+		}
 
-		const records = await this.capitecConnectService.getReversals(state, pagination_args);
-		console.log("records", records)
+		if (filters.searchValue) {
+			query_args.msisdn = this.formatCellphoneNumber(filters.searchValue, true);
+		}
+
+		const records = await this.capitecConnectService.getReversals(state, query_args, pagination_args);
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -95,10 +99,6 @@ export class CapitecConnectTeamLeader extends View {
 					this.totalPendingReversals = records.result.totalElements;
 				}
 
-				// if(state === "COMPLETED" ) {
-				// 	this.totalCompletedReversals = records.result.totalElements;
-				// }
-
 				resolve({
 					records: returnValue || [],
 					totalRecords: retrievedRecords?.length || 0
@@ -108,30 +108,18 @@ export class CapitecConnectTeamLeader extends View {
 	}
 
 	async reversalActions(action, selectedReversal) {
-		console.info("type", action)
-		console.info("selectedReversal", selectedReversal)
 		const transactionReference = selectedReversal.businessTransactionReference;
 
 		if(action === "Lock"){
 			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
-			console.log("reversalDetails lock", reversalDetails)
 		} else if(action === "Unlock") {
 			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
-			console.log("reversalDetails unlock", reversalDetails)
-			// if (reversalDetails.succeeded) {
-			// 	this.horizonRouter.navigateToProcessReversalSuccess();
-			// } else {
-			// 	this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
-			// }
 		} else if(action === "Flag") {
 			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
-			console.log("reversalDetails flag", reversalDetails)
 		} else if(action === "Decline") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
-			console.info("Decline reversal", reversalDetails)
 		} else if(action === "Approve") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
-			console.info("Approve reversal", reversalDetails)
 			if (reversalDetails.succeeded) {
 				this.horizonRouter.navigateToProcessReversalSuccess();
 			} else {
@@ -139,16 +127,8 @@ export class CapitecConnectTeamLeader extends View {
 			}
 		}
 
-		return reversalDetails;
-		// return new Promise((resolve, reject) => {
-		// 	setTimeout(() => {
-		// 		resolve({
-		// 			reversalDetails: reversalDetails || [],
-		// 		});
-		// 	}, 1000);
-		// });
+		return "success";
 	}
-	
 
 	static get styles() {
 		return [

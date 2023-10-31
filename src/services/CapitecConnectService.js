@@ -31,7 +31,9 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 	// Get reversals
 
-	async getReversals(status, pagination_args) {
+	async getReversals(status, query_args, pagination_args) {
+		query_args = query_args.msisdn ? {msisdn: query_args.msisdn} : {}
+		console.info("query_args", query_args)
 		pagination_args = {
 			"page": pagination_args.page || 0,
 			"size": pagination_args.size || 1,
@@ -43,7 +45,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 		console.log("url", url)
 		return this.post(
 			url, 
-			{}, 
+			query_args, 
 			this.setToken(), 
 			`getClientProducts`, 
 			null, 
