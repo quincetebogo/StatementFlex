@@ -31,7 +31,9 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 	// Get reversals
 
-	async getReversals(status, pagination_args, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async getReversals(status, query_args, pagination_args) {
+		query_args = query_args.msisdn ? {msisdn: query_args.msisdn} : {}
+		console.info("query_args", query_args)
 		pagination_args = {
 			"page": pagination_args.page || 0,
 			"size": pagination_args.size || 1,
@@ -43,7 +45,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 		console.log("url", url)
 		return this.post(
 			url, 
-			{}, 
+			query_args, 
 			this.setToken(), 
 			`getClientProducts`, 
 			null, 
@@ -51,71 +53,71 @@ export class CapitecConnectService extends ChannelServiceBase {
 			1000,
 			null,
 			null,
-			autoRetries
+			1
 		);
 	}
 	
-	async LockReversal(transactionReference) {
+	async lockReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/lock`;
 		return this.put(
 			url, 
 			{}, 
 			this.setToken(), 
-			`getClientProducts`, 
+			`lockReversal`, 
 			null, 
 			null, 
 			1000,
 			null,
 			null,
-			0
+			1
 		);
 	}
 
-	async UnlockReversal(transactionReference) {
+	async unlockReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/unlock`;
 		return this.put(
 			url, 
 			{}, 
 			this.setToken(), 
-			`getClientProducts`, 
+			`unlockReversal`, 
 			null, 
 			null, 
 			1000,
 			null,
 			null,
-			0
+			1
 		);
 	}
 
-	async FlagReversal(transactionReference) {
+	async flagReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/flag`;
 		return this.put(
 			url, 
 			{}, 
 			this.setToken(), 
-			`getClientProducts`, 
+			`flagReversal`, 
 			null, 
 			null, 
 			1000,
 			null,
 			null,
-			0
+			1
 		);
 	}
 
-	async ProcessReversal(transactionReference, accepted) {
+	async processReversal(transactionReference, accepted) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/process?accepted=${accepted}`;
 		return this.put(
 			url, 
 			{}, 
 			this.setToken(), 
-			`getClientProducts`, 
+			`processReversal`, 
 			null, 
 			null, 
 			1000,
 			null,
 			null,
-			0
+			1
 		);
 	}
 

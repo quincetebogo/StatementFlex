@@ -5,6 +5,7 @@ import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import './EscalatedReversals';
 import './PendingReversals';
 import './CompletedReversals';
+import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
 // import { request } from 'http';
 /**
@@ -52,10 +53,8 @@ export class CapitecConnectTeamLeader extends View {
 		this.reversalAction = null;
 		this.showConfirmModal = false;
 
-
 		this.totalEscalatedReversals = 0;
 		this.totalPendingReversals = 0;
-		this.totalCompletedReversals = 0;
 	}
 	
 	static get properties() {
@@ -68,22 +67,25 @@ export class CapitecConnectTeamLeader extends View {
 			activeFilters: {type: Array},
 			totalEscalatedReversals: {type : Number},
 			totalPendingReversals: {type : Number},
-			totalCompletedReversals: {type : Number}
 		};
 	}
 
 	async searchReversals(renderSet , filters , state) {
+		const query_args = {}
 
 		const pagination_args = {
-			"page": 0,
-			"size": 10,
+			"page": typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0,
+			"size": typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10,
 			"sort":[
 				"processingDate,desc"
 			]
-		  }
+		}
 
-		const records = await this.capitecConnectService.getReversals(state, pagination_args);
-		console.log("records", records)
+		if (filters.searchValue) {
+			query_args.msisdn = this.formatCellphoneNumber(filters.searchValue, true);
+		}
+
+		const records = await this.capitecConnectService.getReversals(state, query_args, pagination_args);
 
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -97,10 +99,6 @@ export class CapitecConnectTeamLeader extends View {
 					this.totalPendingReversals = records.result.totalElements;
 				}
 
-				if(state === "COMPLETED" ) {
-					this.totalCompletedReversals = records.result.totalElements;
-				}
-
 				resolve({
 					records: returnValue || [],
 					totalRecords: retrievedRecords?.length || 0
@@ -109,31 +107,28 @@ export class CapitecConnectTeamLeader extends View {
 		});
 	}
 
-	async reversalActions(type, selectedReversal) {
+	async reversalActions(action, selectedReversal) {
 		const transactionReference = selectedReversal.businessTransactionReference;
 
-		if(type === "Lock"){
-			var reversalDetails = await this.capitecConnectService.LockReversal(transactionReference);
-		} else if(type === "Unlock") {
-			var reversalDetails = await this.capitecConnectService.UnlockReversal(transactionReference);
-			console.log("reversalDetails unlock", reversalDetails)
-		} else if(type === "Flag") {
-			var reversalDetails = await this.capitecConnectService.FlagReversal(transactionReference);
-		} else if(type === "Decline") {
-			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, false);
-		} else if(type === "Approve") {
-			var reversalDetails = await this.capitecConnectService.ProcessReversal(transactionReference, true);
+		if(action === "Lock"){
+			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
+		} else if(action === "Unlock") {
+			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
+		} else if(action === "Flag") {
+			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
+		} else if(action === "Decline") {
+			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
+		} else if(action === "Approve") {
+			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
+			if (reversalDetails.succeeded) {
+				this.horizonRouter.navigateToProcessReversalSuccess();
+			} else {
+				this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
+			}
 		}
 
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				resolve({
-					reversalDetails: reversalDetails || [],
-				});
-			}, 1000);
-		});
+		return "success";
 	}
-	
 
 	static get styles() {
 		return [
@@ -207,7 +202,7 @@ export class CapitecConnectTeamLeader extends View {
 			<capitec-card class="product-info">
 				<capitec-title-bar
 					data-automation-id="cnet-product-info-title-bar"
-					class="liveBetter"
+					class="transact"
 					type="primary">
 						${this._renderIcon()}
 						<capitec-label
@@ -239,7 +234,7 @@ export class CapitecConnectTeamLeader extends View {
 							></horizon-capitec-connect-teamleader-pending-reversals>
 						</capitec-tab>
 						
-						<capitec-tab label="Completed Reversals ${this.totalCompletedReversals}" layout="vertical" halign="center">
+						<capitec-tab label="Completed Reversals" layout="vertical" halign="center">
 						
 						<horizon-capitec-connect-teamleader-completed-reversals
 									style="width:100%"
@@ -255,7 +250,7 @@ export class CapitecConnectTeamLeader extends View {
 	
 	_renderIcon() {
 		return html`
-				<img src="/images/liveBetter/live-better-white.svg"/>`
+				<img src="/images/liveBetter/capitec-connect-white.svg"/>`
 			;
 	}
 	
