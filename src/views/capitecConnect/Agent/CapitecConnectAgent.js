@@ -1,11 +1,10 @@
-import { Component, View, css, html, unsafeCSS } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { SavingsService } from 'app/services/SavingsService';
-import SecurityContext from 'platform/SecurityContext';
-import { formatPhoneNumber } from "../../../utils/channelServiceUtilities";
+import { ViewBase } from '../../common/ViewBase';
+
 import './Recharges';
-// import { CapitecConnectService } from 'app/services/CapitecConnectService';
+
 /**
  * Capitec Connect Agent View
  *
@@ -16,7 +15,7 @@ import './Recharges';
  * @export
  * @class CapitecConnectAgent
  */
-export class CapitecConnectAgent extends View {
+export class CapitecConnectAgent extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -27,7 +26,6 @@ export class CapitecConnectAgent extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -50,31 +48,18 @@ export class CapitecConnectAgent extends View {
 		};
 
 		this.selectedReversal = null;
-
-		this.showConfirmModal = false;
-		this.showSuccessModal = false;
-		this.showFailureModal = false;
-
-		this.totalEscalatedReversals = 10;
-		this.totalPendingReversals = 10;
-		this.totalCompletedReversals = 10;
 	}
 
 	static get properties() {
 		return {
 			selectedReversal: { type: Object },
-			showConfirmModal: { type: Boolean },
-			reversalAction: { type: String },
 			selectedDate: { type: Object },
 			searchValue: { type: String },
-			activeFilters: { type: Array },
-			totalEscalatedReversals: { type: Number },
-			totalPendingReversals: { type: Number },
-			totalCompletedReversals: { type: Number }
+			activeFilters: { type: Array }
 		};
 	}
 
-	async searchRecharges(renderSet, filters, isEscalationDetails = false) {
+	async searchRecharges(filters, isEscalationDetails = false) {
 		var mockArgs = {},
 			pgArgs = {},
 			queryArgs = {};
@@ -185,10 +170,6 @@ export class CapitecConnectAgent extends View {
 					--theme-button-padding-top: 14px;
 					--theme-button-padding-bottom: 14px;
 				}
-				table tbody tr td:nth-child(4) {
-					color: blue;
-					text-align: center;
-				}
 			`
 		];
 	}
@@ -200,6 +181,7 @@ export class CapitecConnectAgent extends View {
 	_webTemplate() {
 		return html`
 			${this._renderProductInfo()}
+			${super._webTemplate()}
 		`;
 	}
 

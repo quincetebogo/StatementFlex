@@ -1,11 +1,5 @@
-import { Component, View, css, html, unsafeCSS } from 'platform/elements';
-import { Configuration, NavigationContext } from 'platform/core';
-import { ACCOUNT_TYPE_CODE } from '../../../constants/Common';
+import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
-import { CreditService } from '../../../services/CreditService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from '../../../store/HorizonStore';
-import { SavingsService } from '../../../services/SavingsService';
 import { ViewBase } from '../../common/ViewBase';
 
 /**
@@ -27,20 +21,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	constructor() {
 		super();
 
-		this.configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		// this.navigationContext = NavigationContext.getInstance();
-
-		// Client details of the caller.
-		// this.horizonStore = HorizonStore.getInstance();
-
-		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-		// this.creditService = new CreditService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-
-		// private properites
-		this.loading = true;
 
 		// Static variables
 		this.dateRanges = [
@@ -77,13 +58,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.comment = ``;
 
 		this.clientCif = ``;
-
-		this.savingsProducts = null;
-		this.selectedSavingsProduct = null;
-		this.escalationDetail = {
-			data: [],
-			loaded: false
-		};
 	}
 
 	connectedCallback() {
@@ -94,10 +68,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		*/
 		this.clientCif = this.callerInformation?.cif;
 
-		this._initialise();
+		if (this.callerInformation?.cifNumber) {
+			this.clientCif = this.callerInformation?.cifNumber;
+		}
 
-		// this.landingPageInfo = state.landingPageInfo;
-		// this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -111,16 +86,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			showConfirmModal: { type: Boolean },
 			showSuccessModal: { type: Boolean },
 			showFailureModal: { type: Boolean },
-			reversalAction: { type: String },
 			activeFilters: { type: Object },
 			showTable: { type: Boolean },
 			reason: { type: Object },
 			comment: { type: String },
 			callerInformation: { type: Object },
 			clientCif: { type: String },
-			savingsProducts: { type: Array },
-			selectedSavingsProduct: { type: Object },
-			validationMessage: { type: String },
 			searchValue: { type: String }
 		};
 	}
@@ -259,11 +230,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	isArray(obj) {
-		return typeof obj === `object` && obj.length; // arrays are objects and have length
+		return obj !== null && typeof obj === `object` && obj.length; // arrays are objects and have length
 	}
 
 	isJson(obj) {
-		return typeof obj === `object` && !obj.length; // json object have no length
+		return obj !== null && typeof obj === `object` && !obj.length; // json object have no length
 	}
 
 	toTitleCase(inputString) {
@@ -271,7 +242,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
 		});
 	};
-
 	/* UTILITIES:end */
 
 	_errorHandler() {
@@ -279,38 +249,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	async _initialise() {
-		console.log(`Initialise`);
-		console.log(this.clientCif);
-
 		// Remove before deploying.
 		// if (!this.clientCif) {
-		// 	this.clientCif = `386017913`;
+		// 	this.clientCif = `123456789`;
 		// }
+
 		this.showTable = true;
-
-		// if (this.callerInformation?.verificationStatus === `unverified`) {
-		// 	this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-		// } else {
-		// 	const landingRequest = {
-		// 		cifNumber: this.callerInformation.cifNumber,
-		// 		nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-		// 		getGenericData: true
-		// 	};
-
-		// 	const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-
-		// 	if (returnValue.succeeded) {
-		// 		this.landingPageInfo = returnValue.result;
-
-		// 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident(null, false);
-
-		// 		// Now we can update the information on the product buttons
-		// 		this._updateLeftBar();
-		// 		this.endCallContext = `LandingPage`;
-		// 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		// 	}
-		// }
 	}
 
 	async _retrieveRecharges(renderSet) {
@@ -327,15 +271,57 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			if (this.clientCif) {
 				filters.cif = this.clientCif;
+			} else {
+				return {
+					pagedItems: [],
+					totalCount: 0
+				};
 			}
 
-			const response = await this.searchRecharges(this.renderSet, filters);
+			const response = await this.searchRecharges(filters);
 
 			var r = response.result.content;
 
 			r = r.map(e => {
 				e.friendlyDate = this.formatDate(e.transactionDate);
 				e.friendlyMsisdn = this.formatCellphoneNumber(e.msisdn);
+
+				e.recharges = e.recharges.length > 0 ? this.sortObjectsByDateDescending(e.recharges, 'transactionDateTime') : e.recharges;
+				e.transactions = e.transactions.length > 0 ? this.sortObjectsByDateDescending(e.transactions, 'transactionDateTime') : e.transactions;
+
+				e.successfulRecharge = null;
+				e.successfulTransaction = null;
+				e.reversedTransaction = null;
+				e.pendingReversedTransaction = null;
+
+				if (e.recharges.length > 0) {
+					e.successfulRecharge = e.transactions.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
+					e.successfulRecharge = e.successfulRecharge.length ? e.successfulRecharge[0] : null;
+				}
+
+				if (e.transactions.length > 0) {
+					e.successfulTransaction = e.transactions.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
+					e.successfulTransaction = e.successfulTransaction.length ? e.successfulTransaction[0] : null;
+
+					e.reversedTransaction = e.transactions.filter(t => t.type === `RECHARGE_REVERSAL` && t.status === `SUCCESSFUL`);
+					e.reversedTransaction = e.reversedTransaction.length ? e.reversedTransaction[0] : null;
+				
+					e.pendingReversedTransaction = e.transactions.filter(t => t.type === `RECHARGE_REVERSAL` && t.status === `PENDING`);
+					e.pendingReversedTransaction = e.pendingReversedTransaction.length ? e.pendingReversedTransaction[0] : null;
+				}
+
+				if (
+					(typeof e.successfulRecharge === 'undefined') // if no successful recharge
+					|| (
+						typeof e.successfulRecharge !== 'undefined' // successful recharge
+						&& typeof e.reversedTransaction !== 'undefined' // successful reversal
+						&& this.compareDates(e.successfulRecharge, e.reversedTransaction) < 1 // recharge is before the reversal
+					) ||
+					(e.recharges.length > 0 && e.transactions.length === 0) // successful recharge + no transaction
+				) { // then we cannot reverse
+					e.reversible = false;
+				}
+
 				return e;
 			});
 
@@ -449,6 +435,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._render()}
+			${super._webTemplate()}
 		`;
 	}
 
@@ -552,63 +539,60 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var transferAccount = `-`;
 		var transactionCode = item.transactionReference || `-`;
 		var typeOfRecharge = ``;
+		var isPending = false;
 
-		// Sorting these so that the FIRST success [0] is the first item to be referenced
-		item.recharges = this.sortObjectsByDateDescending(item.recharges, `transactionDateTime`);
-		item.transactions = this.sortObjectsByDateDescending(item.transactions, `transactionDateTime`);
+		var theRecharge = this.isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
 
-		if (item.recharges.length) {
-			product = product ? product : item.recharges[0].bundleType;
-			typeOfRecharge = this.toTitleCase(item.recharges[0].type);
-			statusOfRecharge = this.toTitleCase(item.recharges[0].status);
-
-			var successfulRecharge = item.recharges.filter(v => v.status.toLowerCase().includes(`success`));
-
-			if (successfulRecharge.length > 0) {
-				postingDate = successfulRecharge[0].transactionDateTime;
-			}
+		if (this.isJson(theRecharge)) {
+			product = product ? product : theRecharge.bundleType;
+			postingDate = theRecharge.transactionDateTime;
+			statusOfRecharge = theRecharge.status;
+			typeOfRecharge = theRecharge.type
 		}
 
-		/* Overwrite (if value exists) with transaction details because we are using the "transaction details" and we want transaction information */
-		if (item.transactions.length) {
-			var successfulTransaction = item.transactions.filter(v => v.status.toLowerCase().includes(`success`));
-			typeOfRecharge = typeOfRecharge === `` ? this.toTitleCase(item.transactions[0].type) : typeOfRecharge;
-			processedDate = item.transactions[0].transactionDateTime;
-			accountNumber = item.transactions[0].accountNumber;
+		var theTransaction = this.isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
-			if (item.transactions[0].status) {
-				statusOfRecharge = this.toTitleCase(item.transactions[0].status);
-			}
+		if (
+			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
+			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
+			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
+		) {
+			theTransaction = item.pendingReversedTransaction;
+		}
 
-			if (successfulTransaction.length > 0) {
-				journalNumber = successfulTransaction[0].journalReference;
-				accountNumber = successfulTransaction[0].accountNumber;
-				statusOfRecharge = this.toTitleCase(successfulTransaction[0].status);
-				typeOfRecharge = this.toTitleCase(successfulTransaction[0].type);
-				processedDate = successfulTransaction[0].transactionDateTime;
-			}
+		if (this.isJson(theTransaction)) {
+			typeOfRecharge = theTransaction.type;
+			processedDate = theTransaction.transactionDateTime;
+			accountNumber = theTransaction.accountNumber;
+			journalNumber = theTransaction.journalReference;
+			statusOfRecharge = theTransaction.status;
+
+			isPending = statusOfRecharge.toLowerCase().includes('pending');
 		}
 
 		product = this.toTitleCase(product);
 
 		if (statusOfRecharge !== ``) {
-			statusOfRecharge = `[${statusOfRecharge}] `;
+			statusOfRecharge = ` [${statusOfRecharge}]`;
 		}
 
 		postingDate = postingDate ? this.formatDate(postingDate) + ` ` + this.getTimeFromDate(postingDate) : postingDate;
 		processedDate = processedDate !== `-` ? this.formatDate(processedDate) + ` ` + this.getTimeFromDate(processedDate) : processedDate;
+
+		typeOfRecharge = this.toTitleCase(typeOfRecharge);
 
 		return html`
 			<capitec-spacer></capitec-spacer>
 
 			<capitec-group layout="grid" gap="clear">
 				<div column="1" row="1" colspan="4">
-					<capitec-label type="strong" label="Description: ${channel} ${product} ${typeOfRecharge} Capitec Connect"></capitec-label>
+					<capitec-label type="strong" label="Description: ${channel.toUpperCase()} ${product} ${typeOfRecharge}${statusOfRecharge} Capitec Connect"></capitec-label>
 				</div>
 
 				<div column="1" row="2">
 					<capitec-label label="Transaction Type:"></capitec-label>
-					<capitec-label type="strong" label="${product} ${typeOfRecharge}"></capitec-label>
+					<capitec-label type="strong" label="${product} ${typeOfRecharge}${statusOfRecharge}"></capitec-label>
 				</div>
 				<div column="1" row="3">
 					<capitec-label label="Transaction Code:"></capitec-label>
@@ -650,7 +634,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-hyperlink
 						style="margin-right: 16px;
 						margin-top: 10px"
-						label="Recharge Status"
+						label="${isPending ? 'Reversal' : 'Recharge'} Status"
 						@click="${() => { this.selectedRechargeView = item; }}">
 					</capitec-hyperlink>
 					${!item.reversible 
@@ -671,74 +655,71 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_renderRechargeStatusModal() {
-		var bundleType = this.selectedRechargeView.bundleType ? this.selectedRechargeView.bundleType + ` ` : ``;
-		var endTime = ``;
-		var errorType = `-`;
-		var errorMessage = `-`;
-		var messageId = `-`;
-		var merchantId = `-`;
-		var productId = `-`;
-		var quantityMeasurement = ``;
-		var startTime = this.getTimeFromDate(this.selectedRechargeView.transactionDate);
-			var status = ``;
-			var type = ``;
+		var item = this.selectedRechargeView;
 
-		// Sorting these so that the FIRST success [0] is the first item to be referenced
-		this.selectedRechargeView.recharges = this.sortObjectsByDateDescending(this.selectedRechargeView.recharges, `transactionDateTime`);
-		this.selectedRechargeView.transactions = this.sortObjectsByDateDescending(this.selectedRechargeView.transactions, `transactionDateTime`);
+		var product = item.bundleType,
+			productId = `-`,
+			type = ``,
+			messageId = `-`,
+			startTime = this.getTimeFromDate(item.transactionDate),
+			endTime = ``,
+			merchantId = `-`,
+			quantityMeasurement = ``,
+			errorType = `-`,
+			errorMessage = `-`,
+			statusOfRecharge = ``,
+			isPending = false;
 
-		if (this.selectedRechargeView.transactions.length > 0) {
-			const successfulTransaction = this.selectedRechargeView.transactions.filter(v => v.status.toLowerCase().includes(`success`));
+		var theRecharge = this.isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		var theTransaction = this.isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
-			type = this.selectedRechargeView.transactions[0].type + ` `;
-			status = this.selectedRechargeView.transactions[0].status;
-			errorMessage = this.selectedRechargeView.transactions[0].statusReason;
+		if (this.isJson(theRecharge)) {
+			product = product ? product : theRecharge.bundleType;
+			statusOfRecharge = theRecharge.status;
+			type = theRecharge.type;
+			quantityMeasurement = theRecharge.quantityMeasurement;
+			errorMessage = theRecharge.statusReason;
+			productId = theRecharge.productId;
+		}
 
-			endTime = this.selectedRechargeView.transactions[0].transactionDateTime;
-			endTime = endTime !== `` ? ` - ${this.getTimeFromDate(endTime)}` : endTime;
+		if (
+			typeof item.reversedTransaction !== 'undefined' // if there is a successful reversal
+			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			&& this.compareDates(item.reversedTransaction, item.successfulTransaction) > 0 // if the reversal is after the successful transaction
+		) {
+			theTransaction = item.reversedTransaction;
+		}
 
-			if (successfulTransaction.length > 0) {
-				type = successfulTransaction[0].type + ` `;
-				status = successfulTransaction[0].status;
-				errorMessage = successfulTransaction[0].statusReason;
-			}
+		if (
+			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
+			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
+			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
+		) {
+			theTransaction = item.pendingReversedTransaction;
+		}
+
+		if (this.isJson(theTransaction)) {
+			type = theTransaction.type;
+			statusOfRecharge = theTransaction.status;
+			errorMessage = theTransaction.statusReason;
+			endTime = ` - ${this.getTimeFromDate(theTransaction.transactionDateTime)}`;
 		}
 		
-		/* Overwrite (if value exists) with recharges because we are using the recharge modal and we want the recharge information */
-		if (this.selectedRechargeView.recharges.length > 0) {
-			const successfulRecharge = this.selectedRechargeView.recharges.filter(v => v.status.toLowerCase().includes(`success`));
-
-			productId = this.selectedRechargeView.recharges[0].productId;
-			quantityMeasurement = this.selectedRechargeView.recharges[0].quantityMeasurement;
-
-			bundleType = this.selectedRechargeView.recharges[0].bundleType ? this.selectedRechargeView.recharges[0].bundleType + ` ` : bundleType;
-			type = this.selectedRechargeView.recharges[0].type ? this.selectedRechargeView.recharges[0].type + ` ` : type;
-
-			status = this.selectedRechargeView.recharges[0].status ? this.selectedRechargeView.recharges[0].status : status;
-			errorMessage = this.selectedRechargeView.recharges[0].statusReason ? this.selectedRechargeView.recharges[0].statusReason : errorMessage;
-
-			if (successfulRecharge.length > 0) {
-				productId = successfulRecharge[0].productId;
-				quantityMeasurement = successfulRecharge[0].quantityMeasurement;
-				bundleType = successfulRecharge[0].bundleType + ` `;
-				type = successfulRecharge[0].type + ` `;
-				status = successfulRecharge[0].status;
-				errorMessage = successfulRecharge[0].statusReason;
-			}
-
-			quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
-		}
+		isPending = statusOfRecharge.toLowerCase().includes('pending');
+		product = this.toTitleCase(product);
+		quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
 
 		return html`
 		<capitec-modal type="form" header="Recharge Status">
 			<capitec-group slot="body" layout="grid" gap="clear">
 				<div row="1" column="1">
-					<capitec-label type="strong" label="${status}"></capitec-label>
-					<capitec-label type="strong" label="${bundleType}${type}Request"></capitec-label>
+					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>
+					<capitec-label type="strong" label="${product} ${this.toTitleCase(type)}"></capitec-label>
 				</div>
 				<div row="1" column="2">
 					<br>
-					<capitec-label type="strong" label="${this.selectedRechargeView.transactionReference}"></capitec-label>
+					<capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
 				</div>
 
 				<div row="2" column="1">
@@ -749,8 +730,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				</div>
 				<div row="2" column="2">
 					<capitec-label label="${messageId}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.friendlyDate} ${startTime}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.cif}"></capitec-label>
+					<capitec-label label="${item.friendlyDate} ${startTime}"></capitec-label>
+					<capitec-label label="${item.cif}"></capitec-label>
 					<capitec-label label="${merchantId}"></capitec-label>
 				</div>
 
@@ -768,13 +749,13 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-label label="Request Amount"></capitec-label>
 				</div>
 				<div row="4" column="2">
-					<capitec-label label="${this.toTitleCase(this.selectedRechargeView.channel)}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.friendlyMsisdn}"></capitec-label>
+					<capitec-label label="${item.channel.toUpperCase()}"></capitec-label>
+					<capitec-label label="${item.friendlyMsisdn}"></capitec-label>
 					<capitec-label label="Capitec Connect"></capitec-label>
 					<capitec-label label="${productId}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.productName}"></capitec-label>
-					<capitec-label label="${bundleType}"></capitec-label>
-					<capitec-label label="${this.selectedRechargeView.amount}${quantityMeasurement}"></capitec-label>
+					<capitec-label label="${item.productName}"></capitec-label>
+					<capitec-label label="${product}"></capitec-label>
+					<capitec-label label="${item.amount} ${quantityMeasurement}"></capitec-label>
 				</div>
 
 				<capitec-spacer></capitec-spacer>
@@ -791,7 +772,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<capitec-spacer></capitec-spacer>
 
 				<div row="6" column="1" colspan="2">
-					<capitec-label type="strong" label="${this.formatDate(this.selectedRechargeView.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
+					<capitec-label type="strong" label="${this.formatDate(item.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
 					<capitec-label type="strong" label="${startTime}${endTime}"></capitec-label>
 				</div>
 			</capitec-group>
@@ -869,7 +850,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer" 
 					type="clear" 
 					label="Done"
-					@click="${() => this.showSuccessModal = false}">
+					@click="${() => {this.showSuccessModal = false; this.onFilter()}}">
 				</capitec-button>
 			</capitec-modal>
 		`;
@@ -888,7 +869,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer" 
 					type="clear" 
 					label="Done"
-					@click="${() => this.showFailureModal = false}">
+					@click="${() => {this.showFailureModal = false; this.onFilter()}}">
 				</capitec-button>
 			</capitec-modal>
 		`;
