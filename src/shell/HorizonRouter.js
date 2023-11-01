@@ -51,6 +51,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
+	PROCESS_REVERSAL_SUCCESS: `/success/process-reversal`,
+	PROCESS_REVERSAL_FAILURE: `/error/process-reversal`,
 	LIVE_BETTER: `/liveBetter`,
 	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
 	CREDIT_ACCOUNT: `/transact/credit`,
@@ -415,6 +417,14 @@ export class HorizonRouter {
 
 	navigateToAutomaticSavingsFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
+	}
+
+	navigateToProcessReversalSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}`);
+	}
+
+	navigateToProcessReversalFailure(transactionReference) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_FAILURE}/${transactionReference}`);
 	}
 
 	navigateToSettlementQuoteSuccess() {
@@ -992,6 +1002,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
 		load: () => import(`../views/liveBetter/AutomaticSavingsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-process-reversal-failure`,
+		title: `ProcessReversalFailed`,
+		icon: null,
+		path: `${HORIZON_ROUTES.PROCESS_REVERSAL_FAILURE}/:transactionReference`,
+		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-process-reversal-success`,
+		title: `ProcessReversalSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS,
+		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{

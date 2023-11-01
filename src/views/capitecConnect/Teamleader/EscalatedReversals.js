@@ -36,15 +36,16 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			{ value: "90", text: "90 Days" },
 		];
 
-		this.availableBundleFilters = ["All", "Airtime", "Minutes", "Data", "SMSs"]
+		this.pagingRows = [10, 20, 50];
+		this.numOfPagingRows = 10;
+		this.currentPageIndex = 1;
 
 		// State variables
 		// this.searchValue = "";
 		// this.selectedDate = this.dateRanges[0];
 		this.activeFilters = {
 			selectedDate:this.dateRanges[0],
-			searchValue: "",
-			bundleType:["All"]
+			searchValue: ""
 		};
 
 		this.selectedReversal = null;
@@ -74,44 +75,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		alert('error')
 	}
 
-	_filterClick(value) {
-		let index = this.activeFilters.bundleType.findIndex(item => item === value);
-		let bundleType = [...this.activeFilters.bundleType];
-
-		// Un-Select
-		if(index !== -1) {
-
-			if(this.activeFilters.bundleType.length === 1) {
-				// Auto to all
-				this.activeFilters.bundleType = ['All'];
-				this.onFilter();
-				return;
-			} 
-				
-			bundleType.splice(index, 1);
-
-			this.activeFilters.bundleType = bundleType;
-			this.onFilter();
-			return;
-		}
-
-		// Select
-		if(value === "All") {
-			this.activeFilters.bundleType = [value];
-		} else {
-			if(value !== "All") {
-				// Check if all is selected
-				let indexA = this.activeFilters.bundleType.findIndex(item => item === 'All');
-				if(indexA > -1) {
-					// All is selected
-					bundleType.splice(indexA, 1);
-				}
-			} 
-			
-			bundleType.push(value)
-			this.activeFilters.bundleType = [...bundleType];
-			console.info("value filterclick", bundleType)
-		}
+	_filterSearchboxClick() {
+		this.activeFilters.searchValue = ``;
 
 		this.onFilter();
 		return;
@@ -127,6 +92,27 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		}, 100);
 	}
 	
+	formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
+		cellphoneNumber = cellphoneNumber.replace(/\s/g, ``); // first remove the spaces
+
+		if (cellphoneNumber.startsWith('0')) {
+			// Replace the '0' with '27' using the replace method
+			cellphoneNumber = cellphoneNumber.replace(/^0/, '27');
+		}
+
+		if (cellphoneNumber.length === 11) {
+			cellphoneNumber = `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
+		} else {
+			// Handle invalid input here if necessary
+			cellphoneNumber = ``;
+		}
+
+		if (withoutSpaces) {
+			cellphoneNumber = cellphoneNumber.replace(/\s/g, ``);
+		}
+
+		return cellphoneNumber;
+	}	
 
 	static get styles() {
 		return [
@@ -196,7 +182,11 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 
 	async _renderCollection(renderSet) {
-		console.log("renderSet: ", renderSet)
+		this.renderSet = renderSet;
+		this.numOfPagingRows = this.renderSet.numOfPagingRows;
+		this.currentPageIndex = this.renderSet.currentPageIndex;
+		this.searchValue = this.renderSet.searchValue;
+
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
 		return {
 			pagedItems: pagedItemsToReturn.records,
@@ -229,7 +219,6 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 	
 	_render() {
-		var network = "Capitec Connect"
 		return html`
 		<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 		<capitec-button-bar>
@@ -244,24 +233,13 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				id-field="value">
 			</capitec-select>
 			<capitec-spacer></capitec-spacer>
-			${this.availableBundleFilters.map(item => {
-				if(this.activeFilters.bundleType.includes(item)) {
-
-					return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-				}
-
-					return html`<capitec-chip label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-
-			})}
 		</capitec-button-bar>
 
-		<capitec-label label="Active Filters"></capitec-label>
+		<capitec-label label="Active Filters:"></capitec-label>
 		<capitec-button-bar>
-			${this.activeFilters.searchValue ? html`<capitec-chip label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
-			${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== "NonSelected" ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
+		${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${() => this._filterSearchboxClick()}" label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
+		${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== "NonSelected" ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
 			
-
-			${this.activeFilters.bundleType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
 			<capitec-spacer></capitec-spacer>
 		</capitec-button-bar>
 		${!this.showTable ? null : html`
@@ -269,6 +247,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		<capitec-table style="" 
 				displayMode="Paging" 
 				groupField="month" 
+				numOfPagingRows="${this.numOfPagingRows}"
+				pagingRows="[${this.pagingRows.join(`,`)}]"
 				.dataHandler="${(renderSet) => this._renderCollection(renderSet)}"
 				expandable="right" 
 				.expandRenderer="${(item) => this._expandRenderer(item)}">
@@ -278,7 +258,6 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Client Name" field=""></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Network" field="${network}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
