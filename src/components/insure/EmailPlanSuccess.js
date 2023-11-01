@@ -55,17 +55,11 @@ class EmailPlanSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
-
-		this._updateIncidentState();
 	}
 
 	// #endregion
 
 // #region PRIVATE METHODS
-
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 // #endregion PRIVATE METHODS
 

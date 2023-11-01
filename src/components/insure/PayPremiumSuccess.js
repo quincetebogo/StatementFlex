@@ -71,18 +71,11 @@ class PayPremiumSuccess extends Component {
 	 connectedCallback() {
 		super.connectedCallback();
 		window.setTimeout(() => this.showSuccessAlert = false, 2000);
-		
-		this._updateIncidentState();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 // #region PRIVATE METHODS
-
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 // #endregion PRIVATE METHODS
 
@@ -115,8 +108,6 @@ async _openEmailPlanDialog() {
 	this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 
 	this.showEmailPlanDialog = true;
-	await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-	await super.createAndClassifySubIncident();
 }
 
 /**

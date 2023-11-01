@@ -137,14 +137,14 @@ export class EarlyCollectionOptionsDialog extends Component {
 						<capitec-group layout="grid" rows="auto" columns="auto" gap="10px">
 							<capitec-radio
 								id="optedIN"
-								label="Opt IN to Early December collection"
+								label="I agree to December early collection"
 								?checked = "${this.isOptedIn === true}"
 								@value-changed="${(e) => this._preferenceChange(e, true)}"
 								row="1" column="1">
 							</capitec-radio>
 							<capitec-radio
 								id="optedOUT"
-								label="Opt OUT of Early December collection"
+								label="No, collect on nominated date"
 								?checked = "${this.isOptedIn === false}"
 								@value-changed="${(e) => this._preferenceChange(e, false)}"
 								row="2" column="1">

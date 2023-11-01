@@ -87,7 +87,7 @@ class PolicySummary extends Component {
 	 * Navigate to Insure Landing page
 	 * @returns {void} 
 	 */
-	_backToClientPoliciesPage() {
+	async _backToClientPoliciesPage() {
 		this._telemetry.logEvent(this.telemetryEvents.POLICY_SUMMARY_BACK, {
 			"screen": TelemetryScreen.INSURE_POLICY_SUMMARY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
@@ -113,8 +113,7 @@ class PolicySummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-		await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+
 	}
 
 	// #endregion PRIVATE FUNCTIONS

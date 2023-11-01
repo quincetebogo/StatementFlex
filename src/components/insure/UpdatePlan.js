@@ -755,6 +755,7 @@ class UpdatePlan extends Component {
 	_beneficiaryPayoutValueChanged(event, rowID) {
 		if (event.detail.old !== event.detail.new) {
 			let totalPayout = 0;
+			const totalCover = parseFloat(this.policyDetails.roleplayers[0].coverAmount);
 
 			this.policyDetails.roleplayers.forEach(ele => {
 				if (ele.rowID === rowID) {
@@ -765,7 +766,7 @@ class UpdatePlan extends Component {
 				}
 			});
 
-			if (this.policyDetails.roleplayers[0].coverAmount !== totalPayout) {
+			if (totalCover !== totalPayout) {
 				this.policyDetails.roleplayers.forEach(ele => {
 					if (ele.beneficiary === true) {
 						ele.coverDetails.benefitPayoutErrorMessage = `Beneficiary payout amount(s) does not match total`;
@@ -1002,18 +1003,16 @@ class UpdatePlan extends Component {
 	 */
 	async _tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
-		if (this.selectedTabIndex === 0) {
-			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
-			return;
-		} else if (this.selectedTabIndex === 1) {
-			await super._inicidentManager_(`funeral-plan-update-beneficiaries`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
-			return;
-		}
-			await super._inicidentManager_(`funeral-plan-update-payment-details`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
-
+		if (this.canReinstate === false) {
+			if (this.selectedTabIndex === 0) {
+				this.setInsureIncident(`funeral-plan-update-lives`);
+				return;
+			} else if (this.selectedTabIndex === 1) {
+				this.setInsureIncident(`funeral-plan-update-beneficiaries`);
+				return;
+			}
+			this.setInsureIncident(`funeral-plan-update-payment-details`);
+		} 
 	}
 
 	/**
@@ -1338,7 +1337,11 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	async _initialise() {
-		this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+
+		this.canReinstate = this.policyDetails.canReinstate;
+		if (this.canReinstate === false) {
+			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
+		}
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
 		this.disableAccountNumber = this._disableAccountNumber();
@@ -1364,7 +1367,7 @@ class UpdatePlan extends Component {
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
-			
+
 		}
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
@@ -1385,16 +1388,6 @@ class UpdatePlan extends Component {
 			}
 		});
 		this._openIneligibleLivesDialog();
-
-		if (this.canReinstate === true) {
-			await super._inicidentManager_(`funeral-plan-reissue`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
-		} else {
-			await super._inicidentManager_(`funeral-plan-update-lives`, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
-		}
-
-
 	}
 
 	/**
@@ -1434,6 +1427,7 @@ class UpdatePlan extends Component {
 		let payoutsMatch = false;
 
 		let totalPayout = 0;
+		const totalCover = parseFloat(this.policyDetails.roleplayers[0].coverAmount);
 
 		this.policyDetails.roleplayers.forEach(ben => {
 			if (ben.beneficiary === true) {
@@ -1441,7 +1435,7 @@ class UpdatePlan extends Component {
 			}
 		});
 
-		if (this.policyDetails.roleplayers[0].coverAmount === totalPayout) {
+		if (totalCover === totalPayout) {
 			payoutsMatch = true;
 		}
 
