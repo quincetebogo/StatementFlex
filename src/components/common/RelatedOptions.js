@@ -145,6 +145,7 @@ export class RelatedOptions extends Component {
 		const proofOfAccount = () => this._proofOfAccount();
 		const transactionHistory = (option) => this._transactionHistory(option);
 		const paidUpAccounts = (option) => this._paidUpAccounts(option);
+		const payshapProofOfPayment = (option) => this._payshapProofOfPayment(option);
 
 		const actions = {
 			'stop-card': stopCard,
@@ -154,7 +155,8 @@ export class RelatedOptions extends Component {
 			'tax-certificate': taxCertificate,
 			'proof-of-account': proofOfAccount,
 			'transaction-history': transactionHistory,
-			'paid-up-accounts': paidUpAccounts
+			'paid-up-accounts': paidUpAccounts,
+			'payshap-proof-of-payment': payshapProofOfPayment
 		};
 
 			if (actions[item]) {
@@ -306,6 +308,11 @@ export class RelatedOptions extends Component {
 	}
 
 	_paidUpAccounts(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_payshapProofOfPayment(option) {
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}

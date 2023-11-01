@@ -42,6 +42,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update`,
 	PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
+	PAYSHAP_PROOF_OF_PAYMENT_OUTCOME: `/success/payshap-proof-of-payment`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
 	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
@@ -76,7 +77,8 @@ const HORIZON_ROUTES = Object.freeze({
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
 	VIEW_PROFILE: `/view-profile`,
-	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`
+	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`,
+	ACCESS_CHANNELS_OUTCOME: `/access-channels/outcome`
 });
 
 
@@ -364,6 +366,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
 	}
 
+    navigateToPayshapProofOfPaymentOutcome() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
+	}
+
 	_navigateToTapToPayUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL}`);
 	}
@@ -509,6 +515,10 @@ export class HorizonRouter {
 
 	navigateToUnavaliableForRole() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE}`);
+	}
+
+	navigateToAccessChannelsOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}`);
 	}
 
 	/**
@@ -758,12 +768,12 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	// {
-	// 	name: `horizon-prospective-client`,
-	// 	title: `Insure`,
-	// 	icon: null,
-	// 	path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
-	// 	load: () => import(`../views/insure/ProspectiveClient`),
-	// 	onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	// name: `horizon-prospective-client`,
+	// title: `Insure`,
+	// icon: null,
+	// path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
+	// load: () => import(`../views/insure/ProspectiveClient`),
+	// onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	// },
 	{
 		name: `horizon-insure-unverified-client`,
@@ -1100,6 +1110,14 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
+		name: `horizon-payshap-proof-of-payment-outcome`,
+		title: `PayshapProofOfPaymentOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME,
+		load: () => import(`../views/quickTransactions/PayshapProofOfPaymentOutcome`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
 		name: `horizon-paid-up-letter-success`,
 		title: `PaidUpLetterSuccess`,
 		icon: null,
@@ -1193,6 +1211,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE,
 		load: () => import(`../views/common/UnableAvailableForRole`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-access-channels-outcome`,
+		title: `HorizonAccessChannelsOutcome`,
+		icon: null,
+		path: HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME,
+		load: () => import(`../views/stopCard/AccessChannelsOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

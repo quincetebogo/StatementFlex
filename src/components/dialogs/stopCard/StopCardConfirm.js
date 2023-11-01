@@ -115,7 +115,11 @@ export class StopCardConfirm extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy;
+		this.isBusy = !this.isBusy;
+	}
+
+	_getCardType(card) {
+		return card.cardDisplayName.includes(`Debit`) ? `debit` : `credit`;
 	}
 
 	// ---------
@@ -126,61 +130,70 @@ export class StopCardConfirm extends Component {
 		return [
 			super.styles,
 			css`
-
-			.dialogSize {
-				width: 452px;
-				margin-bottom: 48px;
-			}
-
-			p{
-				color: #4E6066;
-				font-family: "Hind Vadodara";
-				font-size: 16px;
-				/*font-weight: 600;*/
-				letter-spacing: 0;
-				line-height: 24px;
-			}
-
-			.bold-text{
-				color: #4E6066;
-				font-family: "Hind Vadodara";
-				font-size: 16px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-			}
-
-			.first-line {
-				margin-top: 8px;
-				margin-left:24px;
-				height: 20px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 15px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 20px;
-			  }
-
-			.left-margin{
-				margin-top:0px;
-				margin-left:24px;
-			}
-
-			.top-margin{
-				margin-top:8px;
-			}
-
-			.line{
-				margin: 16px 16px 16px 16px;
-				width: 420px;
-				border-top:1px solid #dfdfdf;
-			}
-
-			capitec-modal {
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-modal-header-color: #3E4547;
-			}`
+				capitec-modal {
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-color: #3E4547;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
+				}
+				capitec-title-bar {
+					position: absolute;
+					top: -30px;
+					left: -434px;
+					width: 455px;
+					--theme-type-default-background: rgb(249, 235, 221);
+					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-label-title-font-size: 18px;
+					--theme-titlebar-title-margin-left: 12px;
+				}
+				capitec-content-box[slot="body"] {
+					width: 456px;
+					height: 350px;
+					border-bottom: var(--theme-divider);
+				}
+				capitec-card {
+					--theme-card-min-height: 64px;
+					--theme-product-tile-hover-credit-border: 4px solid #E61414;
+					padding: 14px;
+					border-left: var(--theme-product-tile-hover-credit-border);
+				}
+				capitec-card.debit {
+					--theme-product-tile-hover-credit-border: 4px solid #009DE0;
+				}
+				capitec-card.credit {
+					--theme-product-tile-hover-credit-border: 4px solid #E61414;
+				}
+				capitec-card:last-child {
+					margin-bottom: 10px;
+				}
+				capitec-label[type="strong"] {
+					--theme-label-strong-font-weight: 600;
+				}
+				p, ul {
+					margin: 0px;
+					font-family: var(--theme-label-font-family, Arial, Helvetica, sans-serif);
+					font-size: var(--theme-label-strong-font-size, 12px);
+				}
+				horizon-label {
+					--horizon-label-text-font-size: 13px;
+					--horizon-label-text-line-height: 13px;
+					--horizon-label-text-height: 14px;
+					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-value-font-size: 15px;
+					--horizon-label-value-height: 16px;
+					--horizon-label-value-line-height: 15px;
+					--horizon-label-value-color: #3A3A3A;
+					--horizon-label-value-margin-top: 4px;
+				}
+				capitec-button {
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+				}
+				.cardsToStop-box {
+					height: auto;
+					max-height: 143px;
+				}
+			`
 		];
 	}
 
@@ -191,46 +204,66 @@ export class StopCardConfirm extends Component {
 		return html`
 			<capitec-modal
 				data-automation-id="stop-card-confirm-dialog"
-				type="free" 
-				header="Stop Card" 
+				type="free"
 				header-align="left">
-				<div slot="body">
-					${this._renderConfirmStopCard()}
-					${this._renderLoadingIndicator()}
-				</div>
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
+					<capitec-title-bar label="Stop card(s)" icon="status/warning-trans" slot="header">
+					</capitec-title-bar>
+					<capitec-content-box slot="body">
+						${this._renderContent()}
+						${this._renderLoadingIndicator()}
+					</capitec-content-box>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
 			</capitec-modal>
 			`;
 	}
 
+	_renderContent() {
+		return html`
+			<capitec-label type="strong" label="Are you sure you want to stop the following cards?">
+			</capitec-label>
+			<capitec-content-box class="cardsToStop-box" layout="vertical" noPadding>
+				${this._renderConfirmStopCard()}
+			</capitec-content-box>
+			${this._renderDisclaimer()}
+		`;
+	}
+
 	_renderConfirmStopCard() {
-		this.firstLine = true;
-		return html`
-			<capitec-group class="dialogSize" layout="vertical" gap="none">
-				<p data-automation-id="stop-card-confirm-card-message" class="first-line">Are you sure you want to stop:</p>
-				${this.cardsToStop.map((line, index, cards) => this._renderLine(line, index, cards))}
-			</capitec-group>
-		`;
+		return this.cardsToStop.map(card => html`
+			<capitec-card class="${this._getCardType(card)}">
+				<capitec-group layout="grid" rows="uniform" columns="uniform">
+					<horizon-label row="1" column="1"
+						label="${card.cardDisplayName}"
+						value="${card.maskedCardNumber}">
+					</horizon-label>
+					<horizon-label row="1" column="2"
+						label="Reason"
+						value="${card.cardStopReason.value}">
+					</horizon-label>
+				</capitec-group>
+			</capitec-card>`);
 	}
 
-	_renderLine(line, index, cards) {
-		const classes = this.firstLine ? `top-margin left-margin` : `left-margin`;
-		this.firstLine = false;
-
+	_renderDisclaimer() {
 		return html`
-		<p data-automation-id="stop-card-confirm-cards" class="${classes}">${line.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <span class="bold-text">${line.maskedCardNumber}</span></p>
-		<p data-automation-id="stop-card-confirm-stop-reason" class="left-margin">Reason: <span class="bold-text">${line.cardStopReason.value}</span></p>
-		${this._renderGreyLine(index, cards)}
-		`;
-	}
+			<p>
+				<span>
+					<b>In the case of fraud or theft, probe the incident to be better equipped to take the correct actions.</b>
+					If the situation requires it:
+				</span>
+			</p>
 
-	_renderGreyLine(index, cards) {
-		if (index < cards.length - 1) {
-			return html`<div class="line"></div>`;
-		}
-		return html``;
+			<ul>
+				<li>
+					<capitec-label label="Stop the client's access channels"></capitec-label>
+				</li>
+				<li>
+					<capitec-label label="Transfer the call to the Fraud Engagement Centre for the agent to recover funds"></capitec-label>
+				</li>
+			</ul>
+		`;
 	}
 
 	_renderFooter() {

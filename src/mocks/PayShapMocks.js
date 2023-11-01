@@ -435,3 +435,8 @@ export const moneyInResponse = {
 		}
 	]
 };
+
+export const payshapPopResponse = {
+	"resendSuccess": [`EMAIL`, `SMS`],
+	"resendFailed": []
+};
