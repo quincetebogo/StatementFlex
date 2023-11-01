@@ -67,18 +67,11 @@ class SuccessPage extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this._updateIncidentState();
-
 	}
 
 	// #endregion
 
 	// #region PRIVATE METHODS
-
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 	// #endregion PRIVATE METHODS
 
@@ -96,8 +89,6 @@ class SuccessPage extends Component {
 		} else if (this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN) {
 			this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
 		}
-		await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
 	}
 	
 	/**
