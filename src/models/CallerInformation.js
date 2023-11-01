@@ -50,6 +50,7 @@
 	 * @param {string} [gender=""] The Client's gender
 	 * @param {string} [branchCallerID=""] Specifically for branch caller flow
 	 * @param {string} [branchCode=""] Branc code, again this is only for branch flow
+	 * @param {string} [maskedCif=""] Masked client's cif
 	 */
 	constructor(
 		cifNumber,
@@ -88,7 +89,8 @@
 		profilePhoto = ``,
  		gender = ``,
 		branchCallerID = ``,
-		branchCode = ``
+		branchCode = ``,
+		maskedCif = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -127,6 +129,7 @@
 		this.gender = gender;
 		this.branchCallerID = branchCallerID;
 		this.branchCode = branchCode;
+		this.maskedCif = maskedCif;
 		Object.seal();
 	}
 }
