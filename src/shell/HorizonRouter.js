@@ -216,6 +216,16 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT);
 	}
 
+	getCapitecConnectPageState() {
+		var state = HorizonStore.getInstance().recoverState();
+
+		if (state && state.callerInformation && state.callerInformation.verificationStatus && this.roleManager.isCapitecConnectAgent) {
+			return HORIZON_VIEW_SET.VERIFIED_PAGES;
+		} else {
+			return HORIZON_VIEW_SET.LANDING_PAGES;
+		}
+	}
+
 	navigateToStopCard() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
@@ -747,7 +757,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT,
 		load: () => import(`../views/product/CapitecConnectProduct`),
 		// guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HorizonRouter.getInstance().getCapitecConnectPageState())
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
