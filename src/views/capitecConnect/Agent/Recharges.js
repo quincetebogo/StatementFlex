@@ -1,6 +1,6 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
-import { ViewBase } from '../../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 /**
  * Capitec Connect teamleader View
@@ -435,7 +435,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._render()}
-			${super._webTemplate()}
 		`;
 	}
 

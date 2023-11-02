@@ -747,7 +747,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT,
 		load: () => import(`../views/product/CapitecConnectProduct`),
 		// guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-stop-card-landing-page`,

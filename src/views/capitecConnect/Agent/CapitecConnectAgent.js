@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { ViewBase } from '../../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import './Recharges';
 
