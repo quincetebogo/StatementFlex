@@ -86,6 +86,9 @@ export class CapitecConnectAgent extends View {
 			});
 		}
 
+		filters.searchValue = this.formatCellphoneNumber(filters.searchValue, true);
+		this.activeFilters.searchValue = filters.searchValue;
+
 		if (filters.searchValue) {
 			queryArgs.msisdn = filters.searchValue;
 		}
@@ -96,12 +99,12 @@ export class CapitecConnectAgent extends View {
 
 		queryArgs.transactionDate = {
 			startDate: this.getDateInPast(filters.selectedDate.value),
-			endDate: this.getDateInPast(0)
+			endDate: this.getDateInPast(-1) // for tomorrow's date so that we include today's records
 		};
 
 		pgArgs = {
 			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [`transactionDate`, `msisdn`],
+			sort: [`transactionDate,desc`],
 			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
 		};
 
@@ -226,14 +229,6 @@ export class CapitecConnectAgent extends View {
 								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"
 								></horizon-capitec-connect-agent-recharges>
-						</capitec-tab>
-						
-						<capitec-tab label="Advances" layout="vertical" halign="left">
-							Not available
-						</capitec-tab>
-						
-						<capitec-tab label="Advance Repayment" layout="vertical" halign="center">
-							Not available
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>
