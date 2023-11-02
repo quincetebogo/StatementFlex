@@ -286,7 +286,9 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				<capitec-label type="default" label=""></capitec-label>
 				
 				<capitec-content-box layout="grid">
-					<capitec-label type="strong" label="Statement description: ${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
+					<div column="1" row="1" colspan="4">
+						<capitec-label type="strong" label="Statement description: ${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
+					</div>
 					<div column="1" row="2">
 						<capitec-label label="Transaction Type" ></capitec-label>
 						<capitec-label type="strong" label="${typeOfRecharge}" ></capitec-label>

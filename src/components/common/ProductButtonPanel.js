@@ -67,7 +67,8 @@ export class ProductButtonPanel extends Component {
 		return {
 			selectedButton: { type: String },
 			subtitle: { type: Object },
-			detail: { type: Object }
+			detail: { type: Object },
+			connectReversalCount: {type : Number}
 		};
 	}
 
@@ -98,6 +99,10 @@ export class ProductButtonPanel extends Component {
 			return null;
 		}
 		return amount;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -197,7 +202,6 @@ export class ProductButtonPanel extends Component {
 				type="capitec-connect"
 				label="Capitec Connect"
 				subtitle="${this.subtitle.capitecConnect ? this.subtitle.capitecConnect : DEFAULT_SUBTITLE.CAPITEC_CONNECT}"
-				detail="${this.detail.capitecConnect ? this.detail.capitecConnect : ``}"
 				icon="product/cellphone"
 				@click="${() => this._productButtonClick(`CapitecConnect`)}"
 				?selected="${this.selectedButton === `CapitecConnect`}"

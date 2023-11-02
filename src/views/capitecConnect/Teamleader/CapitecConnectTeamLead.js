@@ -7,6 +7,7 @@ import './PendingReversals';
 import './CompletedReversals';
 import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
+import { getDateInPast } from 'app/utils/capitecConnectUtils';
 // import { request } from 'http';
 /**
  * Capitec Connect teamleader View
@@ -29,7 +30,7 @@ export class CapitecConnectTeamLeader extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -66,8 +67,12 @@ export class CapitecConnectTeamLeader extends View {
 			searchValue: {type: String},
 			activeFilters: {type: Array},
 			totalEscalatedReversals: {type : Number},
-			totalPendingReversals: {type : Number},
+			totalPendingReversals: {type : Number}
 		};
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	async searchReversals(renderSet , filters , state) {
@@ -85,26 +90,30 @@ export class CapitecConnectTeamLeader extends View {
 			query_args.msisdn = this.formatCellphoneNumber(filters.searchValue, true);
 		}
 
+		if (filters.selectedDate?.value) {
+			query_args.actionCreatedDate = {
+				startDate: getDateInPast(filters.selectedDate.value),
+				endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
+			};
+		}
+
 		const records = await this.capitecConnectService.getReversals(state, query_args, pagination_args);
 
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				const retrievedRecords = records.result.content.filter(item => item.actionState === state);
-				const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
-				if(state === "AVAILABLE" ) {
-					this.totalEscalatedReversals = records.result.totalElements;
-				}
-				
-				if(state === "FLAGGED" ) {
-					this.totalPendingReversals = records.result.totalElements;
-				}
+		const retrievedRecords = records.result.content.filter(item => item.actionState === state);
+		const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
 
-				resolve({
-					records: returnValue || [],
-					totalRecords: retrievedRecords?.length || 0
-				});
-			}, 1000);
-		});
+		if(state === "AVAILABLE" ) {
+			this.totalEscalatedReversals = records.result.totalElements;
+		}
+		
+		if(state === "FLAGGED" ) {
+			this.totalPendingReversals = records.result.totalElements;
+		}
+
+		return {
+			records: returnValue || [],
+			totalRecords: retrievedRecords?.length || 0
+		};
 	}
 
 	async reversalActions(action, selectedReversal) {
@@ -114,10 +123,14 @@ export class CapitecConnectTeamLeader extends View {
 			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
 		} else if(action === "Unlock") {
 			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
+		} else if(action === "Close") {
+			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
 		} else if(action === "Flag") {
 			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
+			location.reload();
 		} else if(action === "Decline") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
+			location.reload();
 		} else if(action === "Approve") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
 			if (reversalDetails.succeeded) {
@@ -127,7 +140,7 @@ export class CapitecConnectTeamLeader extends View {
 			}
 		}
 
-		return "success";
+		return "reversal action completed";
 	}
 
 	static get styles() {
@@ -198,6 +211,9 @@ export class CapitecConnectTeamLeader extends View {
 	}
 
 	_renderProductInfo() {
+		this.searchReversals({currentPageIndex:0}, {searchValue:""}, "AVAILABLE");
+		this.searchReversals({currentPageIndex:0}, {searchValue:""}, "FLAGGED");
+
 		return html`
 			<capitec-card class="product-info">
 				<capitec-title-bar
