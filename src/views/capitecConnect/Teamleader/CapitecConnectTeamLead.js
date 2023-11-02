@@ -29,7 +29,7 @@ export class CapitecConnectTeamLeader extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.loading = true;
@@ -66,8 +66,12 @@ export class CapitecConnectTeamLeader extends View {
 			searchValue: {type: String},
 			activeFilters: {type: Array},
 			totalEscalatedReversals: {type : Number},
-			totalPendingReversals: {type : Number},
+			totalPendingReversals: {type : Number}
 		};
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	async searchReversals(renderSet , filters , state) {
@@ -99,6 +103,9 @@ export class CapitecConnectTeamLeader extends View {
 					this.totalPendingReversals = records.result.totalElements;
 				}
 
+				console.info("escalated",this.totalEscalatedReversals)
+				console.info("pending",this.totalPendingReversals)
+
 				resolve({
 					records: returnValue || [],
 					totalRecords: retrievedRecords?.length || 0
@@ -116,6 +123,7 @@ export class CapitecConnectTeamLeader extends View {
 			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
 		} else if(action === "Flag") {
 			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
+			location.reload();
 		} else if(action === "Decline") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
 		} else if(action === "Approve") {
@@ -127,7 +135,7 @@ export class CapitecConnectTeamLeader extends View {
 			}
 		}
 
-		return "success";
+		return "reversal action completed";
 	}
 
 	static get styles() {
@@ -198,6 +206,9 @@ export class CapitecConnectTeamLeader extends View {
 	}
 
 	_renderProductInfo() {
+		this.searchReversals({currentPageIndex:0}, {searchValue:""}, "AVAILABLE");
+		this.searchReversals({currentPageIndex:0}, {searchValue:""}, "FLAGGED");
+
 		return html`
 			<capitec-card class="product-info">
 				<capitec-title-bar

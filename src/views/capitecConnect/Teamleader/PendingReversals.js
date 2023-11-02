@@ -388,7 +388,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 				<div slot="body">
 					You are going to ${this.reversalAction} the following ${this.selectedReversal.amount}
 				</div>
-				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null; location.reload()}}" label="Yes"></capitec-button>
+				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
 			</capitec-modal>
 		`;
