@@ -103,9 +103,6 @@ export class CapitecConnectTeamLeader extends View {
 					this.totalPendingReversals = records.result.totalElements;
 				}
 
-				console.info("escalated",this.totalEscalatedReversals)
-				console.info("pending",this.totalPendingReversals)
-
 				resolve({
 					records: returnValue || [],
 					totalRecords: retrievedRecords?.length || 0
@@ -121,6 +118,8 @@ export class CapitecConnectTeamLeader extends View {
 			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
 		} else if(action === "Unlock") {
 			var reversalDetails = await this.capitecConnectService.unlockReversal(transactionReference);
+		} else if(action === "Close") {
+			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
 		} else if(action === "Flag") {
 			var reversalDetails = await this.capitecConnectService.flagReversal(transactionReference);
 			location.reload();

@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { RoleManager } from 'app/shell/RoleManager';
-import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
@@ -32,7 +31,6 @@ export class ProductButtonPanel extends Component {
 		super();
 
 		this.roleManager = RoleManager.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.selectedButton = ``;
 		this.roleManager = RoleManager.getInstance();
@@ -51,8 +49,6 @@ export class ProductButtonPanel extends Component {
 			insure: ``, 
 			credit: ``
 		};
-
-		this.connectReversalCount = 0
 	}
 
 	// --------------
@@ -105,15 +101,6 @@ export class ProductButtonPanel extends Component {
 		return amount;
 	}
 
-	async _displayConnectReversalCount() {
-		// If it is a teamleader with the connect role we should display the reversal count on the connect tile
-		if(RoleManager.getInstance().isCapitecConnectTeamleader) {
-			const escalatedReversals = await this.capitecConnectService.getReversals("AVAILABLE", {}, {});
-			const pendingReversals = await this.capitecConnectService.getReversals("FLAGGED", {}, {});
-			this.connectReversalCount = escalatedReversals.result.totalElements + pendingReversals.result.totalElements;
-		}
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -147,7 +134,6 @@ export class ProductButtonPanel extends Component {
 	}
 
 	render() {
-		this._displayConnectReversalCount();
 		return html`
 			<horizon-product-tile 
 				class="product-button"
@@ -216,7 +202,6 @@ export class ProductButtonPanel extends Component {
 				type="capitec-connect"
 				label="Capitec Connect"
 				subtitle="${this.subtitle.capitecConnect ? this.subtitle.capitecConnect : DEFAULT_SUBTITLE.CAPITEC_CONNECT}"
-				detail="${this.connectReversalCount}"
 				icon="product/cellphone"
 				@click="${() => this._productButtonClick(`CapitecConnect`)}"
 				?selected="${this.selectedButton === `CapitecConnect`}"
