@@ -7,6 +7,7 @@ import './PendingReversals';
 import './CompletedReversals';
 import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
+import { getDateInPast } from 'app/utils/capitecConnectUtils';
 // import { request } from 'http';
 /**
  * Capitec Connect teamleader View
@@ -89,26 +90,30 @@ export class CapitecConnectTeamLeader extends View {
 			query_args.msisdn = this.formatCellphoneNumber(filters.searchValue, true);
 		}
 
+		if (filters.selectedDate?.value) {
+			query_args.actionCreatedDate = {
+				startDate: getDateInPast(filters.selectedDate.value),
+				endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
+			};
+		}
+
 		const records = await this.capitecConnectService.getReversals(state, query_args, pagination_args);
 
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				const retrievedRecords = records.result.content.filter(item => item.actionState === state);
-				const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
-				if(state === "AVAILABLE" ) {
-					this.totalEscalatedReversals = records.result.totalElements;
-				}
-				
-				if(state === "FLAGGED" ) {
-					this.totalPendingReversals = records.result.totalElements;
-				}
+		const retrievedRecords = records.result.content.filter(item => item.actionState === state);
+		const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
 
-				resolve({
-					records: returnValue || [],
-					totalRecords: retrievedRecords?.length || 0
-				});
-			}, 1000);
-		});
+		if(state === "AVAILABLE" ) {
+			this.totalEscalatedReversals = records.result.totalElements;
+		}
+		
+		if(state === "FLAGGED" ) {
+			this.totalPendingReversals = records.result.totalElements;
+		}
+
+		return {
+			records: returnValue || [],
+			totalRecords: retrievedRecords?.length || 0
+		};
 	}
 
 	async reversalActions(action, selectedReversal) {

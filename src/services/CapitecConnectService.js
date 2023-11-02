@@ -32,17 +32,19 @@ export class CapitecConnectService extends ChannelServiceBase {
 	// Get reversals
 
 	async getReversals(status, query_args, pagination_args) {
-		query_args = query_args.msisdn ? {msisdn: query_args.msisdn} : {}
-		console.info("query_args", query_args)
 		pagination_args = {
 			"page": pagination_args.page || 0,
 			"size": pagination_args.size || 1,
 			"sort": typeof pagination_args.sort === "object" && pagination_args.sort.length > 0 ? pagination_args.sort : ["cif"]
 		}
+
+		query_args = this.sanitizeJsonObject(
+			query_args,
+			["cif", "channel", "msisdn", "amount", "accountNumber", "transactionReference", "processingDate", "productName", "string", "bundleTypes", "actionCreatedDate"]
+		);
 		
 		const url = `/v1/api/horizon/recharges/reverse/actions/${status}` + `/search?${this.convertJsonToUriString(pagination_args)}`;
 
-		console.log("url", url)
 		return this.post(
 			url, 
 			query_args, 
