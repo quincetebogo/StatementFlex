@@ -39,7 +39,8 @@ export class ProductButtonPanel extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 
 		this.detail = {
@@ -47,7 +48,8 @@ export class ProductButtonPanel extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 	}
 

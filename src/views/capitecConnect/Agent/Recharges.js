@@ -310,14 +310,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					e.pendingReversedTransaction = e.pendingReversedTransaction.length ? e.pendingReversedTransaction[0] : null;
 				}
 
+				e.reversible = true;
+
 				if (
-					(typeof e.successfulRecharge === 'undefined') // if no successful recharge
-					|| (
-						typeof e.successfulRecharge !== 'undefined' // successful recharge
-						&& typeof e.reversedTransaction !== 'undefined' // successful reversal
-						&& this.compareDates(e.successfulRecharge, e.reversedTransaction) < 1 // recharge is before the reversal
-					) ||
-					(e.recharges.length > 0 && e.transactions.length === 0) // successful recharge + no transaction
+					(e.pendingReversedTransaction !== null || e.reversedTransaction !== null) // pending or successful reversal
+					|| e.recharges.length === 0 // no recharges
+					|| e.transactions.length === 0 // no transactions
 				) { // then we cannot reverse
 					e.reversible = false;
 				}
@@ -552,9 +550,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var theTransaction = this.isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
 		if (
-			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
-			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
+			&& typeof item.reversedTransaction === null // if there is no successful reversals
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
 			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
@@ -658,7 +656,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		var product = item.bundleType,
 			productId = `-`,
-			type = ``,
+			type = `-`,
 			messageId = `-`,
 			startTime = this.getTimeFromDate(item.transactionDate),
 			endTime = ``,
@@ -666,7 +664,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			quantityMeasurement = ``,
 			errorType = `-`,
 			errorMessage = `-`,
-			statusOfRecharge = ``,
+			statusOfRecharge = `-`,
 			isPending = false;
 
 		var theRecharge = this.isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
@@ -682,17 +680,17 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}
 
 		if (
-			typeof item.reversedTransaction !== 'undefined' // if there is a successful reversal
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			typeof item.reversedTransaction !== null // if there is a successful reversal
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
 			&& this.compareDates(item.reversedTransaction, item.successfulTransaction) > 0 // if the reversal is after the successful transaction
 		) {
 			theTransaction = item.reversedTransaction;
 		}
 
 		if (
-			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
-			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
+			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
+			&& typeof item.reversedTransaction === null // if there is no successful reversals
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
 			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
@@ -703,14 +701,28 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			statusOfRecharge = theTransaction.status;
 			errorMessage = theTransaction.statusReason;
 			endTime = ` - ${this.getTimeFromDate(theTransaction.transactionDateTime)}`;
+			isPending = statusOfRecharge.toLowerCase().includes('pending');
 		}
-		
-		isPending = statusOfRecharge.toLowerCase().includes('pending');
+
 		product = this.toTitleCase(product);
 		quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
 
+		switch (true) {
+			case item.reversedTransaction !== null && item.pendingReversedTransaction === null: // reversed, no pending
+			case item.reversedTransaction !== null && item.pendingReversedTransaction !== null && this.compareDates(item.reversedTransaction, item.pendingReversedTransaction) > -1: // reversed, previously pending
+				errorType = `RECHARGE_REVERSED`;
+			case item.pendingReversedTransaction !== null && item.reversedTransaction === null: // pending, not reversal yet
+				errorType = `RECHARGE_REVERSAL_PENDING`;
+				break;
+			case item.successfulTransaction === null: // no successful transaction
+				errorType = `TRANSACTION_FAILURE`;
+				break;
+			default:
+				break;
+		}
+
 		return html`
-		<capitec-modal type="form" header="Recharge Status">
+		<capitec-modal type="form" header="${isPending ? 'Reversal' : 'Recharge'} Status">
 			<capitec-group slot="body" layout="grid" gap="clear">
 				<div row="1" column="1">
 					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>

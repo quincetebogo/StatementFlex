@@ -81,6 +81,10 @@ export function isJson(obj) {
 	return typeof obj === `object` && !obj.length; // json object have no length
 }
 
+export function isUndefined(obj) {
+	return typeof obj === `undefined`;
+}
+
 export function toTitleCase(inputString) {
 	return inputString.replace(/\w\S*/g, function (text) {
 		return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();

@@ -47,7 +47,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``,
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 
 		this.detail = {
@@ -55,7 +56,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``,
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 
 		this.eventAggregator = EventAggregator.getInstance();
@@ -195,7 +197,12 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.product = event.detail.productButton;
 
-		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
+		try {
+			await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
+		} catch (error) {
+			console.error(error);
+		}
+
 		this._setIncidentDone();
 
 		// Clear return to state before navigation
@@ -212,7 +219,17 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.callerInformation.verificationStatus === `unverified` && (this.product === `LiveBetter` || this.product === `SavingsPlan` || this.product === `Credit` || this.product === `SavingsAccount` || this.product === `Insure`)) {
+		if (
+			this.callerInformation.verificationStatus === `unverified` &&
+			(
+				this.product === `LiveBetter` ||
+				this.product === `SavingsPlan` ||
+				this.product === `Credit` ||
+				this.product === `SavingsAccount` ||
+				this.product === `Insure` ||
+				this.product === `CapitecConnect`
+			)
+		) {
 			this.horizonRouter.navigateToLandingPage(this.product, this.callerInformation.hasInsuranceProducts);
 			return;
 		}
@@ -343,7 +360,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			'SavingsPlan': SavingsPlanEvents.SAVINGS_PLAN,
 			'LiveBetter': LiveBetterEvents.LIVE_BETTER,
 			'Insure': ``,
-			'Credit': CreditEvents.CREDIT
+			'Credit': CreditEvents.CREDIT,
+			'CapitecConnect': ``
 		};
 
 		if (!this.product) {
