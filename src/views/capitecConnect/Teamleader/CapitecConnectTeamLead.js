@@ -126,6 +126,7 @@ export class CapitecConnectTeamLeader extends View {
 			location.reload();
 		} else if(action === "Decline") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
+			location.reload();
 		} else if(action === "Approve") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
 			if (reversalDetails.succeeded) {
