@@ -2,6 +2,7 @@ import { Component, View, css, html, unsafeCSS } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 
 /**
  * Capitec Connect teamleader View
@@ -25,6 +26,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	
 		// private properites
 		this.loading = true;
@@ -54,6 +56,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.showTable = true;
 
 		this.newItem = {}
+		this.identificationMethod = 2;
 	}
 	
 	static get properties() {
@@ -188,10 +191,37 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.searchValue = this.renderSet.searchValue;
 
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
+		for(var i = 0; i < pagedItemsToReturn.records.length; i++){
+			if(pagedItemsToReturn.records[i].accountNumber !== 0){
+				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+				Object.assign(pagedItemsToReturn.records[i], {clientName: clientName});
+			} else {
+				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
+			}
+		}
+		
 		return {
 			pagedItems: pagedItemsToReturn.records,
 			totalCount: pagedItemsToReturn.totalRecords
 		};
+	}
+
+	async getClientName(accountNumber){
+		const searchClient = {
+			identificationMethod: this.identificationMethod,
+			searchValue: accountNumber
+		};
+		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
+		
+		if(returnValue.result){
+			var firstName = returnValue.result.callerInformation.firstName;
+			var lastName = returnValue.result.callerInformation.lastName;
+			var identifiedClient = this.toTitleCase(firstName) + " " +  this.toTitleCase(lastName);
+		} else {
+			var identifiedClient = "-"
+		}
+
+		return identifiedClient;
 	}
 
 	toTitleCase(inputString) {
@@ -255,7 +285,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Business Transaction Reference" field="businessTransactionReference"></capitec-table-column>
 			<capitec-table-column label="Transaction Date" field="createdAt"></capitec-table-column>
 			<capitec-table-column label="Agent Name" field="markedByName"></capitec-table-column>
-			<capitec-table-column label="Client Name" field=""></capitec-table-column>
+			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
