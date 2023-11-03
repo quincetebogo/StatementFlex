@@ -122,6 +122,7 @@ export class CapitecConnectTeamLeader extends View {
 
 	async reversalActions(action, selectedReversal) {
 		const transactionReference = selectedReversal.businessTransactionReference;
+		const accountNumber = selectedReversal.accountNumber;
 
 		if(action === "Lock"){
 			var reversalDetails = await this.capitecConnectService.lockReversal(transactionReference);
@@ -138,7 +139,7 @@ export class CapitecConnectTeamLeader extends View {
 		} else if(action === "Approve") {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
 			if (reversalDetails.succeeded) {
-				this.horizonRouter.navigateToProcessReversalSuccess();
+				this.horizonRouter.navigateToProcessReversalSuccess(accountNumber);
 			} else {
 				this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
 			}

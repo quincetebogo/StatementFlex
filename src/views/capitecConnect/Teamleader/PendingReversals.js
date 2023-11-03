@@ -189,8 +189,8 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			searchValue: accountNumber
 		};
 		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
-		
-		if(returnValue.result){
+
+		if(returnValue.succeeded && returnValue.result){
 			var firstName = returnValue.result.callerInformation.firstName;
 			var lastName = returnValue.result.callerInformation.lastName;
 			var identifiedClient = toTitleCase(firstName) + " " +  toTitleCase(lastName);
@@ -241,12 +241,13 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 				.dataHandler="${(renderSet) => this._renderCollection(renderSet)}"
 				expandable="right" 
 				.expandRenderer="${(item) => this._expandRenderer(item)}">
-			<capitec-table-column label="Business Transaction Reference" field="businessTransactionReference"></capitec-table-column>
-			<capitec-table-column label="Transaction Date" field="createdAt"></capitec-table-column>
+			<capitec-table-column label="Transaction Date" field="postingDate"></capitec-table-column>
+			<capitec-table-column label="Escalation Date" field="createdAt"></capitec-table-column>
 			<capitec-table-column label="Agent Name" field="markedByName"></capitec-table-column>
 			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
+			<capitec-table-column label="Channel" field="channel"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
 		</capitec-table>
 		`}
@@ -294,8 +295,15 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 						<capitec-label label="Processed Date" ></capitec-label>
 						<capitec-label type="strong" label="${processingDate}" ></capitec-label>
 					</div>
-					<capitec-button label="View Reversal Request" column="4" row="3" @click="${() => {this.selectedReversal = item; this.reversalActions("Lock", this.selectedReversal)}}"></capitec-button>
-				</capitec-content-box>
+
+					<div column="1" row="6" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
+						<capitec-hyperlink
+							style="margin-top: 10px;"
+							label="View Reversal Request"
+							@click="${() => {this.selectedReversal = item; this.reversalActions("Lock", this.selectedReversal)}}">
+						</capitec-hyperlink>
+					</div>
+					</capitec-content-box>
 			</capitec-content-box>
 		`;
 	}
@@ -375,7 +383,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		return html`
 			<capitec-modal type="alert" header="Are you sure?">
 				<div slot="body">
-					You are going to ${this.reversalAction} the following ${this.selectedReversal.amount}
+					You are going to ${this.reversalAction} the following R${this.selectedReversal.amount}
 				</div>
 				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
