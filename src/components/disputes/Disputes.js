@@ -139,7 +139,7 @@ export class Disputes extends Component {
 
 		if (this.disputeQuestion?.finalCue) {
 			const ans = this.disputeQuestion?.answers.shift();
-			this.declarationContent = ans.clientAnswerWording;
+			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
 			// still have to figure our the other possible reasons
 			this.canBeDisputed = ans.agentAnswerWording !== `No Dispute rights - Card details compromised`;
 			this.disputeCurState = DISPUTE_STEPS.Declaration;

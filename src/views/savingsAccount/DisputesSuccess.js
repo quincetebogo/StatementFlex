@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
@@ -33,28 +34,38 @@ export class DisputesSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.tranDescription = screenDetails.transDesc;
 		this.disputed = screenDetails.disputed;
+
+		await this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS);
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY, {}, true, false, true);
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToSavingsAccount();
 	}
 
-	_disputeAnotherTran() {
+	async _disputeAnotherTran() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS_REPEAT);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS, {}, true, true);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
