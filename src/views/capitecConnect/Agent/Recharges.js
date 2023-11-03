@@ -205,7 +205,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				e.pendingReversedTransaction = null;
 
 				if (e.recharges.length > 0) {
-					e.successfulRecharge = e.transactions.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
+					e.successfulRecharge = e.recharges.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
 					e.successfulRecharge = e.successfulRecharge.length ? e.successfulRecharge[0] : null;
 				}
 
@@ -587,7 +587,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			statusOfRecharge = theRecharge.status;
 			type = theRecharge.type;
 			errorMessage = theRecharge.statusReason;
-			productId = theRecharge.productId;
+			productId = theRecharge.productId ? theRecharge.productId : productId;
 		}
 
 		if (
