@@ -3,7 +3,7 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { toTitleCase, formatTime, formatDate, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
+import { toTitleCase, formatTime, formatDate, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -203,6 +203,10 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		options = options || { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' };
 		return formatDate(inputDate, options);
 	}
+
+	_renderAmount(item, fieldName, value) {
+		return formatAmount(value);
+	}
 	
 	_render() {
 		
@@ -245,7 +249,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
+			<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
 		</capitec-table>
 		`}
 			
@@ -355,7 +359,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 					<capitec-label label="${productId}" ></capitec-label>
 					<capitec-label label="${productName}" ></capitec-label>
 					<capitec-label label="${bundleType}" ></capitec-label>
-					<capitec-label label="${amount}" ></capitec-label>
+					<capitec-label label="${formatAmount(amount)}" ></capitec-label>
 					</br>
 					<capitec-label label="${statusReason}" ></capitec-label>
 					</br>

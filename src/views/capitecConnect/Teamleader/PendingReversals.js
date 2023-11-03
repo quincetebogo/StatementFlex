@@ -3,7 +3,7 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { toTitleCase, formatDate, formatTime, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
+import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -206,6 +206,10 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		return formatDate(inputDate, options);
 	}
 
+	_renderAmount(item, fieldName, value) {
+		return formatAmount(value);
+	}
+
 	_render() {
 		
 		return html`
@@ -247,7 +251,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
+			<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
 		</capitec-table>
 		`}
 			
@@ -355,7 +359,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 					<capitec-label label="${productId}" ></capitec-label>
 					<capitec-label label="${productName}" ></capitec-label>
 					<capitec-label label="${bundleType}" ></capitec-label>
-					<capitec-label label="${amount}" ></capitec-label>
+					<capitec-label label="${formatAmount(amount)}" ></capitec-label>
 					</br>
 					<capitec-label label="${statusReason}" ></capitec-label>
 					</br>
@@ -375,7 +379,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		return html`
 			<capitec-modal type="alert" header="Are you sure?">
 				<div slot="body">
-					You are going to ${this.reversalAction} the following ${this.selectedReversal.amount}
+					You are going to ${this.reversalAction} the following ${formatAmount(this.selectedReversal.amount)}
 				</div>
 				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
