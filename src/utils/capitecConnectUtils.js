@@ -12,6 +12,12 @@ export function getTimeFromDate(dateString) {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
+export function formatTime(inputDate, options) {
+	options = options || { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+	const date = new Date(inputDate);
+	return date.toLocaleTimeString(options);
+}
+
 export function compareDates(dateStr1, dateStr2) {
 	const date1 = new Date(dateStr1);
 	const date2 = new Date(dateStr2);
@@ -74,11 +80,11 @@ export function formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
 }
 
 export function isArray(obj) {
-	return typeof obj === `object` && obj.length; // arrays are objects and have length
+	return obj !== null && typeof obj === `object` && obj.length; // arrays are objects and have length
 }
 
 export function isJson(obj) {
-	return typeof obj === `object` && !obj.length; // json object have no length
+	return obj !== null && typeof obj === `object` && !obj.length; // json object have no length
 }
 
 export function isUndefined(obj) {

@@ -2,6 +2,7 @@ import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { getDateInPast, formatCellphoneNumber, isArray } from 'app/utils/capitecConnectUtils';
 
 import './Recharges';
 
@@ -64,14 +65,14 @@ export class CapitecConnectAgent extends ViewBase {
 			pgArgs = {},
 			queryArgs = {};
 
-		if (this.isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
 			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
 				e = e.toUpperCase();
 				return e;
 			});
 		}
 
-		filters.searchValue = this.formatCellphoneNumber(filters.searchValue, true);
+		filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
 		this.activeFilters.searchValue = filters.searchValue;
 
 		if (filters.searchValue) {
@@ -83,8 +84,8 @@ export class CapitecConnectAgent extends ViewBase {
 		}
 
 		queryArgs.transactionDate = {
-			startDate: this.getDateInPast(filters.selectedDate.value),
-			endDate: this.getDateInPast(-1) // for tomorrow's date so that we include today's records
+			startDate: getDateInPast(filters.selectedDate.value),
+			endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
 		};
 
 		pgArgs = {

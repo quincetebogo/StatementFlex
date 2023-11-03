@@ -7,7 +7,7 @@ import './PendingReversals';
 import './CompletedReversals';
 import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
-import { getDateInPast } from 'app/utils/capitecConnectUtils';
+import { getDateInPast, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
 // import { request } from 'http';
 /**
  * Capitec Connect teamleader View
@@ -91,7 +91,7 @@ export class CapitecConnectTeamLeader extends View {
 		}
 
 		if (filters.searchValue) {
-			query_args.msisdn = this.formatCellphoneNumber(filters.searchValue, true);
+			query_args.msisdn = formatCellphoneNumber(filters.searchValue, true);
 		}
 
 		if (filters.selectedDate?.value) {
