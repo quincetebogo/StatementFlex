@@ -8,6 +8,7 @@ import './CompletedReversals';
 import './ProcessReversalFailure';
 import SecurityContext from 'platform/SecurityContext';
 import { getDateInPast, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
+import { LandingPage } from 'app/views/waitingForCall/LandingPage';
 // import { request } from 'http';
 /**
  * Capitec Connect teamleader View
@@ -56,6 +57,12 @@ export class CapitecConnectTeamLeader extends View {
 
 		this.totalEscalatedReversals = 0;
 		this.totalPendingReversals = 0;
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		new LandingPage()._GetLandingPageData();
 	}
 	
 	static get properties() {

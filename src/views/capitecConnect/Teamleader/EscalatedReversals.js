@@ -170,15 +170,19 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.searchValue = this.renderSet.searchValue;
 
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
-		for(var i = 0; i < pagedItemsToReturn.records.length; i++){
-			if(pagedItemsToReturn.records[i].accountNumber !== 0){
-				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
-				Object.assign(pagedItemsToReturn.records[i], {clientName: clientName});
-			} else {
-				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
+
+		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
+			pagedItemsToReturn.records[i].clientName = `-`;
+
+			if (pagedItemsToReturn.records[i].accountNumber) {
+				try {
+					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+					pagedItemsToReturn.records[i].clientName = clientName;
+				} catch (error) {
+				}
 			}
 		}
-		
+
 		return {
 			pagedItems: pagedItemsToReturn.records,
 			totalCount: pagedItemsToReturn.totalRecords

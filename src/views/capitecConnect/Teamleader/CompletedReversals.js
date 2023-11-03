@@ -166,12 +166,16 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		this.searchValue = this.renderSet.searchValue;
 
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "COMPLETED");
-		for(var i = 0; i < pagedItemsToReturn.records.length; i++){
-			if(pagedItemsToReturn.records[i].accountNumber !== 0){
-				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
-				Object.assign(pagedItemsToReturn.records[i], {clientName: clientName});
-			} else {
-				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
+
+		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
+			pagedItemsToReturn.records[i].clientName = `-`;
+
+			if (pagedItemsToReturn.records[i].accountNumber) {
+				try {
+					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+					pagedItemsToReturn.records[i].clientName = clientName;
+				} catch (error) {
+				}
 			}
 		}
 
