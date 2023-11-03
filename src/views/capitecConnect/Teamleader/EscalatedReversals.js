@@ -3,6 +3,7 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
+import { toTitleCase, formatDate, formatTime, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -74,8 +75,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	_errorHandler() {
-		alert('error')
+	_errorHandler(err) {
+		console.error(err);
 	}
 
 	_filterSearchboxClick() {
@@ -94,28 +95,6 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			this.requestUpdate();
 		}, 100);
 	}
-	
-	formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
-		cellphoneNumber = cellphoneNumber.replace(/\s/g, ``); // first remove the spaces
-
-		if (cellphoneNumber.startsWith('0')) {
-			// Replace the '0' with '27' using the replace method
-			cellphoneNumber = cellphoneNumber.replace(/^0/, '27');
-		}
-
-		if (cellphoneNumber.length === 11) {
-			cellphoneNumber = `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
-		} else {
-			// Handle invalid input here if necessary
-			cellphoneNumber = ``;
-		}
-
-		if (withoutSpaces) {
-			cellphoneNumber = cellphoneNumber.replace(/\s/g, ``);
-		}
-
-		return cellphoneNumber;
-	}	
 
 	static get styles() {
 		return [
@@ -216,7 +195,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		if(returnValue.result){
 			var firstName = returnValue.result.callerInformation.firstName;
 			var lastName = returnValue.result.callerInformation.lastName;
-			var identifiedClient = this.toTitleCase(firstName) + " " +  this.toTitleCase(lastName);
+			var identifiedClient = toTitleCase(firstName) + " " +  toTitleCase(lastName);
 		} else {
 			var identifiedClient = "-"
 		}
@@ -224,28 +203,9 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		return identifiedClient;
 	}
 
-	toTitleCase(inputString) {
-		return inputString.replace(/\w\S*/g, function (text) {
-		  return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
-		});
-	}
-
-	formatTime(inputDate, options) {
-		options = options || { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-		const date = new Date(inputDate);
-		return date.toLocaleTimeString(options);
-	}
-
-	formatDate(inputDate, options) {
-		options = options || { day: '2-digit', month: 'short', year: 'numeric' };
-		const date = new Date(inputDate);
-		return date.toLocaleDateString('en-za', options);
-	}
-
 	formatModalDate(inputDate, options) {
 		options = options || { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' };
-		const date = new Date(inputDate);
-		return date.toLocaleDateString('en-za', options);
+		return formatDate(inputDate, options);
 	}
 	
 	_render() {
@@ -303,12 +263,12 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 
 	_expandRenderer (item) {
-		var channel = this.toTitleCase(item.channel);
-		var bundleType = item.bundleType ? this.toTitleCase(item.bundleType) : '-';
-		var typeOfRecharge = item.type ? this.toTitleCase(item.type) : '-'
+		var channel = toTitleCase(item.channel);
+		var bundleType = item.bundleType ? toTitleCase(item.bundleType) : '-';
+		var typeOfRecharge = item.type ? toTitleCase(item.type) : '-'
 		var accountNumber = item.accountNumber ? item.accountNumber : '-';
-		var processingDate = item.processingDate ? this.formatDate(item.processingDate) : '-';
-		var postingDate = item.postingDate ? this.formatDate(item.postingDate) : '-';
+		var processingDate = item.processingDate ? formatDate(item.processingDate) : '-';
+		var postingDate = item.postingDate ? formatDate(item.postingDate) : '-';
 		var journalReference = item.journalReference ? item.journalReference : '-';
 
 		return html`
@@ -347,17 +307,17 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		var status = selectedReversal.status ? selectedReversal.status : '-';
 		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
 		var postingDate = selectedReversal.postingDate ? selectedReversal.postingDate : '-';
-		var channel = selectedReversal.channel ? this.toTitleCase(selectedReversal.channel) : '-';
+		var channel = selectedReversal.channel ? toTitleCase(selectedReversal.channel) : '-';
 		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
 		var productId = selectedReversal.productId ? selectedReversal.productId : '-';
 		var productName = selectedReversal.productName ? selectedReversal.productName : '-';
-		var bundleType = selectedReversal.bundleType ? this.toTitleCase(selectedReversal.bundleType) : '-';
+		var bundleType = selectedReversal.bundleType ? toTitleCase(selectedReversal.bundleType) : '-';
 		var amount = selectedReversal.amount ? selectedReversal.amount : '-';
 		var statusReason = selectedReversal.statusReason ? selectedReversal.statusReason : '-';
 		var reason = selectedReversal.reason ? selectedReversal.reason : '-';
 		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
 		var modalDate = selectedReversal.postingDate ? this.formatModalDate(selectedReversal.postingDate) : '-';
-		var modalTime = selectedReversal.postingDate ? this.formatTime(selectedReversal.postingDate) : '-';
+		var modalTime = selectedReversal.postingDate ? formatTime(selectedReversal.postingDate) : '-';
 
 		return html`
 		<capitec-modal type="form" header="Reversal request">

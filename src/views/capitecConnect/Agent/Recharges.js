@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -153,99 +154,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		];
 	}
 
-	/* UTILITIES:start */
-	formatDate(inputDate, options) {
-		options = options || { day: `2-digit`, month: `short`, year: `numeric` };
-		const date = new Date(inputDate);
-		return date.toLocaleDateString(`en-za`, options);
-	}
-
-	getTimeFromDate(dateString) {
-		const date = new Date(dateString);
-		const hours = date.getHours().toString().padStart(2, `0`);
-		const minutes = date.getMinutes().toString().padStart(2, `0`);
-		const seconds = date.getSeconds().toString().padStart(2, `0`);
-		return `${hours}:${minutes}:${seconds}`;
-	}
-
-	compareDates(dateStr1, dateStr2) {
-		const date1 = new Date(dateStr1);
-		const date2 = new Date(dateStr2);
-
-		var result = null;
-		
-		switch (true) {
-			case date1 < date2:
-				result = -1;
-				break;
-			case date1 > date2:
-				result = 1;
-				break;
-			default:
-				result = 0;
-				break;
-		}
-
-		return result;
-	}
-
-	getDateInPast(days) {
-		const today = new Date();
-		const pastDate = new Date(today);
-		pastDate.setDate(today.getDate() - days);
-		const year = pastDate.getFullYear();
-		const month = String(pastDate.getMonth() + 1).padStart(2, `0`);
-		const day = String(pastDate.getDate()).padStart(2, `0`);
-		return `${year}-${month}-${day}`;
-	}
-
-	sortObjectsByDateDescending(array, dateKey) {
-		return array.sort((a, b) => {
-			const dateA = new Date(a[dateKey]);
-			const dateB = new Date(b[dateKey]);
-			return dateB - dateA;
-		});
-	}
-
-	formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
-		cellphoneNumber = cellphoneNumber.replace(/\s/g, ``); // first remove the spaces
-
-		if (cellphoneNumber.startsWith('0')) {
-			// Replace the '0' with '27' using the replace method
-			cellphoneNumber = cellphoneNumber.replace(/^0/, '27');
-		}
-
-		if (cellphoneNumber.length === 11) {
-			cellphoneNumber = `${cellphoneNumber.substr(0, 2)} ${cellphoneNumber.substr(2, 2)} ${cellphoneNumber.substr(4, 3)} ${cellphoneNumber.substr(7, 4)}`;
-		} else {
-			// Handle invalid input here if necessary
-			cellphoneNumber = ``;
-		}
-
-		if (withoutSpaces) {
-			cellphoneNumber = cellphoneNumber.replace(/\s/g, ``);
-		}
-
-		return cellphoneNumber;
-	}
-
-	isArray(obj) {
-		return obj !== null && typeof obj === `object` && obj.length; // arrays are objects and have length
-	}
-
-	isJson(obj) {
-		return obj !== null && typeof obj === `object` && !obj.length; // json object have no length
-	}
-
-	toTitleCase(inputString) {
-		return inputString.replace(/\w\S*/g, function (text) {
-			return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
-		});
-	};
-	/* UTILITIES:end */
-
-	_errorHandler() {
-		alert(`error`);
+	_errorHandler(err) {
+		console.error(err)
 	}
 
 	async _initialise() {
@@ -283,11 +193,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			var r = response.result.content;
 
 			r = r.map(e => {
-				e.friendlyDate = this.formatDate(e.transactionDate);
-				e.friendlyMsisdn = this.formatCellphoneNumber(e.msisdn);
+				e.friendlyDate = formatDate(e.transactionDate);
+				e.friendlyMsisdn = formatCellphoneNumber(e.msisdn);
 
-				e.recharges = e.recharges.length > 0 ? this.sortObjectsByDateDescending(e.recharges, 'transactionDateTime') : e.recharges;
-				e.transactions = e.transactions.length > 0 ? this.sortObjectsByDateDescending(e.transactions, 'transactionDateTime') : e.transactions;
+				e.recharges = e.recharges.length > 0 ? sortObjectsByDateDescending(e.recharges, 'transactionDateTime') : e.recharges;
+				e.transactions = e.transactions.length > 0 ? sortObjectsByDateDescending(e.transactions, 'transactionDateTime') : e.transactions;
 
 				e.successfulRecharge = null;
 				e.successfulTransaction = null;
@@ -310,14 +220,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					e.pendingReversedTransaction = e.pendingReversedTransaction.length ? e.pendingReversedTransaction[0] : null;
 				}
 
+				e.reversible = true;
+
 				if (
-					(typeof e.successfulRecharge === 'undefined') // if no successful recharge
-					|| (
-						typeof e.successfulRecharge !== 'undefined' // successful recharge
-						&& typeof e.reversedTransaction !== 'undefined' // successful reversal
-						&& this.compareDates(e.successfulRecharge, e.reversedTransaction) < 1 // recharge is before the reversal
-					) ||
-					(e.recharges.length > 0 && e.transactions.length === 0) // successful recharge + no transaction
+					(e.pendingReversedTransaction !== null || e.reversedTransaction !== null) // pending or successful reversal
+					|| e.recharges.length === 0 // no recharges
+					|| e.transactions.length === 0 // no transactions
 				) { // then we cannot reverse
 					e.reversible = false;
 				}
@@ -355,7 +263,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			return response;
 		} catch (error) {
-			alert(`An error occurred while processing your request`);
 			console.error(error);
 
 			this.showSuccessModal = false;
@@ -529,7 +436,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	_expandRenderer (item) {
 		var accountNumber = `-`;
-		var channel = this.toTitleCase(item.channel);
+		var channel = toTitleCase(item.channel);
 		var journalNumber = `-`;
 		var postingDate = item.transactionDate;
 		var processedDate = `-`;
@@ -540,27 +447,27 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var typeOfRecharge = ``;
 		var isPending = false;
 
-		var theRecharge = this.isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		var theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
 
-		if (this.isJson(theRecharge)) {
+		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
 			postingDate = theRecharge.transactionDateTime;
 			statusOfRecharge = theRecharge.status;
 			typeOfRecharge = theRecharge.type
 		}
 
-		var theTransaction = this.isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
+		var theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
 		if (
-			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
-			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
-			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
+			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
+			&& typeof item.reversedTransaction === null // if there is no successful reversals
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
 		}
 
-		if (this.isJson(theTransaction)) {
+		if (isJson(theTransaction)) {
 			typeOfRecharge = theTransaction.type;
 			processedDate = theTransaction.transactionDateTime;
 			accountNumber = theTransaction.accountNumber;
@@ -570,16 +477,16 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			isPending = statusOfRecharge.toLowerCase().includes('pending');
 		}
 
-		product = this.toTitleCase(product);
+		product = toTitleCase(product);
 
 		if (statusOfRecharge !== ``) {
 			statusOfRecharge = ` [${statusOfRecharge}]`;
 		}
 
-		postingDate = postingDate ? this.formatDate(postingDate) + ` ` + this.getTimeFromDate(postingDate) : postingDate;
-		processedDate = processedDate !== `-` ? this.formatDate(processedDate) + ` ` + this.getTimeFromDate(processedDate) : processedDate;
+		postingDate = postingDate ? formatDate(postingDate) + ` ` + getTimeFromDate(postingDate) : postingDate;
+		processedDate = processedDate !== `-` ? formatDate(processedDate) + ` ` + getTimeFromDate(processedDate) : processedDate;
 
-		typeOfRecharge = this.toTitleCase(typeOfRecharge);
+		typeOfRecharge = toTitleCase(typeOfRecharge);
 
 		return html`
 			<capitec-spacer></capitec-spacer>
@@ -658,21 +565,21 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		var product = item.bundleType,
 			productId = `-`,
-			type = ``,
+			type = `-`,
 			messageId = `-`,
-			startTime = this.getTimeFromDate(item.transactionDate),
+			startTime = getTimeFromDate(item.transactionDate),
 			endTime = ``,
 			merchantId = `-`,
 			quantityMeasurement = ``,
 			errorType = `-`,
 			errorMessage = `-`,
-			statusOfRecharge = ``,
+			statusOfRecharge = `-`,
 			isPending = false;
 
-		var theRecharge = this.isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
-		var theTransaction = this.isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
+		var theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		var theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
-		if (this.isJson(theRecharge)) {
+		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
 			statusOfRecharge = theRecharge.status;
 			type = theRecharge.type;
@@ -682,39 +589,53 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}
 
 		if (
-			typeof item.reversedTransaction !== 'undefined' // if there is a successful reversal
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
-			&& this.compareDates(item.reversedTransaction, item.successfulTransaction) > 0 // if the reversal is after the successful transaction
+			typeof item.reversedTransaction !== null // if there is a successful reversal
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			&& compareDates(item.reversedTransaction, item.successfulTransaction) > -1 // if the reversal is after the successful transaction
 		) {
 			theTransaction = item.reversedTransaction;
 		}
 
 		if (
-			typeof item.pendingReversedTransaction !== 'undefined' // if a there is a pending reversal
-			&& typeof item.reversedTransaction === 'undefined' // if there is no successful reversals
-			&& typeof item.successfulTransaction !== `undefined` // if there was a successful transaction
-			&& this.compareDates(item.pendingReversedTransaction, item.successfulTransaction) > 0 // if the pending reversal is after the success transaction
+			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
+			&& typeof item.reversedTransaction === null // if there is no successful reversals
+			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
 		}
 
-		if (this.isJson(theTransaction)) {
+		if (isJson(theTransaction)) {
 			type = theTransaction.type;
 			statusOfRecharge = theTransaction.status;
 			errorMessage = theTransaction.statusReason;
-			endTime = ` - ${this.getTimeFromDate(theTransaction.transactionDateTime)}`;
+			endTime = ` - ${getTimeFromDate(theTransaction.transactionDateTime)}`;
+			isPending = statusOfRecharge.toLowerCase().includes('pending');
 		}
-		
-		isPending = statusOfRecharge.toLowerCase().includes('pending');
-		product = this.toTitleCase(product);
+
+		product = toTitleCase(product);
 		quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
 
+		switch (true) {
+			case item.reversedTransaction !== null && item.pendingReversedTransaction === null: // reversed, no pending
+			case item.reversedTransaction !== null && item.pendingReversedTransaction !== null && compareDates(item.reversedTransaction, item.pendingReversedTransaction) > -1: // reversed, previously pending
+				errorType = `RECHARGE_REVERSED`;
+			case item.pendingReversedTransaction !== null && item.reversedTransaction === null: // pending, not reversal yet
+				errorType = `RECHARGE_REVERSAL_PENDING`;
+				break;
+			case item.successfulTransaction === null: // no successful transaction
+				errorType = `TRANSACTION_FAILURE`;
+				break;
+			default:
+				break;
+		}
+
 		return html`
-		<capitec-modal type="form" header="Recharge Status">
+		<capitec-modal type="form" header="${isPending ? 'Reversal' : 'Recharge'} Status">
 			<capitec-group slot="body" layout="grid" gap="clear">
 				<div row="1" column="1">
 					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>
-					<capitec-label type="strong" label="${product} ${this.toTitleCase(type)}"></capitec-label>
+					<capitec-label type="strong" label="${product} ${toTitleCase(type)}"></capitec-label>
 				</div>
 				<div row="1" column="2">
 					<br>
@@ -771,7 +692,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<capitec-spacer></capitec-spacer>
 
 				<div row="6" column="1" colspan="2">
-					<capitec-label type="strong" label="${this.formatDate(item.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
+					<capitec-label type="strong" label="${formatDate(item.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
 					<capitec-label type="strong" label="${startTime}${endTime}"></capitec-label>
 				</div>
 			</capitec-group>
