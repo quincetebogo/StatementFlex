@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase } from 'app/utils/capitecConnectUtils';
+import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -403,7 +403,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-table-column label="Cellphone Number" field="friendlyMsisdn"></capitec-table-column>
 					<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
 					<capitec-table-column label="Product" .renderer="${this._renderProductName}"></capitec-table-column>
-					<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
+					<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
 				</capitec-table>
 				`}
 			</capitec-content-box>
@@ -432,6 +432,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}
 
 		return product;
+	}
+
+	_renderAmount(item, fieldName, value) {
+		return formatAmount(value);
 	}
 
 	_expandRenderer (item) {
@@ -570,7 +574,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			startTime = getTimeFromDate(item.transactionDate),
 			endTime = ``,
 			merchantId = `-`,
-			quantityMeasurement = ``,
 			errorType = `-`,
 			errorMessage = `-`,
 			statusOfRecharge = `-`,
@@ -583,7 +586,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			product = product ? product : theRecharge.bundleType;
 			statusOfRecharge = theRecharge.status;
 			type = theRecharge.type;
-			quantityMeasurement = theRecharge.quantityMeasurement;
 			errorMessage = theRecharge.statusReason;
 			productId = theRecharge.productId;
 		}
@@ -614,7 +616,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}
 
 		product = toTitleCase(product);
-		quantityMeasurement = quantityMeasurement ? ` (${quantityMeasurement.toLowerCase()})` : quantityMeasurement;
 
 		switch (true) {
 			case item.reversedTransaction !== null && item.pendingReversedTransaction === null: // reversed, no pending
@@ -675,7 +676,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-label label="${productId}"></capitec-label>
 					<capitec-label label="${item.productName}"></capitec-label>
 					<capitec-label label="${product}"></capitec-label>
-					<capitec-label label="${item.amount} ${quantityMeasurement}"></capitec-label>
+					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
 				</div>
 
 				<capitec-spacer></capitec-spacer>
