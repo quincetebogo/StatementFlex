@@ -244,8 +244,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	};
 	/* UTILITIES:end */
 
-	_errorHandler() {
-		alert(`error`);
+	_errorHandler(err) {
+		console.error(err)
 	}
 
 	async _initialise() {
@@ -353,7 +353,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			return response;
 		} catch (error) {
-			alert(`An error occurred while processing your request`);
 			console.error(error);
 
 			this.showSuccessModal = false;

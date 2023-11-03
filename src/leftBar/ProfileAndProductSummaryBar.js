@@ -197,11 +197,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.product = event.detail.productButton;
 
-		try {
-			await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
-		} catch (error) {
-			console.error(error);
-		}
+		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
 
 		this._setIncidentDone();
 

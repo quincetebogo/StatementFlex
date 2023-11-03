@@ -70,8 +70,8 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	_errorHandler() {
-		alert('error')
+	_errorHandler(err) {
+		console.error(err);
 	}
 
 	_filterSearchboxClick() {

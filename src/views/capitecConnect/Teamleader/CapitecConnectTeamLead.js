@@ -71,8 +71,8 @@ export class CapitecConnectTeamLeader extends View {
 		};
 	}
 
-	_errorHandler() {
-		alert('error')
+	_errorHandler(err) {
+		console.error(err);
 	}
 
 	_toggleBusyFlag() {

@@ -101,14 +101,6 @@ export class CapitecConnectAgent extends ViewBase {
 		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
 	}
 
-	async lock () {
-		alert(`lock`);
-	}
-
-	async unlock () {
-		alert(`unlock`);
-	}
-
 	async actionReversal (selectedReversal, reason, comment) {
 		return this.capitecConnectService.escalateForReversal(
 			selectedReversal.transactionReference,
@@ -207,8 +199,6 @@ export class CapitecConnectAgent extends ViewBase {
 								style="width:100%"
 								.searchRecharges="${this.searchRecharges}"
 								.getEscalationDetail="${this.getEscalationDetail}"
-								.lock="${this.lock}"
-								.unlock="${this.unlock}"
 								.actionReversal="${this.actionReversal}"
 								></horizon-capitec-connect-agent-recharges>
 						</capitec-tab>
