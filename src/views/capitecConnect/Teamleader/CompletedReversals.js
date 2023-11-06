@@ -3,7 +3,8 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { toTitleCase, formatTime, formatDate, formatDateAndTime, formatAmount } from 'app/utils/capitecConnectUtils';
+import { toTitleCase, formatTime, formatDate, formatDateAndTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
+import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
@@ -28,6 +29,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), null);
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), null);
+		this.logger = Logger.getInstance();
 
 		// private properites
 		this.loading = true;
