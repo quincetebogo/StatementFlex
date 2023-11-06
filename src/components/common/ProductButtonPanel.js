@@ -199,7 +199,7 @@ export class ProductButtonPanel extends Component {
 				data-automation-id="product-button-panel-live-better"
 				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
-			<horizon-product-tile
+			<horizon-product-tile 
 				class="product-button"
 				type="capitec-connect"
 				label="Capitec Connect"
@@ -207,7 +207,7 @@ export class ProductButtonPanel extends Component {
 				icon="product/cellphone"
 				@click="${() => this._productButtonClick(`CapitecConnect`)}"
 				?selected="${this.selectedButton === `CapitecConnect`}"
-				data-automation-id="product-button-panel-live-better">
+				data-automation-id="product-button-panel-capitec-connect">
 			</horizon-product-tile>
 		`;
 	}

@@ -96,3 +96,11 @@ export function toTitleCase(inputString) {
 		return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase();
 	});
 }
+
+export function formatAmount(amount) {
+	if (typeof amount !== 'number') {
+		return amount;
+	}
+
+	return `R` + amount.toFixed(2);
+}

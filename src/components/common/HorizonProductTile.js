@@ -257,7 +257,8 @@ export class HorizonProductTile extends Component {
 					border: var(--theme-product-tile-focus-insure-border, 2px solid #5D737E);
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
-				.title.capitec-connect:hover {
+				.tile.capitec-connect:focus,
+				.tile.capitec-connect:hover {
 					border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
 				}
