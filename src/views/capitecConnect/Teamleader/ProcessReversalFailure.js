@@ -2,7 +2,6 @@ import { NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 
 import 'app/components/common/ErrorScreen';
@@ -25,7 +24,6 @@ export class ProcessReversalFailure extends ViewBase {
 
 		this.retry = 0;
 		this._navigationContext = NavigationContext.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
@@ -58,16 +56,9 @@ export class ProcessReversalFailure extends ViewBase {
 			return;
 		}
 
-		console.info("currentTransactionReference", this._currentTransactionReference)
 		var reversalDetails = await this.capitecConnectService.processReversal(this._currentTransactionReference, true);
-		// var reversalDetails = await this.reversalActions("Unlock", this._currentTransactionReference);
-		console.info("reversalDetails", reversalDetails)
 		if(reversalDetails.succeeded){
-			console.info("successsssss")
 			this.horizonRouter.navigateToProcessReversalSuccess();
-		} else {
-			console.info("failllllll")
-			// this._renderProcessReversalFailure()
 		}
 	}
 
@@ -81,9 +72,6 @@ export class ProcessReversalFailure extends ViewBase {
 
 	_navigationContextUpdate() {
 		this._currentTransactionReference = this._navigationContext.current.pathParams.transactionReference;
-		console.info("currentTransactionReference 1", this._currentTransactionReference)
-		// const currentTransactionReference = this.navigationContext.transactionReference;
-		// const type = currRoute.queryParams && currRoute.queryParams.type;
 	}
 
 	// ---------

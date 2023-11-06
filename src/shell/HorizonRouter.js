@@ -429,8 +429,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 
-	navigateToProcessReversalSuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}`);
+	navigateToProcessReversalSuccess(accountNumber) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}/${accountNumber}`);
 	}
 
 	navigateToProcessReversalFailure(transactionReference) {
@@ -1020,15 +1020,15 @@ export default horizonRoutes = [
 		icon: null,
 		path: `${HORIZON_ROUTES.PROCESS_REVERSAL_FAILURE}/:transactionReference`,
 		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalFailure`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-process-reversal-success`,
 		title: `ProcessReversalSuccessful`,
 		icon: null,
-		path: HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS,
+		path: `${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}/:accountNumber`,
 		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-live-better`,

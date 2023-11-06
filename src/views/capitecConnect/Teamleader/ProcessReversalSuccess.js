@@ -1,5 +1,6 @@
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { NavigationContext } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/SuccessScreen';
@@ -20,6 +21,8 @@ export class ProcessReversalSuccess extends ViewBase {
 
 	constructor() {
 		super();
+
+		this._navigationContext = NavigationContext.getInstance();
 	}
 
 
@@ -42,6 +45,11 @@ export class ProcessReversalSuccess extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_navigationContextUpdate() {
+		this._currentAccountNumber = this._navigationContext.current.pathParams.accountNumber;
+		console.info("_currentAccountNumber", this._currentAccountNumber)
+	}
 
 	// ---------
 	// RENDERING
@@ -77,6 +85,7 @@ export class ProcessReversalSuccess extends ViewBase {
 	}
 
 	_renderProcessReversalSuccess() {
+		this._navigationContextUpdate();
 		return html`
 			<horizon-success-screen
 				data-automation-id="process-reversal-success"
@@ -96,7 +105,7 @@ export class ProcessReversalSuccess extends ViewBase {
 	//add savings account
 	_renderDetails() {
 		return html`
-			<span>Transaction has been reversed to savings account</span>`;
+			<span>Transaction has been reversed to savings account <strong>${this._currentAccountNumber}</strong></span>`;
 	}
 
 	_renderRelatedOptions() {
