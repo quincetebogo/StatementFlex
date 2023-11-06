@@ -196,7 +196,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			identificationMethod: this.identificationMethod,
 			searchValue: accountNumber
 		};
-		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
+		const returnValue = await this.clientProfileService.searchCaller(searchClient, () => true, 1);
 		
 		if(returnValue.succeeded && returnValue.result){
 			var firstName = returnValue.result.callerInformation.firstName;
