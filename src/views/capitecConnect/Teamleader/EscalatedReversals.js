@@ -26,8 +26,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), null);
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), null);
 
 		// private properites
 		this.loading = true;
@@ -76,7 +76,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 
 	_errorHandler(err) {
-		console.error(err);
+		return true;
 	}
 
 	_filterSearchboxClick() {
