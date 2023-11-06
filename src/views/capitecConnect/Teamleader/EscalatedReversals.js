@@ -181,6 +181,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
 			}
 		}
+		this.showTable = pagedItemsToReturn.totalRecords !== 0;
 
 		return {
 			pagedItems: pagedItemsToReturn.records,
@@ -211,6 +212,10 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		return formatDate(inputDate, options);
 	}
 
+	_renderTag(item, fieldName, value) {
+		return html`<capitec-tag label="${value.toUpperCase()}" type="info"></capitec-tag>`;
+	}
+
 	_renderAmount(item, fieldName, value) {
 		return formatAmount(value);
 	}
@@ -239,8 +244,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			
 			<capitec-spacer></capitec-spacer>
 		</capitec-button-bar>
-		${!this.showTable ? null : html`
-		
+		${this.showTable ? html`
 		<capitec-table style="" 
 				displayMode="Paging" 
 				groupField="month" 
@@ -257,21 +261,33 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
 			<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
-		</capitec-table>
-		`}
+			</capitec-table>
+			`
+
+			: html`
+			<capitec-table>
+			<capitec-table-column label="Transaction Date"></capitec-table-column>
+			<capitec-table-column label="Escalation Date"></capitec-table-column>
+			<capitec-table-column label="Agent Name"></capitec-table-column>
+			<capitec-table-column label="Client Name"></capitec-table-column>
+			<capitec-table-column label="Account"></capitec-table-column>
+			<capitec-table-column label="Number Charged"></capitec-table-column>
+			<capitec-table-column label="Channel"></capitec-table-column>
+			<capitec-table-column label="Amount"></capitec-table-column>
+			</capitec-table>
+
+			<capitec-content-box>
+				<capitec-label align="center" type="default" label="No reversal data found."></capitec-label>
+			</capitec-content-box>
+			`
+		}
 			
 		</capitec-content-box>
-
-		
 
 		${this.selectedReversal && this._renderReversalModal(this.selectedReversal)}
 		${this.showConfirmModal ? this._renderConfirmModal() : null}
 
 		`;
-	}
-
-	_renderTag(item, fieldName, value) {
-		return html`<capitec-tag label="${value.toUpperCase()}" type="info"></capitec-tag>`;
 	}
 
 	_expandRenderer (item) {
@@ -289,7 +305,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				
 				<capitec-content-box layout="grid">
 					<div column="1" row="1" colspan="4">
-						<capitec-label type="strong" label="Description:"></capitec-label>
+						<capitec-label label="Description:"></capitec-label>
 						<capitec-label type="strong" label="${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
 					</div>
 					<div column="1" row="2">
@@ -329,7 +345,6 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	_renderReversalModal(selectedReversal) {
 		var status = selectedReversal.status ? selectedReversal.status : '-';
 		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
-		var postingDate = selectedReversal.postingDate ? selectedReversal.postingDate : '-';
 		var createdAt = selectedReversal.createdAt ? formatDateAndTime(selectedReversal.createdAt) : '-';
 		var channel = selectedReversal.channel ? toTitleCase(selectedReversal.channel) : '-';
 		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
@@ -337,11 +352,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		var productName = selectedReversal.productName ? selectedReversal.productName : '-';
 		var bundleType = selectedReversal.bundleType ? toTitleCase(selectedReversal.bundleType) : '-';
 		var amount = selectedReversal.amount ? selectedReversal.amount : '-';
-		var statusReason = selectedReversal.statusReason ? selectedReversal.statusReason : '-';
 		var reason = selectedReversal.reason ? selectedReversal.reason : '-';
 		var additionalComments = selectedReversal.additionalComments ? selectedReversal.additionalComments : '-';
-		var modalDate = selectedReversal.postingDate ? this.formatModalDate(selectedReversal.postingDate) : '-';
-		var modalTime = selectedReversal.postingDate ? formatTime(selectedReversal.postingDate) : '-';
 
 		return html`
 		<capitec-modal type="form" header="Reversal request">
