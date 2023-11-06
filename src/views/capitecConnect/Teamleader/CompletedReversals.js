@@ -371,8 +371,12 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 					<capitec-label label="${transactionReference}" ></capitec-label>
 					<capitec-label label="${createdAt}" ></capitec-label>
 				</div>
-				<hr>
-				<div column="1" row="2">
+				
+				<div column="1" row="2" colspan="2">
+					<hr style="border-bottom: none;">
+				</div>
+
+				<div column="1" row="3">
 					<capitec-label label="Channel" ></capitec-label>
 					<capitec-label label="MSISDN" ></capitec-label>
 					<capitec-label label="MNO" ></capitec-label>
@@ -384,8 +388,8 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 					<capitec-label label="Reason for reversal" ></capitec-label>
 					<capitec-label label="Comment" ></capitec-label>
 				</div>
-				<hr>
-				<div column="2" row="2">
+
+				<div column="2" row="3">
 					<capitec-label label="${channel}" ></capitec-label>
 					<capitec-label label="${msisdn}" ></capitec-label>
 					<capitec-label label="Capitec Connect" ></capitec-label>
