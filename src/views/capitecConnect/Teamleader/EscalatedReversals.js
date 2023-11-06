@@ -78,7 +78,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	}
 
 	_errorHandler(err) {
-		this.logger.log(`error`, err)
+		return true;
 	}
 
 	_filterSearchboxClick() {
@@ -171,7 +171,11 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
+		try {
+			var pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
+		} catch (error) {
+			this.logger.log(`error`, "Failed to retrieve records", "_renderCollection() Escalated")
+		}
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
 			pagedItemsToReturn.records[i].clientName = `-`;

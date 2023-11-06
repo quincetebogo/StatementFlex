@@ -167,7 +167,11 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "COMPLETED");
+		try {
+			const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "COMPLETED");
+		} catch (error) {
+			this.logger.log(`error`, "Failed to retrieve records", "_renderCollection() Completed")
+		}
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
 			pagedItemsToReturn.records[i].clientName = `-`;

@@ -76,7 +76,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 	}
 
 	_errorHandler(err) {
-		this.logger.log(`error`, err)
+		return true;
 	}
 
 	_filterSearchboxClick() {
@@ -169,7 +169,11 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
+		try {
+			var pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
+		} catch (error) {
+			this.logger.log(`error`, Failed to retrieve records, "_renderCollection() Pending")
+		}
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
 			pagedItemsToReturn.records[i].clientName = `-`;
