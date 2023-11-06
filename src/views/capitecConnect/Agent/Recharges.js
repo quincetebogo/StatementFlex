@@ -2,7 +2,6 @@ import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
-import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
@@ -23,8 +22,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	constructor() {
 		super();
 
-		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.logger = Logger.getInstance();
+		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag());
 
 		// Static variables
 		this.dateRanges = [
@@ -156,16 +154,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		];
 	}
 
-	_errorHandler(error) {
-		this.logger.log(`error`, error);
-	}
-
-	async _initialise() {
-		// Remove before deploying.
-		// if (!this.clientCif) {
-		// 	this.clientCif = `123456789`;
-		// }
-
+	_initialise() {
 		this.showTable = true;
 	}
 
@@ -179,7 +168,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			/*
 				When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
 			*/
-			var filters = this.activeFilters;
+			let filters = this.activeFilters;
 
 			if (this.clientCif) {
 				filters.cif = this.clientCif;
@@ -192,7 +181,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			const response = await this.searchRecharges(filters);
 
-			var r = response.result.content;
+			let r = response.result.content;
 
 			r = r.map(e => {
 				e.friendlyDate = formatDate(e.transactionDate) + ' ' + getTimeFromDate(e.transactionDate);
@@ -244,8 +233,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
 			};
 		} catch (error) {
-			this.logger.log(`error`, error);
-
 			this.showTable = false;
 
 			return {
@@ -269,8 +256,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			return response;
 		} catch (error) {
-			this.logger.log(`error`, error);
-
 			this.showSuccessModal = false;
 			this.showFailureModal = true;
 
@@ -444,7 +429,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_renderProductName(item, fieldName, value) {
-		var product = item.bundleType;
+		let product = item.bundleType;
 
 		if (item.recharges.length) {
 			product = item.recharges[0].bundleType;
@@ -458,18 +443,18 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_expandRenderer (item) {
-		var accountNumber = `-`;
-		var channel = toTitleCase(item.channel);
-		var journalNumber = `-`;
-		var transactionDate = item.transactionDate;
-		var processedDate = `-`;
-		var product = item.bundleType;
-		var statusOfRecharge = ``;
-		var transactionCode = item.transactionReference || `-`;
-		var typeOfRecharge = ``;
-		var isPending = false;
+		let accountNumber = `-`;
+		let channel = toTitleCase(item.channel);
+		let journalNumber = `-`;
+		let transactionDate = item.transactionDate;
+		let processedDate = `-`;
+		let product = item.bundleType;
+		let statusOfRecharge = ``;
+		let transactionCode = item.transactionReference || `-`;
+		let typeOfRecharge = ``;
+		let isPending = false;
 
-		var theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		let theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
@@ -478,7 +463,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			typeOfRecharge = theRecharge.type
 		}
 
-		var theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
+		let theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
 		if (
 			item.pendingReversedTransaction !== null // if a there is a pending reversal
@@ -577,17 +562,17 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_renderRechargeStatusModal() {
-		var item = this.selectedRechargeView;
+		let item = this.selectedRechargeView;
 
-		var product = item.bundleType,
+		let product = item.bundleType,
 			productId = `-`,
 			type = `-`,
 			errorType = `-`,
 			statusOfRecharge = `-`,
 			isPending = false;
 
-		var theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
-		var theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
+		let theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		let theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
