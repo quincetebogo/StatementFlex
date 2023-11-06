@@ -177,12 +177,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			pagedItemsToReturn.records[i].clientName = `-`;
 
 			if (pagedItemsToReturn.records[i].accountNumber) {
-				try {
 					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
 					pagedItemsToReturn.records[i].clientName = clientName;
-				} catch (error) {
-					this.logger.log(`error`, "Client name could not be retrieved", "_renderCollection Escalated")
-				}
 			}
 		}
 
@@ -197,7 +193,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			identificationMethod: this.identificationMethod,
 			searchValue: accountNumber
 		};
-		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
+		const returnValue = await this.clientProfileService.searchCaller(searchClient, () => true, 1);
 		
 		if(returnValue.succeeded && returnValue.result){
 			var firstName = returnValue.result.callerInformation.firstName;
