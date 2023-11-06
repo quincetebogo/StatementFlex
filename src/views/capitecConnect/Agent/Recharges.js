@@ -193,7 +193,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			var r = response.result.content;
 
 			r = r.map(e => {
-				e.friendlyDate = formatDate(e.transactionDate);
+				e.friendlyDate = formatDate(e.transactionDate) + ' ' + getTimeFromDate(e.transactionDate);
 				e.friendlyMsisdn = formatCellphoneNumber(e.msisdn);
 
 				e.recharges = e.recharges.length > 0 ? sortObjectsByDateDescending(e.recharges, 'transactionDateTime') : e.recharges;
@@ -235,12 +235,16 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			response.result.content = r;
 
+			this.showTable = response.result.totalElements !== 0;
+
 			return {
 				pagedItems: response.result?.content || [],
 				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
 			};
 		} catch (error) {
 			console.error(error);
+
+			this.showTable = false;
 
 			return {
 				pagedItems: [],
@@ -389,22 +393,35 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-spacer></capitec-spacer>
 				</capitec-button-bar>
 
-				${!this.showTable ? null : html`
-				<capitec-table style="" 
-						displayMode="Paging" 
-						groupField="month"
-						numOfPagingRows="${this.numOfPagingRows}"
-						pagingRows="[${this.pagingRows.join(`,`)}]"
-						.dataHandler="${(renderSet) => this._retrieveRecharges(renderSet)}"
-						expandable="right" 
-						.expandRenderer="${(item) => this._expandRenderer(item)}">
-					<capitec-table-column label="Transaction Date" field="friendlyDate"></capitec-table-column>
-					<capitec-table-column label="Beneficiary Name" field="recharges" .renderer="${this._renderBeneficiaryName}"></capitec-table-column>
-					<capitec-table-column label="Cellphone Number" field="friendlyMsisdn"></capitec-table-column>
-					<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
-					<capitec-table-column label="Product" .renderer="${this._renderProductName}"></capitec-table-column>
-					<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
-				</capitec-table>
+				${this.showTable ? html`
+					<capitec-table style="" 
+							displayMode="Paging" 
+							groupField="month"
+							numOfPagingRows="${this.numOfPagingRows}"
+							pagingRows="[${this.pagingRows.join(`,`)}]"
+							.dataHandler="${(renderSet) => this._retrieveRecharges(renderSet)}"
+							expandable="right" 
+							.expandRenderer="${(item) => this._expandRenderer(item)}">
+						<capitec-table-column label="Transaction Date" field="friendlyDate"></capitec-table-column>
+						<capitec-table-column label="Beneficiary Name" field="recharges" .renderer="${this._renderBeneficiaryName}"></capitec-table-column>
+						<capitec-table-column label="Cellphone Number" field="friendlyMsisdn"></capitec-table-column>
+						<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
+						<capitec-table-column label="Product" .renderer="${this._renderProductName}"></capitec-table-column>
+						<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
+					</capitec-table>
+					`
+				: html`
+					<capitec-table>
+						<capitec-table-column label="Transaction Date"></capitec-table-column>
+						<capitec-table-column label="Beneficiary Name"></capitec-table-column>
+						<capitec-table-column label="Cellphone Number"></capitec-table-column>
+						<capitec-table-column label="Channel"></capitec-table-column>
+						<capitec-table-column label="Product"></capitec-table-column>
+						<capitec-table-column label="Amount"></capitec-table-column>
+					</capitec-table>
+					<capitec-content-box>
+						<capitec-label align="center" type="default" label="No recharge data found."></capitec-label>
+					</capitec-content-box>
 				`}
 			</capitec-content-box>
 
@@ -442,11 +459,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var accountNumber = `-`;
 		var channel = toTitleCase(item.channel);
 		var journalNumber = `-`;
-		var postingDate = item.transactionDate;
+		var transactionDate = item.transactionDate;
 		var processedDate = `-`;
 		var product = item.bundleType;
 		var statusOfRecharge = ``;
-		var transferAccount = `-`;
 		var transactionCode = item.transactionReference || `-`;
 		var typeOfRecharge = ``;
 		var isPending = false;
@@ -455,7 +471,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
-			postingDate = theRecharge.transactionDateTime;
+			transactionDate = theRecharge.transactionDateTime;
 			statusOfRecharge = theRecharge.status;
 			typeOfRecharge = theRecharge.type
 		}
@@ -463,12 +479,13 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
 
 		if (
-			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
-			&& typeof item.reversedTransaction === null // if there is no successful reversals
-			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			item.pendingReversedTransaction !== null // if a there is a pending reversal
+			&& item.reversedTransaction === null // if there is no successful reversals
+			&& item.successfulTransaction !== null // if there was a successful transaction
 			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
+			isPending = true;
 		}
 
 		if (isJson(theTransaction)) {
@@ -477,17 +494,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			accountNumber = theTransaction.accountNumber;
 			journalNumber = theTransaction.journalReference;
 			statusOfRecharge = theTransaction.status;
-
-			isPending = statusOfRecharge.toLowerCase().includes('pending');
 		}
 
 		product = toTitleCase(product);
 
-		if (statusOfRecharge !== ``) {
-			statusOfRecharge = ` [${statusOfRecharge}]`;
-		}
-
-		postingDate = postingDate ? formatDate(postingDate) + ` ` + getTimeFromDate(postingDate) : postingDate;
+		transactionDate = transactionDate ? formatDate(transactionDate) + ` ` + getTimeFromDate(transactionDate) : transactionDate;
 		processedDate = processedDate !== `-` ? formatDate(processedDate) + ` ` + getTimeFromDate(processedDate) : processedDate;
 
 		typeOfRecharge = toTitleCase(typeOfRecharge);
@@ -497,50 +508,49 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			<capitec-group layout="grid" gap="clear">
 				<div column="1" row="1" colspan="4">
-					<capitec-label type="strong" label="Description: ${channel.toUpperCase()} ${product} ${typeOfRecharge}${statusOfRecharge} Capitec Connect"></capitec-label>
+					<capitec-label label="Description:"></capitec-label>
+					<capitec-label type="strong" label="${channel.toUpperCase()} ${product} ${typeOfRecharge} Capitec Connect"></capitec-label>
 				</div>
 
-				<div column="1" row="2">
+				<div row="2" column="1">
+					<capitec-label label="Product:"></capitec-label>
+					<capitec-label type="strong" label="${product}"></capitec-label>
+				</div>
+				<div row="2" column="2">
 					<capitec-label label="Transaction Type:"></capitec-label>
-					<capitec-label type="strong" label="${product} ${typeOfRecharge}${statusOfRecharge}"></capitec-label>
+					<capitec-label type="strong" label="${typeOfRecharge}"></capitec-label>
 				</div>
-				<div column="1" row="3">
-					<capitec-label label="Transaction Code:"></capitec-label>
-					<capitec-label type="strong" label="${transactionCode}"></capitec-label>
+				<div row="2" column="3">
+					<capitec-label label="Transaction Status:"></capitec-label>
+					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>
 				</div>
-
-				<div column="2" row="2">
+				<div row="2" column="4">
 					<capitec-label label="Account:"></capitec-label>
 					<capitec-label type="strong" label="${accountNumber}"></capitec-label>
 				</div>
-				<div column="2" row="3">
+
+				<div row="3" column="1">
+					<capitec-label label="Transaction Date:"></capitec-label>
+					<capitec-label type="strong" label="${transactionDate}"></capitec-label>
+				</div>
+				<div row="3" column="2">
 					<capitec-label label="Processed Date:"></capitec-label>
 					<capitec-label type="strong" label="${processedDate}"></capitec-label>
 				</div>
-
-				<div column="3" row="2">
-					<capitec-label label="Transfer Account:"></capitec-label>
-					<capitec-label type="strong" label="${transferAccount}"></capitec-label>
+				<div row="3" column="3">
+					<capitec-label label="Transaction Code:"></capitec-label>
+					<capitec-label type="strong" label="${transactionCode}"></capitec-label>
 				</div>
-				<div column="3" row="3">
-					<capitec-label label="Includes VAT:"></capitec-label>
-					<capitec-label type="strong" label="Yes"></capitec-label>
-				</div>
-
-				<div column="4" row="2">
-					<capitec-label label="Posting Date:"></capitec-label>
-					<capitec-label type="strong" label="${postingDate}"></capitec-label>
-				</div>
-				<div column="4" row="3">
+				<div row="3" column="4">
 					<capitec-label label="Journal Number:"></capitec-label>
 					<capitec-label type="strong" label="${journalNumber}"></capitec-label>
 				</div>
 
-				<div column="1" row="5" colspan="4">
+				<div row="4" column="1" colspan="4">
 					<capitec-spacer></capitec-spacer>
 				</div>
 
-				<div column="1" row="6" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
+				<div row="5" column="1" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
 					<capitec-hyperlink
 						style="margin-right: 16px;
 						margin-top: 10px"
@@ -570,12 +580,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		var product = item.bundleType,
 			productId = `-`,
 			type = `-`,
-			messageId = `-`,
-			startTime = getTimeFromDate(item.transactionDate),
-			endTime = ``,
-			merchantId = `-`,
 			errorType = `-`,
-			errorMessage = `-`,
 			statusOfRecharge = `-`,
 			isPending = false;
 
@@ -584,35 +589,33 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
-			statusOfRecharge = theRecharge.status;
-			type = theRecharge.type;
-			errorMessage = theRecharge.statusReason;
+			statusOfRecharge = theRecharge.status ? theRecharge.status : statusOfRecharge;
+			type = theRecharge.type ? theRecharge.type : type;
 			productId = theRecharge.productId ? theRecharge.productId : productId;
 		}
 
 		if (
-			typeof item.reversedTransaction !== null // if there is a successful reversal
-			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			isJson(item.reversedTransaction) // if there is a successful reversal
+			&& isJson(item.successfulTransaction) // if there was a successful transaction
 			&& compareDates(item.reversedTransaction, item.successfulTransaction) > -1 // if the reversal is after the successful transaction
 		) {
 			theTransaction = item.reversedTransaction;
 		}
 
 		if (
-			typeof item.pendingReversedTransaction !== null // if a there is a pending reversal
-			&& typeof item.reversedTransaction === null // if there is no successful reversals
-			&& typeof item.successfulTransaction !== null // if there was a successful transaction
+			isJson(item.pendingReversedTransaction) // if a there is a pending reversal
+			&& item.reversedTransaction === null // if there is no successful reversals
+			&& isJson(item.successfulTransaction) // if there was a successful transaction
 			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
 		) {
 			theTransaction = item.pendingReversedTransaction;
+			isPending = true;
 		}
 
 		if (isJson(theTransaction)) {
-			type = theTransaction.type;
-			statusOfRecharge = theTransaction.status;
-			errorMessage = theTransaction.statusReason;
-			endTime = ` - ${getTimeFromDate(theTransaction.transactionDateTime)}`;
-			isPending = statusOfRecharge.toLowerCase().includes('pending');
+			type = type !== `-` ? type : theTransaction.type;
+			statusOfRecharge = statusOfRecharge !== `-` ? statusOfRecharge : theTransaction.status;
+			product = product ? product : theRecharge.bundleType;
 		}
 
 		product = toTitleCase(product);
@@ -640,24 +643,22 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				</div>
 				<div row="1" column="2">
 					<br>
-					<capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
+					<br>
 				</div>
 
 				<div row="2" column="1">
 					<capitec-label label="Message ID"></capitec-label>
 					<capitec-label label="Time"></capitec-label>
 					<capitec-label label="Origin"></capitec-label>
-					<capitec-label label="Merchant ID"></capitec-label>
 				</div>
 				<div row="2" column="2">
-					<capitec-label label="${messageId}"></capitec-label>
-					<capitec-label label="${item.friendlyDate} ${startTime}"></capitec-label>
+					<capitec-label label="${item.transactionReference}"></capitec-label>
+					<capitec-label label="${item.friendlyDate}"></capitec-label>
 					<capitec-label label="${item.cif}"></capitec-label>
-					<capitec-label label="${merchantId}"></capitec-label>
 				</div>
 
 				<div row="3" column="1" colspan="2">
-					<hr>
+					<hr style="border-bottom: none;">
 				</div>
 
 				<div row="4" column="1">
@@ -683,18 +684,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 				<div row="5" column="1">
 					<capitec-label label="Error Type"></capitec-label>
-					<capitec-label label="Error Message"></capitec-label>
 				</div>
 				<div row="5" column="2">
 					<capitec-label label="${errorType}"></capitec-label>
-					<capitec-label label="${errorMessage}"></capitec-label>
-				</div>
-
-				<capitec-spacer></capitec-spacer>
-
-				<div row="6" column="1" colspan="2">
-					<capitec-label type="strong" label="${formatDate(item.transactionDate, { weekday: `short`, day: `numeric`, month: `short`, year: `numeric` })}"></capitec-label>
-					<capitec-label type="strong" label="${startTime}${endTime}"></capitec-label>
 				</div>
 			</capitec-group>
 
