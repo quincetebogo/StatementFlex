@@ -61,17 +61,11 @@ class CancelPolicySuccess extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._updateIncidentState();
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
-
-	_updateIncidentState() {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 	// #endregion PRIVATE METHODS
 
@@ -82,9 +76,8 @@ class CancelPolicySuccess extends Component {
 	 * Event to open the email plan dialog
 	 * @return {void} 
 	 */
-	_openEmailPlanDialog() {
+	async _openEmailPlanDialog() {
 		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
-
 		this.showEmailPlanDialog = true;
 	}
 

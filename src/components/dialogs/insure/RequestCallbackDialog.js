@@ -64,7 +64,6 @@ class RequestCallbackDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -75,11 +74,6 @@ class RequestCallbackDialog extends Component {
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
-	
-	async _initialise() {
-		await super._inicidentManager_(`funeral-general-enquiry`, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
-	}
 
 	// #endregion PRIVATE METHODS
 
