@@ -4,6 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
+import { Logger } from 'platform/Core';
 
 /**
  * Capitec Connect teamleader View
@@ -28,6 +29,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.logger = Logger.getInstance();
 
 		// private properites
 		this.loading = true;
@@ -74,7 +76,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 	}
 
 	_errorHandler(err) {
-		console.error(err);
+		this.logger.log(`error`, err)
 	}
 
 	_filterSearchboxClick() {
