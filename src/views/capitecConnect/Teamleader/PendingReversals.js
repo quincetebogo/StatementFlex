@@ -172,7 +172,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		try {
 			var pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
 		} catch (error) {
-			this.logger.log(`error`, Failed to retrieve records, "_renderCollection() Pending")
+			this.logger.log(`error`, "Failed to retrieve records", "_renderCollection() Pending")
 		}
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
