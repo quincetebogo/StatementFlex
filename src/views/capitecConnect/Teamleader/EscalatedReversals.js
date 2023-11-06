@@ -3,7 +3,7 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { toTitleCase, formatDate, formatTime, formatCellphoneNumber } from 'app/utils/capitecConnectUtils';
+import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -170,15 +170,19 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.searchValue = this.renderSet.searchValue;
 
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
-		for(var i = 0; i < pagedItemsToReturn.records.length; i++){
-			if(pagedItemsToReturn.records[i].accountNumber !== 0){
-				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
-				Object.assign(pagedItemsToReturn.records[i], {clientName: clientName});
-			} else {
-				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
+
+		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
+			pagedItemsToReturn.records[i].clientName = `-`;
+
+			if (pagedItemsToReturn.records[i].accountNumber) {
+				try {
+					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+					pagedItemsToReturn.records[i].clientName = clientName;
+				} catch (error) {
+				}
 			}
 		}
-		
+
 		return {
 			pagedItems: pagedItemsToReturn.records,
 			totalCount: pagedItemsToReturn.totalRecords
@@ -206,6 +210,10 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 	formatModalDate(inputDate, options) {
 		options = options || { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' };
 		return formatDate(inputDate, options);
+	}
+
+	_renderAmount(item, fieldName, value) {
+		return formatAmount(value);
 	}
 	
 	_render() {
@@ -248,7 +256,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Amount" field="amount" ></capitec-table-column>
+			<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
 		</capitec-table>
 		`}
 			
@@ -358,7 +366,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 					<capitec-label label="${productId}" ></capitec-label>
 					<capitec-label label="${productName}" ></capitec-label>
 					<capitec-label label="${bundleType}" ></capitec-label>
-					<capitec-label label="${amount}" ></capitec-label>
+					<capitec-label label="${formatAmount(amount)}" ></capitec-label>
 					</br>
 					<capitec-label label="${statusReason}" ></capitec-label>
 					</br>
@@ -379,7 +387,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		return html`
 			<capitec-modal type="alert" header="Are you sure?">
 				<div slot="body">
-					You are going to ${this.reversalAction} the following R${this.selectedReversal.amount}
+					You are going to ${this.reversalAction} the following ${formatAmount(this.selectedReversal.amount)}
 				</div>
 				<capitec-button slot="footer" type="primary" @click="${() => {this.reversalActions(this.reversalAction, this.selectedReversal); this.showConfirmModal = false; this.selectedReversal = null;}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
