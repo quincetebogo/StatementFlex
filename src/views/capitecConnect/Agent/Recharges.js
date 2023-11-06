@@ -2,6 +2,7 @@ import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
+import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
@@ -23,6 +24,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		super();
 
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.logger = Logger.getInstance();
 
 		// Static variables
 		this.dateRanges = [
@@ -154,8 +156,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		];
 	}
 
-	_errorHandler(err) {
-		console.error(err)
+	_errorHandler(error) {
+		this.logger.log(`error`, error);
 	}
 
 	async _initialise() {
@@ -242,7 +244,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
 			};
 		} catch (error) {
-			console.error(error);
+			this.logger.log(`error`, error);
 
 			this.showTable = false;
 
@@ -267,7 +269,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 			return response;
 		} catch (error) {
-			console.error(error);
+			this.logger.log(`error`, error);
 
 			this.showSuccessModal = false;
 			this.showFailureModal = true;
