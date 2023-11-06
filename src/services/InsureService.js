@@ -283,16 +283,16 @@ export class InsureService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async policyTransactions(policyTransactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async policyPremiumHistory(policyTransactionsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insurePolicyTransactionHistory`)) {
 			return this.mock(`insurePolicyTransactionHistory`, policyTransactionsRequest);
 		}
 
 		return this.post(
-			`/horizon-insurance/policy/transactions`,
+			`/horizon-insurance/policy/premium-history`,
 			policyTransactionsRequest,
 			this._setInsureHeaders(),
-			`policyTransactions`,
+			`policyPremiumHistory`,
 			null,
 			null,
 			900,
@@ -658,6 +658,33 @@ export class InsureService extends ChannelServiceBase {
 			ArrearsRequest,
 			this._setInsureHeaders(),
 			`arrears`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+
+	}
+
+	/**
+	 * Update client OPT IN/OUT per elect type
+	 *
+	 * @param {Object} [SetOptionRequest=null]  Request data to set option preferences
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async SetElectOptions(SetOptionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureElectOption`)) {
+			return this.mock(`insureElectOption`);
+		}
+		return this.post(
+			`/horizon-insurance/elect/setoption`,
+			SetOptionRequest,
+			this._setInsureHeaders(),
+			`setoption`,
 			null,
 			null,
 			900,
