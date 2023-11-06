@@ -3,7 +3,7 @@ import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
-import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
+import { toTitleCase, formatDate, formatTime, formatDateAndTime, formatAmount} from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -28,7 +28,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-	
+
 		// private properites
 		this.loading = true;
 
@@ -170,16 +170,15 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		this.searchValue = this.renderSet.searchValue;
 
 		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "AVAILABLE");
-
-		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
-			pagedItemsToReturn.records[i].clientName = `-`;
-
-			if (pagedItemsToReturn.records[i].accountNumber) {
-				try {
-					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
-					pagedItemsToReturn.records[i].clientName = clientName;
-				} catch (error) {
-				}
+		for(var i = 0; i < pagedItemsToReturn.records.length; i++){
+			pagedItemsToReturn.records[i].postingDate = formatDateAndTime(pagedItemsToReturn.records[i].postingDate);
+			pagedItemsToReturn.records[i].createdAt = formatDateAndTime(pagedItemsToReturn.records[i].createdAt);
+			
+			if(pagedItemsToReturn.records[i].accountNumber !== 0){
+				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+				Object.assign(pagedItemsToReturn.records[i], {clientName: clientName});
+			} else {
+				Object.assign(pagedItemsToReturn.records[i], {clientName: "-"});
 			}
 		}
 
@@ -220,7 +219,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		return html`
 		<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 		<capitec-button-bar>
-			<capitec-search-field label="Search" value="${this.activeFilters.searchValue}" @value-change="${(e) => {this.activeFilters.searchValue = e.detail.new; this.onFilter();}}" focussed>
+			<capitec-search-field label="Search mobile number" value="${this.activeFilters.searchValue}" hint="e.g. 2784000000" @value-change="${(e) => {this.activeFilters.searchValue = e.detail.new; this.onFilter();}}" focussed>
 			</capitec-search-field>
 			<capitec-select 
 				label="Select date" 
@@ -256,7 +255,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 			<capitec-table-column label="Client Name" field="clientName"></capitec-table-column>
 			<capitec-table-column label="Account" field="accountNumber"></capitec-table-column>
 			<capitec-table-column label="Number Charged" field="msisdn"></capitec-table-column>
-			<capitec-table-column label="Channel" field="channel"></capitec-table-column>
+			<capitec-table-column label="Channel" field="channel" .renderer="${this._renderTag}"></capitec-table-column>
 			<capitec-table-column label="Amount" field="amount" .renderer="${this._renderAmount}"></capitec-table-column>
 		</capitec-table>
 		`}
@@ -269,6 +268,10 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		${this.showConfirmModal ? this._renderConfirmModal() : null}
 
 		`;
+	}
+
+	_renderTag(item, fieldName, value) {
+		return html`<capitec-tag label="${value.toUpperCase()}" type="info"></capitec-tag>`;
 	}
 
 	_expandRenderer (item) {
@@ -286,7 +289,8 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 				
 				<capitec-content-box layout="grid">
 					<div column="1" row="1" colspan="4">
-						<capitec-label type="strong" label="Statement description: ${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
+						<capitec-label type="strong" label="Description:"></capitec-label>
+						<capitec-label type="strong" label="${channel} ${bundleType} ${typeOfRecharge} Capitec Connect"></capitec-label>
 					</div>
 					<div column="1" row="2">
 						<capitec-label label="Transaction Type" ></capitec-label>
@@ -298,13 +302,16 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 					<div column="2" row="2">
 						<capitec-label label="Posting Date" ></capitec-label>
 						<capitec-label type="strong" label="${postingDate}" ></capitec-label>
-						<capitec-label label="Journal Number" >j</capitec-label>
-						<capitec-label type="strong" label="${journalReference}" >j</capitec-label>
 					</div>
 
 					<div column="3" row="2">
 						<capitec-label label="Processed Date" ></capitec-label>
 						<capitec-label type="strong" label="${processingDate}" ></capitec-label>
+					</div>
+
+					<div column="4" row="2">
+						<capitec-label label="Journal Number" >j</capitec-label>
+						<capitec-label type="strong" label="${journalReference}" >j</capitec-label>
 					</div>
 
 					<div column="1" row="6" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
@@ -323,6 +330,7 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		var status = selectedReversal.status ? selectedReversal.status : '-';
 		var transactionReference = selectedReversal.businessTransactionReference ? selectedReversal.businessTransactionReference : '-';
 		var postingDate = selectedReversal.postingDate ? selectedReversal.postingDate : '-';
+		var createdAt = selectedReversal.createdAt ? formatDateAndTime(selectedReversal.createdAt) : '-';
 		var channel = selectedReversal.channel ? toTitleCase(selectedReversal.channel) : '-';
 		var msisdn = selectedReversal.msisdn ? selectedReversal.msisdn : '-';
 		var productId = selectedReversal.productId ? selectedReversal.productId : '-';
@@ -339,14 +347,14 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 		<capitec-modal type="form" header="Reversal request">
 			<capitec-content-box slot="body" layout="grid" style="height: 500px;">
 				<div column="1" row="1">
-					<capitec-label type="strong" label="${status}" ></capitec-label>
+					<capitec-label type="strong" label="Recharge Status" ></capitec-label>
 					<capitec-label label="Message ID" ></capitec-label>
-					<capitec-label label="Time" ></capitec-label>
+					<capitec-label label="Escalated Time" ></capitec-label>
 				</div>
 				<div column="2" row="1">
-					</br>
+					<capitec-label label="${status}" ></capitec-label>
 					<capitec-label label="${transactionReference}" ></capitec-label>
-					<capitec-label label="${postingDate}" ></capitec-label>
+					<capitec-label label="${createdAt}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="1" row="2">
@@ -358,13 +366,9 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 					<capitec-label label="Product Type" ></capitec-label>
 					<capitec-label label="Request Amount" ></capitec-label>
 					</br>
-					<capitec-label label="Error Message" ></capitec-label>
-					</br>
 					<capitec-label label="Reason for reversal" ></capitec-label>
 					<capitec-label label="Comment" ></capitec-label>
 					</br>
-					<capitec-label type="strong" label="${modalDate}" ></capitec-label>
-					<capitec-label type="strong" label="${modalTime}" ></capitec-label>
 				</div>
 				<hr>
 				<div column="2" row="2">
@@ -375,8 +379,6 @@ export class CapitecConnectTeamLeaderEscalatedReversals extends View {
 					<capitec-label label="${productName}" ></capitec-label>
 					<capitec-label label="${bundleType}" ></capitec-label>
 					<capitec-label label="${formatAmount(amount)}" ></capitec-label>
-					</br>
-					<capitec-label label="${statusReason}" ></capitec-label>
 					</br>
 					<capitec-label label="${reason}" ></capitec-label>
 					<capitec-label label="${additionalComments}" ></capitec-label>	
