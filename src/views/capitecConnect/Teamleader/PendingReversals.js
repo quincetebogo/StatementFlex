@@ -4,6 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
+import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
@@ -26,8 +27,9 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), null);
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), null);
+		this.logger = Logger.getInstance();
 
 		// private properites
 		this.loading = true;
@@ -74,7 +76,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 	}
 
 	_errorHandler(err) {
-		console.error(err);
+		return true;
 	}
 
 	_filterSearchboxClick() {
@@ -167,17 +169,14 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
+		var pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "FLAGGED");
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
 			pagedItemsToReturn.records[i].clientName = `-`;
 
 			if (pagedItemsToReturn.records[i].accountNumber) {
-				try {
-					var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
-					pagedItemsToReturn.records[i].clientName = clientName;
-				} catch (error) {
-				}
+				var clientName = await this.getClientName(pagedItemsToReturn.records[i].accountNumber);
+				pagedItemsToReturn.records[i].clientName = clientName;
 			}
 		}
 
@@ -192,7 +191,7 @@ export class CapitecConnectTeamLeaderPendingReversals extends View {
 			identificationMethod: this.identificationMethod,
 			searchValue: accountNumber
 		};
-		const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
+		const returnValue = await this.clientProfileService.searchCaller(searchClient, () => true, 1);
 
 		if(returnValue.succeeded && returnValue.result){
 			var firstName = returnValue.result.callerInformation.firstName;
