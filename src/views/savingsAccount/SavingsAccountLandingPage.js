@@ -353,13 +353,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 	async _getFirstQusToDispute(item) {
 		const request = {
-			"transactionIdList": [item.transactionId],
-			"incident": {
-				"incidentId": this.incidentRecId,
-				"incidentReference": this.incidentDetails.incidentReferenceNumber
-			},
+			"transactionId": `${item.transactionId}`,
+			"transactionPostingDate": item.postingDate,
+			"incident": this.currentIncident,
 			"cifNumber": this.callerInformation.cifNumber,
-			"agentId": `123456`
+			"agentId": `ct301316`
 		};
 		const returnValue = await this.savingsService.getFirstQuestion(request);
 		return returnValue;
@@ -651,8 +649,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					type="clear"
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
-					@click="${() => this._optionClick(`card-disputes`, item)}"
-					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl()}">
+					@click="${() => this._optionClick(`card-disputes`, item)}">
 				</capitec-button>
 			</capitec-group>
 		`;
