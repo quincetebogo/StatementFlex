@@ -281,7 +281,8 @@ export const POLICY_OPTIONS = Object.freeze({
 	UPDATE_PLAN: `UpdatePlan`,
 	CANCEL_PLAN: `CancelPlan`,
 	TRANSACTION_HISTORY: `TransactionHistory`,
-	SMS_HISTORY: `SMSHistory`
+	SMS_HISTORY: `SMSHistory`,
+	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`
 });
 
 

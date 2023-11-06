@@ -26,15 +26,14 @@ const POLICY_TRANSACTION_HISTORY = {
 };
 
 /**
- * Implements the view for Insure unverified existing clients (i.e. the client has products)
- * This includes the view for third parties phoning in about an existing client.
+ * Implements the view for Insure Back Office agent. View is readonly and only allows investigations to take place, no interaction on clients policies
  *
  * 
  * @export
- * @class InsureUnverifiedView
+ * @class InsureBackOffice
  * @extends {View}
  */
-export class InsureUnverifiedView extends InsureViewBase {
+export class InsureBackOfficeView extends InsureViewBase {
 
 	// #region INITIALISATION
 
@@ -281,13 +280,13 @@ export class InsureUnverifiedView extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyPremiumHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
 				.map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
-					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
+					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
@@ -315,10 +314,12 @@ export class InsureUnverifiedView extends InsureViewBase {
 	 * Unload Policy Transactions State
 	 * @returns {null} null
 	  */
-	_undoClientPolicies() {
-		this.clientPolicies.summaryDetails.policies = this.clientPolicies?.summaryDetails?.policies?.forEach(item => {
-			item.isExpanded = false;
-		});
+	_unloadClientPolicies() {
+		if (this.clientPolicies?.summaryDetails?.policies !== null) {
+			this.clientPolicies.summaryDetails.policies.forEach(item => {
+				item.isExpanded = false;
+			});
+		}
 	}
 
 	// #endregion EVENT HANDLERS
@@ -411,7 +412,7 @@ export class InsureUnverifiedView extends InsureViewBase {
 			<horizon-insure-funeral-policy-summary 
 				.policyDetails = "${this.policyDetails}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@unloading="${() => this._undoClientPolicies()}"
+				@unloading="${() => this._unloadClientPolicies()}"
 				.readOnlyMode="${this.readOnlyMode}">
 			</horizon-insure-funeral-policy-summary>`;
 	}
@@ -464,4 +465,4 @@ export class InsureUnverifiedView extends InsureViewBase {
 
 
 }
-customElements.define(`horizon-insure-unverified-client`, InsureUnverifiedView);
+customElements.define(`horizon-insure-backoffice`, InsureBackOfficeView);

@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { RoleManager } from 'app/shell/RoleManager';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
+
+const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
 
 const DEFAULT_SUBTITLE = {
 	SAVINGS_ACCOUNT: `Know what you get, know what you pay`,
@@ -26,8 +29,10 @@ export class ProductButtonPanel extends Component {
 	constructor() {
 		super();
 
-		this.selectedButton = ``;
+		this.roleManager = RoleManager.getInstance();
 
+		this.selectedButton = ``;
+		this.roleManager = RoleManager.getInstance();
 		this.subtitle = {
 			savingsAccount: ``,
 			liveBetterSavings: ``,
@@ -83,6 +88,15 @@ export class ProductButtonPanel extends Component {
 
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
+	}
+
+	_getProductDetailValue(amount, type) {
+		// Insure and Livebetter are disabled as part of the Capitec connect agent flow
+		const product = [`insure`, `liveBetter`];
+		if (this.roleManager.isCapitecConnectAgent && product.includes(type)) {
+			return null;
+		}
+		return amount;
 	}
 
 	// ---------
@@ -154,22 +168,28 @@ export class ProductButtonPanel extends Component {
 				type="insure"
 				label="Insure"
 				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
-				detail="${this.detail.insure ? this.detail.insure : ``}"
+				detail="${this.detail.insure ? this._getProductDetailValue(this.detail.insure, `insure`) : ``}"
 				icon="product/insure-white"
 				@click="${() => this._productButtonClick(`Insure`)}"
 				?selected="${this.selectedButton === `Insure`}"
-				data-automation-id="product-button-panel-insure">
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
+				data-automation-id="product-button-panel-insure"
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
 			<horizon-product-tile
 				class="product-button"
 				type="live-better"
 				label="Live Better Savings"
 				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
-				detail="${this.detail.liveBetterSavings ? this.detail.liveBetterSavings : ``}"
+				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
 				icon="product/live-better"
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent}"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				?selected="${this.selectedButton === `LiveBetter`}"
-				data-automation-id="product-button-panel-live-better">
+				data-automation-id="product-button-panel-live-better"
+				?disabled="${this.roleManager.isCapitecConnectAgent}">
 			</horizon-product-tile>
 		`;
 	}

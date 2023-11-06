@@ -317,7 +317,19 @@ class AddBeneficiaryDialog extends Component {
 							</horizon-product-tile>
 						</capitec-group>
 
-						${this._renderSpouse()}
+						<capitec-group class="relationships" layout="horizontal">
+							<horizon-product-tile
+								data-automation-id="statements-dialog-one-month-period"
+								type="radio-button"
+								label="Spouse"
+								subtitle="Only one allowed between the ages of 18 - 64 years."
+								detail=""
+								@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
+								?selected="${this.selectedRelationship === `Spouse`}"
+								>
+							</horizon-product-tile>
+						</capitec-group>
+
 						<capitec-label label="Add new beneficiary" type="title"></capitec-label>
 						<capitec-group class="relationships" layout="horizontal">
 							<horizon-product-tile
@@ -342,43 +354,6 @@ class AddBeneficiaryDialog extends Component {
 		`;
 	}
 
-	_renderSpouse() {
-
-		const foundSpouse = this.rolePlayers.find((life) => life.relationship === `Spouse`);
-
-			if (isNullorEmpty(foundSpouse)) {
-				return html`
-					<capitec-group class="relationships" layout="horizontal">
-						<horizon-product-tile
-							data-automation-id="statements-dialog-one-month-period"
-							type="radio-button"
-							label="Spouse"
-							subtitle="Only one allowed between the ages of 18 - 64 years."
-							detail=""
-							@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
-							?selected="${this.selectedRelationship === `Spouse`}"
-							>
-						</horizon-product-tile>
-					</capitec-group>
-				`;
-			}
-			return html`
-				<capitec-group class="relationships" layout="horizontal">
-					<horizon-product-tile
-						data-automation-id="statements-dialog-one-month-period"
-						type="radio-button"
-						label="Spouse"
-						subtitle="Only one allowed between the ages of 18 - 64 years."
-						detail=""
-						?disabled= "${true}"
-						@click="${(e) => this._addNewBeneficiaryChange(`Spouse`)}"
-						?selected="${this.selectedRelationship === `Spouse`}"
-						>
-					</horizon-product-tile>
-				</capitec-group>
-			`;
-	}
-
 	/**
 	 * Generates the modal to select an extended relationship
 	 * 
@@ -386,7 +361,7 @@ class AddBeneficiaryDialog extends Component {
 	 */
 	_renderExtendedRelationships() {
 		return html`
-		<capitec-modal type="form" class="modal-body-label" header="Add Life Assured"
+		<capitec-modal type="form" class="modal-body-label" header="Add extended family" style="--theme-modal-header-color: black"
 			data-automation-id="horizon-insure-add-beneficiary-dialog" header-align="left">
 			<div slot="body" class="modal-body">
 				<capitec-content-box layout="vertical" halign="stretch" valign="top" gap="clear"
@@ -513,7 +488,7 @@ class AddBeneficiaryDialog extends Component {
 		return this.showExtendedRelationships === true 
 		? html`
 		<capitec-button slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
-		</capitec-button></capitec-button>
+		</capitec-button>
 		` 
 		: html`
 		<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">

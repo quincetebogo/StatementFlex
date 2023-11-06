@@ -68,6 +68,7 @@ export default class InsureChannelServiceMocks {
 		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
 		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
 		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
+		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
 
 	// #region FUNERAL
@@ -336,4 +337,11 @@ export default class InsureChannelServiceMocks {
 	}
 
 	// #endregion LIFE
+	
+	insureElectOption() {
+		if (this._mockSettings.insureElectOption.positiveCase) {
+			return this.electOptionsMocks.InsureElectOption;
+		}
+		return null;
+	}
 }

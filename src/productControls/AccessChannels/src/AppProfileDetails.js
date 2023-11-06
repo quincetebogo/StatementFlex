@@ -182,7 +182,10 @@ export class AppProfileDetails extends Component {
 	}
 
 	_onReasonSelected(event) {
-		if (event.detail.new) {
+		if (event.detail.new && event.currentTarget.label === `Cancelled remote banking`) {
+			this.selectedSuspendReason = `ServiceCanceled`;
+			this.showValidationBanner = false;
+		} else {
 			this.selectedSuspendReason = event.currentTarget.label;
 			this.showValidationBanner = false;
 		}
