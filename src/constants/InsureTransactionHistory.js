@@ -142,5 +142,7 @@ export const TRANSACTION_TYPE = Object.freeze({
 	GRACE: `Grace`,
 	DECREASEOFSUMASSURED: `Decrease Of Sum Assured`,
 	UPDATEPOLICYQUOTE: `Update Policy Quote`,
-	UNKNOWN: `Unknown`
+	UNKNOWN: `Unknown`,
+	DEBITORDERRECEIPT: `Debit Order Receipt`,
+	ADHOCRECEIPT: `Ad Hoc Receipt`
 });
