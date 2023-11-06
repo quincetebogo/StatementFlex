@@ -4,7 +4,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { toTitleCase, formatTime, formatDate, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
-import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
@@ -27,9 +26,8 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-		this.logger = Logger.getInstance();
+		this.capitecConnectService = new CapitecConnectService(() => this._toggleBusyFlag(), null);
+		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), null);
 
 		// private properites
 		this.loading = true;
@@ -167,11 +165,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 		this.currentPageIndex = this.renderSet.currentPageIndex;
 		this.searchValue = this.renderSet.searchValue;
 
-		try {
-			const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "COMPLETED");
-		} catch (error) {
-			this.logger.log(`error`, "Failed to retrieve records", "_renderCollection() Completed")
-		}
+		const pagedItemsToReturn = await this.searchReversals(renderSet, this.activeFilters, "COMPLETED");
 
 		for (var i = 0; i < pagedItemsToReturn.records.length; i++) {
 			pagedItemsToReturn.records[i].clientName = `-`;
