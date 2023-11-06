@@ -74,7 +74,7 @@ export class CapitecConnectTeamLeaderCompletedReversals extends View {
 	}
 
 	_errorHandler(err) {
-		this.logger.log(`error`, err)
+		return true;
 	}
 
 	_filterSearchboxClick() {
