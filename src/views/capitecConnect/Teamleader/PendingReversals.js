@@ -4,7 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { toTitleCase, formatDate, formatTime, formatCellphoneNumber, formatAmount } from 'app/utils/capitecConnectUtils';
-import { Logger } from 'platform/Core';
+import { Logger } from 'platform/core';
 
 /**
  * Capitec Connect teamleader View
