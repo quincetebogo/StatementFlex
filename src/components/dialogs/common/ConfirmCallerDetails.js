@@ -133,7 +133,7 @@ export class ConfirmCallerDetails extends Component {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Confirm Caller Details`);
 		this._telemetry.startSpan(IDCallerEvents.CONFIRM_CALLER, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"initial-primary-need": null,
@@ -189,7 +189,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// TODO: If insure role then navigate to Insure landing page.
 		if (this.roleManager.isInsureAgent) {
-			this._navigateToInsureLandingPage();
+			this._navigateToInsureBackOfficePage();
 			return;
 		}
 		
@@ -439,9 +439,9 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	_navigateToInsureLandingPage() {
+	_navigateToInsureBackOfficePage() {
 		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonRouter.navigateToInsureUnverifiedClient();
+		this.horizonRouter.navigateToInsureBackOfficePage();
 	}
 
 	// async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {

@@ -54,7 +54,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Credit Term Loan Details Dialog`);
 		// formatting credit card details received from service
 		this.accountDetails = {
 			'title': formatStringAsPascalCase(this.termLoanDetails.accountDescription),

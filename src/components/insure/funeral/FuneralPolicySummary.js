@@ -87,7 +87,7 @@ class FuneralPolicySummary extends Component {
 	 * Navigate to Insure Landing page
 	 * @returns {void} 
 	 */
-	_backToClientPoliciesPage() {
+	async _backToClientPoliciesPage() {
 		this._telemetry.logEvent(this.telemetryEvents.POLICY_SUMMARY_BACK, {
 			"screen": TelemetryScreen.INSURE_POLICY_SUMMARY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
@@ -113,8 +113,6 @@ class FuneralPolicySummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
-		// await super._inicidentManager_(`funeral-plan-summary`, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident();
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -404,6 +402,32 @@ class FuneralPolicySummary extends Component {
 					data-automation-id="policy-summary-mandate-status">
 				</horizon-label>
 			</capitec-group>
+			
+			${this.policyDetails.status === `Lapsed`
+				? html`
+				<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label label="Lapse Date"
+						value="${isNullorEmpty(this.policyDetails.cancellationDetails?.recordedCancellationDate) ? `-` : formatDate(this.policyDetails.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}"
+						data-automation-id="insure-policy-cancellation-date">
+					</horizon-label>
+				</capitec-group>
+				`
+				: ``}
+
+			${this.policyDetails.status === `Cancelled`
+				? html`
+				<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label label="${this.policyDetails.status === `Lapsed` ? `Lapse Date` : `Cancellation date`}"
+						value="${isNullorEmpty(this.policyDetails.cancellationDetails?.recordedCancellationDate) ? `-` : formatDate(this.policyDetails.cancellationDetails?.recordedCancellationDate, `dd mmm yyyy`)}"
+						data-automation-id="insure-policy-cancellation-date">
+					</horizon-label>
+					<horizon-label label="Reason"
+						value="${this.policyDetails?.cancellationDetails?.displayReason}"
+						data-automation-id="insure-policy-cancellation-reason">
+					</horizon-label>
+				</capitec-group>
+				`
+				: ``}
 		`;
 	}
 

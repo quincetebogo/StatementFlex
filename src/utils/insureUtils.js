@@ -121,6 +121,9 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
 
+				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
+				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
+				
 			}
 
 			// Over max cover
