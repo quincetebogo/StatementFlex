@@ -93,7 +93,7 @@ export class CapitecConnectTeamLeader extends View {
 			"page": typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0,
 			"size": typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10,
 			"sort":[
-				"processingDate,desc"
+				"processingDate,asc"
 			]
 		}
 
@@ -144,10 +144,15 @@ export class CapitecConnectTeamLeader extends View {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
 			location.reload();
 		} else if(action === "Approve") {
-			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
-			if (reversalDetails.succeeded) {
-				this.horizonRouter.navigateToProcessReversalSuccess(accountNumber);
-			} else {
+			try {
+				var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
+
+				if (reversalDetails.succeeded) {
+					this.horizonRouter.navigateToProcessReversalSuccess(accountNumber);
+				} else {
+					this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
+				}
+			} catch(error){
 				this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
 			}
 		}
@@ -242,7 +247,7 @@ export class CapitecConnectTeamLeader extends View {
 					
 				<capitec-group class= "content" layout="grid" gap="none" columns="auto" rows="auto">
 					<capitec-tab-group>
-						<capitec-tab label="Escalated reversals ${this.totalEscalatedReversals}" layout="vertical" halign="left">
+						<capitec-tab label="Escalated Reversals ${this.totalEscalatedReversals}" layout="vertical" halign="left">
 							<horizon-capitec-connect-teamleader-escalated-reversals
 									style="width:100%"
 									.searchReversals="${this.searchReversals}"

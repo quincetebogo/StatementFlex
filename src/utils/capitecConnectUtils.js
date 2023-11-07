@@ -12,6 +12,10 @@ export function getTimeFromDate(dateString) {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
+export function formatDateAndTime(dateString) {
+	return formatDate(dateString) + ` ` + getTimeFromDate(dateString);
+}
+
 export function formatTime(inputDate, options) {
 	options = options || { hour: '2-digit', minute: '2-digit', second: '2-digit' };
 	const date = new Date(inputDate);
