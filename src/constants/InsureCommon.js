@@ -307,7 +307,7 @@ export const POLICY_RULES = Object.freeze({
 export const LIFE_POCKET_TYPES = Object.freeze({
 	MONTHLY: `MonthlyPayout`,
 	EDUCATION: `Education`,
-	ONCEOFF: `OnceOffPayout`
+	ONCEOFF: `LumpSum`
 });
 
 /**

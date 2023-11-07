@@ -127,6 +127,9 @@ class LifePocketSummary extends Component {
 	_getPocketBeneficiaries() {
 		this.pocketBeneficiaries = [];
 		this.selectedLifePolicy.beneficiaries.forEach(beneficiary => {
+			console.log(`LOOOPING`);
+			console.log(this.selectedPocketType);
+			console.log(beneficiary);
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && beneficiary.monthlyPayoutBenefitAmount > 0) {
 				this.pocketBeneficiaries.push(beneficiary);
 			}
@@ -134,9 +137,12 @@ class LifePocketSummary extends Component {
 				this.pocketBeneficiaries.push(beneficiary);
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && beneficiary.onceOffPayoutBenefitAmount > 0) {
+				console.log(`ADDING`);
 				this.pocketBeneficiaries.push(beneficiary);
 			}
 		});
+
+		console.log(this.pocketBeneficiaries);
 	}
 
 	/**
@@ -146,9 +152,11 @@ class LifePocketSummary extends Component {
 	 */
 	_calculateArrearsAmount(policy) {
 		let totalArrears = 0;
-		policy.arrears.forEach(arrears => {
-			totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
-		});
+		if (policy.arrears) {
+			policy.arrears.forEach(arrears => {
+				totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+			});
+		}
 		return formatCurrency(totalArrears);
 	}
 
@@ -443,7 +451,7 @@ class LifePocketSummary extends Component {
 							</capitec-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
-							${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? html`` : html`
+							${this.selectedPocketType !== LIFE_POCKET_TYPES.MONTHLY ? html`` : html`
 								<horizon-label
 									label="Term"
 									value="24 months">

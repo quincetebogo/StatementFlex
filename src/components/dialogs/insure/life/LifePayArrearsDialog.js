@@ -113,9 +113,11 @@ class LifePayArrearsDialog extends Component {
 	//  #region PRIVATE METHODS
 
 	_initialise() {
-		this.policy.arrears.forEach(arrears => {
-			this.totalPolicyArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
-		});
+		if (this.policy.arrears) {
+			this.policy.arrears.forEach(arrears => {
+				this.totalPolicyArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+			});
+		}
 
 		// Relook how will we get this data?
 		this.payableAccounts = [

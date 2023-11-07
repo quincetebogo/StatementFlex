@@ -1540,16 +1540,17 @@ class ClientSummary extends Component {
 							data-automation-id="insure-policy-cancellation-reason"
 							label="Reason"
 							value="${policyItem?.cancellationDetails?.displayReason}">
-						</horizon-label>`
+							</horizon-label>` : html``}
 
-					: html`
+						${policyItem.status !== `Cancelled` && policyItem.status !== `Lapsed`
+					? html`
 						<horizon-label
 							data-automation-id="insure-policy-total-premium"
 							label="Total premium"
 							value="${this._funeralTotalPremiumLabel(policyItem)}">
-						</horizon-label>`}
+						</horizon-label>` : html``}
 						
-						${policyItem.status === `Cancelled`
+						${policyItem.status === `Cancelled` || policyItem.status === `Lapsed`
 					? html``
 					: html`
 						<horizon-label
@@ -1584,8 +1585,8 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content the list of Policies
 	 */
 	_renderLifePoliciesList() {
-		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE`);
-		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE`);
+		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE` || x.policyStatus.toUpperCase() === `PENDING IN FORCE`);
+		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE` && pol.policyStatus.toUpperCase() !== `PENDING IN FORCE`);
 
 		return html`
 				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
@@ -1593,7 +1594,7 @@ class ClientSummary extends Component {
 						type="unsuccessful-red"
 						class="life-arrears-notify"
 						header="Notify client:"
-						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse on ????/??/?? if payment is not received."
+						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse if payment is not received."
 						layout="horizontal">
 					</horizon-alert-banner>`
 				: html``}
@@ -1674,17 +1675,17 @@ class ClientSummary extends Component {
 			
 			<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
 
-			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
 				? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
 				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
 				? html`<capitec-overflow-menu-item label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1694,11 +1695,10 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE`
+				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
 				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
-
 				</capitec-overflow-menu>
 			</div>
 			</capitec-card>
@@ -1870,7 +1870,7 @@ class ClientSummary extends Component {
 	 */
 	_renderLifeExpandedOptions(pocketItem) {
 
-		if (pocketItem.pocketType === `OnceOffPayout`) {
+		if (pocketItem.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
@@ -1888,7 +1888,7 @@ class ClientSummary extends Component {
 					
 				</capitec-group>
 			`;
-		} else if (pocketItem.pocketType === `MonthlyPayout`) {
+		} else if (pocketItem.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
@@ -1933,6 +1933,7 @@ class ClientSummary extends Component {
 	* @returns {void}
 	*/
 	_openPocketSummary(pocketType) {
+		console.log(`SELECTED POCKET `, pocketType);
 		this.dispatchEvent(new CustomEvent(`navigate-to-life-pocket-summary`, {
 			detail: {
 				pocketType: pocketType,

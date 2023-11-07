@@ -73,6 +73,32 @@ export class InsureLifeService extends ChannelServiceBase {
 	// #region PUBLIC METHODS
 
 	/**
+	 * Check if client qualifies for Life Cover 
+	 *
+	 * @param {Object} [clientQualifyRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeClientQualify(clientQualifyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeClientQualifies`)) {
+			return this.mock(`insureLifeClientQualifies`);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/client/qualify`,
+			clientQualifyRequest,
+			this._setInsureHeaders(),
+			`lifeClientQualify`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
 	 * Returns the Summary of clients Life Cover policies
 	 *
 	 * @param {Object} [clientSummaryRequest] Request data for service call
@@ -85,7 +111,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeClientSummary`);
 		}
 		return this.post(
-			`/horizon-insurance/life/client/summary`,
+			`/horizon-insurance/life-cover/api/v1/client/summary`,
 			clientSummaryRequest,
 			this._setInsureHeaders(),
 			`lifeClientSummary`,

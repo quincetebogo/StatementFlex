@@ -155,9 +155,11 @@ class LifePolicySummary extends Component {
 	 */
 	_calculateArrearsAmount(policy) {
 		let totalArrears = 0;
-		policy.arrears.forEach(arrears => {
-			totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
-		});
+		if (policy.arrears) {
+			policy.arrears.forEach(arrears => {
+				totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+			});
+		}
 		return totalArrears;
 	}
 
@@ -398,13 +400,13 @@ class LifePolicySummary extends Component {
 			<capitec-title-bar type="default" label="Payment information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label label="Last payment received"
-					value="${isNullorEmpty(this.selectedLifePolicy?.lastCollectionAmount) ? formatCurrency(0) : formatCurrency(this.selectedLifePolicy?.lastCollectionAmount)}">
+					value="${isNullorEmpty(this.selectedLifePolicy?.lastCollectionAmount) ? `-` : formatCurrency(this.selectedLifePolicy?.lastCollectionAmount)}">
 				</horizon-label>
 				<horizon-label label="Last payment date"
 					value="${isNullorEmpty(this.selectedLifePolicy?.lastCollectionDate) ? `-` : formatDate(this.selectedLifePolicy?.lastCollectionDate, `dd mmm yyyy`)}">
 				</horizon-label>
 				<horizon-label label="Next payment due"
-					value="${isNullorEmpty(this.selectedLifePolicy?.nextCollectionAmount) ? formatCurrency(0) : formatCurrency(this.selectedLifePolicy?.nextCollectionAmount)}">
+					value="${isNullorEmpty(this.selectedLifePolicy?.nextCollectionAmount) ? `-` : formatCurrency(this.selectedLifePolicy?.nextCollectionAmount)}">
 				</horizon-label>
 				<horizon-label label="Next payment date"
 					value="${isNullorEmpty(this.selectedLifePolicy?.nextCollectionDate) ? `-` : formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
@@ -548,7 +550,7 @@ class LifePolicySummary extends Component {
 							</capitec-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
-							${pocketType === LIFE_POCKET_TYPES.EDUCATION ? html`` : html`
+							${pocketType !== LIFE_POCKET_TYPES.MONTHLY ? html`` : html`
 								<horizon-label
 									label="Term"
 									value="24 months">
