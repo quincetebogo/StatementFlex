@@ -110,9 +110,6 @@ export class CapitecConnectTeamLeader extends View {
 
 		const records = await this.capitecConnectService.getReversals(state, query_args, pagination_args);
 
-		const retrievedRecords = records.result.content.filter(item => item.actionState === state);
-		const returnValue = retrievedRecords?.slice((renderSet.currentPageIndex - 1) * renderSet.numOfPagingRows, renderSet.currentPageIndex * renderSet.numOfPagingRows);
-
 		if(state === "AVAILABLE" ) {
 			this.totalEscalatedReversals = records.result.totalElements;
 		}
@@ -122,8 +119,8 @@ export class CapitecConnectTeamLeader extends View {
 		}
 
 		return {
-			records: returnValue || [],
-			totalRecords: retrievedRecords?.length || 0
+			records: records.result.content || [],
+			totalRecords: records.result.totalElements || 0
 		};
 	}
 
