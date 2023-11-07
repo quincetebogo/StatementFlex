@@ -10,8 +10,8 @@ import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
+import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { InsureLifeService } from 'app/services/InsureLifeService';
-import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -66,7 +66,7 @@ export class ExistingClient extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.callerPage = ``;
 
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.insureLifeService = new InsureLifeService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
@@ -221,7 +221,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.selectedFuneralPolicyContractReference;
 
-		const issuePlanAgreementResponse = await this.insureService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+		const issuePlanAgreementResponse = await this.insureFuneralService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!issuePlanAgreementResponse.succeeded) {
 			super.isOnlyProductEnquiry = false;
@@ -254,7 +254,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.selectedFuneralPolicyContractReference;
 
-		const updatePlanAgreementResponse = await this.insureService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+		const updatePlanAgreementResponse = await this.insureFuneralService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 
 		if (!updatePlanAgreementResponse.succeeded) {
 			super.isOnlyProductEnquiry = false;
@@ -303,7 +303,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
-		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
+		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.funeralArrearsAgreementDocument = resp.result;
 		} else {
@@ -345,7 +345,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
-		const resp = await this.insureService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
+		const resp = await this.insureFuneralService.cancelPolicyAgreement(cancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.funeralCancelAgreementDocument = resp.result;
 		} else {
@@ -604,7 +604,7 @@ export class ExistingClient extends InsureViewBase {
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
 
-		const resp = await this.insureService.clientSummary(request);
+		const resp = await this.insureFuneralService.clientSummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -657,7 +657,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: cifNumber,
 			idNumber: idNumber
 		};
-		const resp = await this.insureService.policySummary(request);
+		const resp = await this.insureFuneralService.policySummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -675,7 +675,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-		const claimsList = await this.insureService.viewExistingClaims(request);
+		const claimsList = await this.insureFuneralService.viewExistingClaims(request);
 		return claimsList.result;
 	}
 
@@ -690,7 +690,7 @@ export class ExistingClient extends InsureViewBase {
 			contractReference: contractReference,
 			cifNumber: cifNumber
 		};
-		const resp = await this.insureService.policyReissue(request);
+		const resp = await this.insureFuneralService.policyReissue(request);
 		if (!resp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(resp.exception);
@@ -713,7 +713,7 @@ export class ExistingClient extends InsureViewBase {
 			life.premium = parseInt(life.premium, 10);
 			return life;
 		});
-		const resp = await this.insureService.calculateEstimate(estimateWithCoverDetails, () => true);
+		const resp = await this.insureFuneralService.calculateEstimate(estimateWithCoverDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			estimateWithCoverDetails.totalPremium = resp.result.totalPremium;
 			estimateWithCoverDetails.lifesAssured = estimateWithCoverDetails.lifesAssured.map(lifeWithDetails => Object.assign(lifeWithDetails, resp.result.lifesAssured.find(respLife => lifeWithDetails.rowID === respLife.rowID)));
@@ -746,7 +746,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.funeralEstimateDetails;
 
-		const result = await this.insureService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
+		const result = await this.insureFuneralService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(result.exception);
@@ -770,7 +770,7 @@ export class ExistingClient extends InsureViewBase {
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
 
-		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(calculateQuoteResp.exception);
@@ -809,7 +809,7 @@ export class ExistingClient extends InsureViewBase {
 			"totalPremium": policyToUpdate.totalPremium,
 			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
 		};
-		const calculateQuoteResp = await this.insureService.calculateQuote(quoteCalcRequest);
+		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(calculateQuoteResp.exception);
@@ -824,7 +824,7 @@ export class ExistingClient extends InsureViewBase {
 			"collectionDetails": policyToUpdate.deductionDetails
 		};
 
-		const prepareUpdateResp = await this.insureService.prepareUpdate(prepareUpdateRequest);
+		const prepareUpdateResp = await this.insureFuneralService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(prepareUpdateResp.exception);
@@ -910,7 +910,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
-		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
+		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
@@ -943,7 +943,7 @@ export class ExistingClient extends InsureViewBase {
 			"roleplayers": policyToReinstate.roleplayers
 		};
 
-		const createPolicyResponse = await this.insureService.createPolicy(createPolicyRequest);
+		const createPolicyResponse = await this.insureFuneralService.createPolicy(createPolicyRequest);
 		if (!createPolicyResponse.succeeded) {
 			this.handleToastError(createPolicyResponse.exception);
 			return;
@@ -968,7 +968,7 @@ export class ExistingClient extends InsureViewBase {
 	async _acceptFuneralPolicy(event) {
 
 		let documents = [];
-		const resp = await this.insureService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
+		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
 			this.arrearsPaymentDocumentDetails = resp.result;
@@ -1017,7 +1017,7 @@ export class ExistingClient extends InsureViewBase {
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
 
-		const acceptPlanResp = await this.insureService.policyAccept(acceptPlanRequest);
+		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
 		if (!acceptPlanResp.succeeded) {
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1055,7 +1055,7 @@ export class ExistingClient extends InsureViewBase {
 
 		};
 
-		const resp = await this.insureService.cancelPolicy(cancelPolicyDetails, () => true);
+		const resp = await this.insureFuneralService.cancelPolicy(cancelPolicyDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this._generateDocumentsFuneralCancel(e.detail.contractReference, e.detail.cancellationReason, true);
 			this._goToFuneralCancelPolicySuccess(e);
@@ -1080,7 +1080,7 @@ export class ExistingClient extends InsureViewBase {
 			"fromAccount": e.detail.fromAccount
 		};
 
-		const resp = await this.insureService.payPolicy(payArrears, () => true);
+		const resp = await this.insureFuneralService.payPolicy(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.selectedFuneralPolicyContractReference = e.detail.payArrears.contractReference;
 			const sumArrears = e.detail.payArrears.arrears?.reduce((accumulator, object) => accumulator + (object.amount ?? 0), 0);
@@ -1150,7 +1150,7 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber
 		};
 
-		const arrearsResp = await this.insureService.Arrears(arrearsRequest);
+		const arrearsResp = await this.insureFuneralService.Arrears(arrearsRequest);
 		if (!arrearsResp.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
@@ -1173,7 +1173,7 @@ export class ExistingClient extends InsureViewBase {
 			"toDate": toDate
 		};
 
-		const resp = await this.insureService.communicationHistory(smsHistoryDetails, () => true);
+		const resp = await this.insureFuneralService.communicationHistory(smsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
 			return resp.result;
@@ -1212,7 +1212,7 @@ export class ExistingClient extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyPremiumHistory(transactionHistoryRequest);
+		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
 				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement` || ele.transactionType === `Submit`).map((item) => {
@@ -1428,7 +1428,7 @@ export class ExistingClient extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.email = e.detail.emailId.detail.emailAddress;
 
 		this._getAgreementEmailAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
-		const emailResponse = await this.insureService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
+		const emailResponse = await this.insureFuneralService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(emailResponse.exception);
@@ -1472,7 +1472,7 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"contactNumber": cellphoneNumber
 		};
-		const requestCallbackResp = await this.insureService.requestCallback(requestCallbackRequest);
+		const requestCallbackResp = await this.insureFuneralService.requestCallback(requestCallbackRequest);
 		if (!requestCallbackResp.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(requestCallbackResp.exception);
@@ -1547,7 +1547,7 @@ export class ExistingClient extends InsureViewBase {
 		electRequest.cifNumber = this.callerInformation.cifNumber;
 		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
 
-		const electResp = await this.insureService.SetElectOptions(electRequest);
+		const electResp = await this.insureFuneralService.SetElectOptions(electRequest);
 		if (!electResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;

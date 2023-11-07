@@ -4,13 +4,13 @@ import { Security } from 'platform/core';
 import { v4 } from 'uuid';
 
 /**
- * Channel Service Methods for Insure related functionality
+ * Channel Service Methods for Insure Funeral related functionality
  *
  * @export
- * @class InsureService
+ * @class InsureFuneralService
  * @extends {ChannelServiceBase}
  */
-export class InsureService extends ChannelServiceBase {
+export class InsureFuneralService extends ChannelServiceBase {
 
 	// #region INITIALISATION
 
@@ -83,7 +83,7 @@ export class InsureService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insureProductParams`)) {
 			return this.mock(`insureProductParams`);
 		}
-		const url = `/horizon-insurance/product/params`;
+		const url = `/horizon-insurance/funeral/api/product/params`;
 		return this.get(
 			url,
 			this._setInsureHeaders(),
@@ -109,7 +109,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureClientSummary`);
 		}
 		return this.post(
-			`/horizon-insurance/client/summary?WithClaims=false`,
+			`/horizon-insurance/funeral/api/client/summary?WithClaims=false`,
 			clientSummaryRequest,
 			this._setInsureHeaders(),
 			`clientSummary`,
@@ -135,7 +135,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicySummary`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/summary?WithClaims=false`,
+			`/horizon-insurance/funeral/api/policy/summary?WithClaims=false`,
 			policySummaryRequest,
 			this._setInsureHeaders(),
 			`policySummary`,
@@ -161,7 +161,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`createPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/create`,
+			`/horizon-insurance/funeral/api/policy/create`,
 			createPolicyRequest,
 			this._setInsureHeaders(),
 			`createPolicy`,
@@ -187,7 +187,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyReissue`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/reissue`,
+			`/horizon-insurance/funeral/api/policy/reissue`,
 			policyReissueRequest,
 			this._setInsureHeaders(),
 			`policyReissue`,
@@ -210,7 +210,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/estimate`,
+			`/horizon-insurance/funeral/api/estimate`,
 			estimateRequest,
 			this._setInsureHeaders(),
 			`estimate`,
@@ -236,7 +236,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`calculateQuote`, quoteCalcRequest);
 		}
 		return this.post(
-			`/horizon-insurance/quote/calc`,
+			`/horizon-insurance/funeral/api/quote/calc`,
 			quoteCalcRequest,
 			this._setInsureHeaders(),
 			`quoteCalc`,
@@ -262,7 +262,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureCancelPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/cancel`,
+			`/horizon-insurance/funeral/api/policy/cancel`,
 			cancelPolicyRequest,
 			this._setInsureHeaders(),
 			`cancelPolicy`,
@@ -289,7 +289,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/horizon-insurance/policy/premium-history`,
+			`/horizon-insurance/funeral/api/policy/premium-history`,
 			policyTransactionsRequest,
 			this._setInsureHeaders(),
 			`policyPremiumHistory`,
@@ -315,7 +315,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePrepareUpdate`, prepareUpdateRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/prepareupdate`,
+			`/horizon-insurance/funeral/api/policy/prepareupdate`,
 			prepareUpdateRequest,
 			this._setInsureHeaders(),
 			`prepareUpdate`,
@@ -341,7 +341,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyAccept`, policyAcceptRequest);
 		}
 		return this.post(
-			`/horizon-insurance/policy/accept`,
+			`/horizon-insurance/funeral/api/policy/accept`,
 			policyAcceptRequest,
 			this._setInsureHeaders(),
 			`policyAccept`,
@@ -367,7 +367,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insurePolicyPay`);
 		}
 		return this.post(
-			`/horizon-insurance/policy/pay`,
+			`/horizon-insurance/funeral/api/policy/pay`,
 			payPolicyRequest,
 			this._setInsureHeaders(),
 			`payPolicy`,
@@ -393,7 +393,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureSendEmail`, emailDocumentRequest);
 		}
 		return this.post(
-			`/horizon-insurance/client/documents/email`,
+			`/horizon-insurance/funeral/api/client/documents/email`,
 			emailDocumentRequest,
 			this._setInsureHeaders(),
 			`emailDocumentRequest`,
@@ -420,7 +420,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/horizon-insurance/policy/CommunicationHistory`,
+			`/horizon-insurance/funeral/api/policy/CommunicationHistory`,
 			communicationHistoryRequest,
 			this._setInsureHeaders(),
 			`commsHistory`,
@@ -447,7 +447,7 @@ export class InsureService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/horizon-insurance/view-existing-claims`,
+			`/horizon-insurance/funeral/api/view-existing-claims`,
 			viewExistingClaimsRequest,
 			this._setInsureHeaders(),
 			`ViewExistingClaims`,
@@ -473,7 +473,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureRequestCallback`);
 		}
 		return this.post(
-			`/horizon-insurance/fms-callback`,
+			`/horizon-insurance/funeral/api/fms-callback`,
 			requestCallbackRequest,
 			this._setInsureHeaders(),
 			`requestCallback`,
@@ -503,7 +503,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureEstimatePrintout`);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/Estimateprintout`,
+			`/horizon-insurance/funeral/api/document/generate/Estimateprintout`,
 			generateEstimateDocumentRequest,
 			this._setInsureHeaders(),
 			`estimatePrintout`,
@@ -529,7 +529,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureGenerateIssueAgreement`);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/IssueFuneralCoverPlanAgreement`,
+			`/horizon-insurance/funeral/api/document/generate/IssueFuneralCoverPlanAgreement`,
 			generateIssueAgreementRequest,
 			this._setInsureHeaders(),
 			`issueFuneralCoverPlanAgreement`,
@@ -555,7 +555,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/UpdateFuneralCoverPlanAgreement`,
+			`/horizon-insurance/funeral/api/document/generate/UpdateFuneralCoverPlanAgreement`,
 			generateAgreementRequest,
 			this._setInsureHeaders(),
 			`updateFuneralCoverPlanAgreement`,
@@ -581,7 +581,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, generateAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/document/generate/FuneralPolicyPaymentAgreement`,
+			`/horizon-insurance/funeral/api/document/generate/FuneralPolicyPaymentAgreement`,
 			generateAgreementRequest,
 			this._setInsureHeaders(),
 			`funeralPolicyPaymentAgreement`,
@@ -604,7 +604,7 @@ export class InsureService extends ChannelServiceBase {
 	*/
 	cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/document/generate/CancelPolicyAgreement`,
+			`/horizon-insurance/funeral/api/document/generate/CancelPolicyAgreement`,
 			GenerateCancelAgreementRequest,
 			this._setInsureHeaders(),
 			`cancelPolicyAgreement`,
@@ -627,7 +627,7 @@ export class InsureService extends ChannelServiceBase {
 	 */
 	arrearsPaymentInstruction(GenerateArrearsPaymentInstructionRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/horizon-insurance/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
+			`/horizon-insurance/funeral/api/document/generate/CapitecBankFuneralArrearsPaymentInstruction`,
 			GenerateArrearsPaymentInstructionRequest,
 			this._setInsureHeaders(),
 			`arrearsPaymentInstruction`,
@@ -654,7 +654,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureArrears`);
 		}
 		return this.post(
-			`/horizon-insurance/client/Arrears`,
+			`/horizon-insurance/funeral/api/client/Arrears`,
 			ArrearsRequest,
 			this._setInsureHeaders(),
 			`arrears`,
@@ -681,7 +681,7 @@ export class InsureService extends ChannelServiceBase {
 			return this.mock(`insureElectOption`);
 		}
 		return this.post(
-			`/horizon-insurance/elect/setoption`,
+			`/horizon-insurance/funeral/api/elect/setoption`,
 			SetOptionRequest,
 			this._setInsureHeaders(),
 			`setoption`,
