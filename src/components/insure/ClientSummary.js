@@ -187,7 +187,7 @@ class ClientSummary extends Component {
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
 			isOnlyProductEnquiry: { type: Boolean, state: true },
-			setInsureIncident: { type: Object, state: true },
+			setInsureIncident: { type: Object, state: true }
 		};
 	}
 
@@ -224,7 +224,7 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
-	async _tabChange(e) {
+	_tabChange(e) {
 		this.selectedInsureTabIndex = e.detail.selectedIndex;
 		if (e.detail.selectedIndex === 1) {
 			this.setInsureIncident(`view-insurance-claim-summary`);
@@ -2253,6 +2253,21 @@ class ClientSummary extends Component {
 				${this._startFuneralEstimateToastTimer()}
 	`;
 	}
+
+	_startTimer() {
+		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
+	}
+
+	_renderRequestCallbackDialog() {
+		return this.showRequestCallbackDialog === false ? html``
+			: html`
+			<horizon-insure-request-callback-dialog
+			.requestCallback ="${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
+			@cancel-click="${() => this.showRequestCallbackDialog = false}">
+			</horizon-insure-request-callback-dialog>
+		`;
+	}
+
 
 	/** 
 	 * Show success toast for FMS request callback

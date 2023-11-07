@@ -5,14 +5,15 @@ import { css, html } from 'platform/elements';
 import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
-import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { InsureLifeService } from 'app/services/InsureLifeService';
 import { InsureService } from 'app/services/InsureService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
+import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsService } from 'app/services/SavingsService';
@@ -194,6 +195,7 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
 	// --- Document Generation
@@ -1210,12 +1212,12 @@ export class ExistingClient extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyTransactions(transactionHistoryRequest);
+		const returnValue = await this.insureService.policyPremiumHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
 				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement` || ele.transactionType === `Submit`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
-					item.transactionType = TRANSACTION_TYPE[item.transactionType?.toUpperCase()];
+					item.transactionType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
@@ -1268,6 +1270,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToFuneralPolicyEstimate(e) {
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		super.setInsureIncident(`funeral-plan-calculate-estimate`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
 	}
 
@@ -1280,6 +1283,7 @@ export class ExistingClient extends InsureViewBase {
 	_goToFuneralSMSHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyItem.contractReference;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		super.setInsureIncident(`funeral-sms-history`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_SMS_HISTORY);
 	}
 
@@ -1314,6 +1318,7 @@ export class ExistingClient extends InsureViewBase {
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			super.setInsureIncident(`funeral-plan-reissue`);
 			if (calcResponse !== null) {
 				this.selectedFuneralPolicyDetails = calcResponse;
 				this.selectedFuneralPolicyDetails.roleplayers = calcResponse.eligibleRoleplayers;
@@ -1328,6 +1333,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		} else {
 			this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			super.setInsureIncident(`funeral-plan-update-lives`);
 			const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 			const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 			this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
@@ -1364,6 +1370,7 @@ export class ExistingClient extends InsureViewBase {
 		await this._retrieveFuneralPolicyTransactionHistory();
 
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		super.setInsureIncident(`funeral-transaction-history`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
 	}
 
@@ -1693,7 +1700,9 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
-				@send-email = "${(e) => this._sendEmail(e)}">
+				@send-email = "${(e) => this._sendEmail(e)}"
+				@verify-now = ${() => this._verifyClick()}
+				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
 			</horizon-insure-client-summary>`;
 	}
 
