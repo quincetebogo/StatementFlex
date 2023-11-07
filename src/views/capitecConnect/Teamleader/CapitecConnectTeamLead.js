@@ -144,10 +144,15 @@ export class CapitecConnectTeamLeader extends View {
 			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, false);
 			location.reload();
 		} else if(action === "Approve") {
-			var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
-			if (reversalDetails.succeeded) {
-				this.horizonRouter.navigateToProcessReversalSuccess(accountNumber);
-			} else {
+			try {
+				var reversalDetails = await this.capitecConnectService.processReversal(transactionReference, true);
+
+				if (reversalDetails.succeeded) {
+					this.horizonRouter.navigateToProcessReversalSuccess(accountNumber);
+				} else {
+					this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
+				}
+			} catch(error){
 				this.horizonRouter.navigateToProcessReversalFailure(transactionReference);
 			}
 		}
