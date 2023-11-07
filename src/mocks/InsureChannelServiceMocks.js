@@ -42,25 +42,25 @@ export default class InsureChannelServiceMocks {
 		};
 
 		// Funeral
-		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/ProductParams`).catch(err => logError(err)));
-		this.clientSummaryMocks = await this._loadMockModule(this.clientSummaryMocks, `insureClientSummary`, () => import(`../mocks/insure/ClientSummary`).catch(err => logError(err)));
-		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/PolicySummary`).catch(err => logError(err)));
-		this.createPolicyMocks = await this._loadMockModule(this.createPolicyMocks, `insureCreatePolicy`, () => import(`../mocks/insure/CreatePolicy`).catch(err => logError(err)));
+		this.productParamsMocks = await this._loadMockModule(this.productParamsMocks, `insureProductParams`, () => import(`../mocks/insure/funeral/ProductParams`).catch(err => logError(err)));
+		this.clientSummaryMocks = await this._loadMockModule(this.clientSummaryMocks, `insureClientSummary`, () => import(`../mocks/insure/funeral/ClientSummary`).catch(err => logError(err)));
+		this.policySummaryMocks = await this._loadMockModule(this.policySummaryMocks, `insurePolicySummary`, () => import(`../mocks/insure/funeral/PolicySummary`).catch(err => logError(err)));
+		this.createPolicyMocks = await this._loadMockModule(this.createPolicyMocks, `insureCreatePolicy`, () => import(`../mocks/insure/funeral/CreatePolicy`).catch(err => logError(err)));
 		this.cancelPolicyMocks = await this._loadMockModule(this.cancelPolicyMocks, `insureCancelPolicy`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.policyPayMocks = await this._loadMockModule(this.policyPayMocks, `insurePolicyPay`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
-		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/PolicyTransactionHistory`).catch(err => logError(err)));
-		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/PrepareUpdate`).catch(err => logError(err)));
-		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/QuoteCalc`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `insurePolicyTransactionHistory`, () => import(`../mocks/insure/funeral/PolicyTransactionHistory`).catch(err => logError(err)));
+		this.prepareUpdateMocks = await this._loadMockModule(this.prepareUpdateMocks, `insurePrepareUpdate`, () => import(`../mocks/insure/funeral/PrepareUpdate`).catch(err => logError(err)));
+		this.calculateQuoteMocks = await this._loadMockModule(this.calculateQuoteMocks, `insureCalculateQuote`, () => import(`../mocks/insure/funeral/QuoteCalc`).catch(err => logError(err)));
 		this.sendEmailMocks = await this._loadMockModule(this.sendEmailMocks, `insureSendEmail`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
-		this.insureEstimatePrintoutMocks = await this._loadMockModule(this.insureEstimatePrintoutMocks, `insureEstimatePrintout`, () => import(`../mocks/insure/GenericDocumentResponse`).catch(err => logError(err)));
-		this.generateIssueAgreementMocks = await this._loadMockModule(this.generateIssueAgreementMocks, `insureGenerateIssueAgreement`, () => import(`../mocks/insure/GenericDocumentResponse`).catch(err => logError(err)));
-		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/InsureAgreement`).catch(err => logError(err)));
-		this.policyAcceptMocks = await this._loadMockModule(this.policyAcceptMocks, `insurePolicyAccept`, () => import(`../mocks/insure/PolicyAccept`).catch(err => logError(err)));
-		this.policyReissueMocks = await this._loadMockModule(this.policyReissueMocks, `insurePolicyReissue`, () => import(`../mocks/insure/PolicyReissue`).catch(err => logError(err)));
-		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/CommunicationHistory`).catch(err => logError(err)));
+		this.insureEstimatePrintoutMocks = await this._loadMockModule(this.insureEstimatePrintoutMocks, `insureEstimatePrintout`, () => import(`../mocks/insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
+		this.generateIssueAgreementMocks = await this._loadMockModule(this.generateIssueAgreementMocks, `insureGenerateIssueAgreement`, () => import(`../mocks/insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
+		this.generateAgreementMocks = await this._loadMockModule(this.generateAgreementMocks, `insureGenerateAgreement`, () => import(`../mocks/insure/funeral/InsureAgreement`).catch(err => logError(err)));
+		this.policyAcceptMocks = await this._loadMockModule(this.policyAcceptMocks, `insurePolicyAccept`, () => import(`../mocks/insure/funeral/PolicyAccept`).catch(err => logError(err)));
+		this.policyReissueMocks = await this._loadMockModule(this.policyReissueMocks, `insurePolicyReissue`, () => import(`../mocks/insure/funeral/PolicyReissue`).catch(err => logError(err)));
+		this.commsHistoryMocks = await this._loadMockModule(this.commsHistoryMocks, `insureCommsHistory`, () => import(`../mocks/insure/funeral/CommunicationHistory`).catch(err => logError(err)));
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
-		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/InsureArrears`).catch(err => logError(err)));
+		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/funeral/InsureArrears`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));

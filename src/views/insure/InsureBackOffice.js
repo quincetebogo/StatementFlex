@@ -1,7 +1,7 @@
 /* eslint-disable sort-imports */
 import { css, html } from 'platform/elements';
 
-import { InsureService } from 'app/services/InsureService';
+import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
@@ -40,7 +40,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	constructor() {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.policySummary = {};
 		this.commsHistory = {};
@@ -119,7 +119,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			idNumber: idNumber
 		};
 
-		const resp = await this.insureService.clientSummary(request);
+		const resp = await this.insureFuneralService.clientSummary(request);
 
 		if (!resp.succeeded) {
 			return;
@@ -141,7 +141,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			cifNumber: cifNumber,
 			idNumber: idNumber
 		};
-		const resp = await this.insureService.policySummary(request);
+		const resp = await this.insureFuneralService.policySummary(request);
 
 		if (!resp.succeeded) {
 			return;
@@ -166,7 +166,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			"toDate": toDate
 		};
 
-		const resp = await this.insureService.communicationHistory(commsHistoryDetails, () => true);
+		const resp = await this.insureFuneralService.communicationHistory(commsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			return resp.result;
 		}
@@ -184,7 +184,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-		const claimsList = await this.insureService.viewExistingClaims(request);
+		const claimsList = await this.insureFuneralService.viewExistingClaims(request);
 		return claimsList.result;
 	}
 
@@ -280,7 +280,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			arrearsAmount: this.arrearsAmount
 		};
 
-		const returnValue = await this.insureService.policyPremiumHistory(transactionHistoryRequest);
+		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions

@@ -1,5 +1,5 @@
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
-import { InsureService } from 'app/services/InsureService';
+import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 const ERROR_TOAST_DELAY = 10000;
@@ -18,7 +18,7 @@ export class InsureViewBase extends ViewBase {
 	constructor() {
 		super();
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.isOnlyProductEnquiry = true;
 	}
 
@@ -75,7 +75,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {Object} Product Params Array
 	 */
 	async _retrieveInsureProductParams() {
-		const resp = await this.insureService.productParams();
+		const resp = await this.insureFuneralService.productParams();
 		if (!resp.succeeded) {
 			return;
 		}
