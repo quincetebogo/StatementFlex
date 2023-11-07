@@ -34,7 +34,7 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 	}
 
 	get isAuthorised() {
-		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`) || this.roles.includes(`insure-agent`);
+		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`) || this.roles.includes(`capitecconnect-teamleader`) || this.roles.includes(`insure-agent`);
 		return isAuthorised;
 	}
 
@@ -42,9 +42,13 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
+	get isCapitecConnectTeamleader() {
+		return this.roles && this.roles.includes(`capitecconnect-teamleader`);
+	}
+
 	get isCapitecConnectAgent() {
-        return this.roles && this.roles.includes(`capitecconnect-agent`);
-    } 
+		return this.roles && this.roles.includes(`capitecconnect-agent`);
+	}
 
 	get orgUnit() {
 		const filteredAndSorted = this.roles

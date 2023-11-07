@@ -10,7 +10,8 @@ const DEFAULT_SUBTITLE = {
 	LIVE_BETTER_SAVINGS: `Supercharge your savings`,
 	SAVINGS_PLAN: `Let your money make money`,
 	INSURE: `One plan, more cover`,
-	CREDIT: `Rethink credit, realise dreams`
+	CREDIT: `Rethink credit, realise dreams`,
+	CAPITEC_CONNECT: `Prepaid that last longer`
 };
 
 /**
@@ -38,7 +39,8 @@ export class ProductButtonPanel extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 
 		this.detail = {
@@ -46,7 +48,8 @@ export class ProductButtonPanel extends Component {
 			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
-			credit: ``
+			credit: ``,
+			capitecConnect: ``
 		};
 	}
 
@@ -66,7 +69,8 @@ export class ProductButtonPanel extends Component {
 		return {
 			selectedButton: { type: String },
 			subtitle: { type: Object },
-			detail: { type: Object }
+			detail: { type: Object },
+			connectReversalCount: {type : Number}
 		};
 	}
 
@@ -97,6 +101,10 @@ export class ProductButtonPanel extends Component {
 			return null;
 		}
 		return amount;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -190,6 +198,16 @@ export class ProductButtonPanel extends Component {
 				?selected="${this.selectedButton === `LiveBetter`}"
 				data-automation-id="product-button-panel-live-better"
 				?disabled="${this.roleManager.isCapitecConnectAgent}">
+			</horizon-product-tile>
+			<horizon-product-tile 
+				class="product-button"
+				type="capitec-connect"
+				label="Capitec Connect"
+				subtitle="${this.subtitle.capitecConnect ? this.subtitle.capitecConnect : DEFAULT_SUBTITLE.CAPITEC_CONNECT}"
+				icon="product/cellphone"
+				@click="${() => this._productButtonClick(`CapitecConnect`)}"
+				?selected="${this.selectedButton === `CapitecConnect`}"
+				data-automation-id="product-button-panel-capitec-connect">
 			</horizon-product-tile>
 		`;
 	}
