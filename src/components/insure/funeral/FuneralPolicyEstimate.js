@@ -705,7 +705,6 @@ class FuneralPolicyEstimate extends Component {
 	 * @return {html} Html for the dialog
 	 */
 	_renderAddLifeDialog() {
-		console.log(`this.estimate :>> `, this.estimate);
 		return this.showAddLifeDialog === false ? ``
 			: html`
 			<horizon-insure-add-life-dialog 

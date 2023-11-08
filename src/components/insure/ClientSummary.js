@@ -226,11 +226,15 @@ class ClientSummary extends Component {
 
 	_tabChange(e) {
 		this.selectedInsureTabIndex = e.detail.selectedIndex;
-		if (e.detail.selectedIndex === 1) {
-			this.setInsureIncident(`view-insurance-claim-summary`);
-			return;
+		if (this.readOnlyMode === false) {
+			if (e.detail.selectedIndex === 1) {
+				this.setInsureIncident(`view-insurance-claim-summary`);
+				return;
+			}
+			if (this.readOnlyMode === false) {
+				this.setInsureIncident(`funeral-plan-summary`);
+			}
 		}
-		this.setInsureIncident(`funeral-plan-summary`);
 	}
 
 	/**
@@ -1136,14 +1140,14 @@ class ClientSummary extends Component {
 				z-index: 1;
 			}
 
-			#benefits-table{
+			.benefits-table{
 				width: 100%;
 				font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
     			font-weight: var(--theme-font-weight, 300);
 				margin-top: 20px;
 			}
 
-			#benefits-table td {
+			.benefits-table td {
 				background-color: #f3f3f3;
 				padding: 5px 10px;
 			}
@@ -1199,7 +1203,7 @@ class ClientSummary extends Component {
 			}
 
 			.life-pol-label{
-				width: 150px;
+				width: 135px;
 			}
 
 			.pocket-type-label{
@@ -1448,7 +1452,7 @@ class ClientSummary extends Component {
 
 				<capitec-tab
 					data-automation-id="insure-landing-life-policies-tab"
-					label="Life Plan">
+					label="Life Cover">
 					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
 					${this._renderFooter()}
 				</capitec-tab>
@@ -1627,80 +1631,81 @@ class ClientSummary extends Component {
 	_renderActiveLifePolicy(activeLifePolicy) {
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
-					<div class="life-policy-container">
-						<div>
-							<horizon-label
-								class="label-policy-number fixed-label"
-								label="Life Plan"
-								textOverflow="ellipsis"
-								value="${activeLifePolicy?.contractReference}"
-								@click="${() => this._goToLifePolicySummary(activeLifePolicy)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Total cover"
-								value="${this._calculateLifeTotalCoverAmount(activeLifePolicy)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Premium"
-								class = "life-pol-label"
-								value="${isNullorEmpty(activeLifePolicy?.totalPremium) ? `R0.00` : formatCurrency(activeLifePolicy?.totalPremium)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Debit order date"
-								value="${formatDate(activeLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Arrears amount"
-								value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Status"
-								class = "${activeLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
-								value= "${activeLifePolicy?.policyStatus}">
-							</horizon-label>
-						</div>
+				<div class="life-policy-container">
+					<div>
+						<horizon-label
+							class="label-policy-number fixed-label"
+							label="Life Cover"
+							textOverflow="ellipsis"
+							value="${activeLifePolicy?.contractReference}"
+							@click="${() => this._goToLifePolicySummary(activeLifePolicy)}">
+						</horizon-label>
+					</div>
+					<div>
+						<horizon-label
+							label="Total cover"
+							value="${this._calculateLifeTotalCoverAmount(activeLifePolicy)}">
+						</horizon-label>
+					</div>
+					<div>
+						<horizon-label
+							label="Premium"
+							class = "life-pol-label"
+							value="${isNullorEmpty(activeLifePolicy?.totalPremium) ? `R0.00` : formatCurrency(activeLifePolicy?.totalPremium)}">
+						</horizon-label>
+					</div>
+					<div>
+						<horizon-label
+							label="Debit order date"
+							value="${formatDate(activeLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
+						</horizon-label>
+					</div>
+					<div>
+						<horizon-label
+							label="Arrears amount"
+							value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
+						</horizon-label>
+					</div>
+					<div style="width: 300px;">
+						<horizon-label
+							label="Status"
+							class = "${activeLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
+							value= "${activeLifePolicy?.policyStatus}">
+						</horizon-label>
+					</div>
 
-						<capitec-overflow-menu label="Menu">
+					<capitec-overflow-menu label="Menu">
 
-			
-			<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+					${this.readOnlyMode === true ? html`` : html`
+						<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+					`}
 
-			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
-				? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
-				: html``
-			}
+					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
+						? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
+						: html``
+					}
 
-				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
-				? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
-				: html``
-			}
+					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
+						? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
+						: html``
+					}
 
-			${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
-				? html`<capitec-overflow-menu-item label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html``
-			}
+					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
+						? html`<capitec-overflow-menu-item label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+						: html``
+					}
 
-			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0
-				? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html``
-			}
+					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
+						? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+						: html``
+					}
 
-				${activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`
-				? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html``
-			}
-				</capitec-overflow-menu>
-			</div>
+					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
+						? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+						: html``
+					}
+					</capitec-overflow-menu>
+				</div>
 			</capitec-card>
 		`;
 	}
@@ -1719,7 +1724,8 @@ class ClientSummary extends Component {
 				id="horizon-expander-${pocketItem?.pocketType}"
 				?expanded = "${pocketItem?.isExpanded}" 
 				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
-				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}">
+				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
+				?disabled='${this.readOnlyMode}'>
 					<capitec-group 
 						class="expander-header"
 						slot="custom-header"
@@ -1768,7 +1774,7 @@ class ClientSummary extends Component {
 						<div>
 							<horizon-label
 								class="label-policy-number fixed-label"
-								label="Life Plan"
+								label="Life Cover"
 								textOverflow="ellipsis"
 								value="${pol?.contractReference}"
 								@click="${() => this._goToLifePolicySummary(pol)}">
@@ -1933,7 +1939,6 @@ class ClientSummary extends Component {
 	* @returns {void}
 	*/
 	_openPocketSummary(pocketType) {
-		console.log(`SELECTED POCKET `, pocketType);
 		this.dispatchEvent(new CustomEvent(`navigate-to-life-pocket-summary`, {
 			detail: {
 				pocketType: pocketType,
@@ -1952,7 +1957,7 @@ class ClientSummary extends Component {
 			<capitec-content-box id="no-results-box">
 				<div>
 					<capitec-label label="Features of Funeral Cover" class="strong-label"></capitec-label>
-					<table id='benefits-table'>
+					<table class='benefits-table'>
 						<tr>
 							<td>Maximum cover</td>
 							<td>
@@ -2034,9 +2039,42 @@ class ClientSummary extends Component {
 		<capitec-content-box class="accounts-box">
 			<capitec-content-box id="no-results-box">
 				<div>
-					<capitec-label label="Features of Life Plan" class="strong-label"></capitec-label>
-					<table id='benefits-table'>
-						
+					<capitec-label label="Features of Life Cover" class="strong-label"></capitec-label>
+					<table class='benefits-table'>
+						<tr>
+							<td>Capitec Life Cover</td>
+							<td>
+								<div>You automatically qualify for Capitec life cover if you have a Capitec account and are between 18 and 64 years old. There are no medical tests.</div>
+								<br>
+								<div>Cover your family's immediate and/or future needs. You can decide how much you want your family to get every month to cover their daily living expenses, whether you want to leave money for your children's education and/or leave them a once-off payout to buy an asset or cover some debt.</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Monthly Payout</td>
+							<td>
+								<div>Your nominated beneficiaries will receive money every month, for 24 months</div>
+								<div>Nominate up to 2 adult beneficiaries</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Once-off Payout</td>
+							<td>
+								<div>Your nominated beneficiaries will each receive one lump sum payout</div>
+								<div>Nominate up to 2 adult beneficiaries</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Education Fund</td>
+							<td>
+								<div>The umbrella trust will make payments towards each nominated child's education needs</div>
+								<div>Nominate up to 10 minor beneficiaries (younger than 18 years of age)</div>
+								<br>
+								<div>How it works:</div>
+								<div>•When you pass, the Education Fund benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
+								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
+								<div>•Once a child turns 18, the money left in the umbrella trust will be paid to them in one lump sum</div>
+							</td>
+						</tr>
 					</table>
 				</div>
 			</capitec-content-box>

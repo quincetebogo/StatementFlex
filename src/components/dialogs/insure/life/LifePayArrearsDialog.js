@@ -411,7 +411,7 @@ class LifePayArrearsDialog extends Component {
 		return html`
 				${this._renderAgreementDialog()}
 				${this._renderConfirmationDialog()}
-				<capitec-modal type="free" header="${this.policy?.contractReference} - Life Plan Arrears">
+				<capitec-modal type="free" header="${this.policy?.contractReference} - Life Cover Arrears">
 					<div slot="body" style="width: 520px;">
 						${this._renderDialogBody()}
 					</div>
@@ -484,7 +484,7 @@ class LifePayArrearsDialog extends Component {
 			
 			<div style="${this.currentStep === STEPS.AGREEMENT ? `display: block` : `display: none`}">
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Arrears Payment Instruction" subtitle="Life Plan" icon="" @click="${() => this.showAgreementDialog = true}">
+					<horizon-product-tile class="view-document" type="default" label="Arrears Payment Instruction" subtitle="Life Cover" icon="" @click="${() => this.showAgreementDialog = true}">
 						<capitec-label slot="detail" type="strong" label="View Document">
 						</capitec-label>
 					</horizon-product-tile>

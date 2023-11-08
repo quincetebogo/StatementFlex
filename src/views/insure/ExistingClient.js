@@ -621,26 +621,13 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber
 		};
 
-		const respQualify = await this.insureLifeService.lifeClientQualify(request);
-		if (!respQualify.succeeded) {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-			this.handleToastError(respQualify.exception);
+		const respSummary = await this.insureLifeService.lifeClientSummary(request);
+		if (!respSummary.succeeded) {
+			this.handleToastError(resp.exception);
 			return;
 		}
-
-		if (respQualify.result.qualify === false) {
-			console.log(`CLIENT DOES NOT QUALIFY`);
-		} else {
-			const respSummary = await this.insureLifeService.lifeClientSummary(request);
-			if (!respSummary.succeeded) {
-				// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-				this.handleToastError(resp.exception);
-				return;
-			}
-			return respSummary.result;
-		}
+		return respSummary.result;
 	}
-
 
 	// Attempt to get global one savings account number to pre populate, if fails, continue
 	async _getSavingsAccountDetails() {
@@ -1466,7 +1453,6 @@ export class ExistingClient extends InsureViewBase {
 		const emailLifeDocumentsPayload = {
 
 		};
-		console.log(`Email sending`);
 		return false;
 	}
 

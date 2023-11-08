@@ -125,7 +125,7 @@ class LifePayArrearsConfirmationDialog extends Component {
 					</span>
 				</div>
 				<div slot="body" style="width: 360px; padding: 20px;">
-					<capitec-label label="Confirm that you want to pay ${formatCurrency(this.amountToPay)} to Life Plan ${this.contractReference}, from account ${this.accountToPayFrom}. Do you wish to continue?" type="subtitle"></capitec-label>
+					<capitec-label label="Confirm that you want to pay ${formatCurrency(this.amountToPay)} to Life Cover Plan ${this.contractReference}, from account ${this.accountToPayFrom}. Do you wish to continue?" type="subtitle"></capitec-label>
 				</div>
 				<div slot="footer">
 					<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">

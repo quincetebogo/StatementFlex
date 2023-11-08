@@ -2,6 +2,7 @@
 import { css, html } from 'platform/elements';
 
 import { InsureFuneralService } from '../../services/InsureFuneralService';
+import { InsureLifeService } from '../../services/InsureLifeService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { INSURE_RENDER_MODE } from 'app/views/insure/InsureRenderModes';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
@@ -11,6 +12,8 @@ import 'app/components/insure/funeral/FuneralSMSHistory';
 import '../../components/insure/funeral/FuneralPolicySummary';
 import '../../components/insure/funeral/FuneralPolicyTransactionHistory';
 import '../../components/insure/ClaimSummary';
+
+import 'app/components/insure/life/LifePolicySummary';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -41,11 +44,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 		super();
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.insureLifeService = new InsureLifeService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 
 		this.policySummary = {};
 		this.commsHistory = {};
 		this.policyTransactionHistory = {};
 		this.policyDetails = {};
+		this.selectedLifePolicy = {};
+		this.selectedInsureTabIndex = 0;
 		this.contractReference = ``;
 		this.claims = [];
 
@@ -53,7 +59,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
-	 * @property {Object} clientPolicies Data & flags for all policies relating to client CIF
+	 * @property {Object} funeralPolicies Data & flags for all policies relating to client CIF
 	 * @property {Object} policySummary Local object for new Quote requests
 	 * @property {Object} policyDetails data and flags for a specific policy
 	 * @property {String} contractReference contains the contract reference for the selected policy 
@@ -64,7 +70,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	static get properties() {
 		return {
-			clientPolicies: { type: Object, state: true },
+			funeralPolicies: { type: Object, state: true },
+			lifePolicies: { type: Object, state: true },
 			policySummary: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
 			contractReference: { type: String, state: true },
@@ -99,7 +106,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _initialise() {
-		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
 	}
 
@@ -113,7 +121,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @param {*} idNumber idNumber
 	 * @returns {Object} Client policies 
 	 */
-	async _retrieveClientPolicies(cifNumber, idNumber) {
+	async _retrieveClientFuneralPolicies(cifNumber, idNumber) {
 		const request = {
 			cifNumber: cifNumber,
 			idNumber: idNumber
@@ -126,6 +134,24 @@ export class InsureBackOfficeView extends InsureViewBase {
 		}
 
 		return resp.result;
+	}
+
+	/**
+	 * Retrieve client summary containing all Life policies
+	 * @param {String} cifNumber cifNumber of client
+	 * @returns {Object} Client Life policies 
+	 */
+	async _retrieveClientLifePolicies(cifNumber) {
+		const request = {
+			cifNumber: cifNumber
+		};
+
+		const respSummary = await this.insureLifeService.lifeClientSummary(request);
+		if (!respSummary.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return respSummary.result;
 	}
 
 	/**
@@ -315,12 +341,24 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {null} null
 	  */
 	_unloadClientPolicies() {
-		if (this.clientPolicies?.summaryDetails?.policies !== null) {
-			this.clientPolicies.summaryDetails.policies.forEach(item => {
+		if (this.funeralPolicies?.summaryDetails?.policies !== null) {
+			this.funeralPolicies.summaryDetails.policies.forEach(item => {
 				item.isExpanded = false;
 			});
 		}
 	}
+
+	/**
+	 * Prepare and navigate to Life Policy Summary
+	 * @param {event} e e
+	 * @returns {void} 
+	 */
+	_goToLifePolicySummary(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
+	}
+
 
 	// #endregion EVENT HANDLERS
 
@@ -383,6 +421,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 				return html`${this._renderSMSHistory()}`;
 			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
 				return html`${this._renderClaimSummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
+				return html`${this._renderLifePolicySummaryPage()}`;
 			default:
 				return html``;
 		}
@@ -394,12 +434,13 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-summary .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
+			<horizon-insure-client-summary .funeralPolicies = "${this.funeralPolicies}" .lifePolicies="${this.lifePolicies}" .readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
-				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}">
+				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
+				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}">
 			</horizon-insure-client-summary>`;
 	}
 
@@ -458,6 +499,19 @@ export class InsureBackOfficeView extends InsureViewBase {
 					.claimSummary="${this.claimSummary}"
 					@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 				</horizon-insure-claim-summary>`;
+	}
+
+	/**
+	 * Renders the pocket summary page, configured with the selected pocket type
+	 * 
+	 * @returns {html} html
+	 */
+	_renderLifePolicySummaryPage() {
+		return html`
+			<horizon-insure-life-policy-summary 
+				.selectedLifePolicy="${this.selectedLifePolicy}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-policy-summary >`;
 	}
 
 

@@ -321,7 +321,7 @@ class LifePolicySummary extends Component {
 		return html`
 			<capitec-title-bar type="insure" class="insure-title-bar">
 				<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToClientPoliciesPage()}" />
-				<capitec-label label="Life Plan" type="title" class="title-bar-label"></capitec-label>
+				<capitec-label label="Life Cover" type="title" class="title-bar-label"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 			</capitec-title-bar>`;
 	}
