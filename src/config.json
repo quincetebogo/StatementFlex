@@ -392,7 +392,7 @@
 			"positiveCase": true
 		},
 		"insureLifeClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {

@@ -146,9 +146,11 @@ class LifePocketSummary extends Component {
 	 */
 	_calculateArrearsAmount(policy) {
 		let totalArrears = 0;
-		policy.arrears.forEach(arrears => {
-			totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
-		});
+		if (policy.arrears) {
+			policy.arrears.forEach(arrears => {
+				totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+			});
+		}
 		return formatCurrency(totalArrears);
 	}
 
@@ -443,7 +445,7 @@ class LifePocketSummary extends Component {
 							</capitec-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
-							${this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION ? html`` : html`
+							${this.selectedPocketType !== LIFE_POCKET_TYPES.MONTHLY ? html`` : html`
 								<horizon-label
 									label="Term"
 									value="24 months">

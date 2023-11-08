@@ -389,7 +389,7 @@ class LifeCancelPolicyDialog extends Component {
 
 			<div class="formBody" style="${this.currentStep === STEPS.AGREEMENT ? `display: block` : `display: none`}">
 				<capitec-content-box>
-					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Plan" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
+					<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Life Cover" detail="" icon="" @click="${() => this.showAgreementDialog = true}">
 						<capitec-label slot="detail" type="strong" label="View Document" >
 						</capitec-label>
 					</horizon-product-tile>

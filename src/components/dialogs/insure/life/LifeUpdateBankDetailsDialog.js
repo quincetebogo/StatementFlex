@@ -369,7 +369,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 			${this.currentStep === STEPS.AGREEMENT ? html`
 				<div class="agreement-form-body">
 					<capitec-content-box>
-						<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Plan" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
+						<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Cover" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
 							<capitec-label slot="detail" type="strong" label="View Document">
 							</capitec-label>
 						</horizon-product-tile>
