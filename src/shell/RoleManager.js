@@ -50,6 +50,10 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 		return this.roles && this.roles.includes(`capitecconnect-agent`);
 	}
 
+	get isClientCareAgent() {
+		return this.roles && this.roles.includes(`clientcare-agent`);
+	}
+
 	get orgUnit() {
 		const filteredAndSorted = this.roles
 									.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
