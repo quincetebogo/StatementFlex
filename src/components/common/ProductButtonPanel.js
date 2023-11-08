@@ -207,7 +207,10 @@ export class ProductButtonPanel extends Component {
 				icon="product/cellphone"
 				@click="${() => this._productButtonClick(`CapitecConnect`)}"
 				?selected="${this.selectedButton === `CapitecConnect`}"
-				data-automation-id="product-button-panel-capitec-connect">
+				data-automation-id="product-button-panel-capitec-connect"
+				.toolTipMessage = "${TOOLTIP_MESSAGE}"
+				?showToolTip = "${this.roleManager.isHelpDeskAgent || this.roleManager.isInsureAgent || this.roleManager.isClientCareAgent}"
+				?disabled="${this.roleManager.isHelpDeskAgent || this.roleManager.isInsureAgent || this.roleManager.isClientCareAgent}">
 			</horizon-product-tile>
 		`;
 	}
