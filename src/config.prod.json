@@ -14,7 +14,7 @@
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform.int.capinet",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet",
-		"capitecConnectServiceUrl": "https://api-connect.int.capinet/horizon-bff"
+		"capitecConnectServiceUrl": "https://api-connect-prd.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
