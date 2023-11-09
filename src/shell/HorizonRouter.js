@@ -20,6 +20,7 @@ const HORIZON_ROUTES = Object.freeze({
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
 	PRODUCT_LIVE_BETTER: `/product/live-better`,
+	PRODUCT_CAPITEC_CONNECT: `/product/capitec-connect`,
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
@@ -50,6 +51,8 @@ const HORIZON_ROUTES = Object.freeze({
 	TAX_CERTIFICATE_SERVICE_ERROR: `/error/tax-certificate-service-error`,
 	AUTOMATIC_SAVINGS_SUCCESS: `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED: `/error/automatic-savings`,
+	PROCESS_REVERSAL_SUCCESS: `/success/process-reversal`,
+	PROCESS_REVERSAL_FAILURE: `/error/process-reversal`,
 	LIVE_BETTER: `/liveBetter`,
 	LIVE_BETTER_SYSTEM_ERROR: `/error/live-better`,
 	CREDIT_ACCOUNT: `/transact/credit`,
@@ -96,7 +99,7 @@ export class HorizonRouter {
 		this.router = Router.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		
+
 		// instana properties
 		this._InstanaKey = this._configuration.getSetting(`InstanaKey`);
 		this._InstanaHelper = Instana.getInstance();
@@ -140,7 +143,7 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
-		
+
 		this._InstanaHelper._instanaScripts(this._securityContext, this._InstanaKey);
 	}
 
@@ -209,7 +212,20 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
 	}
 
-	navigateToStopCard(context) {
+	navigateToCapitecConnetProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT);
+	}
+
+	getCapitecConnectPageState() {
+		const state = HorizonStore.getInstance().recoverState();
+
+		if (state && state.callerInformation && state.callerInformation.verificationStatus && this.roleManager.isCapitecConnectAgent) {
+			return HORIZON_VIEW_SET.VERIFIED_PAGES;
+		}
+		return HORIZON_VIEW_SET.LANDING_PAGES;
+	}
+
+	navigateToStopCard() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_PAGE}/${context}`);
 	}
 
@@ -314,6 +330,7 @@ export class HorizonRouter {
 		const credit = () => this.navigateToCreditAccount();
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
+		const capitecConnect = () => this.navigateToCapitecConnetProduct();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -324,7 +341,8 @@ export class HorizonRouter {
 			Credit: credit,
 			SavingsPlan: savingsPlan,
 			LiveBetter: liveBetterSavings,
-			ProductEnquiry: productEnquiry
+			ProductEnquiry: productEnquiry,
+			CapitecConnect: capitecConnect
 		}[ivrOption]();
 	};
 
@@ -366,8 +384,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
 	}
 
-    navigateToPayshapProofOfPaymentOutcome() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
+	navigateToPayshapProofOfPaymentOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
 	}
 
 	_navigateToTapToPayUnsuccessful() {
@@ -408,6 +426,14 @@ export class HorizonRouter {
 
 	navigateToAutomaticSavingsFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
+	}
+
+	navigateToProcessReversalSuccess(accountNumber) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}/${accountNumber}`);
+	}
+
+	navigateToProcessReversalFailure(transactionReference) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROCESS_REVERSAL_FAILURE}/${transactionReference}`);
 	}
 
 	navigateToSettlementQuoteSuccess() {
@@ -724,6 +750,15 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
+		name: `horizon-capitec-connect-product`,
+		title: `CapitecConnectProductView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_CAPITEC_CONNECT,
+		load: () => import(`../views/product/CapitecConnectProduct`),
+		// guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HorizonRouter.getInstance().getCapitecConnectPageState())
+	},
+	{
 		name: `horizon-stop-card-landing-page`,
 		title: `Favourites`,
 		icon: null,
@@ -977,6 +1012,22 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
 		load: () => import(`../views/liveBetter/AutomaticSavingsSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-process-reversal-failure`,
+		title: `ProcessReversalFailed`,
+		icon: null,
+		path: `${HORIZON_ROUTES.PROCESS_REVERSAL_FAILURE}/:transactionReference`,
+		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+	},
+	{
+		name: `horizon-process-reversal-success`,
+		title: `ProcessReversalSuccessful`,
+		icon: null,
+		path: `${HORIZON_ROUTES.PROCESS_REVERSAL_SUCCESS}/:accountNumber`,
+		load: () => import(`../views/capitecConnect/Teamleader/ProcessReversalSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-live-better`,
