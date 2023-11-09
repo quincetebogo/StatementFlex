@@ -25,7 +25,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
-	INSURE_UNVERIFIED_CLIENT: `/insure/unverified-client`,
+	INSURE_BACKOFFICE: `/insure/backoffice`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	KBA_VERIFICATION_FAILED: `/error/kba-verification`,
@@ -229,8 +229,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
 	}
 
-	navigateToInsureUnverifiedClient() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT}`);
+	navigateToInsureBackOfficePage() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_BACKOFFICE}`);
 	}
 
 	navigateToQuickTransactionFavourites() {
@@ -331,7 +331,7 @@ export class HorizonRouter {
 	navigateToInsureLanding() {
 		// TODO: Navigation to the correct insure page
 		if (this.roleManager.isInsureAgent) {
-			this.navigateToInsureUnverifiedClient();
+			this.navigateToInsureBackOfficePage();
 			return;
 		}
 		this.navigateToInsureExistingClient();
@@ -776,11 +776,11 @@ export default horizonRoutes = [
 	// onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	// },
 	{
-		name: `horizon-insure-unverified-client`,
+		name: `horizon-insure-backoffice`,
 		title: `Insure`,
 		icon: null,
-		path: HORIZON_ROUTES.INSURE_UNVERIFIED_CLIENT,
-		load: () => import(`../views/insure/InsureUnverifiedClient`),
+		path: HORIZON_ROUTES.INSURE_BACKOFFICE,
+		load: () => import(`../views/insure/InsureBackOffice`),
 		guard: () => true,
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},

@@ -114,7 +114,7 @@ class PolicyTransactionHistory extends Component {
 	 * Navigate back to Policy summary page
 	 * @return {void}
 	 */
-	_backToSummaryPage() {
+	async _backToSummaryPage() {
 		this._telemetry.logEvent(this.telemetryEvents.TRANSACTION_HISTORY_BACK, {
 			"screen": TelemetryScreen.INSURE_TRANSACTION_HISTORY,
 			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
@@ -262,7 +262,7 @@ class PolicyTransactionHistory extends Component {
 	 * Initialize component when loaded
 	 * @returns {void}
 	 */
-	_initialise() {
+	async _initialise() {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
@@ -272,9 +272,6 @@ class PolicyTransactionHistory extends Component {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
-
-			// await super._inicidentManager_(`funeral-transaction-history`, () => this._toggleBusyFlag());
-			// await super.createAndClassifySubIncident();
 	}
 
 	/**
@@ -420,7 +417,7 @@ class PolicyTransactionHistory extends Component {
 				data-automation-id="transactions-back">
 			</capitec-image>
 			<capitec-label 
-				label="Transaction History"
+				label="Premium History"
 				type="title"
 				id="header-label">
 			</capitec-label>
@@ -624,7 +621,7 @@ class PolicyTransactionHistory extends Component {
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="transactionType"
+				field="premiumType"
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
@@ -640,11 +637,6 @@ class PolicyTransactionHistory extends Component {
 				size="120px">
 			</capitec-table-column>
 			<capitec-spacer></capitec-spacer>
-			<capitec-table-column
-				label="Reason"
-				field="reason"
-				size="250px">
-			</capitec-table-column>
 		`;
 	}
 
@@ -655,9 +647,9 @@ class PolicyTransactionHistory extends Component {
 	_renderNoResults() {
 		let noResultsMessage;
 		if (this.startDate) {
-			noResultsMessage = `No policy transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
+			noResultsMessage = `No transactions made during ${isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE]) ? `Last 90 days` : RENDER_CHIPS[FILTER_BY.DATE]}`;
 		} else {
-			noResultsMessage = `Adjust filters to see policy transactions`;
+			noResultsMessage = `Adjust filters to see policy premium history`;
 		}
 
 

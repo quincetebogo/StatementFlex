@@ -108,6 +108,7 @@
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
+	
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
@@ -119,14 +120,6 @@
 	"payshap-pop": `PAYSHAP_POP`,
 
 	// Insure 
-	"funeral-update": `FUNERAL_UPDATE`,
-	"funeral-arrears-payment": `FUNERAL_ARREARS_PAYMENT`,
-	"funeral-cancellation": `FUNERAL_CANCELLATION`,
-	"funeral-estimate": `FUNERAL_ESTIMATE`,
-	"funeral-document-request": `FUNERAL_DOCUMENT_REQUEST`,
-	"funeral-reissue": `FUNERAL_REISSUE`,
-	"funeral-general-enquiry": `FUNERAL_GENERAL_ENQUIRY`,
-
 	"funeral-plan-summary": `FUNERAL_PLAN_SUMMARY`,
 	"funeral-sms-history": `FUNERAL_SMS_HISTORY`,
 	"funeral-transaction-history": `FUNERAL_TRANSACTION_HISTORY`,
@@ -139,6 +132,8 @@
 	"funeral-plan-cancel": `FUNERAL_PLAN_CANCEL`,
 	"funeral-plan-calculate-estimate": `FUNERAL_PLAN_CALCULATE_ESTIMATE`,
 	"funeral-plan-send-document": `FUNERAL_PLAN_SEND_DOCUMENT`,
-	"funeral-plan-reissue": `FUNERAL_PLAN_REISSUE`
+	"funeral-plan-reissue": `FUNERAL_PLAN_REISSUE`,
 
+	// Update client language preference
+	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`
 });
