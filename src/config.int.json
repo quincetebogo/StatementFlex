@@ -13,7 +13,8 @@
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-int.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-int.int.capinet",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-int.int.capinet"
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-int.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-int.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-int.int.capinet",

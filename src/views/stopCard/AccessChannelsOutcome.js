@@ -45,7 +45,7 @@ export class AccessChannelsOutcome extends ViewBase {
 			alertStopcard: { type: Boolean, attribute: false }
 		};
 	}
-	
+
 	get incidentDescription() {
 		let desc = ``;
 
@@ -91,9 +91,9 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this._initialise();
-		
+
 		this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {
 			SuspendChannels: this.suspendedChannels.join(`, `),
 			UnsuspendChannels: this.unsuspendedChannels.join(`, `),
@@ -104,7 +104,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	async disconnectedCallback() {
 		super.disconnectedCallback();
-		
+
 		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 	}
 
@@ -160,7 +160,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		} else {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
-		
+
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -170,7 +170,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	_updateScreenDetails(request, response) {
 		const screenDetails = this.horizonStore.getScreenDetails();
-		
+
 		const updatedRes = request.channels.map(item => {
 			const channelName = ACCESS_CHANNELS_TYPE[item];
 			const channelRes = response.result[channelName];
@@ -189,7 +189,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		const suspendChannels = this.result.filter(item => item.status);
 		screenDetails.result = [...suspendChannels, ...updatedRes];
 		screenDetails.request = this.retryReq;
-		
+
 		this.horizonStore.setScreenDetails(screenDetails);
 		this._initialise();
 		this._updateIncidentState();
@@ -200,7 +200,7 @@ export class AccessChannelsOutcome extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.result = screenDetails.result;
 		this.retryReq = screenDetails.request;
-		
+
 		this._setToastInfo();
 
 		/**
@@ -252,10 +252,10 @@ export class AccessChannelsOutcome extends ViewBase {
 		}
 
 		const returnValue = await this.cardService.identifyCaller(
-								this.callerInformation,
-								this.currentIncident,
-								() => true
-							);
+			this.callerInformation,
+			this.currentIncident,
+			() => true
+		);
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.screenDetails;
@@ -343,23 +343,23 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	_renderDetail() {
 		return this.suspendedChannels.length > 0
-		? html`
+			? html`
 			<section slot="detail">
 				<span>
 					${this._formatContent(this.suspendedChannels)} ${this.suspendedChannels.length > 1 ? `were` : `was`} suspended.
 				</span>
 			</section>`
-		: html``;
+			: html``;
 	}
 
 	_renderSubContent() {
 		return this.unsuspendedChannels.length > 0
-		? html`
+			? html`
 			<capitec-icon slot="sub-content" size="medium" icon="status/error-trans"></capitec-icon>
 			<span slot="sub-content">
 				${this._formatContent(this.unsuspendedChannels)} ${this.unsuspendedChannels.length > 1 ? `were` : `was`} not suspended.
 			</span>`
-		: html``;
+			: html``;
 	}
 
 	_formatContent(arr) {
@@ -367,16 +367,16 @@ export class AccessChannelsOutcome extends ViewBase {
 		const lastBeforeElemIndex = arr.length - 2;
 
 		return arr.length === 1
-		? arr.map(item => html`<b>${item}</b>`)
-		: arr.map((item, index) => {
-			if (index === lastElemIndex) {
-				return html`and <b>${item}</b>`;
-			} else if (index === lastBeforeElemIndex) {
-				return html`<b>${item}</b> `;
-			}
+			? arr.map(item => html`<b>${item}</b>`)
+			: arr.map((item, index) => {
+				if (index === lastElemIndex) {
+					return html`and <b>${item}</b>`;
+				} else if (index === lastBeforeElemIndex) {
+					return html`<b>${item}</b> `;
+				}
 
-			return html`<b>${item}</b>, `;
-		});
+				return html`<b>${item}</b>, `;
+			});
 	}
 
 	_renderRelatedOptions() {
@@ -389,7 +389,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	_renderAlertStopCard() {
 		return this.alertStopcard
-		? html`
+			? html`
 			<capitec-modal type="onboard">
 				<capitec-content-box slot="body" layout="vertical" halign="center" valign="center" noPadding>
 					<capitec-image src="platform/illustrations/debicheck.svg"></capitec-image>
@@ -408,7 +408,7 @@ export class AccessChannelsOutcome extends ViewBase {
 					</capitec-group>
 				</capitec-content-box>
 			</capitec-modal>`
-		: html``;
+			: html``;
 	}
 }
 

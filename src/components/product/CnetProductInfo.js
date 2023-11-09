@@ -25,6 +25,11 @@ const PAGE_INFO = {
 		header: `More to come soon`,
 		icon: `/images/liveBetter/live-better-white.svg`,
 		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`
+	},
+	capitecConnect: {
+		header: `More to come soon`,
+		icon: `/images/liveBetter/capitec-connect-white.svg`,
+		details: `Visit your nearest branch or explore the Capitec App for more info on Capitec Connect.`
 	}
 };
 
@@ -163,7 +168,7 @@ export class CnetProductInfo extends Component {
 	}
 
 	_renderIcon() {
-		return this.viewType === `liveBetter` 
+		return (this.viewType === `liveBetter` || this.viewType === `capitecConnect`) 
 			? html`
 				<img src="${PAGE_INFO[this.viewType].icon}"/>`
 			: html`
