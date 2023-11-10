@@ -225,7 +225,7 @@ export class HorizonRouter {
 		return HORIZON_VIEW_SET.LANDING_PAGES;
 	}
 
-	navigateToStopCard() {
+	navigateToStopCard(context) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_PAGE}/${context}`);
 	}
 
