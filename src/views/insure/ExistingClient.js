@@ -1137,6 +1137,29 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
 
+	async _healthQuestionnaire() {
+		const resp = await this.insureLifeService.lifeHealthQuestionnaire();
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		console.log(resp);
+		return resp.result;
+	}
+
+	async _lifeAllowedCover(allowedCoverRequest) {
+		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
+		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
+		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		
+		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
 	/**
 	 * gets clients arrears and payable accounts
 	 * 
@@ -1681,11 +1704,12 @@ export class ExistingClient extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
-				
+				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
-
+				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
+				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
