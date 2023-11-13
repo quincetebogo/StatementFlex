@@ -1,5 +1,7 @@
 import { Component, css, html, unsafeHTML } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
 /**
  * @export
@@ -13,6 +15,8 @@ class LifeHealthQuestionsDialog extends Component {
 	constructor() {
 		super();
 
+		this.lifeHealthQuestions = {};
+
 		this.currentQuestion = {};
 		this.currentQuestionIndex = 0;
 		this.currentAnswerSingle = {};
@@ -20,7 +24,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.enableNextButton = false;
 
 		this.finalAnswers = [];
-		this.lifeHealthQuestions = {};
+		this.showQuestionnaireResults = false;
 	}
 
 	// #endregion INITIALIZE
@@ -28,14 +32,26 @@ class LifeHealthQuestionsDialog extends Component {
 	// #region PROPERTIES
 
 	/**
+	 * @property {String} currentQuestion -Object containing current question to display
+	 * @property {String} currentQuestionIndex Index of current question
+	 * @property {String} lifeHealthQuestions All life health questions
+	 * @property {String} executeLifeAllowedCover Callback function to execute allowed cover call
+	 * @property {Object} allowedCoverResults Results from allowed cover call
+	 * @property {Object} enableNextButton Flag to control next button via current questions validation results
+	 * @property {Boolean} showQuestionnaireResults Flag to control results view
+	 * 
+	 * @readonly
+	 * @static
 	 */
 	static get properties() {
 		return {
 			currentQuestion: { type: Object, state: true },
 			currentQuestionIndex: { type: Number, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
-			enableNextButton: { type: Boolean, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
+			allowedCoverResults: { type: Object, state: true },
+			enableNextButton: { type: Boolean, state: true },
+			showQuestionnaireResults: { type: Object, state: true }
 		};
 	}
 
@@ -52,6 +68,10 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentQuestion = this.lifeHealthQuestions.questions[this.currentQuestionIndex];
 	}
 
+	/**
+	 * Remove the component from the DOM.
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
@@ -65,9 +85,18 @@ class LifeHealthQuestionsDialog extends Component {
 
 	// #region EVENT HANDLERS
 
+	/**
+	 * Set answer change event for checkboxes and radio buttons
+	 * 
+	 * @param {*} e event from control
+	 * @param {*} type answer type
+	 * @param {*} groupId question groupID
+	 * @param {*} answerId answerID
+	 * @param {*} answerDetail answer details
+	 * @returns {void}
+	 */
 	_setAnswer(e, type, groupId, answerId, answerDetail) {
 		if (type === `OneOf`) {
-
 			// Clear all
 			const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
 			radioButtons.forEach(radioButton => {
@@ -77,8 +106,6 @@ class LifeHealthQuestionsDialog extends Component {
 
 			// Map new
 			if (e.detail.new === true) {
-				console.log(`setting AnswerID ${answerId}`);
-				console.log(`OneOf e.detail.new ${e.detail.new}`);
 				this.currentAnswerSingle = {
 					questionGroupId: groupId,
 					answerId: answerId,
@@ -109,10 +136,14 @@ class LifeHealthQuestionsDialog extends Component {
 					this.enableNextButton = false;
 				}
 			}
-			console.log(`this.currentAnswersMultiple `, this.currentAnswersMultiple);
 		}
 	}
 
+	/**
+	 * Next question event
+	 * 
+	 * @returns {void}
+	 */
 	async _nextQuestion() {
 		if (this.currentQuestion.type === `OneOf`) {
 			this.finalAnswers.push(this.currentAnswerSingle);
@@ -124,14 +155,11 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Was it last question?
 		if (this.currentQuestionIndex === this.lifeHealthQuestions.questions.length - 1) {
-			console.log(`last question`);
-			console.log(this.finalAnswers);
 			const allowedCoverReq = {
 				answers: this.finalAnswers
 			};
-			const allowedCoverResp = await this.executeLifeAllowedCover(allowedCoverReq);
-			console.log(`allowedCoverResp: `, allowedCoverResp);
-			this.dispatchEvent(new CustomEvent(`close-and-continue`, { detail: allowedCoverResp }));
+			this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
+			this.showQuestionnaireResults = true;
 			return;
 		}
 
@@ -169,16 +197,22 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswerSingle = {};
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
-
-		console.log(this.finalAnswers);
 	}
 
 	/**
-	 * back event from dialog footer button, closes modal & reset toggles 
+	 * Continue with offer
+	 * @returns {void}
+	 */
+	_continueToAllocation() {
+		this.dispatchEvent(new CustomEvent(`continue`));
+	}
+
+	/**
+	 * Back event from dialog footer button, closes modal & reset toggles 
 	 * @returns {void} 
 	 */
 	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
+		this.dispatchEvent(new CustomEvent(`close-dialog`));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -237,7 +271,17 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Health Question ${this.currentQuestion?.groupId}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+			${this._renderContent()}
+		`;
+	}
+
+	/**
+	 * Main content renderer
+	 * @returns {void}
+	 */
+	_renderContent() {
+		return html`
+			<capitec-modal type="form" header="${this.showQuestionnaireResults === false ? `Health Question ${this.currentQuestion?.groupId}` : `Questions Complete`}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
 				<div slot="body">
 					${this._renderDialogBody()}
 				</div>
@@ -255,46 +299,65 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			<div>
-				<div id="capitec-form-group">
-					<div style="max-width: 500px;">
-						<label>${unsafeHTML(this.currentQuestion?.description)}</label>
-					</div>
-					<div style="margin-top:15px;">
-						${this.currentQuestion?.type === `OneOf` ? html`
-							<capitec-radio-group layout="vertical" style="margin-bottom: 10px;">
-								${this.currentQuestion?.answers.map(answer => html`
-									<capitec-radio
-										class="visibleControl"
-										id="${answer.answerId}" 
-										label="${answer.detail}" 
-										name="${answer.answerId}" 
-										@value-changed="${(e) => this._setAnswer(e, `OneOf`, this.currentQuestion.groupId, answer.answerId, answer.detail)}"
-										>
-									</capitec-radio>
-								`)}
-							</capitec-radio-group>
-						` : html``}
+			${this.showQuestionnaireResults === false ? html`
+				<div>
+					<div id="capitec-form-group">
+						<div style="max-width: 500px;">
+							<label>${unsafeHTML(this.currentQuestion?.description)}</label>
+						</div>
+						<div style="margin-top:15px;">
+							${this.currentQuestion?.type === `OneOf` ? html`
+								<capitec-radio-group layout="vertical" style="margin-bottom: 10px;">
+									${this.currentQuestion?.answers.map(answer => html`
+										<capitec-radio
+											class="visibleControl"
+											id="${answer.answerId}" 
+											label="${answer.detail}" 
+											name="${answer.answerId}" 
+											@value-changed="${(e) => this._setAnswer(e, `OneOf`, this.currentQuestion.groupId, answer.answerId, answer.detail)}"
+											>
+										</capitec-radio>
+									`)}
+								</capitec-radio-group>
+							` : html``}
 
-						${this.currentQuestion?.type === `AnyOf` ? html`
-							<capitec-check-group>
-							${this.currentQuestion.answers.map(answer => html`
-								<capitec-check 
-									style="margin-top:15px;" 
-									class="visibleControlCB" 
-									label="${answer?.detail}"
-									@value-change="${(e) => this._setAnswer(e, `AnyOf`, this.currentQuestion.groupId, answer.answerId, answer.detail)}"
-									>
-								</capitec-check>
-								${answer?.hasDescription === true ? html`
-									<div style="padding-left: 37px;">${answer?.description}</div>
-								` : html``}
-							`)}
-							</capitec-check-group>
-						` : html``}
+							${this.currentQuestion?.type === `AnyOf` ? html`
+								<capitec-check-group>
+								${this.currentQuestion.answers.map(answer => html`
+									<capitec-check 
+										style="margin-top:15px;" 
+										class="visibleControlCB" 
+										label="${answer?.detail}"
+										@value-change="${(e) => this._setAnswer(e, `AnyOf`, this.currentQuestion.groupId, answer.answerId, answer.detail)}"
+										>
+									</capitec-check>
+									${answer?.hasDescription === true ? html`
+										<div style="padding-left: 37px;">${answer?.description}</div>
+									` : html``}
+								`)}
+								</capitec-check-group>
+							` : html``}
+						</div>
 					</div>
 				</div>
-			</div>
+			` : html`
+				<div style="min-width: 350px;">
+					<capitec-label style="text-align: center;  margin-bottom: 25px;"
+						label="${this.allowedCoverResults?.message}"
+						type="title">
+					</capitec-label>
+					<div>
+						<horizon-label label="Maximum Cover Amount"
+							value="${formatCurrencyInsureCoverAmount(formatCurrency(this.allowedCoverResults?.maximumAllowedCover))}">
+						</horizon-label>
+					</div>
+					<div>
+						<horizon-label label="Maximum Premium"
+							value="${formatCurrency(this.allowedCoverResults?.maximumPremium)}">
+						</horizon-label>
+					</div>
+				</div>
+			`}
 		`;
 	}
 
@@ -307,8 +370,14 @@ class LifeHealthQuestionsDialog extends Component {
 		return html`
 				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 				</capitec-button>
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}" .disabled="${!this.enableNextButton}">
-				</capitec-button>
+
+				${this.showQuestionnaireResults === false ? html`
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}" .disabled="${!this.enableNextButton}">
+					</capitec-button>
+				` : html`
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Continue" @click="${() => this._continueToAllocation()}">
+					</capitec-button>
+				`}
 		`;
 	}
 
@@ -324,5 +393,15 @@ window.customElements.define(`horizon-insure-life-health-questions-dialog`, Life
  * <horizon-insure-life-health-questions-dialog ... @close-dialog="${this._handler}"></horizon-insure-life-health-questions-dialog>
  *
  * @event LifeHealthQuestionsDialog#close-modal
+ * @type {Object} - N/A
+ */
+
+/**
+ * Send continue event to consuming component when 'Continue' is clicked 
+ * 
+ * @example
+ * <horizon-insure-life-health-questions-dialog ... @continue="${this._handler}"></horizon-insure-life-health-questions-dialog>
+ * 
+ * @event LifeHealthQuestionsDialog#continue
  * @type {Object} - N/A
  */

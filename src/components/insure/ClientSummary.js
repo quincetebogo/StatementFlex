@@ -2316,7 +2316,7 @@ class ClientSummary extends Component {
 				.lifeHealthQuestions = ${this.lifeHealthQuestions}
 				.executeLifeAllowedCover="${(allowedCoverRequest) => this.executeLifeAllowedCover(allowedCoverRequest)}"
 				@close-dialog="${() => this.showLifeHealthQuestionsDialog = false}"
-				@close-and-continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
+				@continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
 			</horizon-insure-life-health-questions-dialog>
 		`;
 	}
