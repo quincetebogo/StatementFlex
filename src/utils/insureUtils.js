@@ -123,7 +123,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
-				
+
 			}
 
 			// Over max cover
@@ -415,4 +415,13 @@ export function validateEmailAddressCombo(email, confirmEmail) {
 		return false;
 	}
 	return true;
+}
+
+
+export function pocketBadgeColorClass(pocketType) {
+
+}
+
+export function pocketBadgeLabel(pocketType) {
+
 }

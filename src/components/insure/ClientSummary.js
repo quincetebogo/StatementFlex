@@ -662,9 +662,16 @@ class ClientSummary extends Component {
 	 * @param {Object} selectedPolicy policy being updated
 	 * @returns {void} 
 	 */
-	async _openHealthQuestionsDialog() {
+	async _openHealthQuestionsDialog(selectedPolicy) {
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
+		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeHealthQuestionsDialog = true;
+	}
+
+	_openAllocateCoverDialog(selectedPolicy) {
+		this.selectedLifePolicy = selectedPolicy;
+		this.showLifeAllocateCoverDialog = true;
+		this.showLifeHealthQuestionsDialog = false;
 	}
 
 
@@ -1716,7 +1723,7 @@ class ClientSummary extends Component {
 					`}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
-				? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -2329,6 +2336,7 @@ class ClientSummary extends Component {
 		return this.showLifeAllocateCoverDialog === false ? html``
 			: html`
 			<horizon-insure-life-allocate-cover-dialog
+				.policy="${this.selectedLifePolicy}"
 				@close-dialog="${() => this.showLifeAllocateCoverDialog = false}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;

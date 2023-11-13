@@ -1722,6 +1722,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
+				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
