@@ -1239,7 +1239,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
-		console.log(`this.selectedLifePolicy :>> `, this.selectedLifePolicy);
 		const PremiumHistoryRequest = {
 			contractReference: this.selectedLifePolicy
 		};
@@ -1257,9 +1256,7 @@ export class ExistingClient extends InsureViewBase {
 			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
 			arrearsAmount: formatCurrency(totalArrears)
 		};
-		console.log(`this.lifePremiumHistory :>> `, this.lifePremiumHistory);
 		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
-		console.log(`returnValue :>> `, returnValue);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactionHistory.
 				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
@@ -1270,7 +1267,6 @@ export class ExistingClient extends InsureViewBase {
 					item.formatedAmount = isNullorEmpty(item.eventAmount) ? `` : formatCurrency(item.eventAmount);
 					return item;
 				});
-			console.log(`this.lifeTransactions :>> `, this.lifeTransactions);
 			this.lifeTransactions.push(...formattedTrans);
 			this.lifePremiumHistory.transactions = this.lifeTransactions;
 			this.renderMode = INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY;
@@ -1451,7 +1447,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToLifePolicyPremiumHistory(e) {
-		console.log(`e :>> `, e);
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		await this._retrieveLifePolicyPremiumHistory();

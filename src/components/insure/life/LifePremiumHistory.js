@@ -248,7 +248,6 @@ class LifePremiumHistory extends Component {
 	 * @returns {void}
 	 */
 	 _initialise() {
-		console.log(`this.lifePremiumHistory :>> `, this.lifePremiumHistory);
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
@@ -522,7 +521,6 @@ class LifePremiumHistory extends Component {
 	 * @returns {html} - content of transactions
 	 */
 	_renderPremiumHistory() {
-		console.log(`this.filteredData :>> `, this.filteredData);
 		return this.filteredData?.length > 0
 			? html`
 			<capitec-table
@@ -545,7 +543,6 @@ class LifePremiumHistory extends Component {
 	 * @return {html} html
 	 */
 	_renderTransactionDetails(item) {
-		console.log(`item :>> `, item);
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
