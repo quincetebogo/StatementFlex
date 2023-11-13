@@ -418,6 +418,10 @@
 		"insureElectOption": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureLifePremiumHistory": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

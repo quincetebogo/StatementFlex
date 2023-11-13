@@ -267,6 +267,20 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Fire navigate event to Premium History for Life Cover
+	 * @param {Object} lifePolicy lifePolicy
+	 * @returns {void}
+	 */
+	_goToLifePolicyPremiumHistory(lifePolicy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-policy-premium-history`, {
+			detail: {
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				lifePolicy: lifePolicy
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Policy Transaction History
 	 * @param {object} policyItem policy item details
 	 * @returns {void}
@@ -1678,6 +1692,10 @@ class ClientSummary extends Component {
 
 					${this.readOnlyMode === true ? html`` : html`
 						<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+					`}
+
+					${this.readOnlyMode === true ? html`` : html`
+						<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 					`}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false

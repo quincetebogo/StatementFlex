@@ -228,6 +228,33 @@ export class InsureLifeService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Premium History for selected life policy
+	 *
+	 * @param {Object} [premiumHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifePremiumHistory(premiumHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifePremiumHistory`)) {
+			return this.mock(`insureLifePremiumHistory`, premiumHistoryRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life/policy/transaction-history`,
+			premiumHistoryRequest,
+			this._setInsureHeaders(),
+			`lifePremiumHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
 	// Document generation
 
 	/**
