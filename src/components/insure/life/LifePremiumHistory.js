@@ -547,7 +547,7 @@ class LifePremiumHistory extends Component {
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
 				label="Bank details"
-				data-automation-id="policy-transaction-history-bank-details">
+				data-automation-id="life-premium-history-bank-details">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
@@ -556,31 +556,31 @@ class LifePremiumHistory extends Component {
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Account number"
 					value = "${item.accountNumber ? item.accountNumber : `-`}"
-					data-automation-id="policy-transaction-history-account-number">
+					data-automation-id="life-premium-history-account-number">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Bank" 
 					value = "${item.bank}"
-					data-automation-id="policy-transaction-history-bank">
+					data-automation-id="life-premium-history-bank">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Branch code"
 					value = "${item.bankBranchCode}"
-					data-automation-id="policy-transaction-history-branch-code">
+					data-automation-id="life-premium-history-branch-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Account type"
 					value = "${item.accountType}"
-					data-automation-id="policy-transaction-history-account-type">
+					data-automation-id="life-premium-history-account-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Collection day"
 					value = "${item.eventCollectionDay}"
-					data-automation-id="policy-transaction-history-collection-day">
+					data-automation-id="life-premium-history-collection-day">
 				</horizon-label>
 			</capitec-group>
 		`;
@@ -668,7 +668,7 @@ class LifePremiumHistory extends Component {
 					type="clear"
 					label="Load More"
 					@click = ${() => this._loadMoreTransactions()}
-					data-automation-id="policy-transaction-history-load-more">
+					data-automation-id="life-premium-history-load-more">
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-icon
@@ -676,7 +676,7 @@ class LifePremiumHistory extends Component {
 					size="medium"
 					icon="system/arrow-up-action"
 					@click = ${() => this._scrollToTop()}
-					data-automation-id="policy-transaction-history-scroll-top">
+					data-automation-id="life-premium-history-scroll-top">
 				</capitec-icon>
 			</capitec-action-bar>`;
 	}
