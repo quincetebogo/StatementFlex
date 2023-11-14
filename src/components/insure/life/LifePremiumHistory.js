@@ -593,8 +593,8 @@ class LifePremiumHistory extends Component {
 	_renderPremiumHistoryColumns() {
 		return html`
 			<capitec-table-column
-				label="Premium"
-				field="formatedPremium"
+				label="Amount"
+				field="eventAmount"
 				type="currency"
 				size="110px">
 			</capitec-table-column>
@@ -611,8 +611,8 @@ class LifePremiumHistory extends Component {
 				size="140px">
 			</capitec-table-column>
 			<capitec-table-column
-				label="Amount"
-				field="formatedAmount"
+				label="Paid Amount"
+				field="eventPaidAmount"
 				type="currency"
 				size="120px">
 			</capitec-table-column>

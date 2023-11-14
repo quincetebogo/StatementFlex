@@ -1689,13 +1689,11 @@ class ClientSummary extends Component {
 					</div>
 
 					<capitec-overflow-menu label="Menu">
-
+					
+					<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+					
 					${this.readOnlyMode === true ? html`` : html`
 						<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
-					`}
-
-					${this.readOnlyMode === true ? html`` : html`
-						<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 					`}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
@@ -1833,6 +1831,7 @@ class ClientSummary extends Component {
 
 						<capitec-overflow-menu label="Menu">
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
