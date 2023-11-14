@@ -68,6 +68,9 @@ export default class InsureChannelServiceMocks {
 		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
 		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
 		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
+		this.lifePremiumHistoryMocks = await this._loadMockModule(this.lifePremiumHistoryMocks, `insureLifePremiumHistory`, () => import(`../mocks/insure/life/LifePremiumHistory`).catch(err => logError(err)));
+		
+
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
 
@@ -100,7 +103,7 @@ export default class InsureChannelServiceMocks {
 	 * @param {Object} policyTransactionHistoryRequest request payload 
 	 * @returns {Object} Mock transactions data
 	 */
-	insurePolicyTransactionHistory(policyTransactionHistoryRequest) {
+	insurePolicyTransactionHistory() {
 		if (this._mockSettings.insurePolicyTransactionHistory.positiveCase) {
 			return this.transactionHistoryMocks.PolicyTransactionHistory;
 		}
@@ -321,6 +324,17 @@ export default class InsureChannelServiceMocks {
 	insureLifePayArrears() {
 		if (this._mockSettings.insureLifePayArrears.positiveCase) {
 			return this.lifePayArrearsMocks.insureLifePayArrears;
+		}
+		return null;
+	}
+
+	/**
+	 * Premium History policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifePremiumHistory() {
+		if (this._mockSettings.insureLifePremiumHistory.positiveCase) {
+			return this.lifePremiumHistoryMocks.insureLifePremiumHistory;
 		}
 		return null;
 	}
