@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS, } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -34,6 +34,7 @@ import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 import 'app/components/insure/life/LifeSuccess';
 import 'app/components/insure/life/LifePocketSummary';
 import 'app/components/insure/life/LifePolicySummary';
+import 'app/components/insure/life/LifePremiumHistory';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -1254,6 +1255,45 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	/**
+	 * Fetch Policy Premium History
+	 * 
+	 * @returns {null} null
+	 */
+	async _retrieveLifePolicyPremiumHistory() {
+		const PremiumHistoryRequest = {
+			contractReference: this.selectedLifePolicy
+		};
+
+		let totalArrears = 0;
+		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+		});
+
+		this.lifePremiumHistory = {
+			contractReference: this.selectedLifePolicy.contractReference,
+			bankName: this.selectedLifePolicy.bankDetails.bank,
+			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
+			arrearsAmount: formatCurrency(totalArrears)
+		};
+		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactionHistory.
+				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
+					const formatedDate = new Date(Date.parse(item.eventDate));
+					item.formatedDate = formatedDate;
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					return item;
+				});
+			
+			this.lifePremiumHistory.transactions.push(...formattedTrans);
+			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(returnValue.exception);
+		}
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
@@ -1290,6 +1330,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToFuneralPolicyEstimate(e) {
+		this.selectedFuneralPolicyContractReference = ``;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		super.setInsureIncident(`funeral-plan-calculate-estimate`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
@@ -1420,6 +1461,18 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Prepare and navigate to Life Policy Premium History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	async _goToLifePolicyPremiumHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		await this._retrieveLifePolicyPremiumHistory();
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY);
+	}
+
+	/**
 	 * Send email from caller page
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1547,6 +1600,14 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Unload Life premium history Transactions
+	 * @returns {void}
+	 */
+	_unloadLifePremiumHistory() {
+		this.lifePremiumHistory = {};
+	}
+
+	/**
 	 * Unload Policy Transactions
 	 * @returns {void}
 	  */
@@ -1669,6 +1730,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderLifeSuccessPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
 				return html`${this._renderLifePolicySummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY:
+				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
 			default:
 				return html``;
 		}
@@ -1722,6 +1785,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
 				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
+				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
@@ -1823,6 +1887,23 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-funeral-policy-transaction-history>`;
+	}
+
+	/**
+	 * Render Life Premium History Page
+	 * @returns {html} Html of the sub view
+	 */
+	_renderLifePolicyPremiumHistoryPage() {
+		return html`
+		<horizon-insure-life-premium-history
+			.lifePremiumHistory="${this.lifePremiumHistory}"
+			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
+			.disposeData="${() => this.lifePremiumHistory = []}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@unloading="${() => this._unloadLifePremiumHistory()}"
+		>
+		</horizon-insure-life-premium-history>
+		`;
 	}
 
 	/**
