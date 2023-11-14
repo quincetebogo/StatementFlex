@@ -1268,6 +1268,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToFuneralPolicyEstimate(e) {
+		this.selectedFuneralPolicyContractReference = ``;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		super.setInsureIncident(`funeral-plan-calculate-estimate`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
