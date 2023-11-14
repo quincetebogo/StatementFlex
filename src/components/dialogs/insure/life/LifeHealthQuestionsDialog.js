@@ -20,11 +20,14 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentQuestion = {};
 		this.currentQuestionIndex = 0;
 		this.currentAnswerSingle = {};
+		this.currentAnswerFreetext = ``;
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
 
 		this.finalAnswers = [];
 		this.showQuestionnaireResults = false;
+		this.showFreetextBox = false;
+		this.freeTextAnswerId = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -32,13 +35,15 @@ class LifeHealthQuestionsDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} currentQuestion -Object containing current question to display
-	 * @property {String} currentQuestionIndex Index of current question
-	 * @property {String} lifeHealthQuestions All life health questions
-	 * @property {String} executeLifeAllowedCover Callback function to execute allowed cover call
+	 * @property {Object} currentQuestion -Object containing current question to display
+	 * @property {Number} currentQuestionIndex Index of current question
+	 * @property {String} currentAnswerFreetext Contains value of freetext field
+	 * @property {Object} lifeHealthQuestions All life health questions
+	 * @property {Object} executeLifeAllowedCover Callback function to execute allowed cover call
 	 * @property {Object} allowedCoverResults Results from allowed cover call
-	 * @property {Object} enableNextButton Flag to control next button via current questions validation results
+	 * @property {Boolean} enableNextButton Flag to control next button via current questions validation results
 	 * @property {Boolean} showQuestionnaireResults Flag to control results view
+	 * @property {Boolean} showFreetextBox Flag to control results view
 	 * 
 	 * @readonly
 	 * @static
@@ -47,11 +52,13 @@ class LifeHealthQuestionsDialog extends Component {
 		return {
 			currentQuestion: { type: Object, state: true },
 			currentQuestionIndex: { type: Number, state: true },
+			currentAnswerFreetext: { type: String, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
 			allowedCoverResults: { type: Object, state: true },
 			enableNextButton: { type: Boolean, state: true },
-			showQuestionnaireResults: { type: Object, state: true }
+			showQuestionnaireResults: { type: Boolean, state: true },
+			showFreetextBox: { type: Boolean, state: true }
 		};
 	}
 
@@ -122,20 +129,77 @@ class LifeHealthQuestionsDialog extends Component {
 				});
 			}
 		} else if (type === `AnyOf`) {
-			this.enableNextButton = true;
-			if (e.detail.new === true) {
-				this.currentAnswersMultiple.push({
-					questionGroupId: groupId,
-					answerId: answerId,
-					answer: e.detail.new,
-					answerDetailDescription: answerDetail
-				});
-			} else {
-				this.currentAnswersMultiple = this.currentAnswersMultiple.filter(answer => answer.answerId !== answerId);
-				if (this.currentAnswersMultiple.length === 0) {
+			if (answerDetail.toUpperCase() === `OTHER:`) {
+				if (e.detail.new === true) {
+					this.currentAnswersMultiple.push({
+						questionGroupId: groupId,
+						answerId: answerId,
+						answer: e.detail.new,
+						answerDetailDescription: ``
+					});
+					this.showFreetextBox = true;
+					this.freeTextAnswerId = answerId;
+				} else {
+					this.showFreetextBox = false;
+					this.currentAnswerFreetext = ``;
 					this.enableNextButton = false;
+					this.currentAnswersMultiple = this.currentAnswersMultiple.filter(answer => answer.answerId !== answerId);
+				}
+			} else {
+				if (e.detail.new === true) {
+					this.currentAnswersMultiple.push({
+						questionGroupId: groupId,
+						answerId: answerId,
+						answer: e.detail.new,
+						answerDetailDescription: answerDetail
+					});
+					this.enableNextButton = true;
+				} else {
+					this.currentAnswersMultiple = this.currentAnswersMultiple.filter(answer => answer.answerId !== answerId);
+					if (this.currentAnswersMultiple.length === 0) {
+						this.enableNextButton = false;
+					}
+				}
+
+				// Clean up
+				let containsFreetextSelection = false;
+				for (let i = 0; i < this.currentAnswersMultiple.length; i++) {
+					if (this.currentAnswersMultiple[i]?.answerDetail?.toUpperCase() === `OTHER:`) {
+						containsFreetextSelection = true;
+					}
+				}
+				if (containsFreetextSelection === false) {
+					this.showFreetextBox = false;
+					this.currentAnswerFreetext = ``;
 				}
 			}
+		}
+	}
+
+	/**
+	 * Freetext input change event
+	 * 
+	 * @param {*} e event from control
+	 * @param {*} groupId question groupID
+	 * @returns {void}
+	 */
+	_setFreetextAnswer(e, groupId) {
+		this.currentAnswerFreetext = e.detail.new;
+		if (this.currentAnswerFreetext.length > 0) {
+			const answerIndex = this.currentAnswersMultiple.findIndex(answer => answer.answerId === this.freeTextAnswerId);
+			if (answerIndex > -1) {
+				this.currentAnswersMultiple[answerIndex].answerDetailDescription = this.currentAnswerFreetext;
+			} else {
+				this.currentAnswersMultiple.push({
+					questionGroupId: groupId,
+					answerId: this.freeTextAnswerId,
+					answer: true,
+					answerDetailDescription: this.currentAnswerFreetext
+				});
+			}
+			this.enableNextButton = true;
+		} else {
+			this.enableNextButton = false;
 		}
 	}
 
@@ -197,6 +261,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswerSingle = {};
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
+		this.showFreetextBox = false;
 	}
 
 	/**
@@ -338,6 +403,10 @@ class LifeHealthQuestionsDialog extends Component {
 								</capitec-check-group>
 							` : html``}
 						</div>
+
+						${this.showFreetextBox === true ? html`
+							<capitec-text-field label="Please specify" @value-change="${(e) => this._setFreetextAnswer(e, this.currentQuestion.groupId)}"></capitec-text-field>
+						` : html``}
 					</div>
 				</div>
 			` : html`

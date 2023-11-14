@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -135,6 +136,11 @@ class LifeAllocateCoverDialog extends Component {
 					margin-bottom:15px;
 				}
 
+				.pocket-details-badge{
+					display: flex;
+					align-items: center;
+				}
+
 				.pocket-details-input{
 					width: 180px;
 				}
@@ -143,6 +149,9 @@ class LifeAllocateCoverDialog extends Component {
 					margin-right: 15px;
 				}
 
+				.pocket-type-label{
+					padding-left:15px;
+				}
 				`
 		];
 	}
@@ -191,17 +200,14 @@ class LifeAllocateCoverDialog extends Component {
 					<div class="offer-details-value">${formatCurrency(1000000)}</div>
 				</div>
 			</div>
-			<!-- <div id="split-money">
-				<capitec-toggle label="Split the amount equally between pockets"></capitec-toggle>
-			</div> -->
 			<div id="pocket-details">
 				<div class="pocket-details-card">
-					<div>
+					<div class="pocket-details-badge">
 						<capitec-icon icon="/insure_monthly_pocket" size="large"></capitec-icon>
-						<!-- <capitec-label type="strong"
-							class="pocket-type-label ${pocketBadgeColorClass(pocketItem?.pocketType)}"
-							.label="${pocketBadgeLabel(pocketItem?.pocketType)}">
-						</capitec-label> -->
+						<capitec-label type="strong"
+							class="pocket-type-label ${pocketBadgeColorClass(LIFE_POCKET_TYPES.MONTHLY)}"
+							.label="${pocketBadgeLabel(LIFE_POCKET_TYPES.MONTHLY)}">
+						</capitec-label>
 					</div>
 					<div style="display: flex;">
 						<capitec-text-field class="pocket-details-input pocket-details-label" label="Cover amount"></capitec-text-field>
@@ -214,7 +220,13 @@ class LifeAllocateCoverDialog extends Component {
 					</div>
 				</div>
 				<div class="pocket-details-card">
-					<capitec-icon icon="/insure_once_off_pocket" size="large"></capitec-icon>
+					<div class="pocket-details-badge">
+						<capitec-icon icon="/insure_once_off_pocket" size="large"></capitec-icon>
+						<capitec-label type="strong"
+							class="pocket-type-label ${pocketBadgeColorClass(LIFE_POCKET_TYPES.ONCEOFF)}"
+							.label="${pocketBadgeLabel(LIFE_POCKET_TYPES.ONCEOFF)}">
+						</capitec-label>
+					</div>
 					<div style="display: flex;">
 						<horizon-label
 							class="pocket-details-label"
@@ -225,7 +237,13 @@ class LifeAllocateCoverDialog extends Component {
 					</div>
 				</div>
 				<div class="pocket-details-card">
-					<capitec-icon icon="/insure_education_pocket" size="large"></capitec-icon>
+					<div class="pocket-details-badge">
+						<capitec-icon icon="/insure_education_pocket" size="large"></capitec-icon>
+						<capitec-label type="strong"
+							class="pocket-type-label ${pocketBadgeColorClass(LIFE_POCKET_TYPES.EDUCATION)}"
+							.label="${pocketBadgeLabel(LIFE_POCKET_TYPES.EDUCATION)}">
+						</capitec-label>
+					</div>
 					<div style="display: flex;">
 						<horizon-label
 							class="pocket-details-label"
@@ -247,7 +265,7 @@ class LifeAllocateCoverDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Back" @click="${() => this._backClick()}"></capitec-button>
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Save" ></capitec-button>
+				<capitec-button class="capitec-button-small" slot="footer" type="primary"  @click="${() => this._backClick()}" label="Save" ></capitec-button>
 		`;
 	}
 

@@ -1143,7 +1143,6 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
-		console.log(resp);
 		return resp.result;
 	}
 

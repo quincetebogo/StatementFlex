@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -8,7 +9,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -1776,8 +1776,8 @@ class ClientSummary extends Component {
 						halign="left"
 						valign="center">
 							<capitec-label type="strong"
-								class="pocket-type-label ${this._pocketTypeLabelColour(pocketItem?.pocketType)}"
-								.label="${this._displayPocketTypeLabel(pocketItem?.pocketType)}">
+								class="pocket-type-label ${pocketBadgeColorClass(pocketItem?.pocketType)}"
+								.label="${pocketBadgeLabel(pocketItem?.pocketType)}">
 							</capitec-label>
 
 							<div class="vertical-line"></div>
@@ -1861,27 +1861,6 @@ class ClientSummary extends Component {
 					</div>
 			</capitec-card>`)
 			}`;
-	}
-
-	_displayPocketTypeLabel(pocketType) {
-
-		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
-		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
-		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
-		}
-	}
-
-	_pocketTypeLabelColour(pocketType) {
-		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `monthly-label-colour`;
-		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `education-label-colour`;
-		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `once-off-label-colour`;
-		}
 	}
 
 	/**
