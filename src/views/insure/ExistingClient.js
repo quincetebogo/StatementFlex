@@ -1234,7 +1234,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Fetch Policy Transaction History
+	 * Fetch Policy Premium History
 	 * 
 	 * @returns {null} null
 	 */
@@ -1242,8 +1242,6 @@ export class ExistingClient extends InsureViewBase {
 		const PremiumHistoryRequest = {
 			contractReference: this.selectedLifePolicy
 		};
-
-		this.lifeTransactions = [];
 
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
@@ -1265,8 +1263,8 @@ export class ExistingClient extends InsureViewBase {
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 					return item;
 				});
-			this.lifeTransactions.push(...formattedTrans);
-			this.lifePremiumHistory.transactions = this.lifeTransactions;
+			
+			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;

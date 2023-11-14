@@ -1,17 +1,15 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
+import { FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { TransactionHistoryEvents } from 'app/constants/telemetry/events/Insure';
+
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Policy summary component showing details of single life policy with its role players & banking details
+ * Life Premium History component used to display premium history of a policy.
  * 
  * Events Raised 
  * -------------
@@ -36,15 +34,6 @@ class LifePremiumHistory extends Component {
 	// #endregion INITIALIZATION
 
 	// #region PROPERTIES
-
-	/**
-	 * Callback for rendering transaction details used by {@link PolicyTransactionHistory}.
-	 * 
-	 * @callback RenderTransactionDetails
-	 * @param {Object} [item] Current item for which transaction details to be rendered
-	 * 
-	 * @returns {html} Transaction details response, expander content
-	 */
 
 	/**
 	 * @property {String} startDate - String holds Start date of transaction/due date 
@@ -104,11 +93,11 @@ class LifePremiumHistory extends Component {
 	 * @return {void}
 	 */
 	_backToSummaryPage() {
-		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
+		this.dispatchEvent(new CustomEvent(`navigate-back`));
 	}
 
 	/**
-	 * filter transactions when date is changed
+	 * set new date range
 	 * @param {event} e e
 	 * @return {void} 
 	 */
@@ -467,8 +456,8 @@ class LifePremiumHistory extends Component {
 	}
 
 	/**
-	 * Show clear/clear all filters
-	 * @returns {html} The html of Clear and Clear All filters
+	 * Render Filter Bar
+	 * @returns {html} The html of Filter Bar
 	 */
 	_renderFilterBar() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
@@ -485,7 +474,7 @@ class LifePremiumHistory extends Component {
 	}
 
 	/**
-	 * Clear Date filter
+	 * Render Date chip
 	 * @returns {html} Render Date chip 
 	 */
 	_renderDateChip() {
