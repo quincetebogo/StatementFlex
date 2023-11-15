@@ -229,31 +229,49 @@ export class InsureLifeService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Premium History for selected life policy
+	 * Get health questionnaire
 	 *
-	 * @param {Object} [premiumHistoryRequest] Request data for service call
 	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async lifePremiumHistory(premiumHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureLifePremiumHistory`)) {
-			return this.mock(`insureLifePremiumHistory`, premiumHistoryRequest);
+	async lifeHealthQuestionnaire(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeQuestionnaire`)) {
+			return this.mock(`insureLifeQuestionnaire`);
 		}
-		return this.post(
-			`/horizon-insurance/life/policy/transaction-history`,
-			premiumHistoryRequest,
+		return this.get(
+			`/horizon-insurance/life-cover/api/v1/product/health-questions`,
 			this._setInsureHeaders(),
-			`lifePremiumHistory`,
+			`lifeHealthQuestions`,
 			null,
-			null,
-			900,
+			2000,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
 
+	/**
+	 * Get health questionnaire
+	 *
+	 * @param {Object} [allowedCoverRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	lifeAllowedCover(allowedCoverRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/quote/allowed-cover`,
+			allowedCoverRequest,
+			this._setInsureHeaders(),
+			`lifeAllowedCover`,
+			null,
+			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	// Document generation
 

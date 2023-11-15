@@ -1138,6 +1138,28 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
 
+	async _healthQuestionnaire() {
+		const resp = await this.insureLifeService.lifeHealthQuestionnaire();
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	async _lifeAllowedCover(allowedCoverRequest) {
+		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
+		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
+		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		
+		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
 	/**
 	 * gets clients arrears and payable accounts
 	 * 
@@ -1744,11 +1766,12 @@ export class ExistingClient extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
-				
+				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
-
+				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
+				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
@@ -1761,6 +1784,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
+				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}

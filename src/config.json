@@ -411,6 +411,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureLifeQuestionnaire": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"payshapPop": {
 			"enabled": false,
 			"positiveCase": true
