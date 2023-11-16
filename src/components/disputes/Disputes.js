@@ -7,6 +7,13 @@ const DISPUTE_STEPS = {
 	Declaration: 2
 };
 
+const QUESTION_TYPES = {
+	RADIO: ``,
+	TEXT: `input text`,
+	CURRENCY: `input currency`,
+	DATE: `input date`
+};
+
 /**
  * Dialog populates the cue sheet questions for raising dispute
  * 
@@ -36,6 +43,10 @@ export class Disputes extends Component {
 		this.systemError = false;
 		this.qusNo = 0;
 		this.selectedAnswer = ``;
+		this.questionType = QUESTION_TYPES.RADIO;
+		this.date = ``;
+		this.input = ``; // Text or currency number
+		this.currencyCode = ``;
 
 		this.logger = Logger.getInstance();
 	}
@@ -119,12 +130,7 @@ export class Disputes extends Component {
 	}
 
 	async _next() {
-		const nextQusReq = {
-			"cueSheetId": this.disputeQuestion.cueSheetId,
-			"caseId": this.disputeQuestion.caseId,
-			"answerId": this.selectedAnswer,
-			"comments": ``
-		};
+		const nextQusReq = this._formatNextQusRequest();
 		const returnValue = await this.getNextQuestion(nextQusReq);
 
 		if (!returnValue.succeeded) {
@@ -164,6 +170,29 @@ export class Disputes extends Component {
 		this.showDeclarationError = false;
 	}
 
+	_currCodeChanged(e, answerId) {
+		this.currencyCode = e.detail.new.alphaCode;
+
+		if (this.input) {
+			this.selectedAnswer = answerId;
+		}
+	}
+
+	_inputChanged(e, answerId) {
+		this.input = e.detail.new;
+
+		if (this.questionType === QUESTION_TYPES.CURRENCY && this.currencyCode) {
+			this.selectedAnswer = answerId;
+		} else {
+			this.selectedAnswer = answerId;
+		}
+	}
+
+	_dateChanged(e) {
+		this.date = e.detail.new;
+		this.selectedAnswer = answerId;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -171,6 +200,36 @@ export class Disputes extends Component {
 	_reset() {
 		this.selectedAnswer = ``;
 		this.systemError = false;
+	}
+
+	_formatNextQusRequest() {
+		const nextQusReq = {
+			"cueSheetId": this.disputeQuestion.cueSheetId,
+			"caseId": this.disputeQuestion.caseId,
+			"answerId": this.selectedAnswer,
+			"comments": ``,
+			"dateInput": null,
+			"currencyInput": null,
+			"documentInput": null
+		};
+
+		switch (this.questionType) {
+			case QUESTION_TYPES.TEXT:
+				nextQusReq.comments = this.input;
+				break;
+			case QUESTION_TYPES.DATE:
+				nextQusReq.dateInput = this.date;
+				break;
+			case QUESTION_TYPES.CURRENCY:
+				nextQusReq.currencyInput = {
+					"value": Number(this.input),
+					"currencyNameOrCode": this.currencyCode
+				};
+				break;
+			default:
+				break;
+		}
+		return nextQusReq;
 	}
 
 	// ---------------
@@ -247,7 +306,7 @@ export class Disputes extends Component {
 					border-left: 3px solid #009DE0;
 					border-radius: 4px 4px 0px 0px;
 				}
-				.question-box . capitec-group {
+				.question-box .capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.question-label {
@@ -312,6 +371,10 @@ export class Disputes extends Component {
 				}
 				div[slot="footer"] {
 					width: 1032px;
+				}
+				capitec-date-time-picker {
+					--theme-date-time-picker-host-max-width: 180px;
+					--theme-calendar-calendar-min-width: 180px;
 				}`
 		];
 	}
@@ -427,69 +490,74 @@ export class Disputes extends Component {
 				<capitec-content-box class="question-box">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
 						<capitec-label type="strong" label="Q${this.qusNo}"></capitec-label>
-	
-						<capitec-label class="question-label" type="strong" label="${this.disputeQuestion.agentQuestionWording || this.disputeQuestion.clientQuestionWording}">
+						<capitec-label
+							class="question-label"
+							type="strong"
+							label="${this.disputeQuestion.agentQuestionWording || this.disputeQuestion.clientQuestionWording}">
 						</capitec-label>
 					</capitec-group>
 				</capitec-content-box>
 				${this._renderAnswer()}
 			</capitec-card>
-			
 		`;
 	}
 
 	_renderAnswer() {
 		const firstElem = this.disputeQuestion.answers[0];
 
-		switch (firstElem.clientAnswerWording) {
+		switch (firstElem.clientAnswerWording || firstElem.agentAnswerWording) {
 			case `input currency`:
-				return html`${this._renderAnsCurrency()}`;
+				this.questionType = QUESTION_TYPES.CURRENCY;
+				return html`${this._renderAnsCurrency(firstElem)}`;
+			case `input text`:
 			case `input string`:
-				return html`${this._renderAnsText()}`;
+				this.questionType = QUESTION_TYPES.TEXT;
+				return html`${this._renderAnsText(firstElem)}`;
 			case `input date`:
+				this.questionType = QUESTION_TYPES.DATE;
 				return html`${this._renderAnsDate()}`;
 			default:
 				return html`${this._renderAnsOptions(this.disputeQuestion.answers)}`;
 		}
 	}
 
-	_renderAnsCurrency() {
-		const curr = [
-			{
-				text: `Indian Rupee`,
-				code: `INR`
-			},
-			{
-				text: `US Dollar`,
-				code: `USD`
-			}
-		];
+	_renderAnsCurrency(firstElem) {
+		firstElem.currencyCodes = firstElem.currencyCodes.map(c => {
+			c.label = `${c.alphaCode} - ${c.name}`;
+			return c;
+		});
+
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input currency"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box layout="horizontal">
-					<capitec-text-field label="Number" type="numeric"></capitec-text-field>
+					<capitec-text-field
+						label="Number"
+						type="numeric"
+						@value-change="${(e) => this._inputChanged(e, firstElem.answerId)}">
+					</capitec-text-field>
 					<capitec-select 
 						label="Currency"
-						.items="${curr}" 
-						display-field="text"
-						id-field="code">
+						.items="${firstElem.currencyCodes}"
+						display-field="label"
+						id-field="alphaCode"
+						@value-change="${(e) => this._currCodeChanged(e, firstElem.answerId)}">
 					</capitec-select>
 				</capitec-content-box>
 			</capitec-card>`;
 	}
 
-	_renderAnsText() {
+	_renderAnsText(firstElem) {
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input text"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box>
-					<capitec-text-box label="" minlength="1" maxlength="15" @value-changed="${() => this._}"></capitec-text-box>
+					<capitec-text-box label="" minlength="1" maxlength="15" @value-change="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
 				</capitec-content-box>
 			</capitec-card>`;
 	}
 
-	_renderAnsDate() {
+	_renderAnsDate(firstElem) {
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input date"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
@@ -498,7 +566,8 @@ export class Disputes extends Component {
 						type="single"
 						mode="date"
 						inputType="calendar"
-						outputType="string">
+						outputType="string"
+						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}">
 					</capitec-date-time-picker>
 				</capitec-content-box>
 			</capitec-card>`;
@@ -512,7 +581,7 @@ export class Disputes extends Component {
 					<capitec-radio-group layout="vertical" gap="clear" class="multiple-option-radio-group">
 						${answers.map(item => html`
 							<capitec-radio
-								label="${item.agentAnswerWording === `No Answer available.` ? item.clientAnswerWording : item.agentAnswerWording}"
+								label="${item.agentAnswerWording || item.clientAnswerWording}"
 								@value-change="${() => this._answerSelected(item.answerId)}"
 								?checked="${this.selectedAnswer === item.answerId}"
 								?disabled="${Boolean(this.selectedAnswer)}">

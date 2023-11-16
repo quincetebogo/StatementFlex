@@ -649,7 +649,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					type="clear"
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
-					@click="${() => this._optionClick(`card-disputes`, item)}">
+					@click="${() => this._optionClick(`card-disputes`, item)}"
+					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl()}">
 				</capitec-button>
 			</capitec-group>
 		`;
