@@ -76,6 +76,11 @@ export const INSURE_CSS = css`
 
 	.education-label-colour{
 		--theme-label-font-color: #AA1580;
-		;
+		
+	}
+
+	.ghost-label{
+		--horizon-label-text-color: #979797;
+		--horizon-label-value-color: #979797;
 	}
 `;
