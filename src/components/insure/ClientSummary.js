@@ -267,6 +267,24 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Life Cancel Policy event
+	 * @param {event} e event
+	 * @returns {void}
+	 */
+	_lifeCancelPolicyConfirm(e) {
+		this.dispatchEvent(new CustomEvent(`life-cancel-policy`, {
+			detail: {
+				contractReference: this.contractReferenceToCancel,
+				cancellationReason: e.detail.cancellationReason,
+				emailAddress: e.detail.emailAddress,
+				documentDetails: e.detail.documentDetails,
+				callerPage: INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY,
+				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Policy Transaction History
 	 * @param {object} policyItem policy item details
 	 * @returns {void}
@@ -370,6 +388,17 @@ class ClientSummary extends Component {
 		this.showFuneralPayPremiumConfirmationDialog = false;
 		this.showFuneralPayPremiumAgreementDialog = true;
 	}
+
+	/**
+	 * Get the Life Cancel Policy Document
+	 *
+	 * @param {String} cancelReason cancel Reason
+	 * @returns {void}
+	 */
+		async _generateDocumentsLifeCancel(cancelReason) {
+			await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
+		}
+	
 
 	/**
 	 * Get the Cancel Policy Document

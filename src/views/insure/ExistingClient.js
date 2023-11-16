@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS, } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -384,7 +384,22 @@ export class ExistingClient extends InsureViewBase {
 			"input": {
 				"cancellationReason": cancelReason
 			}
+			// "cifNumber": this.callerInformation.cifNumber,
+			// "policyNumber": contractReference,
+			// "acceptanceDate": saveToDocumentum ? new Date().toISOString() : ``,
+			// "signatureDate": saveToDocumentum ? new Date().toISOString() : ``
 		};
+
+		// const lifeCancelPolicyAgreementDetails = {
+		// 	"saveDocument": saveToDocumentum,
+		// 	"documentOptions": {
+		// 	  "contentType": `Pdf`
+		// 	},
+		// 	"cifNumber": this.callerInformation.cifNumber,
+		// 	"policyNumber": contractReference,
+		// 	"acceptanceDate": `2023-11-14T14:17:24.132Z`,
+		// 	"signatureDate": `2023-11-14T14:17:24.132Z`
+		//   };
 
 		const resp = await this.insureLifeService.lifeCancelPolicyAgreement(lifeCancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -454,8 +469,8 @@ export class ExistingClient extends InsureViewBase {
 			"policyNumber": e.detail.contractReference,
 			"documents": [
 				{
-					"documentCode": e.detail.documentDetails.documentCode,
-					"documentName": e.detail.documentDetails.documentName,
+					"documentCode": e.detail.documentDetails.documentDetails.documentCode,
+					"documentName": e.detail.documentDetails.documentDetails.documentName,
 					"guid": e.detail.documentDetails.documentDetails.guid
 				}
 			]
@@ -1453,7 +1468,7 @@ export class ExistingClient extends InsureViewBase {
 		const emailLifeDocumentsPayload = {
 
 		};
-		return false;
+		return true;
 	}
 
 	/**
@@ -1681,7 +1696,6 @@ export class ExistingClient extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
-				
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
