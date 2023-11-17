@@ -95,6 +95,7 @@ export class ExistingClient extends InsureViewBase {
 		this.lifeSuccessPageMessages = {};
 		this.emailEstimateSuccess = false;
 		this.defaultSavingsAccountNumber = ``;
+		this.lifePremiumHistory = {};
 		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
@@ -1274,7 +1275,8 @@ export class ExistingClient extends InsureViewBase {
 			contractReference: this.selectedLifePolicy.contractReference,
 			bankName: this.selectedLifePolicy.bankDetails.bank,
 			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
-			arrearsAmount: formatCurrency(totalArrears)
+			arrearsAmount: formatCurrency(totalArrears),
+			transactions: []
 		};
 		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
@@ -1283,6 +1285,8 @@ export class ExistingClient extends InsureViewBase {
 					const formatedDate = new Date(Date.parse(item.eventDate));
 					item.formatedDate = formatedDate;
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					item.eventAmount = formatCurrency(item.eventAmount);
+					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
 			

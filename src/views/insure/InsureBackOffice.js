@@ -423,6 +423,28 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
+	/**
+	 * Update client elect preferences for type
+	 * @param {Object} electRequest Update selected preference request
+	 * @returns {void} 
+	 */
+	async _updateElectOptions(electRequest) {
+		electRequest.cifNumber = this.callerInformation.cifNumber;
+		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+
+		const electResp = await this.insureService.SetElectOptions(electRequest);
+		if (!electResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
+			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
+			this.showInsureErrorToast = true;
+			return;
+		}
+		super.isOnlyProductEnquiry = false;
+		this.showInsureSuccessToast = true;
+		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
+		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+	}
 
 	// #endregion EVENT HANDLERS
 
@@ -502,6 +524,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-client-summary .funeralPolicies = "${this.funeralPolicies}" .lifePolicies="${this.lifePolicies}" .readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
+				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
@@ -561,7 +584,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderLifePolicyPremiumHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY
-		? html`
+			? html`
 		<horizon-insure-life-premium-history
 			.lifePremiumHistory="${this.lifePremiumHistory}"
 			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
@@ -571,7 +594,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		>
 		</horizon-insure-life-premium-history>
 		`
-		: html``;
+			: html``;
 	}
 
 	/**
