@@ -1798,6 +1798,7 @@ class ClientSummary extends Component {
 							</capitec-label>
 							<div class="vertical-line"></div>
 							<horizon-label
+								class="${pocketItem?.coverage === 0 ? `ghost-label` : ``}"
 								label="They get"
 								value="${isNullorEmpty(pocketItem?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(pocketItem?.coverage))}">
 							</horizon-label>
