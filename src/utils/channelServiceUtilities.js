@@ -221,6 +221,7 @@ export function formatDate(value, format) {
 	const time = dateTime.toTimeString().substring(0, 5);
 	const formattedMonth = String(month + 1).padStart(2, `0`);
 	const day = String(date).padStart(2, `0`);
+	const fullTime = dateTime.toTimeString().substring(0, 8); // With seconds value ex : 06:11:22
 
 	let formattedDate = ``;
 
@@ -246,6 +247,9 @@ export function formatDate(value, format) {
 			break;
 		case `dd/mm/yyyy hh:mm:ss`:
 			formattedDate = `${day}/${formattedMonth}/${year} ${time}`;
+			break;
+		case `dd mmm yyy, hh:mm:ss`:
+			formattedDate = `${date} ${monthName} ${year}, ${fullTime}`;
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;

@@ -12,6 +12,7 @@
 	PRODUCT_BUTTON_SavingsPlan: `call.product.savings-plan`,
 	PRODUCT_BUTTON_Insure: `call.product.insure`,
 	PRODUCT_BUTTON_Credit: `call.product.credit`,
+	PRODUCT_BUTTON_CapitecConnect: `call.product.capitecconnect`,
 	ADD_CALLER_DETAILS: `call.add-caller`,
 	END_CALL: `call.end-call`
  };
