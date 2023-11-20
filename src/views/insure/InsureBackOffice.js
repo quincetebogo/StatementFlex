@@ -436,7 +436,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
-			console.log(`resp.result :>> `, resp.result);
 			return resp.result;
 		}
 		this.handleToastError(resp.exception);

@@ -3,10 +3,7 @@ import { FILTER_BY, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransa
 import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_TRANSACTIONS_CSS } from 'app/css/PolicyTransactionHistory';
-import { SMSHistoryEvents } from 'app/constants/telemetry/events/Insure';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 // #region CONSTANTS
 
@@ -30,8 +27,6 @@ class LifeSMSHistory extends Component {
 
 	constructor() {
 		super();
-		this._telemetry = HorizonTelemetry.getInstance();
-		this.telemetryEvents = {};
 		this.commsHistory = [];
 	}
 
@@ -40,8 +35,8 @@ class LifeSMSHistory extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {String} startDate - String holds Start date of transaction/due date 
-	 * @property {String} endDate - String holds End date of transaction/due date
+	 * @property {String} startDate - String holds Start date 
+	 * @property {String} endDate - String holds End date
 	 * @property {String} contractReference contains the policy number
 	 * @property {String} contactNumber contains the callers verified contact number
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
@@ -71,10 +66,8 @@ class LifeSMSHistory extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-		this.telemetryEvents = SMSHistoryEvents;
-		await this._telemetry.startSpan(this.telemetryEvents.SMS_HISTORY, {});
 
 		this._initialise();
 
@@ -189,7 +182,7 @@ class LifeSMSHistory extends Component {
 	}
 
 	/**
-	 * reset all filters and load transactions
+	 * reset all filters and load smses
 	 * @return {void}
 	 */
 	async _reset() {
@@ -216,10 +209,6 @@ class LifeSMSHistory extends Component {
 	 * @return {void} 
 	 */
 	_backToSummaryPage() {
-		this._telemetry.logEvent(this.telemetryEvents.SMS_HISTORY_BACK, {
-			"screen": TelemetryScreen.INSURE_SMS_HISTORY,
-			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
-		});
 		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
 	}
 
