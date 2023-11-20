@@ -35,6 +35,7 @@ import 'app/components/insure/life/LifeSuccess';
 import 'app/components/insure/life/LifePocketSummary';
 import 'app/components/insure/life/LifePolicySummary';
 import 'app/components/insure/life/LifePremiumHistory';
+import 'app/components/insure/life/LifeSMSHistory';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -1298,6 +1299,24 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	/**
+	 * Fetch Life policy SMS history
+	 * @returns {void} void
+	 */
+	async _retrieveLifeSMSHistory() {
+		const smsHistoryDetails = {
+			"policyNumber": this.selectedLifePolicy.contractReference
+		};
+
+		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
+			return resp.result;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
@@ -1474,6 +1493,17 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		await this._retrieveLifePolicyPremiumHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY);
+	}
+	
+	/**
+	 * Prepare and navigate to Life SMS History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_goToLifeSMSHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SMS_HISTORY);
 	}
 
 	/**
@@ -1736,6 +1766,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderLifePolicySummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY:
 				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_SMS_HISTORY:
+				return html`${this._renderLifeSMSHistoryPage()}`;
 			default:
 				return html``;
 		}
@@ -1790,6 +1822,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
 				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
+				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
@@ -1963,6 +1996,16 @@ export class ExistingClient extends InsureViewBase {
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
+	}
+
+	_renderLifeSMSHistoryPage() {
+		return html`
+			<horizon-insure-life-sms-history-page
+			.getCommsHistory="${() => this._retrieveLifeSMSHistory()}"
+			.contractReference="${this.selectedLifePolicy.contractReference}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-sms-history-page>
+		`;
 	}
 
 	/**
