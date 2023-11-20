@@ -99,7 +99,7 @@ export class HorizonRouter {
 		this.router = Router.getInstance();
 		this._configuration = Configuration.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		
+
 		// instana properties
 		this._InstanaKey = this._configuration.getSetting(`InstanaKey`);
 		this._InstanaHelper = Instana.getInstance();
@@ -143,7 +143,7 @@ export class HorizonRouter {
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
-		
+
 		this._InstanaHelper._instanaScripts(this._securityContext, this._InstanaKey);
 	}
 
@@ -217,21 +217,20 @@ export class HorizonRouter {
 	}
 
 	getCapitecConnectPageState() {
-		var state = HorizonStore.getInstance().recoverState();
+		const state = HorizonStore.getInstance().recoverState();
 
 		if (state && state.callerInformation && state.callerInformation.verificationStatus && this.roleManager.isCapitecConnectAgent) {
 			return HORIZON_VIEW_SET.VERIFIED_PAGES;
-		} else {
-			return HORIZON_VIEW_SET.LANDING_PAGES;
 		}
+		return HORIZON_VIEW_SET.LANDING_PAGES;
 	}
 
-	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
+	navigateToStopCard(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_PAGE}/${context}`);
 	}
 
-	navigateToStoppedCards() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
+	navigateToStoppedCards(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE}/${context}`);
 	}
 
 	navigateToStopCardFailed() {
@@ -332,7 +331,7 @@ export class HorizonRouter {
 		const savingsPlan = () => this.navigateToSavingsPlan();
 		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const capitecConnect = () => this.navigateToCapitecConnetProduct();
-		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`); 
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -385,8 +384,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
 	}
 
-    navigateToPayshapProofOfPaymentOutcome() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
+	navigateToPayshapProofOfPaymentOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PAYSHAP_PROOF_OF_PAYMENT_OUTCOME}`);
 	}
 
 	_navigateToTapToPayUnsuccessful() {
@@ -544,8 +543,8 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_AVAILABLE_FOR_ROLE}`);
 	}
 
-	navigateToAccessChannelsOutcome() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}`);
+	navigateToAccessChannelsOutcome(context) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/${context}`);
 	}
 
 	/**
@@ -763,7 +762,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-landing-page`,
 		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_PAGE,
+		path: `${HORIZON_ROUTES.CARD_STOP_PAGE}/:context`,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
@@ -771,7 +770,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-success`,
 		title: `StopCardSuccess`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
+		path: `${HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE}/:context`,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
@@ -1269,7 +1268,7 @@ export default horizonRoutes = [
 		name: `horizon-access-channels-outcome`,
 		title: `HorizonAccessChannelsOutcome`,
 		icon: null,
-		path: HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME,
+		path: `${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/:context`,
 		load: () => import(`../views/stopCard/AccessChannelsOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}

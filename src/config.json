@@ -408,6 +408,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"suspendChannels": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"insureElectOption": {
 			"enabled": false,
 			"positiveCase": true

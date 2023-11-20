@@ -23,6 +23,7 @@
 	"paid-up-accounts": `PAID_UP_LETTER`,
 	"send-cash": `SEND_CASH_ENQUIRY`,
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
+	"card-history": `VIEW_STOPPED_CARD_HISTORY`,
 
 	// Savings account
 	// "transaction-history": `TRANSACTION_HISTORY`,
