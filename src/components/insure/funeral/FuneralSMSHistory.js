@@ -328,7 +328,7 @@ class FuneralSMSHistory extends Component {
 		}
 
 		horizon-expander {
-			margin-bottom: 16px;
+			margin-top: 16px;
 			--theme-expander-height: auto;
 			--theme-layout-gap-spacing: 0px;
 			--theme-expander-header-height: 64px;

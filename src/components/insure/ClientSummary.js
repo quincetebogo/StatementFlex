@@ -291,6 +291,15 @@ class ClientSummary extends Component {
 		}));
 	}
 
+	_goToLifeSMSHistory(lifePolicy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-sms-history`, {
+			detail: {
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				lifePolicy: lifePolicy
+			}
+		}));
+	}
+
 	/**
 	 * Fire navigate event to Policy Transaction History
 	 * @param {object} policyItem policy item details
@@ -1762,6 +1771,8 @@ class ClientSummary extends Component {
 			}
 
 						<capitec-overflow-menu-item icon="system/pay-to-cell-action" label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+
 					</capitec-overflow-menu>
 				</div>
 			</capitec-card>
@@ -1871,6 +1882,7 @@ class ClientSummary extends Component {
 						<capitec-overflow-menu label="Menu">
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)

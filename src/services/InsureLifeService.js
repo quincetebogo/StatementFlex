@@ -137,7 +137,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeCancelPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/cancel-policy`,
+			`/horizon-insurance/life-cover/api/v1/policy/cancel-policy`,
 			cancelPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeCancelPolicy`,
@@ -163,7 +163,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeGetPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/get-policy`,
+			`/horizon-insurance/life-cover/api/v1/policy/get-policy`,
 			getPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeGetPolicy`,
@@ -189,7 +189,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeGetArrears`, getArrearsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/get-arrears`,
+			`/horizon-insurance/life-cover/api/v1/policy/get-arrears`,
 			getArrearsRequest,
 			this._setInsureHeaders(),
 			`lifeGetArrears`,
@@ -215,7 +215,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifePayArrears`, payArrearsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/pay-arrears`,
+			`/horizon-insurance/life-cover/api/v1/policy/pay-arrears`,
 			payArrearsRequest,
 			this._setInsureHeaders(),
 			`lifePayArrears`,
@@ -286,10 +286,36 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifePremiumHistory`, premiumHistoryRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/transaction-history`,
+			`/horizon-insurance/life-cover/api/v1/policy/transaction-history`,
 			premiumHistoryRequest,
 			this._setInsureHeaders(),
 			`lifePremiumHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * SMS History for selected life policy
+	 *
+	 * @param {Object} [smsHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeSMSHistory(smsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeSMSHistory`)) {
+			return this.mock(`insureLifeSMSHistory`, smsHistoryRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/message/sms-history`,
+			smsHistoryRequest,
+			this._setInsureHeaders(),
+			`lifeSMSHistory`,
 			null,
 			null,
 			900,
@@ -314,7 +340,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, cancelPolicyAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/document/generate/cancel-policy-agreement`,
+			`/horizon-insurance/life-cover/api/v1/document/generate/cancel-policy-agreement`,
 			cancelPolicyAgreementRequest,
 			this._setInsureHeaders(),
 			`lifeCancelPolicyAgreement`,
@@ -340,7 +366,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, payArrearsAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/document/generate/pay-arrears-agreement`,
+			`/horizon-insurance/life-cover/api/v1/document/generate/pay-arrears-agreement`,
 			payArrearsAgreementRequest,
 			this._setInsureHeaders(),
 			`lifePayArrearsAgreement`,
