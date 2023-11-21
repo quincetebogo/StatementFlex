@@ -164,7 +164,8 @@ export class ExistingClient extends InsureViewBase {
 			emailEstimateSuccess: { type: Boolean, state: true },
 			clientArrears: { type: Object, state: true },
 			defaultSavingsAccountNumber: { type: String, state: true },
-			showInsureSuccessToast: { type: Boolean, state: true }
+			showInsureSuccessToast: { type: Boolean, state: true },
+			lifePolicyArrears: { type: Object, state: true }
 
 		};
 	}
@@ -412,29 +413,34 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum) {
 		const generateDocumentRequest = {
-			"documentFormat": `PDF`,
-			"saveDocumentToDocumentum": saveToDocumentum,
-			"markDocumentsAsAccepted": saveToDocumentum,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": new Date(this.callerInformation.birthdate).toISOString()
+			"saveDocument": saveToDocumentum,
+			"documentOptions": {
+			  "stamp": `Default`,
+			  "barcode": `Default`,
+			  "watermark": `Copy`,
+			  "channel": `Horizon`,
+			  "contentType": `Pdf`
 			},
-			"input": {
+			"metadata": {
+			  "deviceId": `string`,
+			  "signatureType": `string`,
+			  "branchName": `string`,
+			  "branchNumber": `string`,
+			  "documentDate": `2023-11-15T07:07:52.936Z`,
+			  "language": `string`,
+			  "productId": `string`
+			},
+			"nonPrimarySignatoryDetails": {
+			  "signatoryType": `string`,
+			  "hasDetails": true
+			},
+			"voiceReferenceNumber": `string`,
+			"payArrears": {
 				"policyNumber": contractReference,
-				"payArrearsModel": {
-					"contractReference": contractReference,
-					"arrears": selectedArrears,
-					"fromAccount": accountSelected,
-					"cifNumber": this.callerInformation.cifNumber,
-					"paidWithClaims": false
-				}
+				"arrears": selectedArrears,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": contractReference,
+			"paidWithClaims": false
 			}
 		};
 
@@ -1106,10 +1112,16 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _payArrearsLife(contractReference, accountSelected, selectedArrears) {
 		const payArrears = {
-			"contractReference": contractReference,
-			"arrears": selectedArrears,
 			"cifNumber": this.callerInformation.cifNumber,
-			"fromAccount": accountSelected
+			"policyNumber": contractReference,
+			"bankDetails": {
+				"accountName": `string`,
+				"branchCode": `string`,
+				"accountNumber": accountSelected,
+				"bank": `string`,
+				"accountType": `Bond`
+			},
+			"arrears": selectedArrears
 		};
 
 		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
@@ -1161,6 +1173,28 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		return resp.result;
+	}
+
+	/**
+	 * gets the life policy arrears
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyArrears(selectedPolicy) {
+		const arrearsRequest =
+		{
+			"contractReference": selectedPolicy.contractReference
+		};
+
+		const resp = await this.insureLifeService.lifeGetArrears(arrearsRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.lifePolicyArrears = resp.result;
+
 	}
 
 	/**
@@ -1809,6 +1843,8 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
+				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
+				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"

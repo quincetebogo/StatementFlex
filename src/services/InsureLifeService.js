@@ -215,7 +215,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifePayArrears`, payArrearsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life-cover/api/v1/policy/pay-arrears`,
+			`/horizon-insurance/life-cover/api/v1/policy/arrears/pay`,
 			payArrearsRequest,
 			this._setInsureHeaders(),
 			`lifePayArrears`,

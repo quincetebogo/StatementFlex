@@ -83,7 +83,8 @@ class LifePayArrearsDialog extends Component {
 			confirmEmail: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
 			arrearsAlertBannerMessage: { type: String, state: true },
-			showConfirmationDialog: { type: Boolean, state: true }
+			showConfirmationDialog: { type: Boolean, state: true },
+			lifePolicyArrears: { type: Object, state: true }
 		};
 	}
 
@@ -113,8 +114,9 @@ class LifePayArrearsDialog extends Component {
 	//  #region PRIVATE METHODS
 
 	_initialise() {
-		if (this.policy.arrears) {
-			this.policy.arrears.forEach(arrears => {
+
+		if (this.lifePolicyArrears.arrears) {
+			this.lifePolicyArrears.arrears.forEach(arrears => {
 				this.totalPolicyArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
 			});
 		}
@@ -155,7 +157,7 @@ class LifePayArrearsDialog extends Component {
 			this.selectedArrears.push({
 				dueDate: arrear.arrearsPaymentDueDate,
 				amount: arrear.arrearsPaymentDueAmount,
-				objectId: arrear.arrearsID
+				objectId: arrear.arrearsId
 			});
 		} else {
 			this.insufficientFunds = false;
@@ -467,7 +469,7 @@ class LifePayArrearsDialog extends Component {
 
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
-						${this.policy?.arrears?.map((arrear, index) => html`
+						${this.lifePolicyArrears?.arrears?.map((arrear, index) => html`
 							${index === 0 ? html`
 								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
 									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">

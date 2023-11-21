@@ -131,6 +131,7 @@ class ClientSummary extends Component {
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
 	 * @property {Object} lifePolicies Contains clients life policies
 	 * @property {Object} lifeHealthQuestions Health questions for increase cover
+	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
 	 * 
 	 * @readonly
 	 * @static
@@ -188,6 +189,8 @@ class ClientSummary extends Component {
 			showLifeAllocateCoverDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
+			lifeGetPolicyArrears: { type: Object, state: true },
+			lifePolicyArrears: { type: Object, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -700,10 +703,10 @@ class ClientSummary extends Component {
 	 * @param {Object} selectedPolicy policy being updated
 	 * @returns {void} 
 	 */
-	_openLifePayArrearsDialog(selectedPolicy) {
+	async _openLifePayArrearsDialog(selectedPolicy) {
 
 		// Call get arrears service
-
+		await this.lifeGetPolicyArrears(selectedPolicy);
 
 		this.showLifePayArrearsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
@@ -2314,6 +2317,7 @@ class ClientSummary extends Component {
 		return this.showLifePayArrearsDialog === false ? html``
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
+			.lifePolicyArrears = "${this.lifePolicyArrears}"
 			.policy="${this.selectedLifePolicy}"
 			.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
 			.executeLifePayArrears="${this.executeLifePayArrears}"
