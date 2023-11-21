@@ -434,28 +434,13 @@ export class ExistingClient extends InsureViewBase {
 			  "signatoryType": `string`,
 			  "hasDetails": true
 			},
-			"eSignDetails": {
-			  "consultantTimeStamp": `string`,
-			  "clientFingerprint": `string`,
-			  "consultantFingerprint": `string`,
-			  "deactSect15": true
-			},
-			"electronicalSignature": {
-			  "clientSignedCity": `string`,
-			  "clientTimestamp": `string`,
-			  "consultantFirstName": `string`,
-			  "consultantSurname": `string`,
-			  "consultantSignedCity": `string`,
-			  "tellerNumber": `string`,
-			  "reference": `string`
-			},
 			"voiceReferenceNumber": `string`,
 			"payArrears": {
 				"policyNumber": contractReference,
 				"arrears": selectedArrears,
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
-			"paidWithClaims": true
+			"paidWithClaims": false
 			}
 		};
 
