@@ -110,7 +110,7 @@ export class ClientProfileService extends ChannelServiceBase {
 			null, 
 			null, 
 			1000,
-			null,
+			5000,
 			errorHandler,
 			autoRetries
 		);
