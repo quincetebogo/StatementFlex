@@ -24,8 +24,8 @@ const SAVINGS_ACCOUNT = 300;
 
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-    END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+    END_DATE: `06/26/2023`,
+    START_DATE: `06/26/2023`,
     START_AT_INDEX: 0,
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
@@ -382,7 +382,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
-	async _confirmDispute(event) {
+	async _disputeOutcome(event) {
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});
@@ -391,6 +391,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.transDesc = event.detail.transDesc;
 		screenDetails.disputed = event.detail.disputed;
+		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
+		screenDetails.disputeStep = event.detail.disputeStep;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
@@ -680,7 +682,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
 				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
 				@cancel="${() => this._cancelDisputeTrans()}"
-				@dispute-confirm="${(event) => this._confirmDispute(event)}"
+				@dispute-outcome="${(event) => this._disputeOutcome(event)}"
 				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
 			</horizon-disputes>
 			`

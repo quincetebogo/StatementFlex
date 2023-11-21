@@ -14,6 +14,21 @@ const QUESTION_TYPES = {
 	DATE: `input date`
 };
 
+const RESULTS = {
+	TO_ETHOCA: `To Ethoca`,
+	FROM_ETHOCA: `From Ethoca`,
+	TO_AGENT: `To Agent`,
+	COMPLETE: `Complete`,
+	CLIENT_RESPONSIBILITY: `Client Responsibility`,
+	MERCHANT_RESPONSIBILITY: `Merchant Responsibility`,
+	HOLDING_PATTERN: `Holding Pattern`
+};
+
+const HASDISPUTERIGHTS = {
+	YES: `Yes`,
+	NO: `No`
+};
+
 /**
  * Dialog populates the cue sheet questions for raising dispute
  * 
@@ -89,6 +104,15 @@ export class Disputes extends Component {
 		});
 	}
 
+	get isDisputed() {
+		return this.disputeQuestion.clientHasDisputeRights === HASDISPUTERIGHTS.YES &&
+				[RESULTS.COMPLETE, RESULTS.TO_ETHOCA].includes(this.disputeQuestion.disputeStep);
+	}
+
+	get isClientAgentQus() {
+		return Boolean(this.disputeQuestion.clientQuestionWording) && Boolean(this.disputeQuestion.agentQuestionWording);
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -146,9 +170,13 @@ export class Disputes extends Component {
 		if (this.disputeQuestion?.finalCue) {
 			const ans = this.disputeQuestion?.answers.shift();
 			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
-			// still have to figure our the other possible reasons
-			this.canBeDisputed = ans.agentAnswerWording !== `No Dispute rights - Card details compromised`;
-			this.disputeCurState = DISPUTE_STEPS.Declaration;
+
+			if (this.isDisputed) {
+				this.disputeCurState = DISPUTE_STEPS.Declaration;
+				return true;
+			}
+
+			this._raiseDisputeOutcome(ans);
 		}
 	}
 
@@ -157,12 +185,9 @@ export class Disputes extends Component {
 			this.showDeclarationError = true;
 			return;
 		}
-		this.dispatchEvent(new CustomEvent(`dispute-confirm`, {
-			detail: {
-				transDesc: this.transactionDetails?.statementDescription,
-				disputed: this.canBeDisputed
-			}
-		}));
+
+		const ans = this.disputeQuestion?.answers.shift();
+		this._raiseDisputeOutcome(ans);
 	}
 
 	_agreeDeclaration(e) {
@@ -230,6 +255,18 @@ export class Disputes extends Component {
 				break;
 		}
 		return nextQusReq;
+	}
+
+	_raiseDisputeOutcome(firstElem) {
+		
+		this.dispatchEvent(new CustomEvent(`dispute-outcome`, {
+			detail: {
+				transDesc: this.transactionDetails?.statementDescription,
+				disputed: this.isDisputed,
+				clientAnswerWording: firstElem.clientAnswerWording,
+				disputeStep: this.disputeQuestion.disputeStep
+			}
+		}));
 	}
 
 	// ---------------
@@ -470,18 +507,28 @@ export class Disputes extends Component {
 	}
 
 	_renderQusBanner() {
-		return this.systemError
-		? html`
-			<horizon-alert-banner
-				type="error"
-				label="System error. Try again later">
-			</horizon-alert-banner>`
-		: html`
-			<horizon-alert-banner
-				type="info"
-				header="Notify client: "
-				label="All questions must be answered to complete the dispute request.">
-			</horizon-alert-banner>`;
+		switch (true) {
+			case this.systemError:
+				return html`
+					<horizon-alert-banner
+						type="error"
+						label="System error. Try again later">
+					</horizon-alert-banner>`;
+			case this.isClientAgentQus:
+				return html`
+					<horizon-alert-banner
+						type="warning"
+						header="Agent: "
+						label="${this.disputeQuestion.agentQuestionWording}">
+					</horizon-alert-banner>`;
+			default:
+				return html`
+					<horizon-alert-banner
+						type="info"
+						header="Notify client: "
+						label="All questions must be answered to complete the dispute request.">
+					</horizon-alert-banner>`;
+		}
 	}
 
 	_renderQuestion() {
@@ -493,7 +540,7 @@ export class Disputes extends Component {
 						<capitec-label
 							class="question-label"
 							type="strong"
-							label="${this.disputeQuestion.agentQuestionWording || this.disputeQuestion.clientQuestionWording}">
+							label="${this.disputeQuestion.clientQuestionWording || this.disputeQuestion.agentQuestionWording}">
 						</capitec-label>
 					</capitec-group>
 				</capitec-content-box>
@@ -581,7 +628,7 @@ export class Disputes extends Component {
 					<capitec-radio-group layout="vertical" gap="clear" class="multiple-option-radio-group">
 						${answers.map(item => html`
 							<capitec-radio
-								label="${item.agentAnswerWording || item.clientAnswerWording}"
+								label="${item.clientAnswerWording || item.agentAnswerWording}"
 								@value-change="${() => this._answerSelected(item.answerId)}"
 								?checked="${this.selectedAnswer === item.answerId}"
 								?disabled="${Boolean(this.selectedAnswer)}">
