@@ -137,7 +137,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeCancelPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/cancel-policy`,
+			`/horizon-insurance/life-cover/api/v1//policy/cancel-policy`,
 			cancelPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeCancelPolicy`,
@@ -163,7 +163,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeGetPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/get-policy`,
+			`/horizon-insurance/life-cover/api/v1//policy/get-policy`,
 			getPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeGetPolicy`,
@@ -189,7 +189,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeGetArrears`, getArrearsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/get-arrears`,
+			`/horizon-insurance/life-cover/api/v1/policy/get-arrears`,
 			getArrearsRequest,
 			this._setInsureHeaders(),
 			`lifeGetArrears`,
@@ -215,7 +215,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifePayArrears`, payArrearsRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/policy/pay-arrears`,
+			`/horizon-insurance/life-cover/api/v1/policy/arrears/pay`,
 			payArrearsRequest,
 			this._setInsureHeaders(),
 			`lifePayArrears`,
@@ -288,7 +288,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, cancelPolicyAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/document/generate/cancel-policy-agreement`,
+			`/horizon-insurance/life-cover/api/v1/document/generate/cancel-policy-agreement`,
 			cancelPolicyAgreementRequest,
 			this._setInsureHeaders(),
 			`lifeCancelPolicyAgreement`,
@@ -314,7 +314,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`generateAgreement`, payArrearsAgreementRequest);
 		}
 		return this.post(
-			`/horizon-insurance/life/document/generate/pay-arrears-agreement`,
+			`/horizon-insurance/life-cover/api/v1/document/generate/pay-arrears-agreement`,
 			payArrearsAgreementRequest,
 			this._setInsureHeaders(),
 			`lifePayArrearsAgreement`,
