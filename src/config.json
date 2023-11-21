@@ -411,12 +411,24 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureLifeQuestionnaire": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"payshapPop": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"insureElectOption": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifePremiumHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeSMSHistory": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

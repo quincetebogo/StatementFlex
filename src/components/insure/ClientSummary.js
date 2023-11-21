@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -8,7 +9,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -26,6 +26,8 @@ import 'app/components/dialogs/insure/EarlyCollectionOptionsDialog';
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
 import 'app/components/dialogs/insure/life/LifePayArrearsDialog';
+import 'app/components/dialogs/insure/life/LifeHealthQuestionsDialog';
+import 'app/components/dialogs/insure/life/LifeAllocateCoverDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -69,6 +71,7 @@ class ClientSummary extends Component {
 		this.funeralArrearsPaymentAmount = 0;
 
 		this.lifePolicies = null;
+		this.lifeHealthQuestions = {};
 
 		this.showFuneralCancelPolicyDialog = false;
 		this.showFuneralEmailPlanDialog = false;
@@ -85,6 +88,8 @@ class ClientSummary extends Component {
 		this.showLifeUpdateBankDetailsDialog = false;
 		this.showLifeCancelPolicyDialog = false;
 		this.showLifePayArrearsDialog = false;
+		this.showLifeHealthQuestionsDialog = false;
+		this.showLifeAllocateCoverDialog = false;
 		this.requestCallbackSuccess = false;
 		this.showEarlyCollectionDialog = false;
 
@@ -125,6 +130,7 @@ class ClientSummary extends Component {
 	 * @property {Function} requestCallback policy product code
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
 	 * @property {Object} lifePolicies Contains clients life policies
+	 * @property {Object} lifeHealthQuestions Health questions for increase cover
 	 * 
 	 * @readonly
 	 * @static
@@ -136,6 +142,8 @@ class ClientSummary extends Component {
 			funeralPolicies: { type: Object, state: true },
 
 			lifePolicies: { type: Object, state: true },
+			lifeHealthQuestions: { type: Object, state: true },
+			executeLifeAllowedCover: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -176,12 +184,15 @@ class ClientSummary extends Component {
 			selectedLifePolicy: { type: Object, state: true },
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
 			showLifePayArrearsDialog: { type: Boolean, state: true },
+			showLifeHealthQuestionsDialog: { type: Boolean, state: true },
+			showLifeAllocateCoverDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
 			executeLifeArrearsSendEmail: { type: Object, state: true },
+			executeGetLifeQuestionnaire: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
@@ -280,6 +291,29 @@ class ClientSummary extends Component {
 				documentDetails: e.detail.documentDetails,
 				callerPage: INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY,
 				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
+	/**
+	 * Fire navigate event to Premium History for Life Cover
+	 * @param {Object} lifePolicy lifePolicy
+	 * @returns {void}
+	 */
+	_goToLifePolicyPremiumHistory(lifePolicy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-policy-premium-history`, {
+			detail: {
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				lifePolicy: lifePolicy
+			}
+		}));
+	}
+
+	_goToLifeSMSHistory(lifePolicy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-life-sms-history`, {
+			detail: {
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				lifePolicy: lifePolicy
 			}
 		}));
 	}
@@ -595,6 +629,18 @@ class ClientSummary extends Component {
 		window.setTimeout(() => this.showRequestFMSCallbackSuccessToast = false, 2000);
 	}
 
+	/**
+	 * Called after questionaire is completed
+	 * @param {e} e Event raised containing result of questionnaire
+	 * @returns {void}
+	 */
+	_lifeHealthQuestionsCompleted(e) {
+		console.log(`_lifeHealthQuestionsCompleted`);
+		console.log(e);
+		this.showLifeHealthQuestionsDialog = false;
+		this.showLifeAllocateCoverDialog = true;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -661,6 +707,23 @@ class ClientSummary extends Component {
 
 		this.showLifePayArrearsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
+	}
+
+	/**
+	 * Opens the life health questions dialog for increase cover
+	 * @param {Object} selectedPolicy policy being updated
+	 * @returns {void} 
+	 */
+	async _openHealthQuestionsDialog(selectedPolicy) {
+		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
+		this.selectedLifePolicy = selectedPolicy;
+		this.showLifeHealthQuestionsDialog = true;
+	}
+
+	_openAllocateCoverDialog(selectedPolicy) {
+		this.selectedLifePolicy = selectedPolicy;
+		this.showLifeAllocateCoverDialog = true;
+		this.showLifeHealthQuestionsDialog = false;
 	}
 
 
@@ -1327,6 +1390,8 @@ class ClientSummary extends Component {
 			${this._renderLifeUpdateBankDetailsDialog()}
 			${this._renderLifeCancelPolicyDialog()}
 			${this._renderLifePayArrearsDialog()}
+			${this._renderLifeHealthQuestionsDialog()}
+			${this._renderLifeAllocateCoverDialog()}
 			${this._renderRequestCallbackDialog()}
 			${this._renderEarlyCollectionsDialog()}
 		`;
@@ -1704,35 +1769,39 @@ class ClientSummary extends Component {
 					</div>
 
 					<capitec-overflow-menu label="Menu">
-
+					
 					${this.readOnlyMode === true ? html`` : html`
-						<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action"  label="Email Policy"></capitec-overflow-menu-item>
 					`}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
-						? html`<capitec-overflow-menu-item label="Manage Policy"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
-						? html`<capitec-overflow-menu-item label="Increase Cover"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
-						? html`<capitec-overflow-menu-item label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 
 					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
-						? html`<capitec-overflow-menu-item label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
-						? html`<capitec-overflow-menu-item label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
+
+						<capitec-overflow-menu-item icon="system/pay-to-cell-action" label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+
 					</capitec-overflow-menu>
 				</div>
 			</capitec-card>
@@ -1754,7 +1823,8 @@ class ClientSummary extends Component {
 				?expanded = "${pocketItem?.isExpanded}" 
 				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
 				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
-				?disabled='${this.readOnlyMode}'>
+				?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
+				style="${pocketItem?.coverage === 0 ? `background-color: #f1f1f1` : ``}">
 					<capitec-group 
 						class="expander-header"
 						slot="custom-header"
@@ -1763,21 +1833,14 @@ class ClientSummary extends Component {
 						halign="left"
 						valign="center">
 							<capitec-label type="strong"
-								class="pocket-type-label ${this._pocketTypeLabelColour(pocketItem?.pocketType)}"
-								.label="${this._displayPocketTypeLabel(pocketItem?.pocketType)}">
+								class="pocket-type-label ${pocketBadgeColorClass(pocketItem?.pocketType)}"
+								.label="${pocketBadgeLabel(pocketItem?.pocketType)}">
 							</capitec-label>
-
 							<div class="vertical-line"></div>
-							
 							<horizon-label
-								label="Cover amount"
+								class="${pocketItem?.coverage === 0 ? `ghost-label` : ``}"
+								label="They get"
 								value="${isNullorEmpty(pocketItem?.coverage) ? `R0` : formatCurrencyInsureCoverAmount(formatCurrency(pocketItem?.coverage))}">
-							</horizon-label>
-							
-							<horizon-label
-							class="payment-label"
-								label="Premium"
-								value="${isNullorEmpty(pocketItem?.premium) ? `R0.00` : formatCurrency(pocketItem?.premium)}">
 							</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -1812,29 +1875,32 @@ class ClientSummary extends Component {
 						<div>
 							<horizon-label
 								label="Total cover"
+								class="ghost-label"
 								value="${this._calculateLifeTotalCoverAmount(pol)}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
 								label="Premium"
-								class = "life-pol-label"
+								class = "life-pol-label ghost-label"
 								value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
 								label="Debit order date"
+								class="ghost-label"
 								value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
 							</horizon-label>
 						</div>
 						<div>
 							<horizon-label
 								label="Arrears amount"
+								class="ghost-label"
 								value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
 							</horizon-label>
 						</div>
-						<div>
+						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
 								class = "${pol?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
@@ -1844,31 +1910,12 @@ class ClientSummary extends Component {
 
 						<capitec-overflow-menu label="Menu">
 							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
 			}`;
-	}
-
-	_displayPocketTypeLabel(pocketType) {
-
-		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
-		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
-		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
-		}
-	}
-
-	_pocketTypeLabelColour(pocketType) {
-		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `monthly-label-colour`;
-		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `education-label-colour`;
-		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `once-off-label-colour`;
-		}
 	}
 
 	/**
@@ -1910,29 +1957,14 @@ class ClientSummary extends Component {
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
 						class="button-margin" 
-						label="Beneficiaries" 
-						icon="system/profile-action"
-						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.ONCEOFF)}">
-					</horizon-option-button>
-
-					<horizon-option-button 
-						class="button-margin" 
 						label="De-activate" 
 						icon="system/delete-action">
 					</horizon-option-button>
-					
 				</capitec-group>
 			`;
 		} else if (pocketItem.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Beneficiaries" 
-						icon="system/profile-action"
-						@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.MONTHLY)}">
-					</horizon-option-button>
-
 					<horizon-option-button 
 						class="button-margin" 
 						label="De-activate" 
@@ -1944,14 +1976,6 @@ class ClientSummary extends Component {
 
 		return html`<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button 
-					data-automation-id="insure-policy-options-reinstate"
-					class="button-margin" 
-					label="Beneficiaries" 
-					icon="system/profile-action"
-					@click="${() => this._openPocketSummary(LIFE_POCKET_TYPES.EDUCATION)}">
-				</horizon-option-button>
-
 				<horizon-option-button 
 					data-automation-id="insure-policy-options-reinstate"
 					class="button-margin" 
@@ -2296,6 +2320,36 @@ class ClientSummary extends Component {
 			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
 			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
 			</horizon-insure-life-pay-arrears-dialog>
+		`;
+	}
+
+	/**
+	 * Life health questions dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderLifeHealthQuestionsDialog() {
+		return this.showLifeHealthQuestionsDialog === false ? html``
+			: html`
+			<horizon-insure-life-health-questions-dialog
+				.lifeHealthQuestions = ${this.lifeHealthQuestions}
+				.executeLifeAllowedCover="${(allowedCoverRequest) => this.executeLifeAllowedCover(allowedCoverRequest)}"
+				@close-dialog="${() => this.showLifeHealthQuestionsDialog = false}"
+				@continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
+			</horizon-insure-life-health-questions-dialog>
+		`;
+	}
+
+	/**
+	 * Life Allocate Cover dialog
+	 * @returns {html} Dialog content
+	 */
+	_renderLifeAllocateCoverDialog() {
+		return this.showLifeAllocateCoverDialog === false ? html``
+			: html`
+			<horizon-insure-life-allocate-cover-dialog
+				.policy="${this.selectedLifePolicy}"
+				@close-dialog="${() => this.showLifeAllocateCoverDialog = false}">
+			</horizon-insure-life-allocate-cover-dialog>
 		`;
 	}
 

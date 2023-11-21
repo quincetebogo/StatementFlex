@@ -1,5 +1,5 @@
+import { LIFE_POCKET_TYPES, PRODUCT_ID } from 'app/constants/InsureCommon';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { PRODUCT_ID } from 'app/constants/InsureCommon';
 
 export const TODAY_DATE = new Date();
 
@@ -123,7 +123,7 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
-				
+
 			}
 
 			// Over max cover
@@ -415,4 +415,37 @@ export function validateEmailAddressCombo(email, confirmEmail) {
 		return false;
 	}
 	return true;
+}
+
+
+/**
+ * Determine the pocket color class based on pocket type
+ * 
+ * @param {String} pocketType current pocket type
+ * @returns {String} css class
+ */
+export function pocketBadgeColorClass(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `monthly-label-colour`;
+	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `education-label-colour`;
+	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `once-off-label-colour`;
+	}
+}
+
+/**
+ * Determine the pocket color class based on pocket type
+ * 
+ * @param {String} pocketType current pocket type
+ * @returns {String} display label
+ */
+export function pocketBadgeLabel(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `Monthly Payout`;
+	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `Education Fund`;
+	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `Once Off Payout`;
+	}
 }

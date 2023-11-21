@@ -34,6 +34,8 @@ import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 import 'app/components/insure/life/LifeSuccess';
 import 'app/components/insure/life/LifePocketSummary';
 import 'app/components/insure/life/LifePolicySummary';
+import 'app/components/insure/life/LifePremiumHistory';
+import 'app/components/insure/life/LifeSMSHistory';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -94,6 +96,7 @@ export class ExistingClient extends InsureViewBase {
 		this.lifeSuccessPageMessages = {};
 		this.emailEstimateSuccess = false;
 		this.defaultSavingsAccountNumber = ``;
+		this.lifePremiumHistory = {};
 		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
@@ -1152,6 +1155,28 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
 
+	async _healthQuestionnaire() {
+		const resp = await this.insureLifeService.lifeHealthQuestionnaire();
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	async _lifeAllowedCover(allowedCoverRequest) {
+		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
+		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
+		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		
+		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
 	/**
 	 * gets clients arrears and payable accounts
 	 * 
@@ -1247,6 +1272,66 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	/**
+	 * Fetch Policy Premium History
+	 * 
+	 * @returns {null} null
+	 */
+	async _retrieveLifePolicyPremiumHistory() {
+		const PremiumHistoryRequest = {
+			contractReference: this.selectedLifePolicy
+		};
+
+		let totalArrears = 0;
+		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+		});
+
+		this.lifePremiumHistory = {
+			contractReference: this.selectedLifePolicy.contractReference,
+			bankName: this.selectedLifePolicy.bankDetails.bank,
+			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
+			arrearsAmount: formatCurrency(totalArrears),
+			transactions: []
+		};
+		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactionHistory.
+				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
+					const formatedDate = new Date(Date.parse(item.eventDate));
+					item.formatedDate = formatedDate;
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					item.eventAmount = formatCurrency(item.eventAmount);
+					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
+					return item;
+				});
+			
+			this.lifePremiumHistory.transactions.push(...formattedTrans);
+			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(returnValue.exception);
+		}
+	}
+
+	/**
+	 * Fetch Life policy SMS history
+	 * @returns {void} void
+	 */
+	async _retrieveLifeSMSHistory() {
+		const smsHistoryDetails = {
+			"policyNumber": this.selectedLifePolicy.contractReference
+		};
+
+		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
+			return resp.result;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
@@ -1283,6 +1368,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToFuneralPolicyEstimate(e) {
+		this.selectedFuneralPolicyContractReference = ``;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		super.setInsureIncident(`funeral-plan-calculate-estimate`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_ESTIMATE);
@@ -1413,6 +1499,29 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Prepare and navigate to Life Policy Premium History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	async _goToLifePolicyPremiumHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		await this._retrieveLifePolicyPremiumHistory();
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY);
+	}
+	
+	/**
+	 * Prepare and navigate to Life SMS History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_goToLifeSMSHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SMS_HISTORY);
+	}
+
+	/**
 	 * Send email from caller page
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1540,6 +1649,14 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Unload Life premium history Transactions
+	 * @returns {void}
+	 */
+	_unloadLifePremiumHistory() {
+		this.lifePremiumHistory = {};
+	}
+
+	/**
 	 * Unload Policy Transactions
 	 * @returns {void}
 	  */
@@ -1662,6 +1779,10 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderLifeSuccessPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
 				return html`${this._renderLifePolicySummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY:
+				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_SMS_HISTORY:
+				return html`${this._renderLifeSMSHistoryPage()}`;
 			default:
 				return html``;
 		}
@@ -1696,10 +1817,12 @@ export class ExistingClient extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
+				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
-
+				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
+				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
@@ -1712,6 +1835,9 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
 				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
+				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
+				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
+				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
@@ -1816,6 +1942,23 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Render Life Premium History Page
+	 * @returns {html} Html of the sub view
+	 */
+	_renderLifePolicyPremiumHistoryPage() {
+		return html`
+		<horizon-insure-life-premium-history
+			.lifePremiumHistory="${this.lifePremiumHistory}"
+			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
+			.disposeData="${() => this.lifePremiumHistory = []}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@unloading="${() => this._unloadLifePremiumHistory()}"
+		>
+		</horizon-insure-life-premium-history>
+		`;
+	}
+
+	/**
 	 * Renders the Communication/SMS history page
 	 * 
 	 * @returns {html} html
@@ -1868,6 +2011,16 @@ export class ExistingClient extends InsureViewBase {
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
+	}
+
+	_renderLifeSMSHistoryPage() {
+		return html`
+			<horizon-insure-life-sms-history-page
+			.getCommsHistory="${() => this._retrieveLifeSMSHistory()}"
+			.contractReference="${this.selectedLifePolicy.contractReference}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-sms-history-page>
+		`;
 	}
 
 	/**

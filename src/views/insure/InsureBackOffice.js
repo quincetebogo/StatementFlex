@@ -14,6 +14,8 @@ import '../../components/insure/funeral/FuneralPolicyTransactionHistory';
 import '../../components/insure/ClaimSummary';
 
 import 'app/components/insure/life/LifePolicySummary';
+import 'app/components/insure/life/LifePremiumHistory';
+import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -257,6 +259,29 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_SUMMARY);
 	}
 
+	/**
+	 * Prepare and navigate to Life Policy Premium History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	async _goToLifePolicyPremiumHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		await this._retrieveLifePolicyPremiumHistory();
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY);
+	}
+
+	/**
+	 * Prepare and navigate to Life SMS History
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_goToLifeSMSHistory(e) {
+		this.selectedLifePolicy = e.detail.lifePolicy;
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SMS_HISTORY);
+	}
+
 	_goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
 
@@ -329,11 +354,62 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
+	 * Fetch Policy Transaction History
+	 * 
+	 * @returns {null} null
+	 */
+	async _retrieveLifePolicyPremiumHistory() {
+		const PremiumHistoryRequest = {
+			contractReference: this.selectedLifePolicy
+		};
+
+		this.lifeTransactions = [];
+
+		let totalArrears = 0;
+		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+		});
+
+		this.lifePremiumHistory = {
+			contractReference: this.selectedLifePolicy.contractReference,
+			bankName: this.selectedLifePolicy.bankDetails.bank,
+			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
+			arrearsAmount: formatCurrency(totalArrears)
+		};
+		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
+		if (returnValue.succeeded && returnValue.result) {
+			const formattedTrans = returnValue.result.transactionHistory.
+				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
+					const formatedDate = new Date(Date.parse(item.eventDate));
+					item.formatedDate = formatedDate;
+					item.formatedPremium = isNullorEmpty(this.selectedLifePolicy?.totalPremium) ? `` : formatCurrency(this.selectedLifePolicy?.totalPremium);
+					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
+					item.formatedAmount = isNullorEmpty(item.eventAmount) ? `` : formatCurrency(item.eventAmount);
+					return item;
+				});
+			this.lifeTransactions.push(...formattedTrans);
+			this.lifePremiumHistory.transactions = this.lifeTransactions;
+			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(returnValue.exception);
+		}
+	}
+
+	/**
 	 * Unload Policy Transactions
 	 * @returns {null} null
 	 */
 	_unloadPolicyTransactionHistory() {
 		this.policyTransactionHistory = {};
+	}
+
+	/**
+	 * Unload Life premium history Transactions
+	 * @returns {void}
+	 */
+	_unloadLifePremiumHistory() {
+		this.lifePremiumHistory = {};
 	}
 
 	/**
@@ -349,6 +425,24 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
+	 * Fetch Life policy SMS history
+	 * @returns {void} void
+	 */
+	async _retrieveLifeSMSHistory() {
+		const smsHistoryDetails = {
+			"policyNumber": this.selectedLifePolicy.contractReference
+		};
+
+		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			super.isOnlyProductEnquiry = false;
+			return resp.result;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
+	/**
 	 * Prepare and navigate to Life Policy Summary
 	 * @param {event} e e
 	 * @returns {void} 
@@ -359,6 +453,28 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
+	/**
+	 * Update client elect preferences for type
+	 * @param {Object} electRequest Update selected preference request
+	 * @returns {void} 
+	 */
+	async _updateElectOptions(electRequest) {
+		electRequest.cifNumber = this.callerInformation.cifNumber;
+		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+
+		const electResp = await this.insureService.SetElectOptions(electRequest);
+		if (!electResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
+			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
+			this.showInsureErrorToast = true;
+			return;
+		}
+		super.isOnlyProductEnquiry = false;
+		this.showInsureSuccessToast = true;
+		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
+		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+	}
 
 	// #endregion EVENT HANDLERS
 
@@ -423,6 +539,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 				return html`${this._renderClaimSummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
 				return html`${this._renderLifePolicySummaryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY:
+				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
+			case INSURE_RENDER_MODE.LIFE_SMS_HISTORY:
+				return html`${this._renderLifeSMSHistoryPage()}`;
 			default:
 				return html``;
 		}
@@ -436,11 +556,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-client-summary .funeralPolicies = "${this.funeralPolicies}" .lifePolicies="${this.lifePolicies}" .readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
+				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToSMSHistory(e)}"
-				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}">
+				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
+				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
+				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}">
 			</horizon-insure-client-summary>`;
 	}
 
@@ -486,6 +609,35 @@ export class InsureBackOfficeView extends InsureViewBase {
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-funeral-sms-history-page>`
 			: html``;
+	}
+
+	/**
+	 * Render Life Premium History Page
+	 * @returns {html} Html of the sub view
+	 */
+	_renderLifePolicyPremiumHistoryPage() {
+		return this.renderMode === INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY
+			? html`
+		<horizon-insure-life-premium-history
+			.lifePremiumHistory="${this.lifePremiumHistory}"
+			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
+			.disposeData="${() => this.lifePremiumHistory = []}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			@unloading="${() => this._unloadLifePremiumHistory()}"
+		>
+		</horizon-insure-life-premium-history>
+		`
+			: html``;
+	}
+
+	_renderLifeSMSHistoryPage() {
+		return html`
+			<horizon-insure-life-sms-history-page
+			.getCommsHistory="${() => this._retrieveLifeSMSHistory()}"
+			.contractReference="${this.selectedLifePolicy.contractReference}"
+			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+			</horizon-insure-life-sms-history-page>
+		`;
 	}
 
 	/**
