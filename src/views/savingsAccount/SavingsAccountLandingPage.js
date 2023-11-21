@@ -371,6 +371,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		});
 
 		const returnValue = await this.savingsService.getNextQuestion(request, () => true);
+		this.disputeQuestion = returnValue.result;
+
 		return returnValue;
 	}
 

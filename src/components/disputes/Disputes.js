@@ -168,7 +168,7 @@ export class Disputes extends Component {
 		this._reset();
 
 		if (this.disputeQuestion?.finalCue) {
-			const ans = this.disputeQuestion?.answers.shift();
+			const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
 			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
 
 			if (this.isDisputed) {
@@ -186,7 +186,7 @@ export class Disputes extends Component {
 			return;
 		}
 
-		const ans = this.disputeQuestion?.answers.shift();
+		const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
 		this._raiseDisputeOutcome(ans);
 	}
 
