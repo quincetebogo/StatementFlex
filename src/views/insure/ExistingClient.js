@@ -387,22 +387,8 @@ export class ExistingClient extends InsureViewBase {
 			"input": {
 				"cancellationReason": cancelReason
 			}
-			// "cifNumber": this.callerInformation.cifNumber,
-			// "policyNumber": contractReference,
-			// "acceptanceDate": saveToDocumentum ? new Date().toISOString() : ``,
-			// "signatureDate": saveToDocumentum ? new Date().toISOString() : ``
 		};
 
-		// const lifeCancelPolicyAgreementDetails = {
-		// 	"saveDocument": saveToDocumentum,
-		// 	"documentOptions": {
-		// 	  "contentType": `Pdf`
-		// 	},
-		// 	"cifNumber": this.callerInformation.cifNumber,
-		// 	"policyNumber": contractReference,
-		// 	"acceptanceDate": `2023-11-14T14:17:24.132Z`,
-		// 	"signatureDate": `2023-11-14T14:17:24.132Z`
-		//   };
 
 		const resp = await this.insureLifeService.lifeCancelPolicyAgreement(lifeCancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
