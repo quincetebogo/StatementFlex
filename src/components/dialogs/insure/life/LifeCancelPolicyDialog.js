@@ -1,5 +1,5 @@
-import { CANCELATION_REASONS, EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
+import { EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_CANCELATION_REASONS } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/dialogs/insure/AgreementDialog';
@@ -30,7 +30,7 @@ class LifeCancelPolicyDialog extends Component {
 	constructor() {
 		super();
 
-		this.cancelationReasons = CANCELATION_REASONS;
+		this.cancelationReasons = LIFE_CANCELATION_REASONS;
 		this.selectedReason = ``;
 		this.currentStep = STEPS.REASON;
 		this.lifeCancelAgreementDetails = {};
@@ -313,11 +313,11 @@ class LifeCancelPolicyDialog extends Component {
 				.formBody{
 					padding: 0px; 
 					margin: 0px 15px 0px 15px;
-					min-height: 460px;
+					min-height: 480px;
 				}
 
 				#formBodyBox{
-					min-height: 400px;
+					min-height: 480px;
 				}
 				`
 		];

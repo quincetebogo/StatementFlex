@@ -389,6 +389,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		};
 
+
 		const resp = await this.insureLifeService.lifeCancelPolicyAgreement(lifeCancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.lifeCancelAgreementDocument = resp.result;
@@ -457,8 +458,8 @@ export class ExistingClient extends InsureViewBase {
 			"policyNumber": e.detail.contractReference,
 			"documents": [
 				{
-					"documentCode": e.detail.documentDetails.documentCode,
-					"documentName": e.detail.documentDetails.documentName,
+					"documentCode": e.detail.documentDetails.documentDetails.documentCode,
+					"documentName": e.detail.documentDetails.documentDetails.documentName,
 					"guid": e.detail.documentDetails.documentDetails.guid
 				}
 			]
@@ -1562,7 +1563,7 @@ export class ExistingClient extends InsureViewBase {
 		const emailLifeDocumentsPayload = {
 
 		};
-		return false;
+		return true;
 	}
 
 	/**

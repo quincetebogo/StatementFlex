@@ -156,6 +156,26 @@ export const CANCELATION_REASONS = Object.freeze([
 ]);
 
 /**
+ * List of cancelation reasons Life supports
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS
+ */
+export const LIFE_CANCELATION_REASONS = Object.freeze([
+	{ code: `BetterOffAtAnotherProvider`, text: `Better off at another provider` },
+	{ code: `CannotAffordPolicy`, text: `Cannot Afford Policy` },
+	{ code: `ChangeInFamilyCircumstances`, text: `Change in family circumstances` },
+	{ code: `Confidential`, text: `Confidential` },
+	{ code: `CoveredByAnotherFamilyMember`, text: `Covered by another family member` },
+	{ code: `InsurerCancelledPolicy`, text: `Insurer cancelled policy` },
+	{ code: `publicAuditCompliance`, text: `Internal Audit Compliance` },
+	{ code: `InvalidPolicy`, text: `Invalid Policy` },
+	{ code: `PoorService`, text: `Poor Service` },
+	{ code: `MoneyLaunderingAndTerroristFinancingRisk`, text: `Money Laundering and terrorist financing risk` },
+	{ code: `FraudulentActivity `, text: `Fraudulent activity` }
+]);
+
+/**
  * List of Role Players
  * @readonly
  * @enum {Object} ROLE_PLAYER_RELATIONSHIP
