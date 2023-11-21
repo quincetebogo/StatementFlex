@@ -137,7 +137,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeCancelPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life-cover/api/v1//policy/cancel-policy`,
+			`/horizon-insurance/life-cover/api/v1/policy/cancel-policy`,
 			cancelPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeCancelPolicy`,
@@ -163,7 +163,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			return this.mock(`insureLifeGetPolicy`);
 		}
 		return this.post(
-			`/horizon-insurance/life-cover/api/v1//policy/get-policy`,
+			`/horizon-insurance/life-cover/api/v1/policy/get-policy`,
 			getPolicyRequest,
 			this._setInsureHeaders(),
 			`lifeGetPolicy`,
@@ -267,6 +267,58 @@ export class InsureLifeService extends ChannelServiceBase {
 			`lifeAllowedCover`,
 			null,
 			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Premium History for selected life policy
+	 *
+	 * @param {Object} [premiumHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifePremiumHistory(premiumHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifePremiumHistory`)) {
+			return this.mock(`insureLifePremiumHistory`, premiumHistoryRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/transaction-history`,
+			premiumHistoryRequest,
+			this._setInsureHeaders(),
+			`lifePremiumHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * SMS History for selected life policy
+	 *
+	 * @param {Object} [smsHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeSMSHistory(smsHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeSMSHistory`)) {
+			return this.mock(`insureLifeSMSHistory`, smsHistoryRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/message/sms-history`,
+			smsHistoryRequest,
+			this._setInsureHeaders(),
+			`lifeSMSHistory`,
+			null,
+			null,
+			900,
 			null,
 			errorHandler,
 			autoRetries

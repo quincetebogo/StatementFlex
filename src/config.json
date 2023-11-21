@@ -426,6 +426,10 @@
 		"insureLifePremiumHistory": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureLifeSMSHistory": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

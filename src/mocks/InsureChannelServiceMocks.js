@@ -70,6 +70,7 @@ export default class InsureChannelServiceMocks {
 		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
 		this.insureLifeQuestionnaireMocks = await this._loadMockModule(this.insureLifeQuestionnaireMocks, `insureLifeQuestionnaire`, () => import(`../mocks/insure/life/LifeHealthQuestionnaire`).catch(err => logError(err)));
 		this.lifePremiumHistoryMocks = await this._loadMockModule(this.lifePremiumHistoryMocks, `insureLifePremiumHistory`, () => import(`../mocks/insure/life/LifePremiumHistory`).catch(err => logError(err)));
+		this.lifeSMSHistoryMocks = await this._loadMockModule(this.lifeSMSHistoryMocks, `insureLifeSMSHistory`, () => import(`../mocks/insure/life/LifeSMSHistory`).catch(err => logError(err)));
 		
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
@@ -358,6 +359,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeQuestionnaire() {
 		if (this._mockSettings.insureLifeQuestionnaire.positiveCase) {
 			return this.insureLifeQuestionnaireMocks.insureLifeQuestionnaire;
+		}
+		return null;
+	}
+
+	/**
+	 * Premium History policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeSMSHistory() {
+		if (this._mockSettings.insureLifeSMSHistory.positiveCase) {
+			return this.lifeSMSHistoryMocks.insureLifeSMSHistory;
 		}
 		return null;
 	}

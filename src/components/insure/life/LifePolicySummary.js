@@ -451,9 +451,6 @@ class LifePolicySummary extends Component {
 						<horizon-label label="Cover Amount"
 							value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getPocketCoverAmount(LIFE_POCKET_TYPES.ONCEOFF)))}">
 						</horizon-label>
-						<horizon-label label="Premium"
-							value="${formatCurrency(this._getPocketPaymentAmount(LIFE_POCKET_TYPES.ONCEOFF))}">
-						</horizon-label>
 					</capitec-group>
 					<div slot="content">
 						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
@@ -486,9 +483,6 @@ class LifePolicySummary extends Component {
 						</horizon-label>
 						<horizon-label label="Cover Amount"
 							value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getPocketCoverAmount(LIFE_POCKET_TYPES.MONTHLY)))}">
-						</horizon-label>
-						<horizon-label label="Premium"
-							value="${formatCurrency(this._getPocketPaymentAmount(LIFE_POCKET_TYPES.MONTHLY))}">
 						</horizon-label>
 					</capitec-group>
 					<div slot="content">
@@ -523,9 +517,6 @@ class LifePolicySummary extends Component {
 						<horizon-label label="Cover Amount"
 							value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getPocketCoverAmount(LIFE_POCKET_TYPES.EDUCATION)))}">
 						</horizon-label>
-						<horizon-label label="Premium"
-							value="${formatCurrency(this._getPocketPaymentAmount(LIFE_POCKET_TYPES.EDUCATION))}">
-						</horizon-label>
 					</capitec-group>
 					<div slot="content">
 						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
@@ -545,9 +536,10 @@ class LifePolicySummary extends Component {
 					<div class="beneficiary-card">
 						<div style="display: flex; gap:20px;">
 							<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-							<capitec-label
-								label="${beneficiary.firstName} ${beneficiary.lastName}">
-							</capitec-label>
+							<horizon-label
+								label="${beneficiary.firstName}"
+								value="${beneficiary.lastName}">
+							</horizon-label>
 						</div>
 						<div style="display: flex; gap: 20px;">
 							${pocketType !== LIFE_POCKET_TYPES.MONTHLY ? html`` : html`

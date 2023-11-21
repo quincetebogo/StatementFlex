@@ -4,7 +4,7 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 const MAX_LIVES_PER_POLICY = 22;
 const MAX_AGE_SPOUSE = 65;
-const MIN_AGE_SPOUSE = 26;
+const MIN_AGE_SPOUSE = 18;
 const MIN_AGE_PARENT = 26;
 const MAX_AGE_PARENT = 85;
 const MAX_AGE_EXTENDED = 85;
