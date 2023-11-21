@@ -1,10 +1,10 @@
 import { ACCOUNT_TYPES, LANDING_PAGE_NEEDS } from 'app/constants/Common';
+import { Configuration, SecurityContext } from 'platform/core';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
-import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -24,8 +24,8 @@ const SAVINGS_ACCOUNT = 300;
 
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-    END_DATE: `06/26/2023`,
-    START_DATE: `06/26/2023`,
+    END_DATE: new Date().toISOString().substr(0, 10),
+    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
     START_AT_INDEX: 0,
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
@@ -65,6 +65,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.disputeQuestion = {};
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
+
+		this.securityContext = SecurityContext.getInstance();
     }
 
     // -------------------
@@ -357,7 +359,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			"transactionPostingDate": item.postingDate,
 			"incident": this.currentIncident,
 			"cifNumber": this.callerInformation.cifNumber,
-			"agentId": `ct301316`
+			"agentId": `${this.securityContext.username}`
 		};
 		const returnValue = await this.savingsService.getFirstQuestion(request);
 		return returnValue;
