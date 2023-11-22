@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
@@ -33,28 +34,40 @@ export class DisputesSuccess extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.tranDescription = screenDetails.transDesc;
 		this.disputed = screenDetails.disputed;
+		this.clientAnswerWording = screenDetails.clientAnswerWording;
+		this.disputeStep = screenDetails.disputeStep;
+
+		await this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS);
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
 		super.disconnectedCallback();
+
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS, {}, true, true);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY, {}, true, false, true);
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToSavingsAccount();
 	}
 
-	_disputeAnotherTran() {
+	async _disputeAnotherTran() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS_REPEAT);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS, {}, true, true);
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -71,7 +84,7 @@ export class DisputesSuccess extends ViewBase {
 					--horizon-success-screen-margin-top: 12px;
 				}
 				#id-error-msg {
-					width: auto;
+					width: 80%;
 				}
 				.button-margin {
 					height: 80px;
@@ -124,11 +137,11 @@ export class DisputesSuccess extends ViewBase {
 		return html`
 			<horizon-success-screen 
 				type="warning"
-				header="Transaction can't be disputed"
+				header="${this.disputeStep}"
 				image="platform/illustrations/cards.svg"
 				left="Dispute Another Transaction"
 				right="Done"
-				toast="Transaction cannot be disputed"
+				toast="${this.disputeStep}"
 				toast-type="warning"
 				toast-header="Notice"
 				@left-click=${() => this._disputeAnotherTran()}
@@ -136,9 +149,9 @@ export class DisputesSuccess extends ViewBase {
 				?subContent="${true}">
 					<section 
 						id="id-error-msg" 
-						slot="detail">Transaction for ${this.tranDescription} was unable to be disputed.
+						slot="detail">${this.clientAnswerWording}
 					</section>
-					<capitec-label slot="sub-content" label="You will need to contact the merchant directly"></capitec-label>
+					<!-- <capitec-label slot="sub-content" label="You will need to contact the merchant directly"></capitec-label> -->
 			</horizon-success-screen>`;
 	}
 

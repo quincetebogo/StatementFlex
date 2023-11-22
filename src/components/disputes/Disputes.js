@@ -7,6 +7,28 @@ const DISPUTE_STEPS = {
 	Declaration: 2
 };
 
+const QUESTION_TYPES = {
+	RADIO: ``,
+	TEXT: `input text`,
+	CURRENCY: `input currency`,
+	DATE: `input date`
+};
+
+const RESULTS = {
+	TO_ETHOCA: `To Ethoca`,
+	FROM_ETHOCA: `From Ethoca`,
+	TO_AGENT: `To Agent`,
+	COMPLETE: `Complete`,
+	CLIENT_RESPONSIBILITY: `Client Responsibility`,
+	MERCHANT_RESPONSIBILITY: `Merchant Responsibility`,
+	HOLDING_PATTERN: `Holding Pattern`
+};
+
+const HASDISPUTERIGHTS = {
+	YES: `Yes`,
+	NO: `No`
+};
+
 /**
  * Dialog populates the cue sheet questions for raising dispute
  * 
@@ -36,6 +58,10 @@ export class Disputes extends Component {
 		this.systemError = false;
 		this.qusNo = 0;
 		this.selectedAnswer = ``;
+		this.questionType = QUESTION_TYPES.RADIO;
+		this.date = ``;
+		this.input = ``; // Text or currency number
+		this.currencyCode = ``;
 
 		this.logger = Logger.getInstance();
 	}
@@ -76,6 +102,15 @@ export class Disputes extends Component {
 			};
 			return obj;
 		});
+	}
+
+	get isDisputed() {
+		return this.disputeQuestion.clientHasDisputeRights === HASDISPUTERIGHTS.YES &&
+				[RESULTS.COMPLETE, RESULTS.TO_ETHOCA].includes(this.disputeQuestion.disputeStep);
+	}
+
+	get isClientAgentQus() {
+		return Boolean(this.disputeQuestion.clientQuestionWording) && Boolean(this.disputeQuestion.agentQuestionWording);
 	}
 
 	// -------------------
@@ -119,12 +154,7 @@ export class Disputes extends Component {
 	}
 
 	async _next() {
-		const nextQusReq = {
-			"cueSheetId": this.disputeQuestion.cueSheetId,
-			"caseId": this.disputeQuestion.caseId,
-			"answerId": this.selectedAnswer,
-			"comments": ``
-		};
+		const nextQusReq = this._formatNextQusRequest();
 		const returnValue = await this.getNextQuestion(nextQusReq);
 
 		if (!returnValue.succeeded) {
@@ -138,11 +168,15 @@ export class Disputes extends Component {
 		this._reset();
 
 		if (this.disputeQuestion?.finalCue) {
-			const ans = this.disputeQuestion?.answers.shift();
-			this.declarationContent = ans.clientAnswerWording;
-			// still have to figure our the other possible reasons
-			this.canBeDisputed = ans.agentAnswerWording !== `No Dispute rights - Card details compromised`;
-			this.disputeCurState = DISPUTE_STEPS.Declaration;
+			const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
+			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
+
+			if (this.isDisputed) {
+				this.disputeCurState = DISPUTE_STEPS.Declaration;
+				return true;
+			}
+
+			this._raiseDisputeOutcome(ans);
 		}
 	}
 
@@ -151,17 +185,37 @@ export class Disputes extends Component {
 			this.showDeclarationError = true;
 			return;
 		}
-		this.dispatchEvent(new CustomEvent(`dispute-confirm`, {
-			detail: {
-				transDesc: this.transactionDetails?.statementDescription,
-				disputed: this.canBeDisputed
-			}
-		}));
+
+		const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
+		this._raiseDisputeOutcome(ans);
 	}
 
 	_agreeDeclaration(e) {
 		this.agreementAccepted = e.detail.new;
 		this.showDeclarationError = false;
+	}
+
+	_currCodeChanged(e, answerId) {
+		this.currencyCode = e.detail.new.alphaCode;
+
+		if (this.input) {
+			this.selectedAnswer = answerId;
+		}
+	}
+
+	_inputChanged(e, answerId) {
+		this.input = e.detail.new;
+
+		if (this.questionType === QUESTION_TYPES.CURRENCY && this.currencyCode) {
+			this.selectedAnswer = answerId;
+		} else {
+			this.selectedAnswer = answerId;
+		}
+	}
+
+	_dateChanged(e) {
+		this.date = e.detail.new;
+		this.selectedAnswer = answerId;
 	}
 
 	// ---------------
@@ -171,6 +225,48 @@ export class Disputes extends Component {
 	_reset() {
 		this.selectedAnswer = ``;
 		this.systemError = false;
+	}
+
+	_formatNextQusRequest() {
+		const nextQusReq = {
+			"cueSheetId": this.disputeQuestion.cueSheetId,
+			"caseId": this.disputeQuestion.caseId,
+			"answerId": this.selectedAnswer,
+			"comments": ``,
+			"dateInput": null,
+			"currencyInput": null,
+			"documentInput": null
+		};
+
+		switch (this.questionType) {
+			case QUESTION_TYPES.TEXT:
+				nextQusReq.comments = this.input;
+				break;
+			case QUESTION_TYPES.DATE:
+				nextQusReq.dateInput = this.date;
+				break;
+			case QUESTION_TYPES.CURRENCY:
+				nextQusReq.currencyInput = {
+					"value": Number(this.input),
+					"currencyNameOrCode": this.currencyCode
+				};
+				break;
+			default:
+				break;
+		}
+		return nextQusReq;
+	}
+
+	_raiseDisputeOutcome(firstElem) {
+		
+		this.dispatchEvent(new CustomEvent(`dispute-outcome`, {
+			detail: {
+				transDesc: this.transactionDetails?.statementDescription,
+				disputed: this.isDisputed,
+				clientAnswerWording: firstElem.clientAnswerWording,
+				disputeStep: this.disputeQuestion.disputeStep
+			}
+		}));
 	}
 
 	// ---------------
@@ -247,7 +343,7 @@ export class Disputes extends Component {
 					border-left: 3px solid #009DE0;
 					border-radius: 4px 4px 0px 0px;
 				}
-				.question-box . capitec-group {
+				.question-box .capitec-group {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.question-label {
@@ -312,6 +408,10 @@ export class Disputes extends Component {
 				}
 				div[slot="footer"] {
 					width: 1032px;
+				}
+				capitec-date-time-picker {
+					--theme-date-time-picker-host-max-width: 180px;
+					--theme-calendar-calendar-min-width: 180px;
 				}`
 		];
 	}
@@ -407,18 +507,28 @@ export class Disputes extends Component {
 	}
 
 	_renderQusBanner() {
-		return this.systemError
-		? html`
-			<horizon-alert-banner
-				type="error"
-				label="System error. Try again later">
-			</horizon-alert-banner>`
-		: html`
-			<horizon-alert-banner
-				type="info"
-				header="Notify client: "
-				label="All questions must be answered to complete the dispute request.">
-			</horizon-alert-banner>`;
+		switch (true) {
+			case this.systemError:
+				return html`
+					<horizon-alert-banner
+						type="error"
+						label="System error. Try again later">
+					</horizon-alert-banner>`;
+			case this.isClientAgentQus:
+				return html`
+					<horizon-alert-banner
+						type="warning"
+						header="Agent: "
+						label="${this.disputeQuestion.agentQuestionWording}">
+					</horizon-alert-banner>`;
+			default:
+				return html`
+					<horizon-alert-banner
+						type="info"
+						header="Notify client: "
+						label="All questions must be answered to complete the dispute request.">
+					</horizon-alert-banner>`;
+		}
 	}
 
 	_renderQuestion() {
@@ -427,15 +537,87 @@ export class Disputes extends Component {
 				<capitec-content-box class="question-box">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
 						<capitec-label type="strong" label="Q${this.qusNo}"></capitec-label>
-	
-						<capitec-label class="question-label" type="strong" label="${this.disputeQuestion.clientQuestionWording}">
+						<capitec-label
+							class="question-label"
+							type="strong"
+							label="${this.disputeQuestion.clientQuestionWording || this.disputeQuestion.agentQuestionWording}">
 						</capitec-label>
 					</capitec-group>
 				</capitec-content-box>
-				${this._renderAnsOptions(this.disputeQuestion.answers)}
+				${this._renderAnswer()}
 			</capitec-card>
-			
 		`;
+	}
+
+	_renderAnswer() {
+		const firstElem = this.disputeQuestion.answers[0];
+
+		switch (firstElem.clientAnswerWording || firstElem.agentAnswerWording) {
+			case `input currency`:
+				this.questionType = QUESTION_TYPES.CURRENCY;
+				return html`${this._renderAnsCurrency(firstElem)}`;
+			case `input text`:
+			case `input string`:
+				this.questionType = QUESTION_TYPES.TEXT;
+				return html`${this._renderAnsText(firstElem)}`;
+			case `input date`:
+				this.questionType = QUESTION_TYPES.DATE;
+				return html`${this._renderAnsDate()}`;
+			default:
+				return html`${this._renderAnsOptions(this.disputeQuestion.answers)}`;
+		}
+	}
+
+	_renderAnsCurrency(firstElem) {
+		firstElem.currencyCodes = firstElem.currencyCodes.map(c => {
+			c.label = `${c.alphaCode} - ${c.name}`;
+			return c;
+		});
+
+		return html`
+			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input currency"></capitec-title-bar>
+			<capitec-card class="multiple-ans-option-card">
+				<capitec-content-box layout="horizontal">
+					<capitec-text-field
+						label="Number"
+						type="numeric"
+						@value-change="${(e) => this._inputChanged(e, firstElem.answerId)}">
+					</capitec-text-field>
+					<capitec-select 
+						label="Currency"
+						.items="${firstElem.currencyCodes}"
+						display-field="label"
+						id-field="alphaCode"
+						@value-change="${(e) => this._currCodeChanged(e, firstElem.answerId)}">
+					</capitec-select>
+				</capitec-content-box>
+			</capitec-card>`;
+	}
+
+	_renderAnsText(firstElem) {
+		return html`
+			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input text"></capitec-title-bar>
+			<capitec-card class="multiple-ans-option-card">
+				<capitec-content-box>
+					<capitec-text-box label="" minlength="1" maxlength="15" @value-change="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
+				</capitec-content-box>
+			</capitec-card>`;
+	}
+
+	_renderAnsDate(firstElem) {
+		return html`
+			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input date"></capitec-title-bar>
+			<capitec-card class="multiple-ans-option-card">
+				<capitec-content-box>
+					<capitec-date-time-picker
+						type="single"
+						mode="date"
+						inputType="calendar"
+						outputType="string"
+						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}">
+					</capitec-date-time-picker>
+				</capitec-content-box>
+			</capitec-card>`;
 	}
 
 	_renderAnsOptions(answers) {
@@ -446,7 +628,7 @@ export class Disputes extends Component {
 					<capitec-radio-group layout="vertical" gap="clear" class="multiple-option-radio-group">
 						${answers.map(item => html`
 							<capitec-radio
-								label="${item.clientAnswerWording}"
+								label="${item.clientAnswerWording || item.agentAnswerWording}"
 								@value-change="${() => this._answerSelected(item.answerId)}"
 								?checked="${this.selectedAnswer === item.answerId}"
 								?disabled="${Boolean(this.selectedAnswer)}">
