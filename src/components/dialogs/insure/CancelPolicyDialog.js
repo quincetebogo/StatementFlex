@@ -79,7 +79,6 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = CancelPolicyEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
-		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -145,18 +144,13 @@ class CancelPolicyDialog extends Component {
 
 	//  #region PRIVATE METHODS
 
-	async _initialise() {
-		// await super._inicidentManager_(`funeral-plan-cancel`, null);
-		// await super.createAndClassifySubIncident();
-
-	}
 
 	/**
 	 * agree event from dialog footer button, closes modal and navigates to cancel policy success page
 	 * 
 	 * @returns {void} 
 	 */
-	 _agreeClick() {
+	_agreeClick() {
 		this._telemetry.logEvent(this.telemetryEvents.CANCEL_POLICY_AGREE, {
 			"screen": TelemetryScreen.INSURE_CANCEL_PLAN_AGREEMENT_DIALOG,
 			"next-screen": TelemetryScreen.INSURE_CANCEL_PLAN_SUCCESS
@@ -169,7 +163,7 @@ class CancelPolicyDialog extends Component {
 	 * 
 	 * @returns {String} tomorrows date
 	 */
-	 _getAgreementDate() {
+	_getAgreementDate() {
 		const today = new Date();
 		return today;
 	}
@@ -179,7 +173,7 @@ class CancelPolicyDialog extends Component {
 	 * @param {String} cancelReason cancelation reason selected
 	 * @returns {void}
 	 */
-	 async _getCancelAgreement(cancelReason) {
+	async _getCancelAgreement(cancelReason) {
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
@@ -339,8 +333,8 @@ class CancelPolicyDialog extends Component {
 
 			<capitec-content-box>
 
-			${this.cancelPolicyDocumentDetails === undefined ? html`` 
-			: html`
+			${this.cancelPolicyDocumentDetails === undefined ? html``
+				: html`
 				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Funeral Cover Plan" detail="" icon="" @click="${() => this._showAgreement()}">
 					<capitec-label slot="detail" type="strong" label="View Document" >
 					</capitec-label>
@@ -371,7 +365,7 @@ class CancelPolicyDialog extends Component {
 
 	_renderAgreementDialog() {
 		return this.showCancelAgreement === false ? html``
-		: html`
+			: html`
 			<horizon-insure-agreement-dialog
 			.agreementContent="${this.cancelPolicyDocumentDetails?.documentContent.value}"
 			@back-click="${() => this._closeAgreementDialog()}">

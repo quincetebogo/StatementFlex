@@ -155,7 +155,7 @@ class LodgeClaimInfoDialog extends Component {
 			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 				<li class="bullet-label">Email FuneralClaims@capitecbank.co.za</li>
 				<li class="bullet-label">Visit a branch</li>
-				<li class="bullet-label">Call our 24hr client care centre on 0860 10 20 43</li>
+				<li class="bullet-label">WhatsApp us on 067 418 9565</li>
 			</capitec-group>
 		
 			<capitec-label id="label" label="Documents needed" type="subtitle" class="bullet-heading-large"></capitec-label>
@@ -202,7 +202,7 @@ class LodgeClaimInfoDialog extends Component {
 				<li class="bullet-label">An unabridged birth certificate</li>
 			</ul>
 		
-			<capitec-label class="bullet-heading" id="label" label="Voluntary Premium Pause" type="subtitle"></capitec-label>
+			<capitec-label class="bullet-heading" id="label" label="Voluntary Policy Pause" type="subtitle"></capitec-label>
 			<ul>
 				<li class="bullet-label">A reason as to why you want to activate the benefit, no additional documents required
 				</li>

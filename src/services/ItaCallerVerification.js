@@ -158,6 +158,7 @@ export class ItaCallerVerification {
 		const returnValue = await this.itaChannelService.itaVerification(request, () => true);
 
 		if (returnValue.succeeded) {
+			this.horizonSignalRClient.remoteIdentifier = returnValue.result.remoteIdentifier;
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
 			return;
 		} 
@@ -173,10 +174,11 @@ export class ItaCallerVerification {
 		const [reqChannel] = callbackRes?.AuthorisationRequestChannels;
 		const channelStatus = reqChannel?.ChannelStatus;
 		const curConnectionID = await this.horizonSignalRClient.getConnectionId();
+		const remoteIdentifier = this.horizonSignalRClient.remoteIdentifier;
 		
-		// Checking if incoming connection id & hub connector connection id are same
-		if (curConnectionID !== callbackRes?.ConnectionId) {
-			this.logger.log(`error`, `ConnectionID is not macthing to process ITA response.`, `_signalRPostEventAction`);
+		// Checking if incoming and remote identifier maintained in hub connector are same
+		if (remoteIdentifier !== callbackRes?.RemoteIdentifier) {
+			this.logger.log(`error`, `Remote identifier is not macthing to process ITA response.`, `_signalRPostEventAction`);
 			this.verificationStatusCallback(`system-failed`);
 			await this.close();
 			return;
