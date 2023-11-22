@@ -306,7 +306,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         });
 
 		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident();
+
+		await super.createAndClassifySubIncident(null, false);
 
         this.savingsDetails = {
             "accountNumber": savingsLandingDetails.accountNumber,
@@ -325,6 +326,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         };
 
         this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_DETAILS;
+		this.endCallContext = `BalanceEnquiry`;
     }
 
     _cancelAccountView() {

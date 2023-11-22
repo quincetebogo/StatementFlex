@@ -206,7 +206,7 @@ export class AccessChannelService extends ChannelServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 		
 		if (await this.isMockEnabled(`suspendChannels`)) {
-			return this.mock(`suspendChannels`);
+			return this.mock(`suspendChannels`, request);
 		}
 
 		const url = `/clientcare-accesschannels-${this._version}/suspendChannels`;

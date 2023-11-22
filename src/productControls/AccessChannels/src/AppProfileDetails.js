@@ -137,9 +137,9 @@ export class AppProfileDetails extends Component {
 
 	_toggleSuspendReasonsSlide() {
 		this.showValidationBanner = false;
-		this.showSuspendReasons = !this.showSuspendReasons;
+		// this.showSuspendReasons = !this.showSuspendReasons;
 	
-		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, { detail: { showSuspendReasons: this.showSuspendReasons } }));
+		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, {}));
 		
 		if (this.showSuspendReasons) {
 			this.selectedSuspendReason = ``;

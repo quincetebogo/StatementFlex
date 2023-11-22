@@ -11,6 +11,7 @@ export const stopCardMockResponse = {
 			cardExpiryMonth: `10`,
 			cardSequenceNumber: `02`,
 			supplementaryCard: false,
+			cardStopDate: `2023-02-06 04:20:11.767+0000`,
 			stopCard: {
 				enabled: true,
 				tabIndex: 0,
@@ -26,6 +27,7 @@ export const stopCardMockResponse = {
 			cardExpiryMonth: `10`,
 			cardSequenceNumber: `02`,
 			supplementaryCard: true,
+			cardStopDate: `2023-03-06 04:11:11.767+0000`,
 			stopCard: {
 				enabled: true,
 				tabIndex: 0,
@@ -41,6 +43,7 @@ export const stopCardMockResponse = {
 			cardExpiryMonth: `10`,
 			cardSequenceNumber: `02`,
 			supplementaryCard: true,
+			cardStopDate: `2023-04-06 04:11:11.767+0000`,
 			stopCard: {
 				enabled: true,
 				tabIndex: 0,
@@ -56,6 +59,7 @@ export const stopCardMockResponse = {
 			cardExpiryMonth: `10`,
 			cardSequenceNumber: `02`,
 			supplementaryCard: true,
+			cardStopDate: `2023-04-06 04:50:11.767+0000`,
 			stopCard: {
 				enabled: true,
 				tabIndex: 0,
@@ -71,6 +75,7 @@ export const stopCardMockResponse = {
 			cardExpiryMonth: `08`,
 			cardSequenceNumber: `03`,
 			supplementaryCard: false,
+			cardStopDate: `2023-05-06 04:11:11.767+0000`,
 			stopCard: {
 				enabled: true,
 				tabIndex: 0,
