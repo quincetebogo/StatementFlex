@@ -26,8 +26,9 @@ export class SuccessScreen extends Component {
 		this.secondaryToast = ``;
 		this.hasSubDetails = false;
 		this.subContent = false;
-		this.toastHeader = `Successful`;
 		this.toastType = `success`;
+		this.toastHeader = `Successful`;
+		this.type = `success`;
 	}
 
 	// ----------
@@ -56,11 +57,13 @@ export class SuccessScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			secondaryImage: { type: String }, 
+			secondaryImage: { type: String },
 			secondaryToast: { type: String },
 			hasSubDetails: { type: Boolean },
 			subContent: { type: Boolean },
-			toastHeader: { type: String },
+			toastType: { type: String, attribute: `toast-type` },
+			toastHeader: { type: String, attribute: `toast-header` },
+			type: { type: String },
 			toastType: { type: String }
 		};
 	}
@@ -148,7 +151,7 @@ export class SuccessScreen extends Component {
 				}
 
 				#id-sub-content {
-					margin-top: 24px;
+					margin-top: var(--horizon-success-screen-margin-top, 24px);
 					justify-content: center;
 				}
 
@@ -262,7 +265,7 @@ export class SuccessScreen extends Component {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -283,7 +286,7 @@ export class SuccessScreen extends Component {
 				<capitec-icon
 					class="successIcon"
 					size="default"
-					icon="status/success-trans">
+					icon="status/${this.type}-trans">
 				</capitec-icon>
 				<slot name="detail"></slot>
 			</capitec-group>
@@ -305,7 +308,7 @@ export class SuccessScreen extends Component {
 
 	_renderSubDetail() {
 		return this.hasSubDetails
-		? html`
+			? html`
 			<capitec-group 
 				id="id-sub-detail" 
 				layout="horizontal">
@@ -315,42 +318,42 @@ export class SuccessScreen extends Component {
 				</capitec-icon>
 					<slot name="sub-detail"></slot>
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderSubContent() {
 		return this.subContent
-		? html`
+			? html`
 			<capitec-group 
 					id="id-sub-content" 
 					layout="horizontal">
 				<slot name="sub-content"></slot>
 	 		</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderLeftButton() {
 		return this.left
-		? html`
+			? html`
 			<capitec-button
 				id="button-left"
 				class="center-button"
 				label="${this.left}"
 				@click="${() => this._leftClick()}">
 			</capitec-button>`
-		: html``;
+			: html``;
 	}
 
 	_renderRightButton() {
 		return this.right
-		? html`
+			? html`
 			<capitec-button
 				class="center-button"
 				type="primary"
 				label="${this.right}"
 				@click="${() => this._rightClick()}">
 			</capitec-button>`
-		: html``;
+			: html``;
 	}
 }
 

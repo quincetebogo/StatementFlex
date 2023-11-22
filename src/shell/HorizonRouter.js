@@ -75,6 +75,7 @@ const HORIZON_ROUTES = Object.freeze({
 	UNLOCK_FTSP_FAILURE: `/error/unlock-fixed-term-savings-plan`,
 	SEND_CASH_SUCCESS: `/success/send-cash`,
 	SEND_CASH_FAILURE: `/error/send-cash`,
+	DISPUTES_SUCCESS: `/success/disputes`,
 	CREATE_INCIDENT_ERROR: `/error/create-incident`,
 	WIDGET_HOST: `/widget`,
 	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
@@ -535,6 +536,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CREATE_INCIDENT_ERROR}`);
 	}
 
+	navigateToDisputesSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DISPUTES_SUCCESS}`);
+	}
+	
 	navigateToViewProfileDetails() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_PROFILE}`);
 	}
@@ -1254,6 +1259,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SEND_CASH_FAILURE,
 		load: () => import(`../views/sendCash/SendCashFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-disputes-success`,
+		title: `DisputesSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.DISPUTES_SUCCESS,
+		load: () => import(`../views/savingsAccount/DisputesSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
