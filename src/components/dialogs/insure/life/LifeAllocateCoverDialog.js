@@ -27,6 +27,7 @@ class LifeAllocateCoverDialog extends Component {
 	static get properties() {
 		return {
 			policy: { type: Object, state: true },
+			updatedPolicy: { type: Object, state: true },
 			isNewOffer: { type: Boolean, state: true }
 		};
 	}
@@ -41,6 +42,8 @@ class LifeAllocateCoverDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		console.log(this.policy);
+		this.updatedPolicy = this.policy;
 	}
 
 	disconnectedCallback() {
@@ -55,6 +58,11 @@ class LifeAllocateCoverDialog extends Component {
 	_calculatePocketInstalment(type) {
 		const pocket = this.policy.pockets.find(p => p.pocketType === type);
 		return pocket.premium;
+	}
+
+	_calculatePocketCover(type) {
+		const pocket = this.policy.pockets.find(p => p.pocketType === type);
+		return pocket.coverage;
 	}
 
 	// #endregion PRIVATE METHODS
@@ -192,10 +200,6 @@ class LifeAllocateCoverDialog extends Component {
 					<div class="offer-details-value">${formatCurrency(2000000)}</div>
 				</div>
 				<div class="offer-details-cell">
-					<div>Available</div>
-					<div class="offer-details-value">${formatCurrency(2000000)}</div>
-				</div>
-				<div class="offer-details-cell">
 					<div>Remaining</div>
 					<div class="offer-details-value">${formatCurrency(1000000)}</div>
 				</div>
@@ -210,13 +214,13 @@ class LifeAllocateCoverDialog extends Component {
 						</capitec-label>
 					</div>
 					<div style="display: flex;">
-						<capitec-text-field class="pocket-details-input pocket-details-label" label="Cover amount"></capitec-text-field>
+						<capitec-text-field type="currency" class="pocket-details-input pocket-details-label" label="Cover amount"></capitec-text-field>
 						<horizon-label
 							class="pocket-details-label"
 							label="You pay"
 							value="${formatCurrency(this._calculatePocketInstalment(LIFE_POCKET_TYPES.MONTHLY))}">
 						</horizon-label>
-						<capitec-text-field class="pocket-details-input" label="They get"></capitec-text-field>
+						<capitec-text-field type="currency" class="pocket-details-input" label="They get" value="${this._calculatePocketCover(LIFE_POCKET_TYPES.MONTHLY)}"></capitec-text-field>
 					</div>
 				</div>
 				<div class="pocket-details-card">
@@ -233,7 +237,7 @@ class LifeAllocateCoverDialog extends Component {
 							label="You pay"
 							value="${formatCurrency(this._calculatePocketInstalment(LIFE_POCKET_TYPES.ONCEOFF))}">
 						</horizon-label>
-						<capitec-text-field class="pocket-details-input" label="They get"></capitec-text-field>
+						<capitec-text-field type="currency" class="pocket-details-input" label="They get" value="${this._calculatePocketCover(LIFE_POCKET_TYPES.ONCEOFF)}"></capitec-text-field>
 					</div>
 				</div>
 				<div class="pocket-details-card">
@@ -250,7 +254,7 @@ class LifeAllocateCoverDialog extends Component {
 							label="You pay"
 							value="${formatCurrency(this._calculatePocketInstalment(LIFE_POCKET_TYPES.EDUCATION))}">
 						</horizon-label>
-						<capitec-text-field class="pocket-details-input" label="They get"></capitec-text-field>
+						<capitec-text-field type="currency" class="pocket-details-input" label="They get" value="${this._calculatePocketCover(LIFE_POCKET_TYPES.EDUCATION)}"></capitec-text-field>
 					</div>
 				</div>
 			</div>
@@ -264,8 +268,8 @@ class LifeAllocateCoverDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Back" @click="${() => this._backClick()}"></capitec-button>
-				<capitec-button class="capitec-button-small" slot="footer" type="primary"  @click="${() => this._backClick()}" label="Save" ></capitec-button>
+				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Cancel" @click="${() => this._backClick()}"></capitec-button>
+				<capitec-button class="capitec-button-small" slot="footer" type="primary"  @click="${() => this._next()}" label="Next" ></capitec-button>
 		`;
 	}
 

@@ -396,7 +396,7 @@
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
