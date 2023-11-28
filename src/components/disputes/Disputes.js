@@ -62,6 +62,7 @@ export class Disputes extends Component {
 		this.date = ``;
 		this.input = ``; // Text or currency number
 		this.currencyCode = ``;
+		this.currFocussed = false;
 
 		this.logger = Logger.getInstance();
 	}
@@ -77,7 +78,7 @@ export class Disputes extends Component {
 	static get properties() {
 		return {
 			transactionDetails: { type: Object },
-			disputeQuestion: { type: Array },
+			disputeQuestion: { type: Object },
 			getNextQuestion: { type: Object },
 			restartQuestions: { type: Object },
 
@@ -87,7 +88,8 @@ export class Disputes extends Component {
 			showDeclarationError: { state: true },
 			systemError: { state: true },
 			qusNo: { state: true },
-			selectedAnswer: { state: true }
+			selectedAnswer: { state: true },
+			currFocussed: { state: true }
 		};
 	}
 
@@ -197,6 +199,7 @@ export class Disputes extends Component {
 
 	_currCodeChanged(e, answerId) {
 		this.currencyCode = e.detail.new.alphaCode;
+		this.currFocussed = false;
 
 		if (this.input) {
 			this.selectedAnswer = answerId;
@@ -225,6 +228,9 @@ export class Disputes extends Component {
 	_reset() {
 		this.selectedAnswer = ``;
 		this.systemError = false;
+		this.date = ``;
+		this.input = ``; // Text or currency number
+		this.currencyCode = ``;
 	}
 
 	_formatNextQusRequest() {
@@ -412,6 +418,12 @@ export class Disputes extends Component {
 				capitec-date-time-picker {
 					--theme-date-time-picker-host-max-width: 180px;
 					--theme-calendar-calendar-min-width: 180px;
+				}
+				.selectExpanded {
+					height: 322px;
+				}
+				capitec-select{
+					--theme-select-options-max-height: 185px;
 				}`
 		];
 	}
@@ -577,17 +589,21 @@ export class Disputes extends Component {
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input currency"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
-				<capitec-content-box layout="horizontal">
+				<capitec-content-box layout="horizontal" class="${this.currFocussed ? `selectExpanded` : ``}">
 					<capitec-text-field
-						label="Number"
+						label="Amount"
 						type="numeric"
+						value="${this.input}"
 						@value-change="${(e) => this._inputChanged(e, firstElem.answerId)}">
 					</capitec-text-field>
-					<capitec-select 
+					<capitec-select
 						label="Currency"
 						.items="${firstElem.currencyCodes}"
 						display-field="label"
 						id-field="alphaCode"
+						?searchable="${true}"
+						value="${this.currencyCode}"
+						@focus="${() => this.currFocussed = true}"
 						@value-change="${(e) => this._currCodeChanged(e, firstElem.answerId)}">
 					</capitec-select>
 				</capitec-content-box>
