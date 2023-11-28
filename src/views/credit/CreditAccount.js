@@ -1,6 +1,6 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
+import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
@@ -34,6 +34,7 @@ import 'app/productControls/credit/src/PayCreditCardBudget';
 import 'app/components/dialogs/common/ViewAndEmailDocuments';
 import 'app/dialogs/credit/SettleAndCloseDialog';
 import 'app/components/common/TransactionHistory';
+import 'app/components/disputes/Disputes';
 
 const ISO_8601_DATE_FORMAT = `yyyy-mm-dd`;
 
@@ -77,6 +78,7 @@ export class CreditAccount extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.roleManager = RoleManager.getInstance();
+		this.securityContext = SecurityContext.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		// private properites
@@ -109,6 +111,9 @@ export class CreditAccount extends ViewBase {
 		this.accountDetails = {};
 		this.showTooltip = false;
 		this.budgetStatus = ``;
+		this.tranToDispute = {};
+		this.disputeQuestion = {};
+		this.journalNumber = `00000`;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -138,6 +143,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
+			const cardDisputes = () => this._cardDisputeTransaction(data);
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 			const actions = {
@@ -147,7 +153,8 @@ export class CreditAccount extends ViewBase {
 				'statements': statements,
 				'settlement-quote': settlementQuote,
 				'paid-up-letter': paidUpLetter,
-				'settle-close': settleAndClose
+				'settle-close': settleAndClose,
+				'card-disputes': cardDisputes
 			};
 
 			if (actions[option]) {
@@ -175,6 +182,20 @@ export class CreditAccount extends ViewBase {
 		super.disconnectedCallback();
 	}
 
+	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
+	async updated(changedProperties) {
+
+		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
+	
+		if (journalNumber) {
+			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
+			const currency = await this._getWithdrawlCurrency(expandedItem);
+
+			expandedItem.currency = currency;
+			this.requestUpdate();
+		}
+	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
@@ -192,8 +213,13 @@ export class CreditAccount extends ViewBase {
 			showPayBudgetDialog: { state: false },
 			declineReason: { state: false },
 			showPayBudgetWarning: { state: false },
-			showTooltip: { state: false }
+			showTooltip: { state: false },
+			journalNumber: { type: String, attribute: false, state: false }
 		};
+	}
+
+	get cardAuthTypesToDispute() {
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`];
 	}
 
 	// --------------
@@ -676,12 +702,17 @@ export class CreditAccount extends ViewBase {
 	_getFormattedResponse(transactions) {
 		return transactions.map((item) => {
 			const date = new Date(Date.parse(item.processDate));
+			const today = new Date();
+			const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
 
 			item.description = item.statementDescription;
 			item.tranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.formatedAmount = formatCurrency(item.amount);
 			item.formatedBalance = formatCurrency(item.balance);
+			item.isCashWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL`;
+			item.isDomesticWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL` && item.currency === `ZAR`;
+			item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
 
 			return item;
 		});
@@ -1069,6 +1100,98 @@ export class CreditAccount extends ViewBase {
 		}
 	}
 
+	async _cardDisputeTransaction(item) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+            transactionId: item.transactionId,
+            cardAuthType: item.cardAuthType
+        });
+
+		this.tranToDispute = item;
+		const returnValue = await this._getFirstQusToDispute(item);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
+			return;
+		}
+
+		this.disputeQuestion = returnValue.result;
+		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
+	}
+
+	async _getFirstQusToDispute(item) {
+		const request = {
+			"transactionId": `${item.transactionId}`,
+			"transactionPostingDate": item.postingDate,
+			"incident": this.currentIncident,
+			"cifNumber": this.callerInformation.cifNumber,
+			"agentId": `${this.securityContext.username}`
+		};
+		const returnValue = await this.creditService.getFirstQuestion(request);
+		return returnValue;
+	}
+
+	async _getNextQusToDispute(request) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+			cueSheetId: request.cueSheetId,
+			caseId: request.caseId,
+			answerId: request.answerId
+		});
+
+		const returnValue = await this.creditService.getNextQuestion(request, () => true);
+		this.disputeQuestion = returnValue.result;
+
+		return returnValue;
+	}
+
+	async _cancelDisputeTrans() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE);
+
+		this.disputeQuestion = {};
+		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+	}
+
+	async _disputeOutcome(event) {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
+			disputeLogged: event.detail.disputed
+		});
+
+		this.disputeQuestion = {};
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.transDesc = event.detail.transDesc;
+		screenDetails.disputed = event.detail.disputed;
+		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
+		screenDetails.disputeStep = event.detail.disputeStep;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
+
+		this.horizonRouter.navigateToDisputesSuccess();
+	}
+
+	async _restartDispute(transactionDetails) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
+		
+		const returnValue = await this._getFirstQusToDispute(transactionDetails);
+		return returnValue;
+	}
+
+	_getWithdrawlCurrency(item) {
+		const request = [
+			{
+				transactionId: item.transactionId,
+				postingDate: item.postingDate
+			}
+		];
+		const returnValue = this.creditService.cardTranHistoryDetail(request, () => true);
+		const result = returnValue?.result;
+
+		if (returnValue.succeeded) {
+			return result.transactions.find(x => x.journalNumber === this.journalNumber)?.currency;
+		}
+		return ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1128,6 +1251,7 @@ export class CreditAccount extends ViewBase {
 			${this._renderPendingClosure()}
 			${this._renderPayBudgetWarning()}
 			${this._renderTransactionHistory()}
+			${this._renderDisputeTransModal()}
 		`;
 	}
 
@@ -1443,6 +1567,11 @@ export class CreditAccount extends ViewBase {
 		const telemetryEvents = TRANSACTION_ENQUIRY_EVENTS(this.productType);
 		this._telemetry.logEvent(telemetryEvents.TRANSACTION_HISTORY_INFO, {});
 
+		// Updating "this.journalNumber" to trigger service call that gets "linkedTransactionDetails".
+		if (item.isCashWithdrawl()) {
+			this.journalNumber = item.journalNumber;
+		}
+
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
@@ -1524,6 +1653,7 @@ export class CreditAccount extends ViewBase {
 
 				${this._renderTooltipLabel(`Long Description`, item.statementDescription)}
 			</capitec-group>
+			${this._renderDispute(item)}
 		`;
 	}
 
@@ -1561,6 +1691,55 @@ export class CreditAccount extends ViewBase {
 						</capitec-label>
 				</capitec-tooltip>
 			</capitec-group>`;
+	}
+
+	_renderDispute(item) {
+		return html`
+			<capitec-label
+				label="Dispute details"
+				style="${unsafeCSS(EXPANDER_LABEL).toString()}"
+				?hidden="${!item.disputeFlag}">
+			</capitec-label>
+			<capitec-group layout="horizontal" gap="none" halign="right" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Dispute status"
+					value = "${item.disputeReason}"
+					?hidden="${!item.disputeFlag}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Date and time disputed"
+					value = "${formatDate(item.disputeDate, DATE_TIME_FORMAT)}"
+					?hidden="${!item.disputeFlag}">
+				</horizon-label>
+
+				<capitec-spacer></capitec-spacer>
+
+				<capitec-button
+					type="clear"
+					label="Dispute Transaction"
+					data-automation-id="transaction-history-dispute-btn"
+					@click="${() => this._optionClick(`card-disputes`, item)}"
+					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
+				</capitec-button>
+			</capitec-group>
+		`;
+	}
+
+	_renderDisputeTransModal() {
+		return this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION 
+		? html`
+			<horizon-disputes
+				.transactionDetails="${this.tranToDispute}"
+				.disputeQuestion="${this.disputeQuestion}"
+				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
+				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
+				@cancel="${() => this._cancelDisputeTrans()}"
+				@dispute-outcome="${(event) => this._disputeOutcome(event)}"
+				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
+			</horizon-disputes>`
+		: html``;
 	}
 }
 

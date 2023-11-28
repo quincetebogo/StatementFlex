@@ -85,6 +85,7 @@ export class DisputesSuccess extends ViewBase {
 				}
 				#id-error-msg {
 					width: 80%;
+					height: auto;
 				}
 				.button-margin {
 					height: 80px;
