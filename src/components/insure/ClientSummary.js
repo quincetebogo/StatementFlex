@@ -145,6 +145,7 @@ class ClientSummary extends Component {
 			lifePolicies: { type: Object, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
+			executeLifeUpdatePolicy: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -2351,7 +2352,9 @@ class ClientSummary extends Component {
 		return this.showLifeAllocateCoverDialog === false ? html``
 			: html`
 			<horizon-insure-life-allocate-cover-dialog
-				.policy="${this.selectedLifePolicy}"
+				.currentPolicy="${this.selectedLifePolicy}"
+				.isNewOffer="${false}"
+				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
 				@close-dialog="${() => this.showLifeAllocateCoverDialog = false}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;

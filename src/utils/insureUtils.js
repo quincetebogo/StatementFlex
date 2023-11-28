@@ -5,6 +5,16 @@ export const TODAY_DATE = new Date();
 
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
+
+export const LIFE_COVER_ERROR_MESSAGES = {
+	POCKET_MINIMUM: `Minimum pocket allocation is R50 000`,
+	BENEFICIARY_MINIMUM: `Minimum beneficiary allocation is R50 000`,
+	MAX_BENEFICIARIES: `Maximum of 2 beneficiaries allowed for pocket`,
+	EDUCATION_MAX_BENEFICIARIES: `Maximum of 10 beneficiaries allowed for education fund`,
+	MAIN_LIFE_ID_MATCH: `Main life and beneficiary cannot be the same person`,
+	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`
+};
+
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
  * @param {string} relationship relationship
@@ -417,6 +427,8 @@ export function validateEmailAddressCombo(email, confirmEmail) {
 	return true;
 }
 
+
+/** LIFE COVER UTILS */
 
 /**
  * Determine the pocket color class based on pocket type
