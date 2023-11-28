@@ -633,5 +633,65 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	getFirstQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-${this._version}/credit/transaction/dispute/cue-card/get-first-question`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getFirstQuestion`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	getNextQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/clientcare-credit-${this._version}/credit/transaction/dispute/cue-card/get-next-question`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getNextQuestion`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Savings Account Transaction History Details
+	 *
+	 * @param {object} request details required to get list of transactions
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	cardTranHistoryDetail (request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const url = `/clientcare-credit-${this._version}/credit/transaction-history/card-transaction-detail`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(), 
+			`cardTranHistoryDetail`, 
+			null, 
+			null, 
+			2000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 }

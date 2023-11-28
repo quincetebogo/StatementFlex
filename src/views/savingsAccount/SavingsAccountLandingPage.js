@@ -63,6 +63,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._loading = true;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
+		this.journalNumber = `00000`;
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 
@@ -107,18 +108,34 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         super.disconnectedCallback();
     }
 
+	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
+	async updated(changedProperties) {
+
+		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
+	
+		if (journalNumber) {
+			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
+			const currency = await this._getWithdrawlCurrency(expandedItem);
+
+			expandedItem.currency = currency;
+			this.requestUpdate();
+		}
+	}
+
     // --------------
     // PROPERTIES
     // --------------
 
     static get properties() {
         return {
-            _loading: { state: true }
+            _loading: { state: true },
+			renderMode: { type: Number, attribute: false },
+			journalNumber: { type: String, attribute: false }
         };
     }
 
 	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`];
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`];
 	}
 
     // --------------
@@ -218,13 +235,17 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             const formattedTrans = returnValue.result.transactions
                 .map((item) => {
                     const date = new Date(Date.parse(item.transactionDate));
+					const today = new Date();
+					const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
 
 					item.description = item.statementDescription;
                     item.tranDate = date;
                     item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
                     item.formatedAmount = formatCurrency(item.amount);
                     item.formatedBalance = formatCurrency(item.balance);
+					item.isCashWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL`;
 					item.isDomesticWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL` && item.currency === `ZAR`;
+					item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
 
                     return item;
                 });
@@ -411,6 +432,22 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return returnValue;
 	}
 
+	_getWithdrawlCurrency(item) {
+		const request = [
+			{
+				transactionId: item.transactionId,
+				postingDate: item.postingDate
+			}
+		];
+		const returnValue = this.savingsService.savingsAccountTranHistoryDetail(request, () => true);
+		const result = returnValue?.result;
+
+		if (returnValue.succeeded) {
+			return result.transactions.find(x => x.journalNumber === this.journalNumber)?.currency;
+		}
+		return ``;
+	}
+
     // ---------
     // RENDERING
     // ---------
@@ -532,6 +569,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
             'journal-no': item.journalNumber
         });
+
+		// Updating "this.journalNumber" to trigger service call that gets "linkedTransactionDetails".
+		if (item.isCashWithdrawl()) {
+			this.journalNumber = item.journalNumber;
+		}
 
         return html`
 				<capitec-label
@@ -656,7 +698,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
 					@click="${() => this._optionClick(`card-disputes`, item)}"
-					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl()}">
+					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -691,78 +733,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			</horizon-disputes>
 			`
 		: html``;
-	}
-
-	_renderDisputeTranInfo() {
-		return html`
-			<capitec-title-bar type="default" class="dispute-tran-info">
-				<horizon-label
-					label="Transaction date"
-					value = "02 Dec 2022">
-				</horizon-label>
-				<horizon-label
-					label="Description"
-					value = "POS Purchase Spar Cape Town">
-				</horizon-label>
-				<horizon-label
-					label="Card number"
-					value = "6373 **** **** 1926">
-				</horizon-label>
-				<horizon-label
-					label="Amount"
-					value = "-R5000.00">
-				</horizon-label>
-				<horizon-label
-					label="Card status"
-					value = "Active">
-				</horizon-label>
-			</capitec-title-bar>
-		`;
-	}
-
-	_renderQuestionsContent() {
-		return html`
-			<capitec-content-box layout="vertical" gap="clear">
-				<horizon-alert-banner
-					type="info"
-					header="Notify client: "
-					label="All questions must be answered to complete the dispute request.">
-				</horizon-alert-banner>
-
-				<capitec-group layout="horizontal" gap="none">
-					<capitec-label type="subtitle" label="Questions"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-label type="subtitle" label="Client feedback"></capitec-label>
-				</capitec-group>
-			</capitec-content-box>
-
-			${this._renderQuestions()}
-		`;
-	}
-
-	_renderQuestions() {
-		return html`
-			<capitec-card>
-				<capitec-content-box class="question-box">
-					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-							<capitec-label type="subtitle" label="Q1"></capitec-label>
-
-							<capitec-label label="Did the Card Holder or other authorised client participate in the transaction?">
-							</capitec-label>
-
-							<capitec-spacer></capitec-spacer>
-
-							<capitec-radio-group>
-								<capitec-group layout="horizontal" gap="clear">
-									<capitec-radio label="No">
-									</capitec-radio>
-									<capitec-radio label="Yes">
-									</capitec-radio>
-								</capitec-group>
-							</capitec-radio-group>
-					</capitec-group>
-				</capitec-content-box>
-			</capitec-card>`;
 	}
 
 	_footer() {
