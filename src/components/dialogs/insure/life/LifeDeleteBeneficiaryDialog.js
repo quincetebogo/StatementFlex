@@ -16,19 +16,14 @@ class LifeDeleteBeneficiaryDialog extends Component {
 		this.selectedBeneficiaryName = ``;
 	}
 
-	// #endregion INITIALIZE
-
-	// #region PROPERTIES
-
-	/**
-	 */
 	static get properties() {
 		return {
-			selectedBeneficiary: { type: String, state: true }
+			selectedBeneficiary: { type: String, state: true },
+			selectedPocketType: { type: String, state: true }
 		};
 	}
 
-	// #endregion PROPERTIES
+	// #endregion INITIALIZE
 
 	//  #region LIFECYCLE OVERRIDES
 
@@ -41,33 +36,32 @@ class LifeDeleteBeneficiaryDialog extends Component {
 		this.selectedBeneficiaryName = `${this.selectedBeneficiary.firstName} ${this.selectedBeneficiary.lastName}`;
 	}
 
+	/**
+	 * Clean up the component once removed from the DOM.
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
 
-
-	// #region PRIVATE METHODS
-
-	// #endregion PRIVATE METHODS
-
 	// #region EVENT HANDLERS
 
 	/**
-	 * back event from dialog footer button, closes modal & reset toggles 
+	 * Back event from dialog footer button, closes modal
 	 * @returns {void} 
 	 */
 	_backClick() {
-		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
+		this.dispatchEvent(new CustomEvent(`close-dialog`));
 	}
 
 	/**
-	 * confirm event from dialog footer button, fire delete beneficiary event
+	 * Confirm event from dialog footer button, fire delete beneficiary event
 	 * @returns {void} 
 	 */
 	_confirmClick() {
-		this.dispatchEvent(new CustomEvent(`delete-beneficiary`, {}));
+		this.dispatchEvent(new CustomEvent(`delete-beneficiary`));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -88,7 +82,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 				${INSURE_CSS}
 			
 				capitec-modal {
-					height: 326px;
+					height: 426px;
 					width: 375;
 					border-radius: 5px;
 					--theme-modal-header-padding-top: 32px;
@@ -122,11 +116,11 @@ class LifeDeleteBeneficiaryDialog extends Component {
 
 				div[slot="body"] {
 					width: 420px;
-					height: 70px;
+					height: 95px;
 				}
 
 				.body-box {
-					height: 100px;
+					height: 150px;
 				}
 
 				.header-text {
@@ -156,8 +150,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 				.dialog-copy{
 					margin: 0px;
 					margin-bottom: 10px;
-				}
-				`
+				}`
 		];
 	}
 
@@ -191,20 +184,18 @@ class LifeDeleteBeneficiaryDialog extends Component {
 
 	/**
 	 * Render modal body section
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogBody() {
 		return html`
 			<capitec-content-box gap="0px" >
-				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> as a beneficiary</p>
+				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> as a beneficiary from <b>${this.selectedPocketType}</b></p>
 			</capitec-content-box>
 		`;
 	}
 
 	/**
 	 * Render modal footer section
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogFooter() {
@@ -215,8 +206,6 @@ class LifeDeleteBeneficiaryDialog extends Component {
 	}
 
 	// #endregion RENDERING
-
-
 }
 
 window.customElements.define(`horizon-insure-life-delete-beneficiary-dialog`, LifeDeleteBeneficiaryDialog);
