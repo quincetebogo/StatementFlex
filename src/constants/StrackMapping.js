@@ -90,6 +90,7 @@
 	"view-budgets-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
 	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
+	"open-budget-credit-card": `OPEN_BUDGET`,
 
 	"transaction-history-access-facility": `TRANSACTION_HISTORY_ACCESS_FACILITY`,
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
