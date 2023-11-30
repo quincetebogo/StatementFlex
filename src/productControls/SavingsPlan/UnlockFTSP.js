@@ -793,11 +793,11 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label=" As per your fixed term savings product agreement, with a balance of ">
+								label=" For your fixed term savings account, with a balance of ">
 							</capitec-label>
 							<capitec-label type="strong" label="${this.selectedFromAccount.availableBalance}"></capitec-label>
 							<capitec-label type="default"
-								label=", maximum of ">
+								label=", a maximum of ">
 							</capitec-label>
 							<capitec-label type="strong" label="${formatCurrency(this.selectedAccUnlockOptions?.partialUnlockAmount)}"></capitec-label>
 							<capitec-label type="default"
