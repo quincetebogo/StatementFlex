@@ -83,8 +83,7 @@ export class SavingsPlan extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	
+			
 		// private properites
 		this.selectedAccountNumber = ``;
 		this.taxCertType = ``;
@@ -543,6 +542,8 @@ export class SavingsPlan extends ViewBase {
 		}
 		this.horizonStore.setScreenDetails({ unlockAccountNumber: this.selectedUnlockAccNumber });
 
+		// check if we need to log incident for try again also
+		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
 	}
 
@@ -569,9 +570,7 @@ export class SavingsPlan extends ViewBase {
 
 	async _getUnlockOptions(accNumber) {
 
-		const unlockOptionsAccountList = this.unlockFromAccountsList
-												.filter(acc => acc.accountNumber === accNumber)
-												.map(account => ({
+		const unlockOptionsAccountList = this.unlockFromAccountsList.map(account => ({
 													'accountNumber': account.accountNumber 
 												}));
 
@@ -747,10 +746,23 @@ export class SavingsPlan extends ViewBase {
 			"screen": TelemetryScreen.SAVINGS_PLAN_UNLOCK_FTSP,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_LANDING
 		});
-
 		this._telemetry.endSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP);
+
 		this.horizonStore.clearScreenDetails();
-		this._backToLandingPage();
+		this.horizonStore.clearReturnScreen();
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	async _unloadingUnlockFTSP(details) {
+		
+		if (this.horizonIncidentManager.getCurrentNeed() === `unlock-ftsp-save`) {
+	
+			this.horizonIncidentManager.setDescription(`Type: ${details.type}\nFTSP account number: ${details.fromAccNumber}\nUnlock amount: ` +
+														`${details.unlockAmount}\nPenalty Fee: ${details.penaltyFee}`);
+			await super.classifyIncident(() => this._toggleBusyFlag());
+			this._setIncidentDone();
+		}
 	}
 
 	async _selectTransferTelemetry() {
@@ -1105,11 +1117,12 @@ export class SavingsPlan extends ViewBase {
 				.shouldDisable="${need => this._shouldDisable(need)}"
 				.renderAlertBanner="${() => this.renderAlertBanner()}"
 
-				@back="${() => this._backFromUnlockFTSP()}"
+				@back="${(e) => this._backFromUnlockFTSP()}"
 				@get-agreement="${(event) => this._getUnlockAgreement(event)}"
 				@view-agreement="${(event) => this._viewUnlockAgreement(event)}"
 				@unlock="${(event) => this._confirmUnlockFtsp(event)}"
 				@verify-now="${() => this._verifyClick()}"
+				@unloading="${(e) => this._unloadingUnlockFTSP(e.detail)}"
 				
 				@choose-account-telemetry="${(event) => this._chooseAccountTelemetry(event)}"
 				@choose-options-telemetry="${(event) => this._chooseOptionsTelemetry(event)}"
