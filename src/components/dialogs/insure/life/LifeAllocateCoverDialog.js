@@ -138,8 +138,12 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Setup metadata
 		for (const bene of this.updatedPolicy.beneficiaries) {
-			bene.metaData = {};
-			bene.metaData.uniqueId = v4();
+			bene.metaData = {
+				educationBenefitAdded: false,
+				monthlyBenefitAdded: false,
+				onceOffBenefitAdded: false,
+				uniqueId: v4()
+			};
 			if (bene.educationBenefitAmount > 0) {
 				bene.metaData.educationBenefitAdded = true;
 			}
@@ -256,14 +260,15 @@ class LifeAllocateCoverDialog extends Component {
 		this.showDeleteBeneficiaryDialog = true;
 	}
 
-	_addBeneficiary() {
+	_addBeneficiary(event) {
+
+	}
+
+	_editBeneficiary() {
 
 	}
 
 	_deleteBeneficiary() {
-		console.log(`Deleting Beneficiary `, this.selectedBeneficiary);
-		console.log(`Pocket type `, this.selectedPocketType);
-
 		for (const bene of this.updatedPolicy.beneficiaries) {
 			if (bene.metaData.uniqueId === this.selectedBeneficiary.metaData.uniqueId) {
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
@@ -281,6 +286,43 @@ class LifeAllocateCoverDialog extends Component {
 			}
 		}
 		this.showDeleteBeneficiaryDialog = false;
+	}
+
+	_allowAddBeneficiary(pocketType) {
+		let totalBeneficiariesInPocket = 0;
+		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			for (const bene of this.updatedPolicy.beneficiaries) {
+				if (bene.metaData.monthlyBenefitAdded === true) {
+					totalBeneficiariesInPocket++;
+				}
+			}
+			if (totalBeneficiariesInPocket >= 2) {
+				return false;
+			}
+			return true;
+		}
+		if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			for (const bene of this.updatedPolicy.beneficiaries) {
+				if (bene.metaData.onceOffBenefitAdded === true) {
+					totalBeneficiariesInPocket++;
+				}
+			}
+			if (totalBeneficiariesInPocket >= 2) {
+				return false;
+			}
+			return true;
+		}
+		if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+			for (const bene of this.updatedPolicy.beneficiaries) {
+				if (bene.metaData.educationBenefitAdded === true) {
+					totalBeneficiariesInPocket++;
+				}
+			}
+			if (totalBeneficiariesInPocket >= 10) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	// #endregion BENEFICIARIES
@@ -845,7 +887,8 @@ class LifeAllocateCoverDialog extends Component {
 								</div>
 							</div>`
 				: html``}`)}
-						<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>
+
+						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.MONTHLY) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
 					</div>
 				</capitec-tab>
 				
@@ -881,7 +924,7 @@ class LifeAllocateCoverDialog extends Component {
 							`
 						: html``}
 						`)}
-						<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>
+						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
 					</div>
 				</capitec-tab>
 				
@@ -916,7 +959,7 @@ class LifeAllocateCoverDialog extends Component {
 							`
 								: html``}
 						`)}
-						<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another child"></capitec-button>
+						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
 					</div>
 				</capitec-tab>
 			</capitec-tab-group>
@@ -1039,11 +1082,11 @@ class LifeAllocateCoverDialog extends Component {
 		return this.showAddBeneficiaryDialog === false ? ``
 			: html`
 				<horizon-insure-life-add-beneficiary-dialog 
-					.isChild = "${null}"
+					.isChild = "${this.addingChildBeneficiary}"
 					.selectedPocket = "${this.selectedPocketType}"
-					.pocketBeneficiaries = "${null}"
+					.policy = "${this.updatedPolicy}"
 					@close-dialog="${() => this.showAddBeneficiaryDialog = false}"
-					@add-beneficiary="${() => }">
+					@add-beneficiary="${(e) => this._addBeneficiary(e)}">
 				</horizon-insure-life-add-beneficiary-dialog>
 		`;
 	}
