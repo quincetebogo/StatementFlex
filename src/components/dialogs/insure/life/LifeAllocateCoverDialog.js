@@ -227,6 +227,14 @@ class LifeAllocateCoverDialog extends Component {
 
 	// #region BENEFICIARIES
 
+	_pocketHasCoverAllocated(pocketType) {
+		const pocket = this.updatedPolicy.pockets.find(p => p.pocketType === pocketType);
+		if (pocket.coverage > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Determine message based on pocket type
 	 * @param {string} pocketType - pocket type
@@ -657,6 +665,14 @@ class LifeAllocateCoverDialog extends Component {
 					min-height: 400px;
 				}
 
+				.no-cover-container{
+					width: 100%;
+					min-height: 440px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+
 				.add-beneficiary-button{
 					width: 100%;
 				}
@@ -855,112 +871,142 @@ class LifeAllocateCoverDialog extends Component {
 
 				<!-- Monthly -->
 				<capitec-tab label="Monthly Payout" layout="vertical" halign="left">
-					<div id="beneficiary-info-bar">
-						${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.MONTHLY)}
-					</div>
 
-					<div class="beneficiary-list">
-						${this.updatedPolicy.beneficiaries.map(bene => html`
-							${bene.metaData.monthlyBenefitAdded === true
-				? html`
-							<div class="beneficiary-card">
-								<div style="display: flex; gap:20px;">
-									<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-									<horizon-label
-										label="${bene.relationship}"
-										value="${`${bene.firstName} ${bene.lastName}`}">
-									</horizon-label>
-								</div>
-								<div style="display: flex; gap: 20px;">
-									<horizon-label
-										label="Term"
-										value="24 months">
-									</horizon-label>
-									<horizon-label
-										label="Cover amount"
-										value="${formatCurrency(bene.monthlyPayoutBenefitAmount)}">
-									</horizon-label>
-									<capitec-overflow-menu label="More">
-										<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-										<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
-									</capitec-overflow-menu>
-								</div>
-							</div>`
-				: html``}`)}
+					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.MONTHLY) === true ? html`
+						<div id="beneficiary-info-bar">
+							${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.MONTHLY)}
+						</div>
 
-						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.MONTHLY) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
-					</div>
+						<div class="beneficiary-list">
+							${this.updatedPolicy.beneficiaries.map(bene => html`
+								${bene.metaData.monthlyBenefitAdded === true ? html`
+								<div class="beneficiary-card">
+									<div style="display: flex; gap:20px;">
+										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+										<horizon-label
+											label="${bene.relationship}"
+											value="${`${bene.firstName} ${bene.lastName}`}">
+										</horizon-label>
+									</div>
+									<div style="display: flex; gap: 20px;">
+										<horizon-label
+											label="Term"
+											value="24 months">
+										</horizon-label>
+										<horizon-label
+											label="Cover amount"
+											value="${formatCurrency(bene.monthlyPayoutBenefitAmount)}">
+										</horizon-label>
+										<capitec-overflow-menu label="More">
+											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+										</capitec-overflow-menu>
+									</div>
+								</div>` : html``}`)}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.MONTHLY) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+						</div>
+					` : html`
+						<div class="no-cover-container">
+							<div>
+								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+								<horizon-label 
+									label="No cover allocated to pocket"
+									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+								</horizon-label>
+							</div>
+						</div>
+					`}
 				</capitec-tab>
 				
 				<!-- Once Off -->
 				<capitec-tab label="Once Off Payout" layout="vertical" halign="left">
-					<div id="beneficiary-info-bar">
-						${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.ONCEOFF)}
-					</div>
-				
-					<div class="beneficiary-list">
-						${this.updatedPolicy.beneficiaries.map(bene => html`
-							${bene.metaData.onceOffBenefitAdded === true
-						? html`
-							<div class="beneficiary-card">
-								<div style="display: flex; gap:20px;">
-									<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-									<horizon-label
-										label="${bene.relationship}"
-										value="${`${bene.firstName} ${bene.lastName}`}">
-									</horizon-label>
+					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`
+						<div id="beneficiary-info-bar">
+							${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.ONCEOFF)}
+						</div>
+					
+						<div class="beneficiary-list">
+							${this.updatedPolicy.beneficiaries.map(bene => html`
+								${bene.metaData.onceOffBenefitAdded === true ? html`
+								<div class="beneficiary-card">
+									<div style="display: flex; gap:20px;">
+										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+										<horizon-label
+											label="${bene.relationship}"
+											value="${`${bene.firstName} ${bene.lastName}`}">
+										</horizon-label>
+									</div>
+									<div style="display: flex; gap: 20px;">
+										<horizon-label
+											label="Cover amount"
+											value="${formatCurrency(bene.onceOffPayoutBenefitAmount)}">
+										</horizon-label>
+										<capitec-overflow-menu label="More">
+											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+										</capitec-overflow-menu>
+									</div>
 								</div>
-								<div style="display: flex; gap: 20px;">
-									<horizon-label
-										label="Cover amount"
-										value="${formatCurrency(bene.onceOffPayoutBenefitAmount)}">
-									</horizon-label>
-									<capitec-overflow-menu label="More">
-										<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-										<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
-									</capitec-overflow-menu>
-								</div>
+								` : html``}
+							`)}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+						</div>
+					` : html`
+						<div class="no-cover-container">
+							<div>
+								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+								<horizon-label 
+									label="No cover allocated to pocket"
+									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+								</horizon-label>
 							</div>
-							`
-						: html``}
-						`)}
-						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
-					</div>
+						</div>
+					`}
 				</capitec-tab>
 				
 				<!-- Education -->
 				<capitec-tab label="Education Fund" layout="vertical" halign="left">
-					<div id="beneficiary-info-bar">
-						${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.EDUCATION)}
-					</div>
-					<div class="beneficiary-list">
-						${this.updatedPolicy.beneficiaries.map(bene => html`
-							${bene.metaData.educationBenefitAdded === true
-								? html`
-						<div class="beneficiary-card">
-								<div style="display: flex; gap:20px;">
-									<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-									<horizon-label
-										label="${bene.relationship}"
-										value="${`${bene.firstName} ${bene.lastName}`}">
-									</horizon-label>
+					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.EDUCATION) === true ? html`
+						<div id="beneficiary-info-bar">
+							${this._getBeneficiaryInfoMessage(LIFE_POCKET_TYPES.EDUCATION)}
+						</div>
+						<div class="beneficiary-list">
+							${this.updatedPolicy.beneficiaries.map(bene => html`
+								${bene.metaData.educationBenefitAdded === true ? html`
+								<div class="beneficiary-card">
+									<div style="display: flex; gap:20px;">
+										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+										<horizon-label
+											label="${bene.relationship}"
+											value="${`${bene.firstName} ${bene.lastName}`}">
+										</horizon-label>
+									</div>
+									<div style="display: flex; gap: 20px;">
+										<horizon-label
+											label="Cover amount"
+											value="${formatCurrency(bene.educationBenefitAmount)}">
+										</horizon-label>
+										<capitec-overflow-menu label="More">
+											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+										</capitec-overflow-menu>
+									</div>
 								</div>
-								<div style="display: flex; gap: 20px;">
-									<horizon-label
-										label="Cover amount"
-										value="${formatCurrency(bene.educationBenefitAmount)}">
-									</horizon-label>
-									<capitec-overflow-menu label="More">
-										<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-										<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
-									</capitec-overflow-menu>
-								</div>
+								` : html``}
+							`)}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+						</div>
+					` : html`
+						<div class="no-cover-container">
+							<div>
+								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
+								<horizon-label 
+									label="No cover allocated to pocket"
+									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+								</horizon-label>
 							</div>
-							`
-								: html``}
-						`)}
-						${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
-					</div>
+						</div>
+					`}
 				</capitec-tab>
 			</capitec-tab-group>
 		`;

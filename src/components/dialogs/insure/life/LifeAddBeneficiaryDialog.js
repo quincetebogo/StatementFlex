@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 const VALIDATION_ERRORS = {
@@ -32,6 +32,9 @@ class LifeAddBeneficiaryDialog extends Component {
 
 		this.newOrExistingErrorMessage = ``;
 		this.beneficiaryDetailsErrorMessage = ``;
+
+		this.pocketTotalCover = 0;
+		this.pocketRemainingCover = 0;
 	}
 
 	// #endregion INITIALIZE
@@ -52,7 +55,10 @@ class LifeAddBeneficiaryDialog extends Component {
 			beneficiaryDetailsErrorMessage: { type: String, state: true },
 
 			newBeneficiary: { type: Object, state: true },
-			newBeneficiaryErrors: { type: Object, state: true }
+			newBeneficiaryErrors: { type: Object, state: true },
+
+			pocketTotalCover: { type: Number, state: true },
+			pocketRemainingCover: { type: Number, state: true }
 		};
 	}
 
@@ -80,6 +86,8 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.eligibleBeneficiariesForQuickAdd = this._determineQuickAddBeneficiaries();
+		this._determineInitialCoverBreakdown();
+
 	}
 
 	/**
@@ -105,6 +113,22 @@ class LifeAddBeneficiaryDialog extends Component {
 		return eligible;
 	}
 
+	_determineInitialCoverBreakdown() {
+		this.pocketTotalCover = this.policy.pockets.find(pocket => pocket.pocketType === this.selectedPocket).coverage;
+
+		let totalAllocated = 0;
+		for (const bene of this.policy.beneficiaries) {
+			if (bene.metaData.monthlyBenefitAdded && this.selectedPocket === LIFE_POCKET_TYPES.MONTHLY) {
+				totalAllocated += bene.monthlyPayoutBenefitAmount;
+			}
+			if (bene.metaData.onceOffBenefitAdded && this.selectedPocket === LIFE_POCKET_TYPES.ONCEOFF) {
+				totalAllocated += bene.onceOffPayoutBenefitAmount;
+			}
+		}
+
+		this.pocketRemainingCover = this.pocketTotalCover - totalAllocated;
+	}
+
 	/**
 	 * What steps are available for this add flow
 	 * @returns {Array} array of steps
@@ -125,9 +149,7 @@ class LifeAddBeneficiaryDialog extends Component {
 		this.addingNewBeneficiary = `NEW`;
 		this.newOrExistingErrorMessage = ``;
 
-		this.newBeneficiary = {
-
-		};
+		this.newBeneficiary = {};
 	}
 
 	_continueWithExistingBeneficiary(beneficiary) {
@@ -221,6 +243,11 @@ class LifeAddBeneficiaryDialog extends Component {
 	}
 
 	// #endregion Beneficiary Details
+
+	// #region Allocation
+
+
+	// #endregion Allocation
 
 	// #endregion PRIVATE METHODS
 
@@ -361,12 +388,18 @@ class LifeAddBeneficiaryDialog extends Component {
 					align-self: center;
 					--theme-label-font-color: #009E96;
 				}
+
+				.pocket-details-badge{
+					display: flex;
+					align-items: center;
+				}
 				
 				.pocket-card{ 
 					background-color: #F4F4F4;
 					display: flex;
 					flex-direction: row;
 					justify-content: space-between;
+					align-items: center;
 					box-shadow: 0px 1px 3px 0px #00000026;
 					padding: 14px 24px;
 					margin: 15px;
@@ -478,10 +511,6 @@ class LifeAddBeneficiaryDialog extends Component {
 						@click="${() => this._continueWithExistingBeneficiary(bene)}">
 					</horizon-product-tile>
 				`)}
-
-
-
-				
 			</capitec-content-box>
 		`;
 	}
@@ -559,7 +588,49 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_renderMoneyAllocation() {
 		return html`
-			Money Allocation
+			<div class="pocket-card"> 
+				<div class="pocket-details-badge">
+					<capitec-icon style="padding-right: 10px;" .icon="${pocketBadgeIcon(this.selectedPocket)}" size="large"></capitec-icon>
+					<capitec-label type="strong"
+						class="pocket-type-label ${pocketBadgeColorClass(this.selectedPocket)}"
+						.label="${pocketBadgeLabel(this.selectedPocket)}">
+					</capitec-label>
+				</div>
+
+				<div style="display: flex; gap: 40px;">
+					<horizon-label
+						label="Cover amount"
+						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.pocketTotalCover))}">
+					</horizon-label>
+
+					<horizon-label
+						label="Remaining balance"
+						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.pocketRemainingCover))}">
+					</horizon-label>
+				</div>
+			</div>
+
+			<!-- <div class="beneficiary-card"> 
+				<div style="display: flex; gap:20px;">
+					<capitec-toggle label="Split the amount" @value-changed="${(e) => this._splitAmount()}"></capitec-toggle>
+				</div>
+			</div>
+
+			${this.newPocketBeneficiaries?.map((beneficiary, index) => html`
+				<div class="beneficiary-card">
+					<div style="display: flex; gap:20px;">
+						<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+						<capitec-label
+							label="${beneficiary.firstName} ${beneficiary.lastName}">
+						</capitec-label>
+					</div>
+					<div style="display: flex; gap: 20px;">
+						<capitec-text-field type="currency" value="${this._getBenePocketAllocation(beneficiary)}"
+							@value-change="${(e) => this._allocatedAmountChange(e, index)}">
+						</capitec-text-field>
+					</div>
+				</div>
+			`)} -->
 		`;
 	}
 

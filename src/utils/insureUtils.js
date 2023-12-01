@@ -461,3 +461,21 @@ export function pocketBadgeLabel(pocketType) {
 		return `Once Off Payout`;
 	}
 }
+
+/**
+ * Determine the pocket icon class based on pocket type
+ * 
+ * @param {String} pocketType current pocket
+ * @returns {String} icon path
+ */
+export function pocketBadgeIcon(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `/insure_education_pocket`;
+	}
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `/insure_monthly_pocket`;
+	}
+	if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `/insure_once_off_pocket`;
+	}
+}
