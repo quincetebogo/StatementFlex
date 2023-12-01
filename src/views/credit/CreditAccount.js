@@ -1,7 +1,7 @@
 import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
-import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
+import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { css, html, unsafeCSS } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -143,7 +143,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-			const cardDisputes = () => this._cardDisputeTransaction(data);
+			const cardDisputes = () => this._cardDisputeTransaction(selectedAccountDetails);
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 			const actions = {
@@ -1101,7 +1101,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _cardDisputeTransaction(item) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
             transactionId: item.transactionId,
             cardAuthType: item.cardAuthType
         });
@@ -1131,7 +1131,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _getNextQusToDispute(request) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
 			cueSheetId: request.cueSheetId,
 			caseId: request.caseId,
 			answerId: request.answerId
@@ -1144,15 +1144,15 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _cancelDisputeTrans() {
-		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
-		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE);
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	async _disputeOutcome(event) {
-		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});
 
@@ -1170,7 +1170,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _restartDispute(transactionDetails) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
 		
 		const returnValue = await this._getFirstQusToDispute(transactionDetails);
 		return returnValue;
@@ -1720,7 +1720,7 @@ export class CreditAccount extends ViewBase {
 					type="clear"
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
-					@click="${() => this._optionClick(`card-disputes`, item)}"
+					@click="${() => this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
 					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
 				</capitec-button>
 			</capitec-group>
@@ -1737,7 +1737,7 @@ export class CreditAccount extends ViewBase {
 				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
 				@cancel="${() => this._cancelDisputeTrans()}"
 				@dispute-outcome="${(event) => this._disputeOutcome(event)}"
-				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
+				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
 			</horizon-disputes>`
 		: html``;
 	}

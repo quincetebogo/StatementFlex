@@ -135,7 +135,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     }
 
 	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`];
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`];
 	}
 
     // --------------
@@ -408,15 +408,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _disputeOutcome(event) {
-		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
-			disputeLogged: event.detail.disputed
-		});
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {});
 
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.transDesc = event.detail.transDesc;
-		screenDetails.disputed = event.detail.disputed;
 		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
+		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 		screenDetails.disputeStep = event.detail.disputeStep;
 
 		this.horizonStore.setScreenDetails(screenDetails);

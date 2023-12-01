@@ -138,7 +138,7 @@ export class Disputes extends Component {
 	}
 
 	async _restartQuestions() {
-		const returnValue = await this.restartQuestions(this.transactionDetails?.transactionId);
+		const returnValue = await this.restartQuestions(this.transactionDetails);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to restart cue sheet questions`, `_restartQuestions`, returnValue.correlationId);
@@ -270,6 +270,7 @@ export class Disputes extends Component {
 				transDesc: this.transactionDetails?.statementDescription,
 				disputed: this.isDisputed,
 				clientAnswerWording: firstElem.clientAnswerWording,
+				agentAnswerWording: firstElem.agentAnswerWording,
 				disputeStep: this.disputeQuestion.disputeStep
 			}
 		}));
@@ -424,6 +425,10 @@ export class Disputes extends Component {
 				}
 				capitec-select{
 					--theme-select-options-max-height: 185px;
+				}
+				.highlight{
+					background-color: #fff000;
+					--theme-label-subtitle-font-weight: 600;
 				}`
 		];
 	}
@@ -509,7 +514,8 @@ export class Disputes extends Component {
 		? html`
 			${this._renderQusBanner()}
 			<capitec-group layout="horizontal" gap="none">
-				<capitec-label type="subtitle" label="Questions"></capitec-label>
+				<capitec-label type="subtitle" label="Question to the "></capitec-label>
+				<capitec-label type="subtitle" class="highlight" label="${!this.disputeQuestion.clientQuestionWording ? `Agent` : `Client`}"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-label type="subtitle" label="Client feedback"></capitec-label>
 			</capitec-group>
