@@ -130,8 +130,8 @@ export class SuccessScreen extends Component {
 					width: auto;
 				}
 				#id-successful-header {
-					margin-top:33px;
-					margin-bottom:23px;
+					margin-top: var(--horizon-success-screen-header-margin-top, 33px);
+					margin-bottom: var(--horizon-success-screen-header-margin-bottom, 23px);
 					height: 32px;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
@@ -198,7 +198,7 @@ export class SuccessScreen extends Component {
 					font-size: 16px;
 					letter-spacing: 0;
 					line-height: 24px;
-					text-align: center;
+					text-align: var(--horizon-success-screen-detail-text-align, center);
 					margin-bottom: 13px;
 				}
 

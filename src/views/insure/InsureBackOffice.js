@@ -322,6 +322,28 @@ export class InsureBackOfficeView extends InsureViewBase {
 		}
 	}
 
+	/**
+	 * Update client elect preferences for type
+	 * @param {Object} electRequest Update selected preference request
+	 * @returns {void} 
+	 */
+	async _updateElectOptions(electRequest) {
+		electRequest.cifNumber = this.callerInformation.cifNumber;
+		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+
+		const electResp = await this.insureService.SetElectOptions(electRequest);
+		if (!electResp.succeeded) {
+			super.isOnlyProductEnquiry = false;
+			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
+			this.showInsureErrorToast = true;
+			return;
+		}
+		super.isOnlyProductEnquiry = false;
+		this.showInsureSuccessToast = true;
+		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
+		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+	}
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -396,6 +418,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-client-summary .clientPolicies = "${this.clientPolicies}" .readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
+				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
