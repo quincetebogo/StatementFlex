@@ -39,8 +39,8 @@ export class DisputesSuccess extends ViewBase {
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.tranDescription = screenDetails.transDesc;
-		this.disputed = screenDetails.disputed;
 		this.clientAnswerWording = screenDetails.clientAnswerWording;
+		this.agentAnswerWording = screenDetails.agentAnswerWording;
 		this.disputeStep = screenDetails.disputeStep;
 
 		await this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS);
@@ -79,22 +79,58 @@ export class DisputesSuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 24px;
-					--horizon-success-screen-margin-top: 12px;
+				.middle {
+					height: 744px;
 				}
-				#id-error-msg {
-					width: 80%;
+				capitec-content-box {
+					--theme-layout-gap-spacing: 24px;
+				}
+				capitec-image {
+					width: 252px;
+					height: 182px;
+					order: 1;
+				}
+				capitec-toast {
+					--theme-toast-info-background-color: #FFFFFF;
+					--theme-toast-box-shadow: none;
+					--theme-toast-max-width: 820px;
+					--theme-toast-title-font-size: 15px;
+					order: 2;
+					border: 2px solid #DAF2F4;
+					border-radius: 4px;
+				}
+				.content {
+					order: 3;
 					height: auto;
+					width: 820px;
+					background-color: #DAF2F4;
+					padding: 16px;
+					--theme-layout-gap-spacing: 12px;
 				}
-				.button-margin {
-					height: 80px;
-					width: 182px;
-					margin-right:16px;
-					--horizon-option-btn-icon-height: 26px;
-					--horizon-option-btn-icon-width: 26px;
+				.content > capitec-group {
+					--theme-layout-gap-spacing: 12px;
 				}
-			`
+				capitec-icon {
+					--theme-icon-size-small: 25px;
+				}
+				capitec-label {
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+					--theme-label-subtitle-font-size: 15px;
+					--theme-label-subtitle-font-weight: 400;
+					text-align: center;
+				}
+				#id-button-group {
+					order: 4;
+				}
+				.center-button {
+					--theme-button-font-size: 16px;
+					--theme-button-font-weight: 600;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-right: 22px;
+				}`
 		];
 	}
 
@@ -104,56 +140,51 @@ export class DisputesSuccess extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderSuccessScreen()}
+			${this._renderDisputeOutcome()}
 			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
 	}
 
-	_renderSuccessScreen() {
-		return this.disputed
-		? html`${this._renderDisputed()}`
-		: html`${this._renderCannotBeDisputed()}`;
-	}
-
-	_renderDisputed() {
+	_renderDisputeOutcome() {
 		return html`
-			<horizon-success-screen 
-				header="Dispute successfully logged"
-				image="platform/illustrations/cards.svg"
-				left="Dispute Another Transaction"
-				right="Done"
-				toast="Dispute successfully logged"
-				@left-click=${() => this._disputeAnotherTran()}
-				@right-click=${() => this._doneClick()}>
-					<section 
-						id="id-error-msg" 
-						slot="detail">Dispute for ${this.tranDescription} was successfully logged.
-					</section>
-			</horizon-success-screen>`;
-	}
+			<capitec-card class="middle" valign="center">
+				<capitec-content-box layout="vertical" halign="center" valign="center">
+					<capitec-image src="platform/illustrations/beneficiaries.svg"></capitec-image>
 
-	_renderCannotBeDisputed() {
-		return html`
-			<horizon-success-screen 
-				type="warning"
-				header="${this.disputeStep}"
-				image="platform/illustrations/cards.svg"
-				left="Dispute Another Transaction"
-				right="Done"
-				toast="${this.disputeStep}"
-				toast-type="warning"
-				toast-header="Notice"
-				@left-click=${() => this._disputeAnotherTran()}
-				@right-click=${() => this._doneClick()}
-				?subContent="${true}">
-					<section 
-						id="id-error-msg" 
-						slot="detail">${this.clientAnswerWording}
-					</section>
-					<!-- <capitec-label slot="sub-content" label="You will need to contact the merchant directly"></capitec-label> -->
-			</horizon-success-screen>`;
+					<capitec-toast
+						type="info"
+						header="Agent info:"
+						detail="${this.agentAnswerWording}"
+						layout="vertical">
+					</capitec-toast>
+					
+					<capitec-group layout="vertical" class="content" halign="center" valign="top">
+						<capitec-group layout="horizontal" halign="center" valign="center">
+							<capitec-icon size="small" icon="status/info-trans"></capitec-icon>
+							<capitec-label label="Notify the client" type="title"></capitec-label>
+						</capitec-group>
+						
+						<capitec-label label="${this.clientAnswerWording}" type="subtitle"></capitec-label>
+					</capitec-group>
+
+					<capitec-group id="id-button-group" layout="horizontal" halign="center">
+						<capitec-button
+							class="center-button"
+							label="Dispute Another Transaction"
+							@click="${() => this._disputeAnotherTran()}">
+						</capitec-button>
+
+						<capitec-button
+							class="center-button"
+							type="primary"
+							label="Done"
+							@click="${() => this._doneClick()}">
+						</capitec-button>
+					</capitec-group>
+				</capitec-content-box>
+			</capitec-card>`;
 	}
 
 	_renderRelatedOptions() {
