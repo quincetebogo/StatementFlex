@@ -246,5 +246,40 @@ export const SETTLE_AND_CLOSE = Object.freeze({
 		TRANSACTION_HISTORY_BACK: `call.fulfill-need.credit.${productType}-transaction-history.back`,
 		TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS: `call.fulfill-need.credit.${productType}-transaction-history.linked-transaction-view`,
 		TRANSACTION_HISTORY_LOAD_MORE: `call.fulfill-need.credit.${productType}-transaction-history.load-more`,
-		TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.credit.${productType}-transaction-history.scroll-to-top` };
+		TRANSACTION_HISTORY_SCROLL_TOP: `call.fulfill-need.credit.${productType}-transaction-history.scroll-to-top`,
+
+		// CC Disputes
+		TRANSACTION_HISTORY_DISPUTE_CLICK: `call.fulfill-need.credit.credit-card.transaction-history.select.dispute`,
+		TRANSACTION_HISTORY_DISPUTE: `call.fulfill-need.credit.credit-card.transaction-history.dispute`,
+		TRANSACTION_HISTORY_DISPUTE_CANCEL: `call.fulfill-need.credit.credit-card.transaction-history.dispute.cancel`,
+		TRANSACTION_HISTORY_DISPUTE_NEXT: `call.fulfill-need.credit.credit-card.transaction-history.dispute.next`,
+		TRANSACTION_HISTORY_DISPUTE_RESTART: `call.fulfill-need.credit.credit-card.transaction-history.dispute.restart`,
+		TRANSACTION_HISTORY_DISPUTE_CONFIRM: `call.fulfill-need.credit.credit-card.transaction-history.dispute.confirm`,
+		
+		// Dispute Outcome
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success`,
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS_REPEAT: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success.dispute-another`,
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success.done` };
+ };
+
+ /**
+ * Credit card Transaction dispute History events 
+ *
+ * @export
+ * @returns {*} set of transaction history dispute telemetry events for credit card
+ */
+ export const TRANSACTION_ENQUIRY_DISPUTE_EVENTS = {
+		
+		// CC Disputes
+		TRANSACTION_HISTORY_DISPUTE_CLICK: `call.fulfill-need.credit.credit-card.transaction-history.select.dispute`,
+		TRANSACTION_HISTORY_DISPUTE: `call.fulfill-need.credit.credit-card.transaction-history.dispute`,
+		TRANSACTION_HISTORY_DISPUTE_CANCEL: `call.fulfill-need.credit.credit-card.transaction-history.dispute.cancel`,
+		TRANSACTION_HISTORY_DISPUTE_NEXT: `call.fulfill-need.credit.credit-card.transaction-history.dispute.next`,
+		TRANSACTION_HISTORY_DISPUTE_RESTART: `call.fulfill-need.credit.credit-card.transaction-history.dispute.restart`,
+		TRANSACTION_HISTORY_DISPUTE_CONFIRM: `call.fulfill-need.credit.credit-card.transaction-history.dispute.confirm`,
+		
+		// Dispute Outcome
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success`,
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS_REPEAT: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success.dispute-another`,
+		TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE: `call.fulfill-need.credit.credit-card.transaction-history.dispute.success.done`
  };

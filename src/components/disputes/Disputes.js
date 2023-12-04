@@ -14,16 +14,6 @@ const QUESTION_TYPES = {
 	DATE: `input date`
 };
 
-const RESULTS = {
-	TO_ETHOCA: `To Ethoca`,
-	FROM_ETHOCA: `From Ethoca`,
-	TO_AGENT: `To Agent`,
-	COMPLETE: `Complete`,
-	CLIENT_RESPONSIBILITY: `Client Responsibility`,
-	MERCHANT_RESPONSIBILITY: `Merchant Responsibility`,
-	HOLDING_PATTERN: `Holding Pattern`
-};
-
 const HASDISPUTERIGHTS = {
 	YES: `Yes`,
 	NO: `No`
@@ -63,6 +53,7 @@ export class Disputes extends Component {
 		this.input = ``; // Text or currency number
 		this.currencyCode = ``;
 		this.currFocussed = false;
+		this.dateFocussed = false;
 
 		this.logger = Logger.getInstance();
 	}
@@ -89,7 +80,8 @@ export class Disputes extends Component {
 			systemError: { state: true },
 			qusNo: { state: true },
 			selectedAnswer: { state: true },
-			currFocussed: { state: true }
+			currFocussed: { state: true },
+			dateFocussed: { state: true }
 		};
 	}
 
@@ -104,11 +96,6 @@ export class Disputes extends Component {
 			};
 			return obj;
 		});
-	}
-
-	get isDisputed() {
-		return this.disputeQuestion.clientHasDisputeRights === HASDISPUTERIGHTS.YES &&
-				[RESULTS.COMPLETE, RESULTS.TO_ETHOCA].includes(this.disputeQuestion.disputeStep);
 	}
 
 	get isClientAgentQus() {
@@ -138,7 +125,7 @@ export class Disputes extends Component {
 	}
 
 	async _restartQuestions() {
-		const returnValue = await this.restartQuestions(this.transactionDetails?.transactionId);
+		const returnValue = await this.restartQuestions(this.transactionDetails);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to restart cue sheet questions`, `_restartQuestions`, returnValue.correlationId);
@@ -173,11 +160,6 @@ export class Disputes extends Component {
 			const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
 			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
 
-			if (this.isDisputed) {
-				this.disputeCurState = DISPUTE_STEPS.Declaration;
-				return true;
-			}
-
 			this._raiseDisputeOutcome(ans);
 		}
 	}
@@ -209,6 +191,11 @@ export class Disputes extends Component {
 	_inputChanged(e, answerId) {
 		this.input = e.detail.new;
 
+		if (!this.input) {
+			this.selectedAnswer = ``;
+			return;
+		}
+
 		if (this.questionType === QUESTION_TYPES.CURRENCY && this.currencyCode) {
 			this.selectedAnswer = answerId;
 		} else {
@@ -216,8 +203,9 @@ export class Disputes extends Component {
 		}
 	}
 
-	_dateChanged(e) {
+	_dateChanged(e, answerId) {
 		this.date = e.detail.new;
+		this.dateFocussed = false;
 		this.selectedAnswer = answerId;
 	}
 
@@ -249,7 +237,7 @@ export class Disputes extends Component {
 				nextQusReq.comments = this.input;
 				break;
 			case QUESTION_TYPES.DATE:
-				nextQusReq.dateInput = this.date;
+				nextQusReq.dateInput = this.date.date;
 				break;
 			case QUESTION_TYPES.CURRENCY:
 				nextQusReq.currencyInput = {
@@ -268,8 +256,8 @@ export class Disputes extends Component {
 		this.dispatchEvent(new CustomEvent(`dispute-outcome`, {
 			detail: {
 				transDesc: this.transactionDetails?.statementDescription,
-				disputed: this.isDisputed,
 				clientAnswerWording: firstElem.clientAnswerWording,
+				agentAnswerWording: firstElem.agentAnswerWording,
 				disputeStep: this.disputeQuestion.disputeStep
 			}
 		}));
@@ -315,6 +303,10 @@ export class Disputes extends Component {
 				}
 				.dispute-tran-info > horizon-label {
 					width: 164px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
 				}
@@ -353,7 +345,7 @@ export class Disputes extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 				.question-label {
-					max-width: 982px;
+					max-width: 956px;
 				}
 				capitec-radio-group {
 					--theme-layout-gap-spacing: 12px;
@@ -424,6 +416,16 @@ export class Disputes extends Component {
 				}
 				capitec-select{
 					--theme-select-options-max-height: 185px;
+				}
+				.highlight{
+					background-color: #fff000;
+					--theme-label-subtitle-font-weight: 600;
+				}
+				.calendarQusCard {
+					min-height: 80px;
+				}
+				.calendarQusBox {
+					position: absolute;
 				}`
 		];
 	}
@@ -462,12 +464,6 @@ export class Disputes extends Component {
 
 	_renderModalContent() {
 		return html`
-			<capitec-stepper
-				layout="horizontal"
-				.steps="${this.steps}"
-				active-step-number="${this.disputeCurState}">
-			</capitec-stepper>
-
 			${this._renderDisputeTranInfo()}
 
 			<capitec-content-box layout="vertical" gap="clear" class="content">
@@ -509,7 +505,8 @@ export class Disputes extends Component {
 		? html`
 			${this._renderQusBanner()}
 			<capitec-group layout="horizontal" gap="none">
-				<capitec-label type="subtitle" label="Questions"></capitec-label>
+				<capitec-label type="subtitle" label="Question to the "></capitec-label>
+				<capitec-label type="subtitle" class="highlight" label="${!this.disputeQuestion.clientQuestionWording ? `Agent` : `Client`}"></capitec-label>
 				<capitec-spacer></capitec-spacer>
 				<capitec-label type="subtitle" label="Client feedback"></capitec-label>
 			</capitec-group>
@@ -574,7 +571,7 @@ export class Disputes extends Component {
 				return html`${this._renderAnsText(firstElem)}`;
 			case `input date`:
 				this.questionType = QUESTION_TYPES.DATE;
-				return html`${this._renderAnsDate()}`;
+				return html`${this._renderAnsDate(firstElem)}`;
 			default:
 				return html`${this._renderAnsOptions(this.disputeQuestion.answers)}`;
 		}
@@ -615,7 +612,7 @@ export class Disputes extends Component {
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input text"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box>
-					<capitec-text-box label="" minlength="1" maxlength="15" @value-change="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
+					<capitec-text-box label="" minlength="1" maxlength="200" @key-input="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
 				</capitec-content-box>
 			</capitec-card>`;
 	}
@@ -623,14 +620,15 @@ export class Disputes extends Component {
 	_renderAnsDate(firstElem) {
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input date"></capitec-title-bar>
-			<capitec-card class="multiple-ans-option-card">
-				<capitec-content-box>
+			<capitec-card class="multiple-ans-option-card ${this.dateFocussed ? `calendarQusCard` : ``}">
+				<capitec-content-box class="${this.dateFocussed ? `calendarQusBox` : ``}">
 					<capitec-date-time-picker
 						type="single"
 						mode="date"
 						inputType="calendar"
 						outputType="string"
-						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}">
+						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}"
+						@focus="${() => this.dateFocussed = true}">
 					</capitec-date-time-picker>
 				</capitec-content-box>
 			</capitec-card>`;
