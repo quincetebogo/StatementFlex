@@ -303,6 +303,10 @@ export class Disputes extends Component {
 				}
 				.dispute-tran-info > horizon-label {
 					width: 164px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
 				}
@@ -460,12 +464,6 @@ export class Disputes extends Component {
 
 	_renderModalContent() {
 		return html`
-			<capitec-stepper
-				layout="horizontal"
-				.steps="${this.steps}"
-				active-step-number="${this.disputeCurState}">
-			</capitec-stepper>
-
 			${this._renderDisputeTranInfo()}
 
 			<capitec-content-box layout="vertical" gap="clear" class="content">
