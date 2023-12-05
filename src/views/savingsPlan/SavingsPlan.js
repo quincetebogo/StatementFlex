@@ -643,6 +643,10 @@ export class SavingsPlan extends ViewBase {
 			// Convert cents to rands
 			quoteDetails.unlockFee = parseInt(quoteDetails.unlockFee, 10) / 100;
 			quoteDetails.balanceAfterUnlock = parseInt(quoteDetails.balanceAfterUnlock, 10) / 100;
+			
+			this.horizonIncidentManager.setDescription(`Type: ${unlockType}\nFTSP account number: ${accNumber}\nUnlock amount: ` +
+			`${formatCurrency(partialUnlockAmount)}\nPenalty Fee: ${formatCurrency(quoteDetails.unlockFee)}`);
+
 			return quoteDetails;
 		} 
 
@@ -757,9 +761,6 @@ export class SavingsPlan extends ViewBase {
 	async _unloadingUnlockFTSP(details) {
 		
 		if (this.horizonIncidentManager.getCurrentNeed() === `unlock-ftsp-save`) {
-	
-			this.horizonIncidentManager.setDescription(`Type: ${details.type}\nFTSP account number: ${details.fromAccNumber}\nUnlock amount: ` +
-														`${details.unlockAmount}\nPenalty Fee: ${details.penaltyFee}`);
 			await super.classifyIncident(() => this._toggleBusyFlag());
 			this._setIncidentDone();
 		}
