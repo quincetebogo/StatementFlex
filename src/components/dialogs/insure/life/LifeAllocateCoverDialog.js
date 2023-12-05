@@ -44,6 +44,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.onceOffCoverError = ``;
 		this.monthlyCoverError = ``;
 		this.monthlyTotalCoverError = ``;
+		this.allocatedCoverErrorMessage = ``;
 
 		// Beneficiaries
 		this.showAddBeneficiaryDialog = false;
@@ -86,6 +87,7 @@ class LifeAllocateCoverDialog extends Component {
 			onceOffCoverError: { type: String, state: true },
 			monthlyCoverError: { type: String, state: true },
 			monthlyTotalCoverError: { type: String, state: true },
+			allocatedCoverErrorMessage: { type: String, state: true },
 
 			showAddBeneficiaryDialog: { type: Boolean, state: true },
 			showEditBeneficiaryDialog: { type: Boolean, state: true },
@@ -187,10 +189,11 @@ class LifeAllocateCoverDialog extends Component {
 
 	// #region ALLOCATE
 
+	// Monthly cover input change
 	_monthlyCoverChange(event, type) {
 		if (type === `TOTAL`) {
 			this.monthlyTotalCoverValue = event.detail.new;
-			if (this.monthlyTotalCoverValue < 50000) {
+			if (parseFloat(this.monthlyTotalCoverValue) < 50000) {
 				this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			} else {
 				this.monthlyTotalCoverError = ``;
@@ -207,6 +210,8 @@ class LifeAllocateCoverDialog extends Component {
 				this.monthlyTotalCoverValue = this.monthlyCoverValue * 24;
 			}
 		}
+
+		this._validateAllocatePocketsStep();
 	}
 
 	// Education cover input change
@@ -214,12 +219,45 @@ class LifeAllocateCoverDialog extends Component {
 		if (e.detail.new !== e.detail.old) {
 			const educationPocket = this.updatedPolicy.pockets.find(p => p.pocketType === LIFE_POCKET_TYPES.EDUCATION);
 			educationPocket.coverage = e.detail.new;
-			if (educationPocket.coverage < 50000) {
+			if (parseFloat(educationPocket.coverage) < 50000) {
 				this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			} else {
 				this.educationCoverError = ``;
 			}
+
+			this._validateAllocatePocketsStep();
 		}
+	}
+
+	// Once Off cover input change
+	_onceOffCoverChange(e) {
+		if (e.detail.new !== e.detail.old) {
+			const onceOffPocket = this.updatedPolicy.pockets.find(p => p.pocketType === LIFE_POCKET_TYPES.ONCEOFF);
+			onceOffPocket.coverage = e.detail.new;
+			if (parseFloat(onceOffPocket.coverage) < 50000) {
+				this.onceOffCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
+			} else {
+				this.onceOffCoverError = ``;
+			}
+
+			this._validateAllocatePocketsStep();
+		}
+	}
+
+	_validateAllocatePocketsStep() {
+		this.allocatedCoverErrorMessage = ``;
+
+		// Totals exceed max allowed cover
+		let totalCoverage = 0;
+		for (const pocket of this.updatedPolicy.pockets) {
+			totalCoverage += parseFloat(pocket.coverage);
+		}
+		if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
+			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
+		}
+
+		console.log(`totalCoverage: `, totalCoverage);
+		console.log(`currentPolicy?.totalPolicySumAssured: `, this.currentPolicy?.totalPolicySumAssured);
 	}
 
 	// #endregion ALLOCATE
@@ -475,7 +513,13 @@ class LifeAllocateCoverDialog extends Component {
 		// Allocate
 		if (this.currentDialogStep === 0) {
 			console.log(`Validating Step: Allocate`);
-			stepValid = true;
+			if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
+				(isNullorEmpty(this.onceOffCoverValue) || this.onceOffCoverValue === 0) &&
+				(isNullorEmpty(this.educationCoverValue) || this.educationCoverValue === 0)) {
+				this.allocatedCoverErrorMessage = `No cover allocated to any pockets`;
+				stepValid = false;
+			}
+
 		}
 
 		// Beneficiaries
@@ -507,6 +551,8 @@ class LifeAllocateCoverDialog extends Component {
 		if (stepValid === true) {
 			this.currentDialogStep++;
 			this._setDialogTitle(this.currentDialogStep);
+
+			this.allocatedCoverErrorMessage = ``;
 		}
 	}
 
@@ -772,6 +818,19 @@ class LifeAllocateCoverDialog extends Component {
 	 */
 	_renderStepAllocatePockets() {
 		return html`
+			${this.allocatedCoverErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						.label="${this.allocatedCoverErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+
 			<div id="offer-details">
 				${this.isNewOffer === true ? html`
 					<div class="offer-details-cell">
@@ -788,7 +847,8 @@ class LifeAllocateCoverDialog extends Component {
 					<div class="offer-details-value">${formatCurrency(0)}</div>
 				</div>
 			</div>
-			<div style="padding: 20px;">
+
+			<div style="padding: 0px 20px 20px 20px;">
 				<div id="pocket-details">
 					<div class="pocket-details-card">
 						<div class="pocket-details-badge">

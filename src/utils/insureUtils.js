@@ -8,11 +8,12 @@ const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]
 
 export const LIFE_COVER_ERROR_MESSAGES = {
 	POCKET_MINIMUM: `Minimum pocket allocation is R50 000`,
+	COVER_MAXIMUM: `Combined pocket allocation exceeds maximum cover amount`,
 	BENEFICIARY_MINIMUM: `Minimum beneficiary allocation is R50 000`,
 	MAX_BENEFICIARIES: `Maximum of 2 beneficiaries allowed for pocket`,
 	EDUCATION_MAX_BENEFICIARIES: `Maximum of 10 beneficiaries allowed for education fund`,
 	MAIN_LIFE_ID_MATCH: `Main life and beneficiary cannot be the same person`,
-	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`
+	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`,
 };
 
 /**
