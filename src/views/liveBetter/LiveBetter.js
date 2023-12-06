@@ -239,7 +239,8 @@ export class LiveBetter extends SavingsAccountBase {
 		const transactionHistoryRequest = {
 			"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
 			"accountNumber": this.landingPageInfo.accountNumber, // "1733256405"//
-			"postingDate": item.postingDate // "2021-06-22"//
+			"postingDate": item.postingDate, // "2021-06-22"//
+			"transactionId": item.transactionId
 		};
 
 		const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
