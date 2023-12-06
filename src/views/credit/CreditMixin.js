@@ -51,7 +51,7 @@ export const creditMixin = {
 			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
 		}
 
-		// When the option is view-budget, we cant get it from the permissions endpoint. 
+		// When the option is view-budget/ card-disputes, we cant get it from the permissions endpoint. 
 		// So hardcoding it GRANTED always.
 		if (!permission) {
 			permission = {};
