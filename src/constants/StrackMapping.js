@@ -36,6 +36,7 @@
 	"fixed-save-transaction-history": `FIXED_SAVE_TRANSACTION_HISTORY`,
 	"full-ftsp-unlock": `FIXED_SAVE_FULL_UNLOCK`,
 	"partial-ftsp-unlock": `FIXED_SAVE_PARTIAL_UNLOCK`,
+	"unlock-ftsp-save": `UNLOCK_FTSP_ENQUIRY`,
 
 	// LBB
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
