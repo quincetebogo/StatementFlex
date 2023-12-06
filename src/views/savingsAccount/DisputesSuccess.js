@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -44,6 +45,7 @@ export class DisputesSuccess extends ViewBase {
 		this.disputeStep = screenDetails.disputeStep;
 
 		await this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS);
+		this._updateIncidentState();
 	}
 
 	async disconnectedCallback() {
@@ -71,6 +73,17 @@ export class DisputesSuccess extends ViewBase {
 		this.horizonRouter.navigateToReturnPage();
 	}
 
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const feedback = FEEDBACK_OPTIONS.find(f => f.key === 2); // Retrieving need handed off feedback
+	
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
+		this.horizonIncidentManager.setFeedback(feedback.key);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -95,6 +108,7 @@ export class DisputesSuccess extends ViewBase {
 					--theme-toast-box-shadow: none;
 					--theme-toast-max-width: 820px;
 					--theme-toast-title-font-size: 15px;
+					--theme-toast-z-index: 1101;
 					order: 2;
 					border: 2px solid #DAF2F4;
 					border-radius: 4px;
