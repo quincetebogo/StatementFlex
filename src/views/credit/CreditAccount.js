@@ -218,6 +218,10 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
+	get ccDetails() {
+		return this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
+	}
+
 	get cardAuthTypesToDispute() {
 		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`];
 	}
@@ -727,6 +731,11 @@ export class CreditAccount extends ViewBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
+		// Do not set the incident to done when its card disputes
+		if (this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION) {
+			return;
+		}
+
 		await super.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
@@ -1148,6 +1157,7 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
@@ -1190,6 +1200,14 @@ export class CreditAccount extends ViewBase {
 			return result.transactions.find(x => x.journalNumber === this.journalNumber)?.currency;
 		}
 		return ``;
+	}
+
+	_disputeTran(item) {
+		// hardcoding this to get acc config & permission details in option click
+		item.productTypeCode = 101; 
+		item.accountNumber = this.ccDetails.accountNumber;
+		
+		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item);
 	}
 
 	// ---------
@@ -1502,7 +1520,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderTransactionHistory() {
-		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY) {
+		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION) {
 
 			return html`
 			<horizon-transaction-history
@@ -1720,7 +1738,7 @@ export class CreditAccount extends ViewBase {
 					type="clear"
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
-					@click="${() => this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item)}"
+					@click="${() => this._disputeTran(item)}"
 					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
 				</capitec-button>
 			</capitec-group>
