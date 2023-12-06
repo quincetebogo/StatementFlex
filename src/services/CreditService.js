@@ -461,7 +461,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-
+	
 	async budgetTransferFromAccounts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
 		if (await this.isMockEnabled(`budgetTransferFromAccounts`)) {
@@ -633,5 +633,72 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
+	async canOpenBudget(ccAccNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`canOpenBudget`)) {
+			return this.mock(`canOpenBudget`);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/can-open`;
+
+		return this.post(
+			url,
+			{
+				"creditCardAccountNumber": ccAccNumber
+			},
+			this.setToken(),
+			`canOpenBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async calculateBudget(ccAccNumber, budgetAmount, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`calculateBudget`)) {
+			return this.mock(`calculateBudget`);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/calculate`;
+
+		return this.post(
+			url,
+			{
+				"creditCardAccountNumber": ccAccNumber,
+				"amount": budgetAmount
+			},
+			this.setToken(),
+			`calculateBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async openBudget(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`openBudget`)) {
+			return this.mock(`openBudget`);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/open`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`openBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 }
