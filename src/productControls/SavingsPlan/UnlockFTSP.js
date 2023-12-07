@@ -854,7 +854,7 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 	}
 
 	_renderAccountSelection() {
-		const fromAccountList = this.unlockFromAccountsList.filter(item => item.planName !== `Tax- Free Save`);
+		const fromAccountList = this.unlockFromAccountsList.filter(item => item.accountName !== `Tax- Free Save`);
 
 		return html`
 			<capitec-group class="select-group" layout="horizontal" halign="left" valign="top" gap="clear">
