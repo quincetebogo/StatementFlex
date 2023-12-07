@@ -550,7 +550,7 @@ export class SavingsPlan extends ViewBase {
 
 	_getUnlockFromAccounts() {
 		const fromAccounts = this.savingsPlanDetails
-								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
+								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.planName !== `Tax- Free Save`)
 								.map(item => {
 										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 															ACCOUNT_INTCAT_ENUM[item.accountType];
@@ -1120,7 +1120,7 @@ export class SavingsPlan extends ViewBase {
 				.getUnlockOptions="${(accNumber) => _getUnlockOptions(accNumber)}"
 				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
-				.renderAlertBanner="${() => this._renderAlertBanner()}"
+				.renderAlertBanner="${() => this.renderAlertBanner()}"
 
 				@back="${(e) => this._backFromUnlockFTSP()}"
 				@get-agreement="${(event) => this._getUnlockAgreement(event)}"

@@ -703,7 +703,6 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 					
 					<capitec-content-box class="outer-box" noPadding>
 						<capitec-content-box class="inner-box" noPadding>
-							${this.renderAlertBanner()}
 							${this._renderBanner()}
 							${this._renderAccountSelection()}
 							${this._renderDetailsSelection()}
