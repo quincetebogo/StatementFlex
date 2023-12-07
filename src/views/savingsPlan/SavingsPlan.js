@@ -533,6 +533,7 @@ export class SavingsPlan extends ViewBase {
 		
 		this.unlockOptions = await this._getUnlockOptions(accountNumber);
 
+		this.horizonStore.clearScreenDetails();
 		// Try again functionality from failure screen to open unlock FTSP screen with previous account selection.
 		const screenDetails = this.horizonStore.getScreenDetails();
 		if (screenDetails?.unlockAccountNumber) {
@@ -570,7 +571,9 @@ export class SavingsPlan extends ViewBase {
 
 	async _getUnlockOptions(accNumber) {
 
-		const unlockOptionsAccountList = this.unlockFromAccountsList.map(account => ({
+		const unlockOptionsAccountList = this.unlockFromAccountsList
+											.filter(acc => acc.accountNumber === accNumber)
+											.map(account => ({
 													'accountNumber': account.accountNumber 
 												}));
 
@@ -1114,9 +1117,10 @@ export class SavingsPlan extends ViewBase {
 				?hasDigitalChannels="${this.callerInformation.hasDigitalChannels}"
 				?isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
 				
+				.getUnlockOptions="${(accNumber) => _getUnlockOptions(accNumber)}"
 				.getUnlockQuote="${(unlockType, accNumber, partialUnlockAmount) => this._getUnlockQuote(unlockType, accNumber, partialUnlockAmount)}"
 				.shouldDisable="${need => this._shouldDisable(need)}"
-				.renderAlertBanner="${() => this.renderAlertBanner()}"
+				.renderAlertBanner="${() => this._renderAlertBanner()}"
 
 				@back="${(e) => this._backFromUnlockFTSP()}"
 				@get-agreement="${(event) => this._getUnlockAgreement(event)}"
