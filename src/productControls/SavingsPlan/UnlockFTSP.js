@@ -854,6 +854,8 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 	}
 
 	_renderAccountSelection() {
+		const fromAccountList = this.unlockFromAccountsList.filter(item => item.planName !== `Tax- Free Save`);
+
 		return html`
 			<capitec-group class="select-group" layout="horizontal" halign="left" valign="top" gap="clear">
 				<capitec-group class="accounts-group" layout="vertical" halign="left" valign="center" gap="clear">
@@ -871,7 +873,7 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 						id-field="accountNumber"
 						detail-label="${this.selectedFromAccount.accountNumber}"
 						hint="${this.unlockType === `Full unlock` ? `Unlock Fixed-term Savings to a Flexible Plan` : ``}"
-						.items="${this.unlockFromAccountsList}"
+						.items="${fromAccountList}"
 						.value="${this.selectedFromAccount}"
 						.displayRenderer="${(e) => this._renderOptions(e)}"
 						@value-changed="${(e) => this._chooseFromAccount(e)}"> 

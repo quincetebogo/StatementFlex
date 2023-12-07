@@ -550,7 +550,7 @@ export class SavingsPlan extends ViewBase {
 
 	_getUnlockFromAccounts() {
 		const fromAccounts = this.savingsPlanDetails
-								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN && item.planName !== `Tax- Free Save`)
+								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
 								.map(item => {
 										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
 															ACCOUNT_INTCAT_ENUM[item.accountType];
