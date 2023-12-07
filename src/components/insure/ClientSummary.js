@@ -430,10 +430,11 @@ class ClientSummary extends Component {
 	 * Get the Life Cancel Policy Document
 	 *
 	 * @param {String} cancelReason cancel Reason
+	 * @param {Object} lifePolicy selected Life Policy
 	 * @returns {void}
 	 */
-		async _generateDocumentsLifeCancel(cancelReason) {
-			await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
+		async _generateDocumentsLifeCancel(cancelReason, lifePolicy) {
+			await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, lifePolicy, false);
 		}
 	
 
@@ -2289,7 +2290,7 @@ class ClientSummary extends Component {
 			@agree="${(e) => this._lifeCancelPolicyConfirm(e)}"
 			@close-dialog="${() => this.showLifeCancelPolicyDialog = false}"
 			.policy="${this.selectedLifePolicy}"
-			.getLifeCancelPolicyDocument="${(cancelReason) => this._generateDocumentsLifeCancel(cancelReason)}"
+			.getLifeCancelPolicyDocument="${(cancelReason, lifePolicy) => this._generateDocumentsLifeCancel(cancelReason, lifePolicy)}"
 			.lifeCancelAgreementDetails = "${this.lifeCancelAgreementDocument}">
 			</horizon-insure-life-cancel-policy-dialog>
 		`;

@@ -430,6 +430,10 @@
 		"insureLifeSMSHistory": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureGenericLifeDocument": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

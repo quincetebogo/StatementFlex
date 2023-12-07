@@ -365,29 +365,38 @@ export class ExistingClient extends InsureViewBase {
 	 * Cancel Life Policy Agreement
 	 * @param {String} contractReference contractReference
 	 * @param {string} cancelReason cancelReason
+	 * @param {Object} policy life policy
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {void}  
 	 */
-	async _generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum) {
-		const dob = new Date(this.callerInformation.birthdate);
+	async _generateDocumentsLifeCancel(contractReference, cancelReason, policy, saveToDocumentum) {
 		const lifeCancelPolicyAgreementDetails = {
-			"documentFormat": `PDF`,
-			"saveDocumentToDocumentum": saveToDocumentum,
-			"markDocumentsAsAccepted": saveToDocumentum,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString()
+			"saveDocument": saveToDocumentum,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
 			},
-			"input": {
-				"cancellationReason": cancelReason
-			}
+			"metadata": {
+				"deviceId": null,
+				"signatureType": `E`,
+				"branchName": `Fish Hoek`,
+				"branchNumber": `2001`,
+				"channel": `Horizon`,
+				"documentDate": new Date().toISOString(),
+				"language": `English`,
+				"signatoryType": `P`,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": contractReference,
+			"acceptanceDate": new Date().toISOString(),
+			"signatureDate": new Date().toISOString(),
+			"emailAddress": `test@test.com`,
+			"cancellationReason": cancelReason
 		};
 
 
@@ -976,7 +985,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _acceptFuneralPolicy(event) {
 
-		let documents = [];
+		const documents = [];
 		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
@@ -1593,10 +1602,21 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	  */
-	_sendLifeEmail(e) {
+	async _sendLifeEmail(e) {
+		console.log(`e :>> `, e);
 		const emailLifeDocumentsPayload = {
-
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyNumber": e.detail.contractReference,
+				"emailAddress": e.detail.emailAddress,
+				"documentContent": e.detail.documentDetails.documentContent.base64EncodedString,
+				"documentType": e.detail.documentDetails.documentContent.documentCode
 		};
+
+		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
+		if (!lifeEmailResponse.succeeded) {
+			this.handleToastError(lifeEmailResponse.exception);
+			return false;
+		}
 		return true;
 	}
 
@@ -1835,7 +1855,7 @@ export class ExistingClient extends InsureViewBase {
 				.funeralPolicyArrears = "${this.funeralPolicyArrears}"
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
-				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
+				.generateDocumentsLifeCancel="${(contractReference, cancelReason, policy, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, policy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
