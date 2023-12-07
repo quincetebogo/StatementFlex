@@ -133,6 +133,7 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 			getUnlockQuote: { type: Object, attribute: false },
 			shouldDisable: { type: Object, attribute: false },
 			renderAlertBanner: { type: Object, attribute: false },
+			getUnlockOptions: { type: Object, attribute: false },
 
 			unlockType: { state: true },
 			selectedFromAccount: { state: true },
@@ -312,11 +313,17 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 	// PRIVATE METHODS
 	// ---------------
 
-	_loadUnlockOptionsList() {
+	async _loadUnlockOptionsList() {
 		this.unlockOptionsList = [UNLOCK_OPTIONS.FULL];
-		
+
 		// eslint-disable-next-line eqeqeq
-		[this.selectedAccUnlockOptions] = this.unlockOptions.filter(account => account.accountNumber == this.selectedUnlockAccNumber);
+		const selectedAccount = this.unlockOptions.filter(account => account.accountNumber == this.selectedUnlockAccNumber);
+		
+		if (!selectedAccount) {
+			selectedAccount = await this.getUnlockOptions(this.selectedUnlockAccNumber);
+		} 
+
+		[this.selectedAccUnlockOptions] = selectedAccount;
 		
 		if (this.selectedAccUnlockOptions.partialUnlock) {
 			this.unlockOptionsList.push(UNLOCK_OPTIONS.PARTIAL);
@@ -847,6 +854,8 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 	}
 
 	_renderAccountSelection() {
+		const fromAccountList = this.unlockFromAccountsList.filter(item => item.accountName !== `Tax- Free Save`);
+
 		return html`
 			<capitec-group class="select-group" layout="horizontal" halign="left" valign="top" gap="clear">
 				<capitec-group class="accounts-group" layout="vertical" halign="left" valign="center" gap="clear">
@@ -864,7 +873,7 @@ const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands
 						id-field="accountNumber"
 						detail-label="${this.selectedFromAccount.accountNumber}"
 						hint="${this.unlockType === `Full unlock` ? `Unlock Fixed-term Savings to a Flexible Plan` : ``}"
-						.items="${this.unlockFromAccountsList}"
+						.items="${fromAccountList}"
 						.value="${this.selectedFromAccount}"
 						.displayRenderer="${(e) => this._renderOptions(e)}"
 						@value-changed="${(e) => this._chooseFromAccount(e)}"> 
