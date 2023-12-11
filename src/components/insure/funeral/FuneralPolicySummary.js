@@ -290,6 +290,7 @@ class FuneralPolicySummary extends Component {
 			${this._renderLivesAssuredSection()}
 			${this._renderBeneficiariesSection()}
 			${this._renderBankDetailsSection()}
+			${this._renderMandatesDetailsSection()}
 		`;
 	}
 
@@ -612,6 +613,89 @@ class FuneralPolicySummary extends Component {
 				</capitec-group>
 			</horizon-expander>
 		</capitec-content-box>`;
+	}
+
+	_renderMandatesDetailsSection() {
+		const mandateDetails = this.policyDetails?.mandates;
+
+		return html`
+			<capitec-title-bar type="default" label="Mandate details">
+			</capitec-title-bar>
+			${mandateDetails.map((mandate) => html`
+			<capitec-content-box  class="accounts-box">
+			<horizon-expander
+			expandButtonAlignment="right"
+			.expanded = "${false}">
+				<capitec-group 
+					class="expander-header"
+					slot="custom-header"
+					layout="horizontal"
+					gap="clear"
+					halign="left"
+					valign="center">
+						<horizon-label
+							class="column-width-200"
+							data-automation-id="insure-bank-details-account-name"
+							label="Mandate type"
+							value="${mandate.mandateType}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							data-automation-id="insure-bank-details-bank-name"
+							label="Instalment amount"
+							value="${formatCurrency(mandate.instalmentAmount)}">
+						</horizon-label>
+						<horizon-label
+							data-automation-id="insure-bank-details-account-number"
+							label="Mandate status"
+							value="${mandate.mandateStatus}"
+							class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
+						</horizon-label>
+				</capitec-group>
+				<div slot="content">
+					<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+						${this._renderMandateOptions(mandate)}
+					</capitec-group>
+				</div>
+			</horizon-expander>
+		</capitec-content-box>
+			`)}
+		`;
+	}
+
+	_renderMandateOptions(mandate) {
+		return html`
+		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Voice recording number"
+					value="${isNullorEmpty(mandate.voiceRecordingNumber) ? `-` : mandate.voiceRecordingNumber}">
+				</horizon-label>
+				<horizon-label label="Initial amount"
+					value="${isNullorEmpty(mandate.initialInstalmentAmount) ? formatCurrency(0) : formatCurrency(mandate.initialInstalmentAmount)}">
+				</horizon-label>
+				<horizon-label label="Instalment Occurrence"
+					value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}">
+				</horizon-label>
+				<horizon-label label="Number of debit instalments"
+					value="${isNullorEmpty(mandate.numberOfDebitInstalments) ? `-` : mandate.numberOfDebitInstalments}">
+				</horizon-label>
+			</capitec-group>
+			
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Tracking indicator"
+					value="${isNullorEmpty(mandate.mandateRequestTransactionIdentifier) ? `-` : mandate.mandateRequestTransactionIdentifier}">
+				</horizon-label>
+				<horizon-label label="Mandate initiation date"
+					value="${isNullorEmpty(mandate.mandateInitiationDate) ? `-` : formatDate(mandate.mandateInitiationDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="First collection day"
+					value="${isNullorEmpty(mandate.firstCollectionDate) ? `-` : formatDate(mandate.firstCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="Last collection date"
+					value="${isNullorEmpty(mandate.lastCollectionDate) ? `-` : formatDate(mandate.lastCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+			</capitec-group>
+		`;
 	}
 
 	/**
