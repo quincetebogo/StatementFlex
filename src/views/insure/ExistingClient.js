@@ -384,10 +384,8 @@ export class ExistingClient extends InsureViewBase {
 				"signatureType": `E`,
 				"branchName": `Fish Hoek`,
 				"branchNumber": `2001`,
-				"channel": `Horizon`,
 				"documentDate": new Date().toISOString(),
 				"language": `English`,
-				"signatoryType": `P`,
 				"productId": `12601`
 			},
 			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
@@ -484,7 +482,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			// this.lifeCancelAgreementDocument = resp.result;
 			this._generateDocumentsLifeCancel(e.detail.contractReference, e.detail.cancellationReason, true);
-			const lifeEmailSuccess = this._sendLifeEmail(e);
+			const lifeEmailSuccess = await this._sendLifeEmail(e);
 			this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
 			this.clientConfirmedEmail = e.detail.emailAddress;
 			this._goToLifeSuccess(e);
@@ -1603,21 +1601,22 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	  */
 	async _sendLifeEmail(e) {
-		console.log(`e :>> `, e);
 		const emailLifeDocumentsPayload = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"policyNumber": e.detail.contractReference,
 				"emailAddress": e.detail.emailAddress,
 				"documentContent": e.detail.documentDetails.documentContent.base64EncodedString,
-				"documentType": e.detail.documentDetails.documentContent.documentCode
+				"documentType": e.detail.documentDetails.documentDetails.documentCode
 		};
 
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
-			return false;
+			const emailSent = false;
+			return emailSent;
 		}
-		return true;
+		const emailSent = true;
+		return emailSent;
 	}
 
 	/**
