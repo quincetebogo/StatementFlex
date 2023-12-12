@@ -280,7 +280,6 @@ class LifePayArrearsDialog extends Component {
 		}
 
 		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
-		console.log(agreementResult);
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}

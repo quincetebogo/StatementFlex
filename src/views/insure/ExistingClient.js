@@ -1707,7 +1707,6 @@ export class ExistingClient extends InsureViewBase {
 			"documentType": this.lifeDocsToEmail?.documentDetails?.documentCode ? this.lifeDocsToEmail?.documentDetails?.documentCode : ``
 		};
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
-		console.log(lifeEmailResponse);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
 			return false;
