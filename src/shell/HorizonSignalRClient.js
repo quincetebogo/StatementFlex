@@ -24,8 +24,17 @@ export class HorizonSignalRClient extends SignalRClient {
 
 		this.version = `v1`;
 		this._connectionId = ``;
+		this._remoteIdentifier = ``;
 
 		this.logger = Logger.getInstance();
+	}
+
+	get remoteIdentifier() {
+		return this._remoteIdentifier;
+	}
+
+	set remoteIdentifier(value) {
+		this._remoteIdentifier = value;
 	}
 
 	startConnection() {
@@ -33,7 +42,13 @@ export class HorizonSignalRClient extends SignalRClient {
 		return super.startConnection();
 	}
 
-	stopConnection() {
+	async stopConnection() {
+		// invoking server func to remove connection id from group, which deletes the group
+		if (this._remoteIdentifier) {
+			await super.invoke(`DeleteFromGroup`, this._connectionId, this._remoteIdentifier);
+			this._remoteIdentifier = ``; // disposing locally stored remote identifier
+		}
+
 		delete this._connectionId; // disposing locally stored connection id
 		return super.stopConnection();
 	}

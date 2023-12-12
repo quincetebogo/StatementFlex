@@ -389,7 +389,7 @@ export class InsureLifeService extends ChannelServiceBase {
 	 */
 	async emailLifeDocuments(emailDocumentsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureSendEmail`)) {
-			return this.mock(`insureSendEmail`, emailDocumentRequest);
+			return this.mock(`insureSendEmail`, {});
 		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/document/email`,

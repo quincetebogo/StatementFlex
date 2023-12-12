@@ -1,19 +1,21 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
-const STEPS = {
-	BENEFICIARY_DETAILS: 1,
-	GUARDIAN_DETAILS: 2,
-	MONEY_ALLOCATION: 3
-};
 
 const VALIDATION_ERRORS = {
-	REQUIRED_FIELD: `Required Field`, 
-	BENE_OVER_18: `Beneficiary must be under 18`
+	REQUIRED_FIELD: `Required Field`,
+	BENE_OVER_18: `Beneficiary must be over 18`,
+	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
+	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`
+};
+
+const NEW_BENEFICIARY_TYPES = {
+	NEW: `NEW`,
+	EXISTING: `EXISTING`,
+	UNSET: `UNSET`
 };
 
 /**
@@ -28,15 +30,21 @@ class LifeAddBeneficiaryDialog extends Component {
 	constructor() {
 		super();
 
-		this.isChild = false;
+		this.currentStep = 1;
+		this.selectedPocketType = ``;
+		this.policy = {};
+		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
 
-		this.currentStep = STEPS.BENEFICIARY_DETAILS;
-		this.newPocketBeneficiaries = [];
 		this.newBeneficiary = {};
 		this.newBeneficiaryErrors = {};
-		this.guardianDetails = {};
-		this.selectedPocket = {};
+		this.pocketBeneficiaries = [];
 
+		this.newOrExistingErrorMessage = ``;
+		this.beneficiaryDetailsErrorMessage = ``;
+		this.allocateMoneyErrorMessage = ``;
+
+		this.totalPocketCover = 0;
+		this.pocketRemainingCover = 0;
 	}
 
 	// #endregion INITIALIZE
@@ -47,15 +55,22 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	static get properties() {
 		return {
-
 			currentStep: { type: Number, state: true },
+			policy: { type: Object, state: true },
+			selectedPocketType: { type: String, state: true },
+			eligibleBeneficiariesForQuickAdd: { type: Array, state: true },
+			newBeneficiaryType: { type: String, state: true },
+			pocketBeneficiaries: { type: Array, state: true },
+
+			newOrExistingErrorMessage: { type: String, state: true },
+			beneficiaryDetailsErrorMessage: { type: String, state: true },
+			allocateMoneyErrorMessage: { type: String, state: true },
+
 			newBeneficiary: { type: Object, state: true },
 			newBeneficiaryErrors: { type: Object, state: true },
-			guardianDetails: { type: Object, state: true },
-			selectedPocket: { type: Object, state: true },
-			newPocketBeneficiaries: { type: Array, state: true }
-			
-			
+
+			totalPocketCover: { type: Number, state: true },
+			pocketRemainingCover: { type: Number, state: true }
 		};
 	}
 
@@ -72,6 +87,10 @@ class LifeAddBeneficiaryDialog extends Component {
 		this.initialise();
 	}
 
+	/**
+	 * Remove the component from the DOM.
+	 * @returns {void}
+	 */
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
@@ -82,30 +101,292 @@ class LifeAddBeneficiaryDialog extends Component {
 	// #region PRIVATE METHODS
 
 	initialise() {
-		this.newBeneficiary = {
-				"firstName": ``,
-				"lastName": ``,
-				"rolePlayer": ``,
-				"onceOffPayoutBenefitAmount": 0,
-				"educationBenefitAmount": 0,
-				"monthlyPayoutBenefitAmount": 0,
-				"bankDetails": {
-					"accountName": ``,
-					"branchCode": ``,
-					"accountNumber": ``,
-					"bank": ``,
-					"accountType": ``,
-					"collectionDay": 0
-				},
-				"relationship": ``,
-				"gender": ``,
-				"dateOfBirth": ``
-		};
-		
-		this.pocketBeneficiaries.forEach(beneficiary => {
-			this.newPocketBeneficiaries.push(beneficiary);
-		});
+		this.eligibleBeneficiariesForQuickAdd = this._calculateQuickAddBeneficiaries();
+		if (this.eligibleBeneficiariesForQuickAdd.length === 0) {
+			this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
+		}
+
+		this._calculateCoverBreakdown();
+
+		for (const bene of this.policy.beneficiaries) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.metaData.monthlyBenefitAdded === true) {
+				this.pocketBeneficiaries.push(bene);
+			}
+
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && bene.metaData.onceOffBenefitAdded === true) {
+				this.pocketBeneficiaries.push(bene);
+			}
+		}
 	}
+
+	/**
+	 * Check if any other beneficiaries are available for quick add
+	 * @returns {Array} array of beneficiaries
+	 */
+	_calculateQuickAddBeneficiaries() {
+		const eligible = [];
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			for (const bene of this.policy.beneficiaries) {
+				if (bene.metaData.monthlyBenefitAdded === false && bene.metaData.monthlyBenefitAdded) {
+					eligible.push(bene);
+				}
+			}
+		}
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			for (const bene of this.policy.beneficiaries) {
+				if (bene.metaData.onceOffBenefitAdded === false && bene.metaData.onceOffBenefitAdded) {
+					eligible.push(bene);
+				}
+			}
+		}
+		return eligible;
+	}
+
+	/**
+	 * Determine the initial cover breakdown for the selected pocket
+	 * @returns {void}
+	 */
+	_calculateCoverBreakdown() {
+		let totalAllocated = 0;
+		for (const bene of this.policy.beneficiaries) {
+			if (bene.metaData.monthlyBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				totalAllocated += bene.monthlyPayoutBenefitAmount;
+			}
+			if (bene.metaData.onceOffBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				totalAllocated += bene.onceOffPayoutBenefitAmount;
+			}
+		}
+
+		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+	}
+
+	/**
+	 * What steps are available for this add flow
+	 * @returns {Array} array of steps
+	 */
+	_determineSteps() {
+		let steps = [];
+		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
+			steps = [{ title: `New or existing` }, { title: `Beneficiary details` }, { title: `Allocate cover` }];
+		} else {
+			steps = [{ title: `Beneficiary details` }, { title: `Allocate cover` }];
+		}
+		return steps;
+	}
+
+	// #region New Or Existing
+
+	/**
+	 * Continue with new beneficiary
+	 * 
+	 * @returns {void}
+	 */
+	_continueWithNewBeneficiary() {
+		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
+		this.newOrExistingErrorMessage = ``;
+
+		this.newBeneficiary = {};
+	}
+
+	/**
+	 * Continue with existing beneficiary
+	 * 
+	 * @param {Object} beneficiary beneficiary being modified
+	 * @returns {void} 
+	 */
+	_continueWithExistingBeneficiary(beneficiary) {
+		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.EXISTING;
+		this.newOrExistingErrorMessage = ``;
+
+		this.newBeneficiary = beneficiary;
+	}
+
+	// #endregion New Or Existing
+
+	// #region Beneficiary Details
+
+	/**
+	 * Event fired when a beneficiary FIRST NAME value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_firstNameChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.firstName = e.detail.new;
+			this._validateBeneficiaryDetails();
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary SURNAME value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_surnameChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.lastName = e.detail.new;
+			this._validateBeneficiaryDetails();
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary DoB value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_dobChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.dateOfBirth = e.detail.new.date;
+			const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
+			if (wrongTimeZone === true) {
+				let dob = this.newBeneficiary.dateOfBirth;
+				const timezone = `+02:00`;
+				dob = dob.replace(timezone, ``);
+				this.newBeneficiary.dateOfBirth = dob;
+			} else {
+				this.newBeneficiary.dateOfBirth = e.detail.new.date;
+			}
+
+			this._validateBeneficiaryDetails();
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary CELL NUMBER value changes
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_cellphoneNumChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.contactNumber = e.detail.new;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Validate all fields on the beneficiary details step
+	 * @returns {boolean} true if all fields are valid
+	 */
+	_validateBeneficiaryDetails() {
+		let stepValid = true;
+
+		if (isNullorEmpty(this.newBeneficiary?.firstName)) {
+			this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.firstName = ``;
+		}
+
+		if (isNullorEmpty(this.newBeneficiary?.lastName)) {
+			this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.lastName = ``;
+		}
+
+		if (this.newBeneficiary.dateOfBirth === undefined || this.newBeneficiary.dateOfBirth === ``) {
+			this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) < 18) {
+			this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.dateOfBirth = ``;
+		}
+
+		if (stepValid === false) {
+			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+		} else {
+			this.beneficiaryDetailsErrorMessage = ``;
+		}
+
+		return stepValid;
+	}
+
+	// #endregion Beneficiary Details
+
+	// #region Allocation
+
+	/**
+	 * Validate allocate cover step
+	 * @returns {boolean} true if allocation is valid
+	 */
+	_validateAllocateCover() {
+		this.allocateMoneyErrorMessage = ``;
+
+		if (this.pocketRemainingCover < 0) {
+			this.allocateMoneyErrorMessage = VALIDATION_ERRORS.ALLOCATION_UNDER;
+			return false;
+		}
+
+		if (this.pocketRemainingCover > 0) {
+			this.allocateMoneyErrorMessage = VALIDATION_ERRORS.ALLOCATION_OVER;
+			return false;
+		}
+
+		let totalAllocated = 0;
+		if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW) {
+			totalAllocated += this.newBeneficiary.monthlyPayoutBenefitAmount;
+			totalAllocated += this.pocketBeneficiaries.map(bene => bene.monthlyPayoutBenefitAmount).reduce((acc, val) => acc + val, 0);
+		}
+		if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING) {
+			totalAllocated += this.pocketBeneficiaries.map(bene => bene.monthlyPayoutBenefitAmount).reduce((acc, val) => acc + val, 0);
+		}
+
+		if (totalAllocated !== this.totalPocketCover) {
+			this.allocateMoneyErrorMessage = VALIDATION_ERRORS.ALLOCATION_OVER;
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get the cover amount for a beneficiary
+	 * 
+	 * @param {Object} bene beneficiary being checked 
+	 * @returns {number} cover amount for beneficiary
+	 */
+	_beneficiaryCoverValue(bene) {
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+			return bene.monthlyPayoutBenefitAmount;
+		}
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+			return bene.onceOffPayoutBenefitAmount;
+		}
+	}
+
+	/**
+	 * Event fired when a beneficiary cover amount value changes
+	 * 
+	 * @param {event} e event  
+	 * @param {*} bene beneficiary being checked
+	 * @returns {void}
+	 */
+	_beneficiaryCoverAmountChange(e, bene) {
+		if (e.detail.old !== e.detail.new) {
+			const value = e.detail.new;
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW) {
+					this.newBeneficiary.monthlyPayoutBenefitAmount = value;
+				}
+				if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING) {
+					bene.monthlyPayoutBenefitAmount = value;
+				}
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				bene.onceOffPayoutBenefitAmount = value;
+			}
+			this._calculateCoverBreakdown();
+		}
+		this.requestUpdate();
+	}
+
+	// #endregion Allocation
 
 	// #endregion PRIVATE METHODS
 
@@ -121,322 +402,60 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	/**
 	 * Next event from dialog footer button, moves to next step and validates fields from the current step
+	 * 
 	 * @returns {void}
 	 */
 	_nextClick() {
-		let errors = false;
-		if (this.currentStep === STEPS.BENEFICIARY_DETAILS) {
-			if (isNullorEmpty(this.newBeneficiary?.firstName)) {
-				this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
-				errors = true;
-			}
-			if (isNullorEmpty(this.newBeneficiary?.lastName)) {
-				this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
-				errors = true;
-			}
-			if (isNullorEmpty(this.newBeneficiary?.dateOfBirth)) {
-				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
-				errors = true;
-			}
-			if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) > 18) {
-				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
-				errors = true;
+		let stepValid = true;
+		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
+			if (this.currentStep === 1) {
+				if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.UNSET) {
+					this.newOrExistingErrorMessage = `Please select an existing beneficiary or add a new one`;
+					stepValid = false;
+				}
 			}
 
-			if (errors === true) {
-				this.requestUpdate();
-				return;
+			if (this.currentStep === 2) {
+				stepValid = this._validateBeneficiaryDetails();
 			}
-
-			this.newBeneficiaryErrors.firstName = ``;
-			this.newBeneficiaryErrors.lastName = ``;
-			this.newBeneficiaryErrors.dateOfBirth = ``;
-			if (this.isChild) {
-				this.currentStep = STEPS.GUARDIAN_DETAILS;
-			} else {
-				this.currentStep = STEPS.MONEY_ALLOCATION;
-			}
-
-			this.newPocketBeneficiaries.push(this.newBeneficiary);
-			
 		} else {
-			this.currentStep = STEPS.MONEY_ALLOCATION;
+			stepValid = this._validateBeneficiaryDetails();
 		}
 
+		if (stepValid === true) {
+			this.currentStep++;
+
+			this.newBeneficiaryErrors = {};
+			this.beneficiaryDetailsErrorMessage = ``;
+		}
 		this.requestUpdate();
 	}
 
 	/**
-	 * back event from dialog footer button, moves to previous step
-	 * @returns {void}
+	 * Decrease current step and reset errors
 	 * 
+	 * @returns {void}
 	 */
 	_backClick() {
-		if (this.currentStep === STEPS.MONEY_ALLOCATION) {
-			if (this.isChild) {
-				this.currentStep = STEPS.GUARDIAN_DETAILS;
-			} else {
-				this.newPocketBeneficiaries.splice(this.newPocketBeneficiaries.length - 1, 1);
-				this.currentStep = STEPS.BENEFICIARY_DETAILS;
-			} 
-			
-		} else {
-			this.newPocketBeneficiaries.splice(this.newPocketBeneficiaries.length - 1, 1);
-			this.currentStep = STEPS.BENEFICIARY_DETAILS;
-		}
+		this.currentStep--;
+
+		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
+		this.beneficiaryDetailsErrorMessage = ``;
+		this.allocateMoneyErrorMessage = ``;
 	}
 
 	/**
 	 * Add event from dialog footer button, does validations on fields and adds new beneficiary
+	 * 
 	 * @returns {void}
 	 */
 	_addClick() {
-		// do another round of validations before adding
-	}
+		const allocationValid = this._validateAllocateCover();
+		if (allocationValid === true) {
+			this.dispatchEvent(new CustomEvent(`close-dialog`));
+		}
 
-	/**
-	 * Event fired when a beneficiary FIRST NAME value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_firstNameChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				this.newBeneficiary.firstName = e.detail.new;
-				if (isNullorEmpty(this.newBeneficiary.firstName)) {
-					this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
-				} else {
-					this.newBeneficiaryErrors.firstName = ``;
-				}
-			} else {
-				// guardian deets
-			}
-		}
-		this.requestUpdate();
 	}
-
-	/**
-	 * Event fired when a beneficiary SURNAME value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_surnameChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				this.newBeneficiary.lastName = e.detail.new;
-				if (isNullorEmpty(this.newBeneficiary.lastName)) {
-					this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
-				} else {
-					this.newBeneficiaryErrors.lastName = ``;
-				}
-			} else {
-				// guardian deets
-			}
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a beneficiary ID value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_idChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				// find out about this, no id field for bene
-			} else {
-				// guardian deets
-			}
-		}
-	}
-
-	/**
-	 * Event fired when a beneficiary DoB value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_dobChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				this.newBeneficiary.dateOfBirth = e.detail.new.date;
-				const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
-				if (wrongTimeZone === true) {
-					let dob = this.newBeneficiary.dateOfBirth;
-					const timezone = `+02:00`;
-					dob = dob.replace(timezone, ``);
-					this.newBeneficiary.dateOfBirth = dob;
-				}
-				
-				if (isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
-					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
-				} else {
-					this.newBeneficiaryErrors.dateOfBirth = ``;
-				}
-				if (this.isChild) {
-					if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
-						this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
-					}
-				}
-				
-			} else {
-				// guardian deets
-			}
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired when a beneficiary CELL NUMBER value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_cellphoneNumChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				// find out about this, no cell field for bene
-			} else {
-				// guardian deets
-			}
-		}
-	}
-
-	/**
-	 * Event fired when a beneficiary EMAIL value changes
-	 * 
-	 * @param {event} e e
-	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
-	 * @returns {void}
-	 */
-	_emailChange(e, beneficiary) {
-		if (e.detail.old !== e.detail.new) {
-			if (beneficiary) {
-				// find out about this, no email field for bene
-			} else {
-				// guardian deets
-			}
-		}
-	}
-	
-	_allocatedAmountChange(e, index) {
-		
-		if (e.detail.old !== e.detail.new) {
-			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-				this.newPocketBeneficiaries[index].educationBenefitAmount = e.detail.new;
-			}
-			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-				this.newPocketBeneficiaries[index].monthlyPayoutBenefitAmount = e.detail.new;
-			}
-			if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-				this.newPocketBeneficiaries[index].onceOffPayoutBenefitAmount = e.detail.new;
-			}
-		}
-		this.requestUpdate();
-	}
-
-	/**
-	 * Event fired to equally split the coverage amount between beneficiaries in the pocket
-	 * 
-	 * @param {event} e e
-	 * @returns {void}
-	 */
-	_splitAmount(e) {
-		if (e.detail.checked === true) {
-			// coming soon to an add beneficiary dialog near you
-		}
-	}
-
-	/**
-	 * gets the allocated amount for the current pocket
-	 * 
-	 * @param {object} beneficiary beneficiary object
-	 * @returns {Number} number 
-	 */
-	_getBenePocketAllocation(beneficiary) {
-		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return beneficiary.educationBenefitAmount;
-		}
-		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return beneficiary.monthlyPayoutBenefitAmount;
-		}
-		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return beneficiary.onceOffPayoutBenefitAmount;
-		}
-	}
-
-	/**
-	 * calculates the remaining balance of the coverge amount after allocation
-	 * 
-	 * @returns {Number} number 
-	 */
-	_calculateRemainingBalance() {
-		let remainingBalance = this.selectedPocket.coverage;
-
-		if (this.newPocketBeneficiaries.length > 0) {
-			this.newPocketBeneficiaries.forEach(bene => {
-				remainingBalance -= this._getBenePocketAllocation(bene);
-			});
-		}
-		this.requestUpdate();
-		return formatCurrencyInsureCoverAmount(formatCurrency(remainingBalance));
-	}
-
-	_determineSteps() {
-		let steps = [];
-		if (this.isChild) {
-			steps = [{ title: `Child details (under 18)` }, { title: `Caregiver details` }, { title: `Allocate cover` }];
-			return steps;
-		}
-		steps = [{ title: `Beneficiary details` }, { title: `Allocate cover` }];
-		return steps;
-	}
-
-	_determinePocketLabel() {
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
-		}
-	}
-
-	_determinePocketIcon() {
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `/insure_education_pocket`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `/insure_monthly_pocket`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `/insure_onceoff_pocket`;
-		}
-	}
-
-	_determinePocketClass() {
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `education-label`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `monthly-label`;
-		}
-		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `onceoff-label`;
-		}
-	}
-
 
 	// #endregion EVENT HANDLERS
 
@@ -482,19 +501,13 @@ class LifeAddBeneficiaryDialog extends Component {
 					margin: 15px;
 				}
 
-				.education-label{
-					align-self: center;
-					--theme-label-font-color: #AA1580;
+				.pocket-type-label{
+					padding-left:15px;
 				}
 
-				.monthly-label{
-					align-self: center;
-					--theme-label-font-color: #852CB3;
-				}
-
-				.onceoff-label{
-					align-self: center;
-					--theme-label-font-color: #009E96;
+				.pocket-details-badge{
+					display: flex;
+					align-items: center;
 				}
 				
 				.pocket-card{ 
@@ -502,11 +515,18 @@ class LifeAddBeneficiaryDialog extends Component {
 					display: flex;
 					flex-direction: row;
 					justify-content: space-between;
+					align-items: center;
 					box-shadow: 0px 1px 3px 0px #00000026;
 					padding: 14px 24px;
 					margin: 15px;
 				}
 
+				.add-existing-beneficiary-radio{
+					border: 1px solid #e1e1e1; 
+					border-radius: 5px; 
+					padding: 10px; 
+					width: 100%;
+				}
 				`
 		];
 	}
@@ -541,18 +561,78 @@ class LifeAddBeneficiaryDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.BENEFICIARY_DETAILS ? `display: block` : `display: none`}">
-				${this._renderBeneDetails()}
-			</div>
-			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
-				${this._renderGuardianDetails()}
-			</div>
-			<div style="${this.currentStep === STEPS.MONEY_ALLOCATION ? `display: block` : `display: none`}">
-				${this._renderMoneyAllocation()}
-			</div>
-			
-			
+			${this.eligibleBeneficiariesForQuickAdd.length > 0
+				? html`
+					<div style="${this.currentStep === 1 ? `display: block` : `display: none`}">
+						${this._renderNewOrExistingQuickAdd()}
+					</div>
 
+					<div style="${this.currentStep === 2 ? `display: block` : `display: none`}">
+						${this._renderBeneDetails()}
+					</div>
+
+					<div style="${this.currentStep === 3 ? `display: block` : `display: none`}">
+						${this._renderMoneyAllocation()}
+					</div>`
+				: html`
+					<div style="${this.currentStep === 1 ? `display: block` : `display: none`}">
+						${this._renderBeneDetails()}
+					</div>
+
+					<div style="${this.currentStep === 2 ? `display: block` : `display: none`}">
+						${this._renderMoneyAllocation()}
+					</div>
+				`
+			}`;
+	}
+
+	/**
+	 * Render new or existing step
+	 * 
+	 * @returns {html} html content
+	 */
+	_renderNewOrExistingQuickAdd() {
+		return html`
+			${this.newOrExistingErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						label="${this.newOrExistingErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+
+			<capitec-content-box style="min-height:200px; padding-left: 15px;">
+
+				<horizon-product-tile
+					type="radio-button"
+					label="Add New Beneficiary"
+					subtitle="Not in any pocket"
+					?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW}"
+					@click="${() => this._continueWithNewBeneficiary()}">
+				</horizon-product-tile>
+
+				<div style="text-align: center;">
+					<capitec-label 
+						label="Or choose existing"
+						type="strong">
+					</capitec-label>
+				</div>
+
+				${this.eligibleBeneficiariesForQuickAdd.map((bene) => html`
+					<horizon-product-tile
+						type="radio-button"
+						label="${`${bene.firstName} ${bene.lastName}`}"
+						subtitle="${bene.relationship}"
+						?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING}"
+						@click="${() => this._continueWithExistingBeneficiary(bene)}">
+					</horizon-product-tile>
+				`)}
+			</capitec-content-box>
 		`;
 	}
 
@@ -563,128 +643,144 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_renderBeneDetails() {
 		return html`
-		
-			<div class="grouping" >
-				<capitec-text-field label="First Name" style="width: 50%" 
+			${this.beneficiaryDetailsErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						.label="${this.beneficiaryDetailsErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="First Name" 
+					style="width: 50%"
+					value="${this.newBeneficiary?.firstName}"
 					error="${this.newBeneficiaryErrors?.firstName === undefined ? `` : this.newBeneficiaryErrors.firstName}"
-					@value-changed="${(e) => this._firstNameChange(e, true)}">
+					@value-changed="${(e) => this._firstNameChange(e)}">
 				</capitec-text-field>
 			
-				<capitec-text-field label="Surname" style="width: 50%" 
+				<capitec-text-field 
+					label="Surname" 
+					style="width: 50%"
+					value="${this.newBeneficiary?.lastName}"
 					error="${this.newBeneficiaryErrors?.lastName === undefined ? `` : this.newBeneficiaryErrors.lastName}"
-					@value-changed="${(e) => this._surnameChange(e, true)}">
+					@value-changed="${(e) => this._surnameChange(e)}">
 				</capitec-text-field>
 			</div>
 
-			<div class="grouping" >
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
-					@value-changed="${(e) => this._idChange(e, true)}">
-				</capitec-text-field>
-			
-				<capitec-date-time-picker style="width: 50%;" label="Date of Birth" type="single" mode="date" inputType="calendar"
-					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					error="${this.newBeneficiaryErrors?.dateOfBirth === undefined ? `` : this.newBeneficiaryErrors.dateOfBirth}"
-					@value-changed="${(e) => this._dobChange(e, true)}">
+			<div class="grouping">
+				<capitec-date-time-picker 
+					style="width: 50%;" 
+					label="Date of Birth" 
+					type="single" 
+					mode="date" 
+					inputType="calendar"
+					date="${this.newBeneficiary?.dateOfBirth}"
+					value="${formatDate(this.newBeneficiary?.dateOfBirth)}"
+					outputType="string" 
+					maxdate="${this.today}" 
+					minDate="1901-01-01"
+					error="${this.newBeneficiaryErrors?.dateOfBirth}"
+					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
-			</div>
 
-			<div class="grouping" >
-				<capitec-text-field label="Cellphone number (optional)" style="width: 50%" maxlength="10" type="numeric"
-					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
+				<capitec-text-field 
+					label="Cellphone number (optional)" 
+					style="width: 50%" 
+					maxlength="10" 
+					type="numeric"
+					value="${this.newBeneficiary?.contactNumber}"
+					@value-changed="${(e) => this._cellphoneNumChange(e)}">
 				</capitec-text-field>
-			
-				<capitec-text-field label="Email address (optional)" style="width: 50%"
-					@value-changed="${(e) => this._emailChange(e, true)}" >
-				</capitec-text-field>
-			</div>
-		
-		`;
-	}
-
-	/**
-	 * Render Guardian details step
-	 * 
-	 * @returns {html} html content
-	 */
-	_renderGuardianDetails() {
-		return html`
-		<div class="grouping" >
-				<capitec-text-field label="First Name" style="width: 50%" 
-					@value-changed="${(e) => this._firstNameChange(e, false)}">
-				</capitec-text-field>
-			
-				<capitec-text-field label="Surname" style="width: 50%" 
-					@value-changed="${(e) => this._surnameChange(e, false)}">
-				</capitec-text-field>
-			</div>
-
-			<div class="grouping" >
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
-					@value-changed="${(e) => this._idChange(e, false)}">
-				</capitec-text-field>
-			
-				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
-					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					@value-changed="${(e) => this._dobChange(e, false)}">
-				</capitec-date-time-picker>
-			</div>
-
-			<div class="grouping" >
-				<capitec-text-field label="Cellphone number" style="width: 50%" maxlength="10" type="numeric"
-					@value-changed="${(e) => this._cellNumberChange(e, false)}">
-				</capitec-text-field>
-
-				<capitec-text-field label="Email address (optional)" style="width: 50%"
-					@value-changed="${(e) => this._emailChange(e, false)}">
-				</capitec-text-field>
-				
 			</div>
 		`;
 	}
 
 	/**
-	 * Render MOney Allocation step
+	 * Render Money Allocation step
 	 * 
 	 * @returns {html} html content
 	 */
 	_renderMoneyAllocation() {
 		return html`
+			${this.allocateMoneyErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						.label="${this.allocateMoneyErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+
 			<div class="pocket-card"> 
-				<div style="display: flex; gap:20px;">
-					<capitec-icon .icon="${this._determinePocketIcon()}" size="large"></capitec-icon>
-					<capitec-label .label="${this._determinePocketLabel()}" type="subtitle" class="${this._determinePocketClass()}"></capitec-label>
+				<div class="pocket-details-badge">
+					<capitec-icon style="padding-right: 10px;" .icon="${pocketBadgeIcon(this.selectedPocketType)}" size="large"></capitec-icon>
+					<capitec-label type="strong"
+						class="pocket-type-label ${pocketBadgeColorClass(this.selectedPocketType)}"
+						.label="${pocketBadgeLabel(this.selectedPocketType)}">
+					</capitec-label>
 				</div>
 
 				<div style="display: flex; gap: 40px;">
 					<horizon-label
 						label="Cover amount"
-						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.selectedPocket.coverage))}">
+						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.totalPocketCover))}">
 					</horizon-label>
 
 					<horizon-label
 						label="Remaining balance"
-						value="${this._calculateRemainingBalance()}">
+						value="${formatCurrencyInsureCoverAmount(formatCurrency(this.pocketRemainingCover))}">
 					</horizon-label>
 				</div>
 			</div>
 
-			<div class="beneficiary-card"> 
-				<div style="display: flex; gap:20px;">
-					<capitec-toggle label="Split the amount" @value-changed="${(e) => this._splitAmount()}"></capitec-toggle>
-				</div>
-			</div>
-
-			${this.newPocketBeneficiaries?.map((beneficiary, index) => html`
+			<!-- Current in flight beneficiary -->
+			${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW ? html`
 				<div class="beneficiary-card">
 					<div style="display: flex; gap:20px;">
-						<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
-						<capitec-label
-							label="${beneficiary.firstName} ${beneficiary.lastName}">
-						</capitec-label>
+						<capitec-avatar value="${this.newBeneficiary?.firstName?.charAt(0) + this.newBeneficiary?.lastName?.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+						<horizon-label
+							label="${this.newBeneficiary?.firstName}"
+							value="${this.newBeneficiary?.lastName}">
+						</horizon-label>
 					</div>
 					<div style="display: flex; gap: 20px;">
-						<capitec-text-field type="currency" value="${this._getBenePocketAllocation(beneficiary)}"
-							@value-change="${(e) => this._allocatedAmountChange(e, index)}">
+						<capitec-text-field 
+							type="currency" 
+							class="pocket-details-input pocket-details-label" 
+							label=""
+							@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, null)}">
+						</capitec-text-field>
+					</div>
+				</div>
+			` : html``}
+
+			${this.pocketBeneficiaries.map((bene) => html`
+				<div class="beneficiary-card">
+					<div style="display: flex; gap:20px;">
+						<capitec-avatar value="${bene.firstName?.charAt(0) + bene.lastName?.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+						<horizon-label
+							label="${bene.firstName}"
+							value="${bene.lastName}">
+						</horizon-label>
+					</div>
+					<div style="display: flex; gap: 20px;">
+						<capitec-text-field 
+							type="currency" 
+							class="pocket-details-input pocket-details-label" 
+							label=""
+							value="${this._beneficiaryCoverValue(bene)}"
+							@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}">
 						</capitec-text-field>
 					</div>
 				</div>
@@ -699,29 +795,34 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.BENEFICIARY_DETAILS ? html`
+				${this.currentStep === 1
+				? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
-					</capitec-button>
-				` 
+					</capitec-button>`
 				: html`
-						<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
-						</capitec-button>
-				`}
-				
-				${this.currentStep !== STEPS.MONEY_ALLOCATION ? html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
-					</capitec-button>
-				` : html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
+					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
 					</capitec-button>
 				`}
-				
-		`;
+
+				${this.eligibleBeneficiariesForQuickAdd.length > 0
+				? html`
+					${this.currentStep === 3 ? html`
+						<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}"></capitec-button>
+					` : html`
+						<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}" ></capitec-button>
+					`}
+				`
+				: html`
+					${this.currentStep === 2 ? html`
+							<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}"></capitec-button>
+						` : html`
+							<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}" ></capitec-button>
+						`}
+				`}
+			`;
 	}
 
 	// #endregion RENDERING
-
-
 }
 
 window.customElements.define(`horizon-insure-life-add-beneficiary-dialog`, LifeAddBeneficiaryDialog);

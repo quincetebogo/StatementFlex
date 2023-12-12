@@ -237,20 +237,20 @@ class LifePayArrearsDialog extends Component {
 			this.insufficientFunds = true;
 		}
 
-		if (this.accountSelected === false) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
-			return;
-		}
+		// if (this.accountSelected === false) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
+		// 	return;
+		// }
 
-		if (this.totalSelectedArrears === 0) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
-			return;
-		}
+		// if (this.totalSelectedArrears === 0) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+		// 	return;
+		// }
 
-		if (this.insufficientFunds === true) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-			return;
-		}
+		// if (this.insufficientFunds === true) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+		// 	return;
+		// }
 
 		this.arrearsAlertBannerMessage = ``;
 		this.showConfirmationDialog = true;
@@ -401,6 +401,33 @@ class LifePayArrearsDialog extends Component {
 				.emailAddressInput{
 					margin: 10px 0px;
 				}
+
+
+
+
+				
+				.account-label {
+					position: relative; 
+					right: 95px;
+					
+				}
+				.select-header > capitec-content-box{
+					border: 1px solid #e1e1e1;
+					border-radius: 3px;
+					height: 75px;
+					display: flex;
+					justify-content: space-between;
+				}
+
+				.select-header :hover{
+					border-color: #009DE0;
+
+				}
+
+				.select-header :focus-within {
+					border: 3px solid #009DE0;
+
+				}
 				`
 		];
 	}
@@ -457,7 +484,30 @@ class LifePayArrearsDialog extends Component {
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
-					<capitec-label type="subtitle" label="Choose an account"></capitec-label>
+					<!-- <capitec-label type="subtitle" label="Choose an account"></capitec-label> -->
+
+					<!-- Single account - temporary until service can provide payable accounts -->
+					<div class="account-selectbox">
+					<div class="select-header">
+						<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
+							<div> 
+								<capitec-icon size="default" icon="product/transact"></capitec-icon>
+							</div>
+
+							<div style="display: flex; flex-direction: column;">
+								<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
+								<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+							</div>
+
+							<div> 
+								<capitec-label type="subtitle" label="R5 000.00" style="position: relative; font-weight: bold;"></capitec-label>
+							</div>
+
+						</capitec-content-box>
+					</div>
+					</div>
+
+<!-- 
 					<insure-account-select 
 						class="account-selectbox"
 						@option-selected="${(e) => this._accountSelected(e)}"
@@ -465,7 +515,7 @@ class LifePayArrearsDialog extends Component {
 						.insufficient = "${this.insufficientFunds}" 
 						.label= "${`Please select`}"
 						.selectBoxWidth=${`490px`}>
-					</insure-account-select>
+					</insure-account-select> -->
 
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
@@ -558,7 +608,7 @@ class LifePayArrearsDialog extends Component {
 			? html``
 			: html`
 				<horizon-insure-agreement-dialog
-				.agreementContent="${this.agreementDetails?.documentContent?.value}"
+				.agreementContent="${this.agreementDetails?.documentContent?.base64EncodedString}"
 				@back-click="${() => this.showAgreementDialog = false}">
 				</horizon-insure-agreement-dialog>
 			`;

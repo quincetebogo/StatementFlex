@@ -20,6 +20,7 @@ export const TelemetryScreen = {
 
     STOP_CARD: `Stop Card`,
     STOP_CARD_OUTCOME: `Stop Card Outcome`,
+	CARD_HISTORY_PAGE: `Card History Page`,
 
     FAVOURITES: `Favourite Transactions`,
 

@@ -411,7 +411,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.profilePhoto,
 			this.confirmedCaller.gender,
 			this.confirmedCaller.branchCallerID,
-			this.confirmedCaller.branchCode
+			this.confirmedCaller.branchCode,
+			this.confirmedCaller.maskedCifNumber
 		);
 	}
 
