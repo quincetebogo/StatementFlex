@@ -1616,7 +1616,7 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(lifeEmailResponse.exception);
 			return false;
 		}
-		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
+		window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
 		this.lifeDocsToEmail = {};
 		this.lifeSuccessPageMessages.emailSuccess = true;
 		return true;
