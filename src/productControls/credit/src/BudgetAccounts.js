@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { formatStringAsPascalCase, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import { DateTime } from 'luxon';
+import { PERMISSION_DECLINE_REASONS } from 'app/constants/Credit';
 import { Utilities } from '@cb/platform-web-core';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
@@ -61,6 +62,8 @@ const today = new Date();
 		this.closedCreditCardBudgetList = null;
 		this.filteredAccounts = null;
 		this.searchText = ``;
+		this.canOpenBudget = true;
+		this.openBudgetDeclineReason = ``;
 		this.filterByStatus = ``;
 	}
 
@@ -111,6 +114,8 @@ const today = new Date();
 	 * @property {budgetFacilityAccounts} shouldDisable Indicates if Transfer button needs to be disabled based on ITA verification
 	 * @property {budgetFacilityAccounts} budgetStatus Budget status captured when clicked on budget account details, helps to return to the same status list 
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {canOpenBudgetCallback} canOpenBudgetAccount Callback function to get open budget permissions
+	 * @property {getArrearsPayableCallback} getArrearsPayable Callback function to get total arrears payable
 	 * @property {getBudgetFacilitiesCallback} getBudgetFacilities Callback function to get budgets facilities with the selected status
 	 *
 	 */
@@ -120,8 +125,13 @@ const today = new Date();
 			shouldDisable: { type: Object },
 			budgetStatus: { type: String },
 			renderAlertBanner: { type: Object, attribute: false },
+			canOpenBudgetAccount: { type: Object, attribute: false },
+			getArrearsPayable: { type: Object, attribute: false },     
+			groupAccountsByTerm: { state: true },
+			filteredAccounts: { state: true },
+			canOpenBudget: { state: true },
+			openBudgetDeclineReason: { state: true },
 			getBudgetFacilities: { type: Object, attribute: false },
-      
 			filteredAccounts: { state: true },
 			filterByStatus: { state: true }
 		};
@@ -175,6 +185,36 @@ const today = new Date();
 				"searchValue": event.currentTarget.value
 			} }));
 		}
+	}
+
+	async _openBudgetClick() {
+		const returnValue = await this.canOpenBudgetAccount();
+		let result = returnValue?.result;
+
+		if (!returnValue.succeeded) {
+			// mimicking the result to false with reason System Failure
+			result = {
+				canAdd: false,
+				declineReason: `System error, try again later` 
+			};
+		}
+
+		this.canOpenBudget = result?.canAdd;
+		this.openBudgetDeclineReason = PERMISSION_DECLINE_REASONS[result?.declineReason];
+
+		if (this.canOpenBudget) {
+			this.dispatchEvent(new CustomEvent(`open-budget-click`, {
+				detail: {
+					option: `open-budget`
+				}
+			}));
+		} else if (this.openBudgetDeclineReason === PERMISSION_DECLINE_REASONS.AccountInArrears) {
+			let arrearsPayable = await this.getArrearsPayable();
+			arrearsPayable = arrearsPayable < 0 ? arrearsPayable * -1 : arrearsPayable;
+			this.openBudgetDeclineReason = this.openBudgetDeclineReason.replace(`$ArrearsPayable$`, formatCurrency(arrearsPayable));
+		}
+		this.requestUpdate();
+
 	}
 
 	async _statusValueChange(e) {
@@ -321,6 +361,8 @@ const today = new Date();
 		});
 
 		this.filteredAccounts = Object.assign({}, this[BUDGET_TYPE[this.filterByStatus]]);
+
+		this.canOpenBudget = !this.shouldDisable(`open-budget`);
 	}
 
 	getPredefinedDateRanges() {
@@ -416,13 +458,28 @@ const today = new Date();
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
-					width: 900px;
-					margin-bottom: 16px;
-					height: 32px;
 				}
 				.left-arrow {
 					cursor: pointer;
-					margin: 0px 15px 8px 0px;
+					margin: 0px 15px 0px 0px;
+				}
+				capitec-title-bar > capitec-spacer {
+					width: 100px;
+				}
+				.add-budget-btn {
+					--theme-button-default-background-color: linear-gradient(90deg, #B62825 0%, #E61414 100%);
+					--theme-button-default-border-color: #FFFFFF;
+					--theme-button-default-font-color: #FFFFFF;
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+					--theme-button-padding-right: 16px;
+					--theme-button-padding-left: 16px;
+				}
+
+				.add-budget-btn[disabled] {
+					background-color: #DEDEDE;
+					--theme-button-default-font-color: #8C8C8C;
+					border-radius: 4px;
 				}
 
 				/* Account details bar styles */
@@ -443,6 +500,12 @@ const today = new Date();
 				.verificatoin-status {
 					width: 1030px;
 					margin: 16px 0px 8px 16px;
+				}
+				capitec-alert-banner {
+					--theme-toast-box-shadow: none;
+					--theme-toast-padding: 12px 16px 12px 16px;
+					--theme-toast-width: 100%;
+					margin-bottom: 0px;
 				}
 
 				/* Search bar styles */
@@ -640,12 +703,23 @@ const today = new Date();
 					<capitec-title-bar 
 						data-automation-id="budget-facility-title"
 						type="credit">
-							<img
+							<capitec-icon
 								data-automation-id="budget-facility-back-button"
-								src="/images/liveBetter/left-arrow.svg"
+								size="medium"
+								icon="system/arrow-left-white"
 								@click="${() => this._back()}"
-								class="left-arrow"/>
+								class="left-arrow">
+							</capitec-icon>
 							<capitec-label label="Budget Facility" type="Title"></capitec-label>
+							<capitec-spacer></capitec-spacer>
+							<capitec-button
+								class="add-budget-btn"
+								icon="system/add-white"
+								icon-placement="right"
+								label="Add Budget Facility"
+								@click="${() => this._openBudgetClick()}"
+								?disabled="${!this.canOpenBudget}">
+							</capitec-button>
 						
 							${this._renderAccountDetailsBar()}
 				
@@ -656,6 +730,7 @@ const today = new Date();
 					
 					<capitec-content-box class="${RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` ? `budget-content` : ``}">
 						${this.renderAlertBanner()}
+						${this._renderErrorBanner()}
 						${this._renderBudgetAccounts()}
 					</capitec-content-box>
 				</capitec-group>
@@ -735,6 +810,17 @@ const today = new Date();
 
 		</capitec-group>
 		`;
+	}
+
+	_renderErrorBanner() {
+		return !isNullorEmpty(this.openBudgetDeclineReason)
+		? html`
+			<capitec-alert-banner
+				type="error"
+				header="Notify client:"
+				label="${this.openBudgetDeclineReason}">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderFilterChipsBar() {

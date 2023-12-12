@@ -1078,6 +1078,28 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(navigateBackTo);
 	}
 
+	/*
+	* Navigate so specific subview
+	* @param {String} newMode New render mode string to change renderMode to
+	* @returns {void} void
+	 */
+	_navigateToSubView(newMode) {
+		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
+			this.emailEstimateSuccess = false;
+		}
+		this.renderMode = newMode;
+	}
+
+	/**
+	 * Prepare and navigate Estimate
+	 * @returns {void} 
+	 */
+	_goToPolicyEstimate() {
+		this.contractReference = ``;
+		super.setInsureIncident(`funeral-plan-calculate-estimate`);
+		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
+	}
+
 	/**
 	 * Accept Policy Reinstate
 	 * @param {object} event - request payload for Accept Policy
@@ -1447,9 +1469,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} void
 	 */
 	_navigateToSubView(newMode) {
-				if (this.renderMode !== INSURE_RENDER_MODE.FUNERAL_ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
+		if (this.renderMode !== INSURE_RENDER_MODE.FUNERAL_ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
 			this.funeralShowEstimateSuccessToast = false;
-					}
+		}
 		this.renderMode = newMode;
 	}
 
@@ -1916,7 +1938,7 @@ export class ExistingClient extends InsureViewBase {
 				item.isExpanded = false;
 			});
 		}
-		
+
 		return html`
 			<horizon-insure-client-summary 
 				.showEmailEstimateSuccessToast ="${this.funeralShowEstimateSuccessToast}"

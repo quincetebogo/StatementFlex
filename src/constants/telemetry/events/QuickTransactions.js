@@ -37,11 +37,9 @@ export const QuickTransactionEvents = {
 	STOP_CARD_OUTCOME_ANOTHER: `call.fulfill-need.stop-card.outcome.another`,
 	STOP_CARD_OUTCOME_TRY_AGAIN: `call.fulfill-need.stop-card.outcome.try-again`,
 	STOP_CARD_OUTCOME_ASSIGN: `call.fulfill-need.stop-card.outcome.assign`,
-	STOP_CARD_AC_SUSPEND: `call.fulfill-need.stop-card.ac-suspend`,
-	STOP_CARD_AC_SUSPEND_NOT_NOW: `call.fulfill-need.stop-card.ac-suspend.not-now`,
-	STOP_CARD_AC_SUSPEND_CONTINUE: `call.fulfill-need.stop-card.ac-suspend.continue`,
-	STOP_CARD_AC_SUSPEND_CANCEL: `call.fulfill-need.stop-card.ac-suspend.cancel`,
-	STOP_CARD_AC_SUSPEND_CONFIRM: `call.fulfill-need.stop-card.ac-suspend.confirm`,
+	STOP_CARD_OUTCOME_AC_STATUS: `call.fulfill-need.stop-card.ac-status`,
+	STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW: `call.fulfill-need.stop-card.ac-suspend.not-now`,
+	STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE: `call.fulfill-need.stop-card.ac-suspend.continue`,
 	// Stop card AC outcome
 	STOP_CARD_AC_SUSPEND_OUTCOME: `call.fulfill-need.stop-card.ac-suspend.outcome`,
 	STOP_CARD_AC_SUSPEND_OUTCOME_DONE: `call.fulfill-need.stop-card.ac-suspend.outcome.done`,
@@ -50,6 +48,7 @@ export const QuickTransactionEvents = {
 	STOP_CARD_ASSIGN: `call.fulfill-need.stop-card.assign`,
 	STOP_CARD_ASSIGN_CONFIRM: `call.fulfill-need.stop-card.assign.confirm`,
 	STOP_CARD_ASSIGN_CANCEL: `call.fulfill-need.stop-card.assign.cancel`,
+	CARD_HISTORY: `call.fulfill-need.stop-card.cardHistory`,
 
 	// Proof of Account
 	PROOF_OF_ACCOUNT: `call.fulfill-need.proof-of-account`,
@@ -227,4 +226,24 @@ export const SETTLEMENT_QUOTE_EVENTS = Object.freeze({
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS: `call.fulfill-need.settlement-quote.partial-success`,
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_TRY_AGAIN: `call.fulfill-need.settlement-quote.partial-success.try-again`,
 	SETTLEMENT_QUOTE_PARTIAL_SUCCESS_DONE: `call.fulfill-need.settlement-quote.partial-success.done`
+});
+
+/**
+ * The event names to use when logging telemetry events for suspend channels dialog from AC menu/ Stop card success outcome.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
+ * 
+ * @readonly
+ * @enum {Object} SUSPEND_CHANNELS_EVENTS
+ */
+export const SUSPEND_CHANNELS_EVENTS = Object.freeze({
+	// Suspend Channels
+	SUSPEND_ACCESS_CHANNELS: `call.fulfill-need.stop-card.ac-suspend`,
+	SUSPEND_ACCESS_CHANNELS_CANCEL: `call.fulfill-need.stop-card.ac-suspend.cancel`,
+	SUSPEND_ACCESS_CHANNELS_CONFIRM: `call.fulfill-need.stop-card.ac-suspend.confirm`,
+	// Stop card AC outcome
+	SUSPEND_ACCESS_CHANNELS_OUTCOME: `call.fulfill-need.stop-card.ac-suspend.outcome`,
+	SUSPEND_ACCESS_CHANNELS_OUTCOME_DONE: `call.fulfill-need.stop-card.ac-suspend.outcome.done`,
+	SUSPEND_ACCESS_CHANNELS_OUTCOME_TRY_AGAIN: `call.fulfill-need.stop-card.ac-suspend.outcome.try-again`,
+	SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_NOT_NOW: `call.fulfill-need.stop-card.ac-suspend.outcome.stop-card.not-now`,
+	SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE: `call.fulfill-need.stop-card.ac-suspend.outcome.stop-card.continue`
 });

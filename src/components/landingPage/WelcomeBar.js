@@ -87,6 +87,8 @@ export class LandingPageWelcome extends Component {
 				break;
 			case `Credit`:
 				this.router.navigateToCreditProduct();
+			case `CapitecConnect`:
+				this.router.navigateToCapitecConnetProduct();
 			default:
 				// do nothing
 		}
