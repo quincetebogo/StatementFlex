@@ -2453,6 +2453,10 @@ class ClientSummary extends Component {
 		`;
 	}
 
+	/**
+	 *  Render dialog for Life email
+	 * @returns {void}
+	 */
 	_renderLifeEmailDialog() {
 		return this.showLifeEmailDialog === false ? html``
 			: html`
