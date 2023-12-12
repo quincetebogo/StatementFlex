@@ -176,7 +176,7 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {void}
 	 */
 	async _getLifeCancelAgreement() {
-		await this.getLifeCancelPolicyDocument(this.selectedReason, this.policy);
+		await this.getLifeCancelPolicyDocument(this.selectedReason);
 	}
 
 

@@ -432,7 +432,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

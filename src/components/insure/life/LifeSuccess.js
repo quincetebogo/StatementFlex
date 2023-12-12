@@ -85,24 +85,15 @@ class LifeSuccessPage extends Component {
 
 
 	/**
-	 * Event to open the email plan dialog
-	 * @return {void} 
-	 */
-	_openEmailPlanDialog() {
-		this.titleMessage = `Email Funeral Plan (${this.contractReference})`;
-
-		this.showEmailPlanDialog = true;
-	}
-
-	/**
 	 * Invoke this function when Send button is clicked on Email Popup
 	 * 
 	 * @param {*} emailAddress email address
 	 * @return {void} 
 	 */
-	async _sendEmail() {
+	 _sendEmail() {
 
-		await this.sendEmail(this.email);
+		this.dispatchEvent(new CustomEvent(`send-life-email`, { detail: { emailAddress: this.email, contractReference: this.contractReference } }));
+
 	}
 
 	/**
@@ -210,11 +201,13 @@ class LifeSuccessPage extends Component {
 					<div class="button-row">
 						
 						${this.successMessages?.emailSuccess ? html`
-							<capitec-button label="Done" class="capitec-button-medium" type="${this.successMessages?.emailSuccess ? `primary` : `secondary`}" @click="${() => this._navigateToSummary()}">
+							<capitec-button label="Done" class="capitec-button-medium" type="primary" @click="${() => this._navigateToSummary()}">
 							</capitec-button>
 						` 
 						: html`
 							<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._sendEmail()}">
+							</capitec-button>
+							<capitec-button label="Done" class="capitec-button-medium" type="secondary" @click="${() => this._navigateToSummary()}">
 							</capitec-button>
 						`}
 						
