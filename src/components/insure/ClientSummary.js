@@ -191,6 +191,7 @@ class ClientSummary extends Component {
 			showLifeHealthQuestionsDialog: { type: Boolean, state: true },
 			showLifeAllocateCoverDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
+			generateDocumentsUpdateBankingDetails: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
 			lifeGetPolicyArrears: { type: Object, state: true },
 			lifePolicyArrears: { type: Object, state: true },
@@ -298,6 +299,19 @@ class ClientSummary extends Component {
 				documentDetails: e.detail.documentDetails,
 				callerPage: INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY,
 				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
+	/**
+	 * Life Update banking details confirm
+	 * @param {event} e event
+	 * @returns {void}
+	 */
+	_lifeUpdateBankingDetailsConfirm(e) {
+		this.dispatchEvent(new CustomEvent(`life-update-banking-details`, {
+			detail: {
+
 			}
 		}));
 	}
@@ -449,6 +463,10 @@ class ClientSummary extends Component {
 	 */
 	async _generateDocumentsLifeCancel(cancelReason) {
 		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
+	}
+
+	async _generateDocumentsUpdateBankingDetails(bankingDetails) {
+		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, bankingDetails, false);
 	}
 
 
@@ -2341,8 +2359,10 @@ class ClientSummary extends Component {
 		return this.showLifeUpdateBankDetailsDialog === false ? html``
 			: html`
 			<horizon-insure-life-update-bank-details-dialog
-			.policy="${this.selectedLifePolicy}"
-			@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}">
+				.policy="${this.selectedLifePolicy}"
+				.getLifeUpdateBankingDetailsDocument="${(cancelReason) => this._generateDocumentsUpdateBankingDetails(cancelReason)}"
+				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
+				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
 			</horizon-insure-life-update-bank-details-dialog>
 		`;
 	}

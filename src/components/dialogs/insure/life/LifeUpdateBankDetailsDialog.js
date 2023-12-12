@@ -186,8 +186,12 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @returns {void}  
 	 */
 	_sendEmail() {
-		// Navigate to success page
-		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
+		const validEmail = this._validateEmailAddress();
+		if (!validEmail) {
+			return;
+		}
+
+		this.dispatchEvent(new CustomEvent(`agree`, {}));
 	}
 
 	/**
@@ -405,6 +409,10 @@ class LifeUpdateBankDetailsDialog extends Component {
 		` : html``}
 				
 		${this.currentStep === STEPS.AGREEMENT ? html`
+
+			<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this.currentStep = STEPS.PAYMENT_DETAILS}">
+			</capitec-button>
+
 			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._sendEmail()}">
 			</capitec-button>
 		` : html``}
@@ -418,14 +426,14 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_renderEmailAlertBanner() {
 
 		return this.emailAlertBannerMessage
-		? html`
+			? html`
 		<horizon-alert-banner
 			type="error"
 			header="Notify client:"
 			label="${this.emailAlertBannerMessage}"
 			layout="vertical">
 		</horizon-alert-banner>`
-		: html``;
+			: html``;
 	}
 
 	/**
