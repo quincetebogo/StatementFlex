@@ -987,7 +987,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _acceptFuneralPolicy(event) {
 
-		const documents = [];
 		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
@@ -1615,14 +1614,12 @@ export class ExistingClient extends InsureViewBase {
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
-			const emailSent = false;
-			return emailSent;
+			return false;
 		}
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 		this.lifeDocsToEmail = {};
 		this.lifeSuccessPageMessages.emailSuccess = true;
-		const emailSent = true;
-		return emailSent;
+		return true;
 	}
 
 	/**
