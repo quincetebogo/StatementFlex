@@ -1604,6 +1604,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
+		
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
@@ -1627,11 +1628,12 @@ export class ExistingClient extends InsureViewBase {
 				"documentType": this.lifeDocsToEmail?.documentDetails?.documentCode ? this.lifeDocsToEmail?.documentDetails?.documentCode : ``
 		};
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
+		console.log(lifeEmailResponse);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
 			return false;
 		}
-		window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
+		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
 		this.lifeDocsToEmail = {};
 		this.lifeSuccessPageMessages.emailSuccess = true;
 		return true;

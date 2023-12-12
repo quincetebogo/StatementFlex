@@ -300,7 +300,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -400,7 +400,7 @@
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
@@ -432,7 +432,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

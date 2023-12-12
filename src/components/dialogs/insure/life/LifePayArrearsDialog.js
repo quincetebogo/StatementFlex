@@ -237,20 +237,20 @@ class LifePayArrearsDialog extends Component {
 			this.insufficientFunds = true;
 		}
 
-		if (this.accountSelected === false) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
-			return;
-		}
+		// if (this.accountSelected === false) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
+		// 	return;
+		// }
 
-		if (this.totalSelectedArrears === 0) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
-			return;
-		}
+		// if (this.totalSelectedArrears === 0) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+		// 	return;
+		// }
 
-		if (this.insufficientFunds === true) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-			return;
-		}
+		// if (this.insufficientFunds === true) {
+		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+		// 	return;
+		// }
 
 		this.arrearsAlertBannerMessage = ``;
 		this.showConfirmationDialog = true;
@@ -280,6 +280,7 @@ class LifePayArrearsDialog extends Component {
 		}
 
 		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
+		console.log(agreementResult);
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}
@@ -484,7 +485,7 @@ class LifePayArrearsDialog extends Component {
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
-					<capitec-label type="subtitle" label="Choose an account"></capitec-label>
+					<!-- <capitec-label type="subtitle" label="Choose an account"></capitec-label> -->
 
 					<!-- Single account - temporary until service can provide payable accounts -->
 					<div class="account-selectbox">
@@ -608,7 +609,7 @@ class LifePayArrearsDialog extends Component {
 			? html``
 			: html`
 				<horizon-insure-agreement-dialog
-				.agreementContent="${this.agreementDetails?.documentContent?.value}"
+				.agreementContent="${this.agreementDetails?.documentContent?.base64EncodedString}"
 				@back-click="${() => this.showAgreementDialog = false}">
 				</horizon-insure-agreement-dialog>
 			`;

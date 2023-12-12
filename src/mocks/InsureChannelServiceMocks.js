@@ -229,7 +229,7 @@ export default class InsureChannelServiceMocks {
 	 * Email Funeral Documents Response
 	 * @returns {Object} Mock response data
 	 */
-	sendEmail() {
+	insureSendEmail() {
 		if (this._mockSettings.insureSendEmail.positiveCase) {
 			return this.sendEmailMocks.InsureSuccessResponse;
 		}
