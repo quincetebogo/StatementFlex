@@ -49,7 +49,6 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 			selectedBene: { type: Object, state: true },
 			lives: { type: Array, state: true },
 			selectedRelationship: { type: String, state: true }
-
 		};
 	}
 
@@ -147,7 +146,6 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 	 * @returns {void} 
 	 */
 	_addBeneRelationship() {
-
 		this.dispatchEvent(new CustomEvent(`add`, { detail: { selectedRelationship: this.selectedRelationship } }));
 	}
 
