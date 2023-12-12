@@ -1390,9 +1390,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} void
 	 */
 	_navigateToSubView(newMode) {
-		if (this.renderMode !== INSURE_RENDER_MODE.FUNERAL_ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
+				if (this.renderMode !== INSURE_RENDER_MODE.FUNERAL_ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
 			this.funeralShowEstimateSuccessToast = false;
-		}
+					}
 		this.renderMode = newMode;
 	}
 
@@ -1634,6 +1634,7 @@ export class ExistingClient extends InsureViewBase {
 			return false;
 		}
 		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
+		this.funeralShowEstimateSuccessToast = true;
 		this.lifeDocsToEmail = {};
 		this.lifeSuccessPageMessages.emailSuccess = true;
 		return true;
@@ -1858,7 +1859,7 @@ export class ExistingClient extends InsureViewBase {
 				item.isExpanded = false;
 			});
 		}
-
+		
 		return html`
 			<horizon-insure-client-summary 
 				.showEmailEstimateSuccessToast ="${this.funeralShowEstimateSuccessToast}"
