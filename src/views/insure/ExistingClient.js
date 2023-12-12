@@ -636,7 +636,7 @@ export class ExistingClient extends InsureViewBase {
 	async _retrieveClientLifePolicies() {
 		const request = {
 			// cifNumber: this.callerInformation.cifNumber
-			cifNumber: `323346561`
+			cifNumber: `126514364`
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
@@ -1859,6 +1859,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
+				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"

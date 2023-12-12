@@ -433,10 +433,10 @@ class ClientSummary extends Component {
 	 * @param {String} cancelReason cancel Reason
 	 * @returns {void}
 	 */
-		async _generateDocumentsLifeCancel(cancelReason) {
-			await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
-		}
-	
+	async _generateDocumentsLifeCancel(cancelReason) {
+		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
+	}
+
 
 	/**
 	 * Get the Cancel Policy Document
@@ -643,6 +643,12 @@ class ClientSummary extends Component {
 		console.log(e);
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
+	}
+
+	
+	_cancelLifeUpdatePolicyFlow() {
+		this.showLifeAllocateCoverDialog = false;
+		this.refreshLifePolicies();
 	}
 
 	// #endregion EVENT HANDLERS
@@ -1167,6 +1173,11 @@ class ClientSummary extends Component {
 				width: 200px;
 				text-overflow: ellipsis;
 			}
+
+			horizon-label[label="Status"] .label-value {
+				width: 200px;
+			}
+
 			horizon-label {
 				width: 135px;
 				padding-left: 16px;
@@ -1761,6 +1772,7 @@ class ClientSummary extends Component {
 					<div>
 						<horizon-label
 							label="Arrears amount"
+							class="${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? `arrears` : ``}"
 							value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
 						</horizon-label>
 					</div>
@@ -2355,7 +2367,7 @@ class ClientSummary extends Component {
 				.currentPolicy="${this.selectedLifePolicy}"
 				.isNewOffer="${false}"
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
-				@close-dialog="${() => this.showLifeAllocateCoverDialog = false}">
+				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;
 	}
