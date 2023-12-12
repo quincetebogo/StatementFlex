@@ -336,8 +336,8 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async lifeCancelPolicyAgreement(cancelPolicyAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`generateAgreement`, cancelPolicyAgreementRequest);
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`, cancelPolicyAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/document/generate/cancel-policy-agreement`,
@@ -362,14 +362,40 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async lifePayArrearsAgreement(payArrearsAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`generateAgreement`, payArrearsAgreementRequest);
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`, payArrearsAgreementRequest);
 		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/document/generate/pay-arrears-agreement`,
 			payArrearsAgreementRequest,
 			this._setInsureHeaders(),
 			`lifePayArrearsAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Email Life agreement
+	 *
+	 * @param {Object} [emailDocumentsRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async emailLifeDocuments(emailDocumentsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureSendEmail`)) {
+			return this.mock(`insureSendEmail`, emailDocumentRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/document/email`,
+			emailDocumentsRequest,
+			this._setInsureHeaders(),
+			`lifeEmailDocuments`,
 			null,
 			null,
 			900,

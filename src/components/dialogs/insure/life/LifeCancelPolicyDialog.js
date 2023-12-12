@@ -39,6 +39,7 @@ class LifeCancelPolicyDialog extends Component {
 		this.confirmEmail = ``;
 		this.emailAlertBannerMessage = ``;
 		this.agreeToTermsCheckSelected = false;
+		this.policy = {};
 	}
 
 	// #endregion INITIALIZE
@@ -55,7 +56,8 @@ class LifeCancelPolicyDialog extends Component {
 			email: { type: String, state: true },
 			confirmEmail: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
-			agreeToTermsCheckSelected: { type: Boolean, state: true }
+			agreeToTermsCheckSelected: { type: Boolean, state: true },
+			policy: { type: Object, state: true }
 		};
 	}
 
@@ -476,7 +478,7 @@ class LifeCancelPolicyDialog extends Component {
 		return this.showAgreementDialog === false ? html``
 			: html`
 			<horizon-insure-agreement-dialog
-			.agreementContent="${this.lifeCancelAgreementDetails?.documentContent.value}"
+			.agreementContent="${this.lifeCancelAgreementDetails?.documentContent.base64EncodedString}"
 			@back-click="${() => this.showAgreementDialog = false}">
 			</horizon-insure-agreement-dialog>
 		`;

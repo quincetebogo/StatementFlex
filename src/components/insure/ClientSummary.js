@@ -95,6 +95,8 @@ class ClientSummary extends Component {
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
+
+		this.showLifeEmailDialog = false;
 	}
 
 	// #endregion INITIALISATION
@@ -191,6 +193,7 @@ class ClientSummary extends Component {
 			lifeCancelAgreementDocument: { type: Object, state: true },
 			lifeGetPolicyArrears: { type: Object, state: true },
 			lifePolicyArrears: { type: Object, state: true },
+			showLifeEmailDialog: { type: Boolean, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -397,9 +400,19 @@ class ClientSummary extends Component {
 	 * @param {string} emailAddress email address
 	 * @returns {void}
 	 */
-	_sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
+	_sendFuneralEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
 		this.showFuneralEmailPlanDialog = false;
+	}
+
+	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 * @param {String} emailAddress email address
+	 * @returns {void}
+	 */
+	_sendLifeEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-life-email`, { detail: { emailAddress: emailAddress.detail.emailAddress, contractReference: this.selectedLifePolicy.contractReference } }));
+		this.showLifeEmailDialog = false;
 	}
 
 	/**
@@ -430,6 +443,7 @@ class ClientSummary extends Component {
 	 * Get the Life Cancel Policy Document
 	 *
 	 * @param {String} cancelReason cancel Reason
+	 * @param {Object} lifePolicy selected Life Policy
 	 * @returns {void}
 	 */
 		async _generateDocumentsLifeCancel(cancelReason) {
@@ -471,7 +485,7 @@ class ClientSummary extends Component {
 	 * @param {String} contractRef Policy contract reference
 	 * @returns {void} 
 	 */
-	async _showEmailPlanDialog(contractRef) {
+	_showFuneralEmailPlanDialog(contractRef) {
 		this.setInsureIncident(`funeral-plan-send-document`);
 		this.emailContractRef = contractRef;
 		this.showFuneralEmailPlanDialog = true;
@@ -638,10 +652,18 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_lifeHealthQuestionsCompleted(e) {
-		console.log(`_lifeHealthQuestionsCompleted`);
-		console.log(e);
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
+	}
+
+	/**
+	 *  Open Life Email dialog
+	 * @param {Object} policy life policy
+	 * @returns {void}
+	 */
+	_openLifeEmailDialog(policy) {
+		this.showLifeEmailDialog = true;
+		this.selectedLifePolicy = policy;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -831,7 +853,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this._showEmailPlanDialog(policyItem.contractReference)}">
+				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -1384,7 +1406,7 @@ class ClientSummary extends Component {
 		return html`
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCFPAgreementDialog()}
-			${this._renderInsureEmailDialog()}
+			${this._renderFuneralEmailDialog()}
 			${this._renderFMSRequestCallbackDialog()}
 			${this._renderFuneralPayPremiumDialog()}
 			${this._renderFuneralPayPremiumConfirmationDialog()}
@@ -1397,6 +1419,7 @@ class ClientSummary extends Component {
 			${this._renderLifeAllocateCoverDialog()}
 			${this._renderRequestCallbackDialog()}
 			${this._renderEarlyCollectionsDialog()}
+			${this._renderLifeEmailDialog()}
 		`;
 	}
 
@@ -1774,7 +1797,9 @@ class ClientSummary extends Component {
 					<capitec-overflow-menu label="Menu">
 					
 					${this.readOnlyMode === true ? html`` : html`
-						<capitec-overflow-menu-item icon="system/send-action"  label="Email Policy"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action" label="Email Policy"
+							@click="${() => this._openLifeEmailDialog(activeLifePolicy)}">
+						</capitec-overflow-menu-item>
 					`}
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
@@ -1912,7 +1937,7 @@ class ClientSummary extends Component {
 						</div>
 
 						<capitec-overflow-menu label="Menu">
-							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Email Policy" @click="${() => this._openLifeEmailDialog(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
@@ -2254,13 +2279,13 @@ class ClientSummary extends Component {
 	 * Render dialog for confirming email address then sending
 	 * @returns {html} html
 	 */
-	_renderInsureEmailDialog() {
+	_renderFuneralEmailDialog() {
 		return this.showFuneralEmailPlanDialog === false ? ``
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Funeral Plan`}"
 					@close-modal="${() => this.showFuneralEmailPlanDialog = false}"
-					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+					@send-email = "${(emailAddress) => this._sendFuneralEmail(emailAddress)}">
 				</horizon-insure-email-dialog>`;
 	}
 
@@ -2426,6 +2451,21 @@ class ClientSummary extends Component {
 				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
 			</horizon-insure-early-collection-options-dialog>
 		`;
+	}
+
+	/**
+	 *  Render dialog for Life email
+	 * @returns {void}
+	 */
+	_renderLifeEmailDialog() {
+		return this.showLifeEmailDialog === false ? html``
+			: html`
+				<horizon-insure-email-dialog 
+					.titleMessage = "${`Email Life Policy`}"
+					@close-modal="${() => this.showLifeEmailDialog = false}"
+					@send-email = "${(emailAddress) => this._sendLifeEmail(emailAddress)}">
+				</horizon-insure-email-dialog>
+			`;
 	}
 
 	// #endregion RENDERING
