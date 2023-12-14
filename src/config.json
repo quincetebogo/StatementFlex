@@ -217,7 +217,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -457,7 +457,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

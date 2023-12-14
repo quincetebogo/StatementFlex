@@ -134,6 +134,7 @@ class ClientSummary extends Component {
 	 * @property {Object} lifePolicies Contains clients life policies
 	 * @property {Object} lifeHealthQuestions Health questions for increase cover
 	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
+	 * @property {Function} lifeUpdateBankingDetailsAgreement contains the agreement document for updating banking details
 	 * 
 	 * @readonly
 	 * @static
@@ -196,6 +197,7 @@ class ClientSummary extends Component {
 			lifeGetPolicyArrears: { type: Object, state: true },
 			lifePolicyArrears: { type: Object, state: true },
 			showLifeEmailDialog: { type: Boolean, state: true },
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -311,7 +313,10 @@ class ClientSummary extends Component {
 	_lifeUpdateBankingDetailsConfirm(e) {
 		this.dispatchEvent(new CustomEvent(`life-update-banking-details`, {
 			detail: {
-
+				policy: this.selectedLifePolicy,
+				updatedPolicy: e.detail.policy,
+				email: e.detail.email,
+				contractReference: this.selectedLifePolicy.contractReference
 			}
 		}));
 	}
@@ -465,8 +470,12 @@ class ClientSummary extends Component {
 		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
 	}
 
-	async _generateDocumentsUpdateBankingDetails(bankingDetails) {
-		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, bankingDetails, false);
+	/**
+	 *  Get the Life Update Banking Details Document
+	 *  @returns {void}
+	 */
+	async _generateDocumentsUpdateBankingDetails() {
+		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, false);
 	}
 
 
@@ -2360,7 +2369,8 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-update-bank-details-dialog
 				.policy="${this.selectedLifePolicy}"
-				.getLifeUpdateBankingDetailsDocument="${(cancelReason) => this._generateDocumentsUpdateBankingDetails(cancelReason)}"
+				.getLifeUpdateBankingDetailsDocument="${() => this._generateDocumentsUpdateBankingDetails()}"
+				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
 				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
 				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
 			</horizon-insure-life-update-bank-details-dialog>
