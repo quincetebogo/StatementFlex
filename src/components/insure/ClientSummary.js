@@ -95,6 +95,8 @@ class ClientSummary extends Component {
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
+
+		this.showLifeEmailDialog = false;
 	}
 
 	// #endregion INITIALISATION
@@ -132,6 +134,7 @@ class ClientSummary extends Component {
 	 * @property {Object} lifePolicies Contains clients life policies
 	 * @property {Object} lifeHealthQuestions Health questions for increase cover
 	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
+	 * @property {Function} lifeUpdateBankingDetailsAgreement contains the agreement document for updating banking details
 	 * 
 	 * @readonly
 	 * @static
@@ -145,6 +148,7 @@ class ClientSummary extends Component {
 			lifePolicies: { type: Object, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
+			executeLifeUpdatePolicy: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -181,16 +185,20 @@ class ClientSummary extends Component {
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 
-			// CHeck...
 			selectedLifePolicy: { type: Object, state: true },
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
 			showLifePayArrearsDialog: { type: Boolean, state: true },
 			showLifeHealthQuestionsDialog: { type: Boolean, state: true },
 			showLifeAllocateCoverDialog: { type: Boolean, state: true },
 			generateDocumentsLifeCancel: { type: Object, state: true },
+			generateDocumentsUpdateBankingDetails: { type: Object, state: true },
 			lifeCancelAgreementDocument: { type: Object, state: true },
 			lifeGetPolicyArrears: { type: Object, state: true },
 			lifePolicyArrears: { type: Object, state: true },
+			showLifeEmailDialog: { type: Boolean, state: true },
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: Number, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -299,6 +307,22 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Life Update banking details confirm
+	 * @param {event} e event
+	 * @returns {void}
+	 */
+	_lifeUpdateBankingDetailsConfirm(e) {
+		this.dispatchEvent(new CustomEvent(`life-update-banking-details`, {
+			detail: {
+				policy: this.selectedLifePolicy,
+				updatedPolicy: e.detail.policy,
+				email: e.detail.email,
+				contractReference: this.selectedLifePolicy.contractReference
+			}
+		}));
+	}
+
+	/**
 	 * Fire navigate event to Premium History for Life Cover
 	 * @param {Object} lifePolicy lifePolicy
 	 * @returns {void}
@@ -397,9 +421,19 @@ class ClientSummary extends Component {
 	 * @param {string} emailAddress email address
 	 * @returns {void}
 	 */
-	_sendEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
+	_sendFuneralEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
 		this.showFuneralEmailPlanDialog = false;
+	}
+
+	/**
+	 * Invoke this function when Send button is clicked on Email Popup
+	 * @param {String} emailAddress email address
+	 * @returns {void}
+	 */
+	_sendLifeEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-life-email`, { detail: { emailAddress: emailAddress.detail.emailAddress, contractReference: this.selectedLifePolicy.contractReference } }));
+		this.showLifeEmailDialog = false;
 	}
 
 	/**
@@ -430,12 +464,21 @@ class ClientSummary extends Component {
 	 * Get the Life Cancel Policy Document
 	 *
 	 * @param {String} cancelReason cancel Reason
+	 * @param {Object} lifePolicy selected Life Policy
 	 * @returns {void}
 	 */
-		async _generateDocumentsLifeCancel(cancelReason) {
-			await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
-		}
-	
+	async _generateDocumentsLifeCancel(cancelReason) {
+		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
+	}
+
+	/**
+	 *  Get the Life Update Banking Details Document
+	 *  @returns {void}
+	 */
+	async _generateDocumentsUpdateBankingDetails() {
+		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, false);
+	}
+
 
 	/**
 	 * Get the Cancel Policy Document
@@ -471,7 +514,7 @@ class ClientSummary extends Component {
 	 * @param {String} contractRef Policy contract reference
 	 * @returns {void} 
 	 */
-	async _showEmailPlanDialog(contractRef) {
+	_showFuneralEmailPlanDialog(contractRef) {
 		this.setInsureIncident(`funeral-plan-send-document`);
 		this.emailContractRef = contractRef;
 		this.showFuneralEmailPlanDialog = true;
@@ -638,10 +681,24 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_lifeHealthQuestionsCompleted(e) {
-		console.log(`_lifeHealthQuestionsCompleted`);
-		console.log(e);
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
+	}
+
+
+	_cancelLifeUpdatePolicyFlow() {
+		this.showLifeAllocateCoverDialog = false;
+		this.refreshLifePolicies();
+	}
+
+	/**
+	 *  Open Life Email dialog
+	 * @param {Object} policy life policy
+	 * @returns {void}
+	 */
+	_openLifeEmailDialog(policy) {
+		this.showLifeEmailDialog = true;
+		this.selectedLifePolicy = policy;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -831,7 +888,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this._showEmailPlanDialog(policyItem.contractReference)}">
+				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -1166,6 +1223,11 @@ class ClientSummary extends Component {
 				width: 200px;
 				text-overflow: ellipsis;
 			}
+
+			horizon-label[label="Status"] .label-value {
+				width: 200px;
+			}
+
 			horizon-label {
 				width: 135px;
 				padding-left: 16px;
@@ -1384,7 +1446,7 @@ class ClientSummary extends Component {
 		return html`
 			${this._renderLodgeClaimInfoDialog()}
 			${this._renderCFPAgreementDialog()}
-			${this._renderInsureEmailDialog()}
+			${this._renderFuneralEmailDialog()}
 			${this._renderFMSRequestCallbackDialog()}
 			${this._renderFuneralPayPremiumDialog()}
 			${this._renderFuneralPayPremiumConfirmationDialog()}
@@ -1397,6 +1459,7 @@ class ClientSummary extends Component {
 			${this._renderLifeAllocateCoverDialog()}
 			${this._renderRequestCallbackDialog()}
 			${this._renderEarlyCollectionsDialog()}
+			${this._renderLifeEmailDialog()}
 		`;
 	}
 
@@ -1760,6 +1823,7 @@ class ClientSummary extends Component {
 					<div>
 						<horizon-label
 							label="Arrears amount"
+							class="${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? `arrears` : ``}"
 							value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
 						</horizon-label>
 					</div>
@@ -1774,10 +1838,12 @@ class ClientSummary extends Component {
 					<capitec-overflow-menu label="Menu">
 					
 					${this.readOnlyMode === true ? html`` : html`
-						<capitec-overflow-menu-item icon="system/send-action"  label="Email Policy"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action" label="Email Policy"
+							@click="${() => this._openLifeEmailDialog(activeLifePolicy)}">
+						</capitec-overflow-menu-item>
 					`}
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
+					<!-- ${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1785,7 +1851,7 @@ class ClientSummary extends Component {
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			}
+			} -->
 
 					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -1912,7 +1978,7 @@ class ClientSummary extends Component {
 						</div>
 
 						<capitec-overflow-menu label="Menu">
-							<capitec-overflow-menu-item label="Email Policy"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Email Policy" @click="${() => this._openLifeEmailDialog(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
@@ -2254,13 +2320,13 @@ class ClientSummary extends Component {
 	 * Render dialog for confirming email address then sending
 	 * @returns {html} html
 	 */
-	_renderInsureEmailDialog() {
+	_renderFuneralEmailDialog() {
 		return this.showFuneralEmailPlanDialog === false ? ``
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Funeral Plan`}"
 					@close-modal="${() => this.showFuneralEmailPlanDialog = false}"
-					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+					@send-email = "${(emailAddress) => this._sendFuneralEmail(emailAddress)}">
 				</horizon-insure-email-dialog>`;
 	}
 
@@ -2303,8 +2369,11 @@ class ClientSummary extends Component {
 		return this.showLifeUpdateBankDetailsDialog === false ? html``
 			: html`
 			<horizon-insure-life-update-bank-details-dialog
-			.policy="${this.selectedLifePolicy}"
-			@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}">
+				.policy="${this.selectedLifePolicy}"
+				.getLifeUpdateBankingDetailsDocument="${() => this._generateDocumentsUpdateBankingDetails()}"
+				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
+				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
+				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
 			</horizon-insure-life-update-bank-details-dialog>
 		`;
 	}
@@ -2317,12 +2386,14 @@ class ClientSummary extends Component {
 		return this.showLifePayArrearsDialog === false ? html``
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
-			.lifePolicyArrears = "${this.lifePolicyArrears}"
-			.policy="${this.selectedLifePolicy}"
-			.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
-			.executeLifePayArrears="${this.executeLifePayArrears}"
-			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
-			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
+				.defaultSavingsAccountNumber = "${this.defaultSavingsAccountNumber}"
+				.defaultSavingsAccountAvailableBalance = "${this.defaultSavingsAccountAvailableBalance}"
+				.lifePolicyArrears = "${this.lifePolicyArrears}"
+				.policy="${this.selectedLifePolicy}"
+				.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
+				.executeLifePayArrears="${this.executeLifePayArrears}"
+				.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
+				@close-dialog="${() => this.showLifePayArrearsDialog = false}">
 			</horizon-insure-life-pay-arrears-dialog>
 		`;
 	}
@@ -2351,8 +2422,10 @@ class ClientSummary extends Component {
 		return this.showLifeAllocateCoverDialog === false ? html``
 			: html`
 			<horizon-insure-life-allocate-cover-dialog
-				.policy="${this.selectedLifePolicy}"
-				@close-dialog="${() => this.showLifeAllocateCoverDialog = false}">
+				.currentPolicy="${this.selectedLifePolicy}"
+				.isNewOffer="${false}"
+				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
+				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;
 	}
@@ -2426,6 +2499,21 @@ class ClientSummary extends Component {
 				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
 			</horizon-insure-early-collection-options-dialog>
 		`;
+	}
+
+	/**
+	 *  Render dialog for Life email
+	 * @returns {void}
+	 */
+	_renderLifeEmailDialog() {
+		return this.showLifeEmailDialog === false ? html``
+			: html`
+				<horizon-insure-email-dialog 
+					.titleMessage = "${`Email Life Policy`}"
+					@close-modal="${() => this.showLifeEmailDialog = false}"
+					@send-email = "${(emailAddress) => this._sendLifeEmail(emailAddress)}">
+				</horizon-insure-email-dialog>
+			`;
 	}
 
 	// #endregion RENDERING

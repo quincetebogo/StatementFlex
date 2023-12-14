@@ -44,6 +44,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @property {String} emailAddress Email address to send agreement too
 	 * @property {String} confirmedEmailAddress Confirmed email address to send agreement too
 	 * @property {String} emailAlertBannerMessage Error message for email addresses
+	 * @property {Function} getLifeUpdateBankingDetailsDocument callback function to get agreement
+	 * @property {Object} lifeUpdateBankingDetailsAgreement contains agreement content
 	 */
 	static get properties() {
 		return {
@@ -55,7 +57,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 			showAgreementDocumentDialog: { type: Boolean, state: true },
 			emailAddress: { type: String, state: true },
 			confirmedEmailAddress: { type: String, state: true },
-			emailAlertBannerMessage: { type: String, state: true }
+			emailAlertBannerMessage: { type: String, state: true },
+			getLifeUpdateBankingDetailsDocument: { type: Object, state: true },
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
 		};
 	}
 
@@ -70,6 +74,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.collectionDay = this.policy.bankDetails.collectionDay;
+		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
 	}
 
 	/**
@@ -89,9 +94,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @returns {String} Bank name
 	 */
 	_getBankName() {
-		let bank = this.bankNameOptions.find(banks => banks.code === this.policy?.bankDetails?.bank.toUpperCase().trim());
+		let bank = this.bankNameOptions.find(banks => banks.code === this.updatedPolicy?.bankDetails?.bank.toUpperCase().trim());
 		if (isNullorEmpty(bank?.text)) {
-			bank = this.bankNameOptions.find(banks => banks.branchCode === this.policy?.bankDetails?.branchCode.toUpperCase().trim());
+			bank = this.bankNameOptions.find(banks => banks.branchCode === this.updatedPolicy?.bankDetails?.branchCode.toUpperCase().trim());
 		}
 		return bank?.text;
 	}
@@ -119,16 +124,16 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	_bankNameChanged(e) {
 		if (e.detail.old !== e.detail.new) {
-			this.policy.bankDetails.bank = e.detail.new.code;
-			this.policy.bankDetails.branchCode = e.detail.new.branchCode;
+			this.updatedPolicy.bankDetails.bank = e.detail.new.code;
+			this.updatedPolicy.bankDetails.branchCode = e.detail.new.branchCode;
 
-			if (this.policy.bankDetails.branchCode === `0`) {
+			if (this.updatedPolicy.bankDetails.branchCode === `0`) {
 				this.branchCodeDisabled = false;
 			} else {
 				this.branchCodeDisabled = true;
 			}
 
-			this.policy.bankDetails.accountNumber = ``;
+			this.updatedPolicy.bankDetails.accountNumber = ``;
 			this.accountNumberErrorMsg = `Account number is a required field`;
 		}
 		this.requestUpdate();
@@ -141,16 +146,61 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	_collectionDayChanged(e) {
 		if (e.detail.old !== e.detail.new) {
-			this.policy.bankDetails.collectionDay = e.detail.new.code;
+			this.updatedPolicy.bankDetails.collectionDay = e.detail.new.code;
 		}
+	}
+
+	/**
+	 * Account Number change handler
+	 * @param {Object} e event
+	 * @returns {void}  
+	 */
+	_accountNumChanged(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatedPolicy.bankDetails.accountNumber = e.detail.new;
+			this.accountNumberErrorMsg = ``;
+		}
+	
+	}
+
+	/**
+	 * Account Type change handler
+	 * @param {Object} e event
+	 * @returns {void}  
+	 */
+	_accountTypeChanged(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatedPolicy.bankDetails.accountType = e.detail.new.code;
+		}
+	
+	}
+
+	/**
+	 * Branch code change handler
+	 * @param {Object} e event
+	 * @returns {void}  
+	 */
+	_branchCodeChanged(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatedPolicy.bankDetails.branchCode = e.detail.new;
+		}
+	}
+
+	/**
+	 * Clear alert banner message 
+	 * 
+	 * @returns {void}
+	 */
+	_clearAlerts() {
+		this.emailAlertBannerMessage = ``;
 	}
 
 	/**
 	 * Update banking details service call
 	 * @returns {void}  
 	 */
-	_updatePaymentDetails() {
-		// CALL Service
+	async _updatePaymentDetails() {
+		await this.getLifeUpdateBankingDetailsDocument();
 		this.currentStep = STEPS.AGREEMENT;
 	}
 
@@ -186,8 +236,15 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @returns {void}  
 	 */
 	_sendEmail() {
-		// Navigate to success page
-		this.dispatchEvent(new CustomEvent(`close-dialog`, {}));
+		const validEmail = this._validateEmailAddress();
+		if (!validEmail) {
+			return;
+		}
+
+		this.dispatchEvent(new CustomEvent(`agree`, { detail: {
+			policy: this.updatedPolicy,
+			email: this.email
+		} }));
 	}
 
 	/**
@@ -291,7 +348,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal type="free" header="${this.policy?.contractReference} - Update Payment Details">
+			<capitec-modal type="free" header="${this.updatedPolicy?.contractReference} - Update Payment Details">
 				<div slot="body" style="width: 520px;">
 					${this._renderDialogBody()}
 				</div>
@@ -341,8 +398,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 							label="Account Number" 
 							type="numeric" 
 							class="banking-form-input"
-							value="${this.policy?.bankDetails?.accountNumber}"
-							error = "${this.accountNumberErrorMsg}">
+							value="${this.updatedPolicy?.bankDetails?.accountNumber}"
+							error = "${this.accountNumberErrorMsg}"
+							@value-changed = "${(e) => this._accountNumChanged(e)}">
 						</capitec-text-field>
 					</div>
 
@@ -353,14 +411,16 @@ class LifeUpdateBankDetailsDialog extends Component {
 							id-field="code" 
 							class="banking-form-input"
 							.items="${this.accountTypeOptions}"
-							value="${this.policy?.bankDetails?.accountType}">
+							value="${this.updatedPolicy?.bankDetails?.accountType}"
+							@value-changed = "${(e) => this._accountTypeChanged(e)}">
 						</capitec-select>
 						<capitec-text-field 
 							label="Branch Code" 
 							type="numeric" 
 							class="banking-form-input"
-							value="${this.policy?.bankDetails?.branchCode}"
-							?disabled = "${this.branchCodeDisabled}">
+							value="${this.updatedPolicy?.bankDetails?.branchCode}"
+							?disabled = "${this.branchCodeDisabled}"
+							@value-changed = "${(e) => this._branchCodeChanged(e)}">
 						</capitec-text-field>
 					</div>
 				</div>
@@ -405,6 +465,10 @@ class LifeUpdateBankDetailsDialog extends Component {
 		` : html``}
 				
 		${this.currentStep === STEPS.AGREEMENT ? html`
+
+			<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this.currentStep = STEPS.PAYMENT_DETAILS}">
+			</capitec-button>
+
 			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._sendEmail()}">
 			</capitec-button>
 		` : html``}
@@ -418,14 +482,14 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_renderEmailAlertBanner() {
 
 		return this.emailAlertBannerMessage
-		? html`
+			? html`
 		<horizon-alert-banner
 			type="error"
 			header="Notify client:"
 			label="${this.emailAlertBannerMessage}"
 			layout="vertical">
 		</horizon-alert-banner>`
-		: html``;
+			: html``;
 	}
 
 	/**
@@ -436,7 +500,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		return this.showAgreementDocumentDialog === false ? html``
 			: html`
 			<horizon-insure-agreement-dialog
-				.agreementContent="${null}"
+				.agreementContent="${this.lifeUpdateBankingDetailsAgreement.documentContent?.base64EncodedString}"
 				@back-click="${() => this.showAgreementDocumentDialog = false}">
 			</horizon-insure-agreement-dialog>
 		`;

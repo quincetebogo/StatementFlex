@@ -23,6 +23,7 @@
 	"paid-up-accounts": `PAID_UP_LETTER`,
 	"send-cash": `SEND_CASH_ENQUIRY`,
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
+	"card-history": `VIEW_STOPPED_CARD_HISTORY`,
 
 	// Savings account
 	// "transaction-history": `TRANSACTION_HISTORY`,
@@ -35,6 +36,7 @@
 	"fixed-save-transaction-history": `FIXED_SAVE_TRANSACTION_HISTORY`,
 	"full-ftsp-unlock": `FIXED_SAVE_FULL_UNLOCK`,
 	"partial-ftsp-unlock": `FIXED_SAVE_PARTIAL_UNLOCK`,
+	"unlock-ftsp-save": `UNLOCK_FTSP_ENQUIRY`,
 
 	// LBB
 	"transaction-history-lbb": `TRANSACTION_HISTORY_LBB`,
@@ -89,6 +91,7 @@
 	"view-budgets-credit-card": `VIEW_BUDGET_ACCOUNT_INFO`,
 	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
+	"open-budget-credit-card": `OPEN_BUDGET`,
 
 	"transaction-history-access-facility": `TRANSACTION_HISTORY_ACCESS_FACILITY`,
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,

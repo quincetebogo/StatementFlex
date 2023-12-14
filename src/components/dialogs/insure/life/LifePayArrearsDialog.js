@@ -54,6 +54,10 @@ class LifePayArrearsDialog extends Component {
 		this.totalPolicyArrears = 0;
 		this.totalSelectedArrears = 0;
 		this.selectedArrears = [];
+
+		this.defaultSavingsAccountNumber = ``;
+		this.defaultSavingsAccountAvailableBalance = 0;
+
 	}
 
 	// #endregion INITIALIZE
@@ -64,7 +68,7 @@ class LifePayArrearsDialog extends Component {
 		return {
 			policy: { type: Object, state: true },
 			insufficientFunds: { type: Boolean, state: true },
-			payableAccounts: { type: Object, state: true },
+			// payableAccounts: { type: Object, state: true },
 			accountSelected: { type: Boolean, state: true },
 			selectedAccountNumber: { type: String, state: true },
 			selectedAccountType: { type: String, state: true },
@@ -84,7 +88,10 @@ class LifePayArrearsDialog extends Component {
 			emailAlertBannerMessage: { type: String, state: true },
 			arrearsAlertBannerMessage: { type: String, state: true },
 			showConfirmationDialog: { type: Boolean, state: true },
-			lifePolicyArrears: { type: Object, state: true }
+			lifePolicyArrears: { type: Object, state: true },
+
+			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: Number, state: true }
 		};
 	}
 
@@ -121,27 +128,38 @@ class LifePayArrearsDialog extends Component {
 			});
 		}
 
+		this.selectedAccountNumber = this.defaultSavingsAccountNumber;
+		this.selectedAccountType = `Savings`;
+		this.accountSelected = true;
+
+		// Suffecient funds?
+
+		if (this.defaultSavingsAccountAvailableBalance < this.totalPolicyArrears) {
+			this.insufficientFunds = true;
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+		}
+
 		// Relook how will we get this data?
-		this.payableAccounts = [
-			{
-				"accountName": `SAVINGS ACCOUNT`,
-				"branchCode": `470010`,
-				"accountNumber": `2009939669`,
-				"bank": `Capitec Bank`,
-				"accountType": `Savings`,
-				"availableBalance": 120,
-				"currentBalance": 250
-			},
-			{
-				"accountName": `SAVINGS PLAN`,
-				"branchCode": `470010`,
-				"accountNumber": `2009939660`,
-				"bank": `Capitec Bank`,
-				"accountType": `Savings`,
-				"availableBalance": 200,
-				"currentBalance": 250
-			}
-		];
+		// this.payableAccounts = [
+		// 	{
+		// 		"accountName": `SAVINGS ACCOUNT`,
+		// 		"branchCode": `470010`,
+		// 		"accountNumber": `2009939669`,
+		// 		"bank": `Capitec Bank`,
+		// 		"accountType": `Savings`,
+		// 		"availableBalance": 120,
+		// 		"currentBalance": 250
+		// 	},
+		// 	{
+		// 		"accountName": `SAVINGS PLAN`,
+		// 		"branchCode": `470010`,
+		// 		"accountNumber": `2009939660`,
+		// 		"bank": `Capitec Bank`,
+		// 		"accountType": `Savings`,
+		// 		"availableBalance": 200,
+		// 		"currentBalance": 250
+		// 	}
+		// ];
 	}
 
 	/**
@@ -232,23 +250,8 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
-		const indexOfPayableAccount = this.payableAccounts.map(x => x.accountNumber).indexOf(this.selectedAccountNumber);
-		if (this.payableAccounts[indexOfPayableAccount]?.availableBalance < this.totalSelectedArrears) {
-			this.insufficientFunds = true;
-		}
-
-		if (this.accountSelected === false) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
-			return;
-		}
-
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
-			return;
-		}
-
-		if (this.insufficientFunds === true) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
 			return;
 		}
 
@@ -401,6 +404,33 @@ class LifePayArrearsDialog extends Component {
 				.emailAddressInput{
 					margin: 10px 0px;
 				}
+
+
+
+
+				
+				.account-label {
+					position: relative; 
+					right: 95px;
+					
+				}
+				.select-header > capitec-content-box{
+					border: 1px solid #e1e1e1;
+					border-radius: 3px;
+					height: 75px;
+					display: flex;
+					justify-content: space-between;
+				}
+
+				.select-header :hover{
+					border-color: #009DE0;
+
+				}
+
+				.select-header :focus-within {
+					border: 3px solid #009DE0;
+
+				}
 				`
 		];
 	}
@@ -457,7 +487,30 @@ class LifePayArrearsDialog extends Component {
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
-					<capitec-label type="subtitle" label="Choose an account"></capitec-label>
+					<!-- <capitec-label type="subtitle" label="Choose an account"></capitec-label> -->
+
+					<!-- Single account - temporary until service can provide payable accounts -->
+					<div class="account-selectbox">
+					<div class="select-header">
+						<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
+							<div> 
+								<capitec-icon size="default" icon="product/transact"></capitec-icon>
+							</div>
+
+							<div style="display: flex; flex-direction: column;">
+								<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
+								<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+							</div>
+
+							<div> 
+								<capitec-label type="subtitle" label="${formatCurrency(this.defaultSavingsAccountAvailableBalance)}" style="position: relative; font-weight: bold;"></capitec-label>
+							</div>
+
+						</capitec-content-box>
+					</div>
+					</div>
+
+<!-- 
 					<insure-account-select 
 						class="account-selectbox"
 						@option-selected="${(e) => this._accountSelected(e)}"
@@ -465,7 +518,7 @@ class LifePayArrearsDialog extends Component {
 						.insufficient = "${this.insufficientFunds}" 
 						.label= "${`Please select`}"
 						.selectBoxWidth=${`490px`}>
-					</insure-account-select>
+					</insure-account-select> -->
 
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
@@ -558,7 +611,7 @@ class LifePayArrearsDialog extends Component {
 			? html``
 			: html`
 				<horizon-insure-agreement-dialog
-				.agreementContent="${this.agreementDetails?.documentContent?.value}"
+				.agreementContent="${this.agreementDetails?.documentContent?.base64EncodedString}"
 				@back-click="${() => this.showAgreementDialog = false}">
 				</horizon-insure-agreement-dialog>
 			`;

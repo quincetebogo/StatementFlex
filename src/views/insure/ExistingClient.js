@@ -96,7 +96,9 @@ export class ExistingClient extends InsureViewBase {
 		this.lifeSuccessPageMessages = {};
 		this.emailEstimateSuccess = false;
 		this.defaultSavingsAccountNumber = ``;
+		this.defaultSavingsAccountAvailableBalance = 0;
 		this.lifePremiumHistory = {};
+		this.lifeDocsToEmail = {};
 		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
@@ -128,6 +130,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} funeralPolicyArrears contains client arrears and payable accounts for funeral policy
 	 * @property {Object} lifePolicies contains clients life policies
 	 * @property {Object} lifeCancelAgreementDocument contains the cancel policy document details
+	 * @property {Object} lifeDocsToEmail contains Life Document details to email
+	 * @property {Object} lifeUpdateBankingDetailsAgreement contains the update banking details document details
 	 * 
 	 * @readonly
 	 * @static
@@ -164,8 +168,11 @@ export class ExistingClient extends InsureViewBase {
 			emailEstimateSuccess: { type: Boolean, state: true },
 			clientArrears: { type: Object, state: true },
 			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
-			lifePolicyArrears: { type: Object, state: true }
+			lifePolicyArrears: { type: Object, state: true },
+			lifeDocsToEmail: { type: Object, state: true },
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
 
 		};
 	}
@@ -369,31 +376,86 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}  
 	 */
 	async _generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum) {
-		const dob = new Date(this.callerInformation.birthdate);
 		const lifeCancelPolicyAgreementDetails = {
-			"documentFormat": `PDF`,
-			"saveDocumentToDocumentum": saveToDocumentum,
-			"markDocumentsAsAccepted": saveToDocumentum,
-			"returnDocumentContent": true,
-			"emailDocumentToClient": false,
-			"wetsignBarcode": false,
-			"clientDetails": {
-				"cifNumber": this.callerInformation.cifNumber,
-				"policyContractReference": contractReference,
-				"firstName": this.callerInformation.firstName,
-				"surname": this.callerInformation.lastName,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString()
+			"saveDocument": saveToDocumentum,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
 			},
-			"input": {
-				"cancellationReason": cancelReason
-			}
+			"metadata": {
+				"deviceId": null,
+				"signatureType": ``,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": contractReference,
+			"acceptanceDate": new Date().toISOString(),
+			"signatureDate": new Date().toISOString(),
+			"emailAddress": this.callerInformation?.emailId,
+			"cancellationReason": cancelReason
 		};
 
 
 		const resp = await this.insureLifeService.lifeCancelPolicyAgreement(lifeCancelPolicyAgreementDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.lifeCancelAgreementDocument = resp.result;
+			this.lifeDocsToEmail = resp.result;
+		} else {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.requestUpdate();
+	}
+
+	/**
+	 * Update Banking Details Agreement
+	 * @param {String} policy policy being updated
+	 * @param {boolean} saveToDocumentum saveToDocumentum
+	 * @returns {void}  
+	 */
+	async _generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum) {
+		const lifeBankingDetailsAgreement = {
+			"saveDocument": saveToDocumentum,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
+			},
+			"metadata": {
+				"deviceId": null,
+				"signatureType": ``,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": policy.contractReference,
+			"acceptanceDate": new Date().toISOString(),
+			"signatureDate": new Date().toISOString(),
+			"emailAddress": this.callerInformation?.emailId
+		};
+
+
+		// Fix this
+		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			this.lifeUpdateBankingDetailsAgreement = resp.result;
+			this.lifeDocsToEmail = resp.result;
 		} else {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
@@ -415,32 +477,32 @@ export class ExistingClient extends InsureViewBase {
 		const generateDocumentRequest = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
-			  "stamp": `Default`,
-			  "barcode": `Default`,
-			  "watermark": `Copy`,
-			  "channel": `Horizon`,
-			  "contentType": `Pdf`
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
 			},
 			"metadata": {
-			  "deviceId": `string`,
-			  "signatureType": `string`,
-			  "branchName": `string`,
-			  "branchNumber": `string`,
-			  "documentDate": `2023-11-15T07:07:52.936Z`,
-			  "language": `string`,
-			  "productId": `string`
+				"deviceId": `string`,
+				"signatureType": `string`,
+				"branchName": `string`,
+				"branchNumber": `string`,
+				"documentDate": `2023-11-15T07:07:52.936Z`,
+				"language": `string`,
+				"productId": `string`
 			},
 			"nonPrimarySignatoryDetails": {
-			  "signatoryType": `string`,
-			  "hasDetails": true
+				"signatoryType": `string`,
+				"hasDetails": true
 			},
 			"voiceReferenceNumber": `string`,
 			"payArrears": {
 				"policyNumber": contractReference,
 				"arrears": selectedArrears,
-			"cifNumber": this.callerInformation.cifNumber,
-			"policyNumber": contractReference,
-			"paidWithClaims": false
+				"cifNumber": this.callerInformation.cifNumber,
+				"policyNumber": contractReference,
+				"paidWithClaims": false
 			}
 		};
 
@@ -458,6 +520,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}  
 	 */
 	async _cancelLifePolicy(e) {
+		this.selectedLifePolicy = e.detail.contractReference;
 		const lifeCancelPayload =
 		{
 			"cancellationReason": e.detail.cancellationReason,
@@ -475,7 +538,7 @@ export class ExistingClient extends InsureViewBase {
 		if (resp.succeeded === true && resp.result !== null) {
 			// this.lifeCancelAgreementDocument = resp.result;
 			this._generateDocumentsLifeCancel(e.detail.contractReference, e.detail.cancellationReason, true);
-			const lifeEmailSuccess = this._sendLifeEmail(e);
+			const lifeEmailSuccess = await this._sendLifeEmail(e);
 			this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
 			this.clientConfirmedEmail = e.detail.emailAddress;
 			this._goToLifeSuccess(e);
@@ -489,6 +552,46 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	/**
+	 * Life Update banking details 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	async _updateBankingDetailsLifePolicy(e) {
+		const lifeUpdateBankingDetailsPayload = {
+				"cifNumber": this.callerInformation.cifNumber,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"policyNumber": e.detail.policy.contractReference,
+				"currentBankName": e.detail.policy.bankDetails.bank,
+				"newBankName": e.detail.updatedPolicy.bankDetails.bank,
+				"currentAccountNumber": e.detail.policy.bankDetails.accountNumber,
+				"newAccountNumber": e.detail.updatedPolicy.bankDetails.accountNumber,
+				"currentBranchCode": e.detail.policy.bankDetails.branchCode,
+				"newBranchCode": e.detail.updatedPolicy.bankDetails.branchCode,
+				"currentAccountType": e.detail.policy.bankDetails.accountType,
+				"newAccountType": e.detail.updatedPolicy.bankDetails.accountType,
+				"collectionDay": e.detail.updatedPolicy.bankDetails.collectionDay
+			};
+
+		const resp = await this.insureLifeService.lifeUpdateBankingDetails(lifeUpdateBankingDetailsPayload, () => true);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		const lifeEmailSuccess = await this._sendLifeEmail(e);
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.email, resp.result.policyNumber);
+		this.clientConfirmedEmail = e.detail.email;
+		this._goToLifeSuccess();
+	}
+
+	/** 
+	 * Life Pay Arrears
+	 * @param {Boolean} lifeEmailSuccess lifeEmailSuccess
+	 * @param {Number} callerPage callerPage
+	 * @param {String} emailAddress emailAddress
+	 * @param {String} contractRef contractRef
+	 * @returns {Object} successPageMessage 
+	 */
 	_buildLifeSuccessMessage(lifeEmailSuccess, callerPage, emailAddress, contractRef) {
 		const successPageMessage = {};
 		successPageMessage.actionSuccessLabel = ``;
@@ -502,6 +605,13 @@ export class ExistingClient extends InsureViewBase {
 				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
 			} else {
 				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
+			}
+		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG) {
+			successPageMessage.actionSuccessLabel = `The policy has been updated`;
+			if (lifeEmailSuccess) {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
 			}
 		}
 
@@ -633,7 +743,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
 		if (!respSummary.succeeded) {
-			this.handleToastError(resp.exception);
+			this.handleToastError(respSummary.exception);
 			return;
 		}
 		return respSummary.result;
@@ -648,8 +758,10 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-		if (!isNullorEmpty(returnValue?.result?.accountNumber)) {
+
+		if (!isNullorEmpty(returnValue?.result?.accountNumber) && !isNullorEmpty(returnValue?.result?.accountNumber)) {
 			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
+			this.defaultSavingsAccountAvailableBalance = returnValue?.result?.accountAvailableBalance;
 		}
 	}
 
@@ -843,46 +955,6 @@ export class ExistingClient extends InsureViewBase {
 		this.contractReference = prepareUpdateResp.result.contractReference;
 
 		await this._generateDocumentsFuneralUpdatePlan(false);
-
-		// let agreementRequest = {
-		// "documentFormat": "PDF",
-		// "saveDocumentToDocumentum": true,
-		// "returnDocumentContent": true,
-		// "emailDocumentToClient": false,
-		// "wetsignBarcode": false,
-		// "clientDetails": {
-		// "cifNumber": this.callerInformation.cifNumber,
-		// "policyContractReference": prepareUpdateResp.result.contractReference,
-		// "firstName": this.callerInformation.firstName,
-		// "surname": this.callerInformation.surname,
-		// "idNumber": this.callerInformation.southAfricanIDNumber,
-		// "dateOfBirth": this.callerInformation.birthdate
-		// },
-		// "contractReference": prepareUpdateResp.result.contractReference
-		// }
-
-		// const planAgreementResp = await this.insureService.generateUpdateFuneralCoverPlanAgreement(agreementRequest);
-		// const paymentAgreementResp = await this.insureService.generateFuneralPolicyPaymentAgreement(agreementRequest);
-
-		// if (!planAgreementResp.succeeded || !paymentAgreementResp.succeeded)
-		// return;
-
-		// // TMP ===== REMOVE WHEN SERVICE READY
-		// let agreementResp = {
-		// "documentDetails": {
-		// "documentCode": "ABC01",
-		// "documentName": "Test Doc",
-		// "guid": "91ba047a4bd44cf3abb7ccae7a95149a"
-		// },
-		// "documentContent": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-		// }
-		// planAgreementResp.result = agreementResp;
-		// paymentAgreementResp.result = agreementResp;
-		// // =========
-
-		// this.updatePlanAgreementDocument = planAgreementResp?.result;
-		// this.updatePaymentAgreementDocument = paymentAgreementResp?.result;
-
 		const preparePlanResponse = {
 			planAgreement: this.funeralUpdatePlanAgreementDocument,
 			prepareUpdateResponse: prepareUpdateResp.result
@@ -976,7 +1048,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _acceptFuneralPolicy(event) {
 
-		let documents = [];
 		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
@@ -1001,6 +1072,28 @@ export class ExistingClient extends InsureViewBase {
 	async _rerenderClientSummary(navigateBackTo) {
 		await this._retrieveClientSummary();
 		this._navigateToSubView(navigateBackTo);
+	}
+
+	/*
+	* Navigate so specific subview
+	* @param {String} newMode New render mode string to change renderMode to
+	* @returns {void} void
+	 */
+	_navigateToSubView(newMode) {
+		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
+			this.emailEstimateSuccess = false;
+		}
+		this.renderMode = newMode;
+	}
+
+	/**
+	 * Prepare and navigate Estimate
+	 * @returns {void} 
+	 */
+	_goToPolicyEstimate() {
+		this.contractReference = ``;
+		super.setInsureIncident(`funeral-plan-calculate-estimate`);
+		this._navigateToSubView(INSURE_RENDER_MODE.ESTIMATE);
 	}
 
 	/**
@@ -1166,13 +1259,21 @@ export class ExistingClient extends InsureViewBase {
 		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
 		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
-		
+
 		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
 		}
 		return resp.result;
+	}
+
+	_lifeUpdatePolicy(updatePolicyRequest) {
+		// TODO Update policy service call
+		// TODO Email policy service call
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, updatePolicyRequest.emailDetails.emailAddress, updatePolicyRequest.emailDetails.contractReference);
+		this.clientConfirmedEmail = updatePolicyRequest.emailDetails.emailAddress;
+		this._goToLifeSuccess();
 	}
 
 	/**
@@ -1193,8 +1294,9 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		this.lifePolicyArrears = resp.result;
+		await this._getSavingsAccountDetails();
 
+		this.lifePolicyArrears = resp.result;
 	}
 
 	/**
@@ -1299,7 +1401,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
 		const PremiumHistoryRequest = {
-			contractReference: this.selectedLifePolicy
+			contractReference: this.selectedLifePolicy.contractReference
 		};
 
 		let totalArrears = 0;
@@ -1325,11 +1427,10 @@ export class ExistingClient extends InsureViewBase {
 					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
-			
+
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(returnValue.exception);
 		}
 	}
@@ -1424,8 +1525,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToLifeSuccess(e) {
-		// this.selectedFuneralPolicyContractReference = e.detail.contractReference;
-		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
 
@@ -1529,7 +1629,7 @@ export class ExistingClient extends InsureViewBase {
 		await this._retrieveLifePolicyPremiumHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY);
 	}
-	
+
 	/**
 	 * Prepare and navigate to Life SMS History
 	 * @param {event} e e
@@ -1579,6 +1679,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
+
 		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
@@ -1593,10 +1694,23 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	  */
-	_sendLifeEmail(e) {
+	async _sendLifeEmail(e) {
 		const emailLifeDocumentsPayload = {
-
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": e.detail.contractReference,
+			"emailAddress": e.detail.emailAddress,
+			"documentContent": this.lifeDocsToEmail?.documentContent?.base64EncodedString ? this.lifeDocsToEmail?.documentContent?.base64EncodedString : ``,
+			"documentType": this.lifeDocsToEmail?.documentDetails?.documentCode ? this.lifeDocsToEmail?.documentDetails?.documentCode : ``
 		};
+		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
+		if (!lifeEmailResponse.succeeded) {
+			this.handleToastError(lifeEmailResponse.exception);
+			return false;
+		}
+		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
+		this.funeralShowEstimateSuccessToast = true;
+		this.lifeDocsToEmail = {};
+		this.lifeSuccessPageMessages.emailSuccess = true;
 		return true;
 	}
 
@@ -1836,6 +1950,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
+				.generateDocumentsUpdateBankingDetails="${(policy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
@@ -1843,9 +1958,16 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
+				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
+				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
+				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
+				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
+				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
+				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
+				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
@@ -1860,7 +1982,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
-				@send-email = "${(e) => this._sendEmail(e)}"
+				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
 			</horizon-insure-client-summary>`;
@@ -2053,9 +2175,10 @@ export class ExistingClient extends InsureViewBase {
 	_renderLifeSuccessPage() {
 		return html`
 			<horizon-insure-life-success 
+				.contractReference="${this.selectedLifePolicy}"
 				.successMessages="${this.lifeSuccessPageMessages}"
 				.email = "${this.clientConfirmedEmail}"
-				.sendEmail="${(emailAddress) => this._sendLifeEmail(emailAddress)}"
+				@send-life-email="${(e) => this._sendLifeEmail(e)}"
 				@navigate-to-summary="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-success>`;
 	}

@@ -87,6 +87,7 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			cards: { type: Array },
+			shouldDisableByRole: { type: Object },
 
 			hasCardsAvailable: { type: Boolean, attribute: false },
 			selectedCardCount: { type: Number, attribute: false },
@@ -143,6 +144,10 @@ export class StopCard extends Component {
 		// Mutating fields in an object will not be noticed otherwise.
 		this.cards[index].cardStopReason = cardStopReason;
 		this.requestUpdate();
+	}
+
+	_onCardHistoryClick() {
+		this.dispatchEvent(new CustomEvent(`card-history`, {}));
 	}
 
 	_onStopCards() {
@@ -358,6 +363,12 @@ export class StopCard extends Component {
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar label="Stop Card(s)" icon="system/arrow-left-action" @click-icon="${() => this._back()}">
+				<capitec-button
+					label="Card History"
+					type="clear" data-automation-id="card-history" style ="margin-left:700px; border:1px solid #009DE0;"
+					@click="${() => this._onCardHistoryClick()}"
+					?hidden="${this.shouldDisableByRole(`card-history`)}">
+				</capitec-button>
 			</capitec-title-bar>`;
 	}
 

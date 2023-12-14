@@ -168,9 +168,9 @@ export class USSDProfileDetails extends Component {
 	_toggleCancelUSSD() {
 		// toggle show or hide of cancel ussd reasons
 		this.showNotificationBanner = false;
-		this.showCancelReasons = !this.showCancelReasons;
+		// this.showCancelReasons = !this.showCancelReasons;
 		
-		this.dispatchEvent(new CustomEvent(`toggle-ussd-cancel-reasons`, { detail: { showCancelReasons: this.showCancelReasons } }));
+		this.dispatchEvent(new CustomEvent(`toggle-ussd-cancel-reasons`, {}));
 		if (this.showCancelReasons) {
 			this.cancelReason = ``;
 		}
