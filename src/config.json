@@ -217,7 +217,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -449,15 +449,15 @@
 			"positiveCase": true
 		},
 		"insureLifePremiumHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeSMSHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
