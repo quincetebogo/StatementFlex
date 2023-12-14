@@ -412,6 +412,11 @@ class LifePolicySummary extends Component {
 					value="${isNullorEmpty(this.selectedLifePolicy?.nextCollectionDate) ? `-` : formatDate(this.selectedLifePolicy?.nextCollectionDate, `dd mmm yyyy`)}">
 				</horizon-label>
 			</capitec-group>
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Mandate Status"
+					value="${isNullorEmpty(this.selectedLifePolicy?.bankDetails?.mandateStatus) ? `-` : this.selectedLifePolicy?.bankDetails?.mandateStatus}">
+				</horizon-label>
+			</capitec-group>
 		`;
 	}
 

@@ -184,7 +184,6 @@ class ClientSummary extends Component {
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 
-			// CHeck...
 			selectedLifePolicy: { type: Object, state: true },
 			showLifeCancelPolicyDialog: { type: Boolean, state: true },
 			showLifePayArrearsDialog: { type: Boolean, state: true },
@@ -196,6 +195,8 @@ class ClientSummary extends Component {
 			lifeGetPolicyArrears: { type: Object, state: true },
 			lifePolicyArrears: { type: Object, state: true },
 			showLifeEmailDialog: { type: Boolean, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: Number, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -2375,12 +2376,14 @@ class ClientSummary extends Component {
 		return this.showLifePayArrearsDialog === false ? html``
 			: html`
 			<horizon-insure-life-pay-arrears-dialog
-			.lifePolicyArrears = "${this.lifePolicyArrears}"
-			.policy="${this.selectedLifePolicy}"
-			.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
-			.executeLifePayArrears="${this.executeLifePayArrears}"
-			.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
-			@close-dialog="${() => this.showLifePayArrearsDialog = false}">
+				.defaultSavingsAccountNumber = "${this.defaultSavingsAccountNumber}"
+				.defaultSavingsAccountAvailableBalance = "${this.defaultSavingsAccountAvailableBalance}"
+				.lifePolicyArrears = "${this.lifePolicyArrears}"
+				.policy="${this.selectedLifePolicy}"
+				.executeLifePayArrearsGenerateAgreementDocument="${this.executeLifePayArrearsGenerateAgreementDocument}"
+				.executeLifePayArrears="${this.executeLifePayArrears}"
+				.executeLifeArrearsSendEmail="${this.executeLifeArrearsSendEmail}"
+				@close-dialog="${() => this.showLifePayArrearsDialog = false}">
 			</horizon-insure-life-pay-arrears-dialog>
 		`;
 	}

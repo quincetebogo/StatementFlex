@@ -54,6 +54,10 @@ class LifePayArrearsDialog extends Component {
 		this.totalPolicyArrears = 0;
 		this.totalSelectedArrears = 0;
 		this.selectedArrears = [];
+
+		this.defaultSavingsAccountNumber = ``;
+		this.defaultSavingsAccountAvailableBalance = 0;
+
 	}
 
 	// #endregion INITIALIZE
@@ -64,7 +68,7 @@ class LifePayArrearsDialog extends Component {
 		return {
 			policy: { type: Object, state: true },
 			insufficientFunds: { type: Boolean, state: true },
-			payableAccounts: { type: Object, state: true },
+			// payableAccounts: { type: Object, state: true },
 			accountSelected: { type: Boolean, state: true },
 			selectedAccountNumber: { type: String, state: true },
 			selectedAccountType: { type: String, state: true },
@@ -84,7 +88,10 @@ class LifePayArrearsDialog extends Component {
 			emailAlertBannerMessage: { type: String, state: true },
 			arrearsAlertBannerMessage: { type: String, state: true },
 			showConfirmationDialog: { type: Boolean, state: true },
-			lifePolicyArrears: { type: Object, state: true }
+			lifePolicyArrears: { type: Object, state: true },
+
+			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: Number, state: true }
 		};
 	}
 
@@ -121,27 +128,38 @@ class LifePayArrearsDialog extends Component {
 			});
 		}
 
+		this.selectedAccountNumber = this.defaultSavingsAccountNumber;
+		this.selectedAccountType = `Savings`;
+		this.accountSelected = true;
+
+		// Suffecient funds?
+
+		if (this.defaultSavingsAccountAvailableBalance < this.totalPolicyArrears) {
+			this.insufficientFunds = true;
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+		}
+
 		// Relook how will we get this data?
-		this.payableAccounts = [
-			{
-				"accountName": `SAVINGS ACCOUNT`,
-				"branchCode": `470010`,
-				"accountNumber": `2009939669`,
-				"bank": `Capitec Bank`,
-				"accountType": `Savings`,
-				"availableBalance": 120,
-				"currentBalance": 250
-			},
-			{
-				"accountName": `SAVINGS PLAN`,
-				"branchCode": `470010`,
-				"accountNumber": `2009939660`,
-				"bank": `Capitec Bank`,
-				"accountType": `Savings`,
-				"availableBalance": 200,
-				"currentBalance": 250
-			}
-		];
+		// this.payableAccounts = [
+		// 	{
+		// 		"accountName": `SAVINGS ACCOUNT`,
+		// 		"branchCode": `470010`,
+		// 		"accountNumber": `2009939669`,
+		// 		"bank": `Capitec Bank`,
+		// 		"accountType": `Savings`,
+		// 		"availableBalance": 120,
+		// 		"currentBalance": 250
+		// 	},
+		// 	{
+		// 		"accountName": `SAVINGS PLAN`,
+		// 		"branchCode": `470010`,
+		// 		"accountNumber": `2009939660`,
+		// 		"bank": `Capitec Bank`,
+		// 		"accountType": `Savings`,
+		// 		"availableBalance": 200,
+		// 		"currentBalance": 250
+		// 	}
+		// ];
 	}
 
 	/**
@@ -232,25 +250,10 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
-		const indexOfPayableAccount = this.payableAccounts.map(x => x.accountNumber).indexOf(this.selectedAccountNumber);
-		if (this.payableAccounts[indexOfPayableAccount]?.availableBalance < this.totalSelectedArrears) {
-			this.insufficientFunds = true;
+		if (this.totalSelectedArrears === 0) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+			return;
 		}
-
-		// if (this.accountSelected === false) {
-		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
-		// 	return;
-		// }
-
-		// if (this.totalSelectedArrears === 0) {
-		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
-		// 	return;
-		// }
-
-		// if (this.insufficientFunds === true) {
-		// 	this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-		// 	return;
-		// }
 
 		this.arrearsAlertBannerMessage = ``;
 		this.showConfirmationDialog = true;
@@ -500,7 +503,7 @@ class LifePayArrearsDialog extends Component {
 							</div>
 
 							<div> 
-								<capitec-label type="subtitle" label="R5 000.00" style="position: relative; font-weight: bold;"></capitec-label>
+								<capitec-label type="subtitle" label="${formatCurrency(this.defaultSavingsAccountAvailableBalance)}" style="position: relative; font-weight: bold;"></capitec-label>
 							</div>
 
 						</capitec-content-box>
