@@ -1200,8 +1200,8 @@ export class CreditAccount extends ViewBase {
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.transDesc = event.detail.transDesc;
-		screenDetails.disputed = event.detail.disputed;
 		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
+		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 		screenDetails.disputeStep = event.detail.disputeStep;
 
 		this.horizonStore.setScreenDetails(screenDetails);

@@ -19,6 +19,8 @@ const HASDISPUTERIGHTS = {
 	NO: `No`
 };
 
+const TXT_MAX_LEN = 200;
+
 /**
  * Dialog populates the cue sheet questions for raising dispute
  * 
@@ -53,7 +55,6 @@ export class Disputes extends Component {
 		this.input = ``; // Text or currency number
 		this.currencyCode = ``;
 		this.currFocussed = false;
-		this.dateFocussed = false;
 
 		this.logger = Logger.getInstance();
 	}
@@ -80,8 +81,7 @@ export class Disputes extends Component {
 			systemError: { state: true },
 			qusNo: { state: true },
 			selectedAnswer: { state: true },
-			currFocussed: { state: true },
-			dateFocussed: { state: true }
+			currFocussed: { state: true }
 		};
 	}
 
@@ -143,6 +143,10 @@ export class Disputes extends Component {
 	}
 
 	async _next() {
+		if (!this._isValid()) {
+			return false;
+		}
+
 		const nextQusReq = this._formatNextQusRequest();
 		const returnValue = await this.getNextQuestion(nextQusReq);
 
@@ -153,14 +157,15 @@ export class Disputes extends Component {
 		}
 
 		this.disputeQuestion = returnValue.result;
-		this.qusNo++;
-		this._reset();
-
+		
 		if (this.disputeQuestion?.finalCue) {
 			const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
 			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
 
 			this._raiseDisputeOutcome(ans);
+		} else {
+			this.qusNo++;
+			this._reset();
 		}
 	}
 
@@ -205,7 +210,6 @@ export class Disputes extends Component {
 
 	_dateChanged(e, answerId) {
 		this.date = e.detail.new;
-		this.dateFocussed = false;
 		this.selectedAnswer = answerId;
 	}
 
@@ -263,6 +267,17 @@ export class Disputes extends Component {
 		}));
 	}
 
+	_isValid() {
+		if (this.questionType === QUESTION_TYPES.TEXT) {
+			const inputElem = this.shadowRoot.getElementById(`inputText`);
+			const isValid = !inputElem.error;
+			this.selectedAnswer = isValid ? this.selectedAnswer : ``;
+			return isValid;
+		}
+
+		return true;
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -317,7 +332,7 @@ export class Disputes extends Component {
 					width: 188px;
 				}
 				.content {
-					height: 550px;
+					height: 560px;
 				}
 				capitec-label[type="subtitle"] {
 					--theme-label-font-color: #3A3A3A; 
@@ -408,8 +423,11 @@ export class Disputes extends Component {
 					width: 1032px;
 				}
 				capitec-date-time-picker {
-					--theme-date-time-picker-host-max-width: 180px;
-					--theme-calendar-calendar-min-width: 180px;
+					--theme-date-time-picker-host-max-width: 345px;
+					--theme-calendar-calendar-min-width: 345px;
+					--theme-calendar-days-padding: 10px;
+					--theme-calendar-days-grid-auto-rows: 33px;
+					--theme-calendar-min-width: 345px;
 				}
 				.selectExpanded {
 					height: 322px;
@@ -612,7 +630,7 @@ export class Disputes extends Component {
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input text"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box>
-					<capitec-text-box label="" minlength="1" maxlength="200" @key-input="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
+					<capitec-text-box id="inputText" label="" minlength="1" maxlength="${TXT_MAX_LEN}" @key-input="${(e) => this._inputChanged(e, firstElem.answerId)}"></capitec-text-box>
 				</capitec-content-box>
 			</capitec-card>`;
 	}
@@ -620,15 +638,15 @@ export class Disputes extends Component {
 	_renderAnsDate(firstElem) {
 		return html`
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Input date"></capitec-title-bar>
-			<capitec-card class="multiple-ans-option-card ${this.dateFocussed ? `calendarQusCard` : ``}">
-				<capitec-content-box class="${this.dateFocussed ? `calendarQusBox` : ``}">
+			<capitec-card class="multiple-ans-option-card">
+				<capitec-content-box style="display: inline-table;">
 					<capitec-date-time-picker
 						type="single"
 						mode="date"
 						inputType="calendar"
 						outputType="string"
-						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}"
-						@focus="${() => this.dateFocussed = true}">
+						date="${this.date.date}"
+						@value-change="${(e) => this._dateChanged(e, firstElem.answerId)}">
 					</capitec-date-time-picker>
 				</capitec-content-box>
 			</capitec-card>`;
