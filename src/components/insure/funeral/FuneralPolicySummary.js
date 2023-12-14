@@ -622,43 +622,47 @@ class FuneralPolicySummary extends Component {
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
 			${mandateDetails.map((mandate) => html`
-			<capitec-content-box  class="accounts-box">
-			<horizon-expander
-			expandButtonAlignment="right"
-			.expanded = "${false}">
-				<capitec-group 
-					class="expander-header"
-					slot="custom-header"
-					layout="horizontal"
-					gap="clear"
-					halign="left"
-					valign="center">
-						<horizon-label
-							class="column-width-200"
-							data-automation-id="insure-bank-details-account-name"
-							label="Mandate type"
-							value="${mandate.mandateType}">
-						</horizon-label>
-						<div class="vertical-line"></div>
-						<horizon-label
-							data-automation-id="insure-bank-details-bank-name"
-							label="Instalment amount"
-							value="${formatCurrency(mandate.instalmentAmount)}">
-						</horizon-label>
-						<horizon-label
-							data-automation-id="insure-bank-details-account-number"
-							label="Mandate status"
-							value="${mandate.mandateStatus}"
-							class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
-						</horizon-label>
-				</capitec-group>
-				<div slot="content">
-					<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-						${this._renderMandateOptions(mandate)}
-					</capitec-group>
-				</div>
-			</horizon-expander>
-		</capitec-content-box>
+			${mandate.mandateStatus === `Active` ? html`
+				<capitec-content-box  class="accounts-box">
+					<horizon-expander
+					expandButtonAlignment="right"
+					.expanded = "${false}">
+						<capitec-group 
+							class="expander-header"
+							slot="custom-header"
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<horizon-label
+									class="column-width-200"
+									label="Mandate type"
+									value="${mandate.mandateType}">
+								</horizon-label>
+								<div class="vertical-line"></div>
+								<horizon-label
+									label="Instalment amount"
+									value="${formatCurrency(mandate.instalmentAmount)}">
+								</horizon-label>
+								<horizon-label 
+									label="Instalment Occurrence"
+									value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}"
+									class="column-width-200">
+								</horizon-label>
+								<horizon-label
+									label="Mandate status"
+									value="${mandate.mandateStatus}"
+									class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
+								</horizon-label>
+						</capitec-group>
+						<div slot="content">
+							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+								${this._renderMandateOptions(mandate)}
+							</capitec-group>
+						</div>
+					</horizon-expander>
+				</capitec-content-box>
+			` : html``}
 			`)}
 		`;
 	}
@@ -670,11 +674,11 @@ class FuneralPolicySummary extends Component {
 				<horizon-label label="Voice recording number"
 					value="${isNullorEmpty(mandate.voiceRecordingNumber) ? `-` : mandate.voiceRecordingNumber}">
 				</horizon-label>
+				<horizon-label label="Tracking indicator"
+					value="${isNullorEmpty(mandate.mandateRequestTransactionIdentifier) ? `-` : mandate.mandateRequestTransactionIdentifier}">
+				</horizon-label>
 				<horizon-label label="Initial amount"
 					value="${isNullorEmpty(mandate.initialInstalmentAmount) ? formatCurrency(0) : formatCurrency(mandate.initialInstalmentAmount)}">
-				</horizon-label>
-				<horizon-label label="Instalment Occurrence"
-					value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}">
 				</horizon-label>
 				<horizon-label label="Number of debit instalments"
 					value="${isNullorEmpty(mandate.numberOfDebitInstalments) ? `-` : mandate.numberOfDebitInstalments}">
@@ -682,9 +686,6 @@ class FuneralPolicySummary extends Component {
 			</capitec-group>
 			
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label label="Tracking indicator"
-					value="${isNullorEmpty(mandate.mandateRequestTransactionIdentifier) ? `-` : mandate.mandateRequestTransactionIdentifier}">
-				</horizon-label>
 				<horizon-label label="Mandate initiation date"
 					value="${isNullorEmpty(mandate.mandateInitiationDate) ? `-` : formatDate(mandate.mandateInitiationDate, `dd mmm yyyy`)}">
 				</horizon-label>
