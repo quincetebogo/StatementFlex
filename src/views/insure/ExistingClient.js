@@ -705,8 +705,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies() {
 		const request = {
-			// cifNumber: this.callerInformation.cifNumber
-			cifNumber: `126514364`
+			cifNumber: this.callerInformation.cifNumber
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
@@ -726,7 +725,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-		console.log(returnValue);
 
 		if (!isNullorEmpty(returnValue?.result?.accountNumber) && !isNullorEmpty(returnValue?.result?.accountNumber)) {
 			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
@@ -1409,7 +1407,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} void
 	 */
 	async _retrieveLifeSMSHistory() {
-		console.log(`this.selectedLifePolicy.contractReference `, this.selectedLifePolicy.contractReference);
 		const smsHistoryDetails = {
 			"policyNumber": this.selectedLifePolicy.contractReference
 		};
