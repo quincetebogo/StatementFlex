@@ -618,11 +618,17 @@ class FuneralPolicySummary extends Component {
 	_renderMandatesDetailsSection() {
 		const mandateDetails = this.policyDetails?.mandates;
 
+		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
+			const date = new Date(e.mandateInitiationDate);
+			return date;
+		})));
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
+			${mandateDetails.length === 0 ? this._renderNoResults() 
+			: html`
 			${mandateDetails.map((mandate) => html`
-			${mandate.mandateStatus === `Active` ? html`
+			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
 				<capitec-content-box  class="accounts-box">
 					<horizon-expander
 					expandButtonAlignment="right"
@@ -664,6 +670,7 @@ class FuneralPolicySummary extends Component {
 				</capitec-content-box>
 			` : html``}
 			`)}
+			`}
 		`;
 	}
 
