@@ -643,12 +643,12 @@ class FuneralPolicySummary extends Component {
 								<horizon-label
 									class="column-width-200"
 									label="Mandate type"
-									value="${mandate.mandateType}">
+									value="${isNullorEmpty(mandate.mandateType) ? `-` : mandate.mandateType}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
 									label="Instalment amount"
-									value="${formatCurrency(mandate.instalmentAmount)}">
+									value="${isNullorEmpty(mandate.instalmentAmount) ? `-` : formatCurrency(mandate.instalmentAmount)}">
 								</horizon-label>
 								<horizon-label 
 									label="Instalment Occurrence"
