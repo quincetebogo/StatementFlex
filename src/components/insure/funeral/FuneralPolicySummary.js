@@ -290,6 +290,7 @@ class FuneralPolicySummary extends Component {
 			${this._renderLivesAssuredSection()}
 			${this._renderBeneficiariesSection()}
 			${this._renderBankDetailsSection()}
+			${this._renderMandatesDetailsSection()}
 		`;
 	}
 
@@ -612,6 +613,97 @@ class FuneralPolicySummary extends Component {
 				</capitec-group>
 			</horizon-expander>
 		</capitec-content-box>`;
+	}
+
+	_renderMandatesDetailsSection() {
+		const mandateDetails = this.policyDetails?.mandates;
+
+		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
+			const date = new Date(e.mandateInitiationDate);
+			return date;
+		})));
+		return html`
+			<capitec-title-bar type="default" label="Mandate details">
+			</capitec-title-bar>
+			${mandateDetails.length === 0 ? this._renderNoResults() 
+			: html`
+			${mandateDetails.map((mandate) => html`
+			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
+				<capitec-content-box  class="accounts-box">
+					<horizon-expander
+					expandButtonAlignment="right"
+					.expanded = "${false}">
+						<capitec-group 
+							class="expander-header"
+							slot="custom-header"
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<horizon-label
+									class="column-width-200"
+									label="Mandate type"
+									value="${isNullorEmpty(mandate.mandateType) ? `-` : mandate.mandateType}">
+								</horizon-label>
+								<div class="vertical-line"></div>
+								<horizon-label
+									label="Instalment amount"
+									value="${isNullorEmpty(mandate.instalmentAmount) ? `-` : formatCurrency(mandate.instalmentAmount)}">
+								</horizon-label>
+								<horizon-label 
+									label="Instalment Occurrence"
+									value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}"
+									class="column-width-200">
+								</horizon-label>
+								<horizon-label
+									label="Mandate status"
+									value="${mandate.mandateStatus}"
+									class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
+								</horizon-label>
+						</capitec-group>
+						<div slot="content">
+							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+								${this._renderMandateOptions(mandate)}
+							</capitec-group>
+						</div>
+					</horizon-expander>
+				</capitec-content-box>
+			` : html``}
+			`)}
+			`}
+		`;
+	}
+
+	_renderMandateOptions(mandate) {
+		return html`
+		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Voice recording number"
+					value="${isNullorEmpty(mandate.voiceRecordingNumber) ? `-` : mandate.voiceRecordingNumber}">
+				</horizon-label>
+				<horizon-label label="Tracking indicator"
+					value="${isNullorEmpty(mandate.mandateRequestTransactionIdentifier) ? `-` : mandate.mandateRequestTransactionIdentifier}">
+				</horizon-label>
+				<horizon-label label="Initial amount"
+					value="${isNullorEmpty(mandate.initialInstalmentAmount) ? formatCurrency(0) : formatCurrency(mandate.initialInstalmentAmount)}">
+				</horizon-label>
+				<horizon-label label="Number of debit instalments"
+					value="${isNullorEmpty(mandate.numberOfDebitInstalments) ? `-` : mandate.numberOfDebitInstalments}">
+				</horizon-label>
+			</capitec-group>
+			
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Mandate initiation date"
+					value="${isNullorEmpty(mandate.mandateInitiationDate) ? `-` : formatDate(mandate.mandateInitiationDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="First collection day"
+					value="${isNullorEmpty(mandate.firstCollectionDate) ? `-` : formatDate(mandate.firstCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="Last collection date"
+					value="${isNullorEmpty(mandate.lastCollectionDate) ? `-` : formatDate(mandate.lastCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+			</capitec-group>
+		`;
 	}
 
 	/**
