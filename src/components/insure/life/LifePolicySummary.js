@@ -417,6 +417,20 @@ class LifePolicySummary extends Component {
 					value="${isNullorEmpty(this.selectedLifePolicy?.bankDetails?.mandateStatus) ? `-` : this.selectedLifePolicy?.bankDetails?.mandateStatus}">
 				</horizon-label>
 			</capitec-group>
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				${this.selectedLifePolicy?.policyStatus === `Cancelled`
+				? html`
+				<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+					<horizon-label label="Cancellation date"
+						value="${isNullorEmpty(this.selectedLifePolicy?.actualCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.actualCancellationDate, `dd mmm yyyy`)}">
+					</horizon-label>
+					<horizon-label label="Reason"
+						value="${this.selectedLifePolicy?.cancellationReason}">
+					</horizon-label>
+				</capitec-group>
+				`
+				: ``}
+			</capitec-group>
 		`;
 	}
 

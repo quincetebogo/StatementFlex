@@ -8,403 +8,149 @@
 export const insureLifeClientSummary = {
 	"policies": [
 		{
-			"contractReference": `LP00001234`,
-			"policyStatus": `Active`,
-			"policyStartDate": `2023-08-21T09:10:46.110Z`,
-			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
-			"cancellationReason": `string`,
-			"totalPremium": 753,
-			"lastCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"lastCollectionAmount": 0,
-			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"nextCollectionAmount": 0,
+			"contractReference": "LP00001393",
+			"policyStatus": "In Force",
+			"policyStartDate": "2023-11-14T00:00:00+00:00",
+			"totalPremium": 1163.2,
+			"nextCollectionDate": "2023-12-28T00:00:00+00:00",
+			"nextCollectionAmount": 1163.2,
 			"bankDetails": {
-				"accountName": `Mr Cool Dave`,
-				"branchCode": `012454`,
-				"accountNumber": `55897854`,
-				"bank": `CAPITEC BANK`,
-				"accountType": `Savings`,
-				"collectionDay": 21
+				"accountName": "Justin Brennand",
+				"branchCode": "470010",
+				"accountNumber": "2010184199",
+				"bank": "CAPITEC",
+				"accountType": "Savings",
+				"collectionDay": 28,
+				"mandateReference": "N/A"
 			},
 			"pockets": [
 				{
-					"pocketType": `OnceOffPayout`,
-					"coverage": 25000,
-					"premium": 261
+					"pocketType": "LumpSum",
+					"coverage": 1000000.0,
+					"premium": 571.1
 				},
 				{
-					"pocketType": `MonthlyPayout`,
-					"coverage": 12500,
-					"premium": 251
+					"pocketType": "MonthlyPayout",
+					"coverage": 1000000.0,
+					"premium": 571.1
 				},
 				{
-					"pocketType": `Education`,
-					"coverage": 0,
-					"premium": 241
+					"pocketType": "Education",
+					"coverage": 0.0,
+					"premium": 0.0
 				}
 			],
 			"arrears": [
 				{
-					"arrearsID": `1`,
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": 200,
-					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
+					"arrearsID": "AR0000000194",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "414.1200000000",
+					"arrearsPaymentDueDate": "2023-09-05T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
 				},
 				{
-					"arrearsID": `2`,
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": 150,
-					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-07-21T09:10:46.110Z`
+					"arrearsID": "AR0000000195",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "414.1200000000",
+					"arrearsPaymentDueDate": "2023-10-05T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
+				},
+				{
+					"arrearsID": "AR0000000196",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "414.1200000000",
+					"arrearsPaymentDueDate": "2023-11-05T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
 				}
 			],
 			"beneficiaries": [
 				{
-					"firstName": `Demo`,
-					"lastName": `Dave`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 12500,
+					"firstName": "Bene",
+					"lastName": "Fish",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 1000000.0,
+					"educationBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 1000000.0,
 					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
+						"branchCode": "470010",
+						"accountNumber": "2010184188",
+						"bank": "CAPITEC",
+						"accountType": "Savings"
 					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"firstName": `Mocked`,
-					"lastName": `Mark`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 0,
-					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
-					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
+					"relationship": "Others",
+					"gender": "Male",
+					"dateOfBirth": "1968-12-16T00:00:00+00:00",
+					"contactNumber": "0823214321",
+					"clientType": "Adult",
+					"clientId": "E17FEFFB-BC20-4662-9718-C520C99C3E53"
 				}
 			],
-			"roles": [
-				{
-					"rolePlayer": `Spouse`,
-					"firstName": `string`,
-					"lastName": `string`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`,
-					"relationshipToInsured": `MainLife`
-				}
-			],
-			"collectionDay": 0
+			"totalPolicySumAssured": 2000000.0,
+			"policyReinstatementCount": 0,
+			"newBornPremiumWaiverAvailable": false,
+			"voluntaryPremiumPauseAvailable": false
 		},
 		{
-			"contractReference": `LP00001288`,
-			"policyStatus": `Cancelled`,
-			"policyStartDate": `2023-08-21T09:10:46.110Z`,
-			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
-			"cancellationReason": `string`,
-			"totalPremium": 753,
-			"lastCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"lastCollectionAmount": 0,
-			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"nextCollectionAmount": 0,
+			"contractReference": "LP00001379",
+			"policyStatus": "Cancelled",
+			"policyStartDate": "2023-11-09T00:00:00+00:00",
+			"actualCancellationDate": "2023-11-14T00:00:00+00:00",
+			"cancellationReason": "Better Off at Another Provider",
+			"totalPremium": 0.0,
+			"nextCollectionDate": "2023-12-28T00:00:00+00:00",
+			"nextCollectionAmount": 1163.2,
 			"bankDetails": {
-				"accountName": `Miss Mirriam Nxopo`,
-				"branchCode": `470010`,
-				"accountNumber": `1196035138`,
-				"bank": `CAPITEC BANK LIMITED`,
-				"accountType": `Savings`,
-				"collectionDay": 11
+				"accountName": "Justin Brennand",
+				"branchCode": "470010",
+				"accountNumber": "2010184188",
+				"bank": "CAPITEC",
+				"accountType": "Savings",
+				"collectionDay": 28,
+				"mandateReference": "f17651f4-f3bd-4445-adf8-58ec69c3be40"
 			},
 			"pockets": [
 				{
-					"pocketType": `OnceOffPayout`,
-					"coverage": 25000,
-					"premium": 261
+					"pocketType": "LumpSum",
+					"coverage": 1000000.0,
+					"premium": 571.1
 				},
 				{
-					"pocketType": `MonthlyPayout`,
-					"coverage": 12500,
-					"premium": 251
+					"pocketType": "MonthlyPayout",
+					"coverage": 1000000.0,
+					"premium": 571.1
 				},
 				{
-					"pocketType": `Education`,
-					"coverage": 0,
-					"premium": 241
-				}
-			],
-			"arrears": [
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `22`,
-					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
-					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-07-21T09:10:46.110Z`
+					"pocketType": "Education",
+					"coverage": 0.0,
+					"premium": 0.0
 				}
 			],
 			"beneficiaries": [
 				{
-					"firstName": `Demo`,
-					"lastName": `Dave`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 12500,
+					"firstName": "Bene",
+					"lastName": "Fish",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 1000000.0,
+					"educationBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 1000000.0,
 					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
+						"branchCode": "470010",
+						"accountNumber": "2010184188",
+						"bank": "CAPITEC",
+						"accountType": "Savings"
 					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
+					"relationship": "Others",
+					"gender": "Male",
+					"dateOfBirth": "1968-12-16T00:00:00+00:00",
+					"contactNumber": "0823214321",
+					"clientType": "Adult",
+					"clientId": "983A69FA-E493-4E70-B9A9-1CB577DED4F4"
 				}
 			],
-			"roles": [
-				{
-					"rolePlayer": `Spouse`,
-					"firstName": `string`,
-					"lastName": `string`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`,
-					"relationshipToInsured": `MainLife`
-				}
-			],
-			"collectionDay": 0
-		},
-		{
-			"contractReference": `LP00001299`,
-			"policyStatus": `Lapsed`,
-			"policyStartDate": `2023-08-21T09:10:46.110Z`,
-			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
-			"cancellationReason": `string`,
-			"totalPremium": 753,
-			"lastCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"lastCollectionAmount": 0,
-			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"nextCollectionAmount": 0,
-			"bankDetails": {
-				"accountName": `Miss Mirriam Nxopo`,
-				"branchCode": `470010`,
-				"accountNumber": `1196035138`,
-				"bank": `CAPITEC BANK LIMITED`,
-				"accountType": `Savings`,
-				"collectionDay": 11
-			},
-			"pockets": [
-				{
-					"pocketType": `OnceOffPayout`,
-					"coverage": 25000,
-					"premium": 261
-				},
-				{
-					"pocketType": `MonthlyPayout`,
-					"coverage": 12500,
-					"premium": 251
-				},
-				{
-					"pocketType": `Education`,
-					"coverage": 0,
-					"premium": 241
-				}
-			],
-			"arrears": [
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
-					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
-					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-07-21T09:10:46.110Z`
-				}
-			],
-			"beneficiaries": [
-				{
-					"firstName": `Demo`,
-					"lastName": `Dave`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 12500,
-					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
-					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"firstName": `Mocked`,
-					"lastName": `Mark`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 0,
-					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
-					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
-				}
-			],
-			"roles": [
-				{
-					"rolePlayer": `Spouse`,
-					"firstName": `string`,
-					"lastName": `string`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`,
-					"relationshipToInsured": `MainLife`
-				}
-			],
-			"collectionDay": 0
-		},
-		{
-			"contractReference": `LP00001389`,
-			"policyStatus": `Lapsed`,
-			"policyStartDate": `2023-08-21T09:10:46.110Z`,
-			"actualCancellationDate": `2023-08-21T09:10:46.110Z`,
-			"cancellationReason": `string`,
-			"totalPremium": 753,
-			"lastCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"lastCollectionAmount": 0,
-			"nextCollectionDate": `2023-08-21T09:10:46.110Z`,
-			"nextCollectionAmount": 0,
-			"bankDetails": {
-				"accountName": `Miss Mirriam Nxopo`,
-				"branchCode": `470010`,
-				"accountNumber": `1196035138`,
-				"bank": `CAPITEC BANK LIMITED`,
-				"accountType": `Savings`,
-				"collectionDay": 11
-			},
-			"pockets": [
-				{
-					"pocketType": `OnceOffPayout`,
-					"coverage": 25000,
-					"premium": 261
-				},
-				{
-					"pocketType": `MonthlyPayout`,
-					"coverage": 12500,
-					"premium": 251
-				},
-				{
-					"pocketType": `Education`,
-					"coverage": 0,
-					"premium": 241
-				}
-			],
-			"arrears": [
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
-					"arrearsPaymentDueDate": `2023-08-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"arrearsPaymentStatus": `string`,
-					"arrearsPaymentDueAmount": `0`,
-					"arrearsPaymentDueDate": `2023-07-21T09:10:46.110Z`,
-					"arrearsPaymentReceivedAmount": `string`,
-					"arrearsPaymentReceivedDate": `2023-07-21T09:10:46.110Z`
-				}
-			],
-			"beneficiaries": [
-				{
-					"firstName": `Demo`,
-					"lastName": `Dave`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 12500,
-					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
-					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
-				},
-				{
-					"firstName": `Mocked`,
-					"lastName": `Mark`,
-					"rolePlayer": `string`,
-					"onceOffPayoutBenefitAmount": 12500,
-					"educationBenefitAmount": 0,
-					"monthlyPayoutBenefitAmount": 0,
-					"bankDetails": {
-						"accountName": `string`,
-						"branchCode": `string`,
-						"accountNumber": `string`,
-						"bank": `string`,
-						"accountType": `Savings`,
-						"collectionDay": 0
-					},
-					"relationship": `MainLife`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`
-				}
-			],
-			"roles": [
-				{
-					"rolePlayer": `Spouse`,
-					"firstName": `string`,
-					"lastName": `string`,
-					"gender": `Male`,
-					"dateOfBirth": `2023-08-21T09:10:46.110Z`,
-					"relationshipToInsured": `MainLife`
-				}
-			],
-			"collectionDay": 0
+			"totalPolicySumAssured": 2000000.0,
+			"policyReinstatementCount": 0,
+			"newBornPremiumWaiverAvailable": false,
+			"voluntaryPremiumPauseAvailable": false
 		}
 	]
 };

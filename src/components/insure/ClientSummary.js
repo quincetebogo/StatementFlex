@@ -1749,8 +1749,13 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content the list of Policies
 	 */
 	_renderLifePoliciesList() {
-		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE` || x.policyStatus.toUpperCase() === `PENDING IN FORCE`);
-		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE` && pol.policyStatus.toUpperCase() !== `PENDING IN FORCE`);
+		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE` || 
+		x.policyStatus.toUpperCase() === `PENDING IN FORCE` || 
+		x.policyStatus.toUpperCase() === `IN FORCE`);
+		
+		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE` && 
+		pol.policyStatus.toUpperCase() !== `PENDING IN FORCE` &&
+		pol.policyStatus.toUpperCase() !== `IN FORCE`);
 
 		return html`
 				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
@@ -1941,6 +1946,7 @@ class ClientSummary extends Component {
 								@click="${() => this._goToLifePolicySummary(pol)}">
 							</horizon-label>
 						</div>
+						
 						<div>
 							<horizon-label
 								label="Total cover"
@@ -1948,27 +1954,48 @@ class ClientSummary extends Component {
 								value="${this._calculateLifeTotalCoverAmount(pol)}">
 							</horizon-label>
 						</div>
-						<div>
-							<horizon-label
-								label="Premium"
-								class = "life-pol-label ghost-label"
-								value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Debit order date"
-								class="ghost-label"
-								value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
-							</horizon-label>
-						</div>
-						<div>
-							<horizon-label
-								label="Arrears amount"
-								class="ghost-label"
-								value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
-							</horizon-label>
-						</div>
+
+						${pol.policyStatus === `Not Taken Up` ? html`
+							<div>
+								<horizon-label
+									label="Premium"
+									class = "life-pol-label ghost-label"
+									value="${isNullorEmpty(pol?.totalPremium) ? `R0.00` : formatCurrency(pol?.totalPremium)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Debit order date"
+									class="ghost-label"
+									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Arrears amount"
+									class="ghost-label"
+									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
+								</horizon-label>
+							</div>
+						` : html`
+							<div>
+								<horizon-label
+									label="Cancelation Date"
+									class="ghost-label"
+									value="${isNullorEmpty(pol?.actualCancellationDate) ? `-` : formatDate(pol?.actualCancellationDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Reason"
+									style="width: 270px"
+									class="ghost-label"
+									value="${pol?.cancellationReason}">
+								</horizon-label>
+							</div>
+						`}
+
+						
 						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
