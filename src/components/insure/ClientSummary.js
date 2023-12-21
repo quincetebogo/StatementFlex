@@ -1835,8 +1835,8 @@ class ClientSummary extends Component {
 					<div style="width: 300px;">
 						<horizon-label
 							label="Status"
-							class = "${activeLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
-							value= "${activeLifePolicy?.policyStatus}">
+							class = "${activeLifePolicy?.policyStatus === `Active` || activeLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
+							value= "${activeLifePolicy?.policyStatus === `In Force` ? `Active` : activeLifePolicy?.policyStatus}">
 						</horizon-label>
 					</div>
 
@@ -1999,8 +1999,8 @@ class ClientSummary extends Component {
 						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
-								class = "${pol?.policyStatus === `Active` ? `active-status` : `inactive-status`}"
-								value= "${pol?.policyStatus}">
+								class = "${pol?.policyStatus === `Active` || pol?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
+								value= "${pol?.policyStatus === `In Force` ? `Active` : pol?.policyStatus}">
 							</horizon-label>
 						</div>
 

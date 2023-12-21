@@ -559,19 +559,19 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _updateBankingDetailsLifePolicy(e) {
 		const lifeUpdateBankingDetailsPayload = {
-				"cifNumber": this.callerInformation.cifNumber,
-				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"policyNumber": e.detail.policy.contractReference,
-				"currentBankName": e.detail.policy.bankDetails.bank,
-				"newBankName": e.detail.updatedPolicy.bankDetails.bank,
-				"currentAccountNumber": e.detail.policy.bankDetails.accountNumber,
-				"newAccountNumber": e.detail.updatedPolicy.bankDetails.accountNumber,
-				"currentBranchCode": e.detail.policy.bankDetails.branchCode,
-				"newBranchCode": e.detail.updatedPolicy.bankDetails.branchCode,
-				"currentAccountType": e.detail.policy.bankDetails.accountType,
-				"newAccountType": e.detail.updatedPolicy.bankDetails.accountType,
-				"collectionDay": e.detail.updatedPolicy.bankDetails.collectionDay
-			};
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"policyNumber": e.detail.policy.contractReference,
+			"currentBankName": e.detail.policy.bankDetails.bank,
+			"newBankName": e.detail.updatedPolicy.bankDetails.bank,
+			"currentAccountNumber": e.detail.policy.bankDetails.accountNumber,
+			"newAccountNumber": e.detail.updatedPolicy.bankDetails.accountNumber,
+			"currentBranchCode": e.detail.policy.bankDetails.branchCode,
+			"newBranchCode": e.detail.updatedPolicy.bankDetails.branchCode,
+			"currentAccountType": e.detail.policy.bankDetails.accountType,
+			"newAccountType": e.detail.updatedPolicy.bankDetails.accountType,
+			"collectionDay": e.detail.updatedPolicy.bankDetails.collectionDay
+		};
 
 		const resp = await this.insureLifeService.lifeUpdateBankingDetails(lifeUpdateBankingDetailsPayload, () => true);
 		if (!resp.succeeded) {
@@ -1791,6 +1791,15 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
+	 * Navigate back to summary and reload life policies
+	 * @returns {void}
+	 */
+	async _refreshLifePolicies() {
+		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
+		await this._retrieveClientLifePolicies();
+	}
+
+	/**
 	 * Unload Policy Transactions
 	 * @returns {void}
 	  */
@@ -2179,7 +2188,7 @@ export class ExistingClient extends InsureViewBase {
 				.successMessages="${this.lifeSuccessPageMessages}"
 				.email = "${this.clientConfirmedEmail}"
 				@send-life-email="${(e) => this._sendLifeEmail(e)}"
-				@navigate-to-summary="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+				@navigate-to-summary="${() => this._refreshLifePolicies()}">
 			</horizon-insure-life-success>`;
 	}
 
