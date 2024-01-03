@@ -433,6 +433,22 @@ export function validateEmailAddressCombo(email, confirmEmail) {
 /** LIFE COVER UTILS */
 
 /**
+ * Get display status for life policy
+ * @param {string} status Life policy status
+ * @returns {string} display status
+ */
+export function lifeCoverDisplayStatus(status) {
+	if (status.toUpperCase() === `IN FORCE`) {
+		return `Active`;
+	}
+
+	if (status.toUpperCase() === `PENDING IN FORCE`) {
+		return `Active - Pending Payment`;
+	}
+	return status;
+}
+
+/**
  * Determine the pocket color class based on pocket type
  * 
  * @param {String} pocketType current pocket type

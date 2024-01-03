@@ -1796,7 +1796,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _refreshLifePolicies() {
 		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
-		await this._retrieveClientLifePolicies();
+		this.lifePolicies = await this._retrieveClientLifePolicies();
 	}
 
 	/**

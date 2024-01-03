@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -1026,12 +1026,12 @@ class ClientSummary extends Component {
 	 * Show dialog explaining how to Lodge a Claim
 	 * @returns {void}
 	 */
-	async _closeClaimInfoDialog() {
+	_closeClaimInfoDialog() {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_LODGE_CLAIM_INFO, {});
 		this.showLodgeClaimInfoDialog = false;
 	}
 
-	async _openClaimInfoDialog() {
+	_openClaimInfoDialog() {
 		this.setInsureIncident(`lodge-insurance-claim`);
 		this.showLodgeClaimInfoDialog = true;
 	}
@@ -1220,6 +1220,10 @@ class ClientSummary extends Component {
 				border-top: 0px;
 			}
 			.expander-header > horizon-label[label="Status"] {
+				width: 200px;
+				text-overflow: ellipsis;
+			}
+			#life-policy-status > horizon-label[label="Status"] {
 				width: 200px;
 				text-overflow: ellipsis;
 			}
@@ -1832,11 +1836,11 @@ class ClientSummary extends Component {
 							value="${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))}">
 						</horizon-label>
 					</div>
-					<div style="width: 300px;">
+					<div id='life-policy-status' style="width: 300px;">
 						<horizon-label
 							label="Status"
 							class = "${activeLifePolicy?.policyStatus === `Active` || activeLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
-							value= "${activeLifePolicy?.policyStatus === `In Force` ? `Active` : activeLifePolicy?.policyStatus}">
+							value= "${lifeCoverDisplayStatus(activeLifePolicy?.policyStatus)}">
 						</horizon-label>
 					</div>
 
@@ -2000,7 +2004,7 @@ class ClientSummary extends Component {
 							<horizon-label
 								label="Status"
 								class = "${pol?.policyStatus === `Active` || pol?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
-								value= "${pol?.policyStatus === `In Force` ? `Active` : pol?.policyStatus}">
+								value= "${lifeCoverDisplayStatus(pol?.policyStatus)}">
 							</horizon-label>
 						</div>
 

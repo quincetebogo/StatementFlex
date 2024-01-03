@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus } from 'app/utils/insureUtils';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
 /**
  * Policy summary component showing details of single life policy with its role players & banking details
@@ -380,7 +380,7 @@ class LifePolicySummary extends Component {
 					</horizon-label>
 					<horizon-label
 						label="Status"
-						value="${this.selectedLifePolicy?.policyStatus}"
+						value="${lifeCoverDisplayStatus(this.selectedLifePolicy?.policyStatus)}"
 						class="column-width-200 ${this.selectedLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}">
 					</horizon-label>
 				</capitec-group>
