@@ -84,6 +84,7 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedInsureTabIndex = 0;
 
 		this.selectedFuneralPolicyContractReference = ``;
+		this.selectedFuneralPolicyProductCode = ``;
 		this.selectedFuneralPolicyDetails = {};
 		this.funeralEstimateDetails = {};
 		this.funeralPolicyTransactionHistory = {};
@@ -119,6 +120,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} readOnly determines whether read only mode is on or off
 	 * @property {Object} selectedFuneralPolicyDetails  Local object for Policy Summary requests
 	 * @property {String} selectedFuneralPolicyContractReference Contract Reference of selected policy
+	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
 	 * @property {Object} funeralPolicies Contains all funeral policies for a client
 	 * @property {Object} funeralEstimateDetails Local object for new Estimate requests
 	 * @property {String} funeralIssuePlanAgreementDocument stores issue plan agreement document object.
@@ -148,6 +150,7 @@ export class ExistingClient extends InsureViewBase {
 			readOnly: { type: Object, state: true },
 			selectedFuneralPolicyDetails: { type: Object, state: true },
 			selectedFuneralPolicyContractReference: { type: String, state: true },
+			selectedFuneralPolicyProductCode: { type: String, state: true },
 			funeralPolicies: { type: Object, state: true },
 			lifePolicies: { type: Object, state: true },
 			funeralEstimateDetails: { type: Object, state: true },
@@ -284,9 +287,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {object} payArrears payArrears
 	 * @param {string} fromAccount fromAccount
 	 * @param {boolean} saveToDocumentum saveToDocumentum
+	 * @param {string} productCode productCode
 	 * @returns {void} 
 	 */
-	async _generateDocumentsFuneralArrears(contractReference, payArrears, fromAccount, saveToDocumentum) {
+	async _generateDocumentsFuneralArrears(contractReference, payArrears, fromAccount, saveToDocumentum, productCode) {
 		const dob = new Date(this.callerInformation.birthdate);
 		const arrearsPaymentInstructionDetails = {
 			"documentFormat": `PDF`,
@@ -301,7 +305,8 @@ export class ExistingClient extends InsureViewBase {
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString()
+				"dateOfBirth": dob.toISOString(),
+				"productCode": productCode
 			},
 			"input": {
 				"policyContractReference": contractReference,
@@ -331,9 +336,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {String} contractReference contractReference
 	 * @param {string} cancelReason cancelReason
 	 * @param {boolean} saveToDocumentum saveToDocumentum
+	 * @param {string} productCode productCode
 	 * @returns {void}  
 	 */
-	async _generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum) {
+	async _generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum, productCode) {
 		this.selectedFuneralPolicyContractReference = contractReference;
 		const dob = new Date(this.callerInformation.birthdate);
 		const cancelPolicyAgreementDetails = {
@@ -349,7 +355,8 @@ export class ExistingClient extends InsureViewBase {
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.lastName,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString()
+				"dateOfBirth": dob.toISOString(),
+				"productCode": productCode
 			},
 			"input": {
 				"cancellationReason": cancelReason
@@ -738,7 +745,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies() {
 		const request = {
-			cifNumber: this.callerInformation.cifNumber
+			// cifNumber: this.callerInformation.cifNumber
+			cifNumber: `126514364`
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
@@ -770,13 +778,15 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {string} contractReference contractReference
 	 * @param {string} cifNumber cifNumber
 	 * @param {string} idNumber idNumber
+	 * @param {string} productCode productCode of selected policy
 	 * @returns {Object} Policy Summary Details 
 	 */
-	async _retrieveFuneralPolicySummary(contractReference, cifNumber, idNumber) {
+	async _retrieveFuneralPolicySummary(contractReference, cifNumber, idNumber, productCode) {
 		const request = {
 			contractReference: contractReference,
 			cifNumber: cifNumber,
-			idNumber: idNumber
+			idNumber: idNumber,
+			productCode: productCode
 		};
 		const resp = await this.insureFuneralService.policySummary(request);
 		if (!resp.succeeded) {
@@ -1179,7 +1189,8 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": e.detail.payArrears.contractReference,
 			"arrears": e.detail.payArrears.arrears,
 			"cifNumber": this.callerInformation.cifNumber,
-			"fromAccount": e.detail.fromAccount
+			"fromAccount": e.detail.fromAccount,
+			"productCode": e.detail.productCode
 		};
 
 		const resp = await this.insureFuneralService.payPolicy(payArrears, () => true);
@@ -1331,7 +1342,8 @@ export class ExistingClient extends InsureViewBase {
 		const smsHistoryDetails = {
 			"contractReference": contractReference,
 			"fromDate": fromDate,
-			"toDate": toDate
+			"toDate": toDate,
+			"productCode": this.selectedFuneralPolicyProductCode
 		};
 
 		const resp = await this.insureFuneralService.communicationHistory(smsHistoryDetails, () => true);
@@ -1361,7 +1373,8 @@ export class ExistingClient extends InsureViewBase {
 			pagniation: {
 				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
 				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
-			}
+			},
+			productCode: this.selectedFuneralPolicyProductCode
 		};
 
 		this.transactions = [];
@@ -1503,6 +1516,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToFuneralSMSHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyItem.contractReference;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		super.setInsureIncident(`funeral-sms-history`);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_SMS_HISTORY);
@@ -1568,7 +1582,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	async _goToFuneralPolicySummary(e) {
-		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
 		const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
@@ -1584,6 +1598,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToFuneralTransactionHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyNumber;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
@@ -1648,12 +1663,14 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 		this.clientConfirmedEmail = e.detail.emailId.detail.emailAddress;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = e.detail.productCode;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM) {
 			this.callerPage = INSURE_CALLER_PAGE.PAY_PREMIUM;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.ESTIMATE) {
+			EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = this.funeralPolicies.checkInsuranceDetails[0].productCode;
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
@@ -1950,7 +1967,7 @@ export class ExistingClient extends InsureViewBase {
 				.funeralPolicies="${this.funeralPolicies}"
 				.funeralCancelAgreementDocument="${this.funeralCancelAgreementDocument}" 
 				.funeralArrearsPaymentDocumentDetails="${this.funeralArrearsAgreementDocument}"
-				.generateDocumentsFuneralCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum)}"
+				.generateDocumentsFuneralCancel="${(contractReference, cancelReason, saveToDocumentum, productCode) => this._generateDocumentsFuneralCancel(contractReference, cancelReason, saveToDocumentum, productCode)}"
 				.generateDocumentsFuneralArrears="${(contractReference, payArrears, fromAccount, saveToDocumentum) => this._generateDocumentsFuneralArrears(contractReference, payArrears, fromAccount, saveToDocumentum)}"
 				.maxAllowedCover="${isNullorEmpty(this.funeralPolicies?.checkInsuranceDetails[0]?.maxAllowedCover) ? 100000 : this.funeralPolicies?.checkInsuranceDetails[0]?.maxAllowedCover}"
 				.requestCallback = "${(firstName, lastName, cellphoneNumber) => this._requestCallback(firstName, lastName, cellphoneNumber)}"
