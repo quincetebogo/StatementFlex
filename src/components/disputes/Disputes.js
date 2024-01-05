@@ -591,6 +591,7 @@ export class Disputes extends Component {
 				this.questionType = QUESTION_TYPES.DATE;
 				return html`${this._renderAnsDate(firstElem)}`;
 			default:
+				this.questionType = QUESTION_TYPES.RADIO;
 				return html`${this._renderAnsOptions(this.disputeQuestion.answers)}`;
 		}
 	}
