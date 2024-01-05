@@ -157,7 +157,7 @@ class LifePolicySummary extends Component {
 		let totalArrears = 0;
 		if (policy.arrears) {
 			policy.arrears.forEach(arrears => {
-				totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount);
 			});
 		}
 		return totalArrears;
