@@ -381,7 +381,7 @@ class LifePolicySummary extends Component {
 					<horizon-label
 						label="Status"
 						value="${lifeCoverDisplayStatus(this.selectedLifePolicy?.policyStatus)}"
-						class="column-width-200 ${this.selectedLifePolicy?.policyStatus === `Active` ? `active-status` : `inactive-status`}">
+						class="column-width-200 ${this.selectedLifePolicy?.policyStatus === `Active` || this.selectedLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">
