@@ -233,6 +233,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.markDocumentsAsAccepted = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails.productCode = this.selectedFuneralPolicyProductCode;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.selectedFuneralPolicyContractReference;
 
 		const issuePlanAgreementResponse = await this.insureFuneralService.generateIssueFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
@@ -266,6 +267,7 @@ export class ExistingClient extends InsureViewBase {
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.saveDocumentToDocumentum = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.markDocumentsAsAccepted = saveDocumentToDocumentum;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails.productCode = this.selectedFuneralPolicyProductCode;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.contractReference = this.selectedFuneralPolicyContractReference;
 
 		const updatePlanAgreementResponse = await this.insureFuneralService.generateUpdateFuneralCoverPlanAgreement(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
@@ -819,7 +821,8 @@ export class ExistingClient extends InsureViewBase {
 	async _reissueFuneralPolicyQuote(contractReference, cifNumber) {
 		const request = {
 			contractReference: contractReference,
-			cifNumber: cifNumber
+			cifNumber: cifNumber,
+			productCode: this.selectedFuneralPolicyProductCode
 		};
 		const resp = await this.insureFuneralService.policyReissue(request);
 		if (!resp.succeeded) {
@@ -875,6 +878,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails.productCode = this.funeralPolicies.checkInsuranceDetails[0].productCode;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.funeralEstimateDetails;
 
 		const result = await this.insureFuneralService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
@@ -938,7 +942,8 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"totalPremium": policyToUpdate.totalPremium,
-			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true)
+			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true),
+			"productCode": this.selectedFuneralPolicyProductCode
 		};
 		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
@@ -952,7 +957,8 @@ export class ExistingClient extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
 			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
-			"collectionDetails": policyToUpdate.deductionDetails
+			"collectionDetails": policyToUpdate.deductionDetails,
+			"productCode": this.selectedFuneralPolicyProductCode
 		};
 
 		const prepareUpdateResp = await this.insureFuneralService.prepareUpdate(prepareUpdateRequest);
@@ -988,6 +994,7 @@ export class ExistingClient extends InsureViewBase {
 		{
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.prepareUpdate.prepareUpdateResponse.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"documents": documents,
 			"mandates": event.detail.prepareUpdate.prepareUpdateResponse.mandates,
 			"insureWaiverInformation": {
@@ -1023,6 +1030,7 @@ export class ExistingClient extends InsureViewBase {
 		const createPolicyRequest = {
 			"cifNumber": policyToReinstate.cifNumber,
 			"quoteNumber": policyToReinstate.quoteNumber,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"bankDetails": {
 				"accountName": policyToReinstate.deductionDetails?.bankDetails?.accountName,
 				"branchCode": policyToReinstate.deductionDetails?.bankDetails?.branchCode,
@@ -1049,25 +1057,6 @@ export class ExistingClient extends InsureViewBase {
 			policyResponse: createPolicyResponse.result
 		};
 		return resinstatePolicyResponse;
-	}
-
-	/**
-	 * Accept Policy
-	 * @param {object} event - request payload for Accept Policy
-	 * @returns {void} 
-	 */
-	async _acceptFuneralPolicy(event) {
-
-		const resp = await this.insureFuneralService.arrearsPaymentInstruction(arrearsPaymentInstructionDetails, () => true);
-		if (resp.succeeded === true && resp.result !== null) {
-			super.isOnlyProductEnquiry = false;
-			this.arrearsPaymentDocumentDetails = resp.result;
-		} else {
-			this.handleToastError(resp.exception);
-			return null;
-		}
-
-		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -1549,6 +1538,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToFuneralUpdatePlan(e) {
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
