@@ -146,8 +146,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies(cifNumber) {
 		const request = {
-			// cifNumber: cifNumber
-			cifNumber: `126514364`
+			cifNumber: cifNumber
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
