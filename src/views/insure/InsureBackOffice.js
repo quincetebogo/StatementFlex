@@ -79,7 +79,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			contractReference: { type: String, state: true },
 			readOnlyMode: { type: Boolean, state: true },
 			renderMode: { type: Number, state: true },
-			claims: { type: Object, state: true }
+			claims: { type: Object, state: true },
+			selectedInsureTabIndex: { type: Number, state: true }
 		};
 	}
 
@@ -145,7 +146,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies(cifNumber) {
 		const request = {
-			cifNumber: cifNumber
+			// cifNumber: cifNumber
+			cifNumber: `126514364`
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
@@ -239,7 +241,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _goToPolicyTransactionHistory(e) {
-		// Telemetry Here
 		this.contractReference = e.detail.policyNumber;
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
@@ -360,7 +361,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
 		const PremiumHistoryRequest = {
-			contractReference: this.selectedLifePolicy
+			policyNumber: this.selectedLifePolicy.contractReference
 		};
 
 		this.lifeTransactions = [];
@@ -554,9 +555,13 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-summary .funeralPolicies = "${this.funeralPolicies}" .lifePolicies="${this.lifePolicies}" .readOnlyMode="${this.readOnlyMode}"
+			<horizon-insure-client-summary 
+				.funeralPolicies = "${this.funeralPolicies}" 
+				.lifePolicies="${this.lifePolicies}" 
+				.readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
+				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
