@@ -309,7 +309,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
