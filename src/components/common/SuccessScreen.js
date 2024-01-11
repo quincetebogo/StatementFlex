@@ -26,6 +26,8 @@ export class SuccessScreen extends Component {
 		this.secondaryToast = ``;
 		this.hasSubDetails = false;
 		this.subContent = false;
+		this.toastHeader = `Successful`;
+		this.toastType = `success`;
 	}
 
 	// ----------
@@ -57,7 +59,9 @@ export class SuccessScreen extends Component {
 			secondaryImage: { type: String }, 
 			secondaryToast: { type: String },
 			hasSubDetails: { type: Boolean },
-			subContent: { type: Boolean }
+			subContent: { type: Boolean },
+			toastHeader: { type: String },
+			toastType: { type: String }
 		};
 	}
 
@@ -123,8 +127,8 @@ export class SuccessScreen extends Component {
 					width: auto;
 				}
 				#id-successful-header {
-					margin-top:33px;
-					margin-bottom:23px;
+					margin-top: var(--horizon-success-screen-header-margin-top, 33px);
+					margin-bottom: var(--horizon-success-screen-header-margin-bottom, 23px);
 					height: 32px;
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
@@ -191,7 +195,7 @@ export class SuccessScreen extends Component {
 					font-size: 16px;
 					letter-spacing: 0;
 					line-height: 24px;
-					text-align: center;
+					text-align: var(--horizon-success-screen-detail-text-align, center);
 					margin-bottom: 13px;
 				}
 
@@ -204,6 +208,9 @@ export class SuccessScreen extends Component {
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
+				}
+				.successIcon {
+					display: var(--horizon-success-icon-display, block);
 				}
 			`
 		];
@@ -234,8 +241,8 @@ export class SuccessScreen extends Component {
 			<capitec-toast 
 				?hidden="${!this.displayToast}" 
 				id="id-success-toast"
-				type="success"
-				header="Successful"
+				type="${this.toastType}"
+				header="${this.toastHeader}"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">
@@ -274,6 +281,7 @@ export class SuccessScreen extends Component {
 
 			<capitec-group id="id-msg-group" layout="horizontal">
 				<capitec-icon
+					class="successIcon"
 					size="default"
 					icon="status/success-trans">
 				</capitec-icon>

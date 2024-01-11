@@ -1,8 +1,8 @@
 import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, APP_STATUS, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { AccessChannelsEvents, SUSPEND_CHANNELS_EVENTS } from 'app/constants/telemetry/events/AccessChannels';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { AccessChannelsEvents } from 'app/constants/telemetry/events/AccessChannels';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -10,6 +10,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { Utilities } from 'platform/Utilities';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
+import 'app/components/dialogs/common/SuspendAccessChannels';
 import 'app/productControls/AccessChannels/src/AccessChannels';
 import 'app/productControls/AccessChannels/src/InternetBankingProfileDetails';
 import 'app/productControls/AccessChannels/src/AppProfileDetails';
@@ -38,6 +39,7 @@ export class AccessChannels extends Component {
 		this.isBusy = false;
 		this.showSideSheet = false;
 		this.landingInfo = {};
+		this.showSuspendChannels = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
@@ -47,8 +49,9 @@ export class AccessChannels extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
-		
+
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.reloadACEvent = this.eventAggregator.subscribe(`horizon-access-channels-reload`, () => this._refreshACInfo());
 	}
 
 	// ----------
@@ -68,7 +71,8 @@ export class AccessChannels extends Component {
 			status: { state: true },
 			showSideSheet: { state: true },
 			selectedAccessChannelType: { state: true },
-			canPerformHighRiskActions: { state: true }
+			canPerformHighRiskActions: { state: true },
+			showSuspendChannels: { state: true }
 		};
 	}
 
@@ -86,16 +90,16 @@ export class AccessChannels extends Component {
 
 		this._performAction = async (need, options) => {
 
-			const viewApp = () => {};
+			const viewApp = () => { };
 			const suspendApp = () => this._suspendApp(options.reason, options.regNo);
-			const viewInternetBanking = () => {};
+			const viewInternetBanking = () => { };
 			const suspendToken = () => this.suspendInternetBanking(options.reason, options.token);
 			const resetSecurityToken = () => this.resetInternetBanking(options.token);
-			const viewUSSD = () => {};
+			const viewUSSD = () => { };
 			const cancelUssd = () => this.cancelUSSD(options.reason);
 			const unblockSim = () => this.unblockSIM();
 			const activateFullMenuUssd = () => this.activateFullMenuUSSD();
-			const viewNotifications = () => {};
+			const viewNotifications = () => { };
 
 			const actions = {
 				'view-app': viewApp,
@@ -123,6 +127,7 @@ export class AccessChannels extends Component {
 	disconnectedCallback() {
 		// Unsubscribe from store.
 		this.stateChangeSub.unsubscribe();
+		this.reloadACEvent.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -184,16 +189,27 @@ export class AccessChannels extends Component {
 			"suspend-reason": suspendReason
 		});
 
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP]],
+			app: {
+				reason: suspendReason,
+				userRegNo: userRegNo
+			},
+			inetbanking: null,
+			ussd: null
+		};
 		// If successfully suspended, update app status, else Error scenario
-		const returnValue = await this.accessChannelService.suspendApp(suspendReason, userRegNo);
-	
+
+		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
+
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.app?.status ? `succeeded` : `failure`
 		});
-		
+
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && result?.app?.status) {
 			this.landingInfo.app.status = APP_STATUS.SUSPENDED;
 			this.landingInfo.app.dateLastUpdated = new Date().toISOString();
 
@@ -222,11 +238,11 @@ export class AccessChannels extends Component {
 		this._deepCopyStatus();
 		return true;
 	}
-	
+
 	// USSD details
 	async _toggleUssdCancelReasons(event) {
 		const showUssdCancelReasons = event.detail.showCancelReasons;
-		
+
 		if (showUssdCancelReasons) {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
@@ -251,25 +267,36 @@ export class AccessChannels extends Component {
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_OUTCOME,
 			"cancel-reason": cancelReason
 		});
-		
-		const returnValue = await this.accessChannelService.cancelUSSD(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
+
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD]],
+			app: null,
+			inetbanking: null,
+			ussd: {
+				msisdn: this.landingInfo.msisdn,
+				cif: `0${this.cifNumber}`,
+				reason: ACCESS_CHANNELS_REASONS.DEFAULT
+			}
+		};
+		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.ussd?.status ? `succeeded` : `failure`
 		});
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
-			return false;
+		if (returnValue.succeeded && result?.ussd?.status) {
+			this.landingInfo.ussd.status = `Inactive`;
+			this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
+			this._deepCopyStatus();
+			this._landingInfo();
+			return true;
 		}
-		
-		this.landingInfo.ussd.status = `Inactive`;
-		this.landingInfo.ussd.dateLastUpdated = new Date().toISOString();
-		this._deepCopyStatus();
-		this._landingInfo();
-		return true;
+
+		this.logger.log(`error`, `Unsuccessful call to cancel USSD`, `cancelUSSD`, returnValue.correlationId);
+		return false;
 	}
 
 	async unblockSIM() {
@@ -304,7 +331,7 @@ export class AccessChannels extends Component {
 		}
 
 		const returnValue = await this.accessChannelService.activatefullUssdMenu(this.cifNumber, this.landingInfo.msisdn, ACCESS_CHANNELS_REASONS.DEFAULT);
-		
+
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
 		});
@@ -324,7 +351,7 @@ export class AccessChannels extends Component {
 	// Internet Banking
 	async _toggleInternetBankingSuspendTokenPanel(event) {
 		const showSuspendPanel = event.detail.showSuspendPanel;
-		
+
 		if (showSuspendPanel) {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
@@ -344,7 +371,7 @@ export class AccessChannels extends Component {
 
 	async _toggleInternetBankingSuspendReasons(event) {
 		const selectedTokens = event.detail.selectedTokens;
-		
+
 		if (selectedTokens) {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_NEXT, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
@@ -365,7 +392,7 @@ export class AccessChannels extends Component {
 
 	async _toggleInternetBankingTokenResetPanel(event) {
 		const showResetTokenPanel = event.detail.showResetTokenPanel;
-		
+
 		if (showResetTokenPanel) {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
@@ -390,27 +417,35 @@ export class AccessChannels extends Component {
 			"suspend-reason": suspendReason
 		});
 
-		const requestBody = {
-			cifNumber: this.cifNumber,
-			tokenSerialNo: token,
-			reason: suspendReason
+		const request = {
+			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]],
+			app: null,
+			inetbanking: {
+				cifNumber: this.cifNumber,
+				tokenSerialNo: token,
+				reason: suspendReason
+			},
+			ussd: null
 		};
-		const returnValue = await this.accessChannelService.suspendToken(requestBody);
-		
+		const returnValue = await this.accessChannelService.suspendChannels(request);
+		const result = returnValue?.result;
+
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_OUTCOME, {
-			"result": returnValue.succeeded ? `succeeded` : `failure`
+			"result": returnValue.succeeded && result?.inetbanking?.status ? `succeeded` : `failure`
 		});
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && result?.inetbanking?.status) {
 			this.landingInfo.internetBanking.status = `Suspended`;
 			this.landingInfo.internetBanking.dateLastUpdated = new Date().toISOString();
 			this.landingInfo.internetBanking.statusReason = suspendReason;
-			
+
 			this._deepCopyStatus();
 			this._landingInfo();
 			return true;
 		}
+
+		this.logger.log(`error`, `Failed to suspend internet banking token`, `suspendInternetBanking`, returnValue.correlationId);
 		return false;
 	}
 
@@ -466,11 +501,11 @@ export class AccessChannels extends Component {
 
 	updateMessageType(selectedType) {
 		this.logNotificationUpdateTelemetry(selectedType);
-		
+
 		// TO DO: add channel service call to update notifications type
 		// If update is successful, show toast, else show error
 		this.landingInfo.notification.dateLastUpdated = new Date().toISOString();
-		
+
 		this._deepCopyStatus();
 		return true;
 	}
@@ -499,14 +534,29 @@ export class AccessChannels extends Component {
 	_stateChanged(state) {
 		if (state?.callerInformation) {
 			this.callerInformation = state.callerInformation;
-			
+
 			this.isVerifiedClient = this.callerInformation.verificationStatus === `verified`;
 			this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `SQ`;
 		}
 	}
-	
+
 	_onVerifyNowClick() {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
+	}
+
+	async _suspendChannels() {
+		await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}_SUSPEND`]);
+
+		this.showSuspendChannels = true;
+		this.showSideSheet = !this.showSideSheet;
+	}
+
+	async _cancelSuspendChannels() {
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL);
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS);
+
+		this.showSuspendChannels = false;
+		this.showSideSheet = !this.showSideSheet;
 	}
 
 	// --------------
@@ -525,9 +575,15 @@ export class AccessChannels extends Component {
 
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.cifNumber);
 
+		/**
+		 * Publishing the access channels info
+		 * Subscribed by: Stop card outcome screen
+		 */
+		this.eventAggregator.publish(`horizon-access-channels-loaded`, { accessChannelsInfo: returnValue });
+
 		if (returnValue.succeeded) {
 			this.landingInfo = returnValue.result;
-		
+
 			const callerInformation = this.horizonStore.getCallerInformation();
 			callerInformation.emailId = returnValue.result?.email || ``;
 			this.horizonStore.setCallerInformation(callerInformation);
@@ -563,6 +619,24 @@ export class AccessChannels extends Component {
 		this.horizonIncidentManager.incidentState = state;
 	}
 
+	async _refreshACInfo() {
+		this._deepCopyStatus();
+		await this._landingInfo();
+
+		this.requestUpdate();
+	}
+
+	async _confirmSuspend(request, need) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
+			'channels': request.channels
+		});
+
+		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
+
+		return returnValue;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -591,7 +665,8 @@ export class AccessChannels extends Component {
 			${this._renderInternetBankingPanel()}
 			${this._renderAppPanel()}
 			${this._renderUSSD()}
-			${this._renderNotificationsPanel()}`;
+			${this._renderNotificationsPanel()}
+			${this._renderSuspendChannels()}`;
 	}
 
 	_renderAccessChannels() {
@@ -620,7 +695,7 @@ export class AccessChannels extends Component {
 
 					@toggle-token-reset-panel="${(event) => this._toggleInternetBankingTokenResetPanel(event)}"
 					@toggle-token-suspend-reasons="${(event) => this._toggleInternetBankingSuspendReasons(event)}"
-					@toggle-token-suspend-panel="${(event) => this._toggleInternetBankingSuspendTokenPanel(event)}"
+					@toggle-token-suspend-panel="${() => this._suspendChannels()}"
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-internet-banking-profile-details>`
 			: html``;
@@ -638,7 +713,7 @@ export class AccessChannels extends Component {
 					.suspendApp = "${(suspendReason, userRegNo) => this._performAction(`suspend-app`, { reason: suspendReason, regNo: userRegNo })}"
 					.unsuspendApp = "${() => this.unsuspendApp()}"
 
-					@toggle-app-suspend-reasons="${(event) => this._toggleAppSuspendReasons(event)}"
+					@toggle-app-suspend-reasons="${() => this._suspendChannels()}"
 					@close-side-sheet ="${(event) => this._showSlidingPanel(event)}" >
 				</capitec-pc-app-profile-details>`
 			: html``;
@@ -660,7 +735,7 @@ export class AccessChannels extends Component {
 					.getUssdLandingDetails="${(clientInfo) => this.getUssdLandingDetails(clientInfo)}"
 					.renderVerificationAlertBanner="${() => this.renderVerificationAlertBanner()}"
 
-					@toggle-ussd-cancel-reasons="${(event) => this._toggleUssdCancelReasons(event)}"
+					@toggle-ussd-cancel-reasons="${() => this._suspendChannels()}"
 					@close-side-sheet="${(event) => this._showSlidingPanel(event)}">
 				</capitec-pc-ussd-profile-details>`
 			: html``;
@@ -717,6 +792,21 @@ export class AccessChannels extends Component {
 					label="For added security get the remote banking App to perform additional transactions, alternatively, visit your nearest branch."
 					layout="vertical">
 				</horizon-alert-banner>`;
+	}
+
+	_renderSuspendChannels() {
+		return this.showSuspendChannels
+			? html`
+				<horizon-suspend-access-channels
+					context="ac"
+					cifNumber="${this.cifNumber}"
+					.accessChannels="${this.landingInfo}"
+					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
+					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS)}"
+					@cancel="${() => this._cancelSuspendChannels()}"
+					@suspended="${() => this.showSuspendChannels = false}">
+				</horizon-suspend-access-channels>`
+			: html``;
 	}
 
 }

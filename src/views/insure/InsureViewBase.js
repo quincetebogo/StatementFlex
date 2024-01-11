@@ -19,6 +19,7 @@ export class InsureViewBase extends ViewBase {
 		super();
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this.isOnlyProductEnquiry = true;
 	}
 
 	// #endregions INITIALISATION
@@ -35,7 +36,8 @@ export class InsureViewBase extends ViewBase {
 	static get properties() {
 		return {
 			productParams: { type: Object, state: true },
-			showInsureErrorToast: { type: Boolean, state: true }
+			showInsureErrorToast: { type: Boolean, state: true },
+			isOnlyProductEnquiry: { type: Boolean, state: true }
 		};
 	}
 
@@ -80,6 +82,11 @@ export class InsureViewBase extends ViewBase {
 		return resp.result;
 	}
 
+	async setInsureIncident(need) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(null, false);
+	}
+
 	/**
 	 * Error callback for channel services
 	 * @param {Object} ex Error from Channel Service 
@@ -96,7 +103,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {void}
 	 */
 	handleToastError(exception) {
-		this.insureErrorToastMessage = exception.output[0].ErrorMessage;
+		this.insureErrorToastMessage = exception.output?.errors ? exception.output.title : exception.output[0].ErrorMessage;
 		this.showInsureErrorToast = true;
 		window.setTimeout(() => this._hideToastDisplay(), ERROR_TOAST_DELAY);
 	}

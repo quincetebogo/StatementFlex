@@ -592,7 +592,7 @@ export class VerifyCaller extends Component {
 		this.itaInProgress = false;
 
 		try {
-			await this.itaService.initiateItaVerification(this.callerInformation.cifNumber);
+			await this.itaService.initiateItaVerification(this.callerInformation.maskedCif);
 			this.itaSystemError = false;
 		} catch (error) {
 			this.itaSystemError = true;

@@ -1,6 +1,7 @@
-import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS } from 'app/constants/EndCallReasons';
+import { CALL_TRANSFERED_CLASSIFICATION, END_CALL_REASON, END_CALL_REASON_BY_ROLE, RECOGNIZE_NEED_CONTEXTS, RECOGNIZE_NEED_REASONS, ROLES_WITH_END_CALL_CONTEXT } from 'app/constants/EndCallReasons';
 import { Component, css, html, live } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
+import { checkForValidSACellNumber, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
@@ -10,9 +11,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 
 import 'platform/components/popups/Modal';
@@ -73,6 +74,7 @@ export class EndCallSession extends Component {
 			issue: ``
 		};
 		this.callerInformation = {};
+		this.whatsappInfoMessage = false; 
 
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
@@ -81,6 +83,7 @@ export class EndCallSession extends Component {
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
+		this.roleManager = RoleManager.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
@@ -117,7 +120,8 @@ export class EndCallSession extends Component {
 			numberOfCharacters: { attribute: false },
 			allowedCharacters: { attribute: false },
 			endCallDescription: { attribute: false },
-			validNumberOfChars: { type: Boolean, attribute: false }
+			validNumberOfChars: { type: Boolean, attribute: false },
+			whatsappInfoMessage: { attribute: false }
 		};
 	}
 
@@ -130,14 +134,14 @@ export class EndCallSession extends Component {
 	// -------------------
 	async connectedCallback() {
 		super.connectedCallback();
-		
+		ineum(`page`, `End Call Dialog`);
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
 			"screen": TelemetryScreen.END_CALL
 		});
 
 		// Making end call reasons context sensitive 
 		this.callerInformation = this.horizonStore.getCallerInformation() || this.callerInformation;
-		this.endCallReasons = END_CALL_REASON[this.endCallContext][this.callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
+		this.endCallReasons = this._getEndCallReasons();
 		
 		this._setDefaultValues();
 		this.incidentInfo = await this._incidentStatus() || {};
@@ -213,6 +217,7 @@ export class EndCallSession extends Component {
 			this.errors[e.currentTarget.id] = ``;
 
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
+			this.whatsappInfoMessage = this._isCifNumberValid(this.callerInformation) && this.endCallReason.key === END_CALL_REASON.NEED_INCOMPLETE && this.endCallReason.value !== `Need incomplete - Transaction Failed`;
 			this.understandNeed = RECOGNIZE_NEED_REASONS.includes(this.endCallReason.key);
 
 			this._prepopulateNeed();
@@ -284,6 +289,7 @@ export class EndCallSession extends Component {
 		const isIncClosed = incidentState === super.HORIZON_NEED_STATUS.CLOSED || !this.currentIncidentRef || this.currentIncidentRef === `0`;
 		// should classify as per need?
 		// And enforcing this to false when the end call context includes in Recognize need by context
+
 		const classifyAsPerNeed = incidentState === super.HORIZON_NEED_STATUS.INPROGRESS &&
 								  STRACK_MAPPING[currentNeed] &&
 								  !RECOGNIZE_NEED_CONTEXTS.includes(this.endCallContext);
@@ -294,10 +300,10 @@ export class EndCallSession extends Component {
 		 * to understand if its for 'Frand transfer'
 		 */
 		this.understandNeed = (this.understandNeed && !hasValues && !isClassified && !isIncClosed && !classifyAsPerNeed) ||
-							  this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED;
+							  (this.endCallReason.key === END_CALL_REASON.CALL_TRANSFERED);
 		this._setClassification(screenDetails);
 
-		if ((!this.understandNeed || this.categories.length !== 0) && this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED) {
+		if ((!this.understandNeed || this.categories.length !== 0) && (this.endCallReason.key !== END_CALL_REASON.CALL_TRANSFERED)) {
 			return;
 		}
 
@@ -624,13 +630,22 @@ export class EndCallSession extends Component {
 	}
 
 	async _endSession() {
+		// Bypassing sending Whatsapp message when end-call reason selected is {key: NEED_INCOMEPLETE, value: `Need incomplete - Transaction Failed`}
+		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
+
+		const endReason = this.endCallReason.value === `Need incomplete - Transaction Failed` ? 4 : this.endCallReason.key;
+
 		if (this._isCifNumberValid(this.callerInformation)) {
 			const req = {
-				endReason: this.endCallReason.key,
+				endReason: endReason,
 				title: this.callerInformation.title,
+				firstName: this.callerInformation.firstName,
 				lastName: this.callerInformation.lastName,
 				cif: this.callerInformation.cifNumber,
-				clientNeed: this.incomingCallDetails.ivrOptionCode
+				clientNeed: this.incomingCallDetails.ivrOptionCode,
+				cellphone: this.incomingCallDetails.incomingTelephoneNumber,
+				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber
+
 			};
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
@@ -639,6 +654,17 @@ export class EndCallSession extends Component {
 
 	_isCifNumberValid(callerInformation) {
 		return Object.prototype.hasOwnProperty.call(callerInformation, `cifNumber`) && callerInformation.cifNumber;
+	}
+
+	_getEndCallReasons() {
+		const orgUnit = RoleManager.getInstance().orgUnit;
+		const reasonsByRole = END_CALL_REASON_BY_ROLE[orgUnit];
+
+		if (ROLES_WITH_END_CALL_CONTEXT.includes(orgUnit)) {
+			return reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
+		}
+
+		return reasonsByRole;
 	}
 
 	// ---------
@@ -748,6 +774,14 @@ export class EndCallSession extends Component {
 
 				--theme-icon-size-default: 26px;
 				--theme-toast-icon-margin: 0px 7px 0px 15px;
+			}
+			capitec-alert-banner{ 
+				--theme-toast-width: 658px;
+				--theme-toast-padding: 12px;
+				--theme-toast-box-shadow: 0px;
+				--theme-toast-detail-line-height: 24px;
+				--theme-toast-title-line-height: 24px;
+				z-index: 1000;
 			}`
 		];
 	}
@@ -806,7 +840,20 @@ export class EndCallSession extends Component {
 				select-mode="single"
 				error="${this.errors.endCallReason}">
 			</capitec-select>
+
+			${this._renderWhatsappInfoBanner()}
 		`;
+	}
+
+	_renderWhatsappInfoBanner() {
+		return this.whatsappInfoMessage && checkForValidSACellNumber(this.incomingCallDetails.incomingTelephoneNumber)
+		? html`
+			<capitec-alert-banner 
+				type="info"
+				header="Note: "
+				label=" This will send a WhatsApp to the client apologising for the call disconnecting.">
+			</capitec-alert-banner>`
+		: html``;
 	}
 
 	_renderEndcallDescription() {

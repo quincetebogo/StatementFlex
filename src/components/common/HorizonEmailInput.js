@@ -316,7 +316,7 @@ export class HorizonEmailInput extends Component {
     				font-weight: var(--theme-input-font-weight);
 					line-height: normal;
 					letter-spacing: 0px;
-					top: -36px;
+					top: var(--theme-input-email-top, -36px);
 					position: relative;
 					color: #a9a9a9;
 					width: 100px;
@@ -335,7 +335,7 @@ export class HorizonEmailInput extends Component {
 					margin-bottom: 8px;
 				}
 				#confirmEmail-suggestion {
-					top: -52px;
+					top: var(--theme-input-confirm-email-top, -52px);
 				}
 			`
 		];
@@ -385,8 +385,8 @@ export class HorizonEmailInput extends Component {
 				class="search-text-field"
 				data-automation-id="email-input-email-address"
 				label="Email address"
-				oncopy="return false"
-				onpaste="return false"
+				oncopy="return true"
+				onpaste="return true"
 				oncut="return false"
 				type="${this.registeredEmailId === this.email ? `` : `search`}"
 				value="${this.email}"
@@ -418,8 +418,8 @@ export class HorizonEmailInput extends Component {
 				id="confirmEmail"
 				data-automation-id="email-input-confirm-email-address"
 				label="Email address"
-				oncopy="return false" 
-				onpaste="return false"
+				oncopy="return true" 
+				onpaste="return true"
 				oncut="return false"
 				value="${this.confirmEmail}"
 				error="${this.confirmEmailError}"

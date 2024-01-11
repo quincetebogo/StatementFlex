@@ -84,6 +84,22 @@ class ClientClaimsSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 
+	/**
+	* Claim status label, truncated if too long
+	* @param {object} claim Current claim
+	* @returns {void} 
+	*/
+	_claimStatusLabel(claim) {
+		let status = ``;
+		if (claim?.claimStatus.length < 25) {
+			status = claim?.claimStatus;
+		} else {
+			status = claim?.claimStatus.slice(0, 23);
+			status += `...`;
+		}
+		return status;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -251,7 +267,7 @@ class ClientClaimsSummary extends Component {
 						<horizon-label
 							label="Status"
 							class = "${claim?.claimStatus === `Active` ? `active-status` : `inactive-status`}"
-							value="${claim?.claimStatus}">
+							value="${this._claimStatusLabel(claim)}">
 						</horizon-label>
 				</capitec-group>
 				<div slot="content">

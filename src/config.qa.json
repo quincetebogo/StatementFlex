@@ -13,7 +13,8 @@
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-qa.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-qa.int.capinet",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-qa.int.capinet"
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-qa.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-qa.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-qa.int.capinet",
@@ -32,6 +33,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"				
 	},
+	"InstanaKey":"4mb-2iLPQaCN7OcC2oVicA",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -40,6 +42,7 @@
 	"LogRequestResponseModels" : false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",

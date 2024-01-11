@@ -102,6 +102,7 @@ export class CardService extends ChannelServiceBase {
 		);
 	
 		const stopCardResponse = returnValue.result;
+		const todayDate = new Date();
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
 			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
@@ -113,7 +114,8 @@ export class CardService extends ChannelServiceBase {
 				cardSequenceNumber: cardsToStop[index].cardSequenceNumber,
 				cardStopReason: cardsToStop[index].cardStopReason,
 				cardStopped: response.result.statusCode === 200,
-				statusCode: response.result.statusCode
+				statusCode: response.result.statusCode,
+				cardStoppedDate: `${todayDate.toLocaleDateString()} ${todayDate.toLocaleTimeString()}`
 			}));
 		}
 
@@ -341,4 +343,35 @@ export class CardService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	async getStoppedCardDetails(callerInformation, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		 if (await this.isMockEnabled(`stopCardLanding`)) {
+			return this.mock(`stopCardLanding`);
+		} 
+
+		const url = `/clientcare-card-${this._version}/LoadConfirmedClientStopCard`;
+
+		const model = {
+			'incidentRecId': incident.currentIncident.incidentId,
+			'idNumber': callerInformation.southAfricanIDNumber,
+			'nonClientFullName': callerInformation.nonClientFullName,
+			'nonClientCellPhone': callerInformation.nonClientCellPhone,
+			'nonClientIDNumber': ``,
+			'nonClientRelationship': callerInformation.nonClientRelationship
+		};
+	
+		return this.post(
+			url, 
+			model, 
+			this.setToken(), 
+			`getStoppedCardDetails`, 
+			null, 
+			null, 
+			1000,
+			null, 
+			errorHandler,
+			autoRetries
+		);
+	};
+
 }

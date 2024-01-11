@@ -10,15 +10,17 @@ import { html, unsafeHTML } from 'platform/elements';
  * @export
  * @param {*} value currency value
  * @param {number} fractionDigits How many digits to round off while parsing to float
+ * @param {boolean} addSymbol Flag to display rand symbol
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
- export function formatCurrency(value, fractionDigits = 2) {
+ export function formatCurrency(value, fractionDigits = 2, addSymbol = true) {
 	if (value && value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
+	const symbol = addSymbol ? `R` : ``;
 	const amount = parseFloat(value).toFixed(fractionDigits);
-	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	const currencyString = amount >= 0 ? `${symbol}${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- ${symbol}${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
 
@@ -217,6 +219,9 @@ export function formatDate(value, format) {
 	const monthName = getMonthName(month);
 	const year = dateTime.getFullYear();
 	const time = dateTime.toTimeString().substring(0, 5);
+	const formattedMonth = String(month + 1).padStart(2, `0`);
+	const day = String(date).padStart(2, `0`);
+	const fullTime = dateTime.toTimeString().substring(0, 8); // With seconds value ex : 06:11:22
 
 	let formattedDate = ``;
 
@@ -235,12 +240,16 @@ export function formatDate(value, format) {
 			formattedDate = `${monthName} ${year}`;
 			break;
 		case `yyyy-mm-dd`:
-			const formattedMonth = String(month + 1).padStart(2, `0`);
-			const day = String(date).padStart(2, `0`);
 			formattedDate = `${year}-${formattedMonth}-${day}`;
 			break;
 		case `dd mmm yyy hh:mm:ss`:
 			formattedDate = `${date} ${monthName} ${year} ${time}`;
+			break;
+		case `dd/mm/yyyy hh:mm:ss`:
+			formattedDate = `${day}/${formattedMonth}/${year} ${time}`;
+			break;
+		case `dd mmm yyy, hh:mm:ss`:
+			formattedDate = `${date} ${monthName} ${year}, ${fullTime}`;
 			break;
 		default:
 			formattedDate = `${date}-${month}-${year}`;
@@ -315,4 +324,28 @@ export function maskString(str, num = 4, maskChar = `*`) {
  */
 export function formatProxyId(str) {
 	return str ? str.replace(`+27-`, `0`) : `-`;
+}
+
+/**
+ * Check if the Cell number is a Valid South African Cell phone number 
+ * South African Cell phone number begins with the following suffixes 
+ * All (06)* *** ****
+ * All (07)* *** ****
+ * 081, 082, 083, 084, 085
+ * 
+ * @param {string} cellNumber Input string
+ * 
+ * @returns {Boolean} Is the incomingNumber valid
+ */
+export function checkForValidSACellNumber(cellNumber) {
+	
+	// check for 10 digit long
+	if (RegExp(/^0\d{9}$/).test(cellNumber)) {
+		if (cellNumber.substring(0, 2) === `06` || cellNumber.substring(0, 2) === `07` || cellNumber.substring(0, 3) === `081` ||
+			cellNumber.substring(0, 3) === `082` || cellNumber.substring(0, 3) === `083` || cellNumber.substring(0, 3) === `084` ||
+			cellNumber.substring(0, 3) === `085`) {
+				return true;
+		}
+	}
+	return false;
 }

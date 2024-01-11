@@ -1,5 +1,5 @@
-import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { Component, css, html } from 'platform/elements';
+import { ACCESS_CHANNEL_STATUS } from './Constants';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonLabel';
@@ -54,6 +54,7 @@ const RESET_OUTCOME_DETAILS = {
 		message: `Security token reset was unsuccessful. Please try again later.`
 	}
 };
+
 /**
  * Internet Banking profile Details component is used to show client's information and Suspend/Reset Security Tokens.
  * This component is envoked from Access Channels component
@@ -288,20 +289,7 @@ export class InternetBankingProfileDetails extends Component {
 	}
 
 	_onOpenSuspendPanelClick() {
-		this.showSuspendPanel = true;
-
-		if (this.isMultipleDevices) {
-			this.renderMode = RENDER_MODE.MULTIPLE_TOKEN;
-			this.renderStepperMode = RENDER_STEPPER_MODE.CLIENT_TOKENS;
-
-			this.isTokenSelected = false;
-			this._resetTokenValues();
-		} else {
-			this.renderMode = RENDER_MODE.SINGLE_TOKEN;
-			this.renderStepperMode = RENDER_STEPPER_MODE.SUSPEND_REASONS;
-		}
-
-		this.dispatchEvent(new CustomEvent(`toggle-token-suspend-panel`, { detail: { showSuspendPanel: this.showSuspendPanel } }));
+		this.dispatchEvent(new CustomEvent(`toggle-token-suspend-panel`, {}));
 	}
 
 	_onCloseSuspendPanelClick() {

@@ -35,6 +35,7 @@ export class WarningDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Warning dialog`);
 	}
 
 	disconnectedCallback() {

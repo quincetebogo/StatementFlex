@@ -170,7 +170,7 @@ export class StopCardSearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		ineum(`page`, `Stop Card Search Caller Dialog`);
 		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
 		});

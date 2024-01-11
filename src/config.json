@@ -13,7 +13,8 @@
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
@@ -32,6 +33,7 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
+	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
@@ -40,6 +42,7 @@
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
+	"CapitecConnectVDN": "7220",
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -52,7 +55,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled" : false
 		},
@@ -141,12 +144,16 @@
 			"enabled": false,
 			"positiveCase": false
 		},
+		"capitecConnectRechargeHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"transactionHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
@@ -155,6 +162,10 @@
 		},
 		"savingsPlanLanding": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientProducts": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -239,6 +250,10 @@
 		},
 		"insureCommsHistory": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"budgetAccounts": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"budgetTransferFromAccounts": {
@@ -357,6 +372,18 @@
 			"enabled": false,
 			"positiveCase" : true
 		},
+		"canOpenBudget": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"budgetDetails": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"calculateBudget": {
+			"enabled": true,
+			"positiveCase" : true
+		},
 		"creditStatement": {
 			"enabled": false,
 			"positiveCase" : true
@@ -386,6 +413,18 @@
 			"positiveCase": true
 		},
 		"moneyIn": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"suspendChannels": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureElectOption": {
 			"enabled": false,
 			"positiveCase": true
 		}

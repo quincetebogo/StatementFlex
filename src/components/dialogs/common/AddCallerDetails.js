@@ -133,6 +133,7 @@ export class AddCallerDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Add Caller Details`);
 		
 		this.telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
@@ -221,7 +222,8 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.profilePhoto,
 						this.callerInformation.gender,
 						this.callerInformation.branchCallerID,
-						this.callerInformation.branchCode
+						this.callerInformation.branchCode,
+						this.confirmedCaller.maskedCifNumber
 					)
 				}
 			}));

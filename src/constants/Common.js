@@ -5,7 +5,7 @@
  * @enum {Object} HIGH_RISK_TRANSACTIONS
  * 
  */
-export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `unlock-ftsp`];
+export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `full-unlock`, `partial-unlock`, `open-budget`];
 
 /**
  * Transactions that doesn't even require authentication to perform
@@ -14,7 +14,7 @@ export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget
  * @enum {Object} LOW_RISK_TRANSACTIONS
  * 
  */
-export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
+export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`, `card-history`];
 
 /**
  * Transactions that doesn't even require authentication to perform
@@ -23,7 +23,7 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
  * @enum {Object} EMAIL_DOMAINS
  * 
  */
- export const EMAIL_DOMAINS = Object.freeze([
+export const EMAIL_DOMAINS = Object.freeze([
 	`yahoo.com`,
 	`gmail.com`,
 	`google.com`,
@@ -50,7 +50,7 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
  * @readonly
  * @enum {Object} ACCOUNT_TYPES
  */
- export const ACCOUNT_TYPES = Object.freeze({
+export const ACCOUNT_TYPES = Object.freeze({
 	SAVINGS_ACCOUNT: `transact`,
 	LBB: `lbb`,
 	CREDIT: `credit`,
@@ -63,7 +63,7 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
  * @readonly
  * @enum {Object} ACCOUNT_TYPE_CODE
  */
- export const ACCOUNT_TYPE_CODE = Object.freeze({
+export const ACCOUNT_TYPE_CODE = Object.freeze({
 	PRIMARY_SAVINGS: 300,
 	FLEXIBLE_SAVINGS_PLAN: 200,
 	FIXED_TERM_SAVINGS_PLAN: 201,
@@ -77,7 +77,7 @@ export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
  * 
  * @readonly
  */
- export const LANDING_PAGE_NEEDS = Object.freeze({
+export const LANDING_PAGE_NEEDS = Object.freeze({
 	SAVINGS_ACCOUNT: `savings-account`,
 	LBB: `lbb-account-enquiry`,
 	CREDIT: `credit-account-enquiry`,
@@ -99,7 +99,7 @@ export const AUTH_METHODS = Object.freeze({
 export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
 	SAID_PASSPORT: `IDNUMBER`,
 	ACCOUNT_NUMBER: `ACCOUNTNUMBER`,
-	CELLPHONE_NUMBER: `VERIFIEDCELLPHONENUMBER`  
+	CELLPHONE_NUMBER: `VERIFIEDCELLPHONENUMBER`
 });
 
 
@@ -109,7 +109,6 @@ export const AUTH_IDENTIFICATION_METHODS = Object.freeze({
  * @readonly
  * @enum {Object} LANGUAGE_LIST
  */
-
 export const LANGUAGE_LIST = Object.freeze([
 	{ key: `ENGLISH`, value: `English` },
 	{ key: `AFRIKAANS`, value: `Afrikaans` },
@@ -123,3 +122,51 @@ export const LANGUAGE_LIST = Object.freeze([
 	{ key: `SESOTHO`, value: `Sesotho` },
 	{ key: `SETSWANA`, value: `Setswana` }
 ]);
+
+/**
+ * Available card display types to distinguish between cards
+ * 
+ * @readonly
+ * @enum {Object} CARD_DISPLAY_TYPES
+ */
+export const CARD_DISPLAY_TYPES = {
+	PRIMARY_CARD: `Primary_Card`,
+	SUPPLEMENTARY_CARD: `Supplementary_Card`,
+	VIRTUAL_CARD: `Virtual_Card`
+};
+
+/* Available org units 
+* 
+* @readonly
+* @enum {Object} ORG_UNITS
+*/
+export const ORG_UNITS = {
+	CLIENT_CARE: `Client Care`,
+	HELPDESK: `Helpdesk`,
+	CAPITEC_CONNECT: `Capitec Connect`
+};
+
+/**
+ * Roles to org units mappings
+ * key - roles
+ * value - orgunit
+ * @readonly
+ * @enum {Object} ROLES_TO_ORG_UNITS
+ */
+export const ROLES_TO_ORG_UNITS = {
+	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
+	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
+	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 },
+	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
+};
+
+/**
+ * Available features based on given role of an agent
+ * Client-care and Helpdesk are given access to All features on Horizon
+ * 
+ * @readonly
+ * @enum {Object} AVAILABLE_FEATURES_BY_ROLE
+ */
+export const AVAILABLE_FEATURES_BY_ROLE = {
+	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `search-other-need`, `transaction-history`]
+};

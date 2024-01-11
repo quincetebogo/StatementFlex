@@ -1,16 +1,14 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { convertCentsToRand, formatCurrency, formatDate, formatPhoneNumber, formatProxyId, getMonthName } from 'app/utils/channelServiceUtilities';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { PayShapService } from 'app/services/PayShapService';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { Utilities } from '@cb/platform-web-core';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-
+import { Utilities } from '@cb/platform-web-core';
 import 'app/components/common/PayShapTransactionHistory';
 import 'app/components/common/TransactionHistory';
+import 'app/components/dialogs/quickTransactions/PayshapPOP';
 
 const DATE_TIME_FORMAT = `dd mmm yyy hh:mm:ss`;
 const DATE_ONLY = `dd mmm yyyy`;
@@ -64,9 +62,6 @@ export class PayShapLanding extends Component {
 		this.displayToast = false;
 		this.isBusy = false;
 
-		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.horizonRouter = HorizonRouter.getInstance();
-
 		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.moneyOutTransDetails = {};
@@ -112,7 +107,6 @@ export class PayShapLanding extends Component {
 	}
 
 	get defaultInstitution() {
-
 		if (this.payShapLandingDetails.proxyDetails.defaultProxyStatus === `False` && CAPITEC_DOMAINS.includes(this.payShapLandingDetails.proxyDetails.domain)) {
 			return ``;
 		}
@@ -132,16 +126,15 @@ export class PayShapLanding extends Component {
 		super.connectedCallback();
 
 		this.feeCategories = Utilities.groupBy(this.payShapLandingDetails.fees, `methodOfPayment`);
-		
-		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId
+		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
 		this._unloading();
-		
-		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP, null, true, false, true);
 	}
 
 	// --------------
@@ -153,10 +146,17 @@ export class PayShapLanding extends Component {
 		const transactionHistoryTab = () => this._transactionHistoryTab();
 		const institutionsTab = () => this._institutionsTab();
 		const payshapTab = {
-			0: detailsTab, 
+			0: detailsTab,
 			1: transactionHistoryTab,
 			2: institutionsTab
 		};
+
+		if (e.detail.previousIndex === 0) {
+			this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB);
+		}
+		if (e.detail.previousIndex === 1) {
+			this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		}
 		payshapTab[e.detail.selectedIndex]();
 	}
 
@@ -167,12 +167,6 @@ export class PayShapLanding extends Component {
 	}
 
 	_searchTextChange(event) {
-
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB_SEARCH, {
-			"screen": TelemetryScreen.PAY_SHAP_INSTITUTIONS,
-			"Insitution-name": event.detail.searchText
-		});
-
 		this.filteredInstitutions = this.institutionsList;
 
 		if (event.detail.new) {
@@ -181,12 +175,29 @@ export class PayShapLanding extends Component {
 			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
 					return this.filteredInstitutions.filter(item => item.participantName.toLowerCase().toString().startsWith(key.toLowerCase()) ||
-																	item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
+						item.domains.filter(domain => domain.name.toString().toLowerCase().startsWith(key.toLowerCase())).length >= 1);
 				}
 				return [];
 			});
 			this.filteredInstitutions = Array.from(new Set([...searchTextResult.flat()]));
 		}
+	}
+
+	_searchFocusOut(e) {
+		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_INSTITUTIONS_TAB_SEARCH, {
+			"screen": TelemetryScreen.PAY_SHAP_INSTITUTIONS,
+			"Insitution-name": e.currentTarget.value
+		});
+	}
+
+	_proofOfPayment(uetr, debtorReference, verifiedCellphoneNumber) {
+		this.dispatchEvent(new CustomEvent(`payshap-pop`, {
+			detail: {
+				uetr: uetr,
+				debtorReference: debtorReference,
+				verifiedCellphoneNumber: verifiedCellphoneNumber
+			}
+		}));
 	}
 
 	_onUpdateClick() {
@@ -219,12 +230,12 @@ export class PayShapLanding extends Component {
 			cifNumber: this.cifNumber,
 			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
-			pageSize: `11`,
+			pageSize: `12`,
 			paginationToken: paginationToken || null
 		};
 
 		const result = await this.getMoneyOutTransactionHistory(moneyOutTHRequest);
-		
+
 		const formattedTrans = result.paymentHistoryList
 			.map((item) => {
 				const date = new Date(Date.parse(item.processDateTime));
@@ -240,7 +251,7 @@ export class PayShapLanding extends Component {
 				return item;
 			});
 		this.moneyOutTransactionHistory.push(...formattedTrans);
-		
+
 		return {
 			moneyOutTransactionHistory: this.moneyOutTransactionHistory,
 			paginationToken: result.paginationToken,
@@ -260,7 +271,7 @@ export class PayShapLanding extends Component {
 		};
 
 		const result = await this.getMoneyInTransactionHistory(moneyInTHRequest);
-		
+
 		const formattedTrans = result.transactions
 			.map((item) => {
 				const date = new Date(Date.parse(item.transactionDate));
@@ -289,7 +300,8 @@ export class PayShapLanding extends Component {
 
 	async _transactionHistoryTab() {
 
-		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
 
 		this.moneyType = `Money Out`;
 
@@ -302,10 +314,14 @@ export class PayShapLanding extends Component {
 
 	_detailsTab() {
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
-			"Shap Id": this.payShapLandingDetails.proxyDetails.proxyId,
-			"Registered Cell": this.verifiedCellphoneNumber,
-			"Default Institution": this.defaultInstitution,
-			"Status": this.payShapLandingDetails.proxyDetails.fullProxyStatus
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId,
+			"registered-cell": this.verifiedCellphoneNumber,
+			"default-institution": this.defaultInstitution,
+			"status": this.payShapLandingDetails.proxyDetails.fullProxyStatus
+		});
+
+		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_DETAILS_TAB, {
+			"shap-id": this.payShapLandingDetails.proxyDetails.proxyId
 		});
 	}
 
@@ -322,12 +338,8 @@ export class PayShapLanding extends Component {
 		this.filteredInstitutions = this.institutionsList;
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-		return true;
-	}
-
 	_exitTransactionHistory() {
+		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_TRANSACTION_HISTORY_TAB);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -380,7 +392,7 @@ export class PayShapLanding extends Component {
 					height: 750px;
 				}
 				.transactions-tab {
-					height: 750px;
+					height: 767px;
 				}
 				.payshap-info {
 					--theme-card-min-height: 80px;
@@ -646,19 +658,20 @@ export class PayShapLanding extends Component {
 		return html`
 			${this._renderToast()}
 			${this._renderContent()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
 	_renderToast() {
 		return this.displayToast
-		? html`
+			? html`
 			<capitec-toast
 				type="${this.payShapDefaultToast}"
 				header="${this.payShapDefaultToast === `success` ? `Success` : `Failure`}"
 				detail="${this.payShapDefaultToast === `success` ? `Payshap details updated` : `Payshap details not updated`}"
 				closable>
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -710,7 +723,7 @@ export class PayShapLanding extends Component {
 
 	_renderPayShapTransactionHistory() {
 		return this.renderMode === RENDER_MODE.PAYSHAP_TRANSACTION_HISTORY
-		? html`
+			? html`
 			<horizon-payshap-transaction-history
 				.moneyType="${this.moneyType}"
 
@@ -727,12 +740,11 @@ export class PayShapLanding extends Component {
 				.getMoneyInTransactionHistory="${() => this._getMoneyInTransactionHistory()}"
 
 				.disposeData="${() => this._unloadTransactionHistory()}"
-
 				@back="${() => this._exitTransactionHistory()}"
 				@unloading="${() => this._unloadTransactionHistory()}">
 			</horizon-payshap-transaction-history>
 		`
-		: html``;
+			: html``;
 	}
 
 	_renderMoneyOutTransactionHistoryColumns() {
@@ -833,19 +845,20 @@ export class PayShapLanding extends Component {
 					<horizon-label
 						style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 						label="Fee" 
-						value="${formatCurrency(item.feeAmount)}">
+						value="${formatCurrency(convertCentsToRand(item.feeAmount))}">
 					</horizon-label>
 				</capitec-group>
 				<!-- Hiding "Escalate Transaction" and "Proof of Payment" buttons as we dont have functionality built on it yet
 			Need to remove hidden attribute when development starts on these functionalities -->
-			<capitec-button-bar ?hidden=${true} align="right" ?hidden="${true}">
-					<capitec-button
+			<capitec-button-bar align="right">
+					<capitec-button ?hidden=${true}
 								type="clear" 
 								label="Escalate Transaction">
 					</capitec-button>
 					<capitec-button
 								type="clear" 
-								label="Proof of Payment">
+								label="Proof of Payment"
+								@click="${() => this._proofOfPayment(item.uetr, item.debtorReference, this.verifiedCellphoneNumber)}">
 					</capitec-button>
 				</capitec-button-bar>
 			</capitec-group>
@@ -1105,15 +1118,16 @@ export class PayShapLanding extends Component {
 					type="search"
 					keyboardMode="alpha-numeric"
 					@key-input="${(e) => this._searchTextChange(e)}"
-					@value-change="${(e) => this._searchTextChange(e)}">
+					@value-change="${(e) => this._searchTextChange(e)}"
+					@focusout="${(e) => this._searchFocusOut(e)}">
 			</capitec-text-field>
 		`;
 	}
 
 	_renderInstitutions() {
 		return this.filteredInstitutions.length > 0
-		? html`${this._renderInsitutionsList()}`
-		: html`${this._renderNoResults()}`;
+			? html`${this._renderInsitutionsList()}`
+			: html`${this._renderNoResults()}`;
 	}
 
 	_renderInsitutionsList() {
@@ -1138,6 +1152,14 @@ export class PayShapLanding extends Component {
 		return domains.map((domain) => html`
 			<capitec-label class="domain-name" label="${domain.name}"></capitec-label>
 		`);
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator data-automation-id="access-channels-loading-indicator"></capitec-loading-indicator>`;
+		};
+
+		return html``;
 	}
 
 	_renderNoResults() {

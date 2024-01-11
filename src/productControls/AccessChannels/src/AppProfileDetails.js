@@ -137,9 +137,9 @@ export class AppProfileDetails extends Component {
 
 	_toggleSuspendReasonsSlide() {
 		this.showValidationBanner = false;
-		this.showSuspendReasons = !this.showSuspendReasons;
+		// this.showSuspendReasons = !this.showSuspendReasons;
 	
-		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, { detail: { showSuspendReasons: this.showSuspendReasons } }));
+		this.dispatchEvent(new CustomEvent(`toggle-app-suspend-reasons`, {}));
 		
 		if (this.showSuspendReasons) {
 			this.selectedSuspendReason = ``;
@@ -182,7 +182,10 @@ export class AppProfileDetails extends Component {
 	}
 
 	_onReasonSelected(event) {
-		if (event.detail.new) {
+		if (event.detail.new && event.currentTarget.label === `Cancelled remote banking`) {
+			this.selectedSuspendReason = `ServiceCanceled`;
+			this.showValidationBanner = false;
+		} else {
 			this.selectedSuspendReason = event.currentTarget.label;
 			this.showValidationBanner = false;
 		}

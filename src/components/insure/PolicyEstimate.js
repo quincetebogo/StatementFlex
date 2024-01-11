@@ -223,7 +223,8 @@ class PolicyEstimate extends Component {
 			genderType: `Male`,
 			age: ``,
 			rowID: this.estimate.lifesAssured.length,
-			coverDetails: event.detail.coverDetails
+			coverDetails: event.detail.coverDetails,
+			lifeAssured: true
 		};
 		this.estimate.lifesAssured.splice(1, 0, life);
 		this.showAddLifeDialog = false;
@@ -334,7 +335,7 @@ class PolicyEstimate extends Component {
 	 * Invoke this function when Agree button is clicked on Email Estimate Popup
 	 * @returns {void}
 	 */
-	_acceptPrintEstimate() {
+	async _acceptPrintEstimate() {
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_PRINT, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
@@ -361,7 +362,7 @@ class PolicyEstimate extends Component {
 	 * Initialize component when loaded / Add default life to list for calculator and list
 	 * @returns {void}
 	 */
-	 _initialise() {
+	async _initialise() {
 		let ageMessage = ``;
 		if (this.mainLifeDefaultAge < 18 || this.mainLifeDefaultAge > 64) {
 			ageMessage = `Only Main Life between the ages of 18 and 64 are allowed`;
@@ -390,8 +391,6 @@ class PolicyEstimate extends Component {
 		});
 		this.estimate.totalPremium = 0;
 		this.requestUpdate();
-		// await super._inicidentManager_(`funeral-plan-calculate-estimate`, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident();
 	}
 
 	/**
@@ -706,11 +705,13 @@ class PolicyEstimate extends Component {
 	 * @return {html} Html for the dialog
 	 */
 	_renderAddLifeDialog() {
+		console.log(`this.estimate :>> `, this.estimate);
 		return this.showAddLifeDialog === false ? ``
 			: html`
 			<horizon-insure-add-life-dialog 
 				.currentLifesAssured="${this.estimate.lifesAssured}"
 				.productParams="${this.productParams}"
+				.callerPage = "${INSURE_CALLER_PAGE.ESTIMATE}"
 				@add-new-life="${(e) => this._addLife(e)}"
 				@close-modal="${() => this.showAddLifeDialog = false}" >
 			</horizon-insure-add-life-dialog>`;

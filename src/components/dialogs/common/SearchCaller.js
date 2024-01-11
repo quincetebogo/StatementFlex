@@ -257,6 +257,7 @@ export class SearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		ineum(`page`, `Search Caller Dialog`);
 		this.identificationMethods = SEARCH_OPTIONS;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 
@@ -694,7 +695,8 @@ export class SearchCaller extends Component {
 	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
 			gender: identifiedClient.callerInformation.gender,
 			branchCallerID: ``,
-			branchCode: ``
+			branchCode: ``,
+			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -728,7 +730,8 @@ export class SearchCaller extends Component {
 			profilePhoto: identifiedClient.callerInformation.profilePhoto,
 			gender: identifiedClient.callerInformation.gender,
 			branchCallerID: `cp${this.cpNumber}`,
-			branchCode: this.branchCode
+			branchCode: this.branchCode,
+			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode, `cp${this.cpNumber}`);
@@ -809,7 +812,8 @@ export class SearchCaller extends Component {
 			``, // profilePhoto
 			``, // gender
 			`cp${this.cpNumber}`, // branch caller id,
-			this.branchCode
+			this.branchCode,
+			`` // masked cif
 		);
 	}
 

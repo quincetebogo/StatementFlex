@@ -1,5 +1,5 @@
+import { AVAILABLE_FEATURES_BY_ROLE, HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { EventAggregator, Logger } from 'platform/core';
-import { HIGH_RISK_TRANSACTIONS, LOW_RISK_TRANSACTIONS } from 'app/constants/Common';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -12,6 +12,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
+import { PayShapService } from 'app/services/PayShapService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { RoleManager } from 'app/shell/RoleManager';
 
@@ -59,6 +60,7 @@ export class ViewBase extends View {
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.clientProfileService = new ClientProfileService(() => this._toggleBusyFlag(), () => true);
+		this.payShapService = new PayShapService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -321,6 +323,23 @@ export class ViewBase extends View {
 		return returnValue.succeeded;
 	}
 	
+	// Show tooltip when a particular option is disabled
+	_showTooltip(need) {
+		const availableFeatures = AVAILABLE_FEATURES_BY_ROLE[this.roleManager.orgUnit];
+		
+		if (availableFeatures?.length > 0) {
+			return !availableFeatures.includes(need);
+		}
+		return false;
+	}
+
+	_shouldDisableByRole(need) {
+		const disableByVerification = this._shouldDisable(need);
+		const disableByRole = this._showTooltip(need);
+
+		return disableByVerification || disableByRole;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
