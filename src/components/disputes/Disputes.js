@@ -230,10 +230,7 @@ export class Disputes extends Component {
 			"cueSheetId": this.disputeQuestion.cueSheetId,
 			"caseId": this.disputeQuestion.caseId,
 			"answerId": this.selectedAnswer,
-			"comments": ``,
-			"dateInput": null,
-			"currencyInput": null,
-			"documentInput": null
+			"comments": ``
 		};
 
 		switch (this.questionType) {
