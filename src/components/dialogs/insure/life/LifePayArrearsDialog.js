@@ -258,7 +258,6 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
-		console.log(`_settleArrearsValidate: `, this.totalSelectedArrears);
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
 			return;
