@@ -1894,6 +1894,9 @@ class ClientSummary extends Component {
 	_renderActiveLifePolicyPockets(activeLifePolicy) {
 		const pocketList = activeLifePolicy?.pockets;
 
+		// Enable with next release
+		// ?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
+
 		return html`${pocketList?.length > 0 ? pocketList?.map((pocketItem) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
@@ -1901,7 +1904,7 @@ class ClientSummary extends Component {
 				?expanded = "${pocketItem?.isExpanded}" 
 				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
 				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
-				?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
+				?disabled='${true}'
 				style="${pocketItem?.coverage === 0 ? `background-color: #f1f1f1` : ``}">
 					<capitec-group 
 						class="expander-header"

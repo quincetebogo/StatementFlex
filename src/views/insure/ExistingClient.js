@@ -468,12 +468,12 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay Life Policy Arrears Agreement
 	 * @param {String} contractReference contractReference
-	 * @param {Object} selectedArrears selectedArrears
 	 * @param {string} accountSelected accountSelected
+	 * @param {Object} selectedArrears selectedArrears
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {Object} resp
 	 */
-	async _generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum) {
+	async _generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum) {
 		const generateDocumentRequest = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -484,13 +484,15 @@ export class ExistingClient extends InsureViewBase {
 				"contentType": `Pdf`
 			},
 			"metadata": {
-				"deviceId": `string`,
-				"signatureType": `string`,
-				"branchName": `string`,
-				"branchNumber": `string`,
+				"deviceId": null,
+				"signatureType": `E`,
+				"branchName": `Horizon`,
+				"branchNumber": `2000`,
+				"channel": `NBS`,
 				"documentDate": `2023-11-15T07:07:52.936Z`,
-				"language": `string`,
-				"productId": `string`
+				"language": `English`,
+				"signatoryType": `P`,
+				"productId": `12601`
 			},
 			"nonPrimarySignatoryDetails": {
 				"signatoryType": `string`,
@@ -502,7 +504,8 @@ export class ExistingClient extends InsureViewBase {
 				"arrears": selectedArrears,
 				"cifNumber": this.callerInformation.cifNumber,
 				"policyNumber": contractReference,
-				"paidWithClaims": false
+				"paidWithClaims": false,
+				"fromAccount": accountSelected
 			}
 		};
 
@@ -1962,7 +1965,7 @@ export class ExistingClient extends InsureViewBase {
 				.generateDocumentsUpdateBankingDetails="${(policy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
-				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
+				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
