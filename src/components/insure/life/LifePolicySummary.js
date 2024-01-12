@@ -396,6 +396,7 @@ class LifePolicySummary extends Component {
 
 	// Expanded setting for main life expander
 	_renderMainSectionExpanded() {
+		const csvOfMonths = this.selectedLifePolicy?.arrears?.map((item) => formatDate(item.arrearsPaymentDueDate, `dd mmm yyyy`)).join(`, `);
 		return html`
 			<capitec-title-bar type="default" label="Payment information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
@@ -413,6 +414,10 @@ class LifePolicySummary extends Component {
 				</horizon-label>
 			</capitec-group>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label 
+					label="Months outstanding" 
+					value="${isNullorEmpty(csvOfMonths) ? `None` : csvOfMonths}">
+				</horizon-label>
 				<horizon-label label="Mandate Status"
 					value="${isNullorEmpty(this.selectedLifePolicy?.bankDetails?.mandateStatus) ? `-` : this.selectedLifePolicy?.bankDetails?.mandateStatus}">
 				</horizon-label>
