@@ -2231,7 +2231,7 @@ class ClientSummary extends Component {
 								<div>How it works:</div>
 								<div>•When you pass, the Education Fund benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
 								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
-								<div>•Once a child turns 18, the money left in the umbrella trust will be paid to them in one lump sum</div>
+								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
 						</tr>
 					</table>
@@ -2336,7 +2336,9 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._closeClaimInfoDialog()}">
+			<horizon-insure-lodge-claim-info-dialog 
+				.selectedInsureTabIndex="${this.selectedInsureTabIndex}"
+				@confirm="${() => this._closeClaimInfoDialog()}">
 			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 
