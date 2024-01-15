@@ -1404,7 +1404,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
 		const PremiumHistoryRequest = {
-			contractReference: this.selectedLifePolicy.contractReference
+			policyNumber: this.selectedLifePolicy.contractReference
 		};
 
 		let totalArrears = 0;
