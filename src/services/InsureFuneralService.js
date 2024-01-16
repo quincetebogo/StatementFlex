@@ -486,6 +486,58 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Provides a summary breakdown of all claims for a given client
+	 *
+	 * @param {activatePolicyPauseRequest} [activatePolicyPauseRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async activatePolicyPause(activatePolicyPauseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureActivatePolicyPause`)) {
+			return this.mock(`insureActivatePolicyPause`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/activatePolicyPause`,
+			activatePolicyPauseRequest,
+			this._setInsureHeaders(),
+			`activatePolicyPause`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Provides a summary breakdown of all claims for a given client
+	 *
+	 * @param {cancelPolicyPauseRequest} [cancelPolicyPauseRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async cancelPolicyPause(cancelPolicyPauseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureRequestCallback`)) {
+			return this.mock(`insureRequestCallback`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/cancelPolicyPause`,
+			cancelPolicyPauseRequest,
+			this._setInsureHeaders(),
+			`cancelPolicyPause`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents

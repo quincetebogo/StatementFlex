@@ -22,6 +22,7 @@ import 'app/components/dialogs/insure/funeral/PayPremiumConfirmationDialog';
 import 'app/components/dialogs/insure/funeral/PayPremiumAgreementDialog';
 import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EarlyCollectionOptionsDialog';
+import 'app/components/dialogs/insure/funeral/FuneralPolicyPauseDialog';
 
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
@@ -92,6 +93,9 @@ class ClientSummary extends Component {
 		this.showLifeAllocateCoverDialog = false;
 		this.requestCallbackSuccess = false;
 		this.showEarlyCollectionDialog = false;
+		this.showPolicyPauseDialog = false;
+		this.funeralPolicyPauseSuccess = false;
+		this.policyPauseSuccessMessage = ``;
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
@@ -135,6 +139,11 @@ class ClientSummary extends Component {
 	 * @property {Object} lifeHealthQuestions Health questions for increase cover
 	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
 	 * @property {Function} lifeUpdateBankingDetailsAgreement contains the agreement document for updating banking details
+	 * @property {Boolean} showPolicyPauseDialog Determines if the Voluntary Policy Pause dialog should be shown
+	 * @property {Function} activatePolicyPause callback function to activate policy pause
+	 * @property {Function} cancelPolicyPause callback function to cancel policy pause
+	 * @property {Boolean} funeralPolicyPauseSuccess determines whether the policy pause was successful
+	 * @property {String} policyPauseSuccessMessage message to display after policy pause action
 	 * 
 	 * @readonly
 	 * @static
@@ -172,6 +181,11 @@ class ClientSummary extends Component {
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
 			showEarlyCollectionDialog: { type: Boolean, state: true },
+			showPolicyPauseDialog: { type: Boolean, state: true },
+			activatePolicyPause: { type: Object, state: true },
+			cancelPolicyPause: { type: Object, state: true },
+			funeralPolicyPauseSuccess: { type: Boolean, state: true },
+			policyPauseSuccessMessage: { type: String, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -414,6 +428,11 @@ class ClientSummary extends Component {
 	_openEarlyCollectionOPTInDialog(policyItem) {
 		this.selectedPolicyItem = policyItem;
 		this.showEarlyCollectionDialog = true;
+	}
+
+	_openVoluntaryPolicyPauseDialog(policyItem) {
+		this.selectedPolicyItem = policyItem;
+		this.showPolicyPauseDialog = true;
 	}
 
 	/**
@@ -701,6 +720,24 @@ class ClientSummary extends Component {
 		this.selectedLifePolicy = policy;
 	}
 
+	_cancelPolicyPause() {
+		const result = this.cancelPolicyPause(this.selectedPolicyItem.contractReference);
+
+		if (result) {
+			this.showPolicyPauseDialog = false;
+		}
+
+	}
+
+	_activatePolicyPause(reason) {
+		const result = this.activatePolicyPause(reason, this.selectedPolicyItem.contractReference);
+
+		if (result) {
+			this.showPolicyPauseDialog = false;
+		}
+
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -854,9 +891,9 @@ class ClientSummary extends Component {
 				if (policyItem.arrearDetails?.outstandingAmount > 0) {
 					policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
 				}
-
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
 				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
+				policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 			}
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
@@ -980,6 +1017,12 @@ class ClientSummary extends Component {
 					icon="system/send-action" 
 					label="Early December collection">
 				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.VOLUNTARY_PAUSE:
+				return html`<capitec-overflow-menu-item
+					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
+					icon="system/profile-action" 
+					label="Policy Pause">
+				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
 		}
@@ -1056,6 +1099,14 @@ class ClientSummary extends Component {
 	 */
 	_startFuneralEstimateToastTimer() {
 		window.setTimeout(() => this.showEmailEstimateSuccessToast = false, 3000);
+	}
+
+	/**
+	 * Timer to hide Estimate email success toast
+	 * @returns {void}
+	 */
+	_startPolicyPauseToastTimer() {
+		window.setTimeout(() => this.funeralPolicyPauseSuccess = false, 3000);
 	}
 
 	/**
@@ -1464,6 +1515,7 @@ class ClientSummary extends Component {
 			${this._renderRequestCallbackDialog()}
 			${this._renderEarlyCollectionsDialog()}
 			${this._renderLifeEmailDialog()}
+			${this._renderPolicyPauseDialog()}
 		`;
 	}
 
@@ -1538,6 +1590,7 @@ class ClientSummary extends Component {
 		return html`
 			<div class="notification">
 				${this._renderSuccessAlert()}
+				${this._renderPolicyPauseSuccessAlert()}
 				${this._renderRequestCallbackAlert()}
 			</div>
 
@@ -2487,6 +2540,25 @@ class ClientSummary extends Component {
 	`;
 	}
 
+	/**
+	 * Renders the Email Success alert
+	 * @returns {html} html content
+	 */
+	_renderPolicyPauseSuccessAlert() {
+		return this.funeralPolicyPauseSuccess === false ? html``
+			: html`
+				<capitec-toast
+					class="toast"
+					type="success"
+					Header="Successful"
+					layout = "vertical"
+					detail = "${this.policyPauseSuccessMessage}"
+					@click = "${() => this.funeralPolicyPauseSuccess = false}">
+				</capitec-toast>
+				${this._startPolicyPauseToastTimer()}
+	`;
+	}
+
 	_startTimer() {
 		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 	}
@@ -2547,6 +2619,22 @@ class ClientSummary extends Component {
 					@close-modal="${() => this.showLifeEmailDialog = false}"
 					@send-email = "${(emailAddress) => this._sendLifeEmail(emailAddress)}">
 				</horizon-insure-email-dialog>
+			`;
+	}
+
+	/**
+	 *  Render dialog for Voluntary policy pause
+	 * @returns {void}
+	 */
+	_renderPolicyPauseDialog() {
+		return this.showPolicyPauseDialog === false ? html``
+			: html`
+				<horizon-insure-funeral-policy-pause-dialog
+					.policy="${this.selectedPolicyItem}"
+					.cancelPolicyPause = "${() => this._cancelPolicyPause()}"
+					.activatePolicyPause = "${(reason) => this._activatePolicyPause(reason)}"
+					@cancel-click = "${() => this.showPolicyPauseDialog = false}">
+				</horizon-insure-funeral-policy-pause-dialog>
 			`;
 	}
 

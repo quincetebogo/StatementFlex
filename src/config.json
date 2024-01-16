@@ -459,6 +459,14 @@
 		"insureGenericLifeDocument": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureActivatePolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicyPause": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

@@ -303,7 +303,8 @@ export const POLICY_OPTIONS = Object.freeze({
 	CANCEL_PLAN: `CancelPlan`,
 	TRANSACTION_HISTORY: `TransactionHistory`,
 	SMS_HISTORY: `SMSHistory`,
-	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`
+	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
+	VOLUNTARY_PAUSE: `VoluntaryPause`
 });
 
 
@@ -354,3 +355,14 @@ export const INSURE_TABS = Object.freeze({
 	LIFE: 1,
 	CLAIMS: 2
 });
+
+/**
+ * Policy pause reasons
+ * 
+ * @readonly
+ * @enum {Object} POLICY_PAUSE_REASONS
+ */
+export const POLICY_PAUSE_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Pregnancy `, text: `Pregnancy ` }
+]);

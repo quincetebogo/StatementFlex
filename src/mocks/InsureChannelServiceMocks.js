@@ -61,6 +61,8 @@ export default class InsureChannelServiceMocks {
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/funeral/InsureArrears`).catch(err => logError(err)));
+		this.activatePolicyPauseMocks = await this._loadMockModule(this.activatePolicyPauseMocks, `insureActivatePolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
+		this.cancelPolicyPauseMocks = await this._loadMockModule(this.cancelPolicyPauseMocks, `insureCancelPolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
@@ -279,6 +281,20 @@ export default class InsureChannelServiceMocks {
 	insureArrears() {
 		if (this._mockSettings.insureArrears.positiveCase) {
 			return this.arrearsMocks.InsureArrears;
+		}
+		return null;
+	}
+
+	insureActivatePolicyPause() {
+		if (this._mockSettings.insureActivatePolicyPause.positiveCase) {
+			return this.activatePolicyPauseMocks.insureActivatePolicyPause;
+		}
+		return null;
+	}
+
+	insureCancelPolicyPause() {
+		if (this._mockSettings.insureCancelPolicyPause.positiveCase) {
+			return this.cancelPolicyPauseMocks.insureCancelPolicyPause;
 		}
 		return null;
 	}

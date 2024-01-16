@@ -90,6 +90,8 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralIssuePlanAgreementDocument = {};
 		this.funeralUpdatePlanAgreementDocument = {};
 		this.funeralShowEstimateSuccessToast = false;
+		this.funeralPolicyPauseSuccess = false;
+		this.policyPauseSuccessMessage = ``;
 
 		this.selectedLifePocketType = ``;
 		this.selectedLifePolicy = ``;
@@ -132,6 +134,8 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} lifeCancelAgreementDocument contains the cancel policy document details
 	 * @property {Object} lifeDocsToEmail contains Life Document details to email
 	 * @property {Object} lifeUpdateBankingDetailsAgreement contains the update banking details document details
+	 * @property {Object} funeralPolicyPauseSuccess contains the policy pause success flag
+	 * @property {Object} policyPauseSuccessMessage contains the policy pause success message
 	 * 
 	 * @readonly
 	 * @static
@@ -172,7 +176,10 @@ export class ExistingClient extends InsureViewBase {
 			showInsureSuccessToast: { type: Boolean, state: true },
 			lifePolicyArrears: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			funeralPolicyPauseSuccess: { type: Boolean, state: true },
+			policyPauseSuccessMessage: { type: String, state: true }
+
 
 		};
 	}
@@ -1453,6 +1460,44 @@ export class ExistingClient extends InsureViewBase {
 		return null;
 	}
 
+	async _activatePolicyPause(reason, contractRef) {
+			const activatePolicyPauseRequest = {
+				contractReference: contractRef,
+				cifNumber: this.callerInformation.cifNumber,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				policyPauseReason: reason,
+				policyBenefitType: `VoluntaryPolicyPause `,
+				benefitPeriod: 6,
+				claimIncidentDate: `2023-11-24T15:49:02.862Z`,
+				productCode: `Capitec`
+			};
+
+			const returnValue = await this.insureFuneralService.activatePolicyPause(activatePolicyPauseRequest);
+
+			if (returnValue.succeeded) {
+				this.funeralPolicyPauseSuccess = true;
+				this.policyPauseSuccessMessage = `Policy successfully paused`;
+			}
+
+	}
+
+	async _cancelPolicyPause(contractRef) {
+		const cancelPolicyPauseRequest = {
+			contractReference: contractRef,
+			benefitType: `NewBornPremiumWaiver`,
+			cifNumber: this.callerInformation.cifNumber,
+			productCode: `Capitec`
+		};
+
+		const returnValue = await this.insureFuneralService.cancelPolicyPause(cancelPolicyPauseRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.funeralPolicyPauseSuccess = true;
+			this.policyPauseSuccessMessage = `Policy pause cancelled successfully`;
+		}
+
+	}
+	
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
@@ -1974,6 +2019,10 @@ export class ExistingClient extends InsureViewBase {
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
+				.activatePolicyPause = "${(reason, contractRef) => this._activatePolicyPause(reason, contractRef)}"
+				.cancelPolicyPause = "${(contractRef) => this._cancelPolicyPause(contractRef)}"
+				.funeralPolicyPauseSuccess = "${this.funeralPolicyPauseSuccess}"
+				.policyPauseSuccessMessage = "${this.policyPauseSuccessMessage}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"
