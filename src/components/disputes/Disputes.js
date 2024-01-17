@@ -125,7 +125,7 @@ export class Disputes extends Component {
 	}
 
 	async _restartQuestions() {
-		const returnValue = await this.restartQuestions(this.transactionDetails);
+		const returnValue = await this.restartQuestions();
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to restart cue sheet questions`, `_restartQuestions`, returnValue.correlationId);
@@ -256,10 +256,8 @@ export class Disputes extends Component {
 		
 		this.dispatchEvent(new CustomEvent(`dispute-outcome`, {
 			detail: {
-				transDesc: this.transactionDetails?.statementDescription,
 				clientAnswerWording: firstElem.clientAnswerWording,
-				agentAnswerWording: firstElem.agentAnswerWording,
-				disputeStep: this.disputeQuestion.disputeStep
+				agentAnswerWording: firstElem.agentAnswerWording
 			}
 		}));
 	}
@@ -490,7 +488,7 @@ export class Disputes extends Component {
 
 	_renderDisputeTranInfo() {
 		return html`
-			<capitec-title-bar type="default" class="dispute-tran-info">
+			<capitec-title-bar type="default" class="dispute-tran-info" ?hidden="${true}">
 				<horizon-label
 					label="Transaction date"
 					value = "${formatDate(this.transactionDetails.transactionDate, `dd mmm yyy hh:mm:ss`)}">

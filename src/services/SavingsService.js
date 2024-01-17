@@ -426,31 +426,6 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
-	/**
-	 * Savings Account Transaction History Details
-	 *
-	 * @param {object} request details required to get list of transactions
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	savingsAccountTranHistoryDetail (request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const url = `/cec-save-${this._version}/savings-account/transactions/card-transaction-detail`;
-
-		return this.post(
-			url,
-			request,
-			this.setToken(), 
-			`savingsAccountTranHistoryDetail`, 
-			null, 
-			null, 
-			2000,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------

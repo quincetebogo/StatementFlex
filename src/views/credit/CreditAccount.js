@@ -113,7 +113,6 @@ export class CreditAccount extends ViewBase {
 		this.budgetStatus = ``;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
-		this.journalNumber = `00000`;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -143,7 +142,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-			const cardDisputes = () => this._cardDisputeTransaction(selectedAccountDetails);
+			const cardDisputes = () => this._cardDisputeTransaction();
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 			const actions = {
@@ -182,20 +181,6 @@ export class CreditAccount extends ViewBase {
 		super.disconnectedCallback();
 	}
 
-	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
-	async updated(changedProperties) {
-
-		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
-	
-		if (journalNumber) {
-			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
-			const currency = await this._getWithdrawlCurrency(expandedItem);
-
-			expandedItem.currency = currency;
-			this.requestUpdate();
-		}
-	}
-
 	// --------------
 	// PROPERTIES
 	// --------------
@@ -213,8 +198,7 @@ export class CreditAccount extends ViewBase {
 			showPayBudgetDialog: { state: false },
 			declineReason: { state: false },
 			showPayBudgetWarning: { state: false },
-			showTooltip: { state: false },
-			journalNumber: { type: String, attribute: false, state: false }
+			showTooltip: { state: false }
 		};
 	}
 
@@ -223,7 +207,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`];
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `CSH_CASH_WITHDRWL`];
 	}
 
 	// --------------
@@ -528,6 +512,21 @@ export class CreditAccount extends ViewBase {
 		});
 	}
 
+	_checkboxChange(e, item) {
+		item.checked = e.detail.new;
+		this.requestUpdate();
+	}
+
+	_transactionSelectAll(e) {
+		this.transactionHistory = this.transactionHistory.map(t => {
+			if (!t.disableCheck) {
+				t.checked = e.detail.new;
+			}
+			return t;
+		});
+		this.requestUpdate();
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -714,9 +713,11 @@ export class CreditAccount extends ViewBase {
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.formatedAmount = formatCurrency(item.amount);
 			item.formatedBalance = formatCurrency(item.balance);
-			item.isCashWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL`;
-			item.isDomesticWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL` && item.currency === `ZAR`;
+			item.isDomesticWithdrawl = () => item.transactionCode === `4060` && isNullorEmpty(item.currency);
 			item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
+			item.hideDisputeBtn = item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540();
+			item.checked = false;
+			item.disableCheck = item.hideDisputeBtn;
 
 			return item;
 		});
@@ -1110,13 +1111,14 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _cardDisputeTransaction(item) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
-            transactionId: item.transactionId,
-            cardAuthType: item.cardAuthType
-        });
+		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
 
-		this.tranToDispute = item;
-		const returnValue = await this._getFirstQusToDispute(item);
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+			transactionId: this.tranToDispute.map(t => t.transactionId),
+			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
+		});
+
+		const returnValue = await this._getFirstQusToDispute();
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -1127,10 +1129,13 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute(item) {
+	async _getFirstQusToDispute() {
+		const temp = {};
 		const request = {
-			"transactionId": `${item.transactionId}`,
-			"transactionPostingDate": item.postingDate,
+			"transactions": this.tranToDispute.map((item) => Object.assign(temp, {
+								transactionID: item.transactionId,
+								transactionPostingDate: item.postingDate
+							})),
 			"incident": this.currentIncident,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
@@ -1168,10 +1173,8 @@ export class CreditAccount extends ViewBase {
 
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.transDesc = event.detail.transDesc;
 		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
-		screenDetails.disputeStep = event.detail.disputeStep;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
@@ -1179,35 +1182,15 @@ export class CreditAccount extends ViewBase {
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
 
-	async _restartDispute(transactionDetails) {
+	async _restartDispute() {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
 		
-		const returnValue = await this._getFirstQusToDispute(transactionDetails);
+		const returnValue = await this._getFirstQusToDispute();
 		return returnValue;
 	}
 
-	_getWithdrawlCurrency(item) {
-		const request = [
-			{
-				transactionId: item.transactionId,
-				postingDate: item.postingDate
-			}
-		];
-		const returnValue = this.creditService.cardTranHistoryDetail(request, () => true);
-		const result = returnValue?.result;
-
-		if (returnValue.succeeded) {
-			return result.transactions.find(x => x.journalNumber === this.journalNumber)?.currency;
-		}
-		return ``;
-	}
-
-	_disputeTran(item) {
-		// hardcoding this to get acc config & permission details in option click
-		item.productTypeCode = 101; 
-		item.accountNumber = this.ccDetails.accountNumber;
-		
-		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, item);
+	_disputeTran() {
+		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
 	}
 
 	// ---------
@@ -1535,7 +1518,9 @@ export class CreditAccount extends ViewBase {
 				
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"
-				@unloading="${() => this._unloadTransactionHistory()}">
+				@unloading="${() => this._unloadTransactionHistory()}"
+				@select-all="${(e) => this._transactionSelectAll(e)}"
+				@dispute-transactions="${() => this._disputeTran()}">
 
 			</horizon-transaction-history>
 
@@ -1548,10 +1533,9 @@ export class CreditAccount extends ViewBase {
 		return html`
 			<capitec-table-column
 				label="Transaction Date"
-				field="transactionDate"
-				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
-				type="date"
-				size="156px;">
+				field="checked"
+				.renderer="${(item, fieldName, value) => this._renderCheckbox(item, fieldName, value)}"
+				size="150px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
@@ -1574,21 +1558,19 @@ export class CreditAccount extends ViewBase {
 			`;
 	}
 
-	_renderTransactionDateTime(value) {
+	_renderCheckbox(item, fieldName, value) {
 		return html`
-			<capitec-label
-				label="${formatDate(value, DATE_TIME_FORMAT)}">
-			</capitec-label>`;
+			<capitec-check
+				?checked="${value}"
+				?disabled="${item.disableCheck}"
+				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
+				@value-change="${(e) => this._checkboxChange(e, item)}">
+			</capitec-check>`;
 	}
 
 	_renderTransactionDetails(item) {
 		const telemetryEvents = TRANSACTION_ENQUIRY_EVENTS(this.productType);
 		this._telemetry.logEvent(telemetryEvents.TRANSACTION_HISTORY_INFO, {});
-
-		// Updating "this.journalNumber" to trigger service call that gets "linkedTransactionDetails".
-		if (item.isCashWithdrawl()) {
-			this.journalNumber = item.journalNumber;
-		}
 
 		return html`
 			<capitec-label
@@ -1739,7 +1721,7 @@ export class CreditAccount extends ViewBase {
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
 					@click="${() => this._disputeTran(item)}"
-					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
+					?hidden="${true}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -1752,7 +1734,7 @@ export class CreditAccount extends ViewBase {
 				.transactionDetails="${this.tranToDispute}"
 				.disputeQuestion="${this.disputeQuestion}"
 				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
-				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
+				.restartQuestions="${() => this._restartDispute()}"
 				@cancel="${() => this._cancelDisputeTrans()}"
 				@dispute-outcome="${(event) => this._disputeOutcome(event)}"
 				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">
