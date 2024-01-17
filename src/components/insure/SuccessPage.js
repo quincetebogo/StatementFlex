@@ -67,18 +67,11 @@ class SuccessPage extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this._updateIncidentState();
-
 	}
 
 	// #endregion
 
 	// #region PRIVATE METHODS
-
-	_updateIncidentState() {
-		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 	// #endregion PRIVATE METHODS
 
@@ -88,7 +81,7 @@ class SuccessPage extends Component {
 	 * Display email dialog
 	 * @returns {void}
 	 */
-	_emailClick() {
+	async _emailClick() {
 		this.showEmailPlanDialog = true;
 
 		if (this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {

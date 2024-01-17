@@ -6,13 +6,13 @@
  */
 
 export const savingsAccountDetails = {
-		"accountNumber": '1928247288',
-		"accountBalance": 20916.1, 
-		"accountAvailableBalance": 20567.23, 
-		"accountPendingAmount": 349, 
-		"interestRatePercentage": '5.5%',
-		"accountStatus": 'Active',
-		"pendingMandateCount": 2
+	"accountNumber": '1928247288',
+	"accountBalance": 20916.1,
+	"accountAvailableBalance": 20567.23,
+	"accountPendingAmount": 349,
+	"interestRatePercentage": '5.5%',
+	"accountStatus": 'Active',
+	"pendingMandateCount": 2
 };
 
 export const savingsPlanDetails = {
@@ -226,7 +226,133 @@ export const savingsPlanDetails = {
 			"lastUpdate": "2022-09-30T00:00:00+00:00",
 			"accountStatus": "OPEN"
 		}
-		
+
+	]
+};
+
+
+export const getClientProducts = {
+	"savingsProducts": [
+		{
+			"accountNumber": 2120083343,
+			"availableBalance": 20.33,
+			"currentBalance": 20.33,
+			"accountName": "Christmas party",
+			"accountType": 200,
+			"interestCategory": 1,
+			"accountTypeDescription": "SAVINGS PLAN",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2023-05-29T00:00:00+00:00",
+			"accountStatus": 0,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 3.0,
+			"interestForTheTaxYear": 0.33,
+			"accrueIntrestCurrentMonth": 0.05179,
+			"interestRecivedLastMonth": 0.1
+		},
+		{
+			"accountNumber": 2095556816,
+			"availableBalance": 9.03,
+			"currentBalance": 9.03,
+			"accountName": "LIVE BETTER SAVINGS ACCOUNT",
+			"accountType": 210,
+			"interestCategory": 1,
+			"accountTypeDescription": "LIVE BETTER SAVINGS ACCOUNT",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2023-03-04T00:00:00+00:00",
+			"accountStatus": 0,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 3.0,
+			"interestForTheTaxYear": 0.07,
+			"accrueIntrestCurrentMonth": 0.0259,
+			"interestRecivedLastMonth": 0.02
+		},
+		{
+			"accountNumber": 2095540812,
+			"availableBalance": 3201.44,
+			"currentBalance": 3231.44,
+			"accountName": "SAVINGS ACCOUNT",
+			"accountType": 300,
+			"interestCategory": 1,
+			"accountTypeDescription": "SAVINGS ACCOUNT",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2023-03-04T00:00:00+00:00",
+			"accountStatus": 0,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 3.0,
+			"interestForTheTaxYear": 15.07,
+			"accrueIntrestCurrentMonth": 8.85172,
+			"interestRecivedLastMonth": 10.36
+		},
+		{
+			"accountNumber": 2095520692,
+			"availableBalance": 0.0,
+			"currentBalance": 0.0,
+			"accountName": "LIVE BETTER SAVINGS ACCOUNT",
+			"accountType": 210,
+			"interestCategory": 1,
+			"accountTypeDescription": "LIVE BETTER SAVINGS ACCOUNT",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2023-03-04T00:00:00+00:00",
+			"accountStatus": 10,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 3.0,
+			"interestForTheTaxYear": 0.0,
+			"accrueIntrestCurrentMonth": 0.0,
+			"interestRecivedLastMonth": 0.0
+		},
+		{
+			"accountNumber": 1900558511,
+			"availableBalance": 0.0,
+			"currentBalance": 0.0,
+			"accountName": "STOP ORDER",
+			"accountType": 200,
+			"interestCategory": 1,
+			"accountTypeDescription": "SAVINGS PLAN",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2022-02-27T00:00:00+00:00",
+			"accountStatus": 10,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 3.0,
+			"interestForTheTaxYear": 0.0,
+			"accrueIntrestCurrentMonth": 0.0,
+			"interestRecivedLastMonth": 0.0
+		},
+		{
+			"accountNumber": 1648842540,
+			"availableBalance": 0.0,
+			"currentBalance": 0.0,
+			"accountName": "SAVINGS ACCOUNT",
+			"accountType": 300,
+			"interestCategory": 1,
+			"accountTypeDescription": "SAVINGS ACCOUNT",
+			"maturityDate": "9999-12-31T23:59:59+00:00",
+			"termFromDate": "9999-12-31T23:59:59+00:00",
+			"termDay": 0,
+			"accountOpenDate": "2019-06-15T00:00:00+00:00",
+			"accountStatus": 10,
+			"moneyInAllowed": true,
+			"moneyOutAllowed": true,
+			"interestRate": 0.0,
+			"interestForTheTaxYear": 0.0,
+			"accrueIntrestCurrentMonth": 0.0,
+			"interestRecivedLastMonth": 0.0
+		}
 	]
 };
 
@@ -237,16 +363,16 @@ export const disputeQuestions = [
 		clientQuestionWording: `Did you transact with the merchant, or give permission to someone else to transact with this merchant?`,
 		agentQuestionWording: ``,
 		answers: [
-		  {
-			answerId: `1000001`,
-			clientAnswerWording: `Yes`,
-			agentAnswerWording: ``
-		  },
-		  {
-			answerId: `1000002`,
-			clientAnswerWording: `No`,
-			agentAnswerWording: ``
-		  }
+			{
+				answerId: `1000001`,
+				clientAnswerWording: `Yes`,
+				agentAnswerWording: ``
+			},
+			{
+				answerId: `1000002`,
+				clientAnswerWording: `No`,
+				agentAnswerWording: ``
+			}
 		]
 	},
 	{
@@ -255,16 +381,16 @@ export const disputeQuestions = [
 		clientQuestionWording: `Did you contact or attempt to contact the merchant?`,
 		agentQuestionWording: ``,
 		answers: [
-		  {
-			answerId: `1000007`,
-			clientAnswerWording: `Yes`,
-			agentAnswerWording: ``
-		  },
-		  {
-			answerId: `1000008`,
-			clientAnswerWording: `No`,
-			agentAnswerWording: ``
-		  }
+			{
+				answerId: `1000007`,
+				clientAnswerWording: `Yes`,
+				agentAnswerWording: ``
+			},
+			{
+				answerId: `1000008`,
+				clientAnswerWording: `No`,
+				agentAnswerWording: ``
+			}
 		]
 	},
 	{
@@ -273,26 +399,26 @@ export const disputeQuestions = [
 		clientQuestionWording: `Please select one of the following:`,
 		agentQuestionWording: ``,
 		answers: [
-		  {
-			answerId: `1000015`,
-			clientAnswerWording: `Accomodation or Booking related.`,
-			agentAnswerWording: ``
-		  },
-		  {
-			answerId: `1000016`,
-			clientAnswerWording: `Debited for another amount after original transaction.`,
-			agentAnswerWording: ``
-		  },
-		  {
-			answerId: `1000017`,
-			clientAnswerWording: `Charged more than once for the same transaction`,
-			agentAnswerWording: ``
-		  },
-		  {
-			answerId: `1000018`,
-			clientAnswerWording: `Transaction/Debit amount different`,
-			agentAnswerWording: ``
-		  }
+			{
+				answerId: `1000015`,
+				clientAnswerWording: `Accomodation or Booking related.`,
+				agentAnswerWording: ``
+			},
+			{
+				answerId: `1000016`,
+				clientAnswerWording: `Debited for another amount after original transaction.`,
+				agentAnswerWording: ``
+			},
+			{
+				answerId: `1000017`,
+				clientAnswerWording: `Charged more than once for the same transaction`,
+				agentAnswerWording: ``
+			},
+			{
+				answerId: `1000018`,
+				clientAnswerWording: `Transaction/Debit amount different`,
+				agentAnswerWording: ``
+			}
 		],
 		finalCue: true
 	}

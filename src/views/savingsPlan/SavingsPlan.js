@@ -194,8 +194,10 @@ export class SavingsPlan extends ViewBase {
 
 		if (saveProducts[this.accountViewType]) {
 			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident();
 			
+			await super.createAndClassifySubIncident(null, false);
+			
+			this.endCallContext = `BalanceEnquiry`;
 			return saveProducts[this.accountViewType]();
 		}
 	}
