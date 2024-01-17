@@ -153,6 +153,7 @@ export const relatedOptions = {
 	'full-ftsp-unlock': CREDIT_RO,
 	'partial-ftsp-unlock': CREDIT_RO,
 	'card-disputes': CREDIT_RO,
+	'card-disputes-credit-card': CREDIT_RO,
 	'suspend-channels': CREDIT_RO,
 	'suspend-app': CREDIT_RO,
 	'suspend-token': CREDIT_RO,

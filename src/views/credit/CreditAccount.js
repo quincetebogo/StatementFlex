@@ -1130,9 +1130,8 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _getFirstQusToDispute() {
-		const temp = {};
 		const request = {
-			"transactions": this.tranToDispute.map((item) => Object.assign(temp, {
+			"transactions": this.tranToDispute.map((item) => ({
 								transactionID: item.transactionId,
 								transactionPostingDate: item.postingDate
 							})),
@@ -1177,7 +1176,7 @@ export class CreditAccount extends ViewBase {
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
 
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
@@ -1535,7 +1534,7 @@ export class CreditAccount extends ViewBase {
 				label="Transaction Date"
 				field="checked"
 				.renderer="${(item, fieldName, value) => this._renderCheckbox(item, fieldName, value)}"
-				size="150px;">
+				size="170px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"

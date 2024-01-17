@@ -378,9 +378,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _getFirstQusToDispute() {
-		const temp = {};
 		const request = {
-			"transactions": this.tranToDispute.map((item) => Object.assign(temp, {
+			"transactions": this.tranToDispute.map((item) => ({
 								transactionID: item.transactionId,
 								transactionPostingDate: item.postingDate
 							})),
@@ -423,7 +422,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
 
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
