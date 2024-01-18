@@ -142,6 +142,10 @@ export class TransactionHistory extends Component {
 		};
 	}
 
+	get isTranSelectedToDispute() {
+		return this.transactionHistory.some(t => t.checked);
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -637,7 +641,7 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 661px;
+					height: 600px;
 					width: auto;
 				}
 				capitec-table{
@@ -670,6 +674,22 @@ export class TransactionHistory extends Component {
 					padding-top : 0px;
 					padding-bottom: 0px; 
 					--theme-actionbar-background: #f4f4f4;
+					margin: 0px;
+					--theme-actionbar-item-gap: 0px;
+				}
+				.load-more-bar > capitec-button {
+					margin: 0px;
+					height: 48px;
+				}
+				.action-bar {
+					--theme-actionbar-item-gap: 0px;
+					--theme-actionbar-background: #f4f4f4;
+					--theme-actionbar-padding-top: 10px;
+					--theme-actionbar-padding-bottom: 10px;
+					margin: 0px;
+				}
+				.action-bar > capitec-check {
+					margin-top: 12px;
 				}
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
@@ -978,6 +998,20 @@ export class TransactionHistory extends Component {
 					@click = ${(e) => this._scrollToTop(e)}
 					data-automation-id="transaction-history-scroll-top">
 				</capitec-icon>
+			</capitec-action-bar>
+			<capitec-action-bar class="action-bar" ?hidden="${![ACCOUNT_TYPES.SAVINGS_ACCOUNT, ACCOUNT_TYPES.CREDIT].includes(this.type)}">
+				<capitec-check
+					label="Select all"
+					?disabled="${this.transactionHistory.every(t => t.disableCheck)}"
+					@value-change="${(e) => this.dispatchEvent(new CustomEvent(`select-all`, { detail: e.detail }))}">
+				</capitec-check>
+				<capitec-spacer></capitec-spacer>
+				<capitec-button
+					type="primary"
+					label="Dispute transaction(s)"
+					?disabled="${!this.isTranSelectedToDispute}"
+					@click="${(e) => this.dispatchEvent(new CustomEvent(`dispute-transactions`, {}))}">
+				</capitec-button>
 			</capitec-action-bar>`;
 	}
 }
