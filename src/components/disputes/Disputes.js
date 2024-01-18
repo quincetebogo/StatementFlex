@@ -125,7 +125,7 @@ export class Disputes extends Component {
 	}
 
 	async _restartQuestions() {
-		const returnValue = await this.restartQuestions(this.transactionDetails);
+		const returnValue = await this.restartQuestions();
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to restart cue sheet questions`, `_restartQuestions`, returnValue.correlationId);
@@ -156,14 +156,14 @@ export class Disputes extends Component {
 			return;
 		}
 
-		this.disputeQuestion = returnValue.result;
-		
-		if (this.disputeQuestion?.finalCue) {
-			const ans = this.disputeQuestion?.answers.find((x, i) => i === 0);
+		const result = returnValue.result;
+		if (result?.finalCue) {
+			const ans = result?.answers.find((x, i) => i === 0);
 			this.declarationContent = ans.clientAnswerWording.replace(`\n`, `\n\n`);
 
 			this._raiseDisputeOutcome(ans);
 		} else {
+			this.disputeQuestion = returnValue.result;
 			this.qusNo++;
 			this._reset();
 		}
@@ -256,10 +256,8 @@ export class Disputes extends Component {
 		
 		this.dispatchEvent(new CustomEvent(`dispute-outcome`, {
 			detail: {
-				transDesc: this.transactionDetails?.statementDescription,
 				clientAnswerWording: firstElem.clientAnswerWording,
-				agentAnswerWording: firstElem.agentAnswerWording,
-				disputeStep: this.disputeQuestion.disputeStep
+				agentAnswerWording: firstElem.agentAnswerWording
 			}
 		}));
 	}
@@ -489,27 +487,28 @@ export class Disputes extends Component {
 	}
 
 	_renderDisputeTranInfo() {
+		const firstElem = this.transactionDetails.find(Boolean); // Fetches the first elem from array
 		return html`
-			<capitec-title-bar type="default" class="dispute-tran-info">
+			<capitec-title-bar type="default" class="dispute-tran-info" ?hidden="${this.transactionDetails.length > 1}">
 				<horizon-label
 					label="Transaction date"
-					value = "${formatDate(this.transactionDetails.transactionDate, `dd mmm yyy hh:mm:ss`)}">
+					value = "${formatDate(firstElem?.transactionDate, `dd mmm yyy hh:mm:ss`)}">
 				</horizon-label>
 				<horizon-label
 					label="Description"
-					value = "${this.transactionDetails.description}">
+					value = "${firstElem?.description}">
 				</horizon-label>
 				<horizon-label
 					label="Card number"
-					value = "${this.transactionDetails.cardNumber}">
+					value = "${firstElem?.cardNumber}">
 				</horizon-label>
 				<horizon-label
 					label="Amount"
-					value = "${this.transactionDetails.formatedAmount}">
+					value = "${firstElem?.formatedAmount}">
 				</horizon-label>
 				<horizon-label
 					label="Card status"
-					value = "Active">
+					value = "-">
 				</horizon-label>
 			</capitec-title-bar>
 		`;
@@ -574,7 +573,11 @@ export class Disputes extends Component {
 	}
 
 	_renderAnswer() {
-		const firstElem = this.disputeQuestion.answers[0];
+		const firstElem = this.disputeQuestion.answers?.find(Boolean);
+
+		if (!firstElem) {
+			return html``;
+		}
 
 		switch (firstElem.clientAnswerWording || firstElem.agentAnswerWording) {
 			case `input currency`:
