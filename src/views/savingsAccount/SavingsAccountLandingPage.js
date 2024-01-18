@@ -3,7 +3,7 @@ import { Configuration, SecurityContext } from 'platform/core';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { STATEMENT_EVENTS, SavingsAccLandingPage, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { css, html, unsafeCSS } from 'platform/elements';
-import { formatDate, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatDate, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_INTCAT_ENUM } from 'app/constants/Statements';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
@@ -63,7 +63,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._loading = true;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
-		this.journalNumber = `00000`;
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 
@@ -86,7 +85,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             const debiCheck = () => this._debiCheck();
             const statements = () => this._getStatements();
             const more = () => this._more();
-			const cardDisputes = () => this._cardDisputeTransaction(data);
+			const cardDisputes = () => this._cardDisputeTransaction();
 
             const actions = {
                 'transaction-history': transactionHistory,
@@ -108,19 +107,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         super.disconnectedCallback();
     }
 
-	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
-	async updated(changedProperties) {
-
-		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
-	
-		if (journalNumber) {
-			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
-			const currency = await this._getWithdrawlCurrency(expandedItem);
-
-			expandedItem.currency = currency;
-			this.requestUpdate();
-		}
-	}
 
     // --------------
     // PROPERTIES
@@ -129,20 +115,32 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     static get properties() {
         return {
             _loading: { state: true },
-			renderMode: { type: Number, attribute: false },
-			journalNumber: { type: String, attribute: false }
+			renderMode: { type: Number, attribute: false }
         };
     }
 
 	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`];
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`, `CSH_CASH_WITHDRWL`];
 	}
 
     // --------------
     // EVENT HANDLERS
     // --------------
 
-    // N/A
+    _checkboxChange(e, item) {
+		item.checked = e.detail.new;
+		this.requestUpdate();
+	}
+
+	_transactionSelectAll(e) {
+		this.transactionHistory = this.transactionHistory.map(t => {
+			if (!t.disableCheck) {
+				t.checked = e.detail.new;
+			}
+			return t;
+		});
+		this.requestUpdate();
+	}
 
     // --------------
     // PUBLIC METHODS
@@ -243,9 +241,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
                     item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
                     item.formatedAmount = formatCurrency(item.amount);
                     item.formatedBalance = formatCurrency(item.balance);
-					item.isCashWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL`;
-					item.isDomesticWithdrawl = () => item.cardAuthType === `CSH_CASH_WITHDRWL` && item.currency === `ZAR`;
+					item.isDomesticWithdrawl = () => item.transactionCode === `4060` && isNullorEmpty(item.currency);
 					item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
+					item.hideDisputeBtn = item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540();
+					item.checked = false;
+					item.disableCheck = item.hideDisputeBtn;
 
                     return item;
                 });
@@ -358,14 +358,15 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this._setIncidentDone();
     }
 
-	async _cardDisputeTransaction(item) {
+	async _cardDisputeTransaction() {
+		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
+		
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
-            transactionId: item.transactionId,
-            cardAuthType: item.cardAuthType
-        });
+			transactionId: this.tranToDispute.map(t => t.transactionId),
+			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
+		});
 
-		this.tranToDispute = item;
-		const returnValue = await this._getFirstQusToDispute(item);
+		const returnValue = await this._getFirstQusToDispute();
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -376,10 +377,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute(item) {
+	async _getFirstQusToDispute() {
 		const request = {
-			"transactionId": `${item.transactionId}`,
-			"transactionPostingDate": item.postingDate,
+			"transactions": this.tranToDispute.map((item) => ({
+								transactionID: item.transactionId,
+								transactionPostingDate: item.postingDate
+							})),
 			"incident": this.currentIncident,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
@@ -415,39 +418,22 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		this.disputeQuestion = {};
 		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.transDesc = event.detail.transDesc;
 		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
-		screenDetails.disputeStep = event.detail.disputeStep;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
 
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
 
-	async _restartDispute(transactionDetails) {
+	async _restartDispute() {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
 		
-		const returnValue = await this._getFirstQusToDispute(transactionDetails);
+		const returnValue = await this._getFirstQusToDispute();
 		return returnValue;
 	}
 
-	_getWithdrawlCurrency(item) {
-		const request = [
-			{
-				transactionId: item.transactionId,
-				postingDate: item.postingDate
-			}
-		];
-		const returnValue = this.savingsService.savingsAccountTranHistoryDetail(request, () => true);
-		const result = returnValue?.result;
-
-		if (returnValue.succeeded) {
-			return result.transactions.find(x => x.journalNumber === this.journalNumber)?.currency;
-		}
-		return ``;
-	}
 
     // ---------
     // RENDERING
@@ -516,7 +502,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"
-				@unloading="${() => this._unloadTransactionHistory()}">
+				@unloading="${() => this._unloadTransactionHistory()}"
+				@select-all="${(e) => this._transactionSelectAll(e)}"
+				@dispute-transactions="${() => this._optionClick(`card-disputes`)}">
 			</horizon-transaction-history>`
 		: html``;
 	}
@@ -525,9 +513,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         return html`
 			<capitec-table-column
 				label="Transaction Date"
-				field="transactionDate"
-				.renderer="${(item, fieldName, value) => this._renderTransactionDateTime(value)}"
-				size="156px;">
+				field="checked"
+				.renderer="${(item, fieldName, value) => this._renderCheckbox(item, fieldName, value)}"
+				size="150px;">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Description"
@@ -550,6 +538,16 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		`;
     }
 
+	_renderCheckbox(item, fieldName, value) {
+		return html`
+			<capitec-check
+				?checked="${value}"
+				?disabled="${item.disableCheck}"
+				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
+				@value-change="${(e) => this._checkboxChange(e, item)}">
+			</capitec-check>`;
+	}
+
     _renderTransactionStatus(value) {
         return value === `Processed`
             ? html``
@@ -559,22 +557,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				</div>`;
     }
 
-	_renderTransactionDateTime(value) {
-		return html`
-				<capitec-label
-					label="${formatDate(value, DATE_TIME_FORMAT)}">
-				</capitec-label>`;
-	}
 
     _renderTransactionDetails(item) {
         this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
             'journal-no': item.journalNumber
         });
-
-		// Updating "this.journalNumber" to trigger service call that gets "linkedTransactionDetails".
-		if (item.isCashWithdrawl()) {
-			this.journalNumber = item.journalNumber;
-		}
 
         return html`
 				<capitec-label
@@ -699,7 +686,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					label="Dispute Transaction"
 					data-automation-id="transaction-history-dispute-btn"
 					@click="${() => this._optionClick(`card-disputes`, item)}"
-					?hidden="${item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540()}">
+					?hidden="${true}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -727,7 +714,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				.transactionDetails="${this.tranToDispute}"
 				.disputeQuestion="${this.disputeQuestion}"
 				.getNextQuestion="${(request) => this._getNextQusToDispute(request)}"
-				.restartQuestions="${(transactionDetails) => this._restartDispute(transactionDetails)}"
+				.restartQuestions="${() => this._restartDispute()}"
 				@cancel="${() => this._cancelDisputeTrans()}"
 				@dispute-outcome="${(event) => this._disputeOutcome(event)}"
 				@loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE)}">

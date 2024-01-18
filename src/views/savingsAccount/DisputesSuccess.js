@@ -23,7 +23,6 @@ export class DisputesSuccess extends ViewBase {
 	constructor() {
 		super();
 		
-		this.tranDescription = ``;
 		this.endCallContext = `QuickTransactionSuccess`;
 	}
 
@@ -39,10 +38,8 @@ export class DisputesSuccess extends ViewBase {
 		super.connectedCallback();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
-		this.tranDescription = screenDetails.transDesc;
 		this.clientAnswerWording = screenDetails.clientAnswerWording;
 		this.agentAnswerWording = screenDetails.agentAnswerWording;
-		this.disputeStep = screenDetails.disputeStep;
 
 		await this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS);
 		this._updateIncidentState();
