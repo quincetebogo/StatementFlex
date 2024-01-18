@@ -354,3 +354,16 @@ export const INSURE_TABS = Object.freeze({
 	LIFE: 1,
 	CLAIMS: 2
 });
+
+/**
+ * Tabs for Insure product
+ *
+ * @readonly
+ * @enum {Object} INSURE_TABS
+ */
+export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
+	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
+	BRANCH_CODE: `470010`,
+	BANK: `Capitec Bank`,
+	ACCOUNT_TYPE: `Savings`
+});
