@@ -258,8 +258,15 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
+		console.log(`in _settleArrearsValidate()`);
+		console.log(`this.totalSelectedArrears :>> `, this.totalSelectedArrears);
+		console.log(`this.defaultSavingsAccountAvailableBalance :>> `, this.defaultSavingsAccountAvailableBalance);
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+			return;
+		}
+		if (this.totalSelectedArrears > this.defaultSavingsAccountAvailableBalance) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
 			return;
 		}
 
@@ -291,6 +298,9 @@ class LifePayArrearsDialog extends Component {
 		}
 
 		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears, false);
+		if (isNullorEmpty(agreementResult)) {
+			return;
+		}
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}
@@ -306,8 +316,16 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		await this.executeLifePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
+		const payResult = await this.executeLifePayArrears(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears);
+		if (isNullorEmpty(payResult)) {
+			return;
+		}
+		console.log(`payResult :>> `, payResult);
 		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears, true);
+		if (isNullorEmpty(agreementResult)) {
+			return;
+		}
+		console.log(`agreementResult :>> `, agreementResult);
 		await this.executeLifeArrearsSendEmail(this.policy.contractReference, formatCurrency(this.totalSelectedArrears), this.email, agreementResult);
 	}
 

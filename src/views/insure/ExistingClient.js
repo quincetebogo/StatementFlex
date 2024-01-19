@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -485,20 +485,14 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": `E`,
-				"branchName": `Horizon`,
-				"branchNumber": `2000`,
-				"channel": `NBS`,
-				"documentDate": `2023-11-15T07:07:52.936Z`,
-				"language": `English`,
-				"signatoryType": `P`,
+				"signatureType": ``,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
 				"productId": `12601`
 			},
-			"nonPrimarySignatoryDetails": {
-				"signatoryType": `string`,
-				"hasDetails": true
-			},
-			"voiceReferenceNumber": `string`,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"payArrears": {
 				"policyNumber": contractReference,
 				"arrears": selectedArrears,
@@ -511,6 +505,7 @@ export class ExistingClient extends InsureViewBase {
 
 		const resp = await this.insureLifeService.lifePayArrearsAgreement(generateDocumentRequest, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			this.lifeDocsToEmail = resp.result;
 			return resp;
 		}
 		this.handleToastError(resp.exception);
@@ -1202,23 +1197,27 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay arrears for active life policy
 	 * @param {string} contractReference contractReference
-	 * @param {string} accountSelected accountSelected
+	 * @param {string} accountNumber accountNumber
 	 * @param {string} selectedArrears selectedArrears
 	 * @returns {object} resp
 	 */
-	async _payArrearsLife(contractReference, accountSelected, selectedArrears) {
+	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
+		console.log(`in _payArrearsLife`);
+		console.log(`selectedArrears :>> `, selectedArrears);
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
 			"bankDetails": {
-				"accountName": `string`,
-				"branchCode": `string`,
-				"accountNumber": accountSelected,
-				"bank": `string`,
-				"accountType": `Bond`
+				"accountName": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_NAME,
+				"branchCode": GLOBAL_ONE_GENERIC_DETAILS.BRANCH_CODE,
+				"accountNumber": this.defaultSavingsAccountNumber,
+				"bank": GLOBAL_ONE_GENERIC_DETAILS.BANK,
+				"accountType": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_TYPE,
+				"effectiveDate": null
 			},
 			"arrears": selectedArrears
 		};
+		console.log(`payArrears :>> `, payArrears);
 
 		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -1237,8 +1236,13 @@ export class ExistingClient extends InsureViewBase {
 	*/
 	_payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult) {
 
-		// TODO: Attempt to send email 
-		const emailSent = true;
+		const e = {
+			detail: {
+				emailAddress: email,
+				contractReference: contractReference
+			}
+		};
+		const emailSent = this._sendLifeEmail(e);
 
 		this.lifeSuccessPageMessages = {
 			emailSuccess: emailSent,
@@ -1708,8 +1712,11 @@ export class ExistingClient extends InsureViewBase {
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
+			console.log(`lifeEmailResponse fail:>> `, lifeEmailResponse);
 			return false;
 		}
+		console.log(`lifeEmailResponse success:>> `, lifeEmailResponse);
+
 		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
 		this.funeralShowEstimateSuccessToast = true;
 		this.lifeDocsToEmail = {};
@@ -1966,7 +1973,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
-				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
+				.executeLifePayArrears="${(contractReference, accountNumber, selectedArrears) => this._payArrearsLife(contractReference, accountNumber, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
