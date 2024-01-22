@@ -58,6 +58,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.claims = [];
 
 		this.readOnlyMode = true;
+		this.isLifeQualifyingClient = false;
 	}
 
 	/**
@@ -80,7 +81,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			readOnlyMode: { type: Boolean, state: true },
 			renderMode: { type: Number, state: true },
 			claims: { type: Object, state: true },
-			selectedInsureTabIndex: { type: Number, state: true }
+			selectedInsureTabIndex: { type: Number, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -112,6 +114,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
+		await this._clientQualifiesLife();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -215,6 +218,23 @@ export class InsureBackOfficeView extends InsureViewBase {
 		};
 		const claimsList = await this.insureFuneralService.viewExistingClaims(request);
 		return claimsList.result;
+	}
+
+	/**
+	 * Check if client qualifies for Life product
+	 * @returns {Object} Client Life policies 
+	 */
+	async _clientQualifiesLife() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientQualify(request);
+		if (!resp.succeeded) {
+			this.isLifeQualifyingClient = false;
+		} else {
+			this.isLifeQualifyingClient = resp.result.qualify;
+		}
 	}
 
 	/**
@@ -561,6 +581,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.clientClaims="${this.claims}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
+				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
