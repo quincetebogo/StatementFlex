@@ -1960,14 +1960,16 @@ class ClientSummary extends Component {
 								@click="${() => this._goToLifePolicySummary(pol)}">
 							</horizon-label>
 						</div>
-						
+						${pol.policyStatus === `Lapsed` ? html`` 
+						: html`
 						<div>
 							<horizon-label
 								label="Total cover"
 								class="ghost-label"
 								value="${this._calculateLifeTotalCoverAmount(pol)}">
 							</horizon-label>
-						</div>
+						</div>`}
+						
 
 						${pol.policyStatus === `Not Taken Up` ? html`
 							<div>
@@ -1991,7 +1993,8 @@ class ClientSummary extends Component {
 									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
 								</horizon-label>
 							</div>
-						` : html`
+						` : html``}
+						${pol.policyStatus === `Cancelled` ? html`
 							<div>
 								<horizon-label
 									label="Cancelation Date"
@@ -2007,7 +2010,27 @@ class ClientSummary extends Component {
 									value="${pol?.cancellationReason}">
 								</horizon-label>
 							</div>
-						`}
+						` : html``}
+
+						${pol.policyStatus === `Lapsed` ? html`
+							<div>
+								<horizon-label
+									label="Lapse Date"
+									class="ghost-label"
+									value="${isNullorEmpty(pol?.policyLapseDate) ? `-` : formatDate(pol?.policyLapseDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Start Date"
+									style="width: 410px"
+									class="ghost-label"
+									value="${formatDate(pol?.policyStartDate)}">
+								</horizon-label>
+							</div>
+						` : html``}
+							
+						
 
 						
 						<div style="width: 300px;">
