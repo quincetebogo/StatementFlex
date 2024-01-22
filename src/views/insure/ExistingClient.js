@@ -102,6 +102,7 @@ export class ExistingClient extends InsureViewBase {
 		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
+		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -172,8 +173,8 @@ export class ExistingClient extends InsureViewBase {
 			showInsureSuccessToast: { type: Boolean, state: true },
 			lifePolicyArrears: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
-
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -205,6 +206,7 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
+		await this._clientQualifiesLife();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
@@ -728,6 +730,23 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		return resp.result;
+	}
+
+	/**
+	 * Check if client qualifies for Life product
+	 * @returns {Object} Client Life policies 
+	 */
+	async _clientQualifiesLife() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientQualify(request);
+		if (!resp.succeeded) {
+			this.isLifeQualifyingClient = false;
+		} else {
+			this.isLifeQualifyingClient = resp.result.qualify;
+		}
 	}
 
 	/**
@@ -1984,6 +2003,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
+				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"
