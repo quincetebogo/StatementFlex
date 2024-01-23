@@ -3,6 +3,7 @@ import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { RoleManager } from 'app/shell/RoleManager';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
@@ -144,6 +145,15 @@ export class TransactionHistory extends Component {
 
 	get isTranSelectedToDispute() {
 		return this.transactionHistory.some(t => t.checked);
+	}
+
+	get disputableFilteredTrans() {
+		return this.filteredData.filter(f => !f.disableCheck);
+	}
+
+	get showActionFooter() {
+		return [ACCOUNT_TYPES.SAVINGS_ACCOUNT, ACCOUNT_TYPES.CREDIT].includes(this.type) &&
+			   (RoleManager.getInstance().isClientCareAgent || RoleManager.getInstance().isHelpDeskAgent);
 	}
 
 	// -------------------
@@ -348,6 +358,14 @@ export class TransactionHistory extends Component {
 
 	_errorHandler(exception) {
 		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
+	}
+
+	_selectAllCheck(e) {
+		e.detail.filteredDisputableTransID = this.disputableFilteredTrans.map(d => d.transactionId);
+		
+		this.dispatchEvent(new CustomEvent(`select-all`, {
+			detail: e.detail
+		}));
 	}
 
 	// ---------------
@@ -641,7 +659,7 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 600px;
+					height: 572px;
 					width: auto;
 				}
 				capitec-table{
@@ -999,11 +1017,11 @@ export class TransactionHistory extends Component {
 					data-automation-id="transaction-history-scroll-top">
 				</capitec-icon>
 			</capitec-action-bar>
-			<capitec-action-bar class="action-bar" ?hidden="${![ACCOUNT_TYPES.SAVINGS_ACCOUNT, ACCOUNT_TYPES.CREDIT].includes(this.type)}">
+			<capitec-action-bar class="action-bar" ?hidden="${!this.showActionFooter}">
 				<capitec-check
 					label="Select all"
 					?disabled="${this.transactionHistory.every(t => t.disableCheck)}"
-					@value-change="${(e) => this.dispatchEvent(new CustomEvent(`select-all`, { detail: e.detail }))}">
+					@value-change="${(e) => this._selectAllCheck(e)}">
 				</capitec-check>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
