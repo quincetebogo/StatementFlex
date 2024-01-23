@@ -527,7 +527,7 @@ export class CreditAccount extends ViewBase {
 
 	_transactionSelectAll(e) {
 		this.transactionHistory = this.transactionHistory.map(t => {
-			if (!t.disableCheck) {
+			if (e.detail.filteredDisputableTransID.includes(t.transactionId)) {
 				t.checked = e.detail.new;
 			}
 			return t;
@@ -1628,13 +1628,18 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderCheckbox(item, fieldName, value) {
-		return html`
+		return this.roleManager.isClientCareAgent || this.roleManager.isHelpDeskAgent
+		? html`
 			<capitec-check
 				?checked="${value}"
 				?disabled="${item.disableCheck}"
 				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
 				@value-change="${(e) => this._checkboxChange(e, item)}">
-			</capitec-check>`;
+			</capitec-check>`
+		: html`
+			<capitec-label
+				label="${formatDate(value, DATE_TIME_FORMAT)}">
+			</capitec-label>`;
 	}
 
 	_renderTransactionDetails(item) {
