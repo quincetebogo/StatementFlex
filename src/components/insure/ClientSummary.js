@@ -2030,7 +2030,7 @@ class ClientSummary extends Component {
 									label="Start Date"
 									style="width: 410px"
 									class="ghost-label"
-									value="${formatDate(pol?.policyStartDate)}">
+									value="${formatDate(pol?.policyStartDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
 						` : html``}

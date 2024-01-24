@@ -283,6 +283,11 @@ class LifePolicySummary extends Component {
 				.arrears{
 					--horizon-label-value-color: #C83C37 !important;
 				}
+
+				.inner-details-title{
+					--theme-type-default-background: rgb(244, 244, 244);
+					border-top: 1px solid #E1E1E1;
+				}
 			`
 		];
 	}
@@ -373,11 +378,18 @@ class LifePolicySummary extends Component {
 					<horizon-label label="Premium"
 						value="${formatCurrency(this.selectedLifePolicy?.totalPremium)}">
 					</horizon-label>
-					<horizon-label
-						label="Arrears amount"
-						class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
-						value="${formatCurrency(this._calculateArrearsAmount(this.selectedLifePolicy))}">
-					</horizon-label>
+					${this.selectedLifePolicy?.policyStatus === `Lapsed` ? html`
+						<horizon-label
+							label="Lapse Date"
+							value="${isNullorEmpty(this.selectedLifePolicy?.policyLapseDate) ? `-` : formatDate(this.selectedLifePolicy?.policyLapseDate, `dd mmm yyyy`)}">
+						</horizon-label>
+					` : html`
+						<horizon-label
+							label="Arrears amount"
+							class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
+							value="${formatCurrency(this._calculateArrearsAmount(this.selectedLifePolicy))}">
+						</horizon-label>
+					`}
 					<horizon-label
 						label="Status"
 						value="${lifeCoverDisplayStatus(this.selectedLifePolicy?.policyStatus)}"
