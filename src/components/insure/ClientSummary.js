@@ -893,12 +893,15 @@ class ClientSummary extends Component {
 				}
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
 				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 			}
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
+		if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
+			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
+		}
+		console.log(`policyItem.showOptions :>> `, policyItem.showOptions);
 	}
 
 	/**

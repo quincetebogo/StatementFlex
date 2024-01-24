@@ -226,11 +226,11 @@ class FuneralPolicyPauseDialog extends Component {
 					</div>
 				`
 				: html`
-					<div style="padding-bottom: 10px; height: 200px;">
+					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 230px;` : `height: 220px;`} ">
 						
 						<p>Select a reason for activating pause on policy <b>${this.policy.contractReference}</b>?</p>
 						<div>
-							<capitec-select 
+							<capitec-select style="padding-top: 20px;"
 								label="Select Reason" 
 								.items="${this.policyPauseReasons}" 
 								display-field="text"
