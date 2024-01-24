@@ -1638,7 +1638,7 @@ export class CreditAccount extends ViewBase {
 			</capitec-check>`
 		: html`
 			<capitec-label
-				label="${formatDate(value, DATE_TIME_FORMAT)}">
+				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
 	}
 

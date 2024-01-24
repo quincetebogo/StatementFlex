@@ -506,10 +506,6 @@ export class Disputes extends Component {
 					label="Amount"
 					value = "${firstElem?.formatedAmount}">
 				</horizon-label>
-				<horizon-label
-					label="Card status"
-					value = "-">
-				</horizon-label>
 			</capitec-title-bar>
 		`;
 	}
