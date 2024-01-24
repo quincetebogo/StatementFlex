@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus } from 'app/utils/insureUtils';
+import { determineLifeStatusColour, formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus } from 'app/utils/insureUtils';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
@@ -381,7 +381,7 @@ class LifePolicySummary extends Component {
 					<horizon-label
 						label="Status"
 						value="${lifeCoverDisplayStatus(this.selectedLifePolicy?.policyStatus)}"
-						class="column-width-200 ${this.selectedLifePolicy?.policyStatus === `Active` || this.selectedLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}">
+						class="column-width-200 ${determineLifeStatusColour(this.selectedLifePolicy?.policyStatus)}">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">
