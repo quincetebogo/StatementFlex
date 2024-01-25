@@ -259,7 +259,8 @@ export const PRODUCT_ID = `SBL`;
 */
 export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
-	CAPITEC_SANLAM: `CapitecSanlam`
+	CENTRIQ: `Centriq`,
+	SANLAM: `Sanlam`
 });
 
 /**
