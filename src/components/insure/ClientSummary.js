@@ -127,9 +127,9 @@ class ClientSummary extends Component {
 	 * @property {boolean} showCFPAgreementDialog Determines if the CFP agreement dialog should be shown
 	 * @property {String} selectedFlow current selected flow
 	 * @property {String} selectedContractRef selected policy contract reference
+	 * @property {String} selectedProductCode selected policy product code
 	 * @property {boolean} canReinstate determines whether a policy can be reinstated
 	 * @property {Object} selectedPolicyItem selected policy item
-	 * @property {String} productCode policy product code
 	 * @property {Function} requestCallback policy product code
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
 	 * @property {Object} lifePolicies Contains clients life policies
@@ -179,9 +179,9 @@ class ClientSummary extends Component {
 			selectedInsureTabIndex: { type: Number, state: true },
 			selectedFlow: { type: String, state: true },
 			selectedContractRef: { type: String, state: true },
+			selectedProductCode: { type: String, state: true },
 			canReinstate: { type: Boolean, state: true },
 			selectedPolicyItem: { type: Object, state: true },
-			productCode: { type: String, state: true },
 			showEmailEstimateSuccessToast: { type: Boolean, state: true },
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
@@ -264,14 +264,16 @@ class ClientSummary extends Component {
 	/**
 	 * Fire navigate event to Policy Summary
 	 * @param {String} contractReference contract reference
+	 * @param {String} productCode product code
 	 * @returns {void}
 	 */
-	_goToFuneralPolicySummary(contractReference) {
+	_goToFuneralPolicySummary(contractReference, productCode) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_POLICY_DETAILS, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
 			detail: {
 				policyContractReference: contractReference,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: productCode
 			}
 		}));
 	}
@@ -360,7 +362,8 @@ class ClientSummary extends Component {
 				bankName: policyItem.deductionDetails?.bankDetails?.bank,
 				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
 				arrearsAmount: policyItem.arrearDetails?.outstandingAmount,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: policyItem.productCode
 			}
 		}));
 	}
@@ -373,7 +376,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`pay-policy`, {
 			detail: {
 				payArrears: this.funeralPolicyPayArrears,
-				fromAccount: this.funeralPayArrearsFromAccount
+				fromAccount: this.funeralPayArrearsFromAccount,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
@@ -387,7 +391,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel-policy`, {
 			detail: {
 				contractReference: this.contractReferenceToCancel,
-				cancellationReason: e.detail.cancellationReason
+				cancellationReason: e.detail.cancellationReason,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
@@ -403,7 +408,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, {
 			detail: {
 				policyItem: policyItem,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: policyItem?.productCode
 			}
 		}));
 	}
@@ -424,7 +430,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendFuneralEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
 		this.showFuneralEmailPlanDialog = false;
 	}
 
@@ -490,7 +496,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	async _generateDocumentsFuneralCancel(contractReference, cancelReason) {
-		await this.generateDocumentsFuneralCancel(contractReference, cancelReason, false);
+		await this.generateDocumentsFuneralCancel(contractReference, cancelReason, false, this.selectedProductCode);
 	}
 
 	/**
@@ -499,7 +505,7 @@ class ClientSummary extends Component {
 	 * @return {void} 
 	 */
 	async _generateDocumentsFuneralArrears(contractReference) {
-		await this.generateDocumentsFuneralArrears(contractReference, this.funeralPolicyPayArrears, this.funeralPayArrearsFromAccount, false);
+		await this.generateDocumentsFuneralArrears(contractReference, this.funeralPolicyPayArrears, this.funeralPayArrearsFromAccount, false, this.selectedProductCode);
 	}
 
 	/**
@@ -514,10 +520,12 @@ class ClientSummary extends Component {
 	/**
 	 * determines whether to show the email dialog
 	 * @param {String} contractRef Policy contract reference
+	 * @param {String} productCode Policy product code
 	 * @returns {void} 
 	 */
-	_showFuneralEmailPlanDialog(contractRef) {
+	_showFuneralEmailPlanDialog(contractRef, productCode) {
 		this.setInsureIncident(`funeral-plan-send-document`);
+		this.selectedProductCode = productCode;
 		this.emailContractRef = contractRef;
 		this.showFuneralEmailPlanDialog = true;
 	}
@@ -616,14 +624,15 @@ class ClientSummary extends Component {
 		}
 
 		this.selectedFlow = flow;
-		this.selectedContractRef = policyItem?.contractReference;
 		this.canReinstate = policyItem?.canReinstate;
+		
+		this.selectedContractRef = policyItem?.contractReference;
 		this.selectedPolicyItem = policyItem;
 
 		if (policyItem === null) {
-			this.productCode = `CapitecSanlam`;
+			this.selectedProductCode = `CapitecSanlam`;
 		} else {
-			this.productCode = policyItem.productCode;
+			this.selectedProductCode = policyItem.productCode;
 		}
 
 
@@ -902,7 +911,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference)}">
+				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference, policyItem.productCode)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -1683,7 +1692,7 @@ class ClientSummary extends Component {
 							label="Policy number"
 							textOverflow="ellipsis"
 							value="${policyItem.contractReference}"
-							@click="${() => this._goToFuneralPolicySummary(policyItem.contractReference)}">
+							@click="${() => this._goToFuneralPolicySummary(policyItem.contractReference, policyItem.productCode)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -2384,7 +2393,7 @@ class ClientSummary extends Component {
 	_renderCFPAgreementDialog() {
 		return this.showCFPAgreementDialog === false ? `` : html`
 		<horizon-insure-cfp-agreement-dialog 
-			.productCode = "${this.productCode}"
+			.productCode = "${this.selectedProductCode}"
 			@agreementAccepted="${() => this._navigateAfterCFP()}"
 			@close-modal="${() => this.showCFPAgreementDialog = false}">
 		</horizon-insure-cfp-agreement-dialog>`;
