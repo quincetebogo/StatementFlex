@@ -764,8 +764,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies() {
 		const request = {
-			// cifNumber: this.callerInformation.cifNumber
-			cifNumber: `126514364`
+			cifNumber: this.callerInformation.cifNumber
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
