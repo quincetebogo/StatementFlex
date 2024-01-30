@@ -58,6 +58,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.claims = [];
 
 		this.readOnlyMode = true;
+		this.isLifeQualifyingClient = false;
 	}
 
 	/**
@@ -79,7 +80,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 			contractReference: { type: String, state: true },
 			readOnlyMode: { type: Boolean, state: true },
 			renderMode: { type: Number, state: true },
-			claims: { type: Object, state: true }
+			claims: { type: Object, state: true },
+			selectedInsureTabIndex: { type: Number, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -111,6 +114,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
+		await this._clientQualifiesLife();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -217,6 +221,23 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
+	 * Check if client qualifies for Life product
+	 * @returns {Object} Client Life policies 
+	 */
+	async _clientQualifiesLife() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientQualify(request);
+		if (!resp.succeeded) {
+			this.isLifeQualifyingClient = false;
+		} else {
+			this.isLifeQualifyingClient = resp.result.qualify;
+		}
+	}
+
+	/**
 	* Navigate so specific subview
 	* @param {*} newMode newMode
 	* @returns {null} null
@@ -239,7 +260,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {null} null
 	 */
 	async _goToPolicyTransactionHistory(e) {
-		// Telemetry Here
 		this.contractReference = e.detail.policyNumber;
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
@@ -360,7 +380,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
 		const PremiumHistoryRequest = {
-			contractReference: this.selectedLifePolicy
+			policyNumber: this.selectedLifePolicy.contractReference
 		};
 
 		this.lifeTransactions = [];
@@ -554,9 +574,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderClientPoliciesPage() {
 		return html`
-			<horizon-insure-client-summary .funeralPolicies = "${this.funeralPolicies}" .lifePolicies="${this.lifePolicies}" .readOnlyMode="${this.readOnlyMode}"
+			<horizon-insure-client-summary 
+				.funeralPolicies = "${this.funeralPolicies}" 
+				.lifePolicies="${this.lifePolicies}" 
+				.readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
+				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
+				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"

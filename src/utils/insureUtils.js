@@ -438,11 +438,11 @@ export function validateEmailAddressCombo(email, confirmEmail) {
  * @returns {string} display status
  */
 export function lifeCoverDisplayStatus(status) {
-	if (status.toUpperCase() === `IN FORCE`) {
+	if (status?.toUpperCase() === `IN FORCE`) {
 		return `Active`;
 	}
 
-	if (status.toUpperCase() === `PENDING IN FORCE`) {
+	if (status?.toUpperCase() === `PENDING IN FORCE`) {
 		return `Active - Pending Payment`;
 	}
 	return status;
@@ -496,4 +496,56 @@ export function pocketBadgeIcon(pocketType) {
 	if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 		return `/insure_once_off_pocket`;
 	}
+}
+
+/**
+ * determine the status class based on status
+ * @param {String} status status
+ * @return {String} string
+ * 
+ */
+export function determineLifeStatusColour(status) {
+	let cssClass = `inactive-status`;
+
+	if (status === `In Force`) {
+		cssClass = `active-status`;
+	} 
+	if (status === `Active`) {
+		cssClass = `active-status`;
+	}
+	if (status === `Pending In Force`) {
+		cssClass = `active-status`;
+	}
+	if (status === `Lapse Pending`) {
+		cssClass = `active-status`;
+	}
+	if (status === `Premium Holiday`) {
+		cssClass = `active-status`;
+	}
+
+	return cssClass; 
+}
+
+/** 
+ * Determine Active life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineActiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.find(policy => policy.policyStatus === `In Force` || policy.policyStatus === `Pending In Force` || policy.policyStatus === `Lapse Pending` || policy.policyStatus === `Premium Holiday` || policy.policyStatus === `Active`);
+}
+
+/**
+ * Determine inactive life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineInactiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.filter(policy => policy.policyStatus === `Cancelled` || policy.policyStatus === `Lapsed` || policy.policyStatus === `Not Taken Up` || policy.policyStatus === `Out of Force`);
 }

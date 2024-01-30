@@ -429,7 +429,7 @@
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -97,6 +97,7 @@ class ClientSummary extends Component {
 		this.isOnlyProductEnquiry = true;
 
 		this.showLifeEmailDialog = false;
+		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -209,7 +210,8 @@ class ClientSummary extends Component {
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
 			isOnlyProductEnquiry: { type: Boolean, state: true },
-			setInsureIncident: { type: Object, state: true }
+			setInsureIncident: { type: Object, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -708,6 +710,18 @@ class ClientSummary extends Component {
 	_openLifeEmailDialog(policy) {
 		this.showLifeEmailDialog = true;
 		this.selectedLifePolicy = policy;
+	}
+
+	/**
+	 * check if policy status is an active status
+	 * @param {String} status status
+	 * @returns {Boolean} boolean
+	 */
+	_checkLifePolicyStatus(status) {
+		if (status?.toUpperCase() === `ACTIVE` || status?.toUpperCase() === `PENDING IN FORCE` || status?.toUpperCase() === `IN FORCE` || status?.toUpperCase() === `LAPSE PENDING` || status?.toUpperCase() === `PREMIUM HOLIDAY`) {
+			return true;
+		}
+		return false;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -1623,12 +1637,15 @@ class ClientSummary extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 
-				<capitec-tab
-					data-automation-id="insure-landing-life-policies-tab"
-					label="Life Cover">
-					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
-					${this._renderFooter()}
-				</capitec-tab>
+				${this.isLifeQualifyingClient === true ? html`
+						<capitec-tab
+							data-automation-id="insure-landing-life-policies-tab"
+							label="Life Cover">
+							${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
+							${this._renderFooter()}
+						</capitec-tab>`
+				: html``
+			}
 
 				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
@@ -1762,13 +1779,8 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content the list of Policies
 	 */
 	_renderLifePoliciesList() {
-		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE` || 
-		x.policyStatus.toUpperCase() === `PENDING IN FORCE` || 
-		x.policyStatus.toUpperCase() === `IN FORCE`);
-		
-		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE` && 
-		pol.policyStatus.toUpperCase() !== `PENDING IN FORCE` &&
-		pol.policyStatus.toUpperCase() !== `IN FORCE`);
+		const activeLifePolicy = determineActiveLifePolicies(this.lifePolicies?.policies);
+		const nonActiveLifePolicies = determineInactiveLifePolicies(this.lifePolicies?.policies);
 
 		return html`
 				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
@@ -1848,7 +1860,7 @@ class ClientSummary extends Component {
 					<div id='life-policy-status' style="width: 300px;">
 						<horizon-label
 							label="Status"
-							class = "${activeLifePolicy?.policyStatus === `Active` || activeLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
+							class = "${determineLifeStatusColour(activeLifePolicy?.policyStatus)}"
 							value= "${lifeCoverDisplayStatus(activeLifePolicy?.policyStatus)}">
 						</horizon-label>
 					</div>
@@ -1861,27 +1873,27 @@ class ClientSummary extends Component {
 						</capitec-overflow-menu-item>
 					`}
 
-					<!-- ${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			} -->
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
+					<!-- ${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			}
+			} -->
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1903,6 +1915,9 @@ class ClientSummary extends Component {
 	_renderActiveLifePolicyPockets(activeLifePolicy) {
 		const pocketList = activeLifePolicy?.pockets;
 
+		// Enable with next release
+		// ?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
+
 		return html`${pocketList?.length > 0 ? pocketList?.map((pocketItem) => html`
 			<horizon-expander
 				expandButtonAlignment="right"
@@ -1910,7 +1925,7 @@ class ClientSummary extends Component {
 				?expanded = "${pocketItem?.isExpanded}" 
 				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
 				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
-				?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
+				?disabled='${true}'
 				style="${pocketItem?.coverage === 0 ? `background-color: #f1f1f1` : ``}">
 					<capitec-group 
 						class="expander-header"
@@ -1959,14 +1974,16 @@ class ClientSummary extends Component {
 								@click="${() => this._goToLifePolicySummary(pol)}">
 							</horizon-label>
 						</div>
-						
+						${pol.policyStatus === `Lapsed` ? html`` 
+						: html`
 						<div>
 							<horizon-label
 								label="Total cover"
 								class="ghost-label"
 								value="${this._calculateLifeTotalCoverAmount(pol)}">
 							</horizon-label>
-						</div>
+						</div>`}
+						
 
 						${pol.policyStatus === `Not Taken Up` ? html`
 							<div>
@@ -1990,7 +2007,8 @@ class ClientSummary extends Component {
 									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
 								</horizon-label>
 							</div>
-						` : html`
+						` : html``}
+						${pol.policyStatus === `Cancelled` ? html`
 							<div>
 								<horizon-label
 									label="Cancelation Date"
@@ -2006,19 +2024,42 @@ class ClientSummary extends Component {
 									value="${pol?.cancellationReason}">
 								</horizon-label>
 							</div>
-						`}
+						` : html``}
+
+						${pol.policyStatus === `Lapsed` ? html`
+							<div>
+								<horizon-label
+									label="Lapse Date"
+									class="ghost-label"
+									value="${isNullorEmpty(pol?.policyLapseDate) ? `-` : formatDate(pol?.policyLapseDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Start Date"
+									style="width: 410px"
+									class="ghost-label"
+									value="${formatDate(pol?.policyStartDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+						` : html``}
+							
+						
 
 						
 						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
-								class = "${pol?.policyStatus === `Active` || pol?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
+								class = "${determineLifeStatusColour(pol?.policyStatus)}"
 								value= "${lifeCoverDisplayStatus(pol?.policyStatus)}">
 							</horizon-label>
 						</div>
 
 						<capitec-overflow-menu label="Menu">
-							<capitec-overflow-menu-item label="Email Policy" @click="${() => this._openLifeEmailDialog(pol)}"></capitec-overflow-menu-item>
+							${this.readOnlyMode === true ? html`` : html`
+								<capitec-overflow-menu-item label="Email Policy" @click="${() => this._openLifeEmailDialog(pol)}"></capitec-overflow-menu-item>
+							`}
+							
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 						</capitec-overflow-menu>
@@ -2234,7 +2275,7 @@ class ClientSummary extends Component {
 								<div>How it works:</div>
 								<div>•When you pass, the Education Fund benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
 								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
-								<div>•Once a child turns 18, the money left in the umbrella trust will be paid to them in one lump sum</div>
+								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
 						</tr>
 					</table>
@@ -2339,7 +2380,9 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._closeClaimInfoDialog()}">
+			<horizon-insure-lodge-claim-info-dialog 
+				.selectedInsureTabIndex="${this.selectedInsureTabIndex}"
+				@confirm="${() => this._closeClaimInfoDialog()}">
 			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 

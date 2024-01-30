@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -103,6 +103,7 @@ export class ExistingClient extends InsureViewBase {
 		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
+		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -175,8 +176,8 @@ export class ExistingClient extends InsureViewBase {
 			showInsureSuccessToast: { type: Boolean, state: true },
 			lifePolicyArrears: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
-
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -208,6 +209,7 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
+		await this._clientQualifiesLife();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
@@ -477,12 +479,12 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay Life Policy Arrears Agreement
 	 * @param {String} contractReference contractReference
-	 * @param {Object} selectedArrears selectedArrears
 	 * @param {string} accountSelected accountSelected
+	 * @param {Object} selectedArrears selectedArrears
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {Object} resp
 	 */
-	async _generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum) {
+	async _generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum) {
 		const generateDocumentRequest = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -493,30 +495,28 @@ export class ExistingClient extends InsureViewBase {
 				"contentType": `Pdf`
 			},
 			"metadata": {
-				"deviceId": `string`,
-				"signatureType": `string`,
-				"branchName": `string`,
-				"branchNumber": `string`,
-				"documentDate": `2023-11-15T07:07:52.936Z`,
-				"language": `string`,
-				"productId": `string`
+				"deviceId": null,
+				"signatureType": ``,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
 			},
-			"nonPrimarySignatoryDetails": {
-				"signatoryType": `string`,
-				"hasDetails": true
-			},
-			"voiceReferenceNumber": `string`,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"payArrears": {
 				"policyNumber": contractReference,
 				"arrears": selectedArrears,
 				"cifNumber": this.callerInformation.cifNumber,
 				"policyNumber": contractReference,
-				"paidWithClaims": false
+				"paidWithClaims": false,
+				"fromAccount": accountSelected
 			}
 		};
 
 		const resp = await this.insureLifeService.lifePayArrearsAgreement(generateDocumentRequest, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
+			this.lifeDocsToEmail = resp.result;
 			return resp;
 		}
 		this.handleToastError(resp.exception);
@@ -739,6 +739,23 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		return resp.result;
+	}
+
+	/**
+	 * Check if client qualifies for Life product
+	 * @returns {Object} Client Life policies 
+	 */
+	async _clientQualifiesLife() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientQualify(request);
+		if (!resp.succeeded) {
+			this.isLifeQualifyingClient = false;
+		} else {
+			this.isLifeQualifyingClient = resp.result.qualify;
+		}
 	}
 
 	/**
@@ -1199,23 +1216,27 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay arrears for active life policy
 	 * @param {string} contractReference contractReference
-	 * @param {string} accountSelected accountSelected
+	 * @param {string} accountNumber accountNumber
 	 * @param {string} selectedArrears selectedArrears
 	 * @returns {object} resp
 	 */
-	async _payArrearsLife(contractReference, accountSelected, selectedArrears) {
+	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
+		console.log(`in _payArrearsLife`);
+		console.log(`selectedArrears :>> `, selectedArrears);
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
 			"bankDetails": {
-				"accountName": `string`,
-				"branchCode": `string`,
-				"accountNumber": accountSelected,
-				"bank": `string`,
-				"accountType": `Bond`
+				"accountName": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_NAME,
+				"branchCode": GLOBAL_ONE_GENERIC_DETAILS.BRANCH_CODE,
+				"accountNumber": this.defaultSavingsAccountNumber,
+				"bank": GLOBAL_ONE_GENERIC_DETAILS.BANK,
+				"accountType": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_TYPE,
+				"effectiveDate": null
 			},
 			"arrears": selectedArrears
 		};
+		console.log(`payArrears :>> `, payArrears);
 
 		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -1234,8 +1255,13 @@ export class ExistingClient extends InsureViewBase {
 	*/
 	_payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult) {
 
-		// TODO: Attempt to send email 
-		const emailSent = true;
+		const e = {
+			detail: {
+				emailAddress: email,
+				contractReference: contractReference
+			}
+		};
+		const emailSent = this._sendLifeEmail(e);
 
 		this.lifeSuccessPageMessages = {
 			emailSuccess: emailSent,
@@ -1403,7 +1429,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveLifePolicyPremiumHistory() {
 		const PremiumHistoryRequest = {
-			contractReference: this.selectedLifePolicy.contractReference
+			policyNumber: this.selectedLifePolicy.contractReference
 		};
 
 		let totalArrears = 0;
@@ -1712,8 +1738,11 @@ export class ExistingClient extends InsureViewBase {
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
+			console.log(`lifeEmailResponse fail:>> `, lifeEmailResponse);
 			return false;
 		}
+		console.log(`lifeEmailResponse success:>> `, lifeEmailResponse);
+
 		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
 		this.funeralShowEstimateSuccessToast = true;
 		this.lifeDocsToEmail = {};
@@ -1969,8 +1998,8 @@ export class ExistingClient extends InsureViewBase {
 				.generateDocumentsUpdateBankingDetails="${(policy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
-				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, selectedArrears, accountSelected, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, selectedArrears, accountSelected, saveToDocumentum)}"
-				.executeLifePayArrears="${(contractReference, accountSelected, selectedArrears) => this._payArrearsLife(contractReference, accountSelected, selectedArrears)}"
+				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
+				.executeLifePayArrears="${(contractReference, accountNumber, selectedArrears) => this._payArrearsLife(contractReference, accountNumber, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
@@ -1981,6 +2010,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
+				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"
