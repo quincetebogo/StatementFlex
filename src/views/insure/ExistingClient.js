@@ -209,9 +209,11 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
-		await this._clientQualifiesLife();
-		this.lifePolicies = await this._retrieveClientLifePolicies();
-		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
+		const lifeQualify = await this._clientQualifiesLife();
+		if (lifeQualify === true) {
+			this.lifePolicies = await this._retrieveClientLifePolicies();
+			super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
+		}
 	}
 
 	// --- Document Generation
@@ -718,6 +720,8 @@ export class ExistingClient extends InsureViewBase {
 			];
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			emailDocumentRequestPayload.documentInfo = [];
+		} else {
+			emailDocumentRequestPayload.documentInfo = [];
 		}
 	}
 
@@ -756,6 +760,8 @@ export class ExistingClient extends InsureViewBase {
 		} else {
 			this.isLifeQualifyingClient = resp.result.qualify;
 		}
+
+		return this.isLifeQualifyingClient;
 	}
 
 	/**
@@ -1220,8 +1226,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {object} resp
 	 */
 	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
-		console.log(`in _payArrearsLife`);
-		console.log(`selectedArrears :>> `, selectedArrears);
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
@@ -1235,7 +1239,6 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"arrears": selectedArrears
 		};
-		console.log(`payArrears :>> `, payArrears);
 
 		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -1294,8 +1297,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_lifeUpdatePolicy(updatePolicyRequest) {
-		// TODO Update policy service call
-		// TODO Email policy service call
 		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, updatePolicyRequest.emailDetails.emailAddress, updatePolicyRequest.emailDetails.contractReference);
 		this.clientConfirmedEmail = updatePolicyRequest.emailDetails.emailAddress;
 		this._goToLifeSuccess();
@@ -1564,6 +1565,8 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToFuneralUpdatePlan(e) {
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
+		this.selectedFuneralPolicyContractReference = e.detail.policyContractReference;
+
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
@@ -1737,10 +1740,8 @@ export class ExistingClient extends InsureViewBase {
 		const lifeEmailResponse = await this.insureLifeService.emailLifeDocuments(emailLifeDocumentsPayload, () => true);
 		if (!lifeEmailResponse.succeeded) {
 			this.handleToastError(lifeEmailResponse.exception);
-			console.log(`lifeEmailResponse fail:>> `, lifeEmailResponse);
 			return false;
 		}
-		console.log(`lifeEmailResponse success:>> `, lifeEmailResponse);
 
 		// window.showToastTimed(`success`, `top`, `Success`, `Document was sent`, 3000, true);
 		this.funeralShowEstimateSuccessToast = true;

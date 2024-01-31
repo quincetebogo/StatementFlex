@@ -1883,10 +1883,10 @@ class ClientSummary extends Component {
 				: html``
 			} -->
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
+					<!-- ${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			}
+			} -->
 
 					<!-- ${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -1917,17 +1917,14 @@ class ClientSummary extends Component {
 
 		// Enable with next release
 		// ?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
-
 		return html`${pocketList?.length > 0 ? pocketList?.map((pocketItem) => html`
+		<capitec-content-box style="padding: 0px;">
 			<horizon-expander
-				expandButtonAlignment="right"
-				id="horizon-expander-${pocketItem?.pocketType}"
-				?expanded = "${pocketItem?.isExpanded}" 
-				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
-				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
-				?disabled='${true}'
-				style="${pocketItem?.coverage === 0 ? `background-color: #f1f1f1` : ``}">
-					<capitec-group 
+				expandButtonAlignment=""
+				.expanded = "${false}"
+				?disabled=${true}
+				class = "horizon-expander-height">
+				<capitec-group 
 						class="expander-header"
 						slot="custom-header"
 						layout="horizontal"
@@ -1955,7 +1952,8 @@ class ClientSummary extends Component {
 								${this._renderLifeExpandedOptions(pocketItem)}
 						</capitec-group>
 					</div>
-			</horizon-expander>`) : html``}`;
+				</horizon-expander>
+		</capitec-content-box>`) : html``}`;
 	}
 
 	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
