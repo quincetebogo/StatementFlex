@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
-import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -718,7 +718,7 @@ class ClientSummary extends Component {
 	 * @returns {Boolean} boolean
 	 */
 	_checkLifePolicyStatus(status) {
-		if (status?.toUpperCase() === `ACTIVE` || status?.toUpperCase() === `PENDING IN FORCE` || status?.toUpperCase() === `IN FORCE` || status?.toUpperCase() === `LAPSE PENDING` || status?.toUpperCase() === `PREMIUM HOLIDAY`) {
+		if (status === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || status === LIFE_POLICY_STATUSES.IN_FORCE || status === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
 			return true;
 		}
 		return false;
@@ -1860,8 +1860,8 @@ class ClientSummary extends Component {
 					<div id='life-policy-status' style="width: 300px;">
 						<horizon-label
 							label="Status"
-							class = "${determineLifeStatusColour(activeLifePolicy?.policyStatus)}"
-							value= "${lifeCoverDisplayStatus(activeLifePolicy?.policyStatus)}">
+							class = "${determineLifeStatusColour(activeLifePolicy?.policyStatusEnum)}"
+							value= "${activeLifePolicy?.displayPolicyStatus}">
 						</horizon-label>
 					</div>
 
@@ -1883,7 +1883,7 @@ class ClientSummary extends Component {
 				: html``
 			} -->
 
-					<!-- ${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
+					<!-- ${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			} -->
@@ -1893,7 +1893,7 @@ class ClientSummary extends Component {
 				: html``
 			} -->
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatus) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1972,7 +1972,7 @@ class ClientSummary extends Component {
 								@click="${() => this._goToLifePolicySummary(pol)}">
 							</horizon-label>
 						</div>
-						${pol.policyStatus === `Lapsed` ? html`` 
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`` 
 						: html`
 						<div>
 							<horizon-label
@@ -1983,7 +1983,7 @@ class ClientSummary extends Component {
 						</div>`}
 						
 
-						${pol.policyStatus === `Not Taken Up` ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`
 							<div>
 								<horizon-label
 									label="Premium"
@@ -2006,7 +2006,7 @@ class ClientSummary extends Component {
 								</horizon-label>
 							</div>
 						` : html``}
-						${pol.policyStatus === `Cancelled` ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED ? html`
 							<div>
 								<horizon-label
 									label="Cancelation Date"
@@ -2024,7 +2024,7 @@ class ClientSummary extends Component {
 							</div>
 						` : html``}
 
-						${pol.policyStatus === `Lapsed` ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`
 							<div>
 								<horizon-label
 									label="Lapse Date"
@@ -2048,8 +2048,8 @@ class ClientSummary extends Component {
 						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
-								class = "${determineLifeStatusColour(pol?.policyStatus)}"
-								value= "${lifeCoverDisplayStatus(pol?.policyStatus)}">
+								class = "${determineLifeStatusColour(pol?.policyStatusEnum)}"
+								value= "${pol?.displayPolicyStatus}">
 							</horizon-label>
 						</div>
 
