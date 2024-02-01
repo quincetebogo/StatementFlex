@@ -368,3 +368,21 @@ export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
 	BANK: `Capitec Bank`,
 	ACCOUNT_TYPE: `Savings`
 });
+
+/**
+ * LIFE_POLICY_STATUSES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_STATUSES
+ */
+export const LIFE_POLICY_STATUSES = Object.freeze({
+	UNKNOWN: `Unknown`,
+	PENDING: `Pending`,
+	PENDING_IN_FORCE: `PendingInForce`,
+	IN_FORCE: `InForce`,
+	LAPSE_PENDING: `LapsePending`,
+	LAPSED: `Lapsed`,
+	NOT_TAKEN_UP: `NotTakenUp`,
+	CANCELLED: `Cancelled`,
+	OUT_OF_FORCE: `OutOfForce `
+});

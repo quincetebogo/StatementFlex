@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { determineLifeStatusColour, formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus } from 'app/utils/insureUtils';
+import { LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES } from 'app/constants/InsureCommon';
+import { determineLifeStatusColour, formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 /**
@@ -378,7 +378,7 @@ class LifePolicySummary extends Component {
 					<horizon-label label="Premium"
 						value="${formatCurrency(this.selectedLifePolicy?.totalPremium)}">
 					</horizon-label>
-					${this.selectedLifePolicy?.policyStatus === `Lapsed` ? html`
+					${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`
 						<horizon-label
 							label="Lapse Date"
 							value="${isNullorEmpty(this.selectedLifePolicy?.policyLapseDate) ? `-` : formatDate(this.selectedLifePolicy?.policyLapseDate, `dd mmm yyyy`)}">
@@ -392,8 +392,8 @@ class LifePolicySummary extends Component {
 					`}
 					<horizon-label
 						label="Status"
-						value="${lifeCoverDisplayStatus(this.selectedLifePolicy?.policyStatus)}"
-						class="column-width-200 ${determineLifeStatusColour(this.selectedLifePolicy?.policyStatus)}">
+						value="${this.selectedLifePolicy?.displayPolicyStatus}"
+						class="column-width-200 ${determineLifeStatusColour(this.selectedLifePolicy?.policyStatusEnum)}">
 					</horizon-label>
 				</capitec-group>
 				<div slot="content">
