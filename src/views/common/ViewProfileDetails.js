@@ -1,6 +1,8 @@
 import { css, html } from 'platform/elements';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -9,14 +11,48 @@ const DETAILS_TAB = {
 };
 
 const CLIENT_DETAILS = {
-	PREFERRED_LANGUAGE: `Preferred Language`
+	PREFERENCES: `Preferences`,
+	PERSONAL_DETAILS: `Personal details`,
+	CONTACT_DETAILS: `Contact details`,
+	ADDRESS: `Address`,
+	EMPLOYMENT_DETAILS: `Employment details`,
+	INCOME_DETAILS: `Income details`
 };
 
+const EMPLOYMENT_STATUS = {
+	'MINOR_16': `Minor`, 
+	'EMPLOYED': `Employed`,
+	'SELF_EMPLOYED': `Self Employed`,
+	'PENSIONER': `Pensioner`,
+	'UNEMPLOYED': `Unemployed`
+};
+
+const INCOME_RANGE = [
+	{ key: `NO_VALUE`, value: `< R1000` },
+	{ key: `R1001_R6000`, value: `R1001 to R6000` },
+	{ key: `R6001_R9000`, value: `R6001 to R9000` },
+	{ key: `R9001_R15000`, value: `R9001 to R15000` },
+	{ key: `R15000_R25000`, value: `R15001 to R25000` },
+	{ key: `R25001_R35000`, value: `R25001 to R35000` },
+	{ key: `R35001_R50000`, value: `R35001 to R50000` },
+	{ key: `R50000`, value: `> R50000` }
+];
+
+const INCOME_FREQUENCY = [
+	{ key: ` `, value: `None` },
+	{ key: `A`, value: `Annually` },
+	{ key: `B`, value: `Bi-Annually` },
+	{ key: `Q`, value: `Quaterly` },
+	{ key: `M`, value: `Monthly` },
+	{ key: `F`, value: `Fortnightly` },
+	{ key: `W`, value: `Weekly` }
+];
+
 /**
- * View to render widget 404 not found
+ * View to display and update Client profile details
  * 
  * @export 
- * @class WidgetNotFound
+ * @class ViewProfileDetails
  * @extends {View}
  */
 export class ViewProfileDetails extends ViewBase {
@@ -33,6 +69,7 @@ export class ViewProfileDetails extends ViewBase {
 		this.selectedTab = DETAILS_TAB[0];
 		this.displayToast = false;
 		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.clientProfileService = new ClientProfileService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// -------------------
@@ -42,9 +79,8 @@ export class ViewProfileDetails extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.clientDetails = {
-			[CLIENT_DETAILS.PREFERRED_LANGUAGE]: LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
-		};
+		this._initialise();
+
 	}
 
 	disconnectedCallback() {
@@ -85,7 +121,7 @@ export class ViewProfileDetails extends ViewBase {
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.clientDetails[CLIENT_DETAILS.PREFERRED_LANGUAGE] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
+			this.clientDetails[CLIENT_DETAILS.PREFERENCES] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
 		}
 		
 	}
@@ -105,6 +141,15 @@ export class ViewProfileDetails extends ViewBase {
 		this.displayToast = false;
 	}
 
+	async _getEmployersList(searchValue) {
+		// CS call to get Employer list to load dropdown on Update profile details modal 
+		const returnValue = await this.clientProfileService.getEmployer(searchValue);
+		if (returnValue.succeeded) {
+			return returnValue; // return employer list
+		} 
+			return null;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -115,7 +160,52 @@ export class ViewProfileDetails extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	// N/A
+	async _initialise() {
+		const returnValue = await this.clientProfileService.getClientDetails(this.callerInformation.cifNumber);
+
+		if (returnValue.succeeded) {
+			const details = returnValue.result;
+			
+			this.clientDetails = {
+				[CLIENT_DETAILS.PREFERENCES]: {
+					"Preferred Language": LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
+				},
+				[CLIENT_DETAILS.PERSONAL_DETAILS]: {
+					"Title": this.callerInformation.title,
+					"Name": formatStringAsPascalCase(this.callerInformation.firstName),
+					"Surname": formatStringAsPascalCase(this.callerInformation.lastName),
+					"Nickname": formatStringAsPascalCase(details.nickname),
+					"Date of birth": this.callerInformation.birthdate,
+					"Nationality": `SA`,
+					"ID number / Passport Number": this.callerInformation.southAfricanIDNumber,
+					"Cellphone number": this.callerInformation.verifiedTelephoneNumber // update the source value when service is ready
+				},
+				[CLIENT_DETAILS.CONTACT_DETAILS]: {
+					"Home contact number": details.residentialPhoneNumber,
+					"Work contact number": details.businessPhoneNumber,
+					"Email address (unverified)": this.callerInformation.emailId
+				},
+				[CLIENT_DETAILS.ADDRESS]: {
+					"Address line 1": details.residentialAddress.addressLine1,
+					"Address line 2 (optional)": details.residentialAddress.addressLine2,
+					"Suburb": details.residentialAddress.suburb,
+					"City": details.residentialAddress.city,
+					"Postal code": details.residentialAddress.postalCode
+				},
+				[CLIENT_DETAILS.EMPLOYMENT_DETAILS]: {
+					"Employment status": EMPLOYMENT_STATUS[details.employmentStatus],
+					"Employment type": formatStringAsPascalCase(details.employmentType, `_`),
+					"Employer": details.employerName,
+					"Industry": details.occupationCode
+				},
+				[CLIENT_DETAILS.INCOME_DETAILS]: {
+					"Source funds": formatStringAsPascalCase(details.sourceOfFunds, `_`),
+					"Expected income": INCOME_RANGE.find(range => details.incomeRange === range.key).value,
+					"Income frequency": INCOME_FREQUENCY.find(freq => details.incomeFrequency === freq.key).value
+				}
+			};
+		}
+	}
 
 	// ---------
 	// RENDERING
@@ -148,6 +238,7 @@ export class ViewProfileDetails extends ViewBase {
 
 				/* Main view styles */
 				capitec-tab-group {
+					height: 760px;
 					--theme-tab-hover-background-color: transparent;
 					--theme-tab-indicator-border-radius: 0px;
 					--theme-tab-border-bottom: 0px;
@@ -258,19 +349,24 @@ export class ViewProfileDetails extends ViewBase {
 			<capitec-tab
 					data-automation-id="view-profile-client-details-tab"
 					label="Client Details">
-						<capitec-title-bar
-							type="default"
-							label="Preferences"
-							class="other-options">
-						</capitec-title-bar>
-						<capitec-group
-							layout="horizontal"
-							gap="none"
-							halign="left"
-							valign="top"
-							wrap>
-								${this._renderFields(this.clientDetails)}
-						</capitec-group>
+					${Object.entries(this.clientDetails).map(detail => {
+						const [header, fields] = detail;
+					
+						return html`<capitec-title-bar
+								type="default"
+								label=${header}
+								class="other-options">
+							</capitec-title-bar>
+							<capitec-group
+								layout="horizontal"
+								gap="none"
+								halign="left"
+								valign="top"
+								wrap>
+									${this._renderFields(fields)}
+							</capitec-group>`;
+					})}
+						
 			</capitec-tab>
 		`;
 	}
@@ -282,7 +378,7 @@ export class ViewProfileDetails extends ViewBase {
 			return html`
 				<horizon-label
 					label="${label}"
-					value="${value}"
+					value="${value || `-`}"
 					data-automation-id="view-profile-details-${label.split(` `).join(`-`)}">
 				</horizon-label>`;
 		});
@@ -306,6 +402,7 @@ export class ViewProfileDetails extends ViewBase {
 			<horizon-update-profile-details
 				header="${this.selectedTab}"
 				.clientDetails="${this.clientDetails}"
+				.getEmployersList="${(value) => this._getEmployersList(value)}"
 				@cancel="${() => this.showUpdatePreferenceModal = false}"
 				@update-preference="${(e) => this._updateClientPreferences(e.detail.preferredlanguage)}">
 			</horizon-update-profile-details>`

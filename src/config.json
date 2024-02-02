@@ -64,7 +64,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -72,7 +72,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -105,7 +105,7 @@
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -173,7 +173,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -237,7 +237,7 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditBalance": {
@@ -273,7 +273,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -426,6 +426,14 @@
 		},
 		"insureElectOption": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getEmployer" : {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}
