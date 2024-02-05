@@ -596,7 +596,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/** 
-	 * Life Pay Arrears
+	 * Life build success message
 	 * @param {Boolean} lifeEmailSuccess lifeEmailSuccess
 	 * @param {Number} callerPage callerPage
 	 * @param {String} emailAddress emailAddress
@@ -614,6 +614,8 @@ export class ExistingClient extends InsureViewBase {
 			successPageMessage.actionSuccessLabel = `The policy has been cancelled`;
 			if (lifeEmailSuccess) {
 				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else if (!lifeEmailSuccess && isNullorEmpty(emailAddress)) {
+				successPageMessage.emailMessage = ``;
 			} else {
 				successPageMessage.emailMessage = `Your cancellation documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
 			}
@@ -1730,6 +1732,9 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void} 
 	  */
 	async _sendLifeEmail(e) {
+		if (isNullorEmpty(e.detail.emailAddress)) {
+			return false;
+		}
 		const emailLifeDocumentsPayload = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": e.detail.contractReference,
@@ -2224,7 +2229,7 @@ export class ExistingClient extends InsureViewBase {
 				.contractReference="${this.selectedLifePolicy}"
 				.successMessages="${this.lifeSuccessPageMessages}"
 				.email = "${this.clientConfirmedEmail}"
-				@send-life-email="${(e) => this._sendLifeEmail(e)}"
+				.sendLifeEmail="${(e) => this._sendLifeEmail(e)}"
 				@navigate-to-summary="${() => this._refreshLifePolicies()}">
 			</horizon-insure-life-success>`;
 	}

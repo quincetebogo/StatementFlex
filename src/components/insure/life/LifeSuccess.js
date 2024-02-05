@@ -2,6 +2,8 @@ import { Component, css, html, unsafeHTML } from 'platform/elements';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
 
 import 'app/components/dialogs/insure/InsureEmailDialog';
 
@@ -42,7 +44,8 @@ class LifeSuccessPage extends Component {
 	 * @property {String} contractReference - policy contract reference
 	 * @property {String} titleMessage - title of send email popup.
 	 * @property {Object} successMessages - Contains messages to display on page.
-	 * @property {Function} sendEmail - Callback function to send email.
+	 * @property {Function} sendLifeEmail - Callback function to send email.
+	 * @property {Function} showEmailDialog - determines whether to show email dialog.
 	 * @readonly
 	 * @static
 	 */
@@ -53,7 +56,8 @@ class LifeSuccessPage extends Component {
 			contractReference: { type: String, state: true },
 			titleMessage: { type: String, state: true },
 			successMessages: { type: Object, state: true },
-			sendEmail: { type: Object, state: true }
+			showEmailDialog: { type: Boolean, state: true },
+			sendLifeEmail: { type: Object, state: true }
 		};
 	}
 
@@ -87,12 +91,34 @@ class LifeSuccessPage extends Component {
 	/**
 	 * Invoke this function when Send button is clicked on Email Popup
 	 * 
-	 * @param {*} emailAddress email address
+	 * @param {*} e email address
 	 * @return {void} 
 	 */
-	 _sendEmail() {
+	 async _sendEmail(e) {
+		
+		if (!isNullorEmpty(e?.detail?.emailAddress)) {
+			this.showEmailDialog = false;
+			this.email = e.detail.emailAddress;
+		}
 
-		this.dispatchEvent(new CustomEvent(`send-life-email`, { detail: { emailAddress: this.email, contractReference: this.contractReference } }));
+		if (isNullorEmpty(this.email)) {
+			this.showEmailDialog = true;
+			return;
+		}
+		const payload = {};
+		payload.detail = {
+			emailAddress: this.email,
+			contractReference: this.contractReference
+		};
+
+		const emailResponse = await this.sendLifeEmail(payload);
+
+		if (emailResponse) {
+			this.successMessages.emailMessage = `Your documentation has been successfully sent to ${this.email}`;
+		} else {
+			this.successMessages.emailSuccess = emailResponse;
+			this.successMessages.emailMessage = `We were unable to send your documentation to ${this.email}`;
+		}
 
 	}
 
@@ -178,6 +204,7 @@ class LifeSuccessPage extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderContent()}
+			${this._renderEmailDialog()}
 		`;
 	}
 
@@ -192,11 +219,14 @@ class LifeSuccessPage extends Component {
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="${this.successMessages?.actionSuccessLabel}"></capitec-label>
-
-					<div class="success-message">
-						<capitec-icon size="medium" icon="status/${this.successMessages?.emailSuccess ? `success` : `error`}" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
-						<p>${unsafeHTML(this.successMessages?.emailMessage)}</p>
-					</div>
+						${isNullorEmpty(this.email) || isNullorEmpty(this.successMessages?.emailMessage) ? html`` 
+						: html`
+						<div class="success-message">
+							<capitec-icon size="medium" icon="status/${this.successMessages?.emailSuccess ? `success` : `error`}" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
+							<p>${unsafeHTML(this.successMessages?.emailMessage)}</p>
+						</div>
+						`}
+					
 
 					<div class="button-row">
 						
@@ -215,6 +245,18 @@ class LifeSuccessPage extends Component {
 				</div>
 			</capitec-card>
 		`;
+	}
+
+
+	_renderEmailDialog() {
+		return this.showEmailDialog === true ? html`
+			<horizon-insure-email-dialog
+				.titleMessage = "${`Email Agreement`}"
+				@close-modal="${() => this.showEmailDialog = false}"
+				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
+			</horizon-insure-email-dialog>
+		`
+		: html``;
 	}
 
 	// #endregion

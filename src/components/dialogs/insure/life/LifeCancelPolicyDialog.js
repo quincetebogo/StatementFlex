@@ -103,8 +103,8 @@ class LifeCancelPolicyDialog extends Component {
 	 */
 	_agreeClick() {
 
-		const isEmailInputValid = this._validateEmailAddress();
-
+		 const isEmailInputValid = this._validateEmailAddress();
+		
 		if (!isEmailInputValid) {
 			return;
 		}
@@ -165,10 +165,16 @@ class LifeCancelPolicyDialog extends Component {
 	 * @returns {boolean} boolean for whether the alert banner message is empty or not
 	 */
 	_validateEmailAddress() {
-		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+		if (isNullorEmpty(this.email) && isNullorEmpty(this.confirmEmail)) {
+			this.emailAlertBannerMessage = ``;
+			return isNullorEmpty(this.emailAlertBannerMessage);
+		} else if (this.email !== this.confirmEmail) {
 			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED;
+			return isNullorEmpty(this.emailAlertBannerMessage);
 		}
+		this.emailAlertBannerMessage = ``;
 		return isNullorEmpty(this.emailAlertBannerMessage);
+		
 	}
 
 	/**
