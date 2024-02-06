@@ -278,6 +278,15 @@ class LifeSMSHistory extends Component {
 		this._refineSearch();
 	}
 
+	_checkTimezone(date) {
+		const timeZone = `+00:00`;
+		const wrongTimeZone = date.includes(timeZone);
+		if (wrongTimeZone === true) {
+			date = date.replace(timeZone, `+02:00`);
+		}
+		return date;
+	};
+
 	// #endregion
 
 
@@ -479,7 +488,7 @@ class LifeSMSHistory extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Sent"
-							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
+							value="${formatDate(this._checkTimezone(comms.sentAt), `dd mmm yyyy`)}, ${new Date(this._checkTimezone(comms.sentAt)).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
 							label="Status"
