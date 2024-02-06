@@ -207,7 +207,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `CSH_CASH_WITHDRWL`];
+		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `CSH_CASH_WITHDRWL`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`];
 	}
 
 	// --------------
