@@ -158,6 +158,49 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.showTable = true;
 	}
 
+	async searchRecharges(filters, isEscalationDetails = false) {
+		var mockArgs = {},
+			pgArgs = {},
+			queryArgs = {};
+
+		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
+				e = e.toUpperCase();
+				return e;
+			});
+		}
+
+		filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
+
+		if (filters.searchValue) {
+			queryArgs.msisdn = filters.searchValue;
+		}
+
+		if (filters.cif) {
+			queryArgs.cif = filters.cif;
+		}
+
+		queryArgs.type = "RECHARGE";
+
+		queryArgs.transactionDate = {
+			startDate: getDateInPast(filters.selectedDate.value),
+			endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
+		};
+
+		pgArgs = {
+			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [`transactionDate,desc`],
+			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
+
+		mockArgs = {
+			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
+			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
+
+		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
+	}
+
 	async _retrieveRecharges(renderSet) {
 		this.renderSet = renderSet;
 		this.numOfPagingRows = this.renderSet.numOfPagingRows;
@@ -244,7 +287,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 	async _actionReversal() {
 		try {
-			const response = await this.actionReversal(this.selectedReversal, this.reason.value, this.comment);
+			const response = await this.capitecConnectService.escalateForReversal(this.selectedReversal.transactionReference, this.reason.value, this.comment);
 
 			if (response.result.errorCode) {
 				this.showSuccessModal = !response.succeeded;

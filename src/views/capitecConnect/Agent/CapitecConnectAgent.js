@@ -5,6 +5,8 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import { getDateInPast, formatCellphoneNumber, isArray } from 'app/utils/capitecConnectUtils';
 
 import './Recharges';
+import './Advances';
+import './AdvancesRepayments';
 
 /**
  * Capitec Connect Agent View
@@ -27,87 +29,6 @@ export class CapitecConnectAgent extends ViewBase {
 
 		this.configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-
-		// private properites
-		this.loading = true;
-
-		// Static variables
-		this.dateRanges = [
-			{ value: `30`, text: `30 Days` },
-			{ value: `60`, text: `60 Days` },
-			{ value: `90`, text: `90 Days` }
-		];
-
-		this.availableFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
-
-		// State variables
-		this.searchValue = ``;
-		this.activeFilters = {
-			selectedDate: this.dateRanges[0],
-			searchValue: ``,
-			bundleType: [`All`]
-		};
-
-		this.selectedReversal = null;
-	}
-
-	static get properties() {
-		return {
-			selectedReversal: { type: Object },
-			selectedDate: { type: Object },
-			searchValue: { type: String },
-			activeFilters: { type: Array }
-		};
-	}
-
-	async searchRecharges(filters, isEscalationDetails = false) {
-		var mockArgs = {},
-			pgArgs = {},
-			queryArgs = {};
-
-		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
-			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
-				e = e.toUpperCase();
-				return e;
-			});
-		}
-
-		filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
-		this.activeFilters.searchValue = filters.searchValue;
-
-		if (filters.searchValue) {
-			queryArgs.msisdn = filters.searchValue;
-		}
-
-		if (filters.cif) {
-			queryArgs.cif = filters.cif;
-		}
-
-		queryArgs.transactionDate = {
-			startDate: getDateInPast(filters.selectedDate.value),
-			endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
-		};
-
-		pgArgs = {
-			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [`transactionDate,desc`],
-			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		mockArgs = {
-			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
-			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
-	}
-
-	async actionReversal (selectedReversal, reason, comment) {
-		return this.capitecConnectService.escalateForReversal(
-			selectedReversal.transactionReference,
-			reason,
-			comment
-		);
 	}
 
 	static get styles() {
@@ -198,10 +119,17 @@ export class CapitecConnectAgent extends ViewBase {
 						<capitec-tab label="Recharge History" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-recharges
 								style="width:100%"
-								.searchRecharges="${this.searchRecharges}"
-								.getEscalationDetail="${this.getEscalationDetail}"
-								.actionReversal="${this.actionReversal}"
 								></horizon-capitec-connect-agent-recharges>
+						</capitec-tab>
+						<capitec-tab label="Advances" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-advances
+								style="width:100%"
+							></horizon-capitec-connect-agent-advances>
+						</capitec-tab>
+						<capitec-tab label="Advances Repayment" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-advances-repayments
+								style="width:100%"
+							></horizon-capitec-connect-agent-advances-repayments>
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>

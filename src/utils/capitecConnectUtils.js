@@ -84,7 +84,7 @@ export function formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
 }
 
 export function isArray(obj) {
-	return obj !== null && typeof obj === `object` && obj.length; // arrays are objects and have length
+	return Array.isArray(obj);
 }
 
 export function isJson(obj) {
