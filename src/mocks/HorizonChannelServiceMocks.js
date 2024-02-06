@@ -70,6 +70,7 @@ export default class HorizonChannelServiceMocks {
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.clientDetails = await loadMockModule(this.clientDetails, `getClientDetails`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.clientDetails = await loadMockModule(this.clientDetails, `getEmployer`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================

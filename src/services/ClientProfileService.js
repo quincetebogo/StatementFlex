@@ -217,16 +217,30 @@ export class ClientProfileService extends ChannelServiceBase {
 		}
 
 		const url = `/client-${this._version}/details`;
-
-		const request = {
-			'cifNumber': cif
-		};
-
+		const customHeader = { ...this.setToken(), "cifNumber": cif };
+	
 		return this.get(
 			url,
+			customHeader,
+			`getClientDetails`,
+			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	updateFICADetails(request, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/client-${this._version}/details`;
+		const customHeader = { ...this.setToken(), "cifNumber": cif };
+	
+		return this.put(
+			url,
 			request,
-			this.setToken(),
-			`_getClientDetails`,
+			customHeader,
+			`updateFICADetails`,
 			null,
 			null,
 			1000,
@@ -236,7 +250,6 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-		
 	async getEmployer(searchValue, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		
 		if (await this.isMockEnabled(`getEmployer`)) {

@@ -1,89 +1,13 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS, LANGUAGE_LIST } from 'app/constants/Common';
+import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS } from 'app/constants/ficaDetails';
+import { Utilities } from 'platform/Utilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
-const MENU_ITEMS = {
-	PREFERENCES: `Preferences`,
-	PERSONAL_DETAILS: `Personal details`,
-	CONTACT_DETAILS: `Contact details`,
-	ADDRESS: `Address`,
-	EMPLOYMENT_DETAILS: `Employment details`,
-	INCOME_DETAILS: `Income details`
-};
-
-const FIELDS = {
-	PREFERRED_LANGUAGE: `Preferred Language`,
-	TITLE: `Title`,
-	NAME: `Name`,
-	SURNAME: `Surname`,
-	NICKNAME: `Nickname`,
-	DOB: `Date of birth`,
-	NATIONALITY: `Nationality`,
-	ID_NUMBER: `ID number / Passport Number`,
-	CELL_NO: `Cellphone number`,
-	RES_PHONE_NO: `Home contact number`,
-	WORK_PHONE_NO: `Work contact number`,
-	EMAIL: `Email address (unverified)`,
-	LINE_1: `Address line 1`,
-	LINE_2: `Address line 2 (optional)`,
-	SUBURB: `Suburb`,
-	CITY: `City`,
-	POSTAL_CODE: `Postal code`,
-	EMP_STATUS: `Employment status`,
-	EMP_TYPE: `Employment type`,
-	EMPLOYER: `Employer`,
-	INDUSTRY: `Industry`,
-	SOF: `Source funds`,
-	EXP_INCOME: `Expected income`,
-	INCOME_FREQUENCY: `Income frequency`
-};
-
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const EMAIL_REQUIRED = `Enter a valid email address i.e.email@gmail.com`;
-
 const CONTACT_NUMBER = /^[0-9]{10}$/;
-// Personal details
-
-// Employement details 
-
-const EMPLOYMENT_STATUS = [
-	{ key: `EMPLOYED`, value: `Employed` },
-	{ key: `SELF_EMPLOYED`, value: `Self Employed` },
-	{ key: `UNEMPLOYED`, value: `Unemployed` },
-	{ key: `PENSIONER`, value: `Pensioner` },
-	{ key: `MINOR_16`, value: `Minor` }
-];
-
-const EMPLOYMENT_TYPE = {
-	"Employed": [
-		{ key: `CONTRACT_WORKER`, value: `Contract Worker` },
-		{ key: `COMMISSION_EARNER`, value: `Commission Earner` },
-		{ key: `LABOUR_BROKER`, value: `Labour Broker` },
-		{ key: `PERMANENT_WORKER`, value: `Permanent Worker` },
-		{ key: `TEMPORARY_CASUAL_SEASONAL`, value: `Temporary Casual Seasonal` },
-		{ key: `DOMESTIC_WORKER`, value: `Domestic Worker` }
-	],
-	"Self Employed": [
-		{ key: `BUSINESS_OWNER`, value: `Business Owner` },
-		{ key: `SOLE_PROPRIETER_TRADER`, value: `Sole Proprieter Trader` },
-		{ key: `SOLE_PROPRIETER_CONTRACTOR`, value: `Sole Proprieter Contractor` },
-		{ key: `INFORMALLY_SELF_EMPLOYED`, value: `Informally Self Employed` }
-	],
-	"Unemployed": [
-		{ key: `UNEMPLOYED`, value: `Unemployed` },
-		{ key: `FULL_TIME_STUDENT`, value: `Full Time Student` },
-		{ key: `HOME_EXECUTIVE`, value: `Home Executive` }
-	],
-	"Pensioner": [
-		{ key: `ALL_PAY_PENSION`, value: `All Pay Pension` },
-		{ key: `ALL_PAY_PENSION_AND_GRANT`, value: `All Pay Pension And Grant` },
-		{ key: `GOVERNMENT_PENSION`, value: `Government Pension` },
-		{ key: `GRANT`, value: `Grant` },
-		{ key: `PRIVATE_PENSION`, value: `Private Pension` }
-	],
-	"Minor": [{ key: `NONE`, value: `None` }]
-};
 
 const INDUSTRY = [
 			`Agriculture and Fishing`, 
@@ -115,74 +39,6 @@ const INDUSTRY = [
 			`Add Employer` 
 ];
 
-let SOF_EMPLOYED = [];
-const SOURCE_FUNDS = {
-	'Employed': SOF_EMPLOYED = [
-		{ key: `SALARY`, value: `Salary` },
-		{ key: `INVESTMENT_INCOME`, value: `Investment Income` },
-		{ key: `PENSION`, value: `Pension` },
-		{ key: `COMMISSION`, value: `Commission` },
-		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
-		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
-		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
-	],
-	"Unemployed": [
-		{ key: `INVESTMENT_INCOME`, value: `Investment Income` },
-		{ key: `PENSION`, value: `Pension` },
-		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
-		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
-	],
-	"Self Employed": SOF_EMPLOYED,
-	"Pensioner": [
-		{ key: `INVESTMENT_INCOME`, value: `Investment Income` },
-		{ key: `PENSION`, value: `Pension` },
-		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
-		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
-		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
-	],
-	"Minor": [
-		{ key: `SALARY`, value: `Salary` },
-		{ key: `INVESTMENT_INCOME`, value: `Investment Income` },
-		{ key: `COMMISSION`, value: `Commission` },
-		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
-		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
-		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
-	]
-};
-
-const INCOME_RANGE = [
-			{ key: `NO_VALUE`, value: `< R1000` },
-            { key: `R1001_R6000`, value: `R1001 to R6000` },
-            { key: `R6001_R9000`, value: `R6001 to R9000` },
-            { key: `R9001_R15000`, value: `R9001 to R15000` },
-            { key: `R15000_R25000`, value: `R15001 to R25000` },
-            { key: `R25001_R35000`, value: `R25001 to R35000` },
-            { key: `R35001_R50000`, value: `R35001 to R50000` },
-            { key: `R50000`, value: `> R50000` }
-		];
-
-const INCOME_FREQUENCY = [
-			{ key: ` `, value: `None` },
-			{ key: `A`, value: `Annually` },
-			{ key: `B`, value: `Bi-Annually` },
-			{ key: `Q`, value: `Quaterly` },
-			{ key: `M`, value: `Monthly` },
-			{ key: `F`, value: `Fortnightly` },
-			{ key: `W`, value: `Weekly` }
-		];
-
 export class UpdateProfileDetails extends Component {
 
 	// --------------
@@ -198,17 +54,7 @@ export class UpdateProfileDetails extends Component {
 		this.emailError = ``;
 
 		this.updatedClientDetails = {};
-		this.nickname = ``;
-		this.residentialAddress = {};
-		this.residentialPhoneNumber = ``;
-		this.businessPhoneNumber = ``;
-		this.employmentStatus = ``;
-		this.employmentType = ``;
-		this.employerName = ``;
-		this.occupationCode = ``;
-		this.sourceOfFunds = ``;
-		this.incomeRange = ``;
-		this.incomeFrequency = ``;
+		this.ficaDetails = {};
 		this.employerList = [];
 
 		this.showAddEmployerModal = false;
@@ -236,16 +82,7 @@ export class UpdateProfileDetails extends Component {
 			email: { attribute: false },
 			emailSuggestion: { attribute: false },
 			emailError: { attribute: false },
-
-			employmentStatus: { attribute: false },
-			employmentType: { attribute: false },
-			employerName: { attribute: false },
-			sourceOfFunds: { attribute: false },
 			employerList: { attribute: false },
-
-			residentialPhoneNumber: { attribute: false },
-			businessPhoneNumber: { attribute: false },
-
 			showAddEmployerModal: { attribute: false }
 		};
 	}
@@ -257,41 +94,29 @@ export class UpdateProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.preferredLanguage = this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE];
-		this.nickname = this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.NICKNAME];
 		this.email = this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL];
-		this.employmentStatus = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS];
-		this.employmentType = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE];
-		this.employerName = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER];
-		this.sourceOfFunds = this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF];
-		this.residentialPhoneNumber = this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.RES_PHONE_NO];
-		this.businessPhoneNumber = this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO];
-		this.occupationCode = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY];
-		this.sourceOfFunds = this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF];
-		this.incomeRange = this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME];
-		this.incomeFrequency = this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY];
 
-		// check if we can update email address also
-
-		// this.updatedClientDetails = {
-		// 			nickname: this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.NICKNAME],
-		// 			residentialAddress: {
-		// 				addressLine1: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.LINE_1],
-		// 				addressLine2: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.LINE_2],
-		// 				suburb: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.SUBURB],
-		// 				city: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.CITY],
-		// 				postalCode: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.POSTAL_CODE]
-		// 			},
-		// 			residentialPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.RES_PHONE_NO],
-		// 			businessPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO],
-		// 			email: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
-		// 			employmentStatus: this.employmentStatus = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS],
-		// 			employmentType: this.employmentType = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE],
-		// 			employerName: this.employer = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
-		// 			occupationCode: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY],
-		// 			sourceOfFunds: this.sourceOfFunds = this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF],
-		// 			incomeRange: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME],
-		// 			incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
-		// 	};
+		this.updatedClientDetails = {
+					nickname: this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.NICKNAME],
+					residentialAddress: {
+						address1: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.LINE_1],
+						address2: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.LINE_2],
+						suburb: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.SUBURB],
+						city: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.CITY],
+						postalCode: this.clientDetails[MENU_ITEMS.ADDRESS][FIELDS.POSTAL_CODE]
+					},
+					residentialPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.RES_PHONE_NO],
+					businessPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO],
+					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
+					employmentStatus: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS],
+					employmentType: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE],
+					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
+					industryCode: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY],
+					sourceOfFunds: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF],
+					incomeRange: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME],
+					incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
+			};
+		this.ficaDetails = Utilities.deepCopy(this.updatedClientDetails);
 	}
 
 	async updated(changedProperties) {
@@ -316,8 +141,9 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_saveChanges() {
-		this.dispatchEvent(new CustomEvent(`update-preference`, { detail: {
-			preferredlanguage: this.preferredLanguage
+		this.dispatchEvent(new CustomEvent(`update-details`, { detail: {
+			preferredlanguage: this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE] === this._getLanguageValue(this.preferredLanguage) ? null : this.preferredLanguage,
+			ficaDetails: Object.keys(this._hasDetailsChanged()).length === 0 ? null : this._hasDetailsChanged()
 		} }));
 	}
 	
@@ -331,7 +157,8 @@ export class UpdateProfileDetails extends Component {
 	_inputEmail(e) {
 		if (e.detail) {
 			this.emailError = ``;
-			this.email = e.detail.new;
+			this.updatedClientDetails.emailAddress = this.email = e.detail.new;
+			this._validateEmail();
 		}
 	}
 
@@ -339,6 +166,7 @@ export class UpdateProfileDetails extends Component {
 		if (evt.keyCode === 9) {
 			this.email = `${this.email}${this.emailSuggestion}`;
 			this.emailSuggestion = ``;
+			this._validateEmail();
 			this.requestUpdate();
 		}
 	}
@@ -349,28 +177,30 @@ export class UpdateProfileDetails extends Component {
 			// When value is empty, don't do any further checks
 			return true;
 		}
-		this._validateEmail();
 	}
 	
 	_detailsChange(field, value, subField) {
-		if (subField && this[`${field}`][`${subField}`] !== value) {
-			this[`${field}`][`${subField}`] = value;
+		if (subField) {
 			this.updatedClientDetails[`${field}`][`${subField}`] = value;
-		} else if (this[`${field}`] !== value) {
-			this[`${field}`] = value;
+		} else {
 			this.updatedClientDetails[`${field}`] = value;
 		}
+		this.requestUpdate();
 	}
 
 	_empStatusChange(e) {
-		this.employmentStatus = e.detail.new.value;
+		this.updatedClientDetails.employmentStatus = e.detail.new.value;
 
-		if (this.employmentStatus === `Unemployed`) {
-			this.employerName = ``;
-			this.occupationCode = ``;
+		if (this.updatedClientDetails.employmentStatus === `Unemployed`) {
+			this.updatedClientDetails.employerName = ``;
+			this.updatedClientDetails.industryCode = ``;
 		}
-		this.employmentType = ``;
-		this.sourceOfFunds = ``;
+		this.updatedClientDetails.employerName = ``;
+		this.updatedClientDetails.employmentType = ``;
+		this.updatedClientDetails.industryCode = ``;
+		this.updatedClientDetails.sourceOfFunds = ``;
+
+		this.requestUpdate();
 	}
 
 	_onAddEmpCancelClick() {
@@ -382,11 +212,11 @@ export class UpdateProfileDetails extends Component {
 	_saveEmpDetails() {
 		// CS call to add employer details
 		if (true) {
-			this.employerName = this.newEmployerName;
-			this.occupationCode = this.newEmployerCode;
+			this.updatedClientDetails.employerName = this.newEmployerName;
+			this.updatedClientDetails.industryCode = this.newEmployerCode;
 		} else {
-			this.employerName = ``;
-			this.occupationCode = ``;
+			this.updatedClientDetails.employerName = ``;
+			this.updatedClientDetails.industryCode = ``;
 		}
 		this.showAddEmployerModal = false;
 		const empSelect = this.shadowRoot.getElementById(`emp-select`);
@@ -414,7 +244,41 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_isSaveDisabled() {
-		return this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE] === this._getLanguageValue(this.preferredLanguage);
+		const languageUnChanged = this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE] === this._getLanguageValue(this.preferredLanguage);
+		
+		const detailsUnChanged = Object.keys(this._hasDetailsChanged()).length === 0;
+		
+		const validationErrors = Boolean(this.emailError) || Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)) || Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber));
+		return (languageUnChanged && detailsUnChanged) || validationErrors;
+	}
+
+	_hasDetailsChanged () {
+		const output = {};
+		const address = {};
+
+		const addressChange = Object.keys(this.updatedClientDetails.residentialAddress).map((key) => {
+									if (this.updatedClientDetails.residentialAddress[key] !== this.ficaDetails.residentialAddress[key]) {
+										return key;
+									}
+									return null;
+								}).filter(Boolean);
+
+		const detailsChange = Object.keys(this.updatedClientDetails).map((key) => {
+									if (typeof this.updatedClientDetails[key] !== `object` && this.updatedClientDetails[key] !== this.ficaDetails[key]) {
+										return key;
+									}
+									return null;
+								}).filter(Boolean);
+
+		addressChange.forEach(item => address[item] = this.updatedClientDetails.residentialAddress[item]);
+		detailsChange.forEach(item => output[item] = this.updatedClientDetails[item]);
+
+		if (Object.keys(address).length > 0) {
+			// CS expects entire residentialAddress set for updating even a single item on the set. Only address2 is optional
+			const obj = { ...output, residentialAddress: this.updatedClientDetails.residentialAddress };
+			return obj;
+		}
+		return output;
 	}
 
 	_showDomainSuggestions(value) {
@@ -443,9 +307,7 @@ export class UpdateProfileDetails extends Component {
 	_validateEmail() {
 		const isValid = EMAIL_REGEX.test(this.email); 
 	
-		if (!isValid) {
-			this.emailError = EMAIL_REQUIRED;
-		}
+		this.emailError = isValid ? `` : EMAIL_REQUIRED;
 	}
 
 	_validateContactNumber(value) {
@@ -575,6 +437,9 @@ export class UpdateProfileDetails extends Component {
 				width: 100px;
 				height: 12px;
 			}
+			.hint-height {
+				--theme-input-email-top: -89px;
+			}
 			
 			.hide-visibility {
 				position: absolute;
@@ -654,7 +519,11 @@ export class UpdateProfileDetails extends Component {
 
 	_renderMenu() {
 		return Object.keys(this.clientDetails).map(menuItem => html`
-				<capitec-menu-item label=${menuItem} ?selected=${this.selectedMenuItem === menuItem} @click=${(e) => this._selectMenuitem(e)}></capitec-menu-item>
+				<capitec-menu-item 
+					label=${menuItem} 
+					?selected=${this.selectedMenuItem === menuItem} 
+					@click=${(e) => this._selectMenuitem(e)}>
+				</capitec-menu-item>
 				<capitec-menu-separator></capitec-menu-separator>
 		`);
 	}
@@ -708,10 +577,11 @@ export class UpdateProfileDetails extends Component {
 
 			<capitec-text-field 
 				label="Nickname" 
-				value=${this.nickname}
+				value=${this.updatedClientDetails.nickname}
 				type="alpha-numeric"
 				keyboardMode="alpha-numeric"
-				@value-change=${(e) => this._detailsChange(`nickname`, e.detail.new)}>
+				maxlength="40"
+				@key-input=${(e) => this._detailsChange(`nickname`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
@@ -759,19 +629,19 @@ export class UpdateProfileDetails extends Component {
 		? html`
 			<capitec-text-field 
 				label="Home contact number" 
-				value=${this.residentialPhoneNumber}
+				value=${this.updatedClientDetails.residentialPhoneNumber}
 				type="numeric"
 				maxlength="10"
-				error="${this._validateContactNumber(this.residentialPhoneNumber)}"
+				error="${this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)}"
 				@value-change=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="Work contact number" 
-				value=${this.businessPhoneNumber}
+				value=${this.updatedClientDetails.businessPhoneNumber}
 				type="numeric"
 				maxlength="10"
-				error="${this._validateContactNumber(this.businessPhoneNumber)}"
+				error="${this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)}"
 				@value-change=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
@@ -792,52 +662,53 @@ export class UpdateProfileDetails extends Component {
 					@focusout="${() => this._focusOutInput()}">
 				</capitec-text-field>
 				
-				<span id="email-suggestion" class="domain-suggestion">${this.emailSuggestion}</span>
+				<span id="email-suggestion" class="domain-suggestion ${this.emailError ? `hint-height` : ``}">${this.emailSuggestion}</span>
 			</capitec-group>
 			`
 		: html``;
 	}
 
 	_renderAddress() {
-		const address = this.clientDetails[MENU_ITEMS.ADDRESS];
-
 		return this.selectedMenuItem === MENU_ITEMS.ADDRESS
 		? html`
 			<capitec-text-field 
 				label="Address line 1" 
-				value=${address[FIELDS.LINE_1]}
+				value=${this.updatedClientDetails.residentialAddress.address1}
 				type="alpha-numeric"
-				@value-change=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `addressLine1`)}>
+				maxlength="40"
+				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `address1`)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="Address line 2" 
-				value=${address[FIELDS.LINE_2]}
+				value=${this.updatedClientDetails.residentialAddress.address2}
 				type="alpha-numeric"
-				@value-change=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `addressLine2`)}>
+				maxlength="40"
+				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `address2`)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="Suburb" 
-				value=${address[FIELDS.SUBURB]}
+				value=${this.updatedClientDetails.residentialAddress.suburb}
 				type="alpha-numeric"
-				@value-change=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `suburb`)}>
+				maxlength="40"
+				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `suburb`)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="City" 
-				value=${address[FIELDS.CITY]}
+				value=${this.updatedClientDetails.residentialAddress.city}
 				type="alpha-numeric"
-				@value-change=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `city`)}>
+				maxlength="40"
+				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `city`)}>
 			</capitec-text-field>
 			
 			<capitec-text-field 
 				label="Postal code" 
-				value=${address[FIELDS.POSTAL_CODE]}
+				value=${this.updatedClientDetails.residentialAddress.postalCode}
 				type="numeric"
-				minlength="4"
-				maxlength="4"
-				@value-change=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `postalCode`)}>
+				maxlength="8"
+				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `postalCode`)}>
 			</capitec-text-field>
 			`
 		: html``;
@@ -848,31 +719,34 @@ export class UpdateProfileDetails extends Component {
 		? html`
 			<capitec-select 
 				label="Employment status" 
-				.value=${this.employmentStatus}
+				.value=${this.updatedClientDetails.employmentStatus}
 				.items="${EMPLOYMENT_STATUS}"
 				display-field="value"
 				id-field="key"
-				@value-change=${(e) => this._empStatusChange(e)}>
+				@value-change=${(e) => this._empStatusChange(e)}
+				disabled>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Employment type"
-				.value=${this.employmentType}
-				.items="${EMPLOYMENT_TYPE[this.employmentStatus]}"
+				.value=${this.updatedClientDetails.employmentType}
+				.items="${EMPLOYMENT_TYPE[this.updatedClientDetails.employmentStatus]}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.value)}>
+				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.value)}
+				disabled>
 			</capitec-select>
 			
 			<div>
 				<horizon-select-icon 
 					label=""
 					id="emp-select"
-					.value=${this.employerName} 
+					.value=${this.updatedClientDetails.employerName} 
 					.items="${this.employerList}"
 					@value-changed=${(e) => this._detailsChange(`employerName`, e.detail.new)}
-					?disabled=${this.employmentStatus === `Unemployed`}
-					customizeNoResults>
+					?disabled=${this.updatedClientDetails.employmentStatus === `Unemployed`}
+					customizeNoResults
+					disabled>
 					<div slot="no-results">
 						<capitec-label class="label-no-results" label="No matching results"></capitec-label> 
 						<capitec-button class="add-emp-button" label="Add Employer" @click="${() => this.showAddEmployerModal = true}">
@@ -881,17 +755,17 @@ export class UpdateProfileDetails extends Component {
 				</horizon-select-icon>
 				<capitec-text-field 
 					label="Employer"
-					.value=${this.employerName}
+					.value=${this.updatedClientDetails.employerName}
 					@key-input=${(e) => this._getEmployersList(e)}
-					?disabled=${this.employmentStatus === `Unemployed`}>
+					disabled>
 				</capitec-text-field>
 			</div>
 
 			<capitec-select 
 				label="Industry"
-				.value=${this.occupationCode} 
+				.value=${this.updatedClientDetails.industryCode} 
 				.items="${INDUSTRY}"
-				@value-changed=${(e) => this._detailsChange(`occupationCode`, e.detail.new)}
+				@value-changed=${(e) => this._detailsChange(`industryCode`, e.detail.new)}
 				disabled>
 			</capitec-select>
 			`
@@ -903,29 +777,32 @@ export class UpdateProfileDetails extends Component {
 		? html`
 			<capitec-select 
 				label="Source funds" 
-				.value=${this.sourceOfFunds}
-				.items="${SOURCE_FUNDS[this.employmentStatus]}"
+				.value=${this.updatedClientDetails.sourceOfFunds}
+				.items="${SOURCE_FUNDS[this.updatedClientDetails.employmentStatus]}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.value)}>
+				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.value)}
+				disabled>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Expected income" 
-				.value=${this.incomeRange}
+				.value=${this.updatedClientDetails.incomeRange}
 				.items="${INCOME_RANGE}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.value)}>
+				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.value)}
+				disabled>
 			</capitec-select>
 
 			<capitec-select 
 				label="Income frequency" 
-				.value=${this.incomeFrequency}
+				.value=${this.updatedClientDetails.incomeFrequency}
 				.items="${INCOME_FREQUENCY}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
+				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new)}
+				disabled>
 			</capitec-select>
 			`
 		: html``;

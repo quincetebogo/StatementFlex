@@ -1,8 +1,9 @@
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
+import { formatDate, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -10,43 +11,16 @@ const DETAILS_TAB = {
 	0: `Client Details`
 };
 
-const CLIENT_DETAILS = {
-	PREFERENCES: `Preferences`,
-	PERSONAL_DETAILS: `Personal details`,
-	CONTACT_DETAILS: `Contact details`,
-	ADDRESS: `Address`,
-	EMPLOYMENT_DETAILS: `Employment details`,
-	INCOME_DETAILS: `Income details`
+const TOAST = {
+	success: {
+		language: `Preferred language updated.`,
+		fica: `Client details updated`
+	},
+	error: {
+		language: `Preferred language update failed.`,
+		fica: `Client details update failed.`
+	}
 };
-
-const EMPLOYMENT_STATUS = {
-	'MINOR_16': `Minor`, 
-	'EMPLOYED': `Employed`,
-	'SELF_EMPLOYED': `Self Employed`,
-	'PENSIONER': `Pensioner`,
-	'UNEMPLOYED': `Unemployed`
-};
-
-const INCOME_RANGE = [
-	{ key: `NO_VALUE`, value: `< R1000` },
-	{ key: `R1001_R6000`, value: `R1001 to R6000` },
-	{ key: `R6001_R9000`, value: `R6001 to R9000` },
-	{ key: `R9001_R15000`, value: `R9001 to R15000` },
-	{ key: `R15000_R25000`, value: `R15001 to R25000` },
-	{ key: `R25001_R35000`, value: `R25001 to R35000` },
-	{ key: `R35001_R50000`, value: `R35001 to R50000` },
-	{ key: `R50000`, value: `> R50000` }
-];
-
-const INCOME_FREQUENCY = [
-	{ key: ` `, value: `None` },
-	{ key: `A`, value: `Annually` },
-	{ key: `B`, value: `Bi-Annually` },
-	{ key: `Q`, value: `Quaterly` },
-	{ key: `M`, value: `Monthly` },
-	{ key: `F`, value: `Fortnightly` },
-	{ key: `W`, value: `Weekly` }
-];
 
 /**
  * View to display and update Client profile details
@@ -57,7 +31,6 @@ const INCOME_FREQUENCY = [
  */
 export class ViewProfileDetails extends ViewBase {
 
-
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -66,8 +39,10 @@ export class ViewProfileDetails extends ViewBase {
 		super();
 		this.showUpdatePreferenceModal = false;
 		this.clientDetails = {};
+		this.clientFICADetails = {};
 		this.selectedTab = DETAILS_TAB[0];
-		this.displayToast = false;
+		this.displaylanguageToast = false;
+		this.displayficaToast = false;
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.clientProfileService = new ClientProfileService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -94,7 +69,9 @@ export class ViewProfileDetails extends ViewBase {
 	static get properties() {
 		return {
 			showUpdatePreferenceModal: { state: true },
-			displayToast: { state: true }
+			displaylanguageToast: { state: true },
+			displayficaToast: { state: true },
+			clientDetails: { attribute: false }
 		};
 	}
 
@@ -111,34 +88,74 @@ export class ViewProfileDetails extends ViewBase {
 		this.selectedTab = DETAILS_TAB[e.detail.selectedIndex];
 	}
 
-	async _updateClientPreferences(preferredlanguage) {
-		// CS call to update client preferences
-		const isUpdateSuccess = await this._updatePreferences(preferredlanguage, this.callerInformation.cifNumber);
+	async _updateClientDetails(details) {
+		const serviceCalls = [];
+		const ficaRequest = {
+			"correlationId": this.clientFICADetails.correlationId,
+			...details.ficaDetails
+		};
+
+		if (details.preferredlanguage && details.ficaDetails) {
+			// When trying to update Preferred language and FICA details
+			serviceCalls.push(this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber));
+			serviceCalls.push(this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber));
+
+			const returnValues = await Promise.allSettled(serviceCalls);
+
+			const isLanguageUpdated = returnValues[0].status === `fulfilled` && returnValues[0].value;
+			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
+
+			const isDetailsUpdated = returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded;
+			this._updateClientFICADetails(details.ficaDetails, isDetailsUpdated);
+
+		} else if (details.preferredlanguage) {
+			// When trying to update only Preferred language
+			const isLanguageUpdated = await this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber);
+			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
+		} else if (details.ficaDetails) {
+			// When trying to update only FICA details
+			const isDetailsUpdated = await this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber);
+			this._updateClientFICADetails(details.ficaDetails, isDetailsUpdated.succeeded);
+		}
+	}
+
+	_updateClientFICADetails(updatedDetails, isUpdateSuccess) {
+		this._showHideToast(isUpdateSuccess, `fica`);
+		this.showUpdatePreferenceModal = false;
 		
-		this._showHideToast(isUpdateSuccess);
+		if (isUpdateSuccess) {
+			Object.keys(updatedDetails).map(key => this.clientFICADetails[key] = updatedDetails[key]);
+			this._formatProfileData();
+		}
+	}
+
+	_updateClientPreferences(preferredlanguage, isUpdateSuccess) {
+		// CS call to update client preferences
+	
+		this._showHideToast(isUpdateSuccess, `language`);
 		this.showUpdatePreferenceModal = false;
 		
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.clientDetails[CLIENT_DETAILS.PREFERENCES] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
+			this.clientDetails[DETAILS_TYPE.PREFERENCES][`Preferred Language`] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
 		}
-		
 	}
 
-	_showHideToast(success) {
+	_showHideToast(success, toastType) {
 		if (success) {
-			this.preferenceToastDetails = { type: `success`, header: `Success`, detail: `Preferred language updated.` };
+			this[`${toastType}ToastDetails`] = { type: `success`, header: `Success`, detail: TOAST.success[toastType] };
 		} else {
-			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language update failed.` };
+			this[`${toastType}ToastDetails`] = { type: `error`, header: `Error`, detail: TOAST.error[toastType] };
 		}
 
-		this.displayToast = true;
+		this[`display${toastType}Toast`] = true;
 		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	_toggleToastDisplay() {
-		this.displayToast = false;
+		this.displaylanguageToast = false;
+		this.displayficaToast = false;
 	}
 
 	async _getEmployersList(searchValue) {
@@ -164,48 +181,58 @@ export class ViewProfileDetails extends ViewBase {
 		const returnValue = await this.clientProfileService.getClientDetails(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
-			const details = returnValue.result;
-			
-			this.clientDetails = {
-				[CLIENT_DETAILS.PREFERENCES]: {
-					"Preferred Language": LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
-				},
-				[CLIENT_DETAILS.PERSONAL_DETAILS]: {
-					"Title": this.callerInformation.title,
-					"Name": formatStringAsPascalCase(this.callerInformation.firstName),
-					"Surname": formatStringAsPascalCase(this.callerInformation.lastName),
-					"Nickname": formatStringAsPascalCase(details.nickname),
-					"Date of birth": this.callerInformation.birthdate,
-					"Nationality": `SA`,
-					"ID number / Passport Number": this.callerInformation.southAfricanIDNumber,
-					"Cellphone number": this.callerInformation.verifiedTelephoneNumber // update the source value when service is ready
-				},
-				[CLIENT_DETAILS.CONTACT_DETAILS]: {
-					"Home contact number": details.residentialPhoneNumber,
-					"Work contact number": details.businessPhoneNumber,
-					"Email address (unverified)": this.callerInformation.emailId
-				},
-				[CLIENT_DETAILS.ADDRESS]: {
-					"Address line 1": details.residentialAddress.addressLine1,
-					"Address line 2 (optional)": details.residentialAddress.addressLine2,
-					"Suburb": details.residentialAddress.suburb,
-					"City": details.residentialAddress.city,
-					"Postal code": details.residentialAddress.postalCode
-				},
-				[CLIENT_DETAILS.EMPLOYMENT_DETAILS]: {
-					"Employment status": EMPLOYMENT_STATUS[details.employmentStatus],
-					"Employment type": formatStringAsPascalCase(details.employmentType, `_`),
-					"Employer": details.employerName,
-					"Industry": details.occupationCode
-				},
-				[CLIENT_DETAILS.INCOME_DETAILS]: {
-					"Source funds": formatStringAsPascalCase(details.sourceOfFunds, `_`),
-					"Expected income": INCOME_RANGE.find(range => details.incomeRange === range.key).value,
-					"Income frequency": INCOME_FREQUENCY.find(freq => details.incomeFrequency === freq.key).value
-				}
-			};
+			this.clientFICADetails = returnValue.result;
+			this._formatProfileData();
 		}
 	}
+
+	_formatProfileData() {
+		const details = this.clientFICADetails;
+
+		this.clientDetails = {
+			[DETAILS_TYPE.PREFERENCES]: {
+				"Preferred Language": LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
+			},
+			[DETAILS_TYPE.PERSONAL_DETAILS]: {
+				"Title": this.callerInformation.title,
+				"Name": formatStringAsPascalCase(this.callerInformation.firstName),
+				"Surname": formatStringAsPascalCase(this.callerInformation.lastName),
+				"Nickname": formatStringAsPascalCase(details.nickname),
+				"Date of birth": this.callerInformation.birthdate,
+				"Nationality": details.nationalityCode,
+				"ID number / Passport Number": this.callerInformation.southAfricanIDNumber,
+				"Cellphone number": this.callerInformation.verifiedTelephoneNumber
+			},
+			[DETAILS_TYPE.CONTACT_DETAILS]: {
+				"Home contact number": details.residentialPhoneNumber,
+				"Work contact number": details.businessPhoneNumber,
+				"Email address (unverified)": details.emailAddress
+			},
+			[DETAILS_TYPE.ADDRESS]: {
+				"Address line 1": formatStringAsPascalCase(details.residentialAddress.address1),
+				"Address line 2 (optional)": formatStringAsPascalCase(details.residentialAddress.address2),
+				"Suburb": formatStringAsPascalCase(details.residentialAddress.suburb),
+				"City": formatStringAsPascalCase(details.residentialAddress.city),
+				"Postal code": details.residentialAddress.postalCode
+			},
+			[DETAILS_TYPE.EMPLOYMENT_DETAILS]: {
+				"Employment status": EMPLOYMENT_STATUS.find(item => item.key === details.employmentStatus).value,
+				"Employment type": formatStringAsPascalCase(details.employmentType, `_`),
+				"Employer": details.employerName,
+				"Industry": details.industryCode ? formatStringAsPascalCase(INDUSTRY_CODE[details.industryCode]) : `_`
+			},
+			[DETAILS_TYPE.INCOME_DETAILS]: {
+				"Source funds": formatStringAsPascalCase(details.sourceOfFunds, `_`),
+				"Expected income": INCOME_RANGE.find(item => item.key === details.incomeRange).value,
+				"Income frequency": details.incomeFrequency
+			}
+		};
+	}
+
+    _errorHandler(ex) {
+        return true;
+    }
+
 
 	// ---------
 	// RENDERING
@@ -295,6 +322,9 @@ export class ViewProfileDetails extends ViewBase {
 					--theme-toast-padding: 12px;
 					--theme-toast-close-size: 24px;
 					margin-left: var(--toast-margin-left, 382px);
+				}
+				.secondary-toast {
+					--toast-top: 130px;
 				}`
 		];
 	}
@@ -322,7 +352,8 @@ export class ViewProfileDetails extends ViewBase {
 		<capitec-card 
 			data-automation-id="view-profile-details-screen"
 			class="card">
-				${this._renderToast()}
+				${this._renderToast(this.displaylanguageToast, this.languageToastDetails)}
+				${this._renderToast(this.displayficaToast, this.ficaToastDetails)}
 				<capitec-title-bar 
 					data-automation-id="view-profile-details-title"
 					type="default">
@@ -404,20 +435,21 @@ export class ViewProfileDetails extends ViewBase {
 				.clientDetails="${this.clientDetails}"
 				.getEmployersList="${(value) => this._getEmployersList(value)}"
 				@cancel="${() => this.showUpdatePreferenceModal = false}"
-				@update-preference="${(e) => this._updateClientPreferences(e.detail.preferredlanguage)}">
+				@update-details="${(e) => this._updateClientDetails(e.detail)}">
 			</horizon-update-profile-details>`
 		: html``;
 	}
 	
-	_renderToast() {
-		return this.displayToast
+	_renderToast(displayToast, details) {
+		return displayToast
 		? html`
 			<capitec-toast 
-				?hidden="${!this.displayToast}"
-				type="${this.preferenceToastDetails.type}" 
-				header="${this.preferenceToastDetails.header}" 
-				detail="${this.preferenceToastDetails.detail}" 
-				@click="${() => this.displayToast = false}"
+				class="${details.detail === TOAST.success.fica || details.detail === TOAST.error.fica ? `secondary-toast` : ``}"
+				?hidden="${!displayToast}"
+				type="${details.type}" 
+				header="${details.header}" 
+				detail="${details.detail}" 
+				@click="${() => displayToast = false}"
 				closable >
 			</capitec-toast>`
 		: html``;
