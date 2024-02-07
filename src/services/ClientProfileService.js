@@ -256,18 +256,20 @@ export class ClientProfileService extends ChannelServiceBase {
 			return this.mock(`getEmployer`, searchValue);
 		}
 
-		const url = `/client-${this._version}/employer`;
+		const url = `/client-${this._version}/searchEmployer`;
 
-		const request = {};
+		const request = {
+			"searchTerm": searchValue
+		  };
 
-		return this.get(
-			url,
-			request,
-			this.setToken(),
-			`getEmployer`,
-			null,
-			null,
-			1000,
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getEmployer`, 
+			null, 
+			null, 
+			2000,
 			null,
 			errorHandler,
 			autoRetries

@@ -1,43 +1,15 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS, LANGUAGE_LIST } from 'app/constants/Common';
-import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS } from 'app/constants/ficaDetails';
+import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { Utilities } from 'platform/Utilities';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 const EMAIL_REQUIRED = `Enter a valid email address i.e.email@gmail.com`;
 const CONTACT_NUMBER = /^[0-9]{10}$/;
-
-const INDUSTRY = [
-			`Agriculture and Fishing`, 
-			`Community /Social and Personal`, 
-			`Construction`, 
-			`Electricity/gas and water`, 
-			`Health Care`, 
-			`Individual`, 
-			`Informal`,
-			`Legal`,
-			`Management and Consulting`, 
-			`Manufacturing`,
-			`Mining`, 
-			`NGO`,
-			`Parastatals`, 
-			`Pension and social grants`, 
-			`Personal and household Goods`,
-			`Political organization`, 
-			`Real estate and business services`, 
-			`Religious organization`, 
-			`Resources- Basic`, 
-			`Security`, 
-			`Services`,
-			`Smelting - Ferrous Alloys`,
-			`Trade and Accommodation`, 
-			`Training and Education`, 
-			`Transport and Communication`, 
-			`Wine, Beer and Spirit`,
-			`Add Employer` 
-];
+const NICKNAME = /^[A-Za-z0-9 ]{0,20}$/;
 
 export class UpdateProfileDetails extends Component {
 
@@ -58,6 +30,7 @@ export class UpdateProfileDetails extends Component {
 		this.employerList = [];
 
 		this.showAddEmployerModal = false;
+		this.displayIndustryCode = false;
 	}
 
 	// --------------
@@ -67,6 +40,7 @@ export class UpdateProfileDetails extends Component {
 	/**
 	 * @property {Object} header update profile details modal header .
 	 * @property {Object} clientDetails client details
+	 * @property {Object} getEmployersList Call back function to get employers list while searching
 	 */
 
 	static get properties() {
@@ -78,12 +52,12 @@ export class UpdateProfileDetails extends Component {
 			updatedClientDetails: { attribute: false },
 			preferredLanguage: { attribute: false },
 			selectedMenuItem: { attribute: false },
+			showAddEmployerModal: { attribute: false },
 
 			email: { attribute: false },
 			emailSuggestion: { attribute: false },
 			emailError: { attribute: false },
-			employerList: { attribute: false },
-			showAddEmployerModal: { attribute: false }
+			employerList: { attribute: false }
 		};
 	}
 
@@ -108,14 +82,15 @@ export class UpdateProfileDetails extends Component {
 					residentialPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.RES_PHONE_NO],
 					businessPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO],
 					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
-					employmentStatus: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS],
-					employmentType: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE],
+					employmentStatus: getKey(EMPLOYMENT_STATUS, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]),
+					employmentType: getKey(EMPLOYMENT_TYPE[this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]], this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
 					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
-					industryCode: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY],
-					sourceOfFunds: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF],
-					incomeRange: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME],
+					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
+					sourceOfFunds: getKey(SOURCE_FUNDS[this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
+					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
 					incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
 			};
+		// Deep Copying the values before they are update - used for comparing whether the value is changed while saving
 		this.ficaDetails = Utilities.deepCopy(this.updatedClientDetails);
 	}
 
@@ -189,16 +164,26 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_empStatusChange(e) {
-		this.updatedClientDetails.employmentStatus = e.detail.new.value;
+		this.updatedClientDetails.employmentStatus = e.detail.new.key;
 
-		if (this.updatedClientDetails.employmentStatus === `Unemployed`) {
+		if (this.updatedClientDetails.employmentStatus !== `EMPLOYED` || this.updatedClientDetails.employmentStatus !== `SELF_EMPLOYED`) {
 			this.updatedClientDetails.employerName = ``;
-			this.updatedClientDetails.industryCode = ``;
+			this.updatedClientDetails.industryCode = `NONE`;
 		}
+
+		this._validateEmploymentDetails();
+		// Emptying the below values as they are dependent on Employement status
 		this.updatedClientDetails.employerName = ``;
-		this.updatedClientDetails.employmentType = ``;
-		this.updatedClientDetails.industryCode = ``;
-		this.updatedClientDetails.sourceOfFunds = ``;
+		this.updatedClientDetails.employmentType = `NONE`;
+		this.updatedClientDetails.industryCode = `NONE`;
+		this.updatedClientDetails.sourceOfFunds = `NO_VALUE`;
+
+		this.requestUpdate();
+	}
+
+	_employerChange(name) {
+		this.updatedClientDetails.employerName = name;
+		this.updatedClientDetails.industryCode = `NONE`;
 
 		this.requestUpdate();
 	}
@@ -210,14 +195,10 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_saveEmpDetails() {
-		// CS call to add employer details
-		if (true) {
-			this.updatedClientDetails.employerName = this.newEmployerName;
-			this.updatedClientDetails.industryCode = this.newEmployerCode;
-		} else {
-			this.updatedClientDetails.employerName = ``;
-			this.updatedClientDetails.industryCode = ``;
-		}
+		this.updatedClientDetails.employerName = this.newEmployerName;
+		this.updatedClientDetails.industryCode = this.newEmployerCode;
+		this.displayIndustryCode = true;
+	
 		this.showAddEmployerModal = false;
 		const empSelect = this.shadowRoot.getElementById(`emp-select`);
 		empSelect.removeAttribute(`data-popup`);
@@ -225,9 +206,13 @@ export class UpdateProfileDetails extends Component {
 
 	async _getEmployersList(event) {
 		const returnValue = await this.getEmployersList(event.detail.new);
-		this.employerList = returnValue.result;
-		const empSelect = this.shadowRoot.getElementById(`emp-select`);
-		empSelect.setAttribute(`data-popup`, ``);
+
+		if (returnValue?.result) {
+			this.employerList = returnValue.result.employerList.filter(emp => emp.employerNumber !== -1);
+			const empSelect = this.shadowRoot.getElementById(`emp-select`);
+			empSelect.setAttribute(`data-popup`, ``);
+		}
+		this.displayIndustryCode = false;
 	}
 
 	// --------------
@@ -248,7 +233,11 @@ export class UpdateProfileDetails extends Component {
 		
 		const detailsUnChanged = Object.keys(this._hasDetailsChanged()).length === 0;
 		
-		const validationErrors = Boolean(this.emailError) || Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)) || Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber));
+		const validationErrors = Boolean(this.emailError) || 
+								 Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)) || 
+								 Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)) ||
+								 Boolean(this._validateEmploymentDetails()) ||
+								 Boolean(this._validateNickname());
 		return (languageUnChanged && detailsUnChanged) || validationErrors;
 	}
 
@@ -304,6 +293,13 @@ export class UpdateProfileDetails extends Component {
 		this.emailSuggestion = ``;
 	}
 	
+	_validateNickname() {
+		if (!RegExp(NICKNAME).test(this.updatedClientDetails.nickname)) {
+			return `No special characters allowed`;
+		}
+		return ``;
+	}
+
 	_validateEmail() {
 		const isValid = EMAIL_REGEX.test(this.email); 
 	
@@ -313,6 +309,13 @@ export class UpdateProfileDetails extends Component {
 	_validateContactNumber(value) {
 		if (!RegExp(CONTACT_NUMBER).test(value)) {
 			return `Incorrect contact number`;
+		}
+		return ``;
+	}
+
+	_validateEmploymentDetails() {
+		if ((this.updatedClientDetails.employmentStatus === `EMPLOYED` || this.updatedClientDetails.employmentStatus === `SELF_EMPLOYED`) && isNullorEmpty(this.updatedClientDetails.employerName)) {
+			return `Employer name cannot be empty`;
 		}
 		return ``;
 	}
@@ -344,14 +347,22 @@ export class UpdateProfileDetails extends Component {
 			}
 
 			.add-employer {
-				width: 400px;
+				width: 600px;
+				height: 600px;
 			}
 
 			.add-employer > capitec-content-box {
 				padding: 16px 16px 80px 16px;
+				height: inherit;
 			}
 			.add-employer capitec-text-field {
 				margin-bottom: 8px;
+				width: 568px;
+			}
+
+			.add-employer capitec-select {
+				width: 568px;
+				--theme-select-options-max-height: 400px;
 			}
 
 			.body-box {
@@ -493,8 +504,10 @@ export class UpdateProfileDetails extends Component {
 
 						<capitec-select 
 							label="Industry"
-							.items="${INDUSTRY}"
-							@value-changed=${(e) => this.newEmployerCode = e.detail.new}>
+							.items="${INDUSTRY_CODE}"
+							display-field="value"
+							id-field="key"
+							@value-changed=${(e) => this.newEmployerCode = e.detail.new.key}>
 						</capitec-select>
 					</capitec-content-box>
 				</div>
@@ -581,6 +594,7 @@ export class UpdateProfileDetails extends Component {
 				type="alpha-numeric"
 				keyboardMode="alpha-numeric"
 				maxlength="40"
+				error=${this._validateNickname()}
 				@key-input=${(e) => this._detailsChange(`nickname`, e.detail.new)}>
 			</capitec-text-field>
 
@@ -719,22 +733,20 @@ export class UpdateProfileDetails extends Component {
 		? html`
 			<capitec-select 
 				label="Employment status" 
-				.value=${this.updatedClientDetails.employmentStatus}
+				.value=${getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)}
 				.items="${EMPLOYMENT_STATUS}"
 				display-field="value"
 				id-field="key"
-				@value-change=${(e) => this._empStatusChange(e)}
-				disabled>
+				@value-change=${(e) => this._empStatusChange(e)}>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Employment type"
-				.value=${this.updatedClientDetails.employmentType}
-				.items="${EMPLOYMENT_TYPE[this.updatedClientDetails.employmentStatus]}"
+				.value=${getValue(EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)], this.updatedClientDetails.employmentType)}
+				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.value)}
-				disabled>
+				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
 			<div>
@@ -743,10 +755,11 @@ export class UpdateProfileDetails extends Component {
 					id="emp-select"
 					.value=${this.updatedClientDetails.employerName} 
 					.items="${this.employerList}"
-					@value-changed=${(e) => this._detailsChange(`employerName`, e.detail.new)}
-					?disabled=${this.updatedClientDetails.employmentStatus === `Unemployed`}
-					customizeNoResults
-					disabled>
+					display-field="employerName"
+					id-field="employerNumber"
+					@value-changed=${(e) => this._employerChange(e.detail.new.employerName)}
+					?disabled=${this.updatedClientDetails.employmentStatus === `UNEMPLOYED` || this.updatedClientDetails.employmentStatus === `PENSIONER` || this.updatedClientDetails.employmentStatus === `MINOR_16`}
+					customizeNoResults>
 					<div slot="no-results">
 						<capitec-label class="label-no-results" label="No matching results"></capitec-label> 
 						<capitec-button class="add-emp-button" label="Add Employer" @click="${() => this.showAddEmployerModal = true}">
@@ -757,16 +770,20 @@ export class UpdateProfileDetails extends Component {
 					label="Employer"
 					.value=${this.updatedClientDetails.employerName}
 					@key-input=${(e) => this._getEmployersList(e)}
-					disabled>
+					error=${this._validateEmploymentDetails()}
+					?disabled=${this.updatedClientDetails.employmentStatus === `UNEMPLOYED` || this.updatedClientDetails.employmentStatus === `PENSIONER` || this.updatedClientDetails.employmentStatus === `MINOR_16`}>
 				</capitec-text-field>
 			</div>
 
 			<capitec-select 
 				label="Industry"
 				.value=${this.updatedClientDetails.industryCode} 
-				.items="${INDUSTRY}"
-				@value-changed=${(e) => this._detailsChange(`industryCode`, e.detail.new)}
-				disabled>
+				.items="${INDUSTRY_CODE}"
+				display-field="value"
+				id-field="key"
+				@value-changed=${(e) => this._detailsChange(`industryCode`, e.detail.new.key)}
+				?hidden=${!this.displayIndustryCode}
+				?disabled=${!this.displayIndustryCode}>
 			</capitec-select>
 			`
 		: html``;
@@ -777,22 +794,20 @@ export class UpdateProfileDetails extends Component {
 		? html`
 			<capitec-select 
 				label="Source funds" 
-				.value=${this.updatedClientDetails.sourceOfFunds}
-				.items="${SOURCE_FUNDS[this.updatedClientDetails.employmentStatus]}"
+				.value=${getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)], this.updatedClientDetails.sourceOfFunds)}
+				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.value)}
-				disabled>
+				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.key)}>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Expected income" 
-				.value=${this.updatedClientDetails.incomeRange}
+				.value=${getValue(INCOME_RANGE, this.updatedClientDetails.incomeRange)}
 				.items="${INCOME_RANGE}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.value)}
-				disabled>
+				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.key)}>
 			</capitec-select>
 
 			<capitec-select 
@@ -801,8 +816,7 @@ export class UpdateProfileDetails extends Component {
 				.items="${INCOME_FREQUENCY}"
 				display-field="value"
 				id-field="key"
-				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new)}
-				disabled>
+				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
 			</capitec-select>
 			`
 		: html``;

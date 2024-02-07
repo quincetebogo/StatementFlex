@@ -1,3 +1,6 @@
+export const getKey = (source, value) => source.find(item => item.value === value).key;
+export const getValue = (source, key) => source.find(item => item.key === key).value;
+
 export const DETAILS_TYPE = Object.freeze({
 	PREFERENCES: `Preferences`,
 	PERSONAL_DETAILS: `Personal details`,
@@ -35,14 +38,14 @@ export const FIELDS = Object.freeze({
 });
 
 export const INCOME_RANGE = Object.freeze([
-	{ key: 0, value: `< R1000` },
-	{ key: 14, value: `R1001 to R6000` },
-	{ key: 16, value: `R6001 to R9000` },
-	{ key: 17, value: `R9001 to R15000` },
-	{ key: 18, value: `R15001 to R25000` },
-	{ key: 19, value: `R25001 to R35000` },
-	{ key: 20, value: `R35001 to R50000` },
-	{ key: 21, value: `> R50000` }
+	{ key: `NO_VALUE`, value: `` },
+	{ key: `R1001_R6000`, value: `R1001 to R6000` },
+	{ key: `R6001_R9000`, value: `R6001 to R9000` },
+	{ key: `R9001_R15000`, value: `R9001 to R15000` },
+	{ key: `R15000_R25000`, value: `R15001 to R25000` },
+	{ key: `R25001_R35000`, value: `R25001 to R35000` },
+	{ key: `R35001_R50000`, value: `R35001 to R50000` },
+	{ key: `R50000`, value: `> R50000` }
 ]);
 
 export const EMPLOYMENT_STATUS = Object.freeze([
@@ -55,6 +58,7 @@ export const EMPLOYMENT_STATUS = Object.freeze([
 
 export const EMPLOYMENT_TYPE = Object.freeze({
 	"Employed": [
+		{ key: `NONE`, value: `` },
 		{ key: `CONTRACT_WORKER`, value: `Contract Worker` },
 		{ key: `COMMISSION_EARNER`, value: `Commission Earner` },
 		{ key: `LABOUR_BROKER`, value: `Labour Broker` },
@@ -63,17 +67,20 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 		{ key: `DOMESTIC_WORKER`, value: `Domestic Worker` }
 	],
 	"Self Employed": [
+		{ key: `NONE`, value: `` },
 		{ key: `BUSINESS_OWNER`, value: `Business Owner` },
 		{ key: `SOLE_PROPRIETER_TRADER`, value: `Sole Proprieter Trader` },
 		{ key: `SOLE_PROPRIETER_CONTRACTOR`, value: `Sole Proprieter Contractor` },
 		{ key: `INFORMALLY_SELF_EMPLOYED`, value: `Informally Self Employed` }
 	],
 	"Unemployed": [
+		{ key: `NONE`, value: `` },
 		{ key: `UNEMPLOYED`, value: `Unemployed` },
 		{ key: `FULL_TIME_STUDENT`, value: `Full Time Student` },
 		{ key: `HOME_EXECUTIVE`, value: `Home Executive` }
 	],
 	"Pensioner": [
+		{ key: `NONE`, value: `` },
 		{ key: `ALL_PAY_PENSION`, value: `All Pay Pension` },
 		{ key: `ALL_PAY_PENSION_AND_GRANT`, value: `All Pay Pension And Grant` },
 		{ key: `GOVERNMENT_PENSION`, value: `Government Pension` },
@@ -135,46 +142,46 @@ export const SOURCE_FUNDS = Object.freeze({
 });
 
 export const INCOME_FREQUENCY = Object.freeze([
-			`None`,
-			`Annually`,
-			`Bi-Annually`,
-			`Quaterly`,
-			`Monthly`,
-			`Fortnightly`,
-			`Weekly`
+		{ key: `NONE`, value: `` },
+		{ key: `A`, value: `Annually` },
+		{ key: `B`, value: `Bi_Annually` },
+		{ key: `Q`, value: `Quarterly` },
+		{ key: `M`, value: `Monthly` },
+		{ key: `F`, value: `Fortnightly` },
+		{ key: `W`, value: `Weekly` }
 ]);
 
-export const INDUSTRY_CODE = {
-	'00': `NONE`,
-	'01': `INDIVIDUAL`,
-	'02': `AGRICULTURE_FORESTRY_AND_FISHING`, 
-	'03': `MINING`, 
-	'04': `MANUFACTURING`,
-	'05': `CONSTRUCTION`, 
-	'06': `ELECTRICITY_GAS_AND_WATER`, 
-	'07': `TRADE_AND_ACCOMMODATION`, 
-	'08': `TRANSPORT_AND_COMMUNICATION`, 
-	'09': `FINANCE_AND_INSURANCE`, 
-	'10': `REAL_ESTATE_AND_BUSINESS_SERVICES`, 
-	'11': `COMMUNITY_SOCIAL_AND_PERSONAL`, 
-	'12': `OTHER`, 
-	'13': `SMELTING_FERROUS_ALLOYS`, 
-	'14': `ALCOHOL`, 
-	'18': `INFORMAL`, 
-	'20': `PERSONAL_AND_HOUSEHOLD_GOODS`, 
-	'21': `MANAGEMENT_AND_CONSULTING`, 
-	'22': `SECURITY`, 
-	'23': `RESOURCES_BASIC`, 
-	'24': `LEGAL`, 
-	'25': `HEALTH_CARE`, 
-	'26': `SERVICES`, 
-	'27': `NOT_SELECTED_YET`, 
-	'35': `PENSIONERS_AND_SOCIAL_GRANTS`, 
-	'38': `TRAINING_AND_EDUCATION`, 
-	'39': `RELIGIOUS_ORGANIZATIONS`, 
-	'40': `POLITICAL_ORGANIZATIONS`, 
-	'41': `NGOS`, 
-	'42': `PARASTATALS`, 
-	'43': `MUNICIPALITIES`, 
-	'': `NO_VALUE`
-};
+export const INDUSTRY_CODE = [
+	{ key: `NONE`, value: `` },
+	{ key: `INDIVIDUAL`, value: `Individual` },
+	{ key: `AGRICULTURE_FORESTRY_AND_FISHING`, value: `Agriculture/forestry and fishing` }, 
+	{ key: `MINING`, value: `Mining` }, 
+	{ key: `MANUFACTURING`, value: `Manufacturing` },
+	{ key: `CONSTRUCTION`, value: `Construction` }, 
+	{ key: `ELECTRICITY_GAS_AND_WATER`, value: `Electricity/gas and water` }, 
+	{ key: `TRADE_AND_ACCOMMODATION`, value: `Trade and accommodation` }, 
+	{ key: `TRANSPORT_AND_COMMUNICATION`, value: `Transport and communication` }, 
+	{ key: `FINANCE_AND_INSURANCE`, value: `Finance and insurance` }, 
+	{ key: `REAL_ESTATE_AND_BUSINESS_SERVICES`, value: `Real estate and business services` }, 
+	{ key: `COMMUNITY_SOCIAL_AND_PERSONAL`, value: `Community/social and personal` }, 
+	{ key: `OTHER`, value: `Other` }, 
+	{ key: `SMELTING_FERROUS_ALLOYS`, value: `Smelting - Ferrous Alloys` }, 
+	{ key: `ALCOHOL`, value: `Alcohol` }, 
+	{ key: `INFORMAL`, value: `Informal` }, 
+	{ key: `PERSONAL_AND_HOUSEHOLD_GOODS`, value: `Personal & Household Goods` }, 
+	{ key: `MANAGEMENT_AND_CONSULTING`, value: `Management and Consulting` }, 
+	{ key: `SECURITY`, value: `Security` }, 
+	{ key: `RESOURCES_BASIC`, value: `Resources - Basic` }, 
+	{ key: `LEGAL`, value: `Legal` }, 
+	{ key: `HEALTH_CARE`, value: `Health Care` }, 
+	{ key: `SERVICES`, value: `Services` }, 
+	{ key: `NOT_SELECTED_YET`, value: `Not Selected Yet` }, 
+	{ key: `PENSIONERS_AND_SOCIAL_GRANTS`, value: `Pensioners & Social Grants` }, 
+	{ key: `TRAINING_AND_EDUCATION`, value: `Training & Education` }, 
+	{ key: `RELIGIOUS_ORGANIZATIONS`, value: `Religious organizations` }, 
+	{ key: `POLITICAL_ORGANIZATIONS`, value: `Political organizations` }, 
+	{ key: `NGOS`, value: `NGOs` }, 
+	{ key: `PARASTATALS`, value: `Parastatals` }, 
+	{ key: `MUNICIPALITIES`, value: `Municipalities` }, 
+	{ key: `NO_VALUE`, value: `` }
+];
