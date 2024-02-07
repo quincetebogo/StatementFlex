@@ -160,6 +160,43 @@ export class CapitecConnectService extends ChannelServiceBase {
 		return sanitizedObject;
 	}
 
+	async advancesHistory(qry_args = {}, pagination_args = {}, capitecConnectAdvancesHistory) {
+		// if (await this.isMockEnabled(`capitecConnectAdvancesHistory`)) {
+		// 	return this.mock(`capitecConnectAdvancesHistory`, capitecConnectAdvancesHistory);
+		// }
+
+		pagination_args = {
+			"page": pagination_args.page || 0,
+			"size": pagination_args.size || 1,
+			"sort": typeof pagination_args.sort === "object" && pagination_args.sort.length > 0 ? pagination_args.sort : ["cif"]
+		}
+
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			[ "cif", "channel", "msisdn", "amount", "type", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
+		);
+
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: advancesHistory()");
+			return [];
+		}
+
+		const url = `/${this._version}/api/horizon/recharges/search?${this.convertJsonToUriString(pagination_args)}`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`capitecConnectAdvancesHistory`,
+			null,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
 	async rechargeHistory(qry_args = {}, pagination_args = {}, capitecConnectRechargeHistory, isForEscalationDetails = false) {
 		// if (await this.isMockEnabled(`capitecConnectRechargeHistory`) && !isForEscalationDetails) {
 		// 	return this.mock(`capitecConnectRechargeHistory`, capitecConnectRechargeHistory);

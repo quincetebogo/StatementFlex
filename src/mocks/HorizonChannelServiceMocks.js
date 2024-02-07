@@ -37,6 +37,7 @@ export default class HorizonChannelServiceMocks {
 		this.stopCardLandingMocks = await loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.capitecConnectRechargeHistoryMocks = await loadMockModule(this.capitecConnectRechargeHistoryMocks, `capitecConnectRechargeHistory`, () => import(`../mocks/CapitecConnectRechargeMockData`).catch(err => logError(err)));
+		this.capitecConnectAdvancesHistoryMocks = await loadMockModule(this.capitecConnectAdvancesHistoryMocks, `capitecConnectAdvancesHistory`, () => import(`../mocks/CapitecConnectAdvancesMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await loadMockModule(this.transactionHistoryMocks, `savingsPlanTransactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
@@ -252,6 +253,24 @@ export default class HorizonChannelServiceMocks {
 				),
 				totalElements: this.capitecConnectRechargeHistoryMocks.rechargeMockData.totalElements || 50
 			};
+			return result;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	capitecConnectAdvancesHistory(capitecConnectAdvancesHistoryRequest) {
+		// Code for a negative case could come here
+		if (this._mockSettings.capitecConnectAdvancesHistory.positiveCase) {
+			const result = {
+				content: this.capitecConnectAdvancesHistoryMocks.advancesMockData.content.slice(
+					capitecConnectAdvancesHistoryRequest.startAtIndex,
+					capitecConnectAdvancesHistoryRequest.startAtIndex + capitecConnectAdvancesHistoryRequest.maxResults
+				),
+				totalElements: this.capitecConnectAdvancesHistoryMocks.advancesMockData.totalElements || 50
+			};
+
 			return result;
 		}
 
