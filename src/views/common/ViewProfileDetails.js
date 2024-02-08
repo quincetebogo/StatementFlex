@@ -1,6 +1,7 @@
 import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
@@ -44,6 +45,7 @@ export class ViewProfileDetails extends ViewBase {
 		this.displaylanguageToast = false;
 		this.displayficaToast = false;
 		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.clientProfileService = new ClientProfileService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
@@ -182,6 +184,8 @@ export class ViewProfileDetails extends ViewBase {
 		if (returnValue.succeeded) {
 			this.clientFICADetails = returnValue.result;
 			this._formatProfileData();
+		} else {
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -205,7 +209,7 @@ export class ViewProfileDetails extends ViewBase {
 			[DETAILS_TYPE.CONTACT_DETAILS]: {
 				"Home contact number": details.residentialPhoneNumber,
 				"Work contact number": details.businessPhoneNumber,
-				"Email address (unverified)": this.callerInformation.emailId
+				"Email address": this.callerInformation.emailId
 			},
 			[DETAILS_TYPE.ADDRESS]: {
 				"Address line 1": formatStringAsPascalCase(details.residentialAddress.address1),
@@ -221,8 +225,8 @@ export class ViewProfileDetails extends ViewBase {
 				"Industry": getValue(INDUSTRY_CODE, details.industryCode)
 			},
 			[DETAILS_TYPE.INCOME_DETAILS]: {
-				"Source funds": getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, details.employmentStatus)], details.sourceOfFunds),
-				"Expected income": getValue(INCOME_RANGE, details.incomeRange.toString()),
+				"Source of funds": getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, details.employmentStatus)], details.sourceOfFunds),
+				"Expected monthly income": getValue(INCOME_RANGE, details.incomeRange.toString()),
 				"Income frequency": details.incomeFrequency
 			}
 		};

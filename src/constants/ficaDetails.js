@@ -22,7 +22,7 @@ export const FIELDS = Object.freeze({
 	CELL_NO: `Cellphone number`,
 	RES_PHONE_NO: `Home contact number`,
 	WORK_PHONE_NO: `Work contact number`,
-	EMAIL: `Email address (unverified)`,
+	EMAIL: `Email address`,
 	LINE_1: `Address line 1`,
 	LINE_2: `Address line 2 (optional)`,
 	SUBURB: `Suburb`,
@@ -32,17 +32,18 @@ export const FIELDS = Object.freeze({
 	EMP_TYPE: `Employment type`,
 	EMPLOYER: `Employer`,
 	INDUSTRY: `Industry`,
-	SOF: `Source funds`,
-	EXP_INCOME: `Expected income`,
+	SOF: `Source of funds`,
+	EXP_INCOME: `Expected monthly income`,
 	INCOME_FREQUENCY: `Income frequency`
 });
 
 export const INCOME_RANGE = Object.freeze([
 	{ key: `NO_VALUE`, value: `` },
-	{ key: `R1001_R6000`, value: `R1001 to R6000` },
+	{ key: `R0_R3000`, value: `R0 to R3000` },
+	{ key: `R3001_R6000`, value: `R3001 to R6000` },
 	{ key: `R6001_R9000`, value: `R6001 to R9000` },
 	{ key: `R9001_R15000`, value: `R9001 to R15000` },
-	{ key: `R15000_R25000`, value: `R15001 to R25000` },
+	{ key: `R15001_R25000`, value: `R15001 to R25000` },
 	{ key: `R25001_R35000`, value: `R25001 to R35000` },
 	{ key: `R35001_R50000`, value: `R35001 to R50000` },
 	{ key: `R50000`, value: `> R50000` }
@@ -63,15 +64,15 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 		{ key: `COMMISSION_EARNER`, value: `Commission Earner` },
 		{ key: `LABOUR_BROKER`, value: `Labour Broker` },
 		{ key: `PERMANENT_WORKER`, value: `Permanent Worker` },
-		{ key: `TEMPORARY_CASUAL_SEASONAL`, value: `Temporary Casual Seasonal` },
+		{ key: `TEMPORARY_CASUAL_SEASONAL`, value: `Temporary/Casual/Seasonal Worker` },
 		{ key: `DOMESTIC_WORKER`, value: `Domestic Worker` }
 	],
 	"Self Employed": [
 		{ key: `NONE`, value: `` },
 		{ key: `BUSINESS_OWNER`, value: `Business Owner` },
-		{ key: `SOLE_PROPRIETER_TRADER`, value: `Sole Proprieter Trader` },
-		{ key: `SOLE_PROPRIETER_CONTRACTOR`, value: `Sole Proprieter Contractor` },
-		{ key: `INFORMALLY_SELF_EMPLOYED`, value: `Informally Self Employed` }
+		{ key: `SOLE_PROPRIETER_TRADER`, value: `Sole Proprieter: Trader` },
+		{ key: `SOLE_PROPRIETER_CONTRACTOR`, value: `Sole Proprieter: Contractor` },
+		{ key: `INFORMALLY_SELF_EMPLOYED`, value: `Informally Self-Employed` }
 	],
 	"Unemployed": [
 		{ key: `NONE`, value: `` },
@@ -82,7 +83,7 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 	"Pensioner": [
 		{ key: `NONE`, value: `` },
 		{ key: `ALL_PAY_PENSION`, value: `All Pay Pension` },
-		{ key: `ALL_PAY_PENSION_AND_GRANT`, value: `All Pay Pension And Grant` },
+		{ key: `ALL_PAY_PENSION_AND_GRANT`, value: `All Pay Pension and Grant` },
 		{ key: `GOVERNMENT_PENSION`, value: `Government Pension` },
 		{ key: `GRANT`, value: `Grant` },
 		{ key: `PRIVATE_PENSION`, value: `Private Pension` }
@@ -100,20 +101,22 @@ export const SOURCE_FUNDS = Object.freeze({
 		{ key: `COMMISSION`, value: `Commission` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
+		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
+		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
+		{ key: `RENTAL_INCOME`, value: `Rental Income` },
+		{ key: `INHERITENCE`, value: `Inheritence` }
 	],
 	"Unemployed": [
 		{ key: `NO_VALUE`, value: `` },
 		{ key: `INVESTMENT_INCOME`, value: `Investment Income` },
 		{ key: `PENSION`, value: `Pension` },
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
+		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
+		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
+		{ key: `RENTAL_INCOME`, value: `Rental Income` },
+		{ key: `INHERITENCE`, value: `Inheritence` }
 	],
 	"Self Employed": SOF_EMPLOYED,
 	"Pensioner": [
@@ -122,10 +125,11 @@ export const SOURCE_FUNDS = Object.freeze({
 		{ key: `PENSION`, value: `Pension` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
+		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
+		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
+		{ key: `RENTAL_INCOME`, value: `Rental Income` },
+		{ key: `INHERITENCE`, value: `Inheritence` }
 	],
 	"Minor": [
 		{ key: `NO_VALUE`, value: `` },
@@ -134,10 +138,11 @@ export const SOURCE_FUNDS = Object.freeze({
 		{ key: `COMMISSION`, value: `Commission` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` },
-		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance And Maintenance` },
+		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `PRIZE_WINNINGS`, value: `Prize Winnings` },
-		{ key: `DONATIONS_AND_GIFTS`, value: `Donations And Gifts` },
-		{ key: `RENTAL_INCOME`, value: `Rental Income` }
+		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
+		{ key: `RENTAL_INCOME`, value: `Rental Income` },
+		{ key: `INHERITENCE`, value: `Inheritence` }
 	]
 });
 

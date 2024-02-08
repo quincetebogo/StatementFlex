@@ -183,7 +183,7 @@ export class UpdateProfileDetails extends Component {
 
 	_employerChange(name) {
 		this.updatedClientDetails.employerName = name;
-		this.updatedClientDetails.industryCode = `NONE`;
+		this.updatedClientDetails.industryCode = `NOT_SELECTED_YET`;
 
 		this.requestUpdate();
 	}
@@ -237,6 +237,7 @@ export class UpdateProfileDetails extends Component {
 								 Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)) || 
 								 Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)) ||
 								 Boolean(this._validateEmploymentDetails()) ||
+								 Boolean(this._validateEmploymentType()) ||
 								 Boolean(this._validateNickname());
 		return (languageUnChanged && detailsUnChanged) || validationErrors;
 	}
@@ -313,8 +314,15 @@ export class UpdateProfileDetails extends Component {
 		return ``;
 	}
 
+	_validateEmploymentType() {
+		if (this.updatedClientDetails?.employmentStatus !== `MINOR_16` && this.updatedClientDetails.employmentType === `NONE`) {
+			return `Employment type cannot be empty`;
+		}
+		return ``;
+	}
+
 	_validateEmploymentDetails() {
-		if ((this.updatedClientDetails.employmentStatus === `EMPLOYED` || this.updatedClientDetails.employmentStatus === `SELF_EMPLOYED`) && isNullorEmpty(this.updatedClientDetails.employerName)) {
+		if (this.updatedClientDetails.employmentStatus === `EMPLOYED` && isNullorEmpty(this.updatedClientDetails.employerName)) {
 			return `Employer name cannot be empty`;
 		}
 		return ``;
@@ -659,7 +667,7 @@ export class UpdateProfileDetails extends Component {
 				@value-change=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
-			<capitec-group layout="vertical" halign="left" valign="center" gap="none">
+			<capitec-group layout="vertical" halign="left" valign="center" gap="none" disabled>
 				<capitec-label
 						id="email-replica"
 						class="replica hide-visibility"
@@ -673,7 +681,8 @@ export class UpdateProfileDetails extends Component {
 					error="${this.emailError}"
 					@input="${(e) => this._inputEmail(e)}"
 					@keydown="${(e) => this._keyDownTab(e)}"
-					@focusout="${() => this._focusOutInput()}">
+					@focusout="${() => this._focusOutInput()}"
+					disabled>
 				</capitec-text-field>
 				
 				<span id="email-suggestion" class="domain-suggestion ${this.emailError ? `hint-height` : ``}">${this.emailSuggestion}</span>
@@ -746,6 +755,7 @@ export class UpdateProfileDetails extends Component {
 				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
+				error=${this._validateEmploymentType()}
 				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
@@ -802,11 +812,12 @@ export class UpdateProfileDetails extends Component {
 			</capitec-select>
 			
 			<capitec-select 
-				label="Expected income" 
+				label="Expected monthly income" 
 				.value=${getValue(INCOME_RANGE, this.updatedClientDetails.incomeRange)}
 				.items="${INCOME_RANGE}"
 				display-field="value"
 				id-field="key"
+				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.key)}>
 			</capitec-select>
 
@@ -816,6 +827,7 @@ export class UpdateProfileDetails extends Component {
 				.items="${INCOME_FREQUENCY}"
 				display-field="value"
 				id-field="key"
+				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
 			</capitec-select>
 			`
