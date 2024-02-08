@@ -1107,6 +1107,34 @@ class ClientSummary extends Component {
 		return totalArrears;
 	}
 
+	/**
+	 * Build arrears message to display
+	 * 
+	 * @param {object} policy policy
+	 * @returns {string} message
+	 */
+	_buildArrearsMessage(policy) {
+		let message = ``;
+		if (policy.arrears.length === 1) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))}.`;
+		} else if (policy.arrears.length === 2) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and may lapse if one more premium is missed`;
+		} else if (policy.arrears.length === 3) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(policy.arrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
+		}
+		return message;
+	}
+
+	/**
+	 * Determines the lapse date of te policy when it is 3 months in arrears
+	 * @param {String} date date
+	 * @returns {String} lapse date
+	 */
+	_determineLapseDate(date) {
+		const lastMissedPaymentDate = new Date(date);
+		lastMissedPaymentDate.setDate(lastMissedPaymentDate.getDate() + 15);
+		return lastMissedPaymentDate.toISOString();
+	}
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -1788,7 +1816,7 @@ class ClientSummary extends Component {
 						type="unsuccessful-red"
 						class="life-arrears-notify"
 						header="Notify client:"
-						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse if payment is not received."
+						label="${this._buildArrearsMessage(activeLifePolicy)}"
 						layout="horizontal">
 					</horizon-alert-banner>`
 				: html``}

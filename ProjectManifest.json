@@ -2,7 +2,7 @@
   "name": "cec-ui-horizon-insure",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
-  "version": "0.27.58",
+  "version": "0.27.59",
   "alias": "cec-horizon-insure",
   "release": "230703",
   "contractVersion": "v1",
