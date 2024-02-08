@@ -282,7 +282,7 @@ class LifeSMSHistory extends Component {
 		const timeZone = `+00:00`;
 		const wrongTimeZone = date.includes(timeZone);
 		if (wrongTimeZone === true) {
-			date = date.replace(timeZone, `+02:00`);
+			date = date.replace(timeZone, `-02:00`);
 		}
 		return date;
 	};
