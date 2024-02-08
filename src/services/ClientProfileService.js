@@ -206,4 +206,71 @@ export class ClientProfileService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	// Client details
+
+	
+	async getClientDetails(cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`getClientDetails`)) {
+			return this.mock(`getClientDetails`);
+		}
+
+		const url = `/client-${this._version}/details`;
+		const customHeader = { ...this.setToken(), "cifNumber": cif };
+	
+		return this.get(
+			url,
+			customHeader,
+			`getClientDetails`,
+			false,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	updateFICADetails(request, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		const url = `/client-${this._version}/details`;
+		const customHeader = { ...this.setToken(), "cifNumber": cif };
+	
+		return this.put(
+			url,
+			request,
+			customHeader,
+			`updateFICADetails`,
+			null,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async getEmployer(searchValue, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		
+		if (await this.isMockEnabled(`getEmployer`)) {
+			return this.mock(`getEmployer`, searchValue);
+		}
+
+		const url = `/client-${this._version}/employer`;
+
+		const request = {};
+
+		return this.get(
+			url,
+			request,
+			this.setToken(),
+			`getEmployer`,
+			null,
+			null,
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
