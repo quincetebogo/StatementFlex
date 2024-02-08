@@ -1,9 +1,9 @@
-import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE } from 'app/constants/ficaDetails';
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
-import { formatDate, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
+import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -138,7 +138,7 @@ export class ViewProfileDetails extends ViewBase {
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.clientDetails[DETAILS_TYPE.PREFERENCES][`Preferred Language`] = LANGUAGE_LIST.find((entry) => entry.key === preferredlanguage).value;
+			this.clientDetails[DETAILS_TYPE.PREFERENCES][`Preferred Language`] = getValue(LANGUAGE_LIST, preferredlanguage);
 		}
 	}
 
@@ -159,7 +159,6 @@ export class ViewProfileDetails extends ViewBase {
 	}
 
 	async _getEmployersList(searchValue) {
-		// CS call to get Employer list to load dropdown on Update profile details modal 
 		const returnValue = await this.clientProfileService.getEmployer(searchValue);
 		if (returnValue.succeeded) {
 			return returnValue; // return employer list
@@ -191,7 +190,7 @@ export class ViewProfileDetails extends ViewBase {
 
 		this.clientDetails = {
 			[DETAILS_TYPE.PREFERENCES]: {
-				"Preferred Language": LANGUAGE_LIST.find((entry) => entry.key === this.callerInformation.languagePreference).value || this.callerInformation.languagePreference
+				"Preferred Language": getValue(LANGUAGE_LIST, this.callerInformation.languagePreference) || this.callerInformation.languagePreference
 			},
 			[DETAILS_TYPE.PERSONAL_DETAILS]: {
 				"Title": this.callerInformation.title,
@@ -206,7 +205,7 @@ export class ViewProfileDetails extends ViewBase {
 			[DETAILS_TYPE.CONTACT_DETAILS]: {
 				"Home contact number": details.residentialPhoneNumber,
 				"Work contact number": details.businessPhoneNumber,
-				"Email address (unverified)": details.emailAddress
+				"Email address (unverified)": this.callerInformation.emailId
 			},
 			[DETAILS_TYPE.ADDRESS]: {
 				"Address line 1": formatStringAsPascalCase(details.residentialAddress.address1),
@@ -216,23 +215,22 @@ export class ViewProfileDetails extends ViewBase {
 				"Postal code": details.residentialAddress.postalCode
 			},
 			[DETAILS_TYPE.EMPLOYMENT_DETAILS]: {
-				"Employment status": EMPLOYMENT_STATUS.find(item => item.key === details.employmentStatus).value,
+				"Employment status": getValue(EMPLOYMENT_STATUS, details.employmentStatus),
 				"Employment type": formatStringAsPascalCase(details.employmentType, `_`),
 				"Employer": details.employerName,
-				"Industry": details.industryCode ? formatStringAsPascalCase(INDUSTRY_CODE[details.industryCode]) : `_`
+				"Industry": getValue(INDUSTRY_CODE, details.industryCode)
 			},
 			[DETAILS_TYPE.INCOME_DETAILS]: {
-				"Source funds": formatStringAsPascalCase(details.sourceOfFunds, `_`),
-				"Expected income": INCOME_RANGE.find(item => item.key === details.incomeRange).value,
+				"Source funds": getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, details.employmentStatus)], details.sourceOfFunds),
+				"Expected income": getValue(INCOME_RANGE, details.incomeRange.toString()),
 				"Income frequency": details.incomeFrequency
 			}
 		};
 	}
 
-    _errorHandler(ex) {
-        return true;
-    }
-
+	_errorHandler(ex) {
+		return true;
+	}
 
 	// ---------
 	// RENDERING
