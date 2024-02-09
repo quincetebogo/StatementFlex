@@ -95,7 +95,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = "224243020";
+		// this.clientCif = "386017913";
 
 		this.showTable = true;
 	}
@@ -349,7 +349,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		let product = item.bundleType;
 		let statusOfRecharge = ``;
 		let transactionCode = item.transactionReference || `-`;
-		let typeOfRecharge = ``;
+		let typeOfRecharge = item.type;
 		let advanceAmount = `R${parseFloat(item.amount).toFixed(2)}` || `R0.00`;
 		let advanceFee = item.transactions.length > 0 ? `R${parseFloat(item.transactions[0].advanceTakenServiceCharge).toFixed(2)}` : `R0.00`;
 
@@ -362,10 +362,6 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 
 		product = product ? product : item.recharges[0].bundleType;
 		statusOfRecharge = item.recharges[0].status;
-		typeOfRecharge = item.recharges[0].type;
-
-		typeOfRecharge = item.transactions[0].type;
-		statusOfRecharge = item.transactions[0].status;
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge);
@@ -493,7 +489,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-label label="${item.productName}"></capitec-label>
 					<capitec-label label="${product}"></capitec-label>
 					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
-					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
+					<capitec-label label="${formatAmount(item.recharges[0].quantity)}"></capitec-label>
 				</div>
 			</capitec-group>
 
