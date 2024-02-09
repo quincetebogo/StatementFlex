@@ -1041,6 +1041,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
+		await this._generateDocumentsFuneralUpdatePlan(true);
 		this.successPageMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.selectedFuneralPolicyContractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
@@ -1160,7 +1161,7 @@ export class ExistingClient extends InsureViewBase {
 		await this._generateDocumentsFuneralReissue(true);
 		console.log(`1.4 - After documents for ReIssue`);
 
-		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
+		this.successPageMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
 		console.log(`1.5`, this.contractReference);
