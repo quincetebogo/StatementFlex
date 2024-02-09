@@ -1,4 +1,4 @@
-import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -81,8 +81,7 @@ export class ViewProfileDetails extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	async _updateProfileDetails() {
-		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+	_updateProfileDetails() {
 		this.showUpdatePreferenceModal = true;
 	}
 	
@@ -99,19 +98,23 @@ export class ViewProfileDetails extends ViewBase {
 
 		if (details.preferredlanguage && details.ficaDetails) {
 			// When trying to update Preferred language and FICA details
+			await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		
 			serviceCalls.push(this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber));
 			serviceCalls.push(this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber));
 
 			const returnValues = await Promise.allSettled(serviceCalls);
 
 			const isLanguageUpdated = returnValues[0].status === `fulfilled` && returnValues[0].value;
-			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
+			await this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
 
 			const isDetailsUpdated = returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded;
 			this._updateClientFICADetails(details.ficaDetails, isDetailsUpdated);
 
 		} else if (details.preferredlanguage) {
 			// When trying to update only Preferred language
+			await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+			
 			const isLanguageUpdated = await this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber);
 			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
 		} else if (details.ficaDetails) {
@@ -121,7 +124,9 @@ export class ViewProfileDetails extends ViewBase {
 		}
 	}
 
-	_updateClientFICADetails(updatedDetails, isUpdateSuccess) {
+	async _updateClientFICADetails(updatedDetails, isUpdateSuccess) {
+		await this._createClassifyAndUpdateIncident(`update-fica-details`, isUpdateSuccess);
+		
 		this._showHideToast(isUpdateSuccess, `fica`);
 		this.showUpdatePreferenceModal = false;
 		
@@ -132,8 +137,6 @@ export class ViewProfileDetails extends ViewBase {
 	}
 
 	_updateClientPreferences(preferredlanguage, isUpdateSuccess) {
-		// CS call to update client preferences
-	
 		this._showHideToast(isUpdateSuccess, `language`);
 		this.showUpdatePreferenceModal = false;
 		
@@ -142,6 +145,15 @@ export class ViewProfileDetails extends ViewBase {
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.clientDetails[DETAILS_TYPE.PREFERENCES][`Preferred Language`] = getValue(LANGUAGE_LIST, preferredlanguage);
 		}
+	}
+
+	async _createClassifyAndUpdateIncident(need, succeeded) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.createAndClassifySubIncident(null);
+
+		this.horizonIncidentManager.incidentState = succeeded 
+													? super.HORIZON_NEED_STATUS.COMPLETED 
+													: super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	_showHideToast(success, toastType) {
