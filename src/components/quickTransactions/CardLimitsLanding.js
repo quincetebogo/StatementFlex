@@ -395,7 +395,7 @@ export class CardLimitsLanding extends Component {
 
 	_initialise() {
 
-		this.isItaVerified = !this.shouldDisableByRole(`update-card-limits`);
+		this.isItaVerified = this.shouldDisableByRole(`update-card-limits-info`);
 		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
