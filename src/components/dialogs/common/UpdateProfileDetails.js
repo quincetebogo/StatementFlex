@@ -421,6 +421,10 @@ export class UpdateProfileDetails extends Component {
 				--theme-input-disabled-background-color: #F9F9F9;
 			}
 
+			capitec-select[label="Income frequency"] {
+				--theme-select-options-max-height: 300px;
+			}
+
 			#emp-select {
 				position: absolute;
 				width: 275px;
