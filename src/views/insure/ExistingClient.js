@@ -1404,11 +1404,11 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
-		if (returnValue.succeeded && returnValue.result) {
+				if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.transactionType === `PremiumCollection` || ele.transactionType === `Disbursement` || ele.transactionType === `Submit`).map((item) => {
+				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
-					item.transactionType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
+					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
