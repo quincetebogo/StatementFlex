@@ -1240,33 +1240,20 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		console.log(`1.1 - Disclosures accepted`);
-
 		const onReinstateValidations = this._beneficiaryValidations();
-
-		console.log(`1.2 - Beneficiary validations`, onReinstateValidations);
 
 		if (onReinstateValidations.validated === false || onReinstateValidations.bankingDetailsValid === false) {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onReinstateValidations);
 			this.showUpdateValidationDialog = true;
-			console.log(`1.3 - Beneficiary validations failed`);
 			return;
 		}
 
-		console.log(`1.4 - Beneficiary validations passed`);
 		await this._calculatePremium();
-		console.log(`1.5 - After calc call`);
 
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
-		console.log(`1.6 - After create policy call`, this.createPolicyResponse);
-
 		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
-		console.log(`1.7 - After issue agreement call`, this.issuePlanAgreementContent);
 		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
-		console.log(`1.8 - After contract ref set`, this.newContractReference);
-
 		this.showReinstatePolicyAgreementDialog = true;
-		console.log(`1.9 - After show dialog `, this.showReinstatePolicyAgreementDialog);
 
 	}
 
