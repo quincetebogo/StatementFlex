@@ -114,6 +114,8 @@
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
+	 "update-fica-details": `UPDATE_FICA_DETAILS`,
+
 
 	// PayShap
 	"payshap": `PAYSHAP_ENQUIRY`,
