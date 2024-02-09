@@ -248,7 +248,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		super.isOnlyProductEnquiry = false;
-		this.issuePlanAgreementDocument = issuePlanAgreementResponse.result;
+		this.funeralIssuePlanAgreementDocument = issuePlanAgreementResponse.result;
 
 	}
 
