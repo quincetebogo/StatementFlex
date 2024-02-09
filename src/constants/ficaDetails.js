@@ -171,7 +171,7 @@ export const INDUSTRY_CODE = [
 	{ key: `COMMUNITY_SOCIAL_AND_PERSONAL`, value: `Community/social and personal` }, 
 	{ key: `OTHER`, value: `Other` }, 
 	{ key: `SMELTING_FERROUS_ALLOYS`, value: `Smelting - Ferrous Alloys` }, 
-	{ key: `ALCOHOL`, value: `Alcohol` }, 
+	{ key: `ALCOHOL`, value: `Wine, beer and Spirits` }, 
 	{ key: `INFORMAL`, value: `Informal` }, 
 	{ key: `PERSONAL_AND_HOUSEHOLD_GOODS`, value: `Personal & Household Goods` }, 
 	{ key: `MANAGEMENT_AND_CONSULTING`, value: `Management and Consulting` }, 
