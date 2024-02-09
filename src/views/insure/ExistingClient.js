@@ -1031,9 +1031,11 @@ export class ExistingClient extends InsureViewBase {
 				]
 			}
 		};
-
+		console.log(`1.1 - `, acceptPlanRequest);
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
+		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
+			console.log(`1.3 - `, acceptPlanResp.exception);
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1042,7 +1044,9 @@ export class ExistingClient extends InsureViewBase {
 		this.successPageMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.selectedFuneralPolicyContractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
+		console.log(`1.4 - `, this.selectedFuneralPolicyContractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
+		console.log(`1.5 - `, this.renderMode);
 	}
 
 	/**
@@ -1404,7 +1408,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
-				if (returnValue.succeeded && returnValue.result) {
+		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
 				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
