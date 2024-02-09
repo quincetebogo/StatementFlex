@@ -1579,6 +1579,7 @@ class FuneralUpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_acceptReinstatePolicy() {
+		console.log(`Firing Accept ReInstate Event`);
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse, newContractRef: this.newContractReference } }));
 	}
 
