@@ -354,9 +354,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-				.map((item) => {
-					const formatedDate = new Date(Date.parse(item.date));
+			const formattedTrans = returnValue.result.transactions.
+			filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit`).map((item) => {
+				const formatedDate = new Date(Date.parse(item.date));
 					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
