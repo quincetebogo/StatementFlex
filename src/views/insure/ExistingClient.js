@@ -1417,7 +1417,7 @@ export class ExistingClient extends InsureViewBase {
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt`).map((item) => {
+				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
 					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
