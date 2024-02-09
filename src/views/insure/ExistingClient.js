@@ -1129,14 +1129,14 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _acceptPolicy(event) {
-
 		let documents = [];
-
 		if (event.detail.newContractRef.substring(0, 2) === `CF`) {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		} else {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
+
+		console.log(`1.0 - `, documents);
 
 		const acceptPlanRequest =
 		{
@@ -1145,20 +1145,27 @@ export class ExistingClient extends InsureViewBase {
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
+		console.log(`1.1 - `, acceptPlanRequest);
 
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
+		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
+			console.log(`1.3 - `, acceptPlanResp.exception);
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
+		console.log(`1.3 - `, this.contractReference);
 		await this._generateDocumentsForReinstate(true);
+		console.log(`1.4 - After documents for ReIssue`);
 
 		this.successMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
+		console.log(`1.5`, this.contractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
+		console.log(`1.5`, this.renderMode);
 	}
 
 	/**
