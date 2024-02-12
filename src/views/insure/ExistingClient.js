@@ -1092,15 +1092,6 @@ export class ExistingClient extends InsureViewBase {
 
 	// #region EVENT HANDLERS 
 
-	/**
-	 * Refresh client summary after navigating back
-	 * @param {string} navigateBackTo component to navigate too
-	 * @returns {void}
-	 */
-	async _rerenderClientSummary(navigateBackTo) {
-		await this._retrieveClientSummary();
-		this._navigateToSubView(navigateBackTo);
-	}
 
 	/*
 	* Navigate so specific subview
@@ -1884,7 +1875,8 @@ export class ExistingClient extends InsureViewBase {
 		this.showInsureSuccessToast = true;
 		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
-		await this._retrieveClientSummary();
+		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
+		return true;
 	}
 
 	// #endregion EVENT HANDLER
@@ -2028,6 +2020,7 @@ export class ExistingClient extends InsureViewBase {
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
 				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
+				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"
