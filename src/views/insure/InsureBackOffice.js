@@ -679,7 +679,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	_renderClaimSummaryPage() {
 		return html`
 				<horizon-insure-claim-summary
-					.claimSummary="${this.claimSummary}"
+					.claimSummary="${this.claimSummary.claim}"
 					@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 				</horizon-insure-claim-summary>`;
 	}
