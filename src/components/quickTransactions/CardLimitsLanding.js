@@ -75,6 +75,7 @@ export class CardLimitsLanding extends Component {
 		this.hasCardsAvailable = false;
 
 		this.hasDigitalChannels = false;
+		this.isItaVerified = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -159,6 +160,7 @@ export class CardLimitsLanding extends Component {
 	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
+	 * @property {Object} shouldDisableByRole Callback function, returns true or false to disable card limit update button
 	 * 
 	 * @readonly
 	 * @static
@@ -188,7 +190,9 @@ export class CardLimitsLanding extends Component {
 			renderMode: { state: true },
 			showUpdateLimitsModal: { state: true },
 			showConfirmSelectionModal: { state: true },
-			showDiscardChangesModal: { state: true }
+			showDiscardChangesModal: { state: true },
+			isItaVerified: { type: Boolean },
+			shouldDisableByRole: { type: Object }
 		};
 	}
 
@@ -391,6 +395,7 @@ export class CardLimitsLanding extends Component {
 
 	_initialise() {
 
+		this.isItaVerified = this.shouldDisableByRole(`update-card-limits-info`);
 		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
@@ -404,47 +409,49 @@ export class CardLimitsLanding extends Component {
 	}
 
 	async _updateLimits(card, limitType, updateType) {
-		this._updateType = updateType;
-		this._limitType = limitType;
-		this._cardDetails = card;
+		if (this.isItaVerified) {
+			this._updateType = updateType;
+			this._limitType = limitType;
+			this._cardDetails = card;
 
-		const cardId = this._updateType === `Debit` && this._cardDetails.linkedCardLimits ? this._cardDetails.linkedCardId : this._cardDetails.cardId;
-		const limitsReq = {
-			"cardDetails": {
-				"cardId": cardId,
-				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
-				"customerId": this.cifNumber,
-				"cardExpiryYear": this._cardDetails.cardExpiryYear,
-				"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
-				"cardSequenceNumber": this._cardDetails.cardSequenceNumber
+			const cardId = this._updateType === `Debit` && this._cardDetails.linkedCardLimits ? this._cardDetails.linkedCardId : this._cardDetails.cardId;
+			const limitsReq = {
+				"cardDetails": {
+					"cardId": cardId,
+					"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
+					"customerId": this.cifNumber,
+					"cardExpiryYear": this._cardDetails.cardExpiryYear,
+					"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
+					"cardSequenceNumber": this._cardDetails.cardSequenceNumber
+				}
+			};
+			
+			if (this._limitType === LIMIT_TYPES.PERMANENT) {
+				await this._getPermanentLimits(limitsReq);
+			} else {
+				await this._getTemporaryLimits(limitsReq);
 			}
-		};
-		
-		if (this._limitType === LIMIT_TYPES.PERMANENT) {
-			await this._getPermanentLimits(limitsReq);
-		} else {
-			await this._getTemporaryLimits(limitsReq);
-		}
 
-		// update-type - credit/debit
-		// limit-type - Permanent/Temporary
-		// card-display-type - Primary, Supplementary or Virtual
-		this._telemetry.logEvent(QuickTransactionEvents.CARD_LIMITS_SELECT_CARD, {
-			"screen": TelemetryScreen.CARD_LIMITS_LANDING,
-			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS,
-			"update-type": this._updateType,
-			"limit-type": this._limitType,
-			"card-display-type": this._cardDetails.cardDisplayName
-		});
-		
-		if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 &&
-					this._limitType === LIMIT_TYPES.PERMANENT && 
-					!(isNullorEmpty(this._cardDetails.cardLimits.tempCashAmountLimit) && 
-						isNullorEmpty(this._cardDetails.cardLimits.tempPurchaseAmountLimit) && 
-						isNullorEmpty(this._cardDetails.cardLimits.tempCnpAmountLimit))) {
-			this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
-		} else {
-			this.showUpdateLimitsModal = !this.showUpdateLimitsModal; 
+			// update-type - credit/debit
+			// limit-type - Permanent/Temporary
+			// card-display-type - Primary, Supplementary or Virtual
+			this._telemetry.logEvent(QuickTransactionEvents.CARD_LIMITS_SELECT_CARD, {
+				"screen": TelemetryScreen.CARD_LIMITS_LANDING,
+				"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+				"update-type": this._updateType,
+				"limit-type": this._limitType,
+				"card-display-type": this._cardDetails.cardDisplayName
+			});
+			
+			if (new Date(card.cardLimits.tempLimitExpiryDate).getYear() > 2 &&
+						this._limitType === LIMIT_TYPES.PERMANENT && 
+						!(isNullorEmpty(this._cardDetails.cardLimits.tempCashAmountLimit) && 
+							isNullorEmpty(this._cardDetails.cardLimits.tempPurchaseAmountLimit) && 
+							isNullorEmpty(this._cardDetails.cardLimits.tempCnpAmountLimit))) {
+				this.showConfirmSelectionModal = !this.showConfirmSelectionModal;
+			} else {
+				this.showUpdateLimitsModal = !this.showUpdateLimitsModal; 
+			}
 		}
 	}
 
@@ -702,6 +709,10 @@ export class CardLimitsLanding extends Component {
 				capitec-label[label="Update"] {
 					text-align: end;
 					color: #009DE0;
+				}
+				capitec-label[label="Update"].disabled {
+					cursor: default;
+					filter: grayscale(100%);
 				}
 				.header-icon{
 					height: 40px;
@@ -1081,9 +1092,10 @@ export class CardLimitsLanding extends Component {
 
 		return html`
 			<capitec-label
-				class="col5"
+				class="col5${this.isItaVerified ? `` : ` disabled`}"
 				row="1" column="5" colspan="1" size="4"
-				label="Update">
+				label="Update"
+				>
 			</capitec-label>
 		`;
 	}
