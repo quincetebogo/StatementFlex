@@ -138,7 +138,6 @@ export class RelatedOptions extends Component {
 		}
 	
 		const stopCard = () => this._stopCard();
-		const updateCardLimits = (option) => this._updateCardLimits(option);
 		const tapToPay = () => this._tapToPay();
 		const statements = () => this._Statements();
 		const taxCertificate = () => this._taxCertificate();
@@ -149,7 +148,6 @@ export class RelatedOptions extends Component {
 
 		const actions = {
 			'stop-card': stopCard,
-			'update-card-limits': updateCardLimits,
 			'tap-to-pay': tapToPay,
 			'statements': statements,
 			'tax-certificate': taxCertificate,
@@ -300,11 +298,6 @@ export class RelatedOptions extends Component {
 	_transactionHistory(option) {
 		this.horizonStore.setReturnScreen(null, option);
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
-	}
-
-	_updateCardLimits(option) {
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_paidUpAccounts(option) {
