@@ -45,23 +45,26 @@ export const searchCaller = {
 };
 
 export const clientDetails = {
-	"nickname": "Anu",
+	"correlationId": "94224485-6044-41b2-ac01-fca5f8a93e9e",
+	"nickname": "",
+	"nationalityCode": "ZA",
 	"residentialAddress": {
-		"addressLine1": "1st Block",
-		"addressLine2": "Koramangala",
-		"suburb": "South",
-		"city": "Bangalore",
-		"postalCode": "5600"
+		"address1": "10 QUNTUM STR",
+		"address2": "X",
+		"suburb": "TEST",
+		"city": "BUNGENI",
+		"postalCode": "00111"
 	},
-	"residentialPhoneNumber": "9876543210",
-	"businessPhoneNumber": "7896543212",
+	"residentialPhoneNumber": "0215550000",
+	"businessPhoneNumber": "0215560000",
 	"employmentStatus": "EMPLOYED",
 	"employmentType": "PERMANENT_WORKER",
-	"employerName": "Tata consultancy service",
-	"occupationCode": "Health Care",
+	"employerName": "CAPITEC BANK LTD",
+	"employerNumber": null,
+	"industryCode": "NOT_SELECTED_YET",
 	"sourceOfFunds": "SALARY",
-	"incomeRange": "R35001_R50000",
-	"incomeFrequency": "M"
+	"incomeRange": "R9001_R15000",
+	"incomeFrequency": "Monthly"
 };
 
 export const employerList = [

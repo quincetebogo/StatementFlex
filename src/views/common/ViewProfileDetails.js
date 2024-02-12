@@ -57,10 +57,14 @@ export class ViewProfileDetails extends ViewBase {
 		super.connectedCallback();
 
 		this._initialise();
-
 	}
 
-	disconnectedCallback() {
+	async disconnectedCallback() {
+		if (this.horizonIncidentManager.incidentDetails.currentNeed === `fica-details-enquiry`) {
+			await super.classifyIncident(() => this._toggleBusyFlag());
+			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		}
+
 		super.disconnectedCallback();
 	}
 
@@ -196,6 +200,9 @@ export class ViewProfileDetails extends ViewBase {
 		if (returnValue.succeeded) {
 			this.clientFICADetails = returnValue.result;
 			this._formatProfileData();
+
+			await super._inicidentManager_(`fica-details-enquiry`, () => this._toggleBusyFlag());
+			await super.createAndClassifySubIncident(null, false);
 		} else {
 			this.horizonRouter.navigateToSystemError();
 		}
