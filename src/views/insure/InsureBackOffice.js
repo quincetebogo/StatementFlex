@@ -56,6 +56,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.selectedInsureTabIndex = 0;
 		this.contractReference = ``;
 		this.claims = [];
+		this.selectedFuneralPolicyProductCode = ``;
 
 		this.readOnlyMode = true;
 		this.isLifeQualifyingClient = false;
@@ -67,6 +68,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @property {Object} policyDetails data and flags for a specific policy
 	 * @property {String} contractReference contains the contract reference for the selected policy 
 	 * @property {Boolean} readOnlyMode determines if the view is in read only mode or not
+	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
 	 * 
 	 * @readonly
 	 * @static
@@ -82,7 +84,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			renderMode: { type: Number, state: true },
 			claims: { type: Object, state: true },
 			selectedInsureTabIndex: { type: Number, state: true },
-			isLifeQualifyingClient: { type: Boolean, state: true }
+			isLifeQualifyingClient: { type: Boolean, state: true },
+			selectedFuneralPolicyProductCode: { type: String, state: true }
 		};
 	}
 
@@ -195,7 +198,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const commsHistoryDetails = {
 			"contractReference": contractReference,
 			"fromDate": fromDate,
-			"toDate": toDate
+			"toDate": toDate,
+			"productCode": this.selectedFuneralPolicyProductCode
 		};
 
 		const resp = await this.insureFuneralService.communicationHistory(commsHistoryDetails, () => true);
@@ -264,6 +268,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		await this._getPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
@@ -304,7 +309,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 	_goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
-
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		// call fips here
 
 		// Telemetry Here
@@ -339,7 +344,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			pagniation: {
 				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
 				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
-			}
+			},
+			productCode: this.selectedFuneralPolicyProductCode
 		};
 
 		this.transactions = [];
