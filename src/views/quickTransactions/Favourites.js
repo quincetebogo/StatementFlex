@@ -1243,6 +1243,11 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderUpdateCardLimits() {
+		// Always redirect back to favourites landing page
+		if (this.renderMode !== RENDER_MODE.MAIN_PAGE) {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+			return this._renderFavouritesLandingPage(); 
+		}
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
