@@ -4,7 +4,7 @@ import { RoleManager } from 'app/shell/RoleManager';
 import 'app/components/common/OptionButton';
 
 const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
-const UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE = `Refer Client to App or Branch.`;
+const UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE = `Card limits must be updated using the app. Clients can also visit the branch.`;
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
