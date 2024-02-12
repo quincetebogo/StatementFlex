@@ -155,6 +155,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_initialise() {
+		// this.clientCif = "386017913";
+
 		this.showTable = true;
 	}
 
