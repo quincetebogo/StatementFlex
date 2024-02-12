@@ -270,7 +270,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.arrearsAmount = e.detail.arrearsAmount;
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
-		await this._getPolicyTransactionHistory();
+		await this._retrieveFuneralPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
 	}
 
@@ -334,7 +334,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @param {*} pageIndex pageIndex
 	 * @returns {*} transaction history
 	 */
-	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
+	async _retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex) {
 		const transactionHistoryRequest = {
 			contractReference: this.contractReference,
 			transactionDateType: `TransactionDate`,
@@ -358,7 +358,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
-
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
 			filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
@@ -618,14 +617,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY
-			? html`<horizon-insure-policy-transaction-history 
-				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			? html`<horizon-insure-funeral-policy-transaction-history 
 				.policyTransactionHistory="${this.policyTransactionHistory}"
-				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
+				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}"
 				.readOnlyMode="${this.readOnlyMode}">
-			</horizon-insure-policy-transaction-history>`
+			</horizon-insure-funeral-policy-transaction-history>`
 			: html``;
 	}
 
