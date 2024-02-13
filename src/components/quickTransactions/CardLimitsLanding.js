@@ -75,7 +75,7 @@ export class CardLimitsLanding extends Component {
 		this.hasCardsAvailable = false;
 
 		this.hasDigitalChannels = false;
-		this.isItaVerified = false;
+		this.isItaVerifiedCardLimits = false;
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
@@ -191,7 +191,7 @@ export class CardLimitsLanding extends Component {
 			showUpdateLimitsModal: { state: true },
 			showConfirmSelectionModal: { state: true },
 			showDiscardChangesModal: { state: true },
-			isItaVerified: { type: Boolean },
+			isItaVerifiedCardLimits: { type: Boolean },
 			shouldDisableByRole: { type: Object }
 		};
 	}
@@ -395,7 +395,7 @@ export class CardLimitsLanding extends Component {
 
 	_initialise() {
 
-		this.isItaVerified = this.shouldDisableByRole(`update-card-limits-info`);
+		this.isItaVerifiedCardLimits = false; // Will always be false. Agent should inform Client to update through APP. Tooltip to be added
 		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
@@ -409,7 +409,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	async _updateLimits(card, limitType, updateType) {
-		if (this.isItaVerified) {
+		if (this.isItaVerifiedCardLimits) {
 			this._updateType = updateType;
 			this._limitType = limitType;
 			this._cardDetails = card;
@@ -1092,7 +1092,7 @@ export class CardLimitsLanding extends Component {
 
 		return html`
 			<capitec-label
-				class="col5${this.isItaVerified ? `` : ` disabled`}"
+				class="col5${this.isItaVerifiedCardLimits ? `` : ` disabled`}"
 				row="1" column="5" colspan="1" size="4"
 				label="Update"
 				>
