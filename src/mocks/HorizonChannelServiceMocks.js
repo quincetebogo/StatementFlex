@@ -69,6 +69,8 @@ export default class HorizonChannelServiceMocks {
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyOut`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `moneyIn`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payshapPop`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
+		this.clientDetails = await loadMockModule(this.clientDetails, `getClientDetails`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.clientDetails = await loadMockModule(this.clientDetails, `getEmployer`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -754,5 +756,19 @@ export default class HorizonChannelServiceMocks {
 			inetbanking: status,
 			ussd: status
 		};
+	}
+
+	getClientDetails() {
+		if (this._mockSettings.getClientDetails.positiveCase) {
+			return this.clientDetails.clientDetails;
+		} 
+		return null;
+	}
+
+	getEmployer(searchValue) {
+		if (this._mockSettings.getEmployer.positiveCase) {
+			return this.clientDetails.employerList.filter(item => item.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1);
+		} 
+		return null;
 	}
 }
