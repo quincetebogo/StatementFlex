@@ -83,10 +83,10 @@ export class UpdateProfileDetails extends Component {
 					businessPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO],
 					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
 					employmentStatus: getKey(EMPLOYMENT_STATUS, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]),
-					employmentType: getKey(EMPLOYMENT_TYPE[this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]], this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
+					employmentType: getKey(Object.values(EMPLOYMENT_TYPE).flat(), this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
 					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
-					sourceOfFunds: getKey(SOURCE_FUNDS[this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
+					sourceOfFunds: getKey(Object.values(SOURCE_FUNDS).flat(), this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
 					incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
 			};
@@ -326,6 +326,30 @@ export class UpdateProfileDetails extends Component {
 			return `Employer name cannot be empty`;
 		}
 		return ``;
+	}
+
+	_getEmploymentStatusList() {
+		const nonMinorList = EMPLOYMENT_STATUS.filter(item => item.key !== `MINOR_16`);
+		const minorList = EMPLOYMENT_STATUS.filter(item => item.key === `MINOR_16`);
+		
+		return this._isMinorClient() ? minorList : nonMinorList;
+	}
+
+	_isMinorClient() {
+		const clientDOB = this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.DOB];
+
+		if (!clientDOB) {
+			return false;
+		}
+
+		const today = new Date();
+		const clientBirthDate = new Date(clientDOB);
+	
+		// Minimum age a client should meet for being a major ( > 16 years). 
+		// ClientDOB after 'minMajorAge' are considered to be a minor client.
+		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+	
+		return minMajorAge < clientBirthDate;
 	}
 
 	// ---------
@@ -747,7 +771,7 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Employment status" 
 				.value=${getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)}
-				.items="${EMPLOYMENT_STATUS}"
+				.items="${this._getEmploymentStatusList()}"
 				display-field="value"
 				id-field="key"
 				@value-change=${(e) => this._empStatusChange(e)}>
@@ -755,7 +779,7 @@ export class UpdateProfileDetails extends Component {
 			
 			<capitec-select 
 				label="Employment type"
-				.value=${getValue(EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)], this.updatedClientDetails.employmentType)}
+				.value=${getValue(Object.values(EMPLOYMENT_TYPE).flat(), this.updatedClientDetails.employmentType)}
 				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
@@ -807,8 +831,8 @@ export class UpdateProfileDetails extends Component {
 		return this.selectedMenuItem === MENU_ITEMS.INCOME_DETAILS
 		? html`
 			<capitec-select 
-				label="Source funds" 
-				.value=${getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)], this.updatedClientDetails.sourceOfFunds)}
+				label="Source of funds" 
+				.value=${getValue(Object.values(SOURCE_FUNDS).flat(), this.updatedClientDetails.sourceOfFunds)}
 				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
