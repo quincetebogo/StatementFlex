@@ -1243,6 +1243,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderUpdateCardLimits() {
+		return html``; // Always return no HTML. Client should visit APP or branch to update limits. Button will be disabled with tooltip
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
