@@ -244,7 +244,7 @@ export class ViewProfileDetails extends ViewBase {
 				"Industry": getValue(INDUSTRY_CODE, details.industryCode)
 			},
 			[DETAILS_TYPE.INCOME_DETAILS]: {
-				"Source of funds": getValue(SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, details.employmentStatus)], details.sourceOfFunds),
+				"Source of funds": getValue(Object.values(SOURCE_FUNDS).flat(), details.sourceOfFunds),
 				"Expected monthly income": getValue(INCOME_RANGE, details.incomeRange.toString()),
 				"Income frequency": details.incomeFrequency
 			}
