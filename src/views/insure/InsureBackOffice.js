@@ -486,8 +486,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	async _updateElectOptions(electRequest) {
 		electRequest.cifNumber = this.callerInformation.cifNumber;
 		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+		const electResp = await this.insureFuneralService.SetElectOptions(electRequest);
 
-		const electResp = await this.insureService.SetElectOptions(electRequest);
 		if (!electResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
@@ -498,7 +498,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.showInsureSuccessToast = true;
 		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
-		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 	}
 
 	// #endregion EVENT HANDLERS
