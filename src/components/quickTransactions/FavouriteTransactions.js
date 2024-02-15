@@ -25,6 +25,7 @@ export class FavouriteTransactions extends Component {
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
+
 	}
 
 	// --------------

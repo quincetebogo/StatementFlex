@@ -15,8 +15,7 @@ export const HIGH_RISK_TRANSACTIONS = [
 		`statements`, 
 		`tap-to-pay`, 
 		`tax-certificate`, 
-	`proof-of-account`,
-	`update-card-limits`
+		`proof-of-account`
 	];
 
 /**
