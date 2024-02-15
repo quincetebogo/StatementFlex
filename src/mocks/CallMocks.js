@@ -63,20 +63,91 @@ export const clientDetails = {
 	"employerNumber": null,
 	"industryCode": "NOT_SELECTED_YET",
 	"sourceOfFunds": "SALARY",
-	"incomeRange": "R9001_R15000",
+	"incomeRange": "NO_VALUE",
 	"incomeFrequency": "Monthly"
 };
 
-export const employerList = [
-		`Capitec`, 
-		`ABSA`, 
-		`Anglo American`, 
-		`Standard Bank Group`, 
-		`Naspers`, 
-		`MTN`, 
-		`Vodacom`,
-		`Sasol`,
-		`FirstRand`, 
-		`Unilever`,
-		`Tata Consultancy Services`
-	];
+export const employerList = {
+	"employerList": [
+		{
+			"employerName": "CAPE TWINES A DIV OF CAPE BAG PTY LTD",
+			"employerNumber": 1767941
+		},
+		{
+			"employerName": "ECOLE FRANCAISE DU CAP FRENCH SCHOOL OF CAPE TOWN",
+			"employerNumber": 1973606
+		},
+		{
+			"employerName": "CAPE TOWN PRODUCTIONS CAPE CC",
+			"employerNumber": 2469340
+		},
+		{
+			"employerName": "CAPRICORN CAPITAL PARTNERS PTY LTD",
+			"employerNumber": 3588572
+		},
+		{
+			"employerName": "D5 EASTERN CAPE DEPARTMENT OF EDUCATION",
+			"employerNumber": 89451
+		},
+		{
+			"employerName": "D2 EASTERN CAPE DEPARTMENT OF HEALTH",
+			"employerNumber": 89427
+		},
+		{
+			"employerName": "CITY OF CAPE TOWN",
+			"employerNumber": 350915
+		},
+		{
+			"employerName": "15 WESTERN CAPE PROVINCE EDUCATION DEPARTMENT",
+			"employerNumber": 88935
+		},
+		{
+			"employerName": "U3 WESTERN CAPE DEPARTMENT OF HEALTH",
+			"employerNumber": 89931
+		},
+		{
+			"employerName": "CAPITEC BANK LTD",
+			"employerNumber": 161942
+		},
+		{
+			"employerName": "F6 NORTHERN CAPE DEPARTMENT OF EDUCATION",
+			"employerNumber": 476749
+		},
+		{
+			"employerName": "D4 EASTERN CAPE PUBLIC WORKS AND ROADS",
+			"employerNumber": 89443
+		},
+		{
+			"employerName": "H5 NORTHERN CAPE DEPARTMENT OF HEALTH",
+			"employerNumber": 476730
+		},
+		{
+			"employerName": "D3 EASTERN CAPE SOCIAL DEVELOPMENT AND SPECIAL PRO",
+			"employerNumber": 89435
+		},
+		{
+			"employerName": "D7 EASTERN CAPE RURAL DEVELOPMENT AND AGRARIAN REF",
+			"employerNumber": 89486
+		},
+		{
+			"employerName": "D9 EASTERN CAPE DEPARTMENT OF TRANSPORT",
+			"employerNumber": 89508
+		},
+		{
+			"employerName": "D6 EASTERN CAPE COOPERATIVE GOVERNANCE AND TRAD",
+			"employerNumber": 89478
+		},
+		{
+			"employerName": "UNIVERSITY OF CAPE TOWN",
+			"employerNumber": 106615
+		},
+		{
+			"employerName": "U8 WEST CAPE DEPARTMENT OF SOCIAL DEVELOPMENT",
+			"employerNumber": 89990
+		},
+		{
+			"employerName": "E2 EASTERN CAPE SPORT RECREATION ARTS AND CULTURE",
+			"employerNumber": 89524
+		}
+	]
+};

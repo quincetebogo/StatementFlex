@@ -190,3 +190,17 @@ export const INDUSTRY_CODE = [
 	{ key: `ALCOHOL`, value: `Wine, beer and Spirits` }, 
 	{ key: `NO_VALUE`, value: `` }
 ];
+
+export const ERROR = {
+	NICK_NAME: `No special characters allowed`,
+	CONTACT_NUMBER: `Incorrect contact number`,
+	EMP_TYPE: `Employment type cannot be empty`,
+	EMP_NAME: `Employer name cannot be empty`,
+	ADDRESS1: `Address line 1 cannot be empty`,
+	SUBURB: `Suburb cannot be empty`,
+	CITY: `City cannot be empty`,
+	POSTAL_CODE: `Postal code cannot be empty`,
+	SOF: `Source of funds cannot be empty`,
+	INCOME_RANGE: `Expected monthly income cannot be empty`,
+	INCOME_FREQUENCY: `Income frequency cannot be empty`
+};
