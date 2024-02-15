@@ -68,6 +68,9 @@ export class LiveBetterSavings extends Component {
 	static get properties() {
 		return {
 			liveBetterAccountData: { type: Object },
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
+			tooltipMessage: { type: String },
 
 			// Private Properties
 			_expanded: { state: true }
@@ -408,6 +411,9 @@ export class LiveBetterSavings extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
+						?showTooltip="${this.showTooltip(`transaction-history`)}"
+						.tooltipMessage="${this.tooltipMessage}"
+						?disabled="${this.shouldDisableByRole(`transaction-history`)}"
 						@click="${() => this._click(`transaction-history-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -415,6 +421,10 @@ export class LiveBetterSavings extends Component {
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
+						?showTooltip="${this.showTooltip(`statements`)}"
+						.tooltipMessage="${this.tooltipMessage}"
+						tooltipPosition="right"
+						?disabled="${this.shouldDisableByRole(`statements`)}"
 						@click="${() => this._click(`statements-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -422,6 +432,9 @@ export class LiveBetterSavings extends Component {
 						class="button-margin"
 						label="Automatic Savings" 
 						img-src="/images/liveBetter/automatic-savings.svg"
+						?showTooltip="${this.showTooltip(`automatic-savings-lbb`)}"
+						.tooltipMessage="${this.tooltipMessage}"
+						?disabled="${this.shouldDisableByRole(`automatic-savings-lbb`)}"
 						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>
 				</capitec-group>

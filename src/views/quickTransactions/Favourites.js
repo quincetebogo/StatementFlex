@@ -1218,6 +1218,7 @@ export class Favourites extends SavingsAccountBase {
 					<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
+						.tooltipMessage = "${this.tooltipMessage}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"

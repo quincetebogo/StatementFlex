@@ -21,6 +21,11 @@ import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 import 'app/components/dialogs/common/AddCallerDetails';
 
 
+const TOOLTIP_CAPITEC_CONNECT = `Your role does not allow you to make use of this functionality.`;
+const TOOLTIP_ONLY_SQ_VERIFIED = `Your need to get digitally verified to make use of this functionality.`;
+const TOOLTIP_NON_CLIENT = `Your verification status[Non-client] does not allow you to make use of this functionality.`;
+const TOOLTIP_UNVERIFIED = `Your verification status[Unverified] does not allow you to make use of this functionality.`;
+
 /**
  * A Base class for view components to collect common functionality used across most views
  * 
@@ -326,11 +331,12 @@ export class ViewBase extends View {
 	// Show tooltip when a particular option is disabled
 	_showTooltip(need) {
 		const availableFeatures = AVAILABLE_FEATURES_BY_ROLE[this.roleManager.orgUnit];
+		const availableByVerification = !this._shouldDisable(need);
 		
 		if (availableFeatures?.length > 0) {
-			return !availableFeatures.includes(need);
+			return !(availableFeatures.includes(need) && availableByVerification);
 		}
-		return false;
+		return !availableByVerification;
 	}
 
 	_shouldDisableByRole(need) {
@@ -338,6 +344,28 @@ export class ViewBase extends View {
 		const disableByRole = this._showTooltip(need);
 
 		return disableByVerification || disableByRole;
+	}
+	
+	get tooltipMessage() {
+		const byRole = {
+			'Capitec Connect': TOOLTIP_CAPITEC_CONNECT
+		};
+		const byVerificationStatus = {
+			'non-client': TOOLTIP_NON_CLIENT, // actually not required as we do not show option buttons on the screen
+			'unverified': TOOLTIP_UNVERIFIED
+		};
+
+		const byVerificationType = {
+			'SQ': TOOLTIP_ONLY_SQ_VERIFIED,
+			'ITA': `` // Probably not required 
+		};
+
+		const message = byRole[this.roleManager.orgUnit] || 
+							(this.callerInformation.verificationStatus === `verified` 
+							? byVerificationType[this.callerInformation.verificationMethod] 
+							: byVerificationStatus[this.callerInformation.verificationStatus]);
+
+		return message;
 	}
 
 	// ---------
