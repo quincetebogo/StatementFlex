@@ -334,9 +334,9 @@ export class UpdateProfileDetails extends Component {
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.suburb) ||
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.city) ||
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.postalCode) ||
-				isNullorEmpty(this.updatedClientDetails.incomeFrequency) ||
-				isNullorEmpty(this.updatedClientDetails.incomeRange) ||
-				isNullorEmpty(this.updatedClientDetails.sourceOfFunds);
+				isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ||
+				isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ||
+				isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE`;
 		
 	}
 
@@ -800,6 +800,7 @@ export class UpdateProfileDetails extends Component {
 				display-field="value"
 				id-field="key"
 				error=${this._validateEmploymentType()}
+				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
@@ -863,18 +864,16 @@ export class UpdateProfileDetails extends Component {
 				display-field="value"
 				id-field="key"
 				error="${isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ? ERROR.INCOME_RANGE : ``}"
-				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.key)}>
 			</capitec-select>
 
 			<capitec-select 
 				label="Income frequency" 
-				.value=${this.updatedClientDetails.incomeFrequency}
+				.value=${this.updatedClientDetails.incomeFrequency === `NONE` ? `` : this.updatedClientDetails.incomeFrequency}
 				.items="${INCOME_FREQUENCY.filter(freq => freq.key !== `NONE`)}"
 				display-field="value"
 				id-field="key"
 				error="${isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ? ERROR.INCOME_FREQUENCY : ``}"
-				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
 			</capitec-select>
 			`
