@@ -72,8 +72,6 @@ class InsureEmailDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = EmailPlanEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.SEND_EMAIL, {});
-
-		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -148,11 +146,6 @@ class InsureEmailDialog extends Component {
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE METHODS
-	
-	async _initialise() {
-		// await super._inicidentManager_(`funeral-plan-send-document`, () => this._toggleBusyFlag());
-		// await super.createAndClassifySubIncident();
-	}
 
 	/**
 	 * validation checks for email address

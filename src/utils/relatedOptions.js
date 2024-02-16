@@ -36,14 +36,8 @@ export const relatedOptions = {
 		]
 	},
 	'tap-to-pay': {
-		Success: [
-			`update-card-limits`,
-			`statements`
-		],
-		Failure: [
-			`update-card-limits`,
-			`stop-card`
-		]
+		Success: [`statements`],
+		Failure: [`stop-card`]
 	},
 	'statements-transact': STATEMENTS_RO = {
 		Success: [`proof-of-account`],
@@ -152,6 +146,7 @@ export const relatedOptions = {
 	},
 	'full-ftsp-unlock': CREDIT_RO,
 	'partial-ftsp-unlock': CREDIT_RO,
+	'open-budget-credit-card': CREDIT_RO,
 	'suspend-channels': CREDIT_RO,
 	'suspend-app': CREDIT_RO,
 	'suspend-token': CREDIT_RO,

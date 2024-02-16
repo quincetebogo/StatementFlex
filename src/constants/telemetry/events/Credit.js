@@ -27,12 +27,23 @@
 	// Budget Details
 	CREDIT_BUDGET_DETAILS: `call.fulfill-need.credit.budget`,
 	CREDIT_BUDGET_DETAILS_BACK: `call.fulfill-need.credit.budget.back`,
+	CREDIT_BUDGET_DETAILS_OPEN: `call.fulfill-need.credit.budget.open`,
 	BUDGET_DETAILS_FILTER: `call.fulfill-need.credit.budget.filter`,
 	BUDGET_DETAILS_CLEAR_FILTER: `call.fulfill-need.credit.budget.clear-filter`,
 	BUDGET_DETAILS_TRANSFER_SELECT: `call.fulfill-need.credit.budget.select.transfer`,
 	BUDGET_ACCOUNT_DETAILS_VIEW: `call.fulfill-need.credit.budget.view-details`,
 	BUDGET_ACCOUNT_DETAILS_TRANSFER: `call.fulfill-need.credit.budget.view-details.transfer`,
 	BUDGET_ACCOUNT_DETAILS_CLOSE: `call.fulfill-need.credit.budget.close.account-details`,
+
+	// Open Budget
+	OPEN_BUDGET: `call.fulfill-need.credit.budget.open`,
+	OPEN_BUDGET_POPUP: `call.fulfill-need.credit.budget.open.pop-up`,
+	OPEN_BUDGET_POPUP_CANCEL: `call.fulfill-need.credit.budget.open.pop-up.cancel`,
+	OPEN_BUDGET_POPUP_CONFIRM: `call.fulfill-need.credit.budget.open.pop-up.confirm`,
+	OPEN_BUDGET_SUCCESS: `call.fulfill-need.credit.budget.open.success`,
+	OPEN_BUDGET_SUCCESS_DONE: `call.fulfill-need.credit.budget.open.success.done`,
+	OPEN_BUDGET_FAILURE: `call.fulfill-need.credit.budget.open.failure`,
+	OPEN_BUDGET_FAILURE_DONE: `call.fulfill-need.credit.budget.open.failure.done`,
 
 	// Pay budget
 	CREDIT_BUDGET_TRANSFER: `call.fulfill-need.credit.budget.transfer`,

@@ -13,7 +13,8 @@
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet/index.html",
 		"widgetRegistryService": "http://localhost:6001",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
@@ -143,12 +144,16 @@
 			"enabled": false,
 			"positiveCase": false
 		},
+		"capitecConnectRechargeHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"transactionHistory": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
@@ -157,6 +162,10 @@
 		},
 		"savingsPlanLanding": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientProducts": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -363,6 +372,18 @@
 			"enabled": false,
 			"positiveCase" : true
 		},
+		"canOpenBudget": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"budgetDetails": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"calculateBudget": {
+			"enabled": true,
+			"positiveCase" : true
+		},
 		"creditStatement": {
 			"enabled": false,
 			"positiveCase" : true
@@ -396,6 +417,14 @@
 			"positiveCase": true
 		},
 		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"suspendChannels": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureElectOption": {
 			"enabled": false,
 			"positiveCase": true
 		}

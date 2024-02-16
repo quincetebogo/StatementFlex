@@ -317,7 +317,8 @@ export class LandingPage extends ViewBase {
 			``, // profile photo
 			``, // gender
 			``, // branch caller id
-			`` // branch code
+			``, // branch code
+			`` // Masked cif
 		);
 		
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);

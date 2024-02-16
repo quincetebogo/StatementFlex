@@ -64,6 +64,7 @@ export default class InsureChannelServiceMocks {
 		this.auditTransactionHistoryMocks = await this._loadMockModule(this.auditTransactionHistoryMocks, `insureAuditTransactionHistory`, () => import(`../mocks/insure/InsureAuditTransactionsMockData`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/InsureArrears`).catch(err => logError(err)));
+		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
 
 	/**
@@ -289,6 +290,13 @@ export default class InsureChannelServiceMocks {
 	insureArrears() {
 		if (this._mockSettings.insureArrears.positiveCase) {
 			return this.arrearsMocks.InsureArrears;
+		}
+		return null;
+	}
+	
+	insureElectOption() {
+		if (this._mockSettings.insureElectOption.positiveCase) {
+			return this.electOptionsMocks.InsureElectOption;
 		}
 		return null;
 	}

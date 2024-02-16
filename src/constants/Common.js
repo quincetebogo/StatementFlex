@@ -5,7 +5,7 @@
  * @enum {Object} HIGH_RISK_TRANSACTIONS
  * 
  */
-export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `unlock-ftsp`];
+export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget`, `full-unlock`, `partial-unlock`, `open-budget`, `update-card-limits`];
 
 /**
  * Transactions that doesn't even require authentication to perform
@@ -14,7 +14,7 @@ export const HIGH_RISK_TRANSACTIONS = [`debi-check`, `settle-close`, `pay-budget
  * @enum {Object} LOW_RISK_TRANSACTIONS
  * 
  */
-export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`];
+export const LOW_RISK_TRANSACTIONS = [`stop-card`, `search-other-need`, `card-history`];
 
 /**
  * Transactions that doesn't even require authentication to perform
@@ -156,6 +156,7 @@ export const ORG_UNITS = {
 export const ROLES_TO_ORG_UNITS = {
 	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
 	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
+	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 },
 	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
 };
 

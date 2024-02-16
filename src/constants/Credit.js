@@ -93,7 +93,9 @@ export const FROM_ACCOUNTS = {
  * @enum {Object} PERMISSION_DECLINE_REASONS
  */
  export const PERMISSION_DECLINE_REASONS = Object.freeze({
-	ACC_NOT_ACTIVE: `AccountNotActive`
+	ACC_NOT_ACTIVE: `AccountNotActive`,
+	ClientHandedOver: `Client is under CCS status`,
+	AccountInArrears: `Please settle arrears of $ArrearsPayable$ to continue adding budget`
 });
 
 /**
@@ -104,3 +106,20 @@ export const FROM_ACCOUNTS = {
  * @enum {Object} DECLINE_REASONS_EXCLUSION_LIST
  */
 export const DECLINE_REASONS_EXCLUSION_LIST = Object.freeze([PERMISSION_DECLINE_REASONS.ACC_NOT_ACTIVE]);
+
+/**
+ * Possible budget terms to choose on opening budget
+ * @readonly
+ * @enum {Object} BUDGET_TERMS
+ */
+export const BUDGET_TERMS = Object.freeze({
+	"Three": 3,
+	"Six": 6,
+	'Twelve': 12,
+	"Eighteen": 18,
+	"TwentyFour": 24,
+	"Thirty": 30,
+	"ThirtySix": 36,
+	"FourtyTwo": 42,
+	"FourtyEight": 48
+});
