@@ -32,6 +32,13 @@ const UNLOCK_OPTIONS = {
 	PARTIAL: `Partial unlock`
 };
 
+const HIGH_RISK_UNLOCK_OPTIONS = {
+	'Full unlock': `full-unlock`,
+	'Partial unlock': `partial-unlock`
+};
+
+const MAX_ALLOWED_UNLOCK_AMOUNT = 50000; // R 50 000 - in rands 
+
  export class UnlockFTSP extends Component {
 	
 	// --------------
@@ -55,6 +62,7 @@ const UNLOCK_OPTIONS = {
 		this.hasDigitalChannels = false;
 		this.isHelpDeskAgent = false;
 		this.declarationExpanded = false;
+		this.maxAmountBanner = false;
 
 		this.unlockFee = null;
 		this.balanceAfterUnlock = null;
@@ -72,7 +80,7 @@ const UNLOCK_OPTIONS = {
 		super.connectedCallback();
 
 		this._loadUnlockOptionsList();
-		this._isUnlockAllowed();
+		this.isHelpDeskAgent = false;
 
 		// Selecting default from account as the one Unlock savings plan flow is triggered.
 		// eslint-disable-next-line eqeqeq
@@ -84,6 +92,7 @@ const UNLOCK_OPTIONS = {
 	}
 
 	disconnectedCallback() {
+		this._unloading();
 		super.disconnectedCallback();
 	}
 
@@ -102,7 +111,7 @@ const UNLOCK_OPTIONS = {
 	 * @property {Boolean} hasDigitalChannels Indicates if the client is registered for digital channels
 	 * @property {Boolean} isHelpDeskAgent Indicates if the an agent is with Help desk role
 	 * 
-	  * @property {getUnlockQuoteCallback} getUnlockQuote Callback function to get unlock quote for the selected account and unlock type
+	 * @property {getUnlockQuoteCallback} getUnlockQuote Callback function to get unlock quote for the selected account and unlock type
 	 * @property {renderAlterBannerCallback} renderAlertBanner Callback function to render alter banner based on verification status & method
 	 * @property {shouldDisableCallback} shouldDisable Callback function to determine if particular need to be diabled based on verification status & method
 	 *
@@ -124,6 +133,7 @@ const UNLOCK_OPTIONS = {
 			getUnlockQuote: { type: Object, attribute: false },
 			shouldDisable: { type: Object, attribute: false },
 			renderAlertBanner: { type: Object, attribute: false },
+			getUnlockOptions: { type: Object, attribute: false },
 
 			unlockType: { state: true },
 			selectedFromAccount: { state: true },
@@ -135,7 +145,9 @@ const UNLOCK_OPTIONS = {
 			quoteRefNumber: { state: true },
 			declarationExpanded: { state: true },
 			displayUnlockAmount: { state: true },
-			errMessage: { state: true }
+			errMessage: { state: true },
+			maxAmountBanner: { state: true },
+			unlockAllowed: { state: true }
 		};
 	}
 
@@ -150,6 +162,7 @@ const UNLOCK_OPTIONS = {
 	_chooseOption(e) {
 		this.unlockType = e.detail.new;
 		this._clearSelection();
+		this._isUnlockAllowed();
 
 		this.dispatchEvent(new CustomEvent(`choose-options-telemetry`, { detail: { unlockType: this.unlockType } }));
 
@@ -160,7 +173,16 @@ const UNLOCK_OPTIONS = {
 		}
 
 		this.displayUnlockAmount = this._formatAmount(this.partialUnlockAmount);
+		this._checkMaxAllowedUnlockAmount(this.partialUnlockAmount);
+
 		this._getUnlockQuoteDetails();
+	}
+
+	_checkMaxAllowedUnlockAmount(unlockAmount) {
+		this.maxAmountBanner = unlockAmount > MAX_ALLOWED_UNLOCK_AMOUNT;
+		if (this.maxAmountBanner) {
+			this.errMessage = `Max ${formatCurrency(MAX_ALLOWED_UNLOCK_AMOUNT)} allowed at contact center`;
+		}
 	}
 
 	_chooseFromAccount(e) {
@@ -171,8 +193,9 @@ const UNLOCK_OPTIONS = {
 
 		this.unlockType = null;
 		this._clearSelection();
-		this.partialUnlockAmount = this.selectedAccUnlockOptions.partialUnlockAmount;
-		this.displayUnlockAmount = this._formatAmount(this.partialUnlockAmount);
+		this.partialUnlockAmount = null;
+		this.displayUnlockAmount = null;
+		this.unlockFee = null;
 	}
 
 	_unlockAmountChange(e) {
@@ -182,10 +205,11 @@ const UNLOCK_OPTIONS = {
 		this.declarationExpanded = false;
 		this.unlockFee = null;
 		this.balanceAfterUnlock = null;
-
+		
 		if (this.partialUnlockAmount > this.selectedAccUnlockOptions.partialUnlockAmount) {
 			this.errMessage = `Max unlock amount ${formatCurrency(this.selectedAccUnlockOptions.partialUnlockAmount)}`;
 		}
+		this._checkMaxAllowedUnlockAmount(this.partialUnlockAmount);
 	}
 
 	_focusInUnlockAmount(e) {
@@ -196,9 +220,17 @@ const UNLOCK_OPTIONS = {
 	_focusOutUnlockAmount(e) {
 		this.displayUnlockAmount = this._formatAmount(this.partialUnlockAmount);
 
-		this.unlockAllowed = this._isPartialUnlockAllowed();
+		this.unlockAllowed = this._isPartialUnlockAllowed() && this.unlockAllowed;
 
-		if (this.hasAmountChanged && !this.errMessage) {
+		/* Special case that allowes to calculate penalty fee even if we have errMessage
+		 * When max Unlock amount is greater that R50 000 (eg: R217 590.00) and 
+		 * Entered unlock amount is less than max Unlock amount (eg: R75 000.00)
+		*/
+		const calculatePenaltyFee = this.maxAmountBanner && 
+									this.selectedAccUnlockOptions.partialUnlockAmount > MAX_ALLOWED_UNLOCK_AMOUNT && 
+									this.partialUnlockAmount <= this.selectedAccUnlockOptions.partialUnlockAmount;
+
+		if (this.hasAmountChanged && (!this.errMessage || calculatePenaltyFee)) {
 			this.declarationExpanded = true;
 			this.dispatchEvent(new CustomEvent(`unlock-amount-telemetry`, { detail: { unlockAmount: this.partialUnlockAmount } }));
 			this._getUnlockQuoteDetails();
@@ -260,6 +292,16 @@ const UNLOCK_OPTIONS = {
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
 
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`, {
+			detail: {
+				type: this.unlockType,
+				fromAccNumber: this.selectedFromAccount.accountNumber,
+				unlockAmount: this.partialUnlockAmount,
+				penaltyFee: this.unlockFee
+			}
+		}));
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -271,12 +313,18 @@ const UNLOCK_OPTIONS = {
 	// PRIVATE METHODS
 	// ---------------
 
-	_loadUnlockOptionsList() {
+	async _loadUnlockOptionsList() {
 		this.unlockOptionsList = [UNLOCK_OPTIONS.FULL];
-		
-		// eslint-disable-next-line eqeqeq
-		[this.selectedAccUnlockOptions] = this.unlockOptions.filter(account => account.accountNumber == this.selectedUnlockAccNumber);
 
+		// eslint-disable-next-line eqeqeq
+		const selectedAccount = this.unlockOptions.filter(account => account.accountNumber == this.selectedUnlockAccNumber);
+		
+		if (!selectedAccount) {
+			selectedAccount = await this.getUnlockOptions(this.selectedUnlockAccNumber);
+		} 
+
+		[this.selectedAccUnlockOptions] = selectedAccount;
+		
 		if (this.selectedAccUnlockOptions.partialUnlock) {
 			this.unlockOptionsList.push(UNLOCK_OPTIONS.PARTIAL);
 		}
@@ -294,7 +342,7 @@ const UNLOCK_OPTIONS = {
 		if (this.isHelpDeskAgent) {
 			this.unlockAllowed = true;
 		} else {
-			this.unlockAllowed = !this.shouldDisable(`unlock-ftsp`);
+			this.unlockAllowed = !this.shouldDisable(HIGH_RISK_UNLOCK_OPTIONS[this.unlockType]);
 		}
 	}
 
@@ -328,6 +376,9 @@ const UNLOCK_OPTIONS = {
 				.card {
 					height: 888px;
 				}
+				.card > capitec-group {
+					--theme-layout-gap-spacing: 0px;
+				}
 				capitec-title-bar {
 					--theme-layout-gap-spacing: 0px;
 					--theme-layout-gap-line-color: 0px;
@@ -335,6 +386,7 @@ const UNLOCK_OPTIONS = {
 				}
 				.bg-save {
 					background: linear-gradient(90deg, #003354 0%, #00486D 100%);
+					margin-bottom: 0px;
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-font-color: #FFFFFF;
@@ -500,7 +552,6 @@ const UNLOCK_OPTIONS = {
 					background-color: #FFFFFF;
 					border-top: 1px solid #E1E1E1;
 					border-radius: 0px 0px 4px 4px;
-					--theme-layout-gap-spacing: 18px;
 				}
 				.list-items {
 					margin: 24px 16px 24px 37px;
@@ -708,7 +759,8 @@ const UNLOCK_OPTIONS = {
 	_renderBanner() {
 		return !this.isHelpDeskAgent && this.verificationMethod === `SQ`
 		? html`${this._renderITABanner()}`
-		: html`${this._renderMaxLimitBanner()}`;
+		: html`${this._renderMaxLimitBanner()}
+				${this._renderBlanceDetailsBanner()}`;
 	}
 
 	_renderITABanner() {
@@ -718,7 +770,8 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_renderMaxLimitBanner() {
-		return html`
+		return this.maxAmountBanner
+		? html`
 			<horizon-alert-banner
 					class="verificatoin-status"
 					data-automation-id="unlock-ftsp-disclosure-message"
@@ -726,14 +779,40 @@ const UNLOCK_OPTIONS = {
 						<capitec-group layout="horizontal" class="alert-banner-group">
 							<capitec-label type="strong" label="Notify client:"></capitec-label>
 							<capitec-label type="default"
-								label=" To limit risk and protect your money I can only unlock">
+								label=" To limit risk and protect your money, we can only unlock amounts up to ">
 							</capitec-label>
 							<capitec-label type="strong" label="R50 000.00"></capitec-label>
 							<capitec-label type="default"
-								label=" from your savings. Please visit a branch to unlock a greater amount.">
+								label=" . Please visit a branch to unlock a greater amount.">
 							</capitec-label>
 						</capitec-group>
-			</horizon-alert-banner>`;
+			</horizon-alert-banner>`
+			: html``;
+	}
+
+	_renderBlanceDetailsBanner() {
+		return this.unlockType === `Partial unlock`
+		? html`
+			<horizon-alert-banner
+					class="verificatoin-status"
+					data-automation-id="unlock-ftsp-disclosure-message"
+					type="info">
+						<capitec-group layout="horizontal" class="alert-banner-group">
+							<capitec-label type="strong" label="Notify client:"></capitec-label>
+							<capitec-label type="default"
+								label=" For your fixed term savings account, with a balance of ">
+							</capitec-label>
+							<capitec-label type="strong" label="${this.selectedFromAccount.availableBalance}"></capitec-label>
+							<capitec-label type="default"
+								label=", a maximum of ">
+							</capitec-label>
+							<capitec-label type="strong" label="${formatCurrency(this.selectedAccUnlockOptions?.partialUnlockAmount)}"></capitec-label>
+							<capitec-label type="default"
+								label=" can be unlocked.">
+							</capitec-label>
+						</capitec-group>
+			</horizon-alert-banner>`
+		: html``;
 	}
 
 	_renderNoDigitalChannelsBanner() {
@@ -775,6 +854,8 @@ const UNLOCK_OPTIONS = {
 	}
 
 	_renderAccountSelection() {
+		const fromAccountList = this.unlockFromAccountsList.filter(item => item.accountName !== `Tax- Free Save`);
+
 		return html`
 			<capitec-group class="select-group" layout="horizontal" halign="left" valign="top" gap="clear">
 				<capitec-group class="accounts-group" layout="vertical" halign="left" valign="center" gap="clear">
@@ -792,7 +873,7 @@ const UNLOCK_OPTIONS = {
 						id-field="accountNumber"
 						detail-label="${this.selectedFromAccount.accountNumber}"
 						hint="${this.unlockType === `Full unlock` ? `Unlock Fixed-term Savings to a Flexible Plan` : ``}"
-						.items="${this.unlockFromAccountsList}"
+						.items="${fromAccountList}"
 						.value="${this.selectedFromAccount}"
 						.displayRenderer="${(e) => this._renderOptions(e)}"
 						@value-changed="${(e) => this._chooseFromAccount(e)}"> 
@@ -943,7 +1024,7 @@ const UNLOCK_OPTIONS = {
 						data-automation-id="unlock-ftsp-accept-quote"
 						label="I agree to the penalty fee and above terms and conditions"
 						?checked=${this.agreementAccepted}
-						?disabled="${!this.unlockAllowed}"
+						?disabled="${!this.unlockAllowed || Boolean(this.errMessage)}"
 						@value-change="${(e) => this._acceptAgreement(e)}">
 					</capitec-check>
 				</capitec-content-box>

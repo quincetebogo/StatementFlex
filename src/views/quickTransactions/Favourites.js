@@ -1243,6 +1243,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_renderUpdateCardLimits() {
+		return html``; // Always return no HTML. Client should visit APP or branch to update limits. Button will be disabled with tooltip
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
@@ -1260,6 +1261,7 @@ export class Favourites extends SavingsAccountBase {
 					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 					@verify-now="${() => super._verifyClick()}"
 					@back="${() => this._backToLandingPage()}"
 					@result=${eventData => this._updateLimitsResult(eventData)}>

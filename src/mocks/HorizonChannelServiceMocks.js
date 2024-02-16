@@ -45,7 +45,8 @@ export default class HorizonChannelServiceMocks {
 		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
-		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err))); this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
+		this.creditMocks = await loadMockModule(this.creditMocks, `creditBalance`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditOverview`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -53,7 +54,8 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err))); this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
+		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err))); 
+		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `permissions`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -231,11 +233,11 @@ export default class HorizonChannelServiceMocks {
 		// Code for a negative case could come here
 		return null;
 	}
+
 	getClientProducts(cifNumber) {
 		if (this._mockSettings.savingsPlanLanding.positiveCase) {
 			return this.savingsAccountMocks.getClientProducts;
 		}
-
 		// Code for a negative case could come here
 		return null;
 	}
@@ -701,11 +703,23 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	canOpenBudget() {
+		if (this._mockSettings.canOpenBudget.positiveCase) {
+			return this.budgetFacility.canOpenBudget;
+		}
+	}
+
 	delistCapitec() {
 		if (this._mockSettings.delistCapitec.positiveCase) {
 			return true;
 		}
 		return null;
+	}
+
+	calculateBudget() {
+		if (this._mockSettings.calculateBudget.positiveCase) {
+			return this.budgetFacility.calculateBudget;
+		}
 	}
 
 	moneyOut() {
