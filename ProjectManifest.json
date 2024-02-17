@@ -1,10 +1,10 @@
 {
-  "name": "cec-ui-horizon-insure",
+  "name": "cec-ui-horizon",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
-  "version": "2.40.13",
+  "version": "2.41.4",
   "alias": "cec-horizon",
-  "release": "240201",
+  "release": "240202",
   "contractVersion": "v1",
   "serviceType": "Channel",
   "port": 6001,
