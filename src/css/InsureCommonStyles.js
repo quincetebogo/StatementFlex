@@ -8,6 +8,10 @@ import { css } from 'platform/elements';
  * @private
  */
 export const INSURE_CSS = css`
+	.title-bar-label{
+		font-size: 22px;
+		color:#FFF;
+	}
 	.capitec-button-medium {
 		width: 150px !important;
 	}
@@ -58,5 +62,25 @@ export const INSURE_CSS = css`
 		top : var(--toast-top, 56px);
 		margin-left: var(--toast-margin-left, 300px);
 		width : var(--toast-width, 465px)
+	}
+
+	.once-off-label-colour{
+		--theme-label-font-color: #009E96;
+		;
+	}
+
+	.monthly-label-colour{
+		--theme-label-font-color: #852CB3;
+		;
+	}
+
+	.education-label-colour{
+		--theme-label-font-color: #AA1580;
+		
+	}
+
+	.ghost-label{
+		--horizon-label-text-color: #979797;
+		--horizon-label-value-color: #979797;
 	}
 `;
