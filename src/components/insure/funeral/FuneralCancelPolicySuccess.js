@@ -14,10 +14,10 @@ import 'app/components/dialogs/insure/InsureEmailDialog';
  * send-email
  *  
  * @export
- * @class CancelPolicySuccess
+ * @class FuneralCancelPolicySuccess
  * @extends {Component}
  */
-class CancelPolicySuccess extends Component {
+class FuneralCancelPolicySuccess extends Component {
 
 	// #region INITIALIZE
 
@@ -226,15 +226,15 @@ class CancelPolicySuccess extends Component {
 	// #endregion
 
 }
-window.customElements.define(`horizon-insure-cancel-policy-success`, CancelPolicySuccess);
+window.customElements.define(`horizon-insure-funeral-cancel-policy-success`, FuneralCancelPolicySuccess);
 
 /**
  * Navigate back to client policies 
  *
  * @example
- * <horizon-insure-cancel-policy-success ... @navigate-to-summary="${this._handler}"></horizon-insure-cancel-policy-success>
+ * <horizon-insure-funeral-cancel-policy-success ... @navigate-to-summary="${this._handler}"></horizon-insure-funeral-cancel-policy-success>
  *
- * @event CancelPolicySuccess#navigate-back
+ * @event FuneralCancelPolicySuccess#navigate-back
  * @type {Object} - N/A
  */
 
@@ -242,8 +242,8 @@ window.customElements.define(`horizon-insure-cancel-policy-success`, CancelPolic
  * Open email dialog
  *
  * @example
- * <horizon-insure-cancel-policy-success ... @send-email="${this._handler}"></horizon-insure-cancel-policy-success>
+ * <horizon-insure-funeral-cancel-policy-success ... @send-email="${this._handler}"></horizon-insure-funeral-cancel-policy-success>
  *
- * @event CancelPolicySuccess#navigate-back
+ * @event FuneralCancelPolicySuccess#navigate-back
  * @type {Object} - N/A
  */
