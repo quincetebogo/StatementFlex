@@ -84,6 +84,22 @@ class ClientClaimsSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`claim-selected`, { detail: { claim } }));
 	}
 
+	/**
+	* Claim status label, truncated if too long
+	* @param {object} claim Current claim
+	* @returns {void} 
+	*/
+	_claimStatusLabel(claim) {
+		let status = ``;
+		if (claim?.claimStatus.length < 25) {
+			status = claim?.claimStatus;
+		} else {
+			status = claim?.claimStatus.slice(0, 23);
+			status += `...`;
+		}
+		return status;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -191,6 +207,15 @@ class ClientClaimsSummary extends Component {
 				.no-outstanding-docs{
 					--horizon-label-value-color: #70af00!important;
 				}
+
+				#no-claims-list{
+					display: flex; 
+					justify-content: center; 
+					align-items: center; 
+					height: 100%; 
+					flex-direction: column; 
+					padding-top: 100px;
+				}
 			`
 		];
 	}
@@ -200,9 +225,10 @@ class ClientClaimsSummary extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	_webTemplate() {
-		return html`
-			${this._renderClaimList()}
-		`;
+		if (isNullorEmpty(this.clientClaims) || this.clientClaims.claimSummaries?.length === 0) {
+			return html`${this._renderEmptyList()}`;
+		}
+		return html`${this._renderClaimList()}`;
 	}
 
 	/**
@@ -251,7 +277,7 @@ class ClientClaimsSummary extends Component {
 						<horizon-label
 							label="Status"
 							class = "${claim?.claimStatus === `Active` ? `active-status` : `inactive-status`}"
-							value="${claim?.claimStatus}">
+							value="${this._claimStatusLabel(claim)}">
 						</horizon-label>
 				</capitec-group>
 				<div slot="content">
@@ -265,6 +291,23 @@ class ClientClaimsSummary extends Component {
 				</div>
 			</horizon-expander>
 		`)}`;
+	}
+
+	/**
+	 * Empty list renderer
+	 * @returns {html} The html content of the component.
+	 */
+	_renderEmptyList() {
+		return html`
+			<div id="no-claims-list">
+				<capitec-image src="platform/illustrations/history.svg"></capitec-image>
+				${isNullorEmpty(this.clientClaims) ? html`
+					<capitec-label type="subtitle" label="Error loading claims"></capitec-label>
+				` : html`
+					<capitec-label type="subtitle" label="No active claims"></capitec-label>
+				`}
+			</div>
+		`;
 	}
 
 	// #endregion

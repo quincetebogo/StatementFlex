@@ -20,6 +20,7 @@ export const TelemetryScreen = {
 
     STOP_CARD: `Stop Card`,
     STOP_CARD_OUTCOME: `Stop Card Outcome`,
+	CARD_HISTORY_PAGE: `Card History Page`,
 
     FAVOURITES: `Favourite Transactions`,
 
@@ -165,7 +166,6 @@ export const TelemetryScreen = {
 	INSURE_PAY_POLICY_CONFIRM_DIALOG: `Insure Pay Policy Confirm dialog`,
 	INSURE_PAY_POLICY_SUCCESS: `Insure Pay Policy Success`,
 	
-	INSURE_AUDIT_TRANSACTION_HISTORY: `Insure Audit Transaction History screen`,
 	INSURE_TRANSACTION_HISTORY: `Insure Transaction History screen`,
 	INSURE_SMS_HISTORY: `Insure SMS History screen`,
 

@@ -13,7 +13,8 @@
 		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet"
+		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
+		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
@@ -54,24 +55,35 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
-		"acceptCall": {
-			"enabled": false,
-			"positiveCase": true
+		"enabled": true,
+		"createIncident": {
+			"enabled" : false
 		},
-		"identifyCaller": {
-			"enabled": false,
+		"acceptCall": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"searchCaller": {
 			"enabled": true,
 			"positiveCase": true
 		},
+		"identifyCaller": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getTemporaryLimits": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getCardLimitsAgreement": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -85,19 +97,19 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"itaVerification": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
 			"enabled": true,
 			"positiveCase": true
 		},
-		"loadKBA": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
@@ -124,9 +136,16 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"stopCardLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"stopCard": {
 			"enabled": false,
-			"failStopCard": true,
+			"positiveCase": false
+		},
+		"capitecConnectRechargeHistory": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"transactionHistory": {
@@ -134,19 +153,19 @@
 			"positiveCase": true
 		},
 		"savingsPlanTransactionHistory": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"insureAuditTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getClientProducts": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -157,8 +176,44 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"liveBetterLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"liveBetterTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"lbbLinkedTransactionDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"getClientInsights": {
-			"enabled": true,
+			"enabled": false,
+			"positiveCase": true
+		},
+		"accessChannel": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"accessChannelUssdLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"accessChannelResetSecurityTokenClock": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"activatefullUssdMenu": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cancelUSSD": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"unblockSIM": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureClientSummary": {
@@ -169,15 +224,19 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"budgetTransferFromAccounts": {
+		"insureCalculateQuote": {
 			"enabled": false,
-			"positiveCase": true
-		},
-		"confirmBudgetTransfer": {
-			"enabled": false,
-			"positiveCase": true
+			"positiveCase": false
 		},
 		"insurePolicyTransactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditOverview": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditBalance": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -188,6 +247,42 @@
 		"insureCommsHistory": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"budgetAccounts": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"budgetTransferFromAccounts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"confirmBudgetTransfer": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailProofOfPayment": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"sendSettlementQuoteEmail": {
+			"enabled": false,
+			"postiveCase": false
+		},
+		"loadKBA": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"settleAndCloseQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"creditPermissions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"emailPaidUpLetter": {
+			"enabled": false,
+			"positiveCase": false
 		},
 		"insurePrepareUpdate": {
 			"enabled": false,
@@ -202,11 +297,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"insureRequestCallback": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
@@ -218,11 +309,11 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
@@ -239,6 +330,134 @@
 		},
 		"insureClaims": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureRequestCallback": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockOptions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"ftspUnlockQuote": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlockAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"ftspUnlock": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"sendCashVouchers": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"getClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"putClientConsent": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"canOpenBudget": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"budgetDetails": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"calculateBudget": {
+			"enabled": true,
+			"positiveCase" : true
+		},
+		"creditStatement": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"settleAndClose": {
+			"enabled": false,
+			"positiveCase" : true
+		},
+		"payShapDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getInstitutions": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"enlistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"delistCapitec": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyOut": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"moneyIn": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeClientSummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeCancelPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeGetArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeGetPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifePayArrears": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeQuestionnaire": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"payshapPop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"suspendChannels": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureElectOption": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifePremiumHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeSMSHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenericLifeDocument": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

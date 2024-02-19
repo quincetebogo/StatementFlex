@@ -1,15 +1,16 @@
-import { ACCESS_CHANNELS_REASONS, ACCESS_CHANNELS_TYPE, CHANNEL_TYPE } from 'app/constants/AccessChannels';
+import { QuickTransactionEvents, SUSPEND_CHANNELS_EVENTS } from 'app/constants/telemetry/events/QuickTransactions';
 import { css, html } from 'platform/elements';
 import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { NavigationContext } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { formatDate } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/SuspendAccessChannels';
 import 'app/components/common/HorizonExpander';
 
 const IB_TOKEN_TYPE = {
@@ -40,12 +41,10 @@ export class StopCardSuccess extends ViewBase {
 		this.alertSuspendChannels = false;
 		this.confirmSuspendChannels = false;
 		this.notNowToSuspendChannels = false;
-		this.channels = [];
 		this.accessChannels = {};
-		this.need = ``;
-		this.tokenType = ``;
 
 		this._telemetry = HorizonTelemetry.instance;
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
 	}
@@ -73,42 +72,6 @@ export class StopCardSuccess extends ViewBase {
 		return `${description}${this.notNowToSuspendChannels ? `Note: Access channels not suspended` : ``}`;
 	}
 
-	get selectedACs() {
-		return this.channels.filter(item => item.selected && !item.disabled).length;
-	}
-	
-	get channelIcons() {
-		const app = `system/cards-action`;
-		const inet = `system/access-action`;
-		const ussd = `system/call-outbound-action`;
-
-		return {
-			[ACCESS_CHANNELS_TYPE.APP]: app,
-			[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]: inet,
-			[ACCESS_CHANNELS_TYPE.USSD]: ussd
-		};
-	}
-
-	get selectedReasonAcs() {
-		return this.channels.filter(item => item.selected && Boolean(item.reason)).length;
-	}
-
-	get ussd() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.USSD);
-	}
-
-	get internetBanking() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
-	}
-	
-	get app() {
-		return this.channels.find(item => item.channel === ACCESS_CHANNELS_TYPE.APP);
-	}
-
-	get expandedTiles() {
-		return this.channels.filter(x => x.expanded).length;
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -119,6 +82,9 @@ export class StopCardSuccess extends ViewBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = screenDetails?.stoppedCards || [];
 		this.notNowToSuspendChannels = screenDetails.notNowToSuspendChannels || this.notNowToSuspendChannels;
+
+		const { pathParams } = this.navigationContext.current;
+		this.context = pathParams.context || this.context;
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		await this._initialise();
@@ -204,7 +170,7 @@ export class StopCardSuccess extends ViewBase {
 	_notNow() {
 		this._toggleAlertSuspendChannels();
 		this.notNowToSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_NOT_NOW, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW, {});
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
@@ -212,84 +178,27 @@ export class StopCardSuccess extends ViewBase {
 	_suspendChannels() {
 		this._toggleAlertSuspendChannels();
 		this.confirmSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CONTINUE, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE, {});
 	}
 
 	_cancelSuspendChannels() {
 		this.confirmSuspendChannels = false;
 		this.notNowToSuspendChannels = true;
 
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CANCEL, {});
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, {});
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
 
-	_selectAllToSuspend(e) {
-		this.channels = this.channels.map(item => {
-			item.selected = e.detail.new;
-			if (!item.disabled) {
-				item.expanded = e.detail.new;
-			}
-			return item;
-		});
-		this.requestUpdate();
-	}
-
-	_channelSelected(event, index) {
-		this.channels[index].selected = event.detail.new;
-		this.channels[index].expanded = event.detail.new;
-
-		if (this.channels[index].channel === ACCESS_CHANNELS_TYPE.APP && this.tokenType === IB_TOKEN_TYPE.SOFT && this.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE) {
-			const ibIndex = this.channels.findIndex(item => item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING);
-			this.channels[ibIndex].selected = event.detail.new;
-		}
-
-		if (!event.detail.new) {
-			this.channels[index].reason = ``;
-		}
-
-		this.channels = this.channels.map(c => {
-										if (c.selected && Boolean(c.reason)) {
-											c.expanded = false;
-										}
-										return c;
-									});
-		this.requestUpdate();
-	}
-
-	async _confirmSuspend() {
-		const request = await this._formatSuspendChannelsRequest();
-
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_AC_SUSPEND_CONFIRM, {
-			ChannelsToSuspend: request.channels
+	async _confirmSuspend(request, need) {
+		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
+			'channels': request.channels
 		});
 
-		await super._inicidentManager_(this.need, () => this._toggleBusyFlag());
 		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to suspend channels`, `StopCardSuccess._confirmSuspend`, returnValue.correlationId);
-		}
-
-		this._updateScreenDetails(request, returnValue.result);
-		this.horizonRouter.navigateToAccessChannelsOutcome();
-	}
-
-	_suspendReasonSelected(event, item, key = null) {
-		const index = this.channels.findIndex(x => x.channel === item.channel);
-		this.channels[index].reason = key || event.currentTarget.label;
-
-		this.requestUpdate();
-	}
-
-	_expanded(item, e) {
-		item.expanded = true;
-		this.requestUpdate();
-	}
-
-	_collapsed(item, e) {
-		item.expanded = false;
-		this.requestUpdate();
+		return returnValue;
 	}
 
 	// ---------------
@@ -297,37 +206,21 @@ export class StopCardSuccess extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-		if (this.notNowToSuspendChannels) {
+		if (this.notNowToSuspendChannels || this.context === `ac`) {
 			return;
 		}
 
 		const returnValue = await this.accessChannelService.accessChannelLanding(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
-			this.channels = [];
 			this.accessChannels = returnValue.result;
-			this.tokenType = this.accessChannels.internetBanking?.tokenType;
 
-			// Coverting result into Channels array
-			this.channels.push({ ...this.accessChannels.app, channel: ACCESS_CHANNELS_TYPE.APP, label: `App` });
-			this.channels.push({ ...this.accessChannels.internetBanking, channel: ACCESS_CHANNELS_TYPE.INTERNET_BANKING, label: `Internet Banking` });
-			this.channels.push({ ...this.accessChannels.ussd, channel: ACCESS_CHANNELS_TYPE.USSD, label: `USSD` });
-
-			this.alertSuspendChannels = this.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-				this.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-				this.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
-			this.channels = this.channels.filter(x => x.status === ACCESS_CHANNEL_STATUS.ACTIVE)
-				.map(item => {
-					item.selected = false;
-					item.disabled = this.tokenType === IB_TOKEN_TYPE.SOFT && item.channel === ACCESS_CHANNELS_TYPE.INTERNET_BANKING;
-					item.reason = ``;
-					item.expanded = false;
-
-					return item;
-				});
+			this.alertSuspendChannels = this.accessChannels.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+										this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+										this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
 
 			if (this.alertSuspendChannels) {
-				this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_AC_SUSPEND, {
+				this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_STATUS, {
 					App: this.accessChannels.app?.status,
 					InetBanking: this.accessChannels.internetBanking?.status,
 					USSD: this.accessChannels.ussd?.status
@@ -336,84 +229,6 @@ export class StopCardSuccess extends ViewBase {
 		}
 
 		this.logger.log(`error`, `Failed to load access channel landing information`, `StopCardSuccess._initialise`, returnValue.correlationId);
-	}
-
-	async _formatSuspendChannelsRequest() {
-		const request = {
-			channels: this.channels.filter(item => item.selected && !item.disabled).map(item => CHANNEL_TYPE[item.channel]),
-			app: null,
-			inetbanking: null,
-			ussd: null
-		};
-		this.need = request.channels.length > 1 ? `suspend-channels` : ``;
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP])) {
-			request.app = {
-				reason: this.app?.reason,
-				userRegNo: this.accessChannels.app?.userRegNo
-			};
-			this.need = this.need || `suspend-app`;
-		}
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && this.tokenType !== IB_TOKEN_TYPE.SOFT) {
-			const returnValue = await this.accessChannelService.internetBankingLanding(this.accessChannels?.internetBanking?.userRegNo);
-
-			if (returnValue.succeeded && returnValue.result) {
-				const tokens = returnValue.result?.tokens;
-
-				request.inetbanking = {
-					cif: this.callerInformation.cifNumber,
-					tokenSerialNo: tokens.filter(t => t.tokenType !== IB_TOKEN_TYPE.SOFT).map(t => t.tokenSerialNo),
-					reason: this.internetBanking?.reason
-				};
-			} else {
-				this.logger.log(`error`, `Failed to load tokens to suspend internet banking`, `_formatSuspendChannelsRequest`, returnValue.correlationId);
-			}
-			this.need = this.need || `suspend-token`;
-		}
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD])) {
-			request.ussd = {
-				msisdn: this.accessChannels.msisdn,
-				cif: `0${this.callerInformation.cifNumber}`,
-				reason: ACCESS_CHANNELS_REASONS.DEFAULT
-			};
-			this.need = this.need || `cancel-ussd`;
-		}
-		return request;
-	}
-
-	_updateScreenDetails(request, response) {
-		const screenDetails = {};
-		screenDetails.result = request.channels.map(item => {
-			const channelRes = response && response[item.toLowerCase()];
-
-			return {
-				channel: item.toLowerCase(),
-				status: channelRes?.status || false
-			};
-		});
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP]) && response?.app?.status) {
-			request.app = null;
-			const index = request.channels.indexOf(CHANNEL_TYPE.app);
-			request.channels.splice(index, 1);
-		}
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]) && response?.inetbanking?.status) {
-			request.inetbanking = null;
-			const index = request.channels.indexOf(CHANNEL_TYPE.internetBanking);
-			request.channels.splice(index, 1);
-		}
-
-		if (request.channels.includes(CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD]) && response?.ussd?.status) {
-			request.ussd = null;
-			const index = request.channels.indexOf(CHANNEL_TYPE.ussd);
-			request.channels.splice(index, 1);
-		}
-
-		screenDetails.request = request;
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	_updateSuspendAcAction() {
@@ -759,180 +574,16 @@ export class StopCardSuccess extends ViewBase {
 	_renderSuspendChannels() {
 		return this.confirmSuspendChannels
 			? html`
-			<capitec-modal type="form" header="Stop Access Channels">
-				<capitec-content-box slot="body" halign="right" class="${this.expandedTiles > 1 ? `noPaddingRight` : ``}">
-					${this.tokenType === IB_TOKEN_TYPE.SOFT
-					? html`
-							<horizon-alert-banner
-								type="info"
-								header="Note: "
-								label="Suspending App will suspend Internet Banking soft token.">
-							</horizon-alert-banner>`
-					: html``
-				}
-					<capitec-check
-						label="Select all"
-						@value-change="${(e) => this._selectAllToSuspend(e)}">
-					</capitec-check>
-					${this._renderActiveAccessChannels()}
-				</capitec-content-box>
-				<capitec-button slot="footer" label="Cancel" @click="${() => this._cancelSuspendChannels()}">
-				</capitec-button>
-				<capitec-button slot="footer" 
-					type="primary"
-					label="Stop Channels"
-					@click="${() => this._confirmSuspend()}"
-					?disabled="${this.selectedACs === 0 || this.selectedACs !== this.selectedReasonAcs}">
-				</capitec-button>
-			</capitec-modal>`
+				<horizon-suspend-access-channels
+					context="sc"
+					cifNumber="${this.callerInformation.cifNumber}"
+					.accessChannels="${this.accessChannels}"
+					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
+					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS)}"
+					@cancel="${() => this._cancelSuspendChannels()}"
+					@suspended="${() => this.confirmSuspendChannels = false}">
+				</horizon-suspend-access-channels>`
 			: html``;
-	}
-
-	_renderActiveAccessChannels() {
-		return this.channels.filter(item => item.status === ACCESS_CHANNEL_STATUS.ACTIVE)
-							.map((item, index) => html`
-								<horizon-expander
-									class="${item.disabled ? `disabled` : ``}"
-									expandButtonAlignment="right"
-									icon="${this.channelIcons[item.channel]}"
-									?expanded="${item.expanded}"
-									?disabled="${!item.selected}"
-									@expand="${(e) => this._expanded(item, e)}"
-									@collapse="${(e) => this._collapsed(item, e)}">
-										<capitec-group slot="custom-header" layout="horizontal" valign="center">
-											<horizon-label
-												class="channelInfoLbl"
-												label="${item.label}"
-												value="Last used ${formatDate(item.dateLastUsed, `dd mmm yyyy`)}">
-											</horizon-label>
-											<horizon-label
-												class="channelStatusLbl"
-												label="Status"
-												value="${item.status}">
-											</horizon-label>
-											<capitec-check
-												class="ac-tile"
-												?checked="${item.selected}" 
-												?disabled="${item.disabled}"
-												@value-change="${(event) => this._channelSelected(event, index)}">
-											</capitec-check>
-										</capitec-group>
-										${this._renderSuspendReasons(item)}
-								</horizon-expander>
-							`);
-	}
-
-	_renderSuspendReasons(item) {
-		const app = () => this._renderAppReasons(item);
-		const inetBanking = () => this._renderIBReasons(item);
-		const ussd = () => this._renderUssdReasons(item);
-
-		return {
-			[ACCESS_CHANNELS_TYPE.APP]: app,
-			[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]: inetBanking,
-			[ACCESS_CHANNELS_TYPE.USSD]: ussd
-		}[item.channel]();
-	}
-
-	_renderAppReasons(item) {
-		return html`
-			<capitec-content-box slot="content">
-				<capitec-radio-group label="Choose a reason">
-					<capitec-radio 
-						label="Lost"
-						?checked="${item.reason === `Lost`}"
-						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-					</capitec-radio>
-					<capitec-radio 
-						label="Stolen"
-						?checked="${item.reason === `Stolen`}"
-						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-					</capitec-radio>
-					<capitec-radio 
-						label="Cancelled remote banking"
-						?checked="${item.reason === `ServiceCanceled`}"
-						@value-changed="${(event) => this._suspendReasonSelected(event, item, `ServiceCanceled`)}">
-					</capitec-radio>
-					<capitec-radio 
-						label="Faulty"
-						?checked="${item.reason === `Faulty`}"
-						@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-					</capitec-radio>
-				</capitec-radio-group>
-			</capitec-content-box>`;
-	}
-
-	_renderUssdReasons(item) {
-		return html`
-			<capitec-content-box
-				slot="content">
-					<capitec-radio-group label="Choose a reason">
-						<capitec-radio 
-							label="Do not use service enough"
-							?checked="${item.reason === `Do not use service enough`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Changing to remote/internet banking"
-							?checked="${item.reason === `Changing to remote/internet banking`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Mobile banking too expensive"
-							?checked="${item.reason === `Mobile banking too expensive`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Mobile banking too complicated"
-							?checked="${item.reason === `Mobile banking too complicated`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Need more functions"
-							?checked="${item.reason === `Need more functions`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Lack of support"
-							?checked="${item.reason === `Lack of support`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Closing account"
-							?checked="${item.reason === `Closing account`}"
-							@value-change="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-					</capitec-radio-group>
-			</capitec-content-box>`;
-	}
-
-	_renderIBReasons(item) {
-		return html`
-			<capitec-content-box
-				slot="content">
-					<capitec-radio-group label="Choose a reason">
-						<capitec-radio
-							label="Stolen"
-							?checked="${item.reason === `Stolen`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Lost"
-							?checked="${item.reason === `Lost`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio
-							label="Faulty"
-							?checked="${item.reason === `Faulty`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item)}">
-						</capitec-radio>
-						<capitec-radio 
-							label="Service cancellation"
-							?checked="${item.reason === `ServiceCanceled`}"
-							@value-changed="${(event) => this._suspendReasonSelected(event, item, `ServiceCanceled`)}">
-						</capitec-radio>
-					</capitec-radio-group>
-			</capitec-content-box>`;
 	}
 }
 

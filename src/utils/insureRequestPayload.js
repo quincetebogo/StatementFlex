@@ -29,7 +29,8 @@ export const EMAIL_DOCUMENT_REQUEST_PAYLOAD = {
 		  "type": ``
 		}
 	  }
-	]
+	],
+	"productCode": ``
   };
 
 /**

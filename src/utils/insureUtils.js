@@ -1,7 +1,21 @@
-import { PRODUCT_ID } from 'app/constants/InsureCommon';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, PRODUCT_ID } from 'app/constants/InsureCommon';
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export const TODAY_DATE = new Date();
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+
+
+export const LIFE_COVER_ERROR_MESSAGES = {
+	NO_COVER_ALLOCATED: `No cover allocated to any pocket`,
+	POCKET_MINIMUM: `Minimum pocket allocation is R50 000`,
+	COVER_MAXIMUM: `Combined pocket allocation exceeds maximum cover amount`,
+	BENEFICIARY_MINIMUM: `Minimum beneficiary allocation is R50 000`,
+	MAX_BENEFICIARIES: `Maximum of 2 beneficiaries allowed for pocket`,
+	EDUCATION_MAX_BENEFICIARIES: `Maximum of 10 beneficiaries allowed for education fund`,
+	MAIN_LIFE_ID_MATCH: `Main life and beneficiary cannot be the same person`,
+	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`,
+};
 
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
@@ -118,7 +132,10 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 
 				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
-				
+
+				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
+				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
+
 			}
 
 			// Over max cover
@@ -378,4 +395,136 @@ export function getAgeFromIDNumber(southAfricanIDNumber) {
 	const ageDifMs = Date.now() - birthdate.getTime();
 	const ageDate = new Date(ageDifMs);
 	return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+/**
+ * Format Horizon currency string to Insure cover amount standard
+ * 
+ * @export
+ * @param {String} currencyString Horizon formatted currency string
+ * @returns {string} cover amount with decimals
+ */
+export function formatCurrencyInsureCoverAmount(currencyString) {
+	return currencyString.split(`.`)[0];
+}
+
+/**
+ * Validate both email address values against a regex pattern and return a validity boolean
+ * 
+ * @export
+ * @param {String} email Email address
+ * @param {String} confirmEmail Confirm email address
+ * @returns {boolean} valid flag
+ */
+export function validateEmailAddressCombo(email, confirmEmail) {
+	if (isNullorEmpty(email)) {
+		return false;
+	}
+	if (email !== confirmEmail) {
+		return false;
+	}
+	if (!isNullorEmpty(email) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(email)) {
+		return false;
+	}
+	return true;
+}
+
+
+/** LIFE COVER UTILS */
+
+
+/**
+ * Determine the pocket color class based on pocket type
+ * 
+ * @param {String} pocketType current pocket type
+ * @returns {String} css class
+ */
+export function pocketBadgeColorClass(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `monthly-label-colour`;
+	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `education-label-colour`;
+	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `once-off-label-colour`;
+	}
+}
+
+/**
+ * Determine the pocket color class based on pocket type
+ * 
+ * @param {String} pocketType current pocket type
+ * @returns {String} display label
+ */
+export function pocketBadgeLabel(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `Monthly Payout`;
+	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `Education Fund`;
+	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `Once Off Payout`;
+	}
+}
+
+/**
+ * Determine the pocket icon class based on pocket type
+ * 
+ * @param {String} pocketType current pocket
+ * @returns {String} icon path
+ */
+export function pocketBadgeIcon(pocketType) {
+	if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
+		return `/insure_education_pocket`;
+	}
+	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		return `/insure_monthly_pocket`;
+	}
+	if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		return `/insure_once_off_pocket`;
+	}
+}
+
+/**
+ * determine the status class based on status
+ * @param {String} status status
+ * @return {String} string
+ * 
+ */
+export function determineLifeStatusColour(status) {
+	let cssClass = `inactive-status`;
+
+	if (status === LIFE_POLICY_STATUSES.IN_FORCE) {
+		cssClass = `active-status`;
+	} 
+	if (status === LIFE_POLICY_STATUSES.PENDING_IN_FORCE) {
+		cssClass = `active-status`;
+	}
+	if (status === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
+		cssClass = `active-status`;
+	}
+
+	return cssClass; 
+}
+
+/** 
+ * Determine Active life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineActiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.find(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING);
+}
+
+/**
+ * Determine inactive life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineInactiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
 }
