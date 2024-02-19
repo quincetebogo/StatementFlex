@@ -207,7 +207,7 @@ class ClaimSummary extends Component {
 
 				<div class="summary-row">
 					<horizon-label label="Date of event" class="row-item"
-						value="${isNullorEmpty(this.claimSummary?.dateOfEvent) ? '-' : formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.claimSummary?.dateOfEvent) ? `-` : formatDate(this.claimSummary?.dateOfEvent, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Incident number" class="row-item"
 						value="${!this.claimSummary?.incidentNumber ? `-` : this.claimSummary?.incidentNumber}">
@@ -222,9 +222,9 @@ class ClaimSummary extends Component {
 
 				<div class="summary-row">
 					<horizon-label label="Date of claim" class="row-item"
-						value="${isNullorEmpty(this.claimSummary?.dateOfClaim) ? '-' : formatDate(this.claimSummary?.dateOfClaim, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.claimSummary?.dateOfClaim) ? `-` : formatDate(this.claimSummary?.dateOfClaim, `dd mmm yyyy`)}">
 					</horizon-label>
-					${this.claimSummary?.claimType.toUpperCase() === `DEATH` ? html`
+					${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? html`
 						<horizon-label label="Cause of death" class="row-item"
 							value="${this.claimSummary?.causeOfIncident}">
 						</horizon-label>
@@ -242,7 +242,7 @@ class ClaimSummary extends Component {
 				</div>
 
 				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-					<capitec-title-bar type="default" label="${this.claimSummary?.claimType.toUpperCase() === `DEATH` ? `Deceased details` : `Life assured`}">
+					<capitec-title-bar type="default" label="${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? `Deceased details` : `Life assured`}">
 					</capitec-title-bar>
 					<capitec-content-box class="lives-container">
 						<horizon-expander
@@ -277,7 +277,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="Date of birth"
 									textOverflow="ellipsis"
-									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.dateOfBirth) ? '-' : formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
+									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.dateOfBirth) ? `-` : formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
 								</horizon-label>
 								<horizon-label
 									class="fixed-label"

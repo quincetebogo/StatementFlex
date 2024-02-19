@@ -1,5 +1,5 @@
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
-import { InsureService } from 'app/services/InsureService';
+import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 const ERROR_TOAST_DELAY = 10000;
@@ -17,8 +17,8 @@ export class InsureViewBase extends ViewBase {
 
 	constructor() {
 		super();
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.horizonInsureStore = HorizonInsureStore.getInstance();
+		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.isOnlyProductEnquiry = true;
 	}
 
@@ -47,8 +47,8 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Setup the component once added to the DOM.
-	 * Fetch caller information
-	 * Fetch insure product parameters
+	 * 1. Fetch caller information
+	 * 2. Fetch insure product parameters before view loads
 	 * @returns {void}
 	 */
 	async connectedCallback() {
@@ -58,7 +58,7 @@ export class InsureViewBase extends ViewBase {
 
 	/**
 	 * Unload the component once removed from the DOM.
-	 * Clears CFP value from state
+	 * 1. Clears CFP value from state
 	 * @returns {void}
 	 */
 	disconnectedCallback() {
@@ -75,7 +75,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {Object} Product Params Array
 	 */
 	async _retrieveInsureProductParams() {
-		const resp = await this.insureService.productParams();
+		const resp = await this.insureFuneralService.productParams();
 		if (!resp.succeeded) {
 			return;
 		}
@@ -88,22 +88,21 @@ export class InsureViewBase extends ViewBase {
 	}
 
 	/**
-	 * Error callback for channel services
-	 * @param {Object} ex Error from Channel Service 
-	 * @returns {Boolean} boolean
-	 */
-	_handleChannelServiceError(ex) {
-		return true;
-	}
-
-	/**
 	 * Pop toast with channel services error
 	 * Clear toast after delay has passed
 	 * @param {object} exception Exception thrown by channel service
 	 * @returns {void}
 	 */
 	handleToastError(exception) {
-		this.insureErrorToastMessage = exception.output?.errors ? exception.output.title : exception.output[0].ErrorMessage;
+				
+		if (exception.output[0]?.ErrorMessage) {
+			this.insureErrorToastMessage = exception.output[0].ErrorMessage;
+		} else if (exception.output?.ErrorMessage) {
+			this.insureErrorToastMessage = exception.output.ErrorMessage;
+		} else {
+			this.insureErrorToastMessage = exception.output.title;
+		}
+
 		this.showInsureErrorToast = true;
 		window.setTimeout(() => this._hideToastDisplay(), ERROR_TOAST_DELAY);
 	}
@@ -115,6 +114,15 @@ export class InsureViewBase extends ViewBase {
 	_hideToastDisplay() {
 		this.showInsureErrorToast = false;
 		this.insureErrorToastMessage = ``;
+	}
+
+	/**
+	 * Error callback for channel services
+	 * @param {Object} ex Error from Channel Service 
+	 * @returns {Boolean} boolean
+	 */
+	_handleChannelServiceError(ex) {
+		return true;
 	}
 
 	// #endregion PRIVATE METHODS
