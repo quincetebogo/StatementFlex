@@ -156,6 +156,26 @@ export const CANCELATION_REASONS = Object.freeze([
 ]);
 
 /**
+ * List of cancelation reasons Life supports
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS
+ */
+export const LIFE_CANCELATION_REASONS = Object.freeze([
+	{ code: `BetterOffAtAnotherProvider`, text: `Better off at another provider` },
+	{ code: `CannotAffordPolicy`, text: `Cannot Afford Policy` },
+	{ code: `ChangeInFamilyCircumstances`, text: `Change in family circumstances` },
+	{ code: `Confidential`, text: `Confidential` },
+	{ code: `CoveredByAnotherFamilyMember`, text: `Covered by another family member` },
+	{ code: `InsurerCancelledPolicy`, text: `Insurer cancelled policy` },
+	{ code: `publicAuditCompliance`, text: `Internal Audit Compliance` },
+	{ code: `InvalidPolicy`, text: `Invalid Policy` },
+	{ code: `PoorService`, text: `Poor Service` },
+	{ code: `MoneyLaunderingAndTerroristFinancingRisk`, text: `Money Laundering and terrorist financing risk` },
+	{ code: `FraudulentActivity `, text: `Fraudulent activity` }
+]);
+
+/**
  * List of Role Players
  * @readonly
  * @enum {Object} ROLE_PLAYER_RELATIONSHIP
@@ -203,7 +223,9 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	REINSTATE_POLICY: 3,
 	PAY_PREMIUM: 4,
 	ESTIMATE: 5,
-	CLIENT_POLICIES: 6
+	FUNERAL_CLIENT_POLICIES: 6,
+	LIFE_CANCEL_POLICY_DIALOG: 7,
+	LIFE_UPDATE_POLICY_DIALOG: 8
 });
 
 /**
@@ -237,7 +259,8 @@ export const PRODUCT_ID = `SBL`;
 */
 export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
-	CAPITEC_SANLAM: `CapitecSanlam`
+	CENTRIQ: `Centriq`,
+	SANLAM: `Sanlam`
 });
 
 /**
@@ -295,4 +318,71 @@ export const POLICY_RULES = Object.freeze({
 	STANDARD: `Standard`,
 	POLICYPAUSE: `Policy Pause`,
 	MATERNITYWAIVER: `New Born Waiver`
+});
+
+/**
+ * Pocket types for Life cover policy
+ *
+ * @readonly
+ * @enum {Object} LIFE_POCKET_TYPES
+ */
+export const LIFE_POCKET_TYPES = Object.freeze({
+	MONTHLY: `MonthlyPayout`,
+	EDUCATION: `Education`,
+	ONCEOFF: `LumpSum`
+});
+
+/**
+ * error messages for incorrect email address
+ *
+ * @readonly
+ * @enum {Object} EMAIL_ADDRESS_ERROR_MESSAGES
+ */
+export const EMAIL_ADDRESS_ERROR_MESSAGES = Object.freeze({
+	EMAIL_REQUIRED: `Complete all fields to continue`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	EMAIL_MISMATCH: `Email address does not match. Please confirm email`
+});
+
+/**
+ * Tabs for Insure product
+ *
+ * @readonly
+ * @enum {Object} INSURE_TABS
+ */
+export const INSURE_TABS = Object.freeze({
+	FUNERAL: 0,
+	LIFE: 1,
+	CLAIMS: 2
+});
+
+/**
+ * Tabs for Insure product
+ *
+ * @readonly
+ * @enum {Object} INSURE_TABS
+ */
+export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
+	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
+	BRANCH_CODE: `470010`,
+	BANK: `Capitec Bank`,
+	ACCOUNT_TYPE: `Savings`
+});
+
+/**
+ * LIFE_POLICY_STATUSES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_STATUSES
+ */
+export const LIFE_POLICY_STATUSES = Object.freeze({
+	UNKNOWN: `Unknown`,
+	PENDING: `Pending`,
+	PENDING_IN_FORCE: `PendingInForce`,
+	IN_FORCE: `InForce`,
+	LAPSE_PENDING: `LapsePending`,
+	LAPSED: `Lapsed`,
+	NOT_TAKEN_UP: `NotTakenUp`,
+	CANCELLED: `Cancelled`,
+	OUT_OF_FORCE: `OutOfForce `
 });

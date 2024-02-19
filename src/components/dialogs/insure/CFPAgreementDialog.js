@@ -126,7 +126,7 @@ export class CFPAgreementDialog extends Component {
 					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
-		} else if (this.productCode === INSURE_PRODUCT_CODE.CAPITEC_SANLAM) {
+		} else if (this.productCode === INSURE_PRODUCT_CODE.CENTRIQ || this.productCode === INSURE_PRODUCT_CODE.SANLAM) {
 			return html` <strong>Capitec:</strong>
 				<ul class="no-margin">
 					<li>is a licensed financial services provider;</li>
