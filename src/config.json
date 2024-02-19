@@ -76,7 +76,7 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"getTemporaryLimits": {
@@ -157,11 +157,11 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"getClientProducts": {
@@ -177,7 +177,7 @@
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"liveBetterTransactionHistory": {
@@ -237,11 +237,11 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"creditBalance": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
@@ -361,7 +361,7 @@
 			"positiveCase": true
 		},
 		"sendCashVouchers": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase" : true
 		},
 		"getClientConsent": {
