@@ -9,23 +9,22 @@ import { UpdatePlanEvents } from 'app/constants/telemetry/events/Insure';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 // Dialogs
-import 'app/components/dialogs/insure/AddLifeDialog';
-import 'app/components/dialogs/insure/FCPAgreementDialog';
-import 'app/components/dialogs/insure/YROAAgreementDialog';
-import 'app/components/dialogs/insure/YBPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/AddLifeDialog';
+import 'app/components/dialogs/insure/funeral/FCPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YROAAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YBPAgreementDialog';
 
-import 'app/components/dialogs/insure/RemoveBeneficiaryDialog';
-import 'app/components/dialogs/insure/RemoveLifeAssuredDialog';
-import 'app/components/dialogs/insure/AddBeneficiaryDialog';
-import 'app/components/dialogs/insure/UpdatePlanAgreementDialog';
-import 'app/components/dialogs/insure/ReinstatePolicyAgreementDialog';
+import 'app/components/dialogs/insure/funeral/RemoveBeneficiaryDialog';
+import 'app/components/dialogs/insure/funeral/RemoveLifeAssuredDialog';
+import 'app/components/dialogs/insure/funeral/AddBeneficiaryDialog';
+import 'app/components/dialogs/insure/funeral/UpdatePlanAgreementDialog';
+import 'app/components/dialogs/insure/funeral/ReinstatePolicyAgreementDialog';
 import 'app/components/dialogs/insure/InsureConfirmationDialog';
-import 'app/components/dialogs/insure/UpdateValidationDialog';
-import 'app/components/dialogs/insure/IneligibleLivesDialog';
-import 'app/components/dialogs/insure/LAAgreementDialog';
-import 'app/components/dialogs/insure/YWNBPAgreementDialog';
-import 'app/components/dialogs/insure/YPAgreementDialog';
-import 'app/components/dialogs/insure/PolicyRulesWarningDialog';
+import 'app/components/dialogs/insure/funeral/UpdateValidationDialog';
+import 'app/components/dialogs/insure/funeral/IneligibleLivesDialog';
+import 'app/components/dialogs/insure/funeral/LAAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YWNBPAgreementDialog';
+import 'app/components/dialogs/insure/funeral/YPAgreementDialog';
 
 // Other
 import 'app/components/common/HorizonLabel';
@@ -53,10 +52,10 @@ const REGEX_EMAIL = {
  * 
  *  
  * @export
- * @class UpdatePlan
+ * @class FuneralUpdatePlan
  * @extends {Component}
  */
-class UpdatePlan extends Component {
+class FuneralUpdatePlan extends Component {
 
 	// #region INITIALISATION
 
@@ -1252,10 +1251,8 @@ class UpdatePlan extends Component {
 		await this._calculatePremium();
 
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
-
 		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
 		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
-
 		this.showReinstatePolicyAgreementDialog = true;
 
 	}
@@ -1582,6 +1579,7 @@ class UpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_acceptReinstatePolicy() {
+		console.log(`Firing Accept ReInstate Event`);
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse, newContractRef: this.newContractReference } }));
 	}
 
@@ -2910,15 +2908,15 @@ class UpdatePlan extends Component {
 	// #endregion
 }
 
-window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
+window.customElements.define(`horizon-insure-funeral-update-plan`, FuneralUpdatePlan);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-insure-update-plan ... @navigate-back="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @navigate-back="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#navigate-back
+ * @event FuneralUpdatePlan#navigate-back
  * @type {Object} - N/A
  */
 
@@ -2926,9 +2924,9 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * Initiate Update Plan API calls
  *
  * @example
- * <horizon-insure-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @update-plan-create="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#update-plan-create
+ * @event FuneralUpdatePlan#update-plan-create
  * @type {Object} - N/A
  */
 
@@ -2936,8 +2934,8 @@ window.customElements.define(`horizon-insure-update-plan`, UpdatePlan);
  * raise Accept Plan event when Agree button is clicked on Reinstate Popup
  *
  * @example
- * <horizon-insure-update-plan ... @accept-policy="${this._handler}"></horizon-insure-update-plan>
+ * <horizon-insure-funeral-update-plan ... @accept-policy="${this._handler}"></horizon-insure-funeral-update-plan>
  *
- * @event UpdatePlan#accept-policy
+ * @event FuneralUpdatePlan#accept-policy
  * @type {Object} - N/A
  */
