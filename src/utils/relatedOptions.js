@@ -36,14 +36,8 @@ export const relatedOptions = {
 		]
 	},
 	'tap-to-pay': {
-		Success: [
-			`update-card-limits`,
-			`statements`
-		],
-		Failure: [
-			`update-card-limits`,
-			`stop-card`
-		]
+		Success: [`statements`],
+		Failure: [`stop-card`]
 	},
 	'statements-transact': STATEMENTS_RO = {
 		Success: [`proof-of-account`],
