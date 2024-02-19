@@ -30,6 +30,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 
 	/**
 	 * @property {String} productCode - insurance product code capitec/sanlam.
+	 * @property {Function} updateEarlyCollectionPreferences - callback function to update early collection preferences.
 	 * @static
 	 */
 	static get properties() {

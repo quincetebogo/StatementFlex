@@ -1,42 +1,34 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { DATE_TYPE_LIST, DEFAULTS, FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { EXPANDER_LABEL, INSURE_TRANSACTIONS_CSS, TABLE_EXPANDER_CELL } from 'app/css/PolicyTransactionHistory';
+import { FILTER_BY, MAX_RESULTS, NINETY_DAYS, RENDER_CHIPS } from 'app/constants/InsureTransactionHistory';
 import { getDateRangeDisplayValue, getPredefinedDateRanges } from 'app/utils/insureUtils';
 import { DateTime } from 'luxon';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { TransactionHistoryEvents } from 'app/constants/telemetry/events/Insure';
+
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Policy Transaction History component that displays Policy transactions
+ * Life Premium History component used to display premium history of a policy.
  * 
- * Events Raised
+ * Events Raised 
  * -------------
  * navigate-back
- * unloading
- * _dateChanged
- * _scrollToTop
- * _filterByDateType
  *  
  * @export
- * @class PolicyTransactionHistory
+ * @class LifePolicySummary
  * @extends {Component}
  */
-class PolicyTransactionHistory extends Component {
+class LifePremiumHistory extends Component {
 
 	// #region INITIALIZATION
 
 	constructor() {
 		super();
 
-		this.policyTransactionHistory = {};
+		this.lifePremiumHistory = {};
 		this.filteredData = [];
 		this.hideLoadMore = true;
-		this._telemetry = HorizonTelemetry.getInstance();
-		this.telemetryEvents = {};
 	}
 
 	// #endregion INITIALIZATION
@@ -44,20 +36,11 @@ class PolicyTransactionHistory extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * Callback for rendering transaction details used by {@link PolicyTransactionHistory}.
-	 * 
-	 * @callback RenderTransactionDetails
-	 * @param {Object} [item] Current item for which transaction details to be rendered
-	 * 
-	 * @returns {html} Transaction details response, expander content
-	 */
-
-	/**
 	 * @property {String} startDate - String holds Start date of transaction/due date 
 	 * @property {String} endDate - String holds End date of transaction/due date
 	 * @property {Object} filteredData - Object holds filtered transaction data
-	 * @property {Object} policyTransactionHistory - Object holds transaction data
-	 * @property {Function} getPolicyTransactionHistory Callback function to fetch more data
+	 * @property {Object} lifePremiumHistory - Object holds transaction data
+	 * @property {Function} getLifePremiumHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
 	
@@ -70,8 +53,8 @@ class PolicyTransactionHistory extends Component {
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
 			filteredData: { type: Object, state: true },
-			policyTransactionHistory: { type: Object },
-			getPolicyTransactionHistory: { type: Object },
+			lifePremiumHistory: { type: Object },
+			getLifePremiumHistory: { type: Object },
 			disposeData: { type: Object },
 			hideLoadMore: { type: Boolean, state: true }
 		};
@@ -85,11 +68,8 @@ class PolicyTransactionHistory extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		this.telemetryEvents = TransactionHistoryEvents;
-		await this._telemetry.startSpan(this.telemetryEvents.TRANSACTION_HISTORY, {});
 
 		this._initialise();
 	}
@@ -98,10 +78,8 @@ class PolicyTransactionHistory extends Component {
 	 * call unload event once the component removed from the DOM.
 	 * @returns {void}
 	 */
-	async disconnectedCallback() {
+	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		await this._telemetry.endSpan(this.telemetryEvents.TRANSACTION_HISTORY, {});
 
 		this._unloading();
 	}
@@ -114,16 +92,12 @@ class PolicyTransactionHistory extends Component {
 	 * Navigate back to Policy summary page
 	 * @return {void}
 	 */
-	async _backToSummaryPage() {
-		this._telemetry.logEvent(this.telemetryEvents.TRANSACTION_HISTORY_BACK, {
-			"screen": TelemetryScreen.INSURE_TRANSACTION_HISTORY,
-			"next-screen": TelemetryScreen.INSURE_CLIENT_SUMMARY
-		});
-		this.dispatchEvent(new CustomEvent(`navigate-back`, { detail: {} }));
+	_backToSummaryPage() {
+		this.dispatchEvent(new CustomEvent(`navigate-back`));
 	}
 
 	/**
-	 * filter transactions when date is changed
+	 * set new date range
 	 * @param {event} e e
 	 * @return {void} 
 	 */
@@ -211,18 +185,18 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void} 
 	 */
 	async _loadMoreTransactions() {
-		const oldCount = this.policyTransactionHistory?.transactions?.length;
+		const oldCount = this.lifePremiumHistory?.transactions?.length;
 		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
-		await this.getPolicyTransactionHistory(startDate, endDate, this.policyTransactionHistory?.transactions?.length);
+		await this.getLifePremiumHistory(startDate, endDate, this.lifePremiumHistory?.transactions?.length);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
-		if (oldCount === this.policyTransactionHistory?.transactions?.length) {
+		if (oldCount === this.lifePremiumHistory?.transactions?.length) {
 			this.hideLoadMore = true;
 		} else {
-			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+			this.hideLoadMore = this.lifePremiumHistory?.transactions?.length % MAX_RESULTS > 0 && this.lifePremiumHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 		this._refineSearch();
 	}
@@ -262,15 +236,15 @@ class PolicyTransactionHistory extends Component {
 	 * Initialize component when loaded
 	 * @returns {void}
 	 */
-	async _initialise() {
+	 _initialise() {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
 		this.filteredData = [];
-		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
-			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
-			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
+		if (!isNullorEmpty(this.lifePremiumHistory?.transactions)) {
+			this.filteredData = this.lifePremiumHistory?.transactions.filter(item => new Date(item.eventDate) >= new Date(this.startDate) && new Date(item.eventDate) <= new Date(this.endDate));
+			this.hideLoadMore = this.lifePremiumHistory?.transactions?.length % MAX_RESULTS > 0 && this.lifePremiumHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
 	}
 
@@ -297,14 +271,14 @@ class PolicyTransactionHistory extends Component {
 	 * @return {void} 
 	 */
 	_refineSearch() {
-		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
-			this.filteredData = this.policyTransactionHistory?.transactions;
+		if (!isNullorEmpty(this.lifePremiumHistory?.transactions)) {
+			this.filteredData = this.lifePremiumHistory?.transactions;
 
 			if (!isNullorEmpty(this.startDate) && !isNullorEmpty(this.endDate)) {
 				if (RENDER_CHIPS[FILTER_BY.DATE]) {
 					const startDate = new Date(Date.parse(this.startDate));
 					const endDate = new Date(Date.parse(this.endDate));
-					this.filteredData = this.filteredData.filter(item => new Date(item.date) >= startDate && new Date(item.date) <= endDate);
+					this.filteredData = this.filteredData.filter(item => new Date(item.eventDate) >= startDate && new Date(item.eventDate) <= endDate);
 				}
 			} else {
 				this.filteredData = [];
@@ -395,7 +369,7 @@ class PolicyTransactionHistory extends Component {
 				${this._renderActionBar()}
 				${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id="policy-transactions-table">
-					${this._renderPolicyTransactionHistory()}
+					${this._renderPremiumHistory()}
 				</capitec-content-box>
 				${this._renderFooter()}
 			</capitec-group>
@@ -437,19 +411,19 @@ class PolicyTransactionHistory extends Component {
 				halign="left"
 				valign="center">
 					<horizon-label label = "Policy number" 
-						value = "${this.policyTransactionHistory?.contractReference}" 
+						value = "${this.lifePremiumHistory?.contractReference}" 
 						data-automation-id="transaction-header-contract-reference">
 					</horizon-label>
 					<horizon-label label = "Bank" 
-						value = "${isNullorEmpty(this.policyTransactionHistory?.bankName) ? `-` : this.policyTransactionHistory?.bankName}" 
+						value = "${isNullorEmpty(this.lifePremiumHistory?.bankName) ? `-` : this.lifePremiumHistory?.bankName}" 
 						data-automation-id="transaction-header-bank-name">
 					</horizon-label>
 					<horizon-label label = "Account" 
-						value = "${isNullorEmpty(this.policyTransactionHistory?.accountNumber) ? `-` : this.policyTransactionHistory?.accountNumber}" 
+						value = "${isNullorEmpty(this.lifePremiumHistory?.accountNumber) ? `-` : this.lifePremiumHistory?.accountNumber}" 
 						data-automation-id="transaction-header-account-number">
 					</horizon-label>
 					<horizon-label label = "Arrears amount" 
-						value = "${isNullorEmpty(this.policyTransactionHistory?.arrearsAmount) ? formatCurrency(0) : formatCurrency(this.policyTransactionHistory?.arrearsAmount)}" 
+						value = "${isNullorEmpty(this.lifePremiumHistory?.arrearsAmount) ? formatCurrency(0) : formatCurrency(this.lifePremiumHistory?.arrearsAmount)}" 
 						data-automation-id="transaction-header-arrears-amount">
 					</horizon-label>
 			</capitec-group>
@@ -482,8 +456,8 @@ class PolicyTransactionHistory extends Component {
 	}
 
 	/**
-	 * Show clear/clear all filters
-	 * @returns {html} The html of Clear and Clear All filters
+	 * Render Filter Bar
+	 * @returns {html} The html of Filter Bar
 	 */
 	_renderFilterBar() {
 		if (RENDER_CHIPS[FILTER_BY.DATE] !== ``) {
@@ -500,7 +474,7 @@ class PolicyTransactionHistory extends Component {
 	}
 
 	/**
-	 * Clear Date filter
+	 * Render Date chip
 	 * @returns {html} Render Date chip 
 	 */
 	_renderDateChip() {
@@ -535,7 +509,7 @@ class PolicyTransactionHistory extends Component {
 	 * Render policy transactions
 	 * @returns {html} - content of transactions
 	 */
-	_renderPolicyTransactionHistory() {
+	_renderPremiumHistory() {
 		return this.filteredData?.length > 0
 			? html`
 			<capitec-table
@@ -545,7 +519,7 @@ class PolicyTransactionHistory extends Component {
 				.items = "${this.filteredData}"
 				.expandRenderer="${(item) => this._renderTransactionDetails(item)}"
 				data-automation-id="transaction-history-table">
-					${this._renderPolicyTransHistoryColumns()}
+					${this._renderPremiumHistoryColumns()}
 			</capitec-table>`
 			: html`
 			${this._renderNoResults()}
@@ -562,45 +536,40 @@ class PolicyTransactionHistory extends Component {
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
 				label="Bank details"
-				data-automation-id="policy-transaction-history-bank-details">
+				data-automation-id="life-premium-history-bank-details">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Account name"
-					value = "${item.bankDetails.accountName ? item.bankDetails.accountName : `-`}"
-					data-automation-id="policy-transaction-history-account-name">
-				</horizon-label>
+				
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Account number"
-					value = "${item.bankDetails.accountNumber ? item.bankDetails.accountNumber : `-`}"
-					data-automation-id="policy-transaction-history-account-number">
+					value = "${item.accountNumber ? item.accountNumber : `-`}"
+					data-automation-id="life-premium-history-account-number">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Bank" 
-					value = "${item.bankDetails.bank}"
-					data-automation-id="policy-transaction-history-bank">
+					value = "${item.bank}"
+					data-automation-id="life-premium-history-bank">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Branch code"
-					value = "${item.bankDetails.branchCode}"
-					data-automation-id="policy-transaction-history-branch-code">
+					value = "${item.bankBranchCode}"
+					data-automation-id="life-premium-history-branch-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Account type"
-					value = "${item.bankDetails.accountType}"
-					data-automation-id="policy-transaction-history-account-type">
+					value = "${item.accountType}"
+					data-automation-id="life-premium-history-account-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Collection day"
-					value = "${item.bankDetails.collectionDay}"
-					data-automation-id="policy-transaction-history-collection-day">
+					value = "${item.eventCollectionDay}"
+					data-automation-id="life-premium-history-collection-day">
 				</horizon-label>
 			</capitec-group>
 		`;
@@ -610,29 +579,29 @@ class PolicyTransactionHistory extends Component {
 	 * render transaction history columns
 	 * @returns {html} - table columns
 	 */
-	_renderPolicyTransHistoryColumns() {
+	_renderPremiumHistoryColumns() {
 		return html`
 			<capitec-table-column
-				label="Premium"
-				field="formatedPremium"
+				label="Amount"
+				field="eventAmount"
 				type="currency"
 				size="110px">
 			</capitec-table-column>
 			<capitec-spacer></capitec-spacer>
 			<capitec-table-column
 				label="Type"
-				field="premiumType"
+				field="eventTransactionType"
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
 				label="Date"
-				field="date"
+				field="eventDate"
 				type="date"
 				size="140px">
 			</capitec-table-column>
 			<capitec-table-column
-				label="Amount"
-				field="formatedAmount"
+				label="Paid Amount"
+				field="eventPaidAmount"
 				type="currency"
 				size="120px">
 			</capitec-table-column>
@@ -682,13 +651,13 @@ class PolicyTransactionHistory extends Component {
 	 */
 	_renderFooter() {
 		return html`
-			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.policyTransactionHistory?.transactions?.length === 0}">
+			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.lifePremiumHistory?.transactions?.length === 0}">
 				<capitec-spacer></capitec-spacer>
 				<capitec-button
 					type="clear"
 					label="Load More"
 					@click = ${() => this._loadMoreTransactions()}
-					data-automation-id="policy-transaction-history-load-more">
+					data-automation-id="life-premium-history-load-more">
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-icon
@@ -696,67 +665,21 @@ class PolicyTransactionHistory extends Component {
 					size="medium"
 					icon="system/arrow-up-action"
 					@click = ${() => this._scrollToTop()}
-					data-automation-id="policy-transaction-history-scroll-top">
+					data-automation-id="life-premium-history-scroll-top">
 				</capitec-icon>
 			</capitec-action-bar>`;
 	}
 
 	// #endregion RENDERING
 }
-
-window.customElements.define(`horizon-insure-policy-transaction-history`, PolicyTransactionHistory);
+window.customElements.define(`horizon-insure-life-premium-history`, LifePremiumHistory);
 
 /**
- * When back arrow button is clicked
+ * When back arrow button is clicked, navigate
  *
  * @example
- * <horizon-insure-policy-transaction-history 
-			...@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}..."
+ * <horizon-insure-life-premium-history ... @navigate-back="${this._handler}"></horizon-insure-life--premium-history>
  *
- * @event PolicyTransactionHistory#navigate-back
+ * @event LifePremiumHistory#navigate-back
  * @type {Object} - N/A
- */
-
-/**
- * When page is unloaded, clear policytransactionhistory objects
- *
- * @example
- * <horizon-insure-policy-transaction-history 
-			...@unloading="${() => this._unloadPolicyTransactionHistory()}"...>
-			</horizon-insure-policy-transaction-history>
- *
- * @event PolicyTransactionHistory#unloading
- * @type {Object} - N/A
- */
-
-/**
- * Filter the policy transactions when date is changed
- *
- * @example
- * <capitec-date-time-picker
-				...@apply-clicked="${(e) => this._dateChanged(e)}"...</capitec-date-time-picker>
- *
- * @event PolicyTransactionHistory#_dateChanged
- * @type {Object} - event
- */
-
-/**
- * Scroll to top of the page when arrow up action image is clicked
- *
- * @example
-*  <capitec-icon ... @click = ${(e) => this._scrollToTop(e)} ... </capitec-icon>
- *
- * @event PolicyTransactionHistory#_scrollToTop
- * @type {Object} - event
- */
-
-/**
- * Filter the policy transactions when date type is changed
- *
- * @example
-				<capitec-select
-				...@value-change = "${(e) => this._filterByDateType(e)}" ...</capitec-select>
- *
- * @event PolicyTransactionHistory#_filterByDateType
- * @type {Object} - event
  */
