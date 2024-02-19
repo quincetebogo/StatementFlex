@@ -58,7 +58,7 @@ export class SavingsAccount extends Component {
 			landingPageInfo: { type: Object },
 			shouldDisableByRole: { type: Object },
 			showTooltip: { type: Object },
-			tooltipMessage: { type: String }
+			getTooltipMessage: { type: Object }
 		};
 	}
 	
@@ -338,7 +338,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`transaction-history`)}"
 						?showTooltip="${this.showTooltip(`transaction-history`)}"
 						@click="${() => this._optionSelectedClick(`transaction-history`)}"
 						?disabled="${this.shouldDisableByRole(`transaction-history`)}">
@@ -348,7 +348,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debi-check-action"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`debi-check`)}"
 						?showTooltip="${this.showTooltip(`debi-check`)}"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisableByRole(`debi-check`)}">
@@ -357,7 +357,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 						?showTooltip="${this.showTooltip(`statements`)}"
 						@click="${() => this._optionSelectedClick(`statements-transact`)}"
 						?disabled="${this.shouldDisableByRole(`statements`)}">

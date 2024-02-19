@@ -1218,12 +1218,12 @@ export class Favourites extends SavingsAccountBase {
 					<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
-						.tooltipMessage = "${this.tooltipMessage}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
 						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 						.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 						.showTooltip="${need => this._showTooltip(need)}"
+						.getTooltipMessage = "${(need) => this._getTooltipMessage(need)}"
 						.renderAlertBanner="${() => this.renderAlertBanner()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;
@@ -1376,6 +1376,9 @@ export class Favourites extends SavingsAccountBase {
 					.sendCashVouchers="${this.sendCashVouchers}"
 					.getSendCashVouchers="${(startDate, endDate) => this._getSendCashVouchers(startDate, endDate)}"
 					.disposeData="${() => this.sendCashVouchers = []}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
+					.getTooltipMessage = "${(need) => this._getTooltipMessage(need)}"
 
 					@on-place-hold="${(item) => this._showConfirmPlaceHoldModal(item)}"
 					@back="${() => this._onExitSendCash()}"

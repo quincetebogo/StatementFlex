@@ -850,7 +850,7 @@ export class SavingsPlan extends ViewBase {
 				?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 				.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 				.showTooltip="${need => this._showTooltip(need)}"
-				.tooltipMessage="${this.tooltipMessage}"
+				.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
 
 				@option-click = "${(e) => this._optionClick(e.detail.option, e.detail.planDetails)}"
 				@view-info="${() => this._productEnquiry()}"

@@ -70,7 +70,7 @@ export class LiveBetterSavings extends Component {
 			liveBetterAccountData: { type: Object },
 			shouldDisableByRole: { type: Object },
 			showTooltip: { type: Object },
-			tooltipMessage: { type: String },
+			getTooltipMessage: { type: Object },
 
 			// Private Properties
 			_expanded: { state: true }
@@ -144,6 +144,7 @@ export class LiveBetterSavings extends Component {
 				capitec-content-box {
 					width: auto;
 					height: 678px;
+					overflow: inherit;
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 19px;
@@ -284,6 +285,10 @@ export class LiveBetterSavings extends Component {
 				.icon-chevron > capitec-icon {
 					--theme-icon-size-default: 8px;
 				}
+				.statements::part(tooltip) {
+					position: absolute;
+					width: inherit;
+				}
 			`
 		];
 	}
@@ -412,18 +417,17 @@ export class LiveBetterSavings extends Component {
 						label="Transaction History" 
 						icon="system/time-action"
 						?showTooltip="${this.showTooltip(`transaction-history`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`transaction-history`)}"
 						?disabled="${this.shouldDisableByRole(`transaction-history`)}"
 						@click="${() => this._click(`transaction-history-lbb`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						data-automation-id="live-better-verified-statements"
-						class="button-margin" 
+						class="button-margin statements" 
 						label="Statements" 
 						icon="system/documents-action"
 						?showTooltip="${this.showTooltip(`statements`)}"
-						.tooltipMessage="${this.tooltipMessage}"
-						tooltipPosition="right"
+						.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 						?disabled="${this.shouldDisableByRole(`statements`)}"
 						@click="${() => this._click(`statements-lbb`)}">
 					</horizon-option-button>
@@ -433,7 +437,7 @@ export class LiveBetterSavings extends Component {
 						label="Automatic Savings" 
 						img-src="/images/liveBetter/automatic-savings.svg"
 						?showTooltip="${this.showTooltip(`automatic-savings-lbb`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`automatic-savings-lbb`)}"
 						?disabled="${this.shouldDisableByRole(`automatic-savings-lbb`)}"
 						@click="${() => this._click(`automatic-savings-lbb`)}">
 					</horizon-option-button>

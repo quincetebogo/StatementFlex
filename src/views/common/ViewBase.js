@@ -20,11 +20,9 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 import 'app/components/dialogs/common/AddCallerDetails';
 
-
 const TOOLTIP_CAPITEC_CONNECT = `Your role does not allow you to make use of this functionality.`;
-const TOOLTIP_ONLY_SQ_VERIFIED = `Your need to get digitally verified to make use of this functionality.`;
-const TOOLTIP_NON_CLIENT = `Your verification status[Non-client] does not allow you to make use of this functionality.`;
-const TOOLTIP_UNVERIFIED = `Your verification status[Unverified] does not allow you to make use of this functionality.`;
+const TOOLTIP_NEED_ITA_VERIFICATION = `Digitally Verify client (ITA) to use this feature.`;
+const TOOLTIP_NEED_SQ_VERIFICATION = `Verify client to use this feature`;
 
 /**
  * A Base class for view components to collect common functionality used across most views
@@ -346,18 +344,21 @@ export class ViewBase extends View {
 		return disableByVerification || disableByRole;
 	}
 	
-	get tooltipMessage() {
+	_getTooltipMessage(need) {
+		const isHighRiskTransaction = HIGH_RISK_TRANSACTIONS.includes(need);
 		const byRole = {
 			'Capitec Connect': TOOLTIP_CAPITEC_CONNECT
+			
 		};
+
 		const byVerificationStatus = {
-			'non-client': TOOLTIP_NON_CLIENT, // actually not required as we do not show option buttons on the screen
-			'unverified': TOOLTIP_UNVERIFIED
+			'non-client': ``, // For a non-client we do not show any option buttons on the screen, can use this space in future to show tooltip
+			'unverified': isHighRiskTransaction ? TOOLTIP_NEED_ITA_VERIFICATION : TOOLTIP_NEED_SQ_VERIFICATION // Agent is given access to perform only Low risk transaction when unverified
 		};
 
 		const byVerificationType = {
-			'SQ': TOOLTIP_ONLY_SQ_VERIFIED,
-			'ITA': `` // Probably not required 
+			'SQ': TOOLTIP_NEED_ITA_VERIFICATION, // Agent is restricted to perform High risk transactions 
+			'ITA': `` // Agent is given access to all the available needs on ITA verification 
 		};
 
 		const message = byRole[this.roleManager.orgUnit] || 

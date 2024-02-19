@@ -83,7 +83,7 @@ export class SavingsPlanLanding extends Component {
 			isCapitecConnectAgent: { type: Boolean },
 			shouldDisableByRole: { type: Object },
 			showTooltip: { type: Object },
-			tooltipMessage: { type: String }
+			getTooltipMessage: { type: Object }
 		};
 	}
 	
@@ -573,7 +573,7 @@ export class SavingsPlanLanding extends Component {
 						label="Transaction History"
 						icon="system/time-action"
 						?showTooltip="${this.showTooltip(`transaction-history`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`transaction-history`)}"
 						?disabled="${this.shouldDisableByRole(`transaction-history`)}"
 						@click="${() => this._click(`transaction-history`, item)}">
 				</horizon-option-button>
@@ -582,7 +582,7 @@ export class SavingsPlanLanding extends Component {
 						label="Statements"
 						icon="system/documents-action"
 						?showTooltip="${this.showTooltip(`statements`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 						?disabled="${this.shouldDisableByRole(`statements`)}"
 						@click="${() => this._click(`statements`, item)}">
 				</horizon-option-button>
@@ -591,7 +591,7 @@ export class SavingsPlanLanding extends Component {
 						label="Tax Certificate"
 						icon="system/sars-action" 
 						?showTooltip="${this.showTooltip(`tax-certificate`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`tax-certificate`)}"
 						?disabled="${this.shouldDisableByRole(`tax-certificate`)}"
 						@click="${() => this._click(`tax-certificate`, item)}">
 				</horizon-option-button>
@@ -600,7 +600,7 @@ export class SavingsPlanLanding extends Component {
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
 						?showTooltip="${this.showTooltip(`unlock-ftsp`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`unlock-ftsp`)}"
 						?disabled="${this.shouldDisableByRole(`unlock-ftsp`)}"
 						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
 						@click="${() => this._click(`unlock-ftsp`, item)}">

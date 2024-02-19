@@ -627,7 +627,7 @@ export class LiveBetter extends SavingsAccountBase {
 					.liveBetterAccountData = "${this.landingPageInfo}"
 					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 					.showTooltip="${need => this._showTooltip(need)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
 					
 					@option-click = "${(e) => this._optionClick(e.detail.option)}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"

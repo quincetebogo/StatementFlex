@@ -12,10 +12,12 @@ export const HIGH_RISK_TRANSACTIONS = [
 		`full-unlock`, 
 		`partial-unlock`, 
 		`open-budget`, 
+		`update-card-limits`,
 		`statements`, 
 		`tap-to-pay`, 
 		`tax-certificate`, 
-		`proof-of-account`
+		`proof-of-account`,
+		`send-cash-place-hold`
 	];
 
 /**

@@ -2,6 +2,8 @@ import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
 import 'app/components/common/OptionButton';
 
+const UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE = `Card limits must be updated using the app. Clients can also visit the branch.`;
+
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
@@ -63,7 +65,7 @@ export class FavouriteTransactions extends Component {
 			shouldDisableByRole: { type: Object },
 			showTooltip: { type: Object },
 			renderAlertBanner: { type: Object, attribute: false },
-			tooltipMessage: { type: String },
+			getTooltipMessage: { type: Object },
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
 		};
@@ -252,7 +254,7 @@ export class FavouriteTransactions extends Component {
 						data-automation-id="favourite-transactions-debi-check"
 						badgeText="${pendingMandates}"
 						?showTooltip="${this.showTooltip(`debi-check`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`debi-check`)}"
 						icon="system/debi-check-action" iconSize="default"
 						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
@@ -266,7 +268,7 @@ export class FavouriteTransactions extends Component {
 						?disabled="${this.shouldDisableByRole(`send-cash`)}"
 						label="Send Cash"
 						?showTooltip="${this.showTooltip(`send-cash`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`send-cash`)}"
 						@click="${() => this._optionSelectedClick(`send-cash`)}">
 					</horizon-option-button>
 
@@ -277,7 +279,7 @@ export class FavouriteTransactions extends Component {
 						img-src="/images/common/pay-shap-icon.svg"
 						label="PayShap"
 						?showTooltip="${this.showTooltip(`payshap`)}"
-						.tooltipMessage="${this.tooltipMessage}"
+						.tooltipMessage="${this.getTooltipMessage(`payshap`)}"
 						@click="${() => this._optionSelectedClick(`payshap`)}"
 						?disabled="${this.shouldDisableByRole(`payshap`)}">
 					</horizon-option-button>
@@ -297,21 +299,22 @@ export class FavouriteTransactions extends Component {
 					icon="system/stop-card-action"
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`stop-card`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`stop-card`)}"
 					@click="${() => this._optionSelectedClick(`stop-card`)}"
 					?disabled="${this.shouldDisableByRole(`stop-card`)}">
 				</horizon-option-button>
 
 				<!-- Update Card Limits -->
+				<!-- Agent should inform Client to update through APP. -->
 				<horizon-option-button
 					data-automation-id="favourite-transactions-update-card-limits"
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
-					?showTooltip="${this.showTooltip(`update-card-limits`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					?showTooltip="${true}"
+					.tooltipMessage="${UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.shouldDisableByRole(`update-card-limits`)}">
+					?disabled="${true}">
 				</horizon-option-button>
 				</capitec-tooltip>
 
@@ -322,7 +325,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/contactless-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`tap-to-pay`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`tap-to-pay`)}"
 					@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 					?disabled="${this.shouldDisableByRole(`tap-to-pay`)}">
 				</horizon-option-button>
@@ -342,7 +345,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`statements`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 					@click="${() => this._optionSelectedClick(`statements`)}"
 					?disabled="${this.shouldDisableByRole(`statements`)}">
 				</horizon-option-button>
@@ -355,7 +358,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/sars-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`tax-certificate`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`tax-certificate`)}"
 					@click="${() => this._optionSelectedClick(`tax-certificate`)}"
 					?disabled="${this.shouldDisableByRole(`tax-certificate`)}">
 				</horizon-option-button>
@@ -367,7 +370,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`proof-of-account`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`proof-of-account`)}"
 					@click="${() => this._optionSelectedClick(`proof-of-account`)}"
 					?disabled="${this.shouldDisableByRole(`proof-of-account`)}">
 				</horizon-option-button>
@@ -379,7 +382,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`settlement-quote`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`settlement-quote`)}"
 					@click="${() => this._optionSelectedClick(`settlement-quote`)}"
 					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
 				</horizon-option-button>
@@ -390,7 +393,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/documents-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`paid-up-accounts`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`paid-up-accounts`)}"
 					@click="${() => this._optionSelectedClick(`paid-up-accounts`)}"
 					?disabled="${this.shouldDisableByRole(`paid-up-accounts`)}">
 				</horizon-option-button>
@@ -412,7 +415,7 @@ export class FavouriteTransactions extends Component {
 					icon="system/search-action" 
 					iconSize="default"
 					?showTooltip="${this.showTooltip(`search-other-need`)}"
-					.tooltipMessage="${this.tooltipMessage}"
+					.tooltipMessage="${this.getTooltipMessage(`search-other-need`)}"
 					@click="${() => this._optionSelectedClick(`search-other-need`)}"
 					?disabled="${this.shouldDisableByRole(`search-other-need`)}">
 				</horizon-option-button>
