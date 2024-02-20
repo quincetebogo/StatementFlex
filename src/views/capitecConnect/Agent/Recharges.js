@@ -25,24 +25,27 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag());
 
 		// Static variables
-		this.dateRanges = [
-			{ value: `30`, text: `30 Days` },
-			{ value: `60`, text: `60 Days` },
-			{ value: `90`, text: `90 Days` }
+		this.searchTypes = [
+			{ value: `msisdn`, text: `MSISDN` },
+			{ value: `amount`, text: `Amount` },
+			{ value: `transactionReference`, text: `Transaction Reference` }
 		];
 
 		this.pagingRows = [10, 20, 50];
 		this.numOfPagingRows = 10;
 		this.currentPageIndex = 1;
 
-		this.availableBundleFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
-
 		// State variables
 		this.searchValue = ``;
+		this.availableBundleFilters = [`All`, `Airtime`, `Minutes`, `Data`, `SMS`];
 		this.activeFilters = {
-			selectedDate: this.dateRanges[0],
+			searchType: this.searchTypes[0],
 			searchValue: ``,
-			bundleType: [`All`]
+			dateRange: {
+				from: getDateInPast(30),
+				to: getDateInPast(0)
+			},
+			bundleType: [this.availableBundleFilters[0]]
 		};
 
 		this.selectedReversal = null;
@@ -160,49 +163,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.showTable = true;
 	}
 
-	async searchRecharges(filters, isEscalationDetails = false) {
-		var mockArgs = {},
-			pgArgs = {},
-			queryArgs = {};
-
-		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
-			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
-				e = e.toUpperCase();
-				return e;
-			});
-		}
-
-		filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
-
-		if (filters.searchValue) {
-			queryArgs.msisdn = filters.searchValue;
-		}
-
-		if (filters.cif) {
-			queryArgs.cif = filters.cif;
-		}
-
-		queryArgs.type = "RECHARGE";
-
-		queryArgs.transactionDate = {
-			startDate: getDateInPast(filters.selectedDate.value),
-			endDate: getDateInPast(-1) // for tomorrow's date so that we include today's records
-		};
-
-		pgArgs = {
-			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [`transactionDate,desc`],
-			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		mockArgs = {
-			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
-			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs, isEscalationDetails);
-	}
-
 	async _retrieveRecharges(renderSet) {
 		this.renderSet = renderSet;
 		this.numOfPagingRows = this.renderSet.numOfPagingRows;
@@ -224,7 +184,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				};
 			}
 
-			const response = await this.searchRecharges(filters);
+			const response = await this.searchRecharges(filters, "RECHARGES");
 
 			let r = response.result.content;
 
@@ -371,6 +331,22 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}, 100);
 	}
 
+	dateRangeHandler(e) {
+		var from = e.detail.new.startDate?.split('T')[0] || null;
+		var to = e.detail.new.endDate?.split('T')[0] || null;
+
+		if (from !== null && to !== null) {
+			this.activeFilters.dateRange = {
+				from,
+				to
+			}
+
+			return this.onFilter();
+		}
+
+		return null;
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -385,43 +361,51 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	_render() {
 		return html`
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
-				<capitec-button-bar>
-					<capitec-search-field label="Search mobile number" 
-					value="${this.activeFilters.searchValue}" 
-					hint="e.g. 2784000000"
-					@value-change="${(e) => { 
-						this.activeFilters.searchValue = e.detail.new; 
-						this.onFilter(); 
-					}}" focussed></capitec-search-field>
+				<capitec-button-bar align="left">
+					<capitec-search-field label="Search" 
+						value="${this.activeFilters.searchValue}"
+						@value-change="${(e) => {
+							this.activeFilters.searchValue = e.detail.new;
+							this.onFilter();
+						}}"></capitec-search-field>
 
 					<capitec-select 
-						label="Select date" 
-						.items="${this.dateRanges}" 
-						.value="${this.activeFilters.selectedDate}"
-						@value-change="${(e) => { 
-							this.activeFilters.selectedDate = e.detail.new; 
-							this.onFilter(); 
+						label="Select option" 
+						.items="${this.searchTypes}" 
+						.value="${this.activeFilters.searchType}"
+						@value-change="${(e) => {
+							this.activeFilters.searchType = e.detail.new;
+							this.onFilter();
 						}}"
 						display-field="text"
 						id-field="value">
 					</capitec-select>
 
-					<capitec-spacer></capitec-spacer>
+					<capitec-date-time-picker
+						type="range"
+						mode="date"
+						startDate="${this.activeFilters.dateRange.from}"
+						endDate="${this.activeFilters.dateRange.to}"
+						maxDate="${getDateInPast(0)}"
+						inputType="calendar"
+						outputType="string"
+						@value-change="${this.dateRangeHandler}">
+					</capitec-date-time-picker>
 
-					${this.availableBundleFilters.map(item => {
-						if (this.activeFilters?.bundleType.includes(item)) {
-							return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-						}
-
-						return html`<capitec-chip label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-					})}
+					<capitec-button
+						type="primary"
+						label="Search"
+						@click="${() => this.onFilter()}"
+					></capitec-button>
 				</capitec-button-bar>
 
-				<capitec-button-bar>
+				<capitec-button-bar align="left">
 					<capitec-label type="strong" label="Active Filters:"></capitec-label>
-					${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${() => this._filterSearchboxClick(item)}" label="${this.activeFilters.searchValue}"></capitec-chip>` : null}
-					${this.activeFilters.selectedDate && this.activeFilters.selectedDate.value !== `NonSelected` ? html`<capitec-chip label="${this.activeFilters.selectedDate.text}"></capitec-chip>` : null}
-					${this.activeFilters.bundleType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
+					${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${this._filterSearchboxClick}" label="${this.activeFilters.searchType.text}: ${this.activeFilters.searchValue}"></capitec-chip>` : null}
+					${this.activeFilters.dateRange.to !== null && this.activeFilters.dateRange.from !== null ?
+				html`<capitec-chip label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"></capitec-chip>` :
+				null
+			}
 					<capitec-spacer></capitec-spacer>
 				</capitec-button-bar>
 
