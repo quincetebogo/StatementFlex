@@ -4,7 +4,7 @@
 	"group": "G_CKS_CEC_HORIZON_ADMIN",
 	"version": "0.27.70",
 	"alias": "cec-horizon-insure",
-	"release": "230703",
+	"release": "240202",
 	"contractVersion": "v1",
 	"serviceType": "Channel",
 	"port": 6001,
