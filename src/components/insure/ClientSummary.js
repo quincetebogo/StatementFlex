@@ -1916,10 +1916,10 @@ class ClientSummary extends Component {
 				: html``
 			} -->
 
-					<!-- ${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
+					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
