@@ -309,7 +309,7 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_validateContactNumber(value) {
-		if (!RegExp(CONTACT_NUMBER).test(value)) {
+		if (value && !RegExp(CONTACT_NUMBER).test(value)) {
 			return ERROR.CONTACT_NUMBER;
 		}
 		return ``;
@@ -695,7 +695,7 @@ export class UpdateProfileDetails extends Component {
 				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
+				@input=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
@@ -704,7 +704,7 @@ export class UpdateProfileDetails extends Component {
 				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
+				@input=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-group layout="vertical" halign="left" valign="center" gap="none" disabled>

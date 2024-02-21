@@ -45,26 +45,26 @@ export const searchCaller = {
 };
 
 export const clientDetails = {
-	"correlationId": "94224485-6044-41b2-ac01-fca5f8a93e9e",
-	"nickname": "",
-	"nationalityCode": "ZA",
-	"residentialAddress": {
-		"address1": "10 QUNTUM STR",
-		"address2": "X",
-		"suburb": "TEST",
-		"city": "BUNGENI",
-		"postalCode": "00111"
-	},
-	"residentialPhoneNumber": "0215550000",
-	"businessPhoneNumber": "0215560000",
-	"employmentStatus": "EMPLOYED",
-	"employmentType": "PERMANENT_WORKER",
-	"employerName": "CAPITEC BANK LTD",
-	"employerNumber": null,
-	"industryCode": "NOT_SELECTED_YET",
-	"sourceOfFunds": "SALARY",
-	"incomeRange": "NO_VALUE",
-	"incomeFrequency": "Monthly"
+	"correlationId": "8d71ef57-fb88-4f73-9c64-83ee5678b893",
+    "nickname": "Mziavifani",
+    "nationalityCode": "ZA",
+    "residentialAddress": {
+        "address1": "10 QUNTUM STR",
+        "address2": "X",
+        "suburb": "TEST",
+        "city": "JOHANNESBURG",
+        "postalCode": "1868"
+    },
+    "residentialPhoneNumber": "0215550000",
+    "businessPhoneNumber": "0215560000",
+    "employmentStatus": "SELF_EMPLOYED",
+    "employmentType": "INFORMALLY_SELF_EMPLOYED",
+    "employerName": "VENDA",
+    "employerNumber": null,
+    "industryCode": "COMMUNITY_SOCIAL_AND_PERSONAL",
+    "sourceOfFunds": "COMMISSION",
+    "incomeRange": "R0_R3000",
+    "incomeFrequency": "Monthly"
 };
 
 export const employerList = {
