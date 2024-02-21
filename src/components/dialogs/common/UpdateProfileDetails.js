@@ -88,7 +88,7 @@ export class UpdateProfileDetails extends Component {
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
 					sourceOfFunds: getKey(Object.values(SOURCE_FUNDS).flat(), this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
-					incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
+					incomeFrequency: getKey(INCOME_FREQUENCY, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY])
 			};
 		// Deep Copying the values before they are update - used for comparing whether the value is changed while saving
 		this.ficaDetails = Utilities.deepCopy(this.updatedClientDetails);
@@ -309,7 +309,7 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_validateContactNumber(value) {
-		if (!RegExp(CONTACT_NUMBER).test(value)) {
+		if (value && !RegExp(CONTACT_NUMBER).test(value)) {
 			return ERROR.CONTACT_NUMBER;
 		}
 		return ``;
@@ -692,19 +692,17 @@ export class UpdateProfileDetails extends Component {
 			<capitec-text-field 
 				label="Home contact number" 
 				value=${this.updatedClientDetails.residentialPhoneNumber}
-				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
+				@key-input=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="Work contact number" 
 				value=${this.updatedClientDetails.businessPhoneNumber}
-				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
+				@key-input=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-group layout="vertical" halign="left" valign="center" gap="none" disabled>
@@ -874,7 +872,7 @@ export class UpdateProfileDetails extends Component {
 				display-field="value"
 				id-field="key"
 				error="${isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ? ERROR.INCOME_FREQUENCY : ``}"
-				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
+				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.key)}>
 			</capitec-select>
 			`
 		: html``;

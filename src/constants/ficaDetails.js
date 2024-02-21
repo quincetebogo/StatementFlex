@@ -148,12 +148,12 @@ export const SOURCE_FUNDS = Object.freeze({
 
 export const INCOME_FREQUENCY = Object.freeze([
 		{ key: `NONE`, value: `` },
-		{ key: `A`, value: `Annually` },
-		{ key: `B`, value: `Bi_Annually` },
-		{ key: `F`, value: `Fortnightly` },
-		{ key: `M`, value: `Monthly` },
-		{ key: `Q`, value: `Quarterly` },
-		{ key: `W`, value: `Weekly` }
+		{ key: `Annually`, value: `Annually` },
+		{ key: `Bi_Annually`, value: `Bi-Annually` },
+		{ key: `Fortnightly`, value: `Fortnightly` },
+		{ key: `Monthly`, value: `Monthly` },
+		{ key: `Quarterly`, value: `Quarterly` },
+		{ key: `Weekly`, value: `Weekly` }
 ]);
 
 export const INDUSTRY_CODE = [
