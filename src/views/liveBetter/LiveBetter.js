@@ -625,6 +625,10 @@ export class LiveBetter extends SavingsAccountBase {
 				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
+					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
+					
 					@option-click = "${(e) => this._optionClick(e.detail.option)}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
