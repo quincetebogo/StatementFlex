@@ -10,15 +10,17 @@ import { html, unsafeHTML } from 'platform/elements';
  * @export
  * @param {*} value currency value
  * @param {number} fractionDigits How many digits to round off while parsing to float
+ * @param {boolean} addSymbol Flag to display rand symbol
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
- export function formatCurrency(value, fractionDigits = 2) {
+ export function formatCurrency(value, fractionDigits = 2, addSymbol = true) {
 	if (value && value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
+	const symbol = addSymbol ? `R` : ``;
 	const amount = parseFloat(value).toFixed(fractionDigits);
-	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	const currencyString = amount >= 0 ? `${symbol}${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- ${symbol}${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
 
@@ -276,11 +278,12 @@ export function formatDate(value, format) {
  * 
  * @export
  * @param {string} unformatedString - Unformatted string
+ * @param {string} identifier - Identifier to split the string into substrings
  * @returns {string} formatted string
  */
-export function formatStringAsPascalCase(unformatedString) {
+export function formatStringAsPascalCase(unformatedString, identifier = ` `) {
 
-	const words = unformatedString.split(` `);
+	const words = unformatedString.split(identifier);
 
 	let formattedString = ``;
 

@@ -553,18 +553,18 @@ export class CreditService extends ChannelServiceBase {
 
 		const settleAndClose =
 		{
-				creditType: settleAndCloseRequest.creditType,
-				cifNumber: settleAndCloseRequest.cifNumber,
-				accountNumber: settleAndCloseRequest.accountNumber,
-				fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
-				fromAccountType: settleAndCloseRequest.fromAccountType,
-				authorisedAmount: settleAndCloseRequest.authorisedAmount,
-				caseId: settleAndCloseRequest.caseId,
-				emailAddress: settleAndCloseRequest.emailAddress,
-				firstname: settleAndCloseRequest.firstname,
-				surname: settleAndCloseRequest.surname,
-				idNumber: settleAndCloseRequest.idNumber,
-				title: settleAndCloseRequest.title 
+			creditType: settleAndCloseRequest.creditType,
+			cifNumber: settleAndCloseRequest.cifNumber,
+			accountNumber: settleAndCloseRequest.accountNumber,
+			fromAccountNumber: settleAndCloseRequest.fromAccountNumber,
+			fromAccountType: settleAndCloseRequest.fromAccountType,
+			authorisedAmount: settleAndCloseRequest.authorisedAmount,
+			caseId: settleAndCloseRequest.caseId,
+			emailAddress: settleAndCloseRequest.emailAddress,
+			firstname: settleAndCloseRequest.firstname,
+			surname: settleAndCloseRequest.surname,
+			idNumber: settleAndCloseRequest.idNumber,
+			title: settleAndCloseRequest.title
 		};
 
 		const url = `/clientcare-credit-${this._version}/credit/settle-and-close/settle`;
@@ -616,7 +616,7 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	 transactionHistory(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	transactionHistory(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-credit-${this._version}/credit/transaction-history`;
 
 		return this.post(
@@ -633,17 +633,84 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	getFirstQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async canOpenBudget(ccAccNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`canOpenBudget`)) {
+			return this.mock(`canOpenBudget`);
+		}
 
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/can-open`;
+
+		return this.post(
+			url,
+			{
+				"creditCardAccountNumber": ccAccNumber
+			},
+			this.setToken(),
+			`canOpenBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async calculateBudget(ccAccNumber, budgetAmount, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`calculateBudget`)) {
+			return this.mock(`calculateBudget`);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/calculate`;
+
+		return this.post(
+			url,
+			{
+				"creditCardAccountNumber": ccAccNumber,
+				"amount": budgetAmount
+			},
+			this.setToken(),
+			`calculateBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async openBudget(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`openBudget`)) {
+			return this.mock(`openBudget`);
+		}
+
+		const url = `/clientcare-credit-${this._version}/credit/budgetaccount/open`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`openBudget`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	getFirstQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-credit-${this._version}/credit/transaction/dispute/cue-card/get-first-question`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getFirstQuestion`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getFirstQuestion`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -656,12 +723,12 @@ export class CreditService extends ChannelServiceBase {
 		const url = `/clientcare-credit-${this._version}/credit/transaction/dispute/cue-card/get-next-question`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getNextQuestion`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getNextQuestion`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,

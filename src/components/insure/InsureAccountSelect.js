@@ -25,6 +25,7 @@ class InsureAccountSelect extends Component {
 		this.optionSelected = false;
 		this.selectorAccounts = {};
 		this.insufficient = false;
+		this.selectBoxWidth = `560px`;
 	}
 
 	// #endregion INITIALIZE
@@ -68,7 +69,7 @@ class InsureAccountSelect extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	 connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
 
@@ -113,7 +114,7 @@ class InsureAccountSelect extends Component {
 	 * @param {String} account selected account
 	 * @return {void} 
 	 */
-	 _optionSelected(account) {
+	_optionSelected(account) {
 		this.optionSelected = true;
 
 		this.dispatchEvent(new CustomEvent(`option-selected`, { detail: { optionSelected: this.optionSelected, accountNumber: this.selectedAccount, accountType: account } }));
@@ -129,12 +130,12 @@ class InsureAccountSelect extends Component {
 	 */
 	_showAccountOptions() {
 		if (this.displayOptions === false) {
-			
+
 			this.displayOptions = true;
 		} else {
 			this.displayOptions = false;
 		}
-		
+
 	}
 
 	/**
@@ -145,8 +146,8 @@ class InsureAccountSelect extends Component {
 	 * @return {void} 
 	 */
 	_indexChange(selected, account) {
-		
-		
+
+
 		if (account === `Savings Account`) {
 			this.selectedIndex = this.selectorAccounts.savingsAccount.map(accounts => accounts.accountNumber).indexOf(selected);
 			this.selectedAccount = selected;
@@ -154,11 +155,11 @@ class InsureAccountSelect extends Component {
 			this.selectedIndex = this.selectorAccounts.savingsPlan.map(accounts => accounts.accountNumber).indexOf(selected);
 			this.selectedAccount = selected;
 		}
-		
+
 		this.accountType = account;
 
 		this.displayOptions = false;
-		
+
 
 		this._optionSelected(account);
 	}
@@ -217,7 +218,6 @@ class InsureAccountSelect extends Component {
 
 				.select-options > capitec-content-box {
 					height: 40px;
-					width: 560px;
 					display: flex;
 					border-radius: 3px;
 					background-color: #fafafa
@@ -238,7 +238,7 @@ class InsureAccountSelect extends Component {
 
 				.account-label {
 					position: relative; 
-					left: -80px; 
+					right: 50px;
 					
 				}
 
@@ -262,42 +262,35 @@ class InsureAccountSelect extends Component {
 				.default :hover{
 					border-color: #009DE0;
 
-				}
-
-			`
+				}`
 		];
 	}
 
 	/**
 	 * Main render point for component
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
-_webTemplate() {
-	return html`
+	_webTemplate() {
+		return html`
 		<div >
 			${this._renderHeader()}
 		</div>
 		<div>
 			${this._renderOptions()}
-		</div>
-
-	`;
-
+		</div>`;
 	}
 
-/**
- * Render the header section of the select box
- * 
- * @returns {html} The html content of the component.
- */
-_renderHeader() {
-	return html`
+	/**
+	 * Render the header section of the select box
+	 * @returns {html} The html content of the component.
+	 */
+	_renderHeader() {
+		return html`
 
-		${this.selectedIndex === null 
-			? html`
+		${this.selectedIndex === null
+				? html`
 				<div class="default">
-					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll  halign="left"  style="width: ${this.selectBoxWidth}">
 						<div>
 							<capitec-label type="strong" label=${this.label} ></capitec-label>
 						</div>
@@ -306,19 +299,19 @@ _renderHeader() {
 						</div>
 					</capitec-content-box>
 				</div>`
-			: html``
-		}
+				: html``
+			}
 
-		${this.accountType === `Savings Plan` 
-			? html`
+		${this.accountType === `Savings Plan`
+				? html`
 				<div class="${this._setStyle()}">
-					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll halign="left" style="width: ${this.selectBoxWidth}">
 						<div> 
 							<capitec-icon size="default" icon="product/save"></capitec-icon>
 						</div>
 
 						<div style="display: flex; flex-direction: column;">
-							<capitec-label class="account-label" type="subtitle" label="${this.selectorAccounts.savingsPlan[this.selectedIndex].planName}" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="${this.selectorAccounts.savingsPlan[this.selectedIndex].planName.toUpperCase()}" style="font-weight: bold;" ></capitec-label>
 							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
 						</div>
 
@@ -331,19 +324,19 @@ _renderHeader() {
 						</div>
 					</capitec-content-box>
 				</div>`
-			: html``
-		}
+				: html``
+			}
 
-		${this.accountType !== `Savings Plan` && this.selectedIndex !== null 
-			? html`
+		${this.accountType !== `Savings Plan` && this.selectedIndex !== null
+				? html`
 				<div class="${this._setStyle()}">
-					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll>
+					<capitec-content-box @click="${this._showAccountOptions}" layout="horizontal" valign="center" noScroll  halign="left"  style="width: ${this.selectBoxWidth}">
 						<div> 
 							<capitec-icon size="default" icon="product/transact"></capitec-icon>
 						</div>
 
 						<div style="display: flex; flex-direction: column;">
-							<capitec-label class="account-label" type="subtitle" label="Savings Account" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
 							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
 						</div>
 
@@ -356,30 +349,28 @@ _renderHeader() {
 						</div>
 					</capitec-content-box>
 				</div>`
-			: html``
-		}
+				: html``
+			}
 	`;
-}
+	}
 
-
-/**
- * Render the Select box options
- * 
- * @returns {html} The html content of the component.
- */
-_renderOptions() {
-	return this.displayOptions === false ? html`` 
-	: html`
+	/**
+	 * Render the Select box options
+	 * @returns {html} The html content of the component.
+	 */
+	_renderOptions() {
+		return this.displayOptions === false ? html``
+			: html`
 	<div class="all-options">
 		${this.selectorAccounts.savingsAccount.map(item => html`
 				
-			<div class="select-options">
+			<div class="select-options" style="width: ${this.selectBoxWidth}">
 				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Savings Account`)}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/transact"></capitec-icon>
 					</div>
 					<div >
-						<capitec-label class="option-label" type="subtitle" label="Savings Account | ${formatCurrency(item.availableBalance)}" ></capitec-label>
+						<capitec-label class="option-label" type="subtitle" label="SAVINGS ACCOUNT | ${formatCurrency(item.availableBalance)}" ></capitec-label>
 					</div>
 				</capitec-content-box>
 
@@ -388,13 +379,13 @@ _renderOptions() {
 
 		${this.selectorAccounts.savingsPlan.map(item => html`
 			
-			<div class="select-options">
+			<div class="select-options" style="width: ${this.selectBoxWidth}">
 				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Savings Plan`)}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/save"></capitec-icon>
 					</div>
 					<div >
-						<capitec-label class="option-label" type="subtitle" label="${item.planName} | ${formatCurrency(item.availableBalance)}" ></capitec-label>
+						<capitec-label class="option-label" type="subtitle" label="${item.planName.toUpperCase()} | ${formatCurrency(item.availableBalance)}" ></capitec-label>
 					</div>
 				</capitec-content-box>
 
@@ -404,12 +395,9 @@ _renderOptions() {
 	</div>
 	`;
 
-}
-
+	}
 
 	// #endregion RENDERING
-
-	
 }
 
 window.customElements.define(`insure-account-select`, InsureAccountSelect);
