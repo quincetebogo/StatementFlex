@@ -30,6 +30,10 @@ export class DisputesSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 
+	get description() {
+		return `parent incident closed, secondary incident handed off to Chargeback Operations to investigate`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -75,10 +79,8 @@ export class DisputesSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const feedback = FEEDBACK_OPTIONS.find(f => f.key === 2); // Retrieving need handed off feedback
-	
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
-		this.horizonIncidentManager.setFeedback(feedback.key);
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.description);
 	}
 
 	// ---------
