@@ -11,6 +11,7 @@ export class HorizonSelect extends Select {
 		super();
 
 		this.detailsLabel = ``;
+		this.customizeNoResults = false;
 	}
 
 	// --------------
@@ -29,7 +30,8 @@ export class HorizonSelect extends Select {
 			detailsLabel: {
 				type: String,
 				attribute: `detail-label`
-			}
+			},
+			customizeNoResults: { type: Boolean }
 		};
 	}
 
@@ -115,6 +117,9 @@ export class HorizonSelect extends Select {
 				.pull-right {
 					text-align: end;
 					--theme-input-font-weight: 600;
+				}
+				.custom-no-results {
+					text-align: center;
 				}`
 		];
 	};
@@ -187,6 +192,48 @@ export class HorizonSelect extends Select {
 						for="inputField">
 					</capitec-icon>`;
 		}
+	}
+
+	
+	_renderOptions() {
+		if (!this.popup || !this.items) {
+			return;
+		}
+
+		return html`
+			<div class="options-container${this.mode === `inline` ? ` inline` : ``}">
+				${this.searchable
+				? html`<div>
+					<input type="text" class="searchField" id="searchField" placeholder="Search..."
+						@focus="${() => this._displayMode === `kiosk` ? this._openOnscreenKeyboard() : null}"
+						@input="${this._onSearchFieldInput}" />
+				</div>`
+				: html``}
+				<div class="options ${this.mode === `inline` ? `inline` : ``}">
+					${this._renderFilteredOptions()}
+				</div>
+			</div>
+        `;
+	}
+
+	_renderFilteredOptions() {
+
+		const filterLength = this.items.filter(i => this._filterInItem(i)).length;
+
+		if (filterLength === 0) {
+			return html`<div class="none" @click="${(e) => {
+				e.preventDefault();
+				this._togglePopup(e);
+			}}">${this._renderNoResults()}</div>`;
+		}
+
+		return this.items.filter(i => this._filterInItem(i)).map(i => super._renderOption(i));
+	}
+
+	_renderNoResults() {
+		return this.customizeNoResults
+		? html`<slot class="custom-no-results" name="no-results"></slot>`
+		: html`<capitec-label label="No matching results"></capitec-label>`;
 	}
 
 }

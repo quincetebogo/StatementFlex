@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { ALERTBANNER_CSS } from 'app/css/VerificationStatusAlertBanner';
+import { RoleManager } from 'app/shell/RoleManager';
 import 'app/components/common/OptionButton';
 
 const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
+const UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE = `Card limits must be updated using the app. Clients can also visit the branch.`;
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
@@ -24,6 +26,7 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
+		this.roleManager = RoleManager.getInstance();
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
@@ -308,10 +311,10 @@ export class FavouriteTransactions extends Component {
 					label="Update Card Limits" 
 					icon="system/cards-action" 
 					iconSize="default"
-					?showTooltip="${this.showTooltip(`update-card-limits`)}"
-					.tooltipMessage="${TOOLTIP_MESSAGE}"
+					?showTooltip="${true}"
+					.tooltipMessage="${this.roleManager.isCapitecConnectAgent ? TOOLTIP_MESSAGE : UPDATE_CARD_LIMITS_TOOLTIP_MESSAGE}"
 					@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-					?disabled="${this.shouldDisableByRole(`update-card-limits`)}">
+					?disabled="${true}">
 				</horizon-option-button>
 				</capitec-tooltip>
 

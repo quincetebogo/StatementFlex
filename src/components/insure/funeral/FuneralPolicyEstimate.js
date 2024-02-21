@@ -8,11 +8,11 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 
-import 'app/components/dialogs/insure/AddLifeDialog';
+import '../../dialogs/insure/funeral/AddLifeDialog';
 import 'app/components/common/HorizonLabel';
-import 'app/components/dialogs/insure/PrintEstimateAgreementDialog';
+import '../../dialogs/insure/funeral/PrintEstimateAgreementDialog';
 import 'app/components/dialogs/insure/InsureEmailDialog';
-import 'app/components/dialogs/insure/MaxAllowedCoverDialog';
+import '../../dialogs/insure/funeral/MaxAllowedCoverDialog';
 
 const AGE_ERROR_MESSAGE = `Age is not valid`;
 const AGE_REQUIRED_MESSAGE = `Age is required`;
@@ -30,10 +30,10 @@ const MAIN_LIFE_MINIMUM_COVER = 5000;
  * navigate-back 
  *  
  * @export
- * @class PolicyEstimate
+ * @class FuneralPolicyEstimate
  * @extends {Component}
  */
-class PolicyEstimate extends Component {
+class FuneralPolicyEstimate extends Component {
 
 	//  #region INITIALISATION
 
@@ -362,7 +362,7 @@ class PolicyEstimate extends Component {
 	 * Initialize component when loaded / Add default life to list for calculator and list
 	 * @returns {void}
 	 */
-	async _initialise() {
+	_initialise() {
 		let ageMessage = ``;
 		if (this.mainLifeDefaultAge < 18 || this.mainLifeDefaultAge > 64) {
 			ageMessage = `Only Main Life between the ages of 18 and 64 are allowed`;
@@ -705,7 +705,6 @@ class PolicyEstimate extends Component {
 	 * @return {html} Html for the dialog
 	 */
 	_renderAddLifeDialog() {
-		console.log(`this.estimate :>> `, this.estimate);
 		return this.showAddLifeDialog === false ? ``
 			: html`
 			<horizon-insure-add-life-dialog 
@@ -759,15 +758,15 @@ class PolicyEstimate extends Component {
 
 	//  #endregion
 }
-window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
+window.customElements.define(`horizon-insure-funeral-policy-estimate`, FuneralPolicyEstimate);
 
 /**
  * When back arrow button is clicked
  *
  * @example
- * <horizon-insure-policy-estimate ... @navigate-back="${this._handler}"></horizon-insure-policy-estimate>
+ * <horizon-insure-funeral-policy-estimate ... @navigate-back="${this._handler}"></horizon-insure-funeral-policy-estimate>
  *
- * @event PolicyEstimate#navigate-back
+ * @event FuneralPolicyEstimate#navigate-back
  * @type {Object} - N/A
  */
 
@@ -775,8 +774,8 @@ window.customElements.define(`horizon-insure-policy-estimate`, PolicyEstimate);
  * Send / Print Estimate event
  *
  * @example
- * <horizon-insure-policy-estimate ... @send-email="${this._handler}"></horizon-insure-policy-estimate>
+ * <horizon-insure-funeral-policy-estimate ... @send-email="${this._handler}"></horizon-insure-funeral-policy-estimate>
  *
- * @event PolicyEstimate#send-email
+ * @event FuneralPolicyEstimate#send-email
  * @type {Object} - Email Request
  */
