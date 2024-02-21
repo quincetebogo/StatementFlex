@@ -481,13 +481,6 @@ export class EndCallSession extends Component {
 		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 		const incidentState = this.horizonIncidentManager.incidentState;
 
-		// If need is card-disputes, *DONT DO ANYTHING* PS takes care of it.
-		if (currentNeed.includes(`card-disputes`) && incidentState === super.HORIZON_NEED_STATUS.CLOSED) {
-			// Updating state as call ended and redirecting it to call waiting page
-			this._returnToCallWaitingPage();
-			return;
-		}
-
 		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 

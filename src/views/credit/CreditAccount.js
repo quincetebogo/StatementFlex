@@ -1118,7 +1118,8 @@ export class CreditAccount extends ViewBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		const returnValue = await this._getFirstQusToDispute();
+		const caredDisputesInc = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		const returnValue = await this._getFirstQusToDispute(caredDisputesInc);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -1129,13 +1130,13 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute() {
+	async _getFirstQusToDispute(caredDisputesInc) {
 		const request = {
 			"transactions": this.tranToDispute.map((item) => ({
 								transactionID: item.transactionId,
 								transactionPostingDate: item.postingDate
 							})),
-			"incident": this.currentIncident,
+			"incident": caredDisputesInc,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
 		};
@@ -1166,6 +1167,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _disputeOutcome(event) {
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});
