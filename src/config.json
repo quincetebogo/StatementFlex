@@ -64,7 +64,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -173,7 +173,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -233,7 +233,7 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditBalance": {
@@ -446,6 +446,14 @@
 		},
 		"insureElectOption": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getEmployer" : {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifePremiumHistory": {
