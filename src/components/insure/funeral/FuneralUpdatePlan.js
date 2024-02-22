@@ -1214,6 +1214,9 @@ class FuneralUpdatePlan extends Component {
 		if (this.prepareUpdateResponse === undefined) {
 			return;
 		}
+		if (isNullorEmpty(this.prepareUpdateResponse.planAgreement)) {
+			return;
+		}
 		this.showUpdatePlanAgreementDialog = true;
 		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
 	}
@@ -1251,6 +1254,9 @@ class FuneralUpdatePlan extends Component {
 		await this._calculatePremium();
 
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
+		if (isNullorEmpty(this.createPolicyResponse.issuePlanAgreement)) {
+			return;
+		}
 		this.issuePlanAgreementContent = this.createPolicyResponse.issuePlanAgreement.documentContent.value;
 		this.newContractReference = this.createPolicyResponse.policyResponse.contractReference;
 		this.showReinstatePolicyAgreementDialog = true;

@@ -245,6 +245,7 @@ export class ExistingClient extends InsureViewBase {
 		if (!issuePlanAgreementResponse.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(issuePlanAgreementResponse.exception);
+			this.funeralIssuePlanAgreementDocument = null;
 			return;
 		}
 		super.isOnlyProductEnquiry = false;
@@ -279,7 +280,8 @@ export class ExistingClient extends InsureViewBase {
 		if (!updatePlanAgreementResponse.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(updatePlanAgreementResponse.exception);
-			return;
+			this.funeralUpdatePlanAgreementDocument = null;
+			return false;
 		}
 
 		this.funeralUpdatePlanAgreementDocument = updatePlanAgreementResponse.result;
