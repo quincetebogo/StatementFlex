@@ -5,8 +5,6 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
-const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
-
 /**
  * Savings Plan verified landing Product Control
  * 
@@ -84,7 +82,8 @@ export class SavingsPlanLanding extends Component {
 			renderAlertBanner: { type: Object },
 			isCapitecConnectAgent: { type: Boolean },
 			shouldDisableByRole: { type: Object },
-			showTooltip: { type: Object }
+			showTooltip: { type: Object },
+			getTooltipMessage: { type: Object }
 		};
 	}
 	
@@ -574,7 +573,7 @@ export class SavingsPlanLanding extends Component {
 						label="Transaction History"
 						icon="system/time-action"
 						?showTooltip="${this.showTooltip(`transaction-history`)}"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`transaction-history`)}"
 						?disabled="${this.shouldDisableByRole(`transaction-history`)}"
 						@click="${() => this._click(`transaction-history`, item)}">
 				</horizon-option-button>
@@ -583,7 +582,7 @@ export class SavingsPlanLanding extends Component {
 						label="Statements"
 						icon="system/documents-action"
 						?showTooltip="${this.showTooltip(`statements`)}"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 						?disabled="${this.shouldDisableByRole(`statements`)}"
 						@click="${() => this._click(`statements`, item)}">
 				</horizon-option-button>
@@ -592,7 +591,7 @@ export class SavingsPlanLanding extends Component {
 						label="Tax Certificate"
 						icon="system/sars-action" 
 						?showTooltip="${this.showTooltip(`tax-certificate`)}"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`tax-certificate`)}"
 						?disabled="${this.shouldDisableByRole(`tax-certificate`)}"
 						@click="${() => this._click(`tax-certificate`, item)}">
 				</horizon-option-button>
@@ -601,7 +600,7 @@ export class SavingsPlanLanding extends Component {
 						label="Unlock Savings Plans"
 						icon="system/unlocked-action"
 						?showTooltip="${this.showTooltip(`unlock-ftsp`)}"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`unlock-ftsp`)}"
 						?disabled="${this.shouldDisableByRole(`unlock-ftsp`)}"
 						?hidden=${item.accountType !== ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN}
 						@click="${() => this._click(`unlock-ftsp`, item)}">
