@@ -143,8 +143,8 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-			const openBudget = () => this._openBudgetDialog();
 			const cardDisputes = () => this._cardDisputeTransaction();
+			const openBudget = () => this._openBudgetDialog();
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
 			const actions = {
@@ -155,8 +155,8 @@ export class CreditAccount extends ViewBase {
 				'settlement-quote': settlementQuote,
 				'paid-up-letter': paidUpLetter,
 				'settle-close': settleAndClose,
-				'open-budget': openBudget,
-				'card-disputes': cardDisputes
+				'card-disputes': cardDisputes,
+				'open-budget': openBudget
 			};
 
 			if (actions[option]) {
@@ -1141,88 +1141,6 @@ export class CreditAccount extends ViewBase {
 		return returnValue;
 	}
 
-	async _cardDisputeTransaction(item) {
-		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
-
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
-			transactionId: this.tranToDispute.map(t => t.transactionId),
-			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
-		});
-
-		const returnValue = await this._getFirstQusToDispute();
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
-			return;
-		}
-
-		this.disputeQuestion = returnValue.result;
-		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
-	}
-
-	async _getFirstQusToDispute() {
-		const request = {
-			"transactions": this.tranToDispute.map((item) => ({
-								transactionID: item.transactionId,
-								transactionPostingDate: item.postingDate
-							})),
-			"incident": this.currentIncident,
-			"cifNumber": this.callerInformation.cifNumber,
-			"agentId": `${this.securityContext.username}`
-		};
-		const returnValue = await this.creditService.getFirstQuestion(request);
-		return returnValue;
-	}
-
-	async _getNextQusToDispute(request) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
-			cueSheetId: request.cueSheetId,
-			caseId: request.caseId,
-			answerId: request.answerId
-		});
-
-		const returnValue = await this.creditService.getNextQuestion(request, () => true);
-		this.disputeQuestion = returnValue.result;
-
-		return returnValue;
-	}
-
-	async _cancelDisputeTrans() {
-		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
-		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
-
-		this.disputeQuestion = {};
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
-	}
-
-	async _disputeOutcome(event) {
-		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
-			disputeLogged: event.detail.disputed
-		});
-
-		this.disputeQuestion = {};
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
-		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
-
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
-
-		this.horizonRouter.navigateToDisputesSuccess();
-	}
-
-	async _restartDispute() {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
-		
-		const returnValue = await this._getFirstQusToDispute();
-		return returnValue;
-	}
-
-	_disputeTran() {
-		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
-	}
-
 	async _confirmOpenBudget(event) {
 		const openBudgetRequest = {
 			creditCardAccountNumber: this.ccAccNumber,
@@ -1255,6 +1173,90 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.logEvent(CreditEvents.OPEN_BUDGET_POPUP_CANCEL);
 		await this._telemetry.endSpan(CreditEvents.OPEN_BUDGET_POPUP, null, true, true);
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
+	}
+
+	async _cardDisputeTransaction(item) {
+		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
+
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+			transactionId: this.tranToDispute.map(t => t.transactionId),
+			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
+		});
+
+		const caredDisputesInc = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		const returnValue = await this._getFirstQusToDispute(caredDisputesInc);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
+			return;
+		}
+
+		this.disputeQuestion = returnValue.result;
+		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
+	}
+
+	async _getFirstQusToDispute(caredDisputesInc) {
+		const request = {
+			"transactions": this.tranToDispute.map((item) => ({
+				transactionID: item.transactionId,
+				transactionPostingDate: item.postingDate
+			})),
+			"incident": caredDisputesInc,
+			"cifNumber": this.callerInformation.cifNumber,
+			"agentId": `${this.securityContext.username}`
+		};
+		const returnValue = await this.creditService.getFirstQuestion(request);
+		return returnValue;
+	}
+
+	async _getNextQusToDispute(request) {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+			cueSheetId: request.cueSheetId,
+			caseId: request.caseId,
+			answerId: request.answerId
+		});
+
+		const returnValue = await this.creditService.getNextQuestion(request, () => true);
+		this.disputeQuestion = returnValue.result;
+
+		return returnValue;
+	}
+
+	async _cancelDisputeTrans() {
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CANCEL);
+		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
+
+		this.disputeQuestion = {};
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+	}
+
+	async _disputeOutcome(event) {
+		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
+			disputeLogged: event.detail.disputed
+		});
+
+		this.disputeQuestion = {};
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.clientAnswerWording = event.detail.clientAnswerWording;
+		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
+
+		this.horizonRouter.navigateToDisputesSuccess();
+	}
+
+	async _restartDispute() {
+		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
+
+		const returnValue = await this._getFirstQusToDispute();
+		return returnValue;
+	}
+
+	_disputeTran() {
+		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
 	}
 
 	// ---------
@@ -1316,8 +1318,8 @@ export class CreditAccount extends ViewBase {
 			${this._renderPendingClosure()}
 			${this._renderPayBudgetWarning()}
 			${this._renderTransactionHistory()}
-			${this._renderOpenBudget()}
 			${this._renderDisputeTransModal()}
+			${this._renderOpenBudget()}
 		`;
 	}
 
@@ -1629,14 +1631,14 @@ export class CreditAccount extends ViewBase {
 
 	_renderCheckbox(item, fieldName, value) {
 		return this.roleManager.isClientCareAgent || this.roleManager.isHelpDeskAgent
-		? html`
+			? html`
 			<capitec-check
 				?checked="${value}"
 				?disabled="${item.disableCheck}"
 				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}"
 				@value-change="${(e) => this._checkboxChange(e, item)}">
 			</capitec-check>`
-		: html`
+			: html`
 			<capitec-label
 				label="${formatDate(item.transactionDate, DATE_TIME_FORMAT)}">
 			</capitec-label>`;
