@@ -281,7 +281,7 @@ export class ExistingClient extends InsureViewBase {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(updatePlanAgreementResponse.exception);
 			this.funeralUpdatePlanAgreementDocument = null;
-			return false;
+			return;
 		}
 
 		this.funeralUpdatePlanAgreementDocument = updatePlanAgreementResponse.result;
