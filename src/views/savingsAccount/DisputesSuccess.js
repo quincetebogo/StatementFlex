@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { END_CALL_REASON } from 'app/constants/EndCallReasons';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -78,9 +79,17 @@ export class DisputesSuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateIncidentState() {
+	async _updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonIncidentManager.setDescription(this.description);
+
+		const options = {
+			clientNeed: null,
+			endCallReason: END_CALL_REASON.NEED_FULFILLED,
+			manualClassification: null
+		};
+
+		await this.horizonIncidentManager.closeIncident(options, () => this._toggleBusyFlag());
 	}
 
 	// ---------
