@@ -146,9 +146,9 @@ export class OptionButton extends Button {
 	}
 
 	_webTemplate() {
-		return this.showTooltip
+		return this.showTooltip && this.tooltipMessage
 		? html`
-			<capitec-tooltip 
+			<capitec-tooltip part="tooltip"
 				message=${this.tooltipMessage} 
 				position=${this.tooltipPosition}>
 				${this._renderButton()}

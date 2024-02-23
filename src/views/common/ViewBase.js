@@ -20,6 +20,9 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 import 'app/components/dialogs/common/AddCallerDetails';
 
+const TOOLTIP_CAPITEC_CONNECT = `Your role does not allow you to make use of this functionality.`;
+const TOOLTIP_NEED_ITA_VERIFICATION = `Digitally Verify client (ITA) to use this feature.`;
+const TOOLTIP_NEED_SQ_VERIFICATION = `Verify client to use this feature`;
 
 /**
  * A Base class for view components to collect common functionality used across most views
@@ -326,11 +329,12 @@ export class ViewBase extends View {
 	// Show tooltip when a particular option is disabled
 	_showTooltip(need) {
 		const availableFeatures = AVAILABLE_FEATURES_BY_ROLE[this.roleManager.orgUnit];
+		const availableByVerification = !this._shouldDisable(need);
 		
 		if (availableFeatures?.length > 0) {
-			return !availableFeatures.includes(need);
+			return !(availableFeatures.includes(need) && availableByVerification);
 		}
-		return false;
+		return !availableByVerification;
 	}
 
 	_shouldDisableByRole(need) {
@@ -338,6 +342,31 @@ export class ViewBase extends View {
 		const disableByRole = this._showTooltip(need);
 
 		return disableByVerification || disableByRole;
+	}
+	
+	_getTooltipMessage(need) {
+		const isHighRiskTransaction = HIGH_RISK_TRANSACTIONS.includes(need);
+		const byRole = {
+			'Capitec Connect': TOOLTIP_CAPITEC_CONNECT
+			
+		};
+
+		const byVerificationStatus = {
+			'non-client': ``, // For a non-client we do not show any option buttons on the screen, can use this space in future to show tooltip
+			'unverified': isHighRiskTransaction ? TOOLTIP_NEED_ITA_VERIFICATION : TOOLTIP_NEED_SQ_VERIFICATION // Agent is given access to perform only Low risk transaction when unverified
+		};
+
+		const byVerificationType = {
+			'SQ': TOOLTIP_NEED_ITA_VERIFICATION, // Agent is restricted to perform High risk transactions 
+			'ITA': `` // Agent is given access to all the available needs on ITA verification 
+		};
+
+		const message = byRole[this.roleManager.orgUnit] || 
+							(this.callerInformation.verificationStatus === `verified` 
+							? byVerificationType[this.callerInformation.verificationMethod] 
+							: byVerificationStatus[this.callerInformation.verificationStatus]);
+
+		return message;
 	}
 
 	// ---------

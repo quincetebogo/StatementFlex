@@ -1,4 +1,4 @@
-import { DETAILS_TYPE, EMPLOYMENT_STATUS, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -239,14 +239,14 @@ export class ViewProfileDetails extends ViewBase {
 			},
 			[DETAILS_TYPE.EMPLOYMENT_DETAILS]: {
 				"Employment status": getValue(EMPLOYMENT_STATUS, details.employmentStatus),
-				"Employment type": formatStringAsPascalCase(details.employmentType, `_`),
+				"Employment type": getValue(Object.values(EMPLOYMENT_TYPE).flat(), details.employmentType),
 				"Employer": details.employerName,
 				"Industry": getValue(INDUSTRY_CODE, details.industryCode)
 			},
 			[DETAILS_TYPE.INCOME_DETAILS]: {
 				"Source of funds": getValue(Object.values(SOURCE_FUNDS).flat(), details.sourceOfFunds),
 				"Expected monthly income": getValue(INCOME_RANGE, details.incomeRange.toString()),
-				"Income frequency": details.incomeFrequency
+				"Income frequency": getValue(INCOME_FREQUENCY, details.incomeFrequency)
 			}
 		};
 	}

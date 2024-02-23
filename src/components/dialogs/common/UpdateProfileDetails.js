@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS, LANGUAGE_LIST } from 'app/constants/Common';
-import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
+import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, ERROR, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { Utilities } from 'platform/Utilities';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -88,7 +88,7 @@ export class UpdateProfileDetails extends Component {
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
 					sourceOfFunds: getKey(Object.values(SOURCE_FUNDS).flat(), this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
-					incomeFrequency: this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]
+					incomeFrequency: getKey(INCOME_FREQUENCY, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY])
 			};
 		// Deep Copying the values before they are update - used for comparing whether the value is changed while saving
 		this.ficaDetails = Utilities.deepCopy(this.updatedClientDetails);
@@ -238,7 +238,8 @@ export class UpdateProfileDetails extends Component {
 								 Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)) ||
 								 Boolean(this._validateEmploymentDetails()) ||
 								 Boolean(this._validateEmploymentType()) ||
-								 Boolean(this._validateNickname());
+								 Boolean(this._validateNickname()) ||
+								 this._validateRequiredFields();
 		return (languageUnChanged && detailsUnChanged) || validationErrors;
 	}
 
@@ -296,7 +297,7 @@ export class UpdateProfileDetails extends Component {
 	
 	_validateNickname() {
 		if (!RegExp(NICKNAME).test(this.updatedClientDetails.nickname)) {
-			return `No special characters allowed`;
+			return ERROR.NICK_NAME;
 		}
 		return ``;
 	}
@@ -308,24 +309,35 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_validateContactNumber(value) {
-		if (!RegExp(CONTACT_NUMBER).test(value)) {
-			return `Incorrect contact number`;
+		if (value && !RegExp(CONTACT_NUMBER).test(value)) {
+			return ERROR.CONTACT_NUMBER;
 		}
 		return ``;
 	}
 
 	_validateEmploymentType() {
 		if (this.updatedClientDetails?.employmentStatus !== `MINOR_16` && this.updatedClientDetails.employmentType === `NONE`) {
-			return `Employment type cannot be empty`;
+			return ERROR.EMP_TYPE;
 		}
 		return ``;
 	}
 
 	_validateEmploymentDetails() {
 		if (this.updatedClientDetails.employmentStatus === `EMPLOYED` && isNullorEmpty(this.updatedClientDetails.employerName)) {
-			return `Employer name cannot be empty`;
+			return ERROR.EMP_NAME;
 		}
 		return ``;
+	}
+
+	_validateRequiredFields() {
+		return isNullorEmpty(this.updatedClientDetails.residentialAddress.address1) ||
+				isNullorEmpty(this.updatedClientDetails.residentialAddress.suburb) ||
+				isNullorEmpty(this.updatedClientDetails.residentialAddress.city) ||
+				isNullorEmpty(this.updatedClientDetails.residentialAddress.postalCode) ||
+				isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ||
+				isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ||
+				isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE`;
+		
 	}
 
 	_getEmploymentStatusList() {
@@ -540,7 +552,7 @@ export class UpdateProfileDetails extends Component {
 
 						<capitec-select 
 							label="Industry"
-							.items="${INDUSTRY_CODE}"
+							.items="${INDUSTRY_CODE.filter(code => !isNullorEmpty(code.value))}"
 							display-field="value"
 							id-field="key"
 							@value-changed=${(e) => this.newEmployerCode = e.detail.new.key}>
@@ -680,19 +692,17 @@ export class UpdateProfileDetails extends Component {
 			<capitec-text-field 
 				label="Home contact number" 
 				value=${this.updatedClientDetails.residentialPhoneNumber}
-				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
+				@key-input=${(e) => this._detailsChange(`residentialPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-text-field 
 				label="Work contact number" 
 				value=${this.updatedClientDetails.businessPhoneNumber}
-				type="numeric"
 				maxlength="10"
 				error="${this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)}"
-				@value-change=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
+				@key-input=${(e) => this._detailsChange(`businessPhoneNumber`, e.detail.new)}>
 			</capitec-text-field>
 
 			<capitec-group layout="vertical" halign="left" valign="center" gap="none" disabled>
@@ -727,6 +737,7 @@ export class UpdateProfileDetails extends Component {
 				value=${this.updatedClientDetails.residentialAddress.address1}
 				type="alpha-numeric"
 				maxlength="40"
+				error="${isNullorEmpty(this.updatedClientDetails.residentialAddress.address1) ? ERROR.ADDRESS1 : ``}"
 				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `address1`)}>
 			</capitec-text-field>
 
@@ -743,6 +754,7 @@ export class UpdateProfileDetails extends Component {
 				value=${this.updatedClientDetails.residentialAddress.suburb}
 				type="alpha-numeric"
 				maxlength="40"
+				error="${isNullorEmpty(this.updatedClientDetails.residentialAddress.suburb) ? ERROR.SUBURB : ``}"
 				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `suburb`)}>
 			</capitec-text-field>
 
@@ -751,6 +763,7 @@ export class UpdateProfileDetails extends Component {
 				value=${this.updatedClientDetails.residentialAddress.city}
 				type="alpha-numeric"
 				maxlength="40"
+				error="${isNullorEmpty(this.updatedClientDetails.residentialAddress.city) ? ERROR.CITY : ``}"
 				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `city`)}>
 			</capitec-text-field>
 			
@@ -759,6 +772,7 @@ export class UpdateProfileDetails extends Component {
 				value=${this.updatedClientDetails.residentialAddress.postalCode}
 				type="numeric"
 				maxlength="8"
+				error="${isNullorEmpty(this.updatedClientDetails.residentialAddress.postalCode) ? ERROR.POSTAL_CODE : ``}"
 				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `postalCode`)}>
 			</capitec-text-field>
 			`
@@ -780,10 +794,11 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Employment type"
 				.value=${getValue(Object.values(EMPLOYMENT_TYPE).flat(), this.updatedClientDetails.employmentType)}
-				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
+				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(type => type.key !== `NONE`)}"
 				display-field="value"
 				id-field="key"
 				error=${this._validateEmploymentType()}
+				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
 				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
@@ -816,7 +831,7 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Industry"
 				.value=${this.updatedClientDetails.industryCode} 
-				.items="${INDUSTRY_CODE}"
+				.items="${INDUSTRY_CODE.filter(code => !isNullorEmpty(code.value))}"
 				display-field="value"
 				id-field="key"
 				@value-changed=${(e) => this._detailsChange(`industryCode`, e.detail.new.key)}
@@ -833,30 +848,31 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Source of funds" 
 				.value=${getValue(Object.values(SOURCE_FUNDS).flat(), this.updatedClientDetails.sourceOfFunds)}
-				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
+				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(src => src.key !== `NO_VALUE`)}"
 				display-field="value"
 				id-field="key"
+				error="${isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE` ? ERROR.SOF : ``}"
 				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.key)}>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Expected monthly income" 
 				.value=${getValue(INCOME_RANGE, this.updatedClientDetails.incomeRange)}
-				.items="${INCOME_RANGE}"
+				.items="${INCOME_RANGE.filter(range => range.key !== `NO_VALUE`)}"
 				display-field="value"
 				id-field="key"
-				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
+				error="${isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ? ERROR.INCOME_RANGE : ``}"
 				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.key)}>
 			</capitec-select>
 
 			<capitec-select 
 				label="Income frequency" 
-				.value=${this.updatedClientDetails.incomeFrequency}
-				.items="${INCOME_FREQUENCY}"
+				.value=${this.updatedClientDetails.incomeFrequency === `NONE` ? `` : this.updatedClientDetails.incomeFrequency}
+				.items="${INCOME_FREQUENCY.filter(freq => freq.key !== `NONE`)}"
 				display-field="value"
 				id-field="key"
-				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
-				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.value)}>
+				error="${isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ? ERROR.INCOME_FREQUENCY : ``}"
+				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.key)}>
 			</capitec-select>
 			`
 		: html``;
