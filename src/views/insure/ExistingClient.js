@@ -474,10 +474,11 @@ export class ExistingClient extends InsureViewBase {
 		} else {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
-			return;
+			return false;
 		}
 
 		this.requestUpdate();
+		return true;
 	}
 
 	/**
@@ -591,9 +592,13 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
+		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, true);
+		if (docResponse === false) {
+			return;
+		}
 		const lifeEmailSuccess = await this._sendLifeEmail(e);
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.email, resp.result.policyNumber);
-		this.clientConfirmedEmail = e.detail.email;
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, resp.result.policyNumber);
+		this.clientConfirmedEmail = e.detail.emailAddress;
 		this._goToLifeSuccess();
 	}
 
@@ -629,7 +634,6 @@ export class ExistingClient extends InsureViewBase {
 				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
 			}
 		}
-
 		return successPageMessage;
 	}
 
