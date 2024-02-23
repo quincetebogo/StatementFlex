@@ -148,12 +148,12 @@ export const SOURCE_FUNDS = Object.freeze({
 
 export const INCOME_FREQUENCY = Object.freeze([
 		{ key: `NONE`, value: `` },
-		{ key: `A`, value: `Annually` },
-		{ key: `B`, value: `Bi_Annually` },
-		{ key: `F`, value: `Fortnightly` },
-		{ key: `M`, value: `Monthly` },
-		{ key: `Q`, value: `Quarterly` },
-		{ key: `W`, value: `Weekly` }
+		{ key: `Annually`, value: `Annually` },
+		{ key: `Bi_Annually`, value: `Bi-Annually` },
+		{ key: `Fortnightly`, value: `Fortnightly` },
+		{ key: `Monthly`, value: `Monthly` },
+		{ key: `Quarterly`, value: `Quarterly` },
+		{ key: `Weekly`, value: `Weekly` }
 ]);
 
 export const INDUSTRY_CODE = [
@@ -190,3 +190,17 @@ export const INDUSTRY_CODE = [
 	{ key: `ALCOHOL`, value: `Wine, beer and Spirits` }, 
 	{ key: `NO_VALUE`, value: `` }
 ];
+
+export const ERROR = {
+	NICK_NAME: `No special characters allowed`,
+	CONTACT_NUMBER: `Incorrect contact number`,
+	EMP_TYPE: `Employment type cannot be empty`,
+	EMP_NAME: `Employer name cannot be empty`,
+	ADDRESS1: `Address line 1 cannot be empty`,
+	SUBURB: `Suburb cannot be empty`,
+	CITY: `City cannot be empty`,
+	POSTAL_CODE: `Postal code cannot be empty`,
+	SOF: `Source of funds cannot be empty`,
+	INCOME_RANGE: `Expected monthly income cannot be empty`,
+	INCOME_FREQUENCY: `Income frequency cannot be empty`
+};

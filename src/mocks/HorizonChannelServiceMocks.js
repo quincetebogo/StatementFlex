@@ -767,7 +767,7 @@ export default class HorizonChannelServiceMocks {
 
 	getEmployer(searchValue) {
 		if (this._mockSettings.getEmployer.positiveCase) {
-			return this.clientDetails.employerList.filter(item => item.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1);
+			return { "employerList": this.clientDetails.employerList.employerList.filter(item => item.employerName.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1) };
 		} 
 		return null;
 	}
