@@ -482,6 +482,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.landingPageInfo = "${this.landingPageInfo}"
 					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 					.showTooltip="${need => this._showTooltip(need)}"
+					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}"
 					@account-details="${() => this._accountDetails(this.landingPageInfo)}">

@@ -1364,6 +1364,7 @@ export class CreditAccount extends ViewBase {
 					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
 					.showTooltip="${need => this._showTooltip(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
+					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
 					?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
