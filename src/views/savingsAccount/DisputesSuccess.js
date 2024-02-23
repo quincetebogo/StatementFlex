@@ -6,6 +6,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
+import { END_CALL_REASON } from '../../constants/EndCallReasons';
 
 /**
  * Display an confirmation/success screen indicating the card disputes is successful.
@@ -74,11 +75,17 @@ export class DisputesSuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateIncidentState() {
-		const feedback = FEEDBACK_OPTIONS.find(f => f.key === 2); // Retrieving need handed off feedback
-	
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
-		this.horizonIncidentManager.setFeedback(feedback.key);
+	async _updateIncidentState() {
+		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonIncidentManager.setDescription(this.description);
+
+		const options = {
+			clientNeed: null,
+			endCallReason: END_CALL_REASON.NEED_FULFILLED,
+			manualClassification: null
+		};
+
+		await this.horizonIncidentManager.closeIncident(options, () => this._toggleBusyFlag());
 	}
 
 	// ---------
