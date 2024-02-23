@@ -320,7 +320,7 @@ class ClientSummary extends Component {
 			detail: {
 				policy: this.selectedLifePolicy,
 				updatedPolicy: e.detail.policy,
-				email: e.detail.email,
+				emailAddress: e.detail.email,
 				contractReference: this.selectedLifePolicy.contractReference
 			}
 		}));
