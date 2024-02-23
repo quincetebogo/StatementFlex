@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { END_CALL_REASON } from 'app/constants/EndCallReasons';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/SavingsAccount';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -6,7 +7,6 @@ import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
-import { END_CALL_REASON } from '../../constants/EndCallReasons';
 
 /**
  * Display an confirmation/success screen indicating the card disputes is successful.
