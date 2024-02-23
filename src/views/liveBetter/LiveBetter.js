@@ -235,11 +235,14 @@ export class LiveBetter extends SavingsAccountBase {
 	
 	async _getLinkedransactionDetails(item) {
 
+		var formattedDate = formatDate(item.postingDate, ISO_8601_DATE_FORMAT);
+
 		let linkedTransactions = [];
 		const transactionHistoryRequest = {
 			"journalNumber": this.journalNumber, // "453858"// Details to work on DEV - for testing. 
 			"accountNumber": this.landingPageInfo.accountNumber, // "1733256405"//
-			"postingDate": item.postingDate // "2021-06-22"//
+			"postingDate": formattedDate,
+			"transactionId": item.transactionId // "2021-06-22"//
 		};
 
 		const returnValue = await this.liveBetterService.lbbLinkedTransactionDetails(transactionHistoryRequest);
@@ -622,6 +625,10 @@ export class LiveBetter extends SavingsAccountBase {
 				<capitec-pc-live-better-savings
 					class="liveBetter"
 					.liveBetterAccountData = "${this.landingPageInfo}"
+					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.showTooltip="${need => this._showTooltip(need)}"
+					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
+					
 					@option-click = "${(e) => this._optionClick(e.detail.option)}"
 					@round-up="${(event) => this._toggleRoundUp(event)}"
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">

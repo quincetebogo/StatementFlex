@@ -31,6 +31,10 @@ export class DisputesSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 
+	get description() {
+		return `parent incident closed, secondary incident handed off to Chargeback Operations to investigate`;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
