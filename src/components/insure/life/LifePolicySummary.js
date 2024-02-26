@@ -384,11 +384,15 @@ class LifePolicySummary extends Component {
 							value="${isNullorEmpty(this.selectedLifePolicy?.policyLapseDate) ? `-` : formatDate(this.selectedLifePolicy?.policyLapseDate, `dd mmm yyyy`)}">
 						</horizon-label>
 					` : html`
-						<horizon-label
-							label="Arrears amount"
-							class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
-							value="${formatCurrency(this._calculateArrearsAmount(this.selectedLifePolicy))}">
-						</horizon-label>
+						${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`` 
+						: html`
+							<horizon-label
+								label="Arrears amount"
+								class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
+								value="${formatCurrency(this._calculateArrearsAmount(this.selectedLifePolicy))}">
+							</horizon-label>
+						`}
+						
 					`}
 					<horizon-label
 						label="Status"

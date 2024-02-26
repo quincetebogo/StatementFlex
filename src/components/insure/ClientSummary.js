@@ -2026,13 +2026,6 @@ class ClientSummary extends Component {
 									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
-							<div>
-								<horizon-label
-									label="Arrears amount"
-									class="ghost-label"
-									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
-								</horizon-label>
-							</div>
 						` : html``}
 						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED ? html`
 							<div>
