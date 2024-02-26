@@ -1322,7 +1322,8 @@ export class ExistingClient extends InsureViewBase {
 	async _retrieveLifePolicyArrears(selectedPolicy) {
 		const arrearsRequest =
 		{
-			"contractReference": selectedPolicy.contractReference
+			"contractReference": selectedPolicy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber
 		};
 
 		const resp = await this.insureLifeService.lifeGetArrears(arrearsRequest);
