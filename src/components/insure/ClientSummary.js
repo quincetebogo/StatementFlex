@@ -2022,6 +2022,7 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Debit order date"
+									style="width: 270px"
 									class="ghost-label"
 									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
 								</horizon-label>
