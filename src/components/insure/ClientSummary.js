@@ -1478,6 +1478,9 @@ class ClientSummary extends Component {
 				--theme-button-padding-top: 14px;
 				--theme-button-padding-bottom: 14px;
 			}
+			.life-extra-space {
+				width: 270px
+			}
 			`
 		];
 	}
@@ -2022,7 +2025,7 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Debit order date"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
@@ -2038,8 +2041,7 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Reason"
-									style="width: 270px"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${pol?.cancellationReason}">
 								</horizon-label>
 							</div>
