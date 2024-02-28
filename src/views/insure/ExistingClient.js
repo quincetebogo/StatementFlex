@@ -1506,7 +1506,7 @@ export class ExistingClient extends InsureViewBase {
 				cifNumber: this.callerInformation.cifNumber,
 				idNumber: this.callerInformation.southAfricanIDNumber,
 				policyPauseReason: reason,
-				policyBenefitType: `VoluntaryPolicyPause `,
+				policyBenefitType: `VoluntaryPolicyPause`,
 				benefitPeriod: 6,
 				claimIncidentDate: `2023-11-24T15:49:02.862Z`,
 				productCode: `Capitec`
