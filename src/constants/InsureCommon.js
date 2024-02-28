@@ -365,7 +365,7 @@ export const INSURE_TABS = Object.freeze({
  */
 export const POLICY_PAUSE_REASONS = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Pregnancy `, text: `Pregnancy ` }
+	{ code: `Other `, text: `Other ` }
 ]);
 
 /**
