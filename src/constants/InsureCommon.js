@@ -259,7 +259,8 @@ export const PRODUCT_ID = `SBL`;
 */
 export const INSURE_PRODUCT_CODE = Object.freeze({
 	CAPITEC: `Capitec`,
-	CAPITEC_SANLAM: `CapitecSanlam`
+	CENTRIQ: `Centriq`,
+	SANLAM: `Sanlam`
 });
 
 /**
@@ -366,3 +367,34 @@ export const POLICY_PAUSE_REASONS = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Pregnancy `, text: `Pregnancy ` }
 ]);
+
+/**
+ * Global one generic details
+ *
+ * @readonly
+ * @enum {Object} GLOBAL_ONE_GENERIC_DETAILS
+ */
+export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
+	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
+	BRANCH_CODE: `470010`,
+	BANK: `Capitec Bank`,
+	ACCOUNT_TYPE: `Savings`
+});
+
+/**
+ * LIFE_POLICY_STATUSES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_STATUSES
+ */
+export const LIFE_POLICY_STATUSES = Object.freeze({
+	UNKNOWN: `Unknown`,
+	PENDING: `Pending`,
+	PENDING_IN_FORCE: `PendingInForce`,
+	IN_FORCE: `InForce`,
+	LAPSE_PENDING: `LapsePending`,
+	LAPSED: `Lapsed`,
+	NOT_TAKEN_UP: `NotTakenUp`,
+	CANCELLED: `Cancelled`,
+	OUT_OF_FORCE: `OutOfForce `
+});

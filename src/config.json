@@ -64,11 +64,11 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -297,7 +297,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
@@ -429,7 +429,7 @@
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, LIFE_POCKET_TYPES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, lifeCoverDisplayStatus, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -101,6 +101,7 @@ class ClientSummary extends Component {
 		this.isOnlyProductEnquiry = true;
 
 		this.showLifeEmailDialog = false;
+		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -130,9 +131,9 @@ class ClientSummary extends Component {
 	 * @property {boolean} showCFPAgreementDialog Determines if the CFP agreement dialog should be shown
 	 * @property {String} selectedFlow current selected flow
 	 * @property {String} selectedContractRef selected policy contract reference
+	 * @property {String} selectedProductCode selected policy product code
 	 * @property {boolean} canReinstate determines whether a policy can be reinstated
 	 * @property {Object} selectedPolicyItem selected policy item
-	 * @property {String} productCode policy product code
 	 * @property {Function} requestCallback policy product code
 	 * @property {Function} funeralGetPolicyArrears Callback function to fetch arrears and payable accounts
 	 * @property {Object} lifePolicies Contains clients life policies
@@ -192,9 +193,9 @@ class ClientSummary extends Component {
 			selectedInsureTabIndex: { type: Number, state: true },
 			selectedFlow: { type: String, state: true },
 			selectedContractRef: { type: String, state: true },
+			selectedProductCode: { type: String, state: true },
 			canReinstate: { type: Boolean, state: true },
 			selectedPolicyItem: { type: Object, state: true },
-			productCode: { type: String, state: true },
 			showEmailEstimateSuccessToast: { type: Boolean, state: true },
 			showRequestFMSCallbackSuccessToast: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
@@ -223,7 +224,8 @@ class ClientSummary extends Component {
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
 			isOnlyProductEnquiry: { type: Boolean, state: true },
-			setInsureIncident: { type: Object, state: true }
+			setInsureIncident: { type: Object, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -276,14 +278,16 @@ class ClientSummary extends Component {
 	/**
 	 * Fire navigate event to Policy Summary
 	 * @param {String} contractReference contract reference
+	 * @param {String} productCode product code
 	 * @returns {void}
 	 */
-	_goToFuneralPolicySummary(contractReference) {
+	_goToFuneralPolicySummary(contractReference, productCode) {
 		this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_POLICY_DETAILS, {});
 		this.dispatchEvent(new CustomEvent(`navigate-to-policy-summary`, {
 			detail: {
 				policyContractReference: contractReference,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: productCode
 			}
 		}));
 	}
@@ -330,7 +334,7 @@ class ClientSummary extends Component {
 			detail: {
 				policy: this.selectedLifePolicy,
 				updatedPolicy: e.detail.policy,
-				email: e.detail.email,
+				emailAddress: e.detail.email,
 				contractReference: this.selectedLifePolicy.contractReference
 			}
 		}));
@@ -372,7 +376,8 @@ class ClientSummary extends Component {
 				bankName: policyItem.deductionDetails?.bankDetails?.bank,
 				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
 				arrearsAmount: policyItem.arrearDetails?.outstandingAmount,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: policyItem.productCode
 			}
 		}));
 	}
@@ -385,7 +390,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`pay-policy`, {
 			detail: {
 				payArrears: this.funeralPolicyPayArrears,
-				fromAccount: this.funeralPayArrearsFromAccount
+				fromAccount: this.funeralPayArrearsFromAccount,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
@@ -399,7 +405,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel-policy`, {
 			detail: {
 				contractReference: this.contractReferenceToCancel,
-				cancellationReason: e.detail.cancellationReason
+				cancellationReason: e.detail.cancellationReason,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
@@ -415,7 +422,8 @@ class ClientSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-to-sms-history`, {
 			detail: {
 				policyItem: policyItem,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: policyItem?.productCode
 			}
 		}));
 	}
@@ -441,7 +449,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendFuneralEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef } }));
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
 		this.showFuneralEmailPlanDialog = false;
 	}
 
@@ -507,7 +515,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	async _generateDocumentsFuneralCancel(contractReference, cancelReason) {
-		await this.generateDocumentsFuneralCancel(contractReference, cancelReason, false);
+		await this.generateDocumentsFuneralCancel(contractReference, cancelReason, false, this.selectedProductCode);
 	}
 
 	/**
@@ -516,7 +524,7 @@ class ClientSummary extends Component {
 	 * @return {void} 
 	 */
 	async _generateDocumentsFuneralArrears(contractReference) {
-		await this.generateDocumentsFuneralArrears(contractReference, this.funeralPolicyPayArrears, this.funeralPayArrearsFromAccount, false);
+		await this.generateDocumentsFuneralArrears(contractReference, this.funeralPolicyPayArrears, this.funeralPayArrearsFromAccount, false, this.selectedProductCode);
 	}
 
 	/**
@@ -531,10 +539,12 @@ class ClientSummary extends Component {
 	/**
 	 * determines whether to show the email dialog
 	 * @param {String} contractRef Policy contract reference
+	 * @param {String} productCode Policy product code
 	 * @returns {void} 
 	 */
-	_showFuneralEmailPlanDialog(contractRef) {
+	_showFuneralEmailPlanDialog(contractRef, productCode) {
 		this.setInsureIncident(`funeral-plan-send-document`);
+		this.selectedProductCode = productCode;
 		this.emailContractRef = contractRef;
 		this.showFuneralEmailPlanDialog = true;
 	}
@@ -633,14 +643,15 @@ class ClientSummary extends Component {
 		}
 
 		this.selectedFlow = flow;
-		this.selectedContractRef = policyItem?.contractReference;
 		this.canReinstate = policyItem?.canReinstate;
+		
+		this.selectedContractRef = policyItem?.contractReference;
 		this.selectedPolicyItem = policyItem;
 
 		if (policyItem === null) {
-			this.productCode = `CapitecSanlam`;
+			this.selectedProductCode = INSURE_PRODUCT_CODE.SANLAM;
 		} else {
-			this.productCode = policyItem.productCode;
+			this.selectedProductCode = policyItem.productCode;
 		}
 
 
@@ -735,7 +746,18 @@ class ClientSummary extends Component {
 		if (result) {
 			this.showPolicyPauseDialog = false;
 		}
+	}
 
+	/**
+	 * check if policy status is an active status
+	 * @param {String} policyStatus policy status
+	 * @returns {Boolean} boolean
+	 */
+	_checkLifePolicyStatus(policyStatus) {
+		if (policyStatus === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
+			return true;
+		}
+		return false;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -928,7 +950,7 @@ class ClientSummary extends Component {
 				label="Email Plan" 
 				icon="system/profile-action"
 				.disabled="${this.readOnlyMode}"
-				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference)}">
+				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference, policyItem.productCode)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<horizon-option-button 
@@ -1138,6 +1160,34 @@ class ClientSummary extends Component {
 		return totalArrears;
 	}
 
+	/**
+	 * Build arrears message to display
+	 * 
+	 * @param {object} policy policy
+	 * @returns {string} message
+	 */
+	_buildArrearsMessage(policy) {
+		let message = ``;
+		if (policy.arrears.length === 1) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))}.`;
+		} else if (policy.arrears.length === 2) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and may lapse if one more premium is missed`;
+		} else if (policy.arrears.length === 3) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(policy.arrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
+		}
+		return message;
+	}
+
+	/**
+	 * Determines the lapse date of te policy when it is 3 months in arrears
+	 * @param {String} date date
+	 * @returns {String} lapse date
+	 */
+	_determineLapseDate(date) {
+		const lastMissedPaymentDate = new Date(date);
+		lastMissedPaymentDate.setDate(lastMissedPaymentDate.getDate() + 15);
+		return lastMissedPaymentDate.toISOString();
+	}
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -1481,6 +1531,9 @@ class ClientSummary extends Component {
 				--theme-button-padding-top: 14px;
 				--theme-button-padding-bottom: 14px;
 			}
+			.life-extra-space {
+				width: 270px
+			}
 			`
 		];
 	}
@@ -1670,12 +1723,15 @@ class ClientSummary extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 
-				<capitec-tab
-					data-automation-id="insure-landing-life-policies-tab"
-					label="Life Cover">
-					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
-					${this._renderFooter()}
-				</capitec-tab>
+				${this.isLifeQualifyingClient === true ? html`
+						<capitec-tab
+							data-automation-id="insure-landing-life-policies-tab"
+							label="Life Cover">
+							${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
+							${this._renderFooter()}
+						</capitec-tab>`
+				: html``
+			}
 
 				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
@@ -1722,7 +1778,7 @@ class ClientSummary extends Component {
 							label="Policy number"
 							textOverflow="ellipsis"
 							value="${policyItem.contractReference}"
-							@click="${() => this._goToFuneralPolicySummary(policyItem.contractReference)}">
+							@click="${() => this._goToFuneralPolicySummary(policyItem.contractReference, policyItem.productCode)}">
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
@@ -1809,13 +1865,8 @@ class ClientSummary extends Component {
 	 * @returns {html} The html content the list of Policies
 	 */
 	_renderLifePoliciesList() {
-		const activeLifePolicy = this.lifePolicies?.policies.find(x => x.policyStatus.toUpperCase() === `ACTIVE` || 
-		x.policyStatus.toUpperCase() === `PENDING IN FORCE` || 
-		x.policyStatus.toUpperCase() === `IN FORCE`);
-		
-		const nonActiveLifePolicies = this.lifePolicies?.policies.filter(pol => pol.policyStatus.toUpperCase() !== `ACTIVE` && 
-		pol.policyStatus.toUpperCase() !== `PENDING IN FORCE` &&
-		pol.policyStatus.toUpperCase() !== `IN FORCE`);
+		const activeLifePolicy = determineActiveLifePolicies(this.lifePolicies?.policies);
+		const nonActiveLifePolicies = determineInactiveLifePolicies(this.lifePolicies?.policies);
 
 		return html`
 				${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 ? html`
@@ -1823,7 +1874,7 @@ class ClientSummary extends Component {
 						type="unsuccessful-red"
 						class="life-arrears-notify"
 						header="Notify client:"
-						label="Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(activeLifePolicy))} and will lapse if payment is not received."
+						label="${this._buildArrearsMessage(activeLifePolicy)}"
 						layout="horizontal">
 					</horizon-alert-banner>`
 				: html``}
@@ -1895,8 +1946,8 @@ class ClientSummary extends Component {
 					<div id='life-policy-status' style="width: 300px;">
 						<horizon-label
 							label="Status"
-							class = "${activeLifePolicy?.policyStatus === `Active` || activeLifePolicy?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
-							value= "${lifeCoverDisplayStatus(activeLifePolicy?.policyStatus)}">
+							class = "${determineLifeStatusColour(activeLifePolicy?.policyStatusEnum)}"
+							value= "${activeLifePolicy?.displayPolicyStatus}">
 						</horizon-label>
 					</div>
 
@@ -1908,17 +1959,17 @@ class ClientSummary extends Component {
 						</capitec-overflow-menu-item>
 					`}
 
-					<!-- ${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			} -->
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1928,7 +1979,7 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -1950,16 +2001,16 @@ class ClientSummary extends Component {
 	_renderActiveLifePolicyPockets(activeLifePolicy) {
 		const pocketList = activeLifePolicy?.pockets;
 
+		// Enable with next release
+		// ?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
 		return html`${pocketList?.length > 0 ? pocketList?.map((pocketItem) => html`
+		<capitec-content-box style="padding: 0px;">
 			<horizon-expander
-				expandButtonAlignment="right"
-				id="horizon-expander-${pocketItem?.pocketType}"
-				?expanded = "${pocketItem?.isExpanded}" 
-				@expand = "${() => this._lifePolicyExpanded(pocketItem)}"
-				@collapse = "${() => this._lifePolicyCollapsed(pocketItem)}"
-				?disabled='${this.readOnlyMode || pocketItem?.coverage === 0}'
-				style="${pocketItem?.coverage === 0 ? `background-color: #f1f1f1` : ``}">
-					<capitec-group 
+				expandButtonAlignment=""
+				.expanded = "${false}"
+				?disabled=${true}
+				class = "horizon-expander-height">
+				<capitec-group 
 						class="expander-header"
 						slot="custom-header"
 						layout="horizontal"
@@ -1987,7 +2038,8 @@ class ClientSummary extends Component {
 								${this._renderLifeExpandedOptions(pocketItem)}
 						</capitec-group>
 					</div>
-			</horizon-expander>`) : html``}`;
+				</horizon-expander>
+		</capitec-content-box>`) : html``}`;
 	}
 
 	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
@@ -2006,16 +2058,18 @@ class ClientSummary extends Component {
 								@click="${() => this._goToLifePolicySummary(pol)}">
 							</horizon-label>
 						</div>
-						
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`` 
+						: html`
 						<div>
 							<horizon-label
 								label="Total cover"
 								class="ghost-label"
 								value="${this._calculateLifeTotalCoverAmount(pol)}">
 							</horizon-label>
-						</div>
+						</div>`}
+						
 
-						${pol.policyStatus === `Not Taken Up` ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`
 							<div>
 								<horizon-label
 									label="Premium"
@@ -2026,18 +2080,12 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Debit order date"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
-							<div>
-								<horizon-label
-									label="Arrears amount"
-									class="ghost-label"
-									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
-								</horizon-label>
-							</div>
-						` : html`
+						` : html``}
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED ? html`
 							<div>
 								<horizon-label
 									label="Cancelation Date"
@@ -2048,19 +2096,38 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Reason"
-									style="width: 270px"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${pol?.cancellationReason}">
 								</horizon-label>
 							</div>
-						`}
+						` : html``}
+
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`
+							<div>
+								<horizon-label
+									label="Lapse Date"
+									class="ghost-label"
+									value="${isNullorEmpty(pol?.policyLapseDate) ? `-` : formatDate(pol?.policyLapseDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+							<div>
+								<horizon-label
+									label="Start Date"
+									style="width: 410px"
+									class="ghost-label"
+									value="${formatDate(pol?.policyStartDate, `dd mmm yyyy`)}">
+								</horizon-label>
+							</div>
+						` : html``}
+							
+						
 
 						
 						<div style="width: 300px;">
 							<horizon-label
 								label="Status"
-								class = "${pol?.policyStatus === `Active` || pol?.policyStatus === `In Force` ? `active-status` : `inactive-status`}"
-								value= "${lifeCoverDisplayStatus(pol?.policyStatus)}">
+								class = "${determineLifeStatusColour(pol?.policyStatusEnum)}"
+								value= "${pol?.displayPolicyStatus}">
 							</horizon-label>
 						</div>
 
@@ -2284,7 +2351,7 @@ class ClientSummary extends Component {
 								<div>How it works:</div>
 								<div>•When you pass, the Education Fund benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
 								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
-								<div>•Once a child turns 18, the money left in the umbrella trust will be paid to them in one lump sum</div>
+								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
 						</tr>
 					</table>
@@ -2389,7 +2456,9 @@ class ClientSummary extends Component {
 	_renderLodgeClaimInfoDialog() {
 		return this.showLodgeClaimInfoDialog === false ? ``
 			: html`
-			<horizon-insure-lodge-claim-info-dialog @confirm="${() => this._closeClaimInfoDialog()}">
+			<horizon-insure-lodge-claim-info-dialog 
+				.selectedInsureTabIndex="${this.selectedInsureTabIndex}"
+				@confirm="${() => this._closeClaimInfoDialog()}">
 			</horizon-insure-lodge-claim-info-dialog>`;
 	}
 
@@ -2400,7 +2469,7 @@ class ClientSummary extends Component {
 	_renderCFPAgreementDialog() {
 		return this.showCFPAgreementDialog === false ? `` : html`
 		<horizon-insure-cfp-agreement-dialog 
-			.productCode = "${this.productCode}"
+			.productCode = "${this.selectedProductCode}"
 			@agreementAccepted="${() => this._navigateAfterCFP()}"
 			@close-modal="${() => this.showCFPAgreementDialog = false}">
 		</horizon-insure-cfp-agreement-dialog>`;

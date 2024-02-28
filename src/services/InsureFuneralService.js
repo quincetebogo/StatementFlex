@@ -654,7 +654,10 @@ export class InsureFuneralService extends ChannelServiceBase {
 	* @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	* @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	*/
-	cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenerateIssueAgreement`)) {
+			return this.mock(`insureGenerateIssueAgreement`);
+		}
 		return this.post(
 			`/horizon-insurance/funeral/api/document/generate/CancelPolicyAgreement`,
 			GenerateCancelAgreementRequest,

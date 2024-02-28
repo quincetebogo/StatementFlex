@@ -72,7 +72,7 @@ class LifePayArrearsDialog extends Component {
 			accountSelected: { type: Boolean, state: true },
 			selectedAccountNumber: { type: String, state: true },
 			selectedAccountType: { type: String, state: true },
-			selectedArrears: { type: Object, state: true },
+			selectedArrears: { type: Array, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -124,7 +124,7 @@ class LifePayArrearsDialog extends Component {
 
 		if (this.lifePolicyArrears.arrears) {
 			this.lifePolicyArrears.arrears.forEach(arrears => {
-				this.totalPolicyArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+				this.totalPolicyArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
 			});
 		}
 
@@ -170,8 +170,9 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_arrearsCheckedChange(arrear, index, e) {
+		this.totalSelectedArrears = parseFloat(this.totalSelectedArrears);
 		if (e.detail.new === true) {
-			this.totalSelectedArrears += arrear.arrearsPaymentDueAmount;
+			this.totalSelectedArrears += parseFloat(arrear.arrearsPaymentDueAmount);
 			this.selectedArrears.push({
 				dueDate: arrear.arrearsPaymentDueDate,
 				amount: arrear.arrearsPaymentDueAmount,
@@ -180,8 +181,15 @@ class LifePayArrearsDialog extends Component {
 		} else {
 			this.insufficientFunds = false;
 			this.accountSelected = true;
-			this.totalSelectedArrears -= arrear.arrearsPaymentDueAmount;
-			this.selectedArrears.splice(index, 1);
+			this.totalSelectedArrears -= parseFloat(arrear.arrearsPaymentDueAmount);
+
+			const existingArrearsIndex = this.selectedArrears.findIndex((arrearObject) => arrearObject.objectId === arrear.arrearsId);
+			this.selectedArrears.splice(existingArrearsIndex, 1);
+		}
+		if (this.selectedArrears.length === 0) {
+			this.totalSelectedArrears = 0;
+		} else {
+			this.totalSelectedArrears = parseFloat(this.totalSelectedArrears.toFixed(2));
 		}
 		this.requestUpdate();
 	}
@@ -250,8 +258,15 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
+		console.log(`in _settleArrearsValidate()`);
+		console.log(`this.totalSelectedArrears :>> `, this.totalSelectedArrears);
+		console.log(`this.defaultSavingsAccountAvailableBalance :>> `, this.defaultSavingsAccountAvailableBalance);
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
+			return;
+		}
+		if (this.totalSelectedArrears > this.defaultSavingsAccountAvailableBalance) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
 			return;
 		}
 
@@ -282,7 +297,10 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, false);
+		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears, false);
+		if (isNullorEmpty(agreementResult)) {
+			return;
+		}
 		this.agreementDetails = agreementResult.result;
 		this.currentStep = STEPS.AGREEMENT;
 	}
@@ -298,8 +316,16 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		await this.executeLifePayArrears(this.policy.contractReference, this.accountSelected, this.selectedArrears);
-		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.accountSelected, this.selectedArrears, true);
+		const payResult = await this.executeLifePayArrears(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears);
+		if (isNullorEmpty(payResult)) {
+			return;
+		}
+		console.log(`payResult :>> `, payResult);
+		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears, true);
+		if (isNullorEmpty(agreementResult)) {
+			return;
+		}
+		console.log(`agreementResult :>> `, agreementResult);
 		await this.executeLifeArrearsSendEmail(this.policy.contractReference, formatCurrency(this.totalSelectedArrears), this.email, agreementResult);
 	}
 
@@ -487,51 +513,30 @@ class LifePayArrearsDialog extends Component {
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
-					<!-- <capitec-label type="subtitle" label="Choose an account"></capitec-label> -->
-
 					<!-- Single account - temporary until service can provide payable accounts -->
 					<div class="account-selectbox">
-					<div class="select-header">
-						<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
-							<div> 
-								<capitec-icon size="default" icon="product/transact"></capitec-icon>
-							</div>
-
-							<div style="display: flex; flex-direction: column;">
-								<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
-								<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
-							</div>
-
-							<div> 
-								<capitec-label type="subtitle" label="${formatCurrency(this.defaultSavingsAccountAvailableBalance)}" style="position: relative; font-weight: bold;"></capitec-label>
-							</div>
-
-						</capitec-content-box>
+						<div class="select-header">
+							<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
+								<div> 
+									<capitec-icon size="default" icon="product/transact"></capitec-icon>
+								</div>
+								<div style="display: flex; flex-direction: column;">
+									<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
+									<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
+								</div>
+								<div> 
+									<capitec-label type="subtitle" label="${formatCurrency(this.defaultSavingsAccountAvailableBalance)}" style="position: relative; font-weight: bold;"></capitec-label>
+								</div>
+							</capitec-content-box>
+						</div>
 					</div>
-					</div>
-
-<!-- 
-					<insure-account-select 
-						class="account-selectbox"
-						@option-selected="${(e) => this._accountSelected(e)}"
-						.accountDetails = "${this.payableAccounts}" 
-						.insufficient = "${this.insufficientFunds}" 
-						.label= "${`Please select`}"
-						.selectBoxWidth=${`490px`}>
-					</insure-account-select> -->
 
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
 						${this.lifePolicyArrears?.arrears?.map((arrear, index) => html`
-							${index === 0 ? html`
-								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
-									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
-								</capitec-check>
-							` : html`
-								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
-									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
-								</capitec-check>
-								`}
+							<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
+								@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
+							</capitec-check>
 						`)}
 					</capitec-check-group>
 				</div>

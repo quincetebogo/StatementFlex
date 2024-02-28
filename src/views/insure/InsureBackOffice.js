@@ -56,8 +56,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.selectedInsureTabIndex = 0;
 		this.contractReference = ``;
 		this.claims = [];
+		this.selectedFuneralPolicyProductCode = ``;
 
 		this.readOnlyMode = true;
+		this.isLifeQualifyingClient = false;
 	}
 
 	/**
@@ -66,6 +68,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @property {Object} policyDetails data and flags for a specific policy
 	 * @property {String} contractReference contains the contract reference for the selected policy 
 	 * @property {Boolean} readOnlyMode determines if the view is in read only mode or not
+	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
 	 * 
 	 * @readonly
 	 * @static
@@ -80,7 +83,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 			readOnlyMode: { type: Boolean, state: true },
 			renderMode: { type: Number, state: true },
 			claims: { type: Object, state: true },
-			selectedInsureTabIndex: { type: Number, state: true }
+			selectedInsureTabIndex: { type: Number, state: true },
+			isLifeQualifyingClient: { type: Boolean, state: true },
+			selectedFuneralPolicyProductCode: { type: String, state: true }
 		};
 	}
 
@@ -112,6 +117,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
+		await this._clientQualifiesLife();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -192,7 +198,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const commsHistoryDetails = {
 			"contractReference": contractReference,
 			"fromDate": fromDate,
-			"toDate": toDate
+			"toDate": toDate,
+			"productCode": this.selectedFuneralPolicyProductCode
 		};
 
 		const resp = await this.insureFuneralService.communicationHistory(commsHistoryDetails, () => true);
@@ -215,6 +222,23 @@ export class InsureBackOfficeView extends InsureViewBase {
 		};
 		const claimsList = await this.insureFuneralService.viewExistingClaims(request);
 		return claimsList.result;
+	}
+
+	/**
+	 * Check if client qualifies for Life product
+	 * @returns {Object} Client Life policies 
+	 */
+	async _clientQualifiesLife() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeClientQualify(request);
+		if (!resp.succeeded) {
+			this.isLifeQualifyingClient = false;
+		} else {
+			this.isLifeQualifyingClient = resp.result.qualify;
+		}
 	}
 
 	/**
@@ -244,8 +268,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
-		await this._getPolicyTransactionHistory();
+		await this._retrieveFuneralPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
 	}
 
@@ -284,7 +309,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 	_goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
-
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		// call fips here
 
 		// Telemetry Here
@@ -309,7 +334,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @param {*} pageIndex pageIndex
 	 * @returns {*} transaction history
 	 */
-	async _getPolicyTransactionHistory(startDate, endDate, pageIndex) {
+	async _retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex) {
 		const transactionHistoryRequest = {
 			contractReference: this.contractReference,
 			transactionDateType: `TransactionDate`,
@@ -319,7 +344,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			pagniation: {
 				pageIndex: pageIndex || POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
 				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
-			}
+			},
+			productCode: this.selectedFuneralPolicyProductCode
 		};
 
 		this.transactions = [];
@@ -332,11 +358,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 		};
 
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
-
 		if (returnValue.succeeded && returnValue.result) {
-			const formattedTrans = returnValue.result.transactions
-				.map((item) => {
-					const formatedDate = new Date(Date.parse(item.date));
+			const formattedTrans = returnValue.result.transactions.
+			filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
+				const formatedDate = new Date(Date.parse(item.date));
 					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
@@ -461,8 +486,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	async _updateElectOptions(electRequest) {
 		electRequest.cifNumber = this.callerInformation.cifNumber;
 		electRequest.clientIDNumber = this.callerInformation.southAfricanIDNumber;
+		const electResp = await this.insureFuneralService.SetElectOptions(electRequest);
 
-		const electResp = await this.insureService.SetElectOptions(electRequest);
 		if (!electResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.insureErrorToastMessage = `December collection OPT change was unsuccessful. Please try again later.`;
@@ -473,7 +498,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.showInsureSuccessToast = true;
 		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
-		this.clientPolicies = await this._retrieveClientPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+		this.funeralPolicies = await this._retrieveClientFuneralPolicies(this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
 	}
 
 	// #endregion EVENT HANDLERS
@@ -561,6 +586,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.clientClaims="${this.claims}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
+				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToPolicySummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToPolicyTransactionHistory(e)}"
@@ -591,14 +617,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_renderPolicyTransactionHistoryPage() {
 		return this.renderMode === INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY
-			? html`<horizon-insure-policy-transaction-history 
-				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+			? html`<horizon-insure-funeral-policy-transaction-history 
 				.policyTransactionHistory="${this.policyTransactionHistory}"
-				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._getPolicyTransactionHistory(startDate, endDate, pageIndex)}"
+				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
+				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}"
 				.readOnlyMode="${this.readOnlyMode}">
-			</horizon-insure-policy-transaction-history>`
+			</horizon-insure-funeral-policy-transaction-history>`
 			: html``;
 	}
 
@@ -652,7 +678,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	_renderClaimSummaryPage() {
 		return html`
 				<horizon-insure-claim-summary
-					.claimSummary="${this.claimSummary}"
+					.claimSummary="${this.claimSummary.claim}"
 					@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 				</horizon-insure-claim-summary>`;
 	}

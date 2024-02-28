@@ -1,4 +1,4 @@
-import { LIFE_POCKET_TYPES, PRODUCT_ID } from 'app/constants/InsureCommon';
+import { LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, PRODUCT_ID } from 'app/constants/InsureCommon';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 export const TODAY_DATE = new Date();
@@ -432,21 +432,6 @@ export function validateEmailAddressCombo(email, confirmEmail) {
 
 /** LIFE COVER UTILS */
 
-/**
- * Get display status for life policy
- * @param {string} status Life policy status
- * @returns {string} display status
- */
-export function lifeCoverDisplayStatus(status) {
-	if (status.toUpperCase() === `IN FORCE`) {
-		return `Active`;
-	}
-
-	if (status.toUpperCase() === `PENDING IN FORCE`) {
-		return `Active - Pending Payment`;
-	}
-	return status;
-}
 
 /**
  * Determine the pocket color class based on pocket type
@@ -496,4 +481,50 @@ export function pocketBadgeIcon(pocketType) {
 	if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 		return `/insure_once_off_pocket`;
 	}
+}
+
+/**
+ * determine the status class based on status
+ * @param {String} status status
+ * @return {String} string
+ * 
+ */
+export function determineLifeStatusColour(status) {
+	let cssClass = `inactive-status`;
+
+	if (status === LIFE_POLICY_STATUSES.IN_FORCE) {
+		cssClass = `active-status`;
+	} 
+	if (status === LIFE_POLICY_STATUSES.PENDING_IN_FORCE) {
+		cssClass = `active-status`;
+	}
+	if (status === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
+		cssClass = `active-status`;
+	}
+
+	return cssClass; 
+}
+
+/** 
+ * Determine Active life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineActiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.find(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING);
+}
+
+/**
+ * Determine inactive life policies
+ * @param {Array} lifePolicies lifePolicies
+ * @return {Object} object
+ */
+export function determineInactiveLifePolicies(lifePolicies) {
+	if (isNullorEmpty(lifePolicies)) {
+		return null;
+	}
+	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
 }

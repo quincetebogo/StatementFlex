@@ -229,9 +229,9 @@ class LifeSMSHistory extends Component {
 		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
-		if (toDate.diff(fromDate, [`days`]).days > 90) {
+		if (toDate.diff(fromDate, [`days`]).days > 3650) {
 
-			toDate = fromDate.plus({ days: 90 });
+			toDate = fromDate.plus({ days: 3650 });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
 				this.endDate = currentDateTime;
@@ -245,7 +245,7 @@ class LifeSMSHistory extends Component {
 			}
 		} else if (e.detail.new.endDate === null && this.endDate === ``) {
 			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
+			toDate = fromDate.plus({ days: 3650 });
 			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
 				this.endDate = currentDateTime;
 			} else {
@@ -253,7 +253,7 @@ class LifeSMSHistory extends Component {
 			}
 		} else if (e.detail.new.startDate === null && this.startDate === ``) {
 			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
+			fromDate = toDate.minus({ days: 3650 });
 			this.startDate = fromDate;
 		} else {
 
@@ -277,6 +277,15 @@ class LifeSMSHistory extends Component {
 		this._clearFilter(type);
 		this._refineSearch();
 	}
+
+	_checkTimezone(date) {
+		const timeZone = `+00:00`;
+		const wrongTimeZone = date.includes(timeZone);
+		if (wrongTimeZone === true) {
+			date = date.replace(timeZone, `-02:00`);
+		}
+		return date;
+	};
 
 	// #endregion
 
@@ -479,7 +488,7 @@ class LifeSMSHistory extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Sent"
-							value="${formatDate(comms.sentAt, `dd mmm yyyy`)}, ${new Date(comms.sentAt).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
+							value="${formatDate(this._checkTimezone(comms.sentAt), `dd mmm yyyy`)}, ${new Date(this._checkTimezone(comms.sentAt)).toLocaleTimeString(`en`, { timeStyle: `short`, hour12: true, timeZone: `UTC` })}">
 						</horizon-label>
 						<horizon-label
 							label="Status"
@@ -527,7 +536,7 @@ class LifeSMSHistory extends Component {
 		return html`
 		<capitec-date-time-picker
 					id="calendarRange"
-					label = "Choose a date (up to 90 days)"
+					label = "Choose a date"
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
