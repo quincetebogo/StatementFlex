@@ -29,6 +29,7 @@ class LifePremiumHistory extends Component {
 		this.lifePremiumHistory = {};
 		this.filteredData = [];
 		this.hideLoadMore = true;
+		this.policyStartDate = ``;
 	}
 
 	// #endregion INITIALIZATION
@@ -43,6 +44,7 @@ class LifePremiumHistory extends Component {
 	 * @property {Function} getLifePremiumHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
+	 * @property {Object} policyStartDate Start date for restricting date range
 	
 	 * 
 	 * @readonly
@@ -56,7 +58,8 @@ class LifePremiumHistory extends Component {
 			lifePremiumHistory: { type: Object },
 			getLifePremiumHistory: { type: Object },
 			disposeData: { type: Object },
-			hideLoadMore: { type: Boolean, state: true }
+			hideLoadMore: { type: Boolean, state: true },
+			policyStartDate: { type: Object, state: true }
 		};
 	}
 
@@ -443,6 +446,7 @@ class LifePremiumHistory extends Component {
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
+					minDate = "${this.policyStartDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"

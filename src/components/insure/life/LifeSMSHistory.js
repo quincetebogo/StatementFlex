@@ -28,6 +28,7 @@ class LifeSMSHistory extends Component {
 	constructor() {
 		super();
 		this.commsHistory = [];
+		this.policyStartDate = ``;
 	}
 
 	// #endregion
@@ -40,6 +41,7 @@ class LifeSMSHistory extends Component {
 	 * @property {String} contractReference contains the policy number
 	 * @property {String} contactNumber contains the callers verified contact number
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
+	 * @property {Object} policyStartDate Start date for restricting date range
 	 * @property {function} getCommsHistory Callback function to fetch more data
 	 * @property {function} filteredData Holds the filtered communication history data
 	 * 
@@ -53,6 +55,7 @@ class LifeSMSHistory extends Component {
 			contractReference: { type: String, state: true },
 			contactNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
+			policyStartDate: { type: Object, state: true },
 			getCommsHistory: { type: Object, state: true },
 			filteredData: { type: Object, state: true }
 		};
@@ -68,9 +71,7 @@ class LifeSMSHistory extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-
 		this._initialise();
-
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -539,6 +540,7 @@ class LifeSMSHistory extends Component {
 					label = "Choose a date"
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
+					minDate = "${this.policyStartDate}"
 					maxDate="${new Date().toString()}"
 					type="range"
 					mode="date"

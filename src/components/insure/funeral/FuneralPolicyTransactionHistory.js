@@ -37,6 +37,7 @@ class FuneralPolicyTransactionHistory extends Component {
 		this.hideLoadMore = true;
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
+		this.policyStartDate = ``;
 	}
 
 	// #endregion INITIALIZATION
@@ -60,7 +61,7 @@ class FuneralPolicyTransactionHistory extends Component {
 	 * @property {Function} getPolicyTransactionHistory Callback function to fetch more data
 	 * @property {Function} disposeData Callback function to clear transaction history data variable
 	 * @property {Boolean} hideLoadMore Show/Hide Load More button
-	
+	 * @property {Object} policyStartDate Start date for restricting date range
 	 * 
 	 * @readonly
 	 * @static
@@ -73,7 +74,8 @@ class FuneralPolicyTransactionHistory extends Component {
 			policyTransactionHistory: { type: Object },
 			getPolicyTransactionHistory: { type: Object },
 			disposeData: { type: Object },
-			hideLoadMore: { type: Boolean, state: true }
+			hideLoadMore: { type: Boolean, state: true },
+			policyStartDate: { type: Object, state: true }
 		};
 	}
 
@@ -469,6 +471,7 @@ class FuneralPolicyTransactionHistory extends Component {
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
+					minDate = "${this.policyStartDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"
