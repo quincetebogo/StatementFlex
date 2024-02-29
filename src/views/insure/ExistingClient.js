@@ -741,15 +741,11 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Client policies 
 	 */
 	async _retrieveClientFuneralPolicies() {
-		// const request = {
-		// 	cifNumber: this.callerInformation.cifNumber,
-		// 	idNumber: this.callerInformation.southAfricanIDNumber
-		// };
 		const request = {
-			cifNumber: 323346561,
-			idNumber: `9705016223088`
+			cifNumber: this.callerInformation.cifNumber,
+			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-
+	
 		const resp = await this.insureFuneralService.clientSummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
@@ -764,7 +760,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _clientQualifiesLife() {
 		const request = {
-			cifNumber: "323346561"
+			cifNumber: this.callerInformation.cifNumber
 		};
 
 		const resp = await this.insureLifeService.lifeClientQualify(request);
@@ -783,7 +779,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _retrieveClientLifePolicies() {
 		const request = {
-			cifNumber: "323346561"
+			cifNumber: this.callerInformation.cifNumber
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
