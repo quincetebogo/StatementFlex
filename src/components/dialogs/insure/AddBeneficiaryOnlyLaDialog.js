@@ -123,6 +123,13 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 
 	}
 
+	/**
+	 * Sets selected relationship to the one selected in the radio group
+	 * 
+	 * @param {event} e e
+	 * @param {String} relationship selected relationship
+	 * @returns {void}
+	 */
 	_setRelationship(e, relationship) {
 		if (e.detail.new) {
 			this.selectedRelationship = relationship;
