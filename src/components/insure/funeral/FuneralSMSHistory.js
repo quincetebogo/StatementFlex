@@ -33,6 +33,7 @@ class FuneralSMSHistory extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
 		this.commsHistory = [];
+		this.policyStartDate = ``;
 	}
 
 	// #endregion
@@ -47,6 +48,7 @@ class FuneralSMSHistory extends Component {
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
 	 * @property {function} getCommsHistory Callback function to fetch more data
 	 * @property {function} filteredData Holds the filtered communication history data
+	 * @property {Object} policyStartDate Start date for restricting date range
 	 * 
 	 * @readonly
 	 * @static
@@ -59,7 +61,8 @@ class FuneralSMSHistory extends Component {
 			contactNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
 			getCommsHistory: { type: Object, state: true },
-			filteredData: { type: Object, state: true }
+			filteredData: { type: Object, state: true },
+			policyStartDate: { type: Object, state: true }
 		};
 	}
 
@@ -549,6 +552,7 @@ class FuneralSMSHistory extends Component {
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
+					minDate = "${this.policyStartDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"
