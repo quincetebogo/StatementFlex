@@ -435,10 +435,11 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Update Banking Details Agreement
 	 * @param {String} policy policy being updated
+	 * @param {String} updatedPolicy policy that has been updated
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {void}  
 	 */
-	async _generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum) {
+	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum) {
 		const lifeBankingDetailsAgreement = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -462,10 +463,20 @@ export class ExistingClient extends InsureViewBase {
 			"policyNumber": policy.contractReference,
 			"acceptanceDate": new Date().toISOString(),
 			"signatureDate": new Date().toISOString(),
-			"emailAddress": this.callerInformation?.emailId
+			"emailAddress": this.callerInformation?.emailId,
+			"bankingDetails": {
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"currentBankName": policy.bankDetails.bank,
+				"newBankName": updatedPolicy.bankDetails.bank,
+				"currentAccountNumber": policy.bankDetails.accountNumber,
+				"newAccountNumber": updatedPolicy.bankDetails.accountNumber,
+				"currentBranchCode": policy.bankDetails.branchCode,
+				"newBranchCode": updatedPolicy.bankDetails.branchCode,
+				"currentAccountType": policy.bankDetails.accountType,
+				"newAccountType": updatedPolicy.bankDetails.accountType,
+				"collectionDay": updatedPolicy.bankDetails.collectionDay
+			  }
 		};
-
-
 		// Fix this
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -592,7 +603,7 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
-		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, true);
+		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true);
 		if (docResponse === false) {
 			return;
 		}
@@ -2011,7 +2022,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
-				.generateDocumentsUpdateBankingDetails="${(policy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum)}"
+				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
