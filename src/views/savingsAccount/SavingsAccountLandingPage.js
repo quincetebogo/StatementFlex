@@ -63,6 +63,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._loading = true;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
+		this.cueSheetIncident = {};
 
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 
@@ -366,8 +367,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		const caredDisputesInc = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
-		const returnValue = await this._getFirstQusToDispute(caredDisputesInc);
+		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		const returnValue = await this._getFirstQusToDispute();
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -378,13 +379,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute(caredDisputesInc) {
+	async _getFirstQusToDispute() {
 		const request = {
 			"transactions": this.tranToDispute.map((item) => ({
 								transactionID: item.transactionId,
 								transactionPostingDate: item.postingDate
 							})),
-			"incident": caredDisputesInc,
+			"incident": this.cueSheetIncident,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
 		};
