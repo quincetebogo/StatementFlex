@@ -88,6 +88,74 @@ export class CapitecConnectAgent extends ViewBase {
 		];
 	}
 
+	async getRecords(filters, type = false) {
+		var mockArgs = {},
+			pgArgs = {},
+			queryArgs = {};
+
+		queryArgs.search = {
+			qry: filters.searchValue,
+			type: filters.searchType.value
+		};
+
+		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
+				e = e.toUpperCase();
+				return e;
+			});
+		}
+
+		if (filters.cif) {
+			queryArgs.cif = filters.cif;
+		}
+
+		if (typeof type === 'string') {
+			queryArgs.type = type.toUpperCase();
+		}
+
+		queryArgs.transactionDate = {
+			startDate: filters.dateRange.from,
+			endDate: filters.dateRange.to
+		};
+
+		pgArgs = {
+			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [`transactionDate,desc`],
+			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
+
+		mockArgs = {
+			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
+			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
+
+		if (queryArgs.search.qry) {
+			switch (queryArgs.search.type) {
+				case "msisdn":
+					queryArgs.msisdn = queryArgs.search.qry;
+
+					filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
+
+					if (filters.searchValue.length > 9) {
+						queryArgs.msisdn = filters.searchValue;
+					} else {
+						delete queryArgs.msisdn;
+					}
+					break;
+				case "transactionReference":
+					queryArgs.transactionReference = queryArgs.search.qry;
+					break;
+				case "amount":
+					queryArgs.amount = queryArgs.search.qry;
+					break;
+				default:
+					break;
+			}
+		}
+
+		return this.capitecConnectService.rechargeHistory(queryArgs, pgArgs, mockArgs);
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -119,16 +187,19 @@ export class CapitecConnectAgent extends ViewBase {
 						<capitec-tab label="Recharge History" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-recharges
 								style="width:100%"
+								.searchRecharges="${this.getRecords}"
 								></horizon-capitec-connect-agent-recharges>
 						</capitec-tab>
 						<capitec-tab label="Advances" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-advances
 								style="width:100%"
+								.searchAdvances="${this.getRecords}"
 							></horizon-capitec-connect-agent-advances>
 						</capitec-tab>
 						<capitec-tab label="Advances Repayment" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-advances-repayments
 								style="width:100%"
+								.searchAdvances="${this.getRecords}"
 							></horizon-capitec-connect-agent-advances-repayments>
 						</capitec-tab>
 					</capitec-tab-group>

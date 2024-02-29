@@ -27,7 +27,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		// Static variables
 		this.searchTypes = [
 			{ value: `msisdn`, text: `MSISDN` },
-			// { value: `accountNumber`, text: `Account Number` },
+			{ value: `amount`, text: `Amount` },
 			{ value: `transactionReference`, text: `Transaction Reference` }
 		];
 
@@ -100,54 +100,6 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		this.showTable = true;
 	}
 
-	async searchAdvances(filters) {
-		var mockArgs = {},
-			pgArgs = {},
-			queryArgs = {};
-
-		queryArgs.search = {
-			qry: filters.searchValue,
-			type: filters.searchType.value
-		};
-
-		if (filters.cif) {
-			queryArgs.cif = filters.cif;
-		}
-
-		queryArgs.transactionDate = {
-			startDate: filters.dateRange.from,
-			endDate: filters.dateRange.to
-		};
-
-		queryArgs.type = "ADVANCE_PAYMENT";
-
-		pgArgs = {
-			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [`transactionDate,desc`],
-			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		mockArgs = {
-			startAtIndex: this.numOfPagingRows * (this.currentPageIndex - 1),
-			maxResults: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
-		};
-
-		if (queryArgs.search.qry) {
-			switch (queryArgs.search.type) {
-				case "msisdn":
-					queryArgs.msisdn = queryArgs.search.qry;
-					break;
-				case "transactionReference":
-					queryArgs.transactionReference = queryArgs.search.qry;
-					break;
-				default:
-					break;
-			}
-		}
-
-		return this.capitecConnectService.advancesHistory(queryArgs, pgArgs, mockArgs);
-	}
-
 	async _retrieveAdvances(renderSet) {
 		this.renderSet = renderSet;
 		this.numOfPagingRows = this.renderSet.numOfPagingRows;
@@ -169,7 +121,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 				};
 			}
 
-			const response = await this.searchAdvances(filters);
+			const response = await this.searchAdvances(filters, "ADVANCE_PAYMENT");
 
 			let r = response.result.content;
 
