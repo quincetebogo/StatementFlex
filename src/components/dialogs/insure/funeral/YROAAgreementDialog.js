@@ -71,7 +71,7 @@ export class YROAAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Your responsibility & Our accountability" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Debit Order" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -87,10 +87,11 @@ export class YROAAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>Your responsibility </strong>
-		<p>All information provided by you must be accurate. Any incorrect or incomplete information may have a negative impact when you claim.</p>
-		<strong> Our Accountability </strong>
-		<p>If you’re unhappy with our products or services, we have provided detailed contact information in the Agreement and on our website.</p>
+		<ul>
+			<li>Your premium is paid monthly by debit order from your nominated bank account and partial payments are not allowed</li>
+			<li>We may review you premium annually and we’ll give 31 days written notice before making any changes</li>
+			<li>Any arrears premiums will be deducted from your cover amount</li>
+		</ul>
 		`;
 	}
 

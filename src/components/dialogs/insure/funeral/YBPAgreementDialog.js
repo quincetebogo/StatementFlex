@@ -72,7 +72,7 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/Your beneficiary are paid" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Beneficiaries" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,21 +88,13 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>You/your beneficiary are paid:</strong>
 		<ul>
-			<li>The cover amount in the Schedule when a life covered dies only AFTER 6 months from the Cover Start Date;</li>
-			<li>Double the cover amount (except for children) in the Schedule when a life covered dies due to an accident any
-				 time after the Cover Start Date. </li>
+			<li>Your Beneficiary will be paid amount allocated to them when you pass away after 6 months or double the amount allocated if your death is accidental</li>
+			<li>Please make sure that they’re aware of this policy and claims process </li>
+			<li>Your beneficiary will not be paid if you die due to participation in illegal acts, active participation in war. Civil commotion illegal trikes and other reasons as set out in your policy</li>
 		</ul>
-		A Waiting Period will not be applicable if:
-		<ul>
-			<li>the Lives Assured were covered  on a previous funeral policy with another Licensed Insurer
-				 within 31 days before the Cover Start Date and that waiting period has expired and</li>
-			<li>the previous policy is inactive;</li>
-		</ul>
-		<p><strong>Funeral Support:</strong> We will transport the deceased to the funeral home of the claimant’s choice 
-		from within the Republic of South Africa, Namibia, Zimbabwe, Botswana, Swaziland, Lesotho and Mozambique to 
-		the closest place of burial anywhere in South Africa.</p>`;
+		`;
+		
 	}
 
 	/**

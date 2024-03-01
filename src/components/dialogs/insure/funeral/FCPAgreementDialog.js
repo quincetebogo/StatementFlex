@@ -10,7 +10,7 @@ import { Component, css, html } from 'platform/elements';
  * close-modal
  *  
  * @export
- * @class EACLAgreementDialog
+ * @class FCPAgreementDialog
  * @extends {Component}
  */
 export class FCPAgreementDialog extends Component {
@@ -72,7 +72,7 @@ export class FCPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Funeral Plan start and end" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Premium and Cover amount" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,21 +88,12 @@ export class FCPAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>The Funeral Plan: </strong>
-		<strong>Starts: </strong>
 		<ul>
-			<li>On the date of signature of this agreement, and certain benefits are payable from the Cover Start Date </li>
-		</ul>
-		<strong>Ends if: </strong>
-		<ul>
-			<li>You or Capitec cancel your Funeral Cover Plan;</li>
-			<li>You cancel in the cooling off period of 31 days from the Cover Start Date without claim, and you
-				will receive a full refund of premiums paid; </li>
-			<li>Your Capitec savings account is closed; </li>
-			<li>You are in arrears with 3 premiums. Your Funeral Cover Plan will then be terminated with effect from
-				the date of the last premium received. </li>
-			<li>You as the policyholder dies and the Death Premium Waiver benefit ends; </li>
-			<li>Fraud is confirmed.</li>
+			<li>Lives are immediately covered for accidental death</li>
+			<li>Please remember that there is a 6 month waiting period for natural death & suicide </li>
+			<li>The details you provided must be correct. Incorrect information could have negative impact on  your claim and policy </li>
+			<li>You confirm that you’ve listed family members living in SA permanently and related as detailed in schedule </li>
+			<li>There is a limitation on cover on children that restricts payout to a certain amount across all polices </li>
 		</ul>`;
 	}
 
