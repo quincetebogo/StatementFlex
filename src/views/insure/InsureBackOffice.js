@@ -57,6 +57,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.contractReference = ``;
 		this.claims = [];
 		this.selectedFuneralPolicyProductCode = ``;
+		this.selectedFuneralPolicyStartDate = ``;
 
 		this.readOnlyMode = true;
 		this.isLifeQualifyingClient = false;
@@ -269,6 +270,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
+		this.selectedFuneralPolicyStartDate = e.detail.commencementDate;
 
 		await this._retrieveFuneralPolicyTransactionHistory();
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY);
@@ -310,10 +312,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	_goToSMSHistory(e) {
 		this.policyNumber = e.detail.policyItem.contractReference;
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
-		// call fips here
-
-		// Telemetry Here
-
+		this.selectedFuneralPolicyStartDate = e.detail.policyItem.commencementDate;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_SMS_HISTORY);
 	}
 
@@ -621,6 +620,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.policyTransactionHistory="${this.policyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.policyTransactionHistory = []}"
+				.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}"
 				.readOnlyMode="${this.readOnlyMode}">
@@ -636,6 +636,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			.contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
 			.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
 			.readOnlyMode="${this.readOnlyMode}"
+			.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-funeral-sms-history-page>`
 			: html``;
@@ -652,6 +653,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			.lifePremiumHistory="${this.lifePremiumHistory}"
 			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
 			.disposeData="${() => this.lifePremiumHistory = []}"
+			.policyStartDate="${this.selectedLifePolicy.policyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@unloading="${() => this._unloadLifePremiumHistory()}"
 		>
@@ -665,6 +667,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			<horizon-insure-life-sms-history-page
 			.getCommsHistory="${() => this._retrieveLifeSMSHistory()}"
 			.contractReference="${this.selectedLifePolicy.contractReference}"
+			.policyStartDate="${this.selectedLifePolicy.policyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-sms-history-page>
 		`;
