@@ -12,7 +12,7 @@ import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/dialogs/insure/funeral/AddLifeDialog';
 import '../../dialogs/insure/funeral/PCAAgreementDialog';
 import '../../dialogs/insure/funeral/DOAgreementDialog';
-import '../../dialogs/insure/funeral/BeneAgreementDialog';
+import '../../dialogs/insure/funeral/BeneficiariesAgreementDialog';
 
 import 'app/components/dialogs/insure/funeral/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/funeral/RemoveLifeAssuredDialog';
@@ -2310,7 +2310,7 @@ class FuneralUpdatePlan extends Component {
 	/** NOTIFICATIONS */
 
 	/**
-		 * Render notification component for 'Your responsibility & our accountability'
+		 * Render notification component for 'Debit Order agreement'
 		 * 
 		 * @returns {html} The html content of the component.
 		 */
@@ -2323,7 +2323,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	/**
-	 * Render notification component for 'Funeral Cover Plan'
+	 * Render notification component for 'Premium and Cover amount agreement'
 	 * @returns {html} html content
 	 */
 	_renderPCANotification() {
@@ -2335,7 +2335,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	/**
-	 * Render notification component for 'You/your beneficiary are paid'
+	 * Render notification component for 'beneficiaries agreement'
 	 * @returns {html} html content
 	 */
 	_renderBeneNotification() {
@@ -2627,7 +2627,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	/**
-	 * render Dialog for Bene Agreement
+	 * render Dialog for beneficiaries Agreement
 	 * @returns {html} html content
 	 */
 	_renderBeneAgreementDialog() {
@@ -2640,7 +2640,7 @@ class FuneralUpdatePlan extends Component {
 
 
 	/**
-	 * render Dialog for PCA Agreement
+	 * render Dialog for Premium and cover amount Agreement
 	 * @returns {html} html content
 	 */
 	_renderPCAAgreementDialog() {
@@ -2652,7 +2652,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	/**
-	* Render Dialog for DO Agreement
+	* Render Dialog for debit order Agreement
 	* @returns {html} html content
 	*/
 	_renderDOAgreementDialog() {
