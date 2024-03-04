@@ -363,7 +363,8 @@ class ClientSummary extends Component {
 				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
 				arrearsAmount: policyItem.arrearDetails?.outstandingAmount,
 				selectedInsureTabIndex: this.selectedInsureTabIndex,
-				productCode: policyItem.productCode
+				productCode: policyItem.productCode,
+				commencementDate: policyItem.commencementDate
 			}
 		}));
 	}
