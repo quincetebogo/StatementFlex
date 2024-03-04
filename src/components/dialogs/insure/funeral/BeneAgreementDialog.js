@@ -2,20 +2,20 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the FCP Agreement
+ * Dialog that will display the Bene Agreement
  * 
  * Events Raised 
  * -------------
  * agreementAccepted
  * close-modal
+ * 
  *  
  * @export
- * @class FCPAgreementDialog
+ * @class BeneAgreementDialog
  * @extends {Component}
  */
-export class FCPAgreementDialog extends Component {
+export class BeneAgreementDialog extends Component {
 
-	
 	// #region INITIALIZE
 
 	constructor() {
@@ -35,7 +35,7 @@ export class FCPAgreementDialog extends Component {
 	}
 
 	/**
-	 * Cancel and close modal 
+	 * Cancel dialog 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
@@ -72,7 +72,7 @@ export class FCPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Premium and Cover amount" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Beneficiaries" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -89,12 +89,12 @@ export class FCPAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 		<ul>
-			<li>Lives are immediately covered for accidental death</li>
-			<li>Please remember that there is a 6 month waiting period for natural death & suicide </li>
-			<li>The details you provided must be correct. Incorrect information could have negative impact on  your claim and policy </li>
-			<li>You confirm that you’ve listed family members living in SA permanently and related as detailed in schedule </li>
-			<li>There is a limitation on cover on children that restricts payout to a certain amount across all polices </li>
-		</ul>`;
+			<li>Your Beneficiary will be paid amount allocated to them when you pass away after 6 months or double the amount allocated if your death is accidental</li>
+			<li>Please make sure that they’re aware of this policy and claims process </li>
+			<li>Your beneficiary will not be paid if you die due to participation in illegal acts, active participation in war. Civil commotion illegal trikes and other reasons as set out in your policy</li>
+		</ul>
+		`;
+		
 	}
 
 	/**
@@ -110,25 +110,27 @@ export class FCPAgreementDialog extends Component {
 	}
 
 	// #endregion RENDERING
+
 }
-window.customElements.define(`horizon-insure-fcp-agreement-dialog`, FCPAgreementDialog);
+window.customElements.define(`horizon-insure-bene-agreement-dialog`, BeneAgreementDialog);
 
 /**
- * send close modal event to the consuming componant when 'cancel' is clicked
+ * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <horizon-insure-fcp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-fcp-agreement-dialog>
+ * <horizon-insure-bene-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-bene-agreement-dialog>
  *
- * @event FCPAgreementDialog#close-modal
+ * @event BeneAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
+
 /**
- * send agree event to the consuming componant when agreement is accepted 
+ * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <horizon-insure-fcp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-fcp-agreement-dialog>
+ * <horizon-insure-bene-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-bene-agreement-dialog>
  *
- * @event FCPAgreementDialog#agreementAccepted
+ * @event BeneAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */

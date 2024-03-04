@@ -96,9 +96,9 @@ export const UpdatePlanEvents = {
 	UPDATE_PLAN: `call.fulfill-need.insure.update-plan`,
 	UPDATE_PLAN_CALCULATE: `call.fulfill-need.insure.update-plan.calculate`,
 	UPDATE_PLAN_UPDATE: `call.fulfill-need.insure.update-plan.update`,
-	UPDATE_PLAN_DISCLOSURE_FCP: `call.fulfill-need.insure.update-plan.disclosure-fcp`,
-	UPDATE_PLAN_DISCLOSURE_YBP: `call.fulfill-need.insure.update-plan.disclosure-ybp`,
-	UPDATE_PLAN_DISCLOSURE_YROA: `call.fulfill-need.insure.update-plan.disclosure-yroa`
+	UPDATE_PLAN_DISCLOSURE_PCA: `call.fulfill-need.insure.update-plan.disclosure-pca`,
+	UPDATE_PLAN_DISCLOSURE_BENE: `call.fulfill-need.insure.update-plan.disclosure-bene`,
+	UPDATE_PLAN_DISCLOSURE_DO: `call.fulfill-need.insure.update-plan.disclosure-do`
 };
 
 /**

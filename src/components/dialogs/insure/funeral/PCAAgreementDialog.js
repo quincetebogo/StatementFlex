@@ -2,20 +2,20 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the YROA Agreement
+ * Dialog that will display the PCA Agreement
  * 
  * Events Raised 
  * -------------
  * agreementAccepted
  * close-modal
- * 
  *  
  * @export
- * @class YBPAgreementDialog
+ * @class PCAAgreementDialog
  * @extends {Component}
  */
-export class YROAAgreementDialog extends Component {
+export class PCAAgreementDialog extends Component {
 
+	
 	// #region INITIALIZE
 
 	constructor() {
@@ -35,12 +35,13 @@ export class YROAAgreementDialog extends Component {
 	}
 
 	/**
-	 * Cancel dialog 
+	 * Cancel and close modal 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -71,7 +72,7 @@ export class YROAAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Debit Order" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Premium and Cover amount" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,11 +89,12 @@ export class YROAAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 		<ul>
-			<li>Your premium is paid monthly by debit order from your nominated bank account and partial payments are not allowed</li>
-			<li>We may review you premium annually and we’ll give 31 days written notice before making any changes</li>
-			<li>Any arrears premiums will be deducted from your cover amount</li>
-		</ul>
-		`;
+			<li>Lives are immediately covered for accidental death</li>
+			<li>Please remember that there is a 6 month waiting period for natural death & suicide </li>
+			<li>The details you provided must be correct. Incorrect information could have negative impact on  your claim and policy </li>
+			<li>You confirm that you’ve listed family members living in SA permanently and related as detailed in schedule </li>
+			<li>There is a limitation on cover on children that restricts payout to a certain amount across all polices </li>
+		</ul>`;
 	}
 
 	/**
@@ -108,27 +110,25 @@ export class YROAAgreementDialog extends Component {
 	}
 
 	// #endregion RENDERING
-
 }
-window.customElements.define(`horizon-insure-yroa-agreement-dialog`, YROAAgreementDialog);
+window.customElements.define(`horizon-insure-pca-agreement-dialog`, PCAAgreementDialog);
 
 /**
- * Send close dialog event to consuming component when 'Cancel' is clicked
+ * send close modal event to the consuming componant when 'cancel' is clicked
  *
  * @example
- * <horizon-insure-yroa-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-yroa-agreement-dialog>
+ * <horizon-insure-pca-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-pca-agreement-dialog>
  *
- * @event YROAAgreementDialog#close-modal
+ * @event PCAAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
-
 /**
- * Send agree dialog event to consuming componant when 'Agree' is clicked
+ * send agree event to the consuming componant when agreement is accepted 
  *
  * @example
- * <horizon-insure-yroa-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-yroa-agreement-dialog>
+ * <horizon-insure-pca-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-pca-agreement-dialog>
  *
- * @event YROAAgreementDialog#agreementAccepted
+ * @event PCAAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */

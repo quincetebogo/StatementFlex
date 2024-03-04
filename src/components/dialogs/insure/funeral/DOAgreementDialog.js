@@ -2,7 +2,7 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the YBP Agreement
+ * Dialog that will display the DO Agreement
  * 
  * Events Raised 
  * -------------
@@ -11,10 +11,10 @@ import { Component, css, html } from 'platform/elements';
  * 
  *  
  * @export
- * @class YBPAgreementDialog
+ * @class DOAgreementDialog
  * @extends {Component}
  */
-export class YBPAgreementDialog extends Component {
+export class DOAgreementDialog extends Component {
 
 	// #region INITIALIZE
 
@@ -41,7 +41,6 @@ export class YBPAgreementDialog extends Component {
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
-
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -72,7 +71,7 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Beneficiaries" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Debit Order" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -89,12 +88,11 @@ export class YBPAgreementDialog extends Component {
 	_renderDialogBody() {
 		return html`
 		<ul>
-			<li>Your Beneficiary will be paid amount allocated to them when you pass away after 6 months or double the amount allocated if your death is accidental</li>
-			<li>Please make sure that they’re aware of this policy and claims process </li>
-			<li>Your beneficiary will not be paid if you die due to participation in illegal acts, active participation in war. Civil commotion illegal trikes and other reasons as set out in your policy</li>
+			<li>Your premium is paid monthly by debit order from your nominated bank account and partial payments are not allowed</li>
+			<li>We may review you premium annually and we’ll give 31 days written notice before making any changes</li>
+			<li>Any arrears premiums will be deducted from your cover amount</li>
 		</ul>
 		`;
-		
 	}
 
 	/**
@@ -112,15 +110,15 @@ export class YBPAgreementDialog extends Component {
 	// #endregion RENDERING
 
 }
-window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreementDialog);
+window.customElements.define(`horizon-insure-do-agreement-dialog`, DOAgreementDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <horizon-insure-ybp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ * <horizon-insure-do-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-do-agreement-dialog>
  *
- * @event YBPAgreementDialog#close-modal
+ * @event DOAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
@@ -129,8 +127,8 @@ window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreement
  * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <horizon-insure-ybp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ * <horizon-insure-do-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-do-agreement-dialog>
  *
- * @event YBPAgreementDialog#agreementAccepted
+ * @event DOAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */
