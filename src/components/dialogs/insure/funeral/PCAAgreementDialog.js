@@ -2,20 +2,20 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the YBP Agreement
+ * Dialog that will display the PCA Agreement
  * 
  * Events Raised 
  * -------------
  * agreementAccepted
  * close-modal
- * 
  *  
  * @export
- * @class YBPAgreementDialog
+ * @class PCAAgreementDialog
  * @extends {Component}
  */
-export class YBPAgreementDialog extends Component {
+export class PCAAgreementDialog extends Component {
 
+	
 	// #region INITIALIZE
 
 	constructor() {
@@ -35,7 +35,7 @@ export class YBPAgreementDialog extends Component {
 	}
 
 	/**
-	 * Cancel dialog 
+	 * Cancel and close modal 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
@@ -72,7 +72,7 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You/Your beneficiary are paid" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Premium and Cover amount" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,21 +88,13 @@ export class YBPAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>You/your beneficiary are paid:</strong>
 		<ul>
-			<li>The cover amount in the Schedule when a life covered dies only AFTER 6 months from the Cover Start Date;</li>
-			<li>Double the cover amount (except for children) in the Schedule when a life covered dies due to an accident any
-				 time after the Cover Start Date. </li>
-		</ul>
-		A Waiting Period will not be applicable if:
-		<ul>
-			<li>the Lives Assured were covered  on a previous funeral policy with another Licensed Insurer
-				 within 31 days before the Cover Start Date and that waiting period has expired and</li>
-			<li>the previous policy is inactive;</li>
-		</ul>
-		<p><strong>Funeral Support:</strong> We will transport the deceased to the funeral home of the claimant’s choice 
-		from within the Republic of South Africa, Namibia, Zimbabwe, Botswana, Swaziland, Lesotho and Mozambique to 
-		the closest place of burial anywhere in South Africa.</p>`;
+			<li>Lives are immediately covered for accidental death</li>
+			<li>Please remember that there is a 6 month waiting period for natural death & suicide </li>
+			<li>The details you provided must be correct. Incorrect information could have negative impact on  your claim and policy </li>
+			<li>You confirm that you’ve listed family members living in SA permanently and related as detailed in schedule </li>
+			<li>There is a limitation on cover on children that restricts payout to a certain amount across all polices </li>
+		</ul>`;
 	}
 
 	/**
@@ -118,27 +110,25 @@ export class YBPAgreementDialog extends Component {
 	}
 
 	// #endregion RENDERING
-
 }
-window.customElements.define(`horizon-insure-ybp-agreement-dialog`, YBPAgreementDialog);
+window.customElements.define(`horizon-insure-pca-agreement-dialog`, PCAAgreementDialog);
 
 /**
- * Send close dialog event to consuming component when 'Cancel' is clicked
+ * send close modal event to the consuming componant when 'cancel' is clicked
  *
  * @example
- * <horizon-insure-ybp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ * <horizon-insure-pca-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-pca-agreement-dialog>
  *
- * @event YBPAgreementDialog#close-modal
+ * @event PCAAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
-
 /**
- * Send agree dialog event to consuming componant when 'Agree' is clicked
+ * send agree event to the consuming componant when agreement is accepted 
  *
  * @example
- * <horizon-insure-ybp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-ybp-agreement-dialog>
+ * <horizon-insure-pca-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-pca-agreement-dialog>
  *
- * @event YBPAgreementDialog#agreementAccepted
+ * @event PCAAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */
