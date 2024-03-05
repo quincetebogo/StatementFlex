@@ -644,8 +644,8 @@ export class EndCallSession extends Component {
 				cif: this.callerInformation.cifNumber,
 				clientNeed: this.incomingCallDetails.ivrOptionCode,
 				cellphone: this.incomingCallDetails.incomingTelephoneNumber,
-				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber
-
+				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber,
+				incidentReference: this.currentIncidentRef
 			};
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
