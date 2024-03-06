@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES } from 'app/constants/InsureCommon';
+import { LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES } from 'app/constants/InsureCommon';
 import { determineLifeStatusColour, formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -157,7 +157,9 @@ class LifePolicySummary extends Component {
 		let totalArrears = 0;
 		if (policy.arrears) {
 			policy.arrears.forEach(arrears => {
+				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount);
+				}
 			});
 		}
 		return totalArrears;

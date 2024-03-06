@@ -19,7 +19,7 @@ import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -391,7 +391,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			}
 		});
 
 		this.lifePremiumHistory = {

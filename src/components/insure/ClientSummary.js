@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
@@ -1095,7 +1095,9 @@ class ClientSummary extends Component {
 	_calculateLifeArrearsAmount(policy) {
 		let totalArrears = 0;
 		policy?.arrears?.forEach(arrears => {
-			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
+				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			};
 		});
 		return totalArrears;
 	}

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_ARREARS_STATUSES } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { validateEmailAddressCombo } from 'app/utils/insureUtils';
@@ -124,7 +124,9 @@ class LifePayArrearsDialog extends Component {
 
 		if (this.lifePolicyArrears.arrears) {
 			this.lifePolicyArrears.arrears.forEach(arrears => {
+				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 				this.totalPolicyArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+				}
 			});
 		}
 
