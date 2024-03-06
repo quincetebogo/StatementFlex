@@ -210,7 +210,7 @@ import 'app/components/common/HorizonLabel';
 	}
 
 	_renderArrearsAlertBanner() {
-		return this.accountDetails.arrears[`Total arrears amount`] === `R0.00`
+		return this.accountDetails.arrears[`Total arrears amount`] === undefined || this.accountDetails.arrears[`Total arrears amount`] === null
 			? html``
 			: html`
 				<horizon-alert-banner
