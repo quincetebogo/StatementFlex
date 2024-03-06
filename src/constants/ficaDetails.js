@@ -1,5 +1,9 @@
-export const getKey = (source, value) => source.find(item => item.value === value).key;
-export const getValue = (source, key) => source.find(item => item.key === key).value;
+export const getKey = (source, value) => {
+	return source?.find(item => item.value === value)?.key || ``;
+};
+export const getValue = (source, key) => {
+	return source?.find(item => item.key === key)?.value || ``
+};
 
 export const DETAILS_TYPE = Object.freeze({
 	PREFERENCES: `Preferences`,
@@ -38,7 +42,6 @@ export const FIELDS = Object.freeze({
 });
 
 export const INCOME_RANGE = Object.freeze([
-	{ key: `NO_VALUE`, value: `` },
 	{ key: `R0_R3000`, value: `R0 to R3000` },
 	{ key: `R3001_R6000`, value: `R3001 to R6000` },
 	{ key: `R6001_R9000`, value: `R6001 to R9000` },
@@ -59,7 +62,6 @@ export const EMPLOYMENT_STATUS = Object.freeze([
 
 export const EMPLOYMENT_TYPE = Object.freeze({
 	"Employed": [
-		{ key: `NONE`, value: `` },
 		{ key: `CONTRACT_WORKER`, value: `Contract Worker` },
 		{ key: `COMMISSION_EARNER`, value: `Commission Earner` },
 		{ key: `DOMESTIC_WORKER`, value: `Domestic Worker` },
@@ -68,20 +70,17 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 		{ key: `TEMPORARY_CASUAL_SEASONAL`, value: `Temporary/Casual/Seasonal Worker` }
 	],
 	"Self Employed": [
-		{ key: `NONE`, value: `` },
 		{ key: `BUSINESS_OWNER`, value: `Business Owner` },
 		{ key: `INFORMALLY_SELF_EMPLOYED`, value: `Informally Self-Employed` },
 		{ key: `SOLE_PROPRIETER_TRADER`, value: `Sole Proprieter: Trader` },
 		{ key: `SOLE_PROPRIETER_CONTRACTOR`, value: `Sole Proprieter: Contractor` }
 	],
 	"Unemployed": [
-		{ key: `NONE`, value: `` },
 		{ key: `FULL_TIME_STUDENT`, value: `Full Time Student` },
 		{ key: `HOME_EXECUTIVE`, value: `Home Executive` },
 		{ key: `UNEMPLOYED`, value: `Unemployed` }
 	],
 	"Pensioner": [
-		{ key: `NONE`, value: `` },
 		{ key: `ALL_PAY_PENSION`, value: `All Pay Pension` },
 		{ key: `ALL_PAY_PENSION_AND_GRANT`, value: `All Pay Pension and Grant` },
 		{ key: `GOVERNMENT_PENSION`, value: `Government Pension` },
@@ -94,7 +93,6 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 let SOF_EMPLOYED = [];
 export const SOURCE_FUNDS = Object.freeze({
 	'Employed': SOF_EMPLOYED = [
-		{ key: `NO_VALUE`, value: `` },
 		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `COMMISSION`, value: `Commission` },
@@ -108,7 +106,6 @@ export const SOURCE_FUNDS = Object.freeze({
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` }
 	],
 	"Unemployed": [
-		{ key: `NO_VALUE`, value: `` },
 		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
 		{ key: `INHERITENCE`, value: `Inheritence` },
@@ -120,7 +117,6 @@ export const SOURCE_FUNDS = Object.freeze({
 	],
 	"Self Employed": SOF_EMPLOYED,
 	"Pensioner": [
-		{ key: `NO_VALUE`, value: `` },
 		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `DONATIONS_AND_GIFTS`, value: `Donations and Gifts` },
@@ -132,7 +128,6 @@ export const SOURCE_FUNDS = Object.freeze({
 		{ key: `SOCIAL_GRANT`, value: `Social Grant` }
 	],
 	"Minor": [
-		{ key: `NO_VALUE`, value: `` },
 		{ key: `ALLOWANCE_AND_MAINTENANCE`, value: `Allowance/Maintenance` },
 		{ key: `BUSINESS_PROFIT`, value: `Business Profit` },
 		{ key: `COMMISSION`, value: `Commission` },
@@ -147,7 +142,6 @@ export const SOURCE_FUNDS = Object.freeze({
 });
 
 export const INCOME_FREQUENCY = Object.freeze([
-		{ key: `NONE`, value: `` },
 		{ key: `Annually`, value: `Annually` },
 		{ key: `Bi_Annually`, value: `Bi-Annually` },
 		{ key: `Fortnightly`, value: `Fortnightly` },
@@ -194,6 +188,7 @@ export const INDUSTRY_CODE = [
 export const ERROR = {
 	NICK_NAME: `No special characters allowed`,
 	CONTACT_NUMBER: `Incorrect contact number`,
+	EMP_STATUS: `Employment Status cannot be empty`,
 	EMP_TYPE: `Employment type cannot be empty`,
 	EMP_NAME: `Employer name cannot be empty`,
 	ADDRESS1: `Address line 1 cannot be empty`,
@@ -204,3 +199,8 @@ export const ERROR = {
 	INCOME_RANGE: `Expected monthly income cannot be empty`,
 	INCOME_FREQUENCY: `Income frequency cannot be empty`
 };
+
+export const INVALID_VALUE = {
+	ADDRESS1: [`NEEDED`],
+	EMPLOYER_NAME: [`REMOTE ONBOARDED`, `ROMEO AND JULIET`] 
+}

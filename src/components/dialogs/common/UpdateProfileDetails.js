@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { EMAIL_DOMAINS, LANGUAGE_LIST } from 'app/constants/Common';
-import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, ERROR, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
+import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, ERROR, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, INVALID_VALUE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { Utilities } from 'platform/Utilities';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -21,6 +21,14 @@ export class UpdateProfileDetails extends Component {
 		super();
 		this.header = ``;
 		this.selectedMenuItem = MENU_ITEMS.PREFERENCES;
+		this.menuItemsError = {
+			[MENU_ITEMS.PREFERENCES]: 0,
+			[MENU_ITEMS.PERSONAL_DETAILS]: 0,
+			[MENU_ITEMS.CONTACT_DETAILS]: 0,
+			[MENU_ITEMS.ADDRESS]: 0,
+			[MENU_ITEMS.EMPLOYMENT_DETAILS]: 0,
+			[MENU_ITEMS.INCOME_DETAILS]: 0
+		}
 		
 		this.emailSuggestion = ``;
 		this.emailError = ``;
@@ -31,6 +39,7 @@ export class UpdateProfileDetails extends Component {
 
 		this.showAddEmployerModal = false;
 		this.displayIndustryCode = false;
+		this.hasValidationErrors = false;
 	}
 
 	// --------------
@@ -69,6 +78,8 @@ export class UpdateProfileDetails extends Component {
 		super.connectedCallback();
 		this.preferredLanguage = this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE];
 		this.email = this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL];
+		const employmentStatus = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS];
+
 
 		this.updatedClientDetails = {
 					nickname: this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.NICKNAME],
@@ -82,11 +93,11 @@ export class UpdateProfileDetails extends Component {
 					residentialPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.RES_PHONE_NO],
 					businessPhoneNumber: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.WORK_PHONE_NO],
 					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
-					employmentStatus: getKey(EMPLOYMENT_STATUS, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS]),
-					employmentType: getKey(Object.values(EMPLOYMENT_TYPE).flat(), this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
+					employmentStatus: getKey(EMPLOYMENT_STATUS, employmentStatus),
+					employmentType: getKey(EMPLOYMENT_TYPE[employmentStatus], this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
 					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
-					sourceOfFunds: getKey(Object.values(SOURCE_FUNDS).flat(), this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
+					sourceOfFunds: getKey(SOURCE_FUNDS[employmentStatus], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
 					incomeFrequency: getKey(INCOME_FREQUENCY, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY])
 			};
@@ -166,24 +177,26 @@ export class UpdateProfileDetails extends Component {
 	_empStatusChange(e) {
 		this.updatedClientDetails.employmentStatus = e.detail.new.key;
 
-		if (this.updatedClientDetails.employmentStatus !== `EMPLOYED` || this.updatedClientDetails.employmentStatus !== `SELF_EMPLOYED`) {
+		if (this.updatedClientDetails.employmentStatus !== `EMPLOYED`) {
+			this.updatedClientDetails.employerName = this.updatedClientDetails.employmentStatus;
+			this.updatedClientDetails.industryCode = ``; // TODO: Update this value once you get info from Wandile
+		} else {
 			this.updatedClientDetails.employerName = ``;
-			this.updatedClientDetails.industryCode = `NONE`;
+			this.updatedClientDetails.industryCode = ``;  // TODO: Update this value once you get info from Wandile
 		}
 
 		this._validateEmploymentDetails();
 		// Emptying the below values as they are dependent on Employement status
-		this.updatedClientDetails.employerName = ``;
-		this.updatedClientDetails.employmentType = `NONE`;
-		this.updatedClientDetails.industryCode = `NONE`;
-		this.updatedClientDetails.sourceOfFunds = `NO_VALUE`;
+		
+		this.updatedClientDetails.employmentType = ``;
+		this.updatedClientDetails.sourceOfFunds = ``;
 
 		this.requestUpdate();
 	}
 
 	_employerChange(name) {
 		this.updatedClientDetails.employerName = name;
-		this.updatedClientDetails.industryCode = `NOT_SELECTED_YET`;
+		this.updatedClientDetails.industryCode = ``; // TODO: ceck what can be the industry code
 
 		this.requestUpdate();
 	}
@@ -233,14 +246,7 @@ export class UpdateProfileDetails extends Component {
 		
 		const detailsUnChanged = Object.keys(this._hasDetailsChanged()).length === 0;
 		
-		const validationErrors = Boolean(this.emailError) || 
-								 Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)) || 
-								 Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber)) ||
-								 Boolean(this._validateEmploymentDetails()) ||
-								 Boolean(this._validateEmploymentType()) ||
-								 Boolean(this._validateNickname()) ||
-								 this._validateRequiredFields();
-		return (languageUnChanged && detailsUnChanged) || validationErrors;
+		return (languageUnChanged && detailsUnChanged) || this.hasValidationErrors;
 	}
 
 	_hasDetailsChanged () {
@@ -295,6 +301,37 @@ export class UpdateProfileDetails extends Component {
 		this.emailSuggestion = ``;
 	}
 	
+	_validateMenuItems(menuItem) {
+		const personalDetailsErrors = [Boolean(this._validateNickname())].filter(item => item === true).length;
+		const contactDetailsErrors = [Boolean(this._validateContactNumber(this.updatedClientDetails.residentialPhoneNumber)), 
+										Boolean(this._validateContactNumber(this.updatedClientDetails.businessPhoneNumber))]
+										.filter(item => item === true).length;
+		const addressDetailsErrors = [Boolean(this._validateAddress()), 
+										isNullorEmpty(this.updatedClientDetails.residentialAddress.suburb),
+										isNullorEmpty(this.updatedClientDetails.residentialAddress.city),
+										isNullorEmpty(this.updatedClientDetails.residentialAddress.postalCode) ]
+										.filter(item => item === true).length;
+		const employmentDetailsErrors = [isNullorEmpty(this.updatedClientDetails.employmentStatus), 
+										Boolean(this._validateEmploymentType()),
+										Boolean(this._validateEmploymentDetails())]
+										.filter(item => item === true).length;
+		const incomeDetailsErrors = [isNullorEmpty(this.updatedClientDetails.sourceOfFunds),
+										isNullorEmpty(this.updatedClientDetails.incomeRange), 
+										isNullorEmpty(this.updatedClientDetails.incomeFrequency)]
+										.filter(item => item === true).length;
+										
+		const menuValidations = {
+			[MENU_ITEMS.PERSONAL_DETAILS]: personalDetailsErrors,
+			[MENU_ITEMS.CONTACT_DETAILS]: contactDetailsErrors,
+			[MENU_ITEMS.ADDRESS]: addressDetailsErrors,
+			[MENU_ITEMS.EMPLOYMENT_DETAILS]: employmentDetailsErrors,
+			[MENU_ITEMS.INCOME_DETAILS]: incomeDetailsErrors
+		}
+		this.hasValidationErrors = Object.values(menuValidations)?.reduce((total, currValue ) => total + currValue , 0) > 0;
+
+		return menuValidations[menuItem] || ``;
+	}
+
 	_validateNickname() {
 		if (!RegExp(NICKNAME).test(this.updatedClientDetails.nickname)) {
 			return ERROR.NICK_NAME;
@@ -315,8 +352,19 @@ export class UpdateProfileDetails extends Component {
 		return ``;
 	}
 
+	_validateAddress() {
+		if (isNullorEmpty(this.updatedClientDetails.residentialAddress.address1)) {
+			return ERROR.ADDRESS1;
+		} else if (INVALID_VALUE.ADDRESS1.includes(this.updatedClientDetails.residentialAddress.address1.toUpperCase())) {
+			return `${this.updatedClientDetails.residentialAddress.address1} cannot be a valid Address line 1`;
+		}
+		return ``;
+	}
+
 	_validateEmploymentType() {
-		if (this.updatedClientDetails?.employmentStatus !== `MINOR_16` && this.updatedClientDetails.employmentType === `NONE`) {
+		if (this.updatedClientDetails.employmentStatus && 
+			this.updatedClientDetails?.employmentStatus !== `MINOR_16` && 
+			isNullorEmpty(this.updatedClientDetails.employmentType)) {
 			return ERROR.EMP_TYPE;
 		}
 		return ``;
@@ -334,10 +382,9 @@ export class UpdateProfileDetails extends Component {
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.suburb) ||
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.city) ||
 				isNullorEmpty(this.updatedClientDetails.residentialAddress.postalCode) ||
-				isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ||
-				isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ||
-				isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE`;
-		
+				isNullorEmpty(this.updatedClientDetails.incomeFrequency) ||
+				isNullorEmpty(this.updatedClientDetails.incomeRange) ||
+				isNullorEmpty(this.updatedClientDetails.sourceOfFunds);
 	}
 
 	_getEmploymentStatusList() {
@@ -430,6 +477,10 @@ export class UpdateProfileDetails extends Component {
 				--theme-menu-item-selected-background-color: #FFFFFF;
 			}
 
+			capitec-menu-item capitec-badge {
+				display: inline-flex;
+			}
+
 			.details-group {
 				width: auto;
 				padding: 24px 16px;
@@ -439,7 +490,8 @@ export class UpdateProfileDetails extends Component {
 
 			capitec-text-field {
 				width: 275px;
-				margin-bottom: 28px;
+				height: 75px;
+				margin-bottom: auto;
 				margin-top:8px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-disabled-background-color: #F9F9F9;
@@ -451,7 +503,8 @@ export class UpdateProfileDetails extends Component {
 
 			capitec-select {
 				width: 275px;
-				margin-bottom: 28px;
+				height: 75px;
+				margin-bottom: auto;
 				margin-top: 8px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-disabled-background-color: #F9F9F9;
@@ -581,7 +634,10 @@ export class UpdateProfileDetails extends Component {
 	_renderMenu() {
 		return Object.keys(this.clientDetails).map(menuItem => html`
 				<capitec-menu-item 
+					id="menu-item"
 					label=${menuItem} 
+					badge-number="${this._validateMenuItems(menuItem)}"
+					badge-color="#c83b37"
 					?selected=${this.selectedMenuItem === menuItem} 
 					@click=${(e) => this._selectMenuitem(e)}>
 				</capitec-menu-item>
@@ -737,7 +793,7 @@ export class UpdateProfileDetails extends Component {
 				value=${this.updatedClientDetails.residentialAddress.address1}
 				type="alpha-numeric"
 				maxlength="40"
-				error="${isNullorEmpty(this.updatedClientDetails.residentialAddress.address1) ? ERROR.ADDRESS1 : ``}"
+				error="${this._validateAddress()}"
 				@key-input=${(e) => this._detailsChange(`residentialAddress`, e.detail.new, `address1`)}>
 			</capitec-text-field>
 
@@ -788,17 +844,18 @@ export class UpdateProfileDetails extends Component {
 				.items="${this._getEmploymentStatusList()}"
 				display-field="value"
 				id-field="key"
+				error=${isNullorEmpty(this.updatedClientDetails.employmentStatus) ? ERROR.EMP_STATUS : ``}
 				@value-change=${(e) => this._empStatusChange(e)}>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Employment type"
-				.value=${getValue(Object.values(EMPLOYMENT_TYPE).flat(), this.updatedClientDetails.employmentType)}
-				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(type => type.key !== `NONE`)}"
+				.value=${getValue(EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)], this.updatedClientDetails.employmentType)}
+				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
 				error=${this._validateEmploymentType()}
-				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16`}
+				?disabled=${this.updatedClientDetails.employmentStatus === `MINOR_16` || isNullorEmpty(this.updatedClientDetails.employmentStatus)}
 				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
@@ -811,7 +868,7 @@ export class UpdateProfileDetails extends Component {
 					display-field="employerName"
 					id-field="employerNumber"
 					@value-changed=${(e) => this._employerChange(e.detail.new.employerName)}
-					?disabled=${this.updatedClientDetails.employmentStatus === `UNEMPLOYED` || this.updatedClientDetails.employmentStatus === `PENSIONER` || this.updatedClientDetails.employmentStatus === `MINOR_16`}
+					?disabled=${this.updatedClientDetails.employmentStatus !== `EMPLOYED`}
 					customizeNoResults>
 					<div slot="no-results">
 						<capitec-label class="label-no-results" label="No matching results"></capitec-label> 
@@ -821,10 +878,10 @@ export class UpdateProfileDetails extends Component {
 				</horizon-select-icon>
 				<capitec-text-field 
 					label="Employer"
-					.value=${this.updatedClientDetails.employerName}
+					.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName)}
 					@key-input=${(e) => this._getEmployersList(e)}
 					error=${this._validateEmploymentDetails()}
-					?disabled=${this.updatedClientDetails.employmentStatus === `UNEMPLOYED` || this.updatedClientDetails.employmentStatus === `PENSIONER` || this.updatedClientDetails.employmentStatus === `MINOR_16`}>
+					?disabled=${this.updatedClientDetails.employmentStatus !== `EMPLOYED`}>
 				</capitec-text-field>
 			</div>
 
@@ -848,30 +905,31 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Source of funds" 
 				.value=${getValue(Object.values(SOURCE_FUNDS).flat(), this.updatedClientDetails.sourceOfFunds)}
-				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(src => src.key !== `NO_VALUE`)}"
+				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]}"
 				display-field="value"
 				id-field="key"
-				error="${isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE` ? ERROR.SOF : ``}"
+				error="${this.updatedClientDetails.employmentStatus && isNullorEmpty(this.updatedClientDetails.sourceOfFunds) ? ERROR.SOF : ``}"
+				?disabled="${isNullorEmpty(this.updatedClientDetails.employmentStatus)}"
 				@value-changed=${(e) => this._detailsChange(`sourceOfFunds`, e.detail.new.key)}>
 			</capitec-select>
 			
 			<capitec-select 
 				label="Expected monthly income" 
 				.value=${getValue(INCOME_RANGE, this.updatedClientDetails.incomeRange)}
-				.items="${INCOME_RANGE.filter(range => range.key !== `NO_VALUE`)}"
+				.items="${INCOME_RANGE}"
 				display-field="value"
 				id-field="key"
-				error="${isNullorEmpty(this.updatedClientDetails.incomeRange) || this.updatedClientDetails.incomeRange === `NO_VALUE` ? ERROR.INCOME_RANGE : ``}"
+				error="${isNullorEmpty(this.updatedClientDetails.incomeRange) ? ERROR.INCOME_RANGE : ``}"
 				@value-changed=${(e) => this._detailsChange(`incomeRange`, e.detail.new.key)}>
 			</capitec-select>
 
 			<capitec-select 
 				label="Income frequency" 
 				.value=${this.updatedClientDetails.incomeFrequency === `NONE` ? `` : this.updatedClientDetails.incomeFrequency}
-				.items="${INCOME_FREQUENCY.filter(freq => freq.key !== `NONE`)}"
+				.items="${INCOME_FREQUENCY}"
 				display-field="value"
 				id-field="key"
-				error="${isNullorEmpty(this.updatedClientDetails.incomeFrequency) || this.updatedClientDetails.incomeFrequency === `NONE` ? ERROR.INCOME_FREQUENCY : ``}"
+				error="${isNullorEmpty(this.updatedClientDetails.incomeFrequency) ? ERROR.INCOME_FREQUENCY : ``}"
 				@value-changed=${(e) => this._detailsChange(`incomeFrequency`, e.detail.new.key)}>
 			</capitec-select>
 			`
