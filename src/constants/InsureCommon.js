@@ -383,3 +383,14 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	CANCELLED: `Cancelled`,
 	OUT_OF_FORCE: `OutOfForce `
 });
+
+/**
+ * LIFE_ARREARS_STATUSES
+ *
+ * @readonly
+ * @enum {Object} LIFE_ARREARS_STATUSES
+ */
+export const LIFE_ARREARS_STATUSES = Object.freeze({
+	PENDING: `PENDING`,
+	PAID: `PAID`
+});

@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -1458,7 +1458,9 @@ export class ExistingClient extends InsureViewBase {
 
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			}
 		});
 
 		this.lifePremiumHistory = {
