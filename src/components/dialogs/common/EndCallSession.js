@@ -630,6 +630,7 @@ export class EndCallSession extends Component {
 		return null;
 	}
 
+	// Defaulting the incident value to Primary incident reference number if there is no subsequent incident present
 	async _endSession(incidentReferenceNumber = this.horizonIncidentManager.primaryIncident?.incidentReference) {
 		// Bypassing sending Whatsapp message when end-call reason selected is {key: NEED_INCOMEPLETE, value: `Need incomplete - Transaction Failed`}
 		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
