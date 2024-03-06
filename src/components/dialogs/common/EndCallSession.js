@@ -187,7 +187,8 @@ export class EndCallSession extends Component {
 
 			// Ignoring the abandon or not started need action
 			if (!this.currentIncidentRef || this.currentIncidentRef === `0`) {
-				this._returnToCallWaitingPage();
+				// When there is no incident number during the end-call, sending primary incident number to use on whatsapp template
+				this._returnToCallWaitingPage(this.horizonIncidentManager.primaryIncident?.incidentReference);
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
 			} else {
@@ -355,8 +356,8 @@ export class EndCallSession extends Component {
 		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
-	async _returnToCallWaitingPage() {
-		await this._endSession();
+	async _returnToCallWaitingPage(currIncidentRefNumber) {
+		await this._endSession(currIncidentRefNumber);
 		
 		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
 		// await this._telemetry._endUnClosedChildSpans();
@@ -503,14 +504,14 @@ export class EndCallSession extends Component {
 
 		if (this._preventCloseOfIncident()) {
 			// Updating state as call ended and redirecting it to call waiting page
-			this._returnToCallWaitingPage();
+			this._returnToCallWaitingPage(this.currentIncidentRef);
 			return;
 		}
 		await this._closeIncident(classification);
 	}
 
 	async _closeIncident(manualClassification) {
-		
+		const currIncidentRefNumber = this.currentIncidentRef;
 		const options = {
 			clientNeed: null,
 			endCallReason: this.endCallReason,
@@ -520,7 +521,7 @@ export class EndCallSession extends Component {
 		await super.closeIncident(options, () => this._toggleBusyFlag());
 
 		// Return the the call waiting landing page even if an error occured
-		this._returnToCallWaitingPage();
+		this._returnToCallWaitingPage(currIncidentRefNumber);
 	}
 
 	async _incidentStatus() {
@@ -580,7 +581,7 @@ export class EndCallSession extends Component {
 		} else if (this.endCallReason) {
 			if (this._preventCloseOfIncident()) {
 				// Updating state as call ended and redirecting it to call waiting page
-				this._returnToCallWaitingPage();
+				this._returnToCallWaitingPage(this.currentIncidentRef);
 				return;
 			}
 
@@ -629,7 +630,8 @@ export class EndCallSession extends Component {
 		return null;
 	}
 
-	async _endSession() {
+	// Defaulting the incident value to Primary incident reference number if there is no subsequent incident present
+	async _endSession(incidentReferenceNumber = this.horizonIncidentManager.primaryIncident?.incidentReference) {
 		// Bypassing sending Whatsapp message when end-call reason selected is {key: NEED_INCOMEPLETE, value: `Need incomplete - Transaction Failed`}
 		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
 
@@ -645,7 +647,7 @@ export class EndCallSession extends Component {
 				clientNeed: this.incomingCallDetails.ivrOptionCode,
 				cellphone: this.incomingCallDetails.incomingTelephoneNumber,
 				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber,
-				incidentReference: this.currentIncidentRef
+				incidentReference: incidentReferenceNumber
 			};
 			// We don't mind if this service call fails. This is just to send automated messaging to client
 			await this.callHandleService.endCall(req);
