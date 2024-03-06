@@ -480,14 +480,6 @@ class ClientSummary extends Component {
 		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
 	}
 
-	/**
-	 *  Get the Life Update Banking Details Document
-	 *  @returns {void}
-	 */
-	async _generateDocumentsUpdateBankingDetails() {
-		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, false);
-	}
-
 
 	/**
 	 * Get the Cancel Policy Document
@@ -2475,7 +2467,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-update-bank-details-dialog
 				.policy="${this.selectedLifePolicy}"
-				.getLifeUpdateBankingDetailsDocument="${() => this._generateDocumentsUpdateBankingDetails()}"
+				.getLifeUpdateBankingDetailsDocument="${(updatedPolicy) => this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, updatedPolicy, false)}"
 				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
 				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
 				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
