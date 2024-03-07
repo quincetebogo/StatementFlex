@@ -125,9 +125,10 @@ class FuneralPolicyPauseDialog extends Component {
 	}
 
 	 _showAgreement() {
+		// await this._getPolicyPauseAgreement();
 		this.showPolicyPauseAgreement = true;
 		console.log(`this.showPolicyPauseAgreement after click:>> `, this.showPolicyPauseAgreement);
-		// await this._getPolicyPauseAgreement();
+		
 	}
 
 	
@@ -193,12 +194,12 @@ class FuneralPolicyPauseDialog extends Component {
 		return html`
 			${this._renderAgreementDialog()}
 			<capitec-modal header = "Policy Pause" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
-				<div slot="body" data-automation-id="horizon-insure-update-validation-dialog-body">
+				<div slot="body" >
 				<capitec-content-box style="padding: 0px">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 				</div>
-				<div slot="footer" data-automation-id="horizon-insure-update-validation-dialog-footer">
+				<div slot="footer" >
 					${this._renderDialogFooter()}
 				</div>
 			</capitec-modal>
