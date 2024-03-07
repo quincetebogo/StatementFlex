@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -86,6 +86,7 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedFuneralPolicyContractReference = ``;
 		this.selectedFuneralPolicyProductCode = ``;
 		this.selectedFuneralPolicyDetails = {};
+		this.selectedFuneralPolicyStartDate = ``;
 		this.funeralEstimateDetails = {};
 		this.funeralPolicyTransactionHistory = {};
 		this.funeralIssuePlanAgreementDocument = {};
@@ -442,10 +443,11 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Update Banking Details Agreement
 	 * @param {String} policy policy being updated
+	 * @param {String} updatedPolicy policy that has been updated
 	 * @param {boolean} saveToDocumentum saveToDocumentum
 	 * @returns {void}  
 	 */
-	async _generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum) {
+	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum) {
 		const lifeBankingDetailsAgreement = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -469,10 +471,20 @@ export class ExistingClient extends InsureViewBase {
 			"policyNumber": policy.contractReference,
 			"acceptanceDate": new Date().toISOString(),
 			"signatureDate": new Date().toISOString(),
-			"emailAddress": this.callerInformation?.emailId
+			"emailAddress": this.callerInformation?.emailId,
+			"bankingDetails": {
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"currentBankName": policy.bankDetails.bank,
+				"newBankName": updatedPolicy.bankDetails.bank,
+				"currentAccountNumber": policy.bankDetails.accountNumber,
+				"newAccountNumber": updatedPolicy.bankDetails.accountNumber,
+				"currentBranchCode": policy.bankDetails.branchCode,
+				"newBranchCode": updatedPolicy.bankDetails.branchCode,
+				"currentAccountType": policy.bankDetails.accountType,
+				"newAccountType": updatedPolicy.bankDetails.accountType,
+				"collectionDay": updatedPolicy.bankDetails.collectionDay
+			  }
 		};
-
-
 		// Fix this
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
@@ -599,7 +611,7 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
-		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, true);
+		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true);
 		if (docResponse === false) {
 			return;
 		}
@@ -751,7 +763,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-
+	
 		const resp = await this.insureFuneralService.clientSummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
@@ -1453,7 +1465,9 @@ export class ExistingClient extends InsureViewBase {
 
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
+			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			}
 		});
 
 		this.lifePremiumHistory = {
@@ -1588,6 +1602,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	_goToFuneralSMSHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyItem.contractReference;
+		this.selectedFuneralPolicyStartDate = e.detail.policyItem.commencementDate;
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		super.setInsureIncident(`funeral-sms-history`);
@@ -1674,6 +1689,7 @@ export class ExistingClient extends InsureViewBase {
 	async _goToFuneralTransactionHistory(e) {
 		this.selectedFuneralPolicyContractReference = e.detail.policyNumber;
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
+		this.selectedFuneralPolicyStartDate = e.detail.commencementDate;
 		this.bankName = e.detail.bankName;
 		this.accountNumber = e.detail.accountNumber;
 		this.arrearsAmount = e.detail.arrearsAmount;
@@ -2056,7 +2072,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
-				.generateDocumentsUpdateBankingDetails="${(policy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, saveToDocumentum)}"
+				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
@@ -2192,6 +2208,7 @@ export class ExistingClient extends InsureViewBase {
 				.policyTransactionHistory="${this.funeralPolicyTransactionHistory}"
 				.getPolicyTransactionHistory="${(startDate, endDate, pageIndex) => this._retrieveFuneralPolicyTransactionHistory(startDate, endDate, pageIndex)}"
 				.disposeData="${() => this.funeralPolicyTransactionHistory = []}"
+				.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-funeral-policy-transaction-history>`;
@@ -2207,6 +2224,7 @@ export class ExistingClient extends InsureViewBase {
 			.lifePremiumHistory="${this.lifePremiumHistory}"
 			.getLifePremiumHistory="${(startDate, endDate, pageIndex) => this._retrieveLifePolicyPremiumHistory(startDate, endDate, pageIndex)}"
 			.disposeData="${() => this.lifePremiumHistory = []}"
+			.policyStartDate="${this.selectedLifePolicy.policyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@unloading="${() => this._unloadLifePremiumHistory()}"
 		>
@@ -2224,6 +2242,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-funeral-sms-history-page
 				.contractReference=${this.selectedFuneralPolicyContractReference} 
 				.contactNumber=${this.callerInformation.verifiedTelephoneNumber}
+				.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 				.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveFuneralSMSHistory(contractReference, startDate, endDate)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-funeral-sms-history-page>`;
@@ -2274,6 +2293,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-life-sms-history-page
 			.getCommsHistory="${() => this._retrieveLifeSMSHistory()}"
 			.contractReference="${this.selectedLifePolicy.contractReference}"
+			.policyStartDate="${this.selectedLifePolicy.policyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-sms-history-page>
 		`;
