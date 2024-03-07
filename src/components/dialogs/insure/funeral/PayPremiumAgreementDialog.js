@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { formatCurrency } from '../../../utils/channelServiceUtilities';
+import { formatCurrency } from '../../../../utils/channelServiceUtilities';
 import { formatDateToInsure } from 'app/utils/insureUtils';
 
 import 'app/components/dialogs/insure/AgreementDialog';
