@@ -438,9 +438,10 @@ export class UpdateProfileDetails extends Component {
 			}
 
 			capitec-text-field {
+				height: 75px;
 				width: 275px;
-				margin-bottom: 28px;
-				margin-top:8px;
+				margin-bottom: auto;
+				margin-top: 12px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-disabled-background-color: #F9F9F9;
 			}
@@ -450,9 +451,10 @@ export class UpdateProfileDetails extends Component {
 			}
 
 			capitec-select {
+				height: 75px;
 				width: 275px;
-				margin-bottom: 28px;
-				margin-top: 8px;
+				margin-bottom: auto;
+				margin-top: 12px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-disabled-background-color: #F9F9F9;
 			}
@@ -465,7 +467,7 @@ export class UpdateProfileDetails extends Component {
 				position: absolute;
 				width: 275px;
 				margin-bottom: 28px;
-				margin-top: 8px;
+				margin-top: 12px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-padding-bottom: 8px;
 				--theme-select-options-max-height: 286px;
@@ -794,7 +796,7 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Employment type"
 				.value=${getValue(Object.values(EMPLOYMENT_TYPE).flat(), this.updatedClientDetails.employmentType)}
-				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(type => type.key !== `NONE`)}"
+				.items="${EMPLOYMENT_TYPE[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]?.filter(type => type.key !== `NONE`)}"
 				display-field="value"
 				id-field="key"
 				error=${this._validateEmploymentType()}
@@ -848,7 +850,7 @@ export class UpdateProfileDetails extends Component {
 			<capitec-select 
 				label="Source of funds" 
 				.value=${getValue(Object.values(SOURCE_FUNDS).flat(), this.updatedClientDetails.sourceOfFunds)}
-				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)].filter(src => src.key !== `NO_VALUE`)}"
+				.items="${SOURCE_FUNDS[getValue(EMPLOYMENT_STATUS, this.updatedClientDetails.employmentStatus)]?.filter(src => src.key !== `NO_VALUE`)}"
 				display-field="value"
 				id-field="key"
 				error="${isNullorEmpty(this.updatedClientDetails.sourceOfFunds) || this.updatedClientDetails.sourceOfFunds === `NO_VALUE` ? ERROR.SOF : ``}"
