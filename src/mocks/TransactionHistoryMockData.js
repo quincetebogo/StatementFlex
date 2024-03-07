@@ -58,7 +58,7 @@ export const transactionHistoryMockData = {
 			"processDate": "2021-01-18T00:00:00.000Z",
 			"transactionCode": 464848464746,
 			"cardNumber": "6563 **** **** 2340",
-			"cardAuthType": "Normal",
+			"cardAuthType": "POS_POS_PURCHASE",
 			"transferAccount": "Savings (3984 8347 829)",
 			"journalNumber": "FDE42334334",
 			"includesVat": "Yes",
