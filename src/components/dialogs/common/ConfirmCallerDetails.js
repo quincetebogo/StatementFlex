@@ -128,6 +128,21 @@ export class ConfirmCallerDetails extends Component {
 		};
 	}
 
+	get isMinorClient() {
+		if (!this.callerInformation?.birthdate) {
+			return false;
+		}
+
+		const today = new Date();
+		const clientBirthDate = new Date(this.callerInformation.birthdate);
+	
+		// Minimum age a client should meet for being a major ( > 16 years). 
+		// ClientDOB after 'minMajorAge' are considered to be a minor client.
+		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+	
+		return minMajorAge < clientBirthDate;
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -808,6 +823,12 @@ export class ConfirmCallerDetails extends Component {
 						data-automation-id="confirm-caller-details-birthday"
 						label="Birthday"
 						value="${this._getBirthdate(this.birthdate)}" >
+					</horizon-label>
+					<horizon-label class="client-info-row" row="4" columun="2" 
+						data-automation-id="confirm-caller-details-acc-type"
+						label="Account type"
+						value="Minor"
+						?hidden="${!this.isMinorClient}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-group>
