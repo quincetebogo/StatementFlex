@@ -479,6 +479,8 @@ export class EndCallSession extends Component {
 
 	async _classifyAndClose() {
 		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
+		const incidentState = this.horizonIncidentManager.incidentState;
+
 		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 
@@ -493,7 +495,7 @@ export class EndCallSession extends Component {
 			const returnValue = await this.incidentManagementService.classifyIncident(incident, needAction, classification);
 
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
+				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${incident.incidentId}, CurrentNeed: ${currentNeed}`, `_classifyAndClose`, returnValue.correlationId);
 			}
 		} 
 		
