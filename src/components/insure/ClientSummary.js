@@ -1109,6 +1109,7 @@ class ClientSummary extends Component {
 	 * @returns {string} message
 	 */
 	_buildArrearsMessage(policy) {
+		const unpaidArrears = policy.arrears.filter(arrears => arrears.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID);
 		let message = ``;
 
 		if (policy.arrearsMissedPremiumCount === 1) {
@@ -1116,7 +1117,7 @@ class ClientSummary extends Component {
 		} else if (policy.arrearsMissedPremiumCount === 2) {
 			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and may lapse if one more premium is missed`;
 		} else if (policy.arrearsMissedPremiumCount === 3) {
-			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(policy.arrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(unpaidArrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
 		}
 		return message;
 	}
