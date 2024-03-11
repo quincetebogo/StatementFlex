@@ -165,6 +165,42 @@ class LifePolicySummary extends Component {
 		return totalArrears;
 	}
 
+	/**
+	 * determine last arrears payment date
+	 * @param {object} policy policy
+	 * @returns {date} last arrears payment date
+	 */
+	_determineLastArrearsPaymentDate(policy) {
+		const paidMonths = policy?.arrears?.filter((item) => item.arrearsPaymentStatus === LIFE_ARREARS_STATUSES.PAID);
+		if (paidMonths.length === 0) {
+			return null;
+		}
+		const latestDate = new Date(Math.max.apply(null, paidMonths?.map((e) => {
+			const date = new Date(e?.arrearsPaymentReceivedDate);
+			return date;
+		})));
+		return latestDate;
+	}
+
+	/**
+	 * determine last arrears payment amount
+	 * @param {object} policy policy
+	 * @returns {number} last arrears payment amount
+	 */
+	_determineLastArrearsPayment(policy) {
+		const paidMonths = policy?.arrears?.filter((item) => item.arrearsPaymentStatus === LIFE_ARREARS_STATUSES.PAID);
+		if (paidMonths.length === 0) {
+			return null;
+		}
+		const latestDate = new Date(Math.max.apply(null, paidMonths?.map((e) => {
+			const date = new Date(e.arrearsPaymentReceivedDate);
+			return date;
+		})));
+		const latestPayment = paidMonths?.find((item) => new Date(item.arrearsPaymentReceivedDate).getTime() === latestDate.getTime());
+		return latestPayment?.arrearsPaymentReceivedAmount;
+
+	}
+
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -414,7 +450,8 @@ class LifePolicySummary extends Component {
 
 	// Expanded setting for main life expander
 	_renderMainSectionExpanded() {
-		const csvOfMonths = this.selectedLifePolicy?.arrears?.map((item) => formatDate(item.arrearsPaymentDueDate, `dd mmm yyyy`)).join(`, `);
+		const unpaidMonths = this.selectedLifePolicy?.arrears?.filter((item) => item.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID);
+		const csvOfMonths = unpaidMonths?.map((item) => formatDate(item.arrearsPaymentDueDate, `dd mmm yyyy`)).join(`, `);
 		return html`
 			<capitec-title-bar type="default" label="Payment information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
@@ -439,20 +476,21 @@ class LifePolicySummary extends Component {
 				<horizon-label label="Mandate Status"
 					value="${isNullorEmpty(this.selectedLifePolicy?.bankDetails?.mandateStatus) ? `-` : this.selectedLifePolicy?.bankDetails?.mandateStatus}">
 				</horizon-label>
-			</capitec-group>
-			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
-				${this.selectedLifePolicy?.policyStatus === `Cancelled`
-				? html`
-				<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				${this.selectedLifePolicy?.policyStatus === LIFE_POLICY_STATUSES.CANCELLED ? html`
 					<horizon-label label="Cancellation date"
 						value="${isNullorEmpty(this.selectedLifePolicy?.actualCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.actualCancellationDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Reason"
 						value="${this.selectedLifePolicy?.cancellationReason}">
 					</horizon-label>
-				</capitec-group>
-				`
-				: ``}
+				` : html`
+					<horizon-label label="Last Arrears Payment Date"
+						value="${isNullorEmpty(this._determineLastArrearsPaymentDate(this.selectedLifePolicy)) ? `-` : formatDate(this._determineLastArrearsPaymentDate(this.selectedLifePolicy))}">
+					</horizon-label>
+					<horizon-label label="Last Arrears Payment"
+						value="${isNullorEmpty(this._determineLastArrearsPayment(this.selectedLifePolicy)) ? `-` : formatCurrency(this._determineLastArrearsPayment(this.selectedLifePolicy))}">
+					</horizon-label>
+				`}
 			</capitec-group>
 		`;
 	}

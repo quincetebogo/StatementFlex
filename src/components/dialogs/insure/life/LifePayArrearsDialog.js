@@ -536,9 +536,12 @@ class LifePayArrearsDialog extends Component {
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
 						${this.lifePolicyArrears?.arrears?.map((arrear, index) => html`
-							<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
-								@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
-							</capitec-check>
+							${arrear.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID ? html`
+								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
+									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
+								</capitec-check>
+							` : html``}
+							
 						`)}
 					</capitec-check-group>
 				</div>
