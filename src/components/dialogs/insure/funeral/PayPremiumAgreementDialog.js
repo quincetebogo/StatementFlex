@@ -248,8 +248,17 @@ class PayPremiumAgreementDialog extends Component {
 			<div>
 				<capitec-label class="font" type="subtitle" label="Declaration">
 				</capitec-label>
-				<capitec-label class="spacing" type="strong" label="By agreeing to pay your arrear premiums, you acknowledge and confirm that:
-• ${formatCurrency(this.payAmount)} can be debited from your account on ${formatDateToInsure(Date())} ">
+				<capitec-label type="strong" label="By agreeing to pay your arrear premiums, you acknowledge and confirm that:">
+				</capitec-label>
+				<capitec-label class="spacing" type="strong" label="•	${formatCurrency(this.payAmount)} can be debited from your account on ${formatDateToInsure(Date())} ">
+				</capitec-label>
+				
+				<capitec-label class="font" type="subtitle" label="Please Note:"></capitec-label>
+				<capitec-label type="strong" label="•	Your policy will lapse if you’re in arrears with 3 premiums">
+				</capitec-label>
+				<capitec-label type="strong" label="•	All outstanding premiums will be deducted from your cover amount in the event of a claim">
+				</capitec-label>
+				<capitec-label class="spacing" type="strong" label="•	We don’t accept partial payment of premiums">
 				</capitec-label>
 			</div>
 
