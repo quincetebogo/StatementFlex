@@ -485,7 +485,7 @@ class LifePolicySummary extends Component {
 					</horizon-label>
 				` : html`
 					<horizon-label label="Last Arrears Payment Date"
-						value="${isNullorEmpty(this._determineLastArrearsPaymentDate(this.selectedLifePolicy)) ? `-` : formatDate(this._determineLastArrearsPaymentDate(this.selectedLifePolicy))}">
+						value="${isNullorEmpty(this._determineLastArrearsPaymentDate(this.selectedLifePolicy)) ? `-` : formatDate(this._determineLastArrearsPaymentDate(this.selectedLifePolicy), `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Last Arrears Payment"
 						value="${isNullorEmpty(this._determineLastArrearsPayment(this.selectedLifePolicy)) ? `-` : formatCurrency(this._determineLastArrearsPayment(this.selectedLifePolicy))}">
