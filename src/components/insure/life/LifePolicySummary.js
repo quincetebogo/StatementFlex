@@ -172,7 +172,7 @@ class LifePolicySummary extends Component {
 	 */
 	_determineLastArrearsPaymentDate(policy) {
 		const paidMonths = policy?.arrears?.filter((item) => item.arrearsPaymentStatus === LIFE_ARREARS_STATUSES.PAID);
-		if (paidMonths.length === 0) {
+		if (paidMonths?.length === 0 || isNullorEmpty(paidMonths)) {
 			return null;
 		}
 		const latestDate = new Date(Math.max.apply(null, paidMonths?.map((e) => {
@@ -189,7 +189,7 @@ class LifePolicySummary extends Component {
 	 */
 	_determineLastArrearsPayment(policy) {
 		const paidMonths = policy?.arrears?.filter((item) => item.arrearsPaymentStatus === LIFE_ARREARS_STATUSES.PAID);
-		if (paidMonths.length === 0) {
+		if (paidMonths?.length === 0 || isNullorEmpty(paidMonths)) {
 			return null;
 		}
 		const latestDate = new Date(Math.max.apply(null, paidMonths?.map((e) => {
