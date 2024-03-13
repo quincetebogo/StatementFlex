@@ -1244,20 +1244,20 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay arrears for active life policy
 	 * @param {string} contractReference contractReference
-	 * @param {string} accountNumber accountNumber
+	 * @param {object} selectedAccount selectedAccount
 	 * @param {string} selectedArrears selectedArrears
 	 * @returns {object} resp
 	 */
-	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
+	async _payArrearsLife(contractReference, selectedAccount, selectedArrears) {
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
 			"bankDetails": {
-				"accountName": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_NAME,
-				"branchCode": GLOBAL_ONE_GENERIC_DETAILS.BRANCH_CODE,
-				"accountNumber": this.defaultSavingsAccountNumber,
-				"bank": GLOBAL_ONE_GENERIC_DETAILS.BANK,
-				"accountType": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_TYPE,
+				"accountName": selectedAccount.accountName,
+				"branchCode": selectedAccount.branchCode,
+				"accountNumber": selectedAccount.accountNumber,
+				"bank": selectedAccount.bank,
+				"accountType": selectedAccount.accountType,
 				"effectiveDate": null
 			},
 			"arrears": selectedArrears
@@ -2031,7 +2031,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
-				.executeLifePayArrears="${(contractReference, accountNumber, selectedArrears) => this._payArrearsLife(contractReference, accountNumber, selectedArrears)}"
+				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
