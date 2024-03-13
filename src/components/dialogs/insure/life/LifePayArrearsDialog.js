@@ -55,8 +55,7 @@ class LifePayArrearsDialog extends Component {
 		this.totalSelectedArrears = 0;
 		this.selectedArrears = [];
 
-		this.defaultSavingsAccountNumber = ``;
-		this.defaultSavingsAccountAvailableBalance = 0;
+		this.payableAccounts = [];
 
 	}
 
@@ -68,7 +67,7 @@ class LifePayArrearsDialog extends Component {
 		return {
 			policy: { type: Object, state: true },
 			insufficientFunds: { type: Boolean, state: true },
-			// payableAccounts: { type: Object, state: true },
+			payableAccounts: { type: Array, state: true },
 			accountSelected: { type: Boolean, state: true },
 			selectedAccountNumber: { type: String, state: true },
 			selectedAccountType: { type: String, state: true },
@@ -88,10 +87,8 @@ class LifePayArrearsDialog extends Component {
 			emailAlertBannerMessage: { type: String, state: true },
 			arrearsAlertBannerMessage: { type: String, state: true },
 			showConfirmationDialog: { type: Boolean, state: true },
-			lifePolicyArrears: { type: Object, state: true },
+			lifePolicyArrears: { type: Object, state: true }
 
-			defaultSavingsAccountNumber: { type: String, state: true },
-			defaultSavingsAccountAvailableBalance: { type: Number, state: true }
 		};
 	}
 
@@ -129,17 +126,12 @@ class LifePayArrearsDialog extends Component {
 				}
 			});
 		}
-
-		this.selectedAccountNumber = this.defaultSavingsAccountNumber;
-		this.selectedAccountType = `Savings`;
-		this.accountSelected = true;
+		this.payableAccounts = this.lifePolicyArrears.payableAccounts;
+		// this.selectedAccountType = `Savings`;
+		// this.accountSelected = true;
 
 		// Suffecient funds?
 
-		if (this.defaultSavingsAccountAvailableBalance < this.totalPolicyArrears) {
-			this.insufficientFunds = true;
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-		}
 
 		// Relook how will we get this data?
 		// this.payableAccounts = [
@@ -262,15 +254,21 @@ class LifePayArrearsDialog extends Component {
 	_settleArrearsValidate() {
 		console.log(`in _settleArrearsValidate()`);
 		console.log(`this.totalSelectedArrears :>> `, this.totalSelectedArrears);
-		console.log(`this.defaultSavingsAccountAvailableBalance :>> `, this.defaultSavingsAccountAvailableBalance);
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
 			return;
 		}
-		if (this.totalSelectedArrears > this.defaultSavingsAccountAvailableBalance) {
-			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-			return;
-		}
+
+		const index = this.payableAccounts.map(object => object.accountNumber).indexOf(this.selectedAccountNumber);
+			if (this.payableAccounts[index]?.availableBalance < this.totalSelectedArrears) {
+				this.accountSelected = false;
+				this.insufficientFunds = true;
+				this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+				return;
+			} else if (this.accountSelected === false) {
+				this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
+				return;
+			}
 
 		this.arrearsAlertBannerMessage = ``;
 		this.showConfirmationDialog = true;
@@ -432,10 +430,6 @@ class LifePayArrearsDialog extends Component {
 				.emailAddressInput{
 					margin: 10px 0px;
 				}
-
-
-
-
 				
 				.account-label {
 					position: relative; 
@@ -516,7 +510,7 @@ class LifePayArrearsDialog extends Component {
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
 					<!-- Single account - temporary until service can provide payable accounts -->
-					<div class="account-selectbox">
+					<!-- <div class="account-selectbox">
 						<div class="select-header">
 							<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
 								<div> 
@@ -531,7 +525,12 @@ class LifePayArrearsDialog extends Component {
 								</div>
 							</capitec-content-box>
 						</div>
-					</div>
+					</div> -->
+
+					<insure-account-select 
+						@option-selected="${(e) => this._accountSelected(e)}" data-automation-id="horizon-insure-pay-premium-dialog-accounts"
+						.accountDetails = "${this.payableAccounts}" .insufficient = "${this.insufficientFunds}" .label= "${`Please select`}" .selectBoxWidth= "${`490px`}">
+					</insure-account-select>
 
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
