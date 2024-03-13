@@ -68,7 +68,7 @@ export class IncidentManagementService extends ChannelServiceBase {
 		return {
 			"ucid": incidentData.voiceReferenceNumber,
 			"cli": incidentData.incomingTelephoneNumber,
-			"clientCIF": ``,
+			"clientCIF": incidentData.clientCIF || ``,
 			"orgUnitId": ``,
 			"category": ``,
 			"subCategory": ``,
@@ -83,11 +83,11 @@ export class IncidentManagementService extends ChannelServiceBase {
 			"description": ``,
 			"incidentType": ``,
 			"nonClientDetails": {
-				"fullName": ``,
-				"southAfricanIDNumber": ``,
-				"cellPhone": ``,
-				"workPhone": ``,
-				"email": ``
+				"fullName": incidentData.nonClientFullName?.trim() || ``,
+				"southAfricanIDNumber": incidentData.nonClientIDNumber || ``,
+				"cellPhone": incidentData.nonClientCellPhone || ``,
+				"workPhone": incidentData.nonClientWorkPhone || ``,
+				"email": incidentData.nonClientEmail || ``
 			},
 			"primaryNeedIncident": incidentData.primaryNeedIncident
 		};

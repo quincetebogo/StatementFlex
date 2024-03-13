@@ -28,6 +28,7 @@
 	// Savings account
 	// "transaction-history": `TRANSACTION_HISTORY`,
 	"statements-transact": `STATEMENTS`,
+	"card-disputes": `SAVE_CARD_DISPUTES`,
 
 	// Savings plan
 	"statements-save": `SAVINGS_PLAN_STATEMENTS`,
@@ -92,6 +93,7 @@
 	"paid-up-letter-credit-card": `PAID_UP_LETTER_CREDITCARD`,
 	"pay-budget-credit-card": `PAY_BUDGET_ACCOUNTS`,
 	"open-budget-credit-card": `OPEN_BUDGET`,
+	"card-disputes-credit-card": `CREDIT_CARD_DISPUTES`,
 
 	"transaction-history-access-facility": `TRANSACTION_HISTORY_ACCESS_FACILITY`,
 	"statements-access-facility": `SEND_STATEMENTS_ACCESS_FACILITY`,
@@ -114,6 +116,9 @@
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
+	"fica-details-enquiry": `FICA_DETAILS_ENQUIRY`,
+	"update-fica-details": `UPDATE_FICA_DETAILS`,
+
 
 	// PayShap
 	"payshap": `PAYSHAP_ENQUIRY`,

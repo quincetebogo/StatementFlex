@@ -510,7 +510,7 @@ export class HorizonIncidentManager {
 			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
 	
 			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `classifyIncident`, returnValue.correlationId);
+				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
 				return;
 			}
 		}
@@ -709,5 +709,39 @@ export class HorizonIncidentManager {
 
 	_isValidPrimaryIncRecID(recID) {
 		return Boolean(recID) && recID !== `0`;
+	}
+
+	async createPrimaryInc(errorHandler) {
+		const callerInfo = this.horizonStore.getCallerInformation();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+
+		const request = {
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			clientCIF: callerInfo.cifNumber,
+			VDN: incomingCallDetails.VDN,
+			nonClientFullName: `${callerInfo.nonClientFirstName} ${callerInfo.nonClientSurName}`,
+			nonClientIDNumber: ``,
+			nonClientCellPhone: callerInfo.nonClientCellPhone,
+			nonClientWorkPhone: ``,
+			nonClientEmail: ``
+		};
+
+		const returnValue = await this.incidentService.createIncident(request, (ex) => errorHandler(ex), 1);
+		const incident = returnValue.result?.incident;
+
+		if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
+
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+			} 
+
+		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
+		} else if (callerInfo.isBranchConsultant) {
+			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
+		}
+
+		return incident;
 	}
 }
