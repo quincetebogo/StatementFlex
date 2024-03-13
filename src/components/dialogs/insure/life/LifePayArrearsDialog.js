@@ -56,6 +56,7 @@ class LifePayArrearsDialog extends Component {
 		this.selectedArrears = [];
 
 		this.payableAccounts = [];
+		this.selectedAccount = {};
 
 	}
 
@@ -87,7 +88,8 @@ class LifePayArrearsDialog extends Component {
 			emailAlertBannerMessage: { type: String, state: true },
 			arrearsAlertBannerMessage: { type: String, state: true },
 			showConfirmationDialog: { type: Boolean, state: true },
-			lifePolicyArrears: { type: Object, state: true }
+			lifePolicyArrears: { type: Object, state: true },
+			selectedAccount: { type: Object, state: true }
 
 		};
 	}
@@ -269,6 +271,7 @@ class LifePayArrearsDialog extends Component {
 				this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
 				return;
 			}
+		this.selectedAccount = this.payableAccounts[index];
 
 		this.arrearsAlertBannerMessage = ``;
 		this.showConfirmationDialog = true;
@@ -316,16 +319,14 @@ class LifePayArrearsDialog extends Component {
 			return;
 		}
 
-		const payResult = await this.executeLifePayArrears(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears);
+		const payResult = await this.executeLifePayArrears(this.policy.contractReference, this.selectedAccount, this.selectedArrears);
 		if (isNullorEmpty(payResult)) {
 			return;
 		}
-		console.log(`payResult :>> `, payResult);
 		const agreementResult = await this.executeLifePayArrearsGenerateAgreementDocument(this.policy.contractReference, this.selectedAccountNumber, this.selectedArrears, true);
 		if (isNullorEmpty(agreementResult)) {
 			return;
 		}
-		console.log(`agreementResult :>> `, agreementResult);
 		await this.executeLifeArrearsSendEmail(this.policy.contractReference, formatCurrency(this.totalSelectedArrears), this.email, agreementResult);
 	}
 
