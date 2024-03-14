@@ -1,5 +1,9 @@
-export const getKey = (source, value) => source.find(item => item.value === value).key;
-export const getValue = (source, key) => source.find(item => item.key === key).value;
+export const getKey = (source, value) => {
+	return source?.find(item => item.value === value)?.key || ``;
+}
+export const getValue = (source, key) => {
+	return source?.find(item => item.key === key)?.value || ``
+};
 
 export const DETAILS_TYPE = Object.freeze({
 	PREFERENCES: `Preferences`,

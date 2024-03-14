@@ -733,8 +733,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_canOnlyVerifyBySQ() {
+		// Removed Minor client restriction on Feb 2024 as per CEDT-1737
 		return (this.hasSouthAfricanID || this.authMethod === AUTH_METHODS.KBA) && // Need an SA ID to be able to use XDS, but not for KBA
-			!this._isMinorClient() &&
 			!this.callerInformation.hasDigitalChannels && // App/USSD is not an option
 			(this.xdsAttempts === 0 && this.kbaAttempts === 0) && // We have not tried to verify yet
 			!this.SQUnavailable;
@@ -802,7 +802,8 @@ export class VerifyCaller extends Component {
 	}
 		
 	_foreignOrMinorClient() {
-		return (!this.hasSouthAfricanID || this._isMinorClient()) && // This client may be foreign or a minor
+		// Removed minor client restriction on Feb 2024 as per CEDT-1737
+		return !this.hasSouthAfricanID && // This client may be foreign or a minor
 			this.xdsAttempts === 0 && this.kbaAttempts === 0 && // No XDS/ KBA attempts have been made yet
 			!this.SQUnavailable &&
 			!this.callerInformation.hasDigitalChannels; // The client does not have the app
@@ -1026,7 +1027,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/knowledge-action"
 						iconSize="default"
-						?hidden=${!this._canVerifyViaSQ() || this._isMinorClient()}
+						?hidden=${!this._canVerifyViaSQ()}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
