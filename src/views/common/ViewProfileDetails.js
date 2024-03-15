@@ -1,4 +1,4 @@
-import { DETAILS_TYPE, EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, INCOME_FREQUENCY, INCOME_RANGE, INVALID_VALUE, INDUSTRY_CODE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, INVALID_VALUE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
 import { css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -217,7 +217,7 @@ export class ViewProfileDetails extends ViewBase {
 		// status = UNEMPLOYED, type = FULL_TIME_STUDENT => type = Full time student // Valid case
 		const employmentType = employmentStatus ? getValue(EMPLOYMENT_TYPE[employmentStatus], details.employmentType) : ``;
 		const employerName = INVALID_VALUE.EMPLOYER_NAME.includes(details.employerName) ? `` : details.employerName;
-		const industryCode = getValue(INDUSTRY_CODE, details.industryCode) // Later check industry code is not matching with the Eomloyment status/Employer name
+		const industryCode = getValue(INDUSTRY_CODE, details.industryCode);
 		const sourceOfFunds = employmentStatus ? getValue(SOURCE_FUNDS[employmentStatus], details.sourceOfFunds) : ``;
 
 		this.clientDetails = {
@@ -258,13 +258,6 @@ export class ViewProfileDetails extends ViewBase {
 				"Income frequency": getValue(INCOME_FREQUENCY, details.incomeFrequency)
 			}
 		};
-	}
-
-	_checkForInvalidValues(value, fieldName) {
-		if (value && INVALID_VALUE[fieldName].includes(value)) {
-			return ``;
-		}
-		return value;
 	}
 
 	_errorHandler(ex) {

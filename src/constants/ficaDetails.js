@@ -1,10 +1,33 @@
-export const getKey = (source, value) => {
-	return source?.find(item => item.value === value)?.key || ``;
-};
-export const getValue = (source, key) => {
-	return source?.find(item => item.key === key)?.value || ``
+/* returns Key for a given value
+   returns empty string if key is not found
+   source - data set with key value pairs
+*/
+export const getKey = (source, value) => { 
+	const result = source?.find(item => item.value === value);
+	if (result) {
+		return result.key;
+	}
+	return ``;
 };
 
+/* returns value for a given key
+   returns empty string if value is not found
+   source - data set with key value pairs
+*/
+export const getValue = (source, key) => {
+	const result = source?.find(item => item.key === key);
+	if (result) {
+		return result.value;
+	}
+	return ``;
+};
+
+/**
+ * Types of details that view profile screen displays and allows to update
+ * 
+ * @readonly
+ * @enum {Object} DETAILS_TYPE
+ */
 export const DETAILS_TYPE = Object.freeze({
 	PREFERENCES: `Preferences`,
 	PERSONAL_DETAILS: `Personal details`,
@@ -14,6 +37,12 @@ export const DETAILS_TYPE = Object.freeze({
 	INCOME_DETAILS: `Income details`
 });
 
+/**
+ * Display fields on View profile screen
+ * 
+ * @readonly
+ * @enum {Object} FIELDS
+ */
 export const FIELDS = Object.freeze({
 	PREFERRED_LANGUAGE: `Preferred Language`,
 	TITLE: `Title`,
@@ -41,6 +70,12 @@ export const FIELDS = Object.freeze({
 	INCOME_FREQUENCY: `Income frequency`
 });
 
+/**
+ * Income ranges used to view/update client's FICA details 
+ * 
+ * @readonly
+ * @enum {Object} INCOME_RANGE
+ */
 export const INCOME_RANGE = Object.freeze([
 	{ key: `R0_R3000`, value: `R0 to R3000` },
 	{ key: `R3001_R6000`, value: `R3001 to R6000` },
@@ -52,6 +87,12 @@ export const INCOME_RANGE = Object.freeze([
 	{ key: `R50000`, value: `> R50000` }
 ]);
 
+/**
+ * Employment status set used to view/update client's FICA details 
+ * 
+ * @readonly
+ * @enum {Object} EMPLOYMENT_STATUS
+ */
 export const EMPLOYMENT_STATUS = Object.freeze([
 	{ key: `EMPLOYED`, value: `Employed` },
 	{ key: `SELF_EMPLOYED`, value: `Self Employed` },
@@ -60,6 +101,13 @@ export const EMPLOYMENT_STATUS = Object.freeze([
 	{ key: `MINOR_16`, value: `Minor` }
 ]);
 
+/**
+ * Employment type set used to view/update client's FICA details 
+ * Employment type is dependent on selected Employment status
+ * 
+ * @readonly
+ * @enum {Object} EMPLOYMENT_TYPE
+ */
 export const EMPLOYMENT_TYPE = Object.freeze({
 	"Employed": [
 		{ key: `CONTRACT_WORKER`, value: `Contract Worker` },
@@ -90,6 +138,13 @@ export const EMPLOYMENT_TYPE = Object.freeze({
 	"Minor": [{ key: `NONE`, value: `None` }]
 });
 
+/**
+ * Source of funds set used to view/update client's FICA details 
+ * Source of funds is dependent on selected Employment status
+ * 
+ * @readonly
+ * @enum {Object} SOURCE_FUNDS
+ */
 let SOF_EMPLOYED = [];
 export const SOURCE_FUNDS = Object.freeze({
 	'Employed': SOF_EMPLOYED = [
@@ -141,6 +196,12 @@ export const SOURCE_FUNDS = Object.freeze({
 	]
 });
 
+/**
+ * Income frequency set used to view/update client's FICA details
+ * 
+ * @readonly
+ * @enum {Object} INCOME_FREQUENCY
+ */
 export const INCOME_FREQUENCY = Object.freeze([
 		{ key: `Annually`, value: `Annually` },
 		{ key: `Bi_Annually`, value: `Bi-Annually` },
@@ -150,8 +211,15 @@ export const INCOME_FREQUENCY = Object.freeze([
 		{ key: `Weekly`, value: `Weekly` }
 ]);
 
-export const INDUSTRY_CODE = [
-	{ key: `NONE`, value: `` },
+/**
+ * Industry code set used to view/update client's FICA details
+ * Client can only select Industry code when adding an employer
+ * Industry code will be set on the code for other flows
+ * 
+ * @readonly
+ * @enum {Object} INDUSTRY_CODE
+ */
+export const INDUSTRY_CODE = Object.freeze([
 	{ key: `INDIVIDUAL`, value: `Individual` },
 	{ key: `AGRICULTURE_FORESTRY_AND_FISHING`, value: `Agriculture/forestry and fishing` }, 
 	{ key: `COMMUNITY_SOCIAL_AND_PERSONAL`, value: `Community/social and personal` }, 
@@ -181,26 +249,40 @@ export const INDUSTRY_CODE = [
 	{ key: `TRADE_AND_ACCOMMODATION`, value: `Trade and accommodation` }, 
 	{ key: `TRAINING_AND_EDUCATION`, value: `Training and Education` }, 
 	{ key: `TRANSPORT_AND_COMMUNICATION`, value: `Transport and communication` }, 
-	{ key: `ALCOHOL`, value: `Wine, beer and Spirits` }, 
-	{ key: `NO_VALUE`, value: `` }
-];
+	{ key: `ALCOHOL`, value: `Wine, beer and Spirits` }
+]);
 
-export const ERROR = {
+/**
+ * An error message to guide users to correct a mistake. 
+ * 
+ * @readonly
+ * @enum {Object} ERROR
+ */
+export const ERROR = Object.freeze({
 	NICK_NAME: `No special characters allowed`,
 	CONTACT_NUMBER: `Incorrect contact number`,
+	ONE_CONTACT_NUM_REQUIRED: `Atleast one contact number is required`,
 	EMP_STATUS: `Employment Status cannot be empty`,
+	MINOR_CLIENT: `Minor client cannot be`,
 	EMP_TYPE: `Employment type cannot be empty`,
 	EMP_NAME: `Employer name cannot be empty`,
 	ADDRESS1: `Address line 1 cannot be empty`,
 	SUBURB: `Suburb cannot be empty`,
 	CITY: `City cannot be empty`,
 	POSTAL_CODE: `Postal code cannot be empty`,
+	POSTAL_CODE_FORMAT: `Incorrect Postal code`,
 	SOF: `Source of funds cannot be empty`,
 	INCOME_RANGE: `Expected monthly income cannot be empty`,
 	INCOME_FREQUENCY: `Income frequency cannot be empty`
-};
+});
 
-export const INVALID_VALUE = {
+/**
+ * Invalid values that a client cannot enter during their FICA details update
+ * 
+ * @readonly
+ * @enum {Object} INVALID_VALUE
+ */
+export const INVALID_VALUE = Object.freeze({
 	ADDRESS1: [`NEEDED`],
 	EMPLOYER_NAME: [`REMOTE ONBOARDED`, `ROMEO AND JULIET`] 
-}
+});
