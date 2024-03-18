@@ -278,11 +278,12 @@ export function formatDate(value, format) {
  * 
  * @export
  * @param {string} unformatedString - Unformatted string
+ * @param {string} identifier - Identifier to split the string into substrings
  * @returns {string} formatted string
  */
-export function formatStringAsPascalCase(unformatedString) {
+export function formatStringAsPascalCase(unformatedString, identifier = ` `) {
 
-	const words = unformatedString.split(` `);
+	const words = unformatedString.split(identifier);
 
 	let formattedString = ``;
 
