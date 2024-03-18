@@ -523,6 +523,7 @@ export class UpdateProfileDetails extends Component {
 			}
 
 			capitec-text-field {
+				height: 75px;
 				width: 275px;
 				height: 75px;
 				margin-bottom: auto;
@@ -536,6 +537,7 @@ export class UpdateProfileDetails extends Component {
 			}
 
 			capitec-select {
+				height: 75px;
 				width: 275px;
 				height: 75px;
 				margin-bottom: auto;
@@ -552,7 +554,7 @@ export class UpdateProfileDetails extends Component {
 				position: absolute;
 				width: 275px;
 				margin-bottom: 28px;
-				margin-top: 8px;
+				margin-top: 12px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-padding-bottom: 8px;
 				--theme-select-options-max-height: 286px;
