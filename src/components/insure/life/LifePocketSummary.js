@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { LifeAddBeneficiaryDialog } from '../../dialogs/insure/life/LifeAddBeneficiaryDialog';
 import { LifeDeleteBeneficiaryDialog } from '../../dialogs/insure/life/LifeDeleteBeneficiaryDialog';
 import { LifeUpdateBeneficiaryDialog } from 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
@@ -148,7 +148,9 @@ class LifePocketSummary extends Component {
 		let totalArrears = 0;
 		if (policy.arrears) {
 			policy.arrears.forEach(arrears => {
+				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 				totalArrears += parseInt(arrears.arrearsPaymentDueAmount, 10);
+				}
 			});
 		}
 		return formatCurrency(totalArrears);

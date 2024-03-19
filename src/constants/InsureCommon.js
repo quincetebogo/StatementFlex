@@ -282,12 +282,9 @@ export const TRANSACTION_STATUS = Object.freeze({
  */
 export const INSURE_DISCLOSURE_TYPE = Object.freeze({
 	CFP_NOTIFICATION: 1,
-	FCP_NOTIFICATION: 2,
-	LA_NOTIFICATION: 3,
-	YBP_NOTIFICATION: 4,
-	YWNBP_NOTIFICATION: 5,
-	YP_NOTIFICATION: 6,
-	YROA_NOTIFICATION: 7
+	PCA_NOTIFICATION: 2,
+	BENE_NOTIFICATION: 3,
+	DO_NOTIFICATION: 4
 });
 
 /**
@@ -385,4 +382,15 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	NOT_TAKEN_UP: `NotTakenUp`,
 	CANCELLED: `Cancelled`,
 	OUT_OF_FORCE: `OutOfForce `
+});
+
+/**
+ * LIFE_ARREARS_STATUSES
+ *
+ * @readonly
+ * @enum {Object} LIFE_ARREARS_STATUSES
+ */
+export const LIFE_ARREARS_STATUSES = Object.freeze({
+	PENDING: `PENDING`,
+	PAID: `PAID`
 });
