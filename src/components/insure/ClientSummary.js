@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
@@ -320,7 +320,7 @@ class ClientSummary extends Component {
 			detail: {
 				policy: this.selectedLifePolicy,
 				updatedPolicy: e.detail.policy,
-				email: e.detail.email,
+				emailAddress: e.detail.email,
 				contractReference: this.selectedLifePolicy.contractReference
 			}
 		}));
@@ -363,7 +363,8 @@ class ClientSummary extends Component {
 				accountNumber: policyItem.deductionDetails?.bankDetails?.accountNumber,
 				arrearsAmount: policyItem.arrearDetails?.outstandingAmount,
 				selectedInsureTabIndex: this.selectedInsureTabIndex,
-				productCode: policyItem.productCode
+				productCode: policyItem.productCode,
+				commencementDate: policyItem.commencementDate
 			}
 		}));
 	}
@@ -477,14 +478,6 @@ class ClientSummary extends Component {
 	 */
 	async _generateDocumentsLifeCancel(cancelReason) {
 		await this.generateDocumentsLifeCancel(this.contractReferenceToCancel, cancelReason, false);
-	}
-
-	/**
-	 *  Get the Life Update Banking Details Document
-	 *  @returns {void}
-	 */
-	async _generateDocumentsUpdateBankingDetails() {
-		await this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, false);
 	}
 
 
@@ -1102,7 +1095,9 @@ class ClientSummary extends Component {
 	_calculateLifeArrearsAmount(policy) {
 		let totalArrears = 0;
 		policy?.arrears?.forEach(arrears => {
-			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
+				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+			};
 		});
 		return totalArrears;
 	}
@@ -1114,13 +1109,15 @@ class ClientSummary extends Component {
 	 * @returns {string} message
 	 */
 	_buildArrearsMessage(policy) {
+		const unpaidArrears = policy.arrears.filter(arrears => arrears.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID);
 		let message = ``;
-		if (policy.arrears.length === 1) {
+
+		if (policy.arrearsMissedPremiumCount === 1) {
 			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))}.`;
-		} else if (policy.arrears.length === 2) {
+		} else if (policy.arrearsMissedPremiumCount === 2) {
 			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and may lapse if one more premium is missed`;
-		} else if (policy.arrears.length === 3) {
-			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(policy.arrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
+		} else if (policy.arrearsMissedPremiumCount === 3) {
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(unpaidArrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
 		}
 		return message;
 	}
@@ -1477,6 +1474,9 @@ class ClientSummary extends Component {
 				--theme-button-line-height: 20px;
 				--theme-button-padding-top: 14px;
 				--theme-button-padding-bottom: 14px;
+			}
+			.life-extra-space {
+				width: 270px
 			}
 			`
 		];
@@ -1911,15 +1911,15 @@ class ClientSummary extends Component {
 				: html``
 			} -->
 
-					<!-- ${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
-					<!-- ${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
+					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -2022,15 +2022,8 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Debit order date"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${formatDate(pol?.nextCollectionDate, `dd mmm yyyy`)}">
-								</horizon-label>
-							</div>
-							<div>
-								<horizon-label
-									label="Arrears amount"
-									class="ghost-label"
-									value="${formatCurrency(this._calculateLifeArrearsAmount(pol))}">
 								</horizon-label>
 							</div>
 						` : html``}
@@ -2045,8 +2038,7 @@ class ClientSummary extends Component {
 							<div>
 								<horizon-label
 									label="Reason"
-									style="width: 270px"
-									class="ghost-label"
+									class="ghost-label life-extra-space"
 									value="${pol?.cancellationReason}">
 								</horizon-label>
 							</div>
@@ -2479,7 +2471,7 @@ class ClientSummary extends Component {
 			: html`
 			<horizon-insure-life-update-bank-details-dialog
 				.policy="${this.selectedLifePolicy}"
-				.getLifeUpdateBankingDetailsDocument="${() => this._generateDocumentsUpdateBankingDetails()}"
+				.getLifeUpdateBankingDetailsDocument="${(updatedPolicy) => this.generateDocumentsUpdateBankingDetails(this.selectedLifePolicy, updatedPolicy, false)}"
 				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
 				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
 				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">

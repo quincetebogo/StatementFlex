@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_ARREARS_STATUSES } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { EMAIL_ADDRESS_ERROR_MESSAGES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { validateEmailAddressCombo } from 'app/utils/insureUtils';
@@ -124,7 +124,9 @@ class LifePayArrearsDialog extends Component {
 
 		if (this.lifePolicyArrears.arrears) {
 			this.lifePolicyArrears.arrears.forEach(arrears => {
+				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
 				this.totalPolicyArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+				}
 			});
 		}
 
@@ -534,9 +536,12 @@ class LifePayArrearsDialog extends Component {
 					<capitec-label type="subtitle" label="Choose arrears amount to pay"></capitec-label>
 					<capitec-check-group class="arrears-checkbox-group">
 						${this.lifePolicyArrears?.arrears?.map((arrear, index) => html`
-							<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
-								@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
-							</capitec-check>
+							${arrear.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID ? html`
+								<capitec-check class="checkbox" label="${formatDate(arrear.arrearsPaymentDueDate, `MM yyyy`)} | ${formatCurrency(arrear.arrearsPaymentDueAmount)}"
+									@value-change="${(e) => this._arrearsCheckedChange(arrear, index, e)}">
+								</capitec-check>
+							` : html``}
+							
 						`)}
 					</capitec-check-group>
 				</div>
