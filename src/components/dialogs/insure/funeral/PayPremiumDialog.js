@@ -377,7 +377,7 @@ class PayPremiumDialog extends Component {
 			
 			<insure-account-select 
 				@option-selected="${(e) => this._optionSelected(e)}" data-automation-id="horizon-insure-pay-premium-dialog-accounts"
-				.accountDetails = "${this.clientArrears.payableAccounts}" .insufficient = "${this.insufficient}" .label= "${`Please select`}" .selectBoxWidth= "${`560px`}">
+				.accountDetails = "${this.clientArrears.payableAccounts}" .insufficient = "${this.insufficient}" .label= "${`Please select`}">
 			</insure-account-select>
 
 			
