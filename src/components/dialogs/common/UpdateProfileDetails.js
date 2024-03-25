@@ -89,7 +89,7 @@ export class UpdateProfileDetails extends Component {
 					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
 					employmentStatus: getKey(EMPLOYMENT_STATUS, employmentStatus),
 					employmentType: getKey(EMPLOYMENT_TYPE[employmentStatus], this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
-					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
+					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER] || ``,
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
 					sourceOfFunds: getKey(SOURCE_FUNDS[employmentStatus], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
@@ -525,7 +525,6 @@ export class UpdateProfileDetails extends Component {
 			capitec-text-field {
 				height: 75px;
 				width: 275px;
-				height: 75px;
 				margin-bottom: auto;
 				margin-top:8px;
 				--theme-input-label-font-size: 12px;
@@ -539,7 +538,6 @@ export class UpdateProfileDetails extends Component {
 			capitec-select {
 				height: 75px;
 				width: 275px;
-				height: 75px;
 				margin-bottom: auto;
 				margin-top: 8px;
 				--theme-input-label-font-size: 12px;
@@ -554,7 +552,7 @@ export class UpdateProfileDetails extends Component {
 				position: absolute;
 				width: 275px;
 				margin-bottom: 28px;
-				margin-top: 12px;
+				margin-top: 8px;
 				--theme-input-label-font-size: 12px;
 				--theme-input-padding-bottom: 8px;
 				--theme-select-options-max-height: 286px;
@@ -930,7 +928,7 @@ export class UpdateProfileDetails extends Component {
 				</horizon-select-icon>
 				<capitec-text-field 
 					label="Employer"
-					.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName, `_`)}
+					.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName)}
 					@key-input=${(e) => this._getEmployersList(e)}
 					error=${this._validateEmploymentDetails()}
 					?disabled=${this.updatedClientDetails.employmentStatus !== `EMPLOYED`}>
@@ -939,7 +937,7 @@ export class UpdateProfileDetails extends Component {
 
 			<capitec-select 
 				label="Industry"
-				.value=${this.updatedClientDetails.industryCode} 
+				.value=${getValue(INDUSTRY_CODE, this.updatedClientDetails.industryCode)} 
 				.items="${INDUSTRY_CODE.filter(code => !isNullorEmpty(code.value))}"
 				display-field="value"
 				id-field="key"
