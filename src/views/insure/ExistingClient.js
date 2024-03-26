@@ -1049,11 +1049,8 @@ export class ExistingClient extends InsureViewBase {
 				]
 			}
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1063,9 +1060,7 @@ export class ExistingClient extends InsureViewBase {
 		this.successPageMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.selectedFuneralPolicyContractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
-		console.log(`1.4 - `, this.selectedFuneralPolicyContractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5 - `, this.renderMode);
 	}
 
 	/**
@@ -1146,7 +1141,6 @@ export class ExistingClient extends InsureViewBase {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
 
-		console.log(`1.0 - `, documents);
 
 		const acceptPlanRequest =
 		{
@@ -1155,27 +1149,20 @@ export class ExistingClient extends InsureViewBase {
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.3 - `, this.contractReference);
 		await this._generateDocumentsFuneralReissue(true);
-		console.log(`1.4 - After documents for ReIssue`);
 
 		this.successPageMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.5`, this.contractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5`, this.renderMode);
 	}
 
 	/**
