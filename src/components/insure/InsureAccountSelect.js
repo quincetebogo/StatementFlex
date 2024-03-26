@@ -208,7 +208,7 @@ class InsureAccountSelect extends Component {
 
 				}
 
-				.select-header-insufficient > capitec-content-box{
+				.select-header-insufficient > capitec-content-box {
 					border: 1px solid #ce1b1b;
 					border-radius: 3px;
 					height: 75px;
