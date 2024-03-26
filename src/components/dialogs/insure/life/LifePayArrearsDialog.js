@@ -129,8 +129,6 @@ class LifePayArrearsDialog extends Component {
 			});
 		}
 		this.payableAccounts = this.lifePolicyArrears.payableAccounts;
-		// this.selectedAccountType = `Savings`;
-		// this.accountSelected = true;
 
 		// Suffecient funds?
 
@@ -254,8 +252,6 @@ class LifePayArrearsDialog extends Component {
 	 * @returns {void}
 	 */
 	_settleArrearsValidate() {
-		console.log(`in _settleArrearsValidate()`);
-		console.log(`this.totalSelectedArrears :>> `, this.totalSelectedArrears);
 		if (this.totalSelectedArrears === 0) {
 			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ARREARS_SELECTED;
 			return;
@@ -510,23 +506,6 @@ class LifePayArrearsDialog extends Component {
 				</capitec-content-box>
 				<div class="arrears-form-body">
 					<capitec-label type="title" label="Settle from account" id="arrears-title-label"></capitec-label>
-					<!-- Single account - temporary until service can provide payable accounts -->
-					<!-- <div class="account-selectbox">
-						<div class="select-header">
-							<capitec-content-box layout="horizontal" valign="center" noScroll  halign="left"  style="width: 490px">
-								<div> 
-									<capitec-icon size="default" icon="product/transact"></capitec-icon>
-								</div>
-								<div style="display: flex; flex-direction: column;">
-									<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
-									<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
-								</div>
-								<div> 
-									<capitec-label type="subtitle" label="${formatCurrency(this.defaultSavingsAccountAvailableBalance)}" style="position: relative; font-weight: bold;"></capitec-label>
-								</div>
-							</capitec-content-box>
-						</div>
-					</div> -->
 
 					<insure-account-select 
 						@option-selected="${(e) => this._accountSelected(e)}" data-automation-id="horizon-insure-pay-premium-dialog-accounts"
