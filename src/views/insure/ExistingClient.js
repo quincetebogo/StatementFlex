@@ -1685,6 +1685,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToLifePolicyPremiumHistory(e) {
+		super.setInsureIncident(`life-cover-premium-history`);
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		await this._retrieveLifePolicyPremiumHistory();
@@ -1697,6 +1698,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	_goToLifeSMSHistory(e) {
+		super.setInsureIncident(`life-cover-sms-history`);
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SMS_HISTORY);
