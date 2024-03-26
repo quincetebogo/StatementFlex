@@ -403,7 +403,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -452,7 +452,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -513,7 +513,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
