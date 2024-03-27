@@ -182,6 +182,7 @@ class FuneralPolicyEstimate extends Component {
 		if (!isValid) {
 			this.requestUpdate();
 		} else {
+			console.log(`Fields are valid`);
 			if (this.newTotalPremium !== ``) {
 				this.estimate.totalPremium = this.newTotalPremium;
 			} else {
@@ -192,19 +193,24 @@ class FuneralPolicyEstimate extends Component {
 			};
 
 			if (printOrCalculate === 1) {
+				console.log(`Estimate Only`);
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
 					this.estimate.totalPremium = 0;
+					this.requestUpdate();
 					return;
 				}
 				this.estimate = estimateResponse;
 			} else {
+				console.log(`Estimate + Printout`);
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
 					this.estimate.totalPremium = 0;
+					this.requestUpdate();
 					return;
 				}
 				this.estimate = estimateResponse;
+				
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
