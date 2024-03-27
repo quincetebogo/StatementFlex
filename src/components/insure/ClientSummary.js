@@ -797,12 +797,14 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	async _openHealthQuestionsDialog(selectedPolicy) {
+		this.setInsureIncident(`life-cover-increase-cover`);
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
 		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeHealthQuestionsDialog = true;
 	}
 
 	_openAllocateCoverDialog(selectedPolicy) {
+		this.setInsureIncident(`life-cover-manage-cover`);
 		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeAllocateCoverDialog = true;
 		this.showLifeHealthQuestionsDialog = false;
