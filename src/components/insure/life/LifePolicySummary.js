@@ -414,7 +414,7 @@ class LifePolicySummary extends Component {
 						value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getPolicyCoverAmount(this.selectedLifePolicy.pockets)))}">
 					</horizon-label>
 					<horizon-label label="Premium"
-						value="${formatCurrency(this.selectedLifePolicy?.totalPremium)}">
+						value="${this.selectedLifePolicy?.policyStatus === `Cancelled` ? formatCurrency(this.selectedLifePolicy?.nextCollectionAmount) : formatCurrency(this.selectedLifePolicy?.totalPremium)}">
 					</horizon-label>
 					${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`
 						<horizon-label

@@ -194,6 +194,11 @@ class FuneralPolicyEstimate extends Component {
 			if (printOrCalculate === 1) {
 				this.estimate = await this.calculateEstimate({ detail: request });
 			} else {
+				const estimateResponse = await this.calculateEstimate({ detail: request });
+				if (estimateResponse === null) {
+					return;
+				}
+				this.estimate = estimateResponse;
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
@@ -595,7 +600,7 @@ class FuneralPolicyEstimate extends Component {
 	_renderLeftColumn() {
 		return html`
 		<div id="insure-calc-column-left">
-			${this.estimate.lifesAssured?.map((lifeAssured, index) => html`
+			${this.estimate?.lifesAssured?.map((lifeAssured, index) => html`
 			<div class="calc-card" id=${index !== 0 ? `calc-card-other` : ``}>
 				${index !== 0 ? html`
 				<div class="calc-card-header">
