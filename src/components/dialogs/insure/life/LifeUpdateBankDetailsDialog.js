@@ -374,82 +374,13 @@ class LifeUpdateBankDetailsDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			${this.currentStep === STEPS.PAYMENT_DETAILS ? html`
-				<div class="banking-form-body">
-					<div>
-						<capitec-select 
-							label="Collection Day" 
-							display-field="text" 
-							id-field="text"
-							class="banking-form-input"
-							.items="${this.collectionDayOptions}"
-							.value="${this._getCollectionDay()}"
-							@value-changed = "${(e) => this._collectionDayChanged(e)}">
-						</capitec-select>
-					</div>
-					<div>
-						<capitec-select 
-							label="Bank" 
-							display-field="text" 
-							id-field="code"
-							class="banking-form-input"
-							.items="${this.bankNameOptions}"
-							value="${this._getBankName()}"
-							@value-changed = "${(e) => this._bankNameChanged(e)}">
-						</capitec-select>
-						<capitec-text-field 
-							label="Account Number" 
-							type="numeric" 
-							class="banking-form-input"
-							value="${this.updatedPolicy?.bankDetails?.accountNumber}"
-							error = "${this.accountNumberErrorMsg}"
-							@value-changed = "${(e) => this._accountNumChanged(e)}">
-						</capitec-text-field>
-					</div>
-
-					<div>
-						<capitec-select 
-							label="Account Type" 
-							display-field="text"
-							id-field="code" 
-							class="banking-form-input"
-							.items="${this.accountTypeOptions}"
-							value="${this.updatedPolicy?.bankDetails?.accountType}"
-							@value-changed = "${(e) => this._accountTypeChanged(e)}">
-						</capitec-select>
-						<capitec-text-field 
-							label="Branch Code" 
-							type="numeric" 
-							class="banking-form-input"
-							value="${this.updatedPolicy?.bankDetails?.branchCode}"
-							?disabled = "${this.branchCodeDisabled}"
-							@value-changed = "${(e) => this._branchCodeChanged(e)}">
-						</capitec-text-field>
-					</div>
-				</div>
-			` : html``}
-
-			${this.currentStep === STEPS.AGREEMENT ? html`
-				<div class="agreement-form-body">
-					<capitec-content-box>
-						<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Cover" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
-							<capitec-label slot="detail" type="strong" label="View Document">
-							</capitec-label>
-						</horizon-product-tile>
-
-						${this._renderEmailAlertBanner()}
-						<horizon-email-input
-							labelOne="Enter email address"
-							labelTwo="Confirm email"
-							email="${this.email}"
-							confirmEmail="${this.confirmEmail}"
-							?showRequiredError="${this.emailAlertBannerMessage === EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED}"
-							@value-changed="${(e) => this._emailValueChanged(e)}"
-							.callBack="${() => this._clearAlerts()}">
-						</horizon-email-input>
-					</capitec-content-box>
-				</div>
-			` : html``}
+			<div style="${this.currentStep === STEPS.PAYMENT_DETAILS ? `display: block` : `display: none`}">
+					${this._renderPaymentDetailsPage()}
+			</div>
+				
+			<div style="${this.currentStep === STEPS.AGREEMENT ? `display: block` : `display: none`}">
+					${this._renderAgreementPage()}
+			</div>
 		`;
 	}
 
@@ -475,6 +406,87 @@ class LifeUpdateBankDetailsDialog extends Component {
 			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._sendEmail()}">
 			</capitec-button>
 		` : html``}
+		`;
+	}
+
+	_renderPaymentDetailsPage() {
+		return html`
+		<div class="banking-form-body" >
+			<div>
+				<capitec-select
+					label="Collection Day" 
+					display-field="text" 
+					id-field="text"
+					class="banking-form-input"
+					.items="${this.collectionDayOptions}"
+					.value="${this._getCollectionDay()}"
+					@value-changed = "${(e) => this._collectionDayChanged(e)}">
+				</capitec-select>
+			</div>
+			<div>
+				<capitec-select 
+					label="Bank" 
+					display-field="text" 
+					id-field="code"
+					class="banking-form-input"
+					.items="${this.bankNameOptions}"
+					value="${this._getBankName()}"
+					@value-changed = "${(e) => this._bankNameChanged(e)}">
+				</capitec-select>
+				<capitec-text-field 
+					label="Account Number" 
+					type="numeric" 
+					class="banking-form-input"
+					value="${this.updatedPolicy?.bankDetails?.accountNumber}"
+					error = "${this.accountNumberErrorMsg}"
+					@value-changed = "${(e) => this._accountNumChanged(e)}">
+				</capitec-text-field>
+			</div>
+
+			<div>
+				<capitec-select 
+					label="Account Type" 
+					display-field="text"
+					id-field="code" 
+					class="banking-form-input"
+					.items="${this.accountTypeOptions}"
+					value="${this.updatedPolicy?.bankDetails?.accountType}"
+					@value-changed = "${(e) => this._accountTypeChanged(e)}">
+				</capitec-select>
+				<capitec-text-field 
+					label="Branch Code" 
+					type="numeric" 
+					class="banking-form-input"
+					value="${this.updatedPolicy?.bankDetails?.branchCode}"
+					?disabled = "${this.branchCodeDisabled}"
+					@value-changed = "${(e) => this._branchCodeChanged(e)}">
+				</capitec-text-field>
+			</div>
+		</div>
+		`;
+	}
+
+	_renderAgreementPage() {
+		return html`
+		<div class="agreement-form-body">
+			<capitec-content-box>
+				<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Cover" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
+					<capitec-label slot="detail" type="strong" label="View Document">
+					</capitec-label>
+				</horizon-product-tile>
+
+				${this._renderEmailAlertBanner()}
+				<horizon-email-input
+					labelOne="Enter email address"
+					labelTwo="Confirm email"
+					email="${this.email}"
+					confirmEmail="${this.confirmEmail}"
+					?showRequiredError="${this.emailAlertBannerMessage === EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_REQUIRED}"
+					@value-changed="${(e) => this._emailValueChanged(e)}"
+					.callBack="${() => this._clearAlerts()}">
+				</horizon-email-input>
+			</capitec-content-box>
+		</div>
 		`;
 	}
 
