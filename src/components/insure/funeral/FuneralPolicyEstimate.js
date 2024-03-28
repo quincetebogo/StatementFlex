@@ -229,7 +229,7 @@ class FuneralPolicyEstimate extends Component {
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
 				
-				this.estimate = estimateResponse.totalPremium;
+				this.estimate.totalPremium = estimateResponse.totalPremium;
 				console.log(`LAST set:`);
 				console.log(this.estimate);
 				this.requestUpdate();
