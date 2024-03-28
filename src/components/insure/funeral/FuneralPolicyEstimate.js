@@ -207,7 +207,8 @@ class FuneralPolicyEstimate extends Component {
 					return;
 				}
 				this.estimate = estimateResponse;
-				
+				this.requestUpdate();
+
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
