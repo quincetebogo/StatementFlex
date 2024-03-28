@@ -143,6 +143,11 @@ class FuneralPolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	async _calculateOrPrintEstimate(printOrCalculate) {
+
+		console.log(`Estimate BEFORE`);
+		console.log(this.estimate);
+		console.log(JSON.stringify(this.estimate));
+
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_CALCULATE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
@@ -185,7 +190,7 @@ class FuneralPolicyEstimate extends Component {
 			if (this.newTotalPremium !== ``) {
 				this.estimate.totalPremium = this.newTotalPremium;
 			} else {
-				delete this.estimate.totalPremium;
+				// delete this.estimate.totalPremium;
 			}
 			const request = {
 				...this.estimate
@@ -199,6 +204,10 @@ class FuneralPolicyEstimate extends Component {
 					return;
 				}
 				this.estimate = estimateResponse;
+
+				console.log(`Estimate AFTER just CALC`);
+				console.log(this.estimate);
+				console.log(JSON.stringify(this.estimate));
 			} else {
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
@@ -207,12 +216,19 @@ class FuneralPolicyEstimate extends Component {
 					return;
 				}
 				this.estimate = estimateResponse;
+				console.log(`Estimate AFTER CALC & PRINT CALC`);
+				console.log(this.estimate);
+				console.log(JSON.stringify(this.estimate));
 				this.requestUpdate();
 
 				const printEstimateResponse = await this.printEstimate({ detail: request });
+				console.log(`Estimate AFTER PRINT`);
+				console.log(this.estimate);
+				console.log(JSON.stringify(this.estimate));
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
 			}
+			console.log(`FINALLY`);
 			this.requestUpdate();
 		}
 	}
