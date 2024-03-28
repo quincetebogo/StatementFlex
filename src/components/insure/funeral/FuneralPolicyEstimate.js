@@ -215,18 +215,24 @@ class FuneralPolicyEstimate extends Component {
 					this.requestUpdate();
 					return;
 				}
+				console.log(`Estimate response`);
+				console.log(estimateResponse);
 				this.estimate = estimateResponse;
 				console.log(`Estimate AFTER CALC & PRINT CALC`);
 				console.log(this.estimate);
 				console.log(JSON.stringify(this.estimate));
-				this.requestUpdate();
-
+				
 				const printEstimateResponse = await this.printEstimate({ detail: request });
 				console.log(`Estimate AFTER PRINT`);
 				console.log(this.estimate);
 				console.log(JSON.stringify(this.estimate));
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
+				
+				this.estimate = estimateResponse.totalPremium;
+				console.log(`LAST set:`);
+				console.log(this.estimate);
+				this.requestUpdate();
 			}
 			console.log(`FINALLY`);
 			this.requestUpdate();
