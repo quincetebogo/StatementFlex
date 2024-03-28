@@ -927,7 +927,7 @@ export class ExistingClient extends InsureViewBase {
 		if (!result.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(result.exception);
-			return;
+			return null;
 		}
 		super.isOnlyProductEnquiry = false;
 		return result;

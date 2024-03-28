@@ -143,11 +143,6 @@ class FuneralPolicyEstimate extends Component {
 	 * @returns {void}
 	 */
 	async _calculateOrPrintEstimate(printOrCalculate) {
-
-		console.log(`Estimate BEFORE`);
-		console.log(this.estimate);
-		console.log(JSON.stringify(this.estimate));
-
 		this._telemetry.logEvent(this.telemetryEvents.ESTIMATE_CALCULATE, {
 			"screen": TelemetryScreen.INSURE_ESTIMATE,
 			"next-screen": null
@@ -189,9 +184,7 @@ class FuneralPolicyEstimate extends Component {
 		} else {
 			if (this.newTotalPremium !== ``) {
 				this.estimate.totalPremium = this.newTotalPremium;
-			} else {
-				// delete this.estimate.totalPremium;
-			}
+			} 
 			const request = {
 				...this.estimate
 			};
@@ -204,10 +197,6 @@ class FuneralPolicyEstimate extends Component {
 					return;
 				}
 				this.estimate = estimateResponse;
-
-				console.log(`Estimate AFTER just CALC`);
-				console.log(this.estimate);
-				console.log(JSON.stringify(this.estimate));
 			} else {
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
@@ -215,26 +204,18 @@ class FuneralPolicyEstimate extends Component {
 					this.requestUpdate();
 					return;
 				}
-				console.log(`Estimate response`);
-				console.log(estimateResponse);
 				this.estimate = estimateResponse;
-				console.log(`Estimate AFTER CALC & PRINT CALC`);
-				console.log(this.estimate);
-				console.log(JSON.stringify(this.estimate));
-				
 				const printEstimateResponse = await this.printEstimate({ detail: request });
-				console.log(`Estimate AFTER PRINT`);
-				console.log(this.estimate);
-				console.log(JSON.stringify(this.estimate));
+				if (printEstimateResponse === null) {
+					this.requestUpdate();
+					return;
+				}
+
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
-				
 				this.estimate.totalPremium = estimateResponse.totalPremium;
-				console.log(`LAST set:`);
-				console.log(this.estimate);
 				this.requestUpdate();
 			}
-			console.log(`FINALLY`);
 			this.requestUpdate();
 		}
 	}
