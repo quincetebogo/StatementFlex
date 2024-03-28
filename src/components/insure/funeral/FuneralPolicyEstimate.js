@@ -182,7 +182,6 @@ class FuneralPolicyEstimate extends Component {
 		if (!isValid) {
 			this.requestUpdate();
 		} else {
-			console.log(`Fields are valid`);
 			if (this.newTotalPremium !== ``) {
 				this.estimate.totalPremium = this.newTotalPremium;
 			} else {
@@ -193,7 +192,6 @@ class FuneralPolicyEstimate extends Component {
 			};
 
 			if (printOrCalculate === 1) {
-				console.log(`Estimate Only`);
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
 					this.estimate.totalPremium = 0;
@@ -202,7 +200,6 @@ class FuneralPolicyEstimate extends Component {
 				}
 				this.estimate = estimateResponse;
 			} else {
-				console.log(`Estimate + Printout`);
 				const estimateResponse = await this.calculateEstimate({ detail: request });
 				if (estimateResponse === null) {
 					this.estimate.totalPremium = 0;
@@ -683,7 +680,7 @@ class FuneralPolicyEstimate extends Component {
 						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-label label="Total estimated monthly premium"></capitec-label>
-						<capitec-label label="${formatCurrency(this.estimate?.totalPremium)}" class="calc-premium-total"
+						<capitec-label label="${isNaN(this.estimate?.totalPremium) ? `R0.00` : formatCurrency(this.estimate?.totalPremium)}" class="calc-premium-total"
 							data-automation-id="insure-estimate-heading-total-premium">
 						</capitec-label>
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
@@ -693,14 +690,14 @@ class FuneralPolicyEstimate extends Component {
 						<div class="calc-life-list">
 							<capitec-label label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}">
 							</capitec-label>
-							<capitec-label label="${formatCurrency(life.premium)}"
+							<capitec-label label="${isNaN(life?.premium) ? `R0.00` : formatCurrency(life?.premium)}"
 								data-automation-id="insure-estimate-list-premium"></capitec-label>
 						</div>
 						<hr>`)}
 			
 						<div class="calc-life-list">
 							<capitec-label label="Total premium amount" class="stronger"></capitec-label>
-							<capitec-label label="${formatCurrency(this?.estimate?.totalPremium)}" class="stronger"
+							<capitec-label label="${isNaN(this.estimate?.totalPremium) ? `R0.00` : formatCurrency(this.estimate?.totalPremium)}" class="stronger"
 								data-automation-id="insure-estimate-list-total-premium"></capitec-label>
 						</div>
 					</div>
