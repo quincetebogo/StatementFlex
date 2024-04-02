@@ -61,6 +61,7 @@ export default class InsureChannelServiceMocks {
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/funeral/InsureArrears`).catch(err => logError(err)));
+		this.estimateMocks = await this._loadMockModule(this.estimateMocks, `insureCalculateEstimate`, () => import(`../mocks/insure/funeral/InsureCalculateEstimate`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
@@ -279,6 +280,13 @@ export default class InsureChannelServiceMocks {
 	insureArrears() {
 		if (this._mockSettings.insureArrears.positiveCase) {
 			return this.arrearsMocks.InsureArrears;
+		}
+		return null;
+	}
+
+	insureCalculateEstimate() {
+		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
+			return this.estimateMocks.InsureCalculateEstimate;
 		}
 		return null;
 	}
