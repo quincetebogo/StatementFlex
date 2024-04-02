@@ -225,7 +225,7 @@
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},
 		"insurePolicyTransactionHistory": {
@@ -465,6 +465,10 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCalculateEstimate": {
 			"enabled": false,
 			"positiveCase": true
 		}
