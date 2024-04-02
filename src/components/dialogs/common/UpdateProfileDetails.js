@@ -89,7 +89,7 @@ export class UpdateProfileDetails extends Component {
 					emailAddress: this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL],
 					employmentStatus: getKey(EMPLOYMENT_STATUS, employmentStatus),
 					employmentType: getKey(EMPLOYMENT_TYPE[employmentStatus], this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_TYPE]),
-					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER] || ``,
+					employerName: this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMPLOYER],
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
 					sourceOfFunds: getKey(SOURCE_FUNDS[employmentStatus], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
@@ -176,19 +176,14 @@ export class UpdateProfileDetails extends Component {
 
 	_empStatusChange(e) {
 		this.updatedClientDetails.employmentStatus = e.detail.new.key;
-
-		if (this.updatedClientDetails.employmentStatus !== `EMPLOYED`) {
-			this.updatedClientDetails.employerName = this.updatedClientDetails.employmentStatus;
-		} else {
-			this.updatedClientDetails.employerName = ``;
-		}
+		this.updatedClientDetails.employerName = ``;
 
 		this._validateEmploymentDetails();
 		// Emptying the below values as they are dependent on Employement status
-		
 		this.updatedClientDetails.industryCode = ``;
 		this.updatedClientDetails.employmentType = ``;
 		this.updatedClientDetails.sourceOfFunds = ``;
+		this.displayIndustryCode = false;
 
 		this.requestUpdate();
 	}
@@ -398,7 +393,7 @@ export class UpdateProfileDetails extends Component {
 	}
 
 	_validateEmploymentDetails() {
-		if (this.updatedClientDetails.employmentStatus === `EMPLOYED` && isNullorEmpty(this.updatedClientDetails.employerName)) {
+		if (isNullorEmpty(this.updatedClientDetails.employerName)) {
 			return ERROR.EMP_NAME;
 		}
 		return ``;
@@ -909,31 +904,7 @@ export class UpdateProfileDetails extends Component {
 				@value-changed=${(e) => this._detailsChange(`employmentType`, e.detail.new.key)}>
 			</capitec-select>
 			
-			<div>
-				<horizon-select-icon 
-					label=""
-					id="emp-select"
-					.value=${this.updatedClientDetails.employerName} 
-					.items="${this.employerList}"
-					display-field="employerName"
-					id-field="employerNumber"
-					@value-changed=${(e) => this._employerChange(e.detail.new.employerName)}
-					?disabled=${this.updatedClientDetails.employmentStatus !== `EMPLOYED`}
-					customizeNoResults>
-					<div slot="no-results">
-						<capitec-label class="label-no-results" label="No matching results"></capitec-label> 
-						<capitec-button class="add-emp-button" label="Add Employer" @click="${() => this.showAddEmployerModal = true}">
-						</capitec-button>
-					</div>
-				</horizon-select-icon>
-				<capitec-text-field 
-					label="Employer"
-					.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName)}
-					@key-input=${(e) => this._getEmployersList(e)}
-					error=${this._validateEmploymentDetails()}
-					?disabled=${this.updatedClientDetails.employmentStatus !== `EMPLOYED`}>
-				</capitec-text-field>
-			</div>
+			${this._renderEmployerName()}
 
 			<capitec-select 
 				label="Industry"
@@ -947,6 +918,46 @@ export class UpdateProfileDetails extends Component {
 			</capitec-select>
 			`
 		: html``;
+	}
+
+	_renderEmployerName() {
+        return this.updatedClientDetails.employmentStatus === `EMPLOYED`
+		? html`
+		    <div>
+				<horizon-select-icon 
+					label=""
+					id="emp-select"
+					.value=${this.updatedClientDetails.employerName} 
+					.items="${this.employerList}"
+					display-field="employerName"
+					id-field="employerNumber"
+					@value-changed=${(e) => this._employerChange(e.detail.new.employerName)}
+					customizeNoResults>
+					<div slot="no-results">
+						<capitec-label class="label-no-results" label="No matching results"></capitec-label> 
+						<capitec-button class="add-emp-button" label="Add Employer" @click="${() => this.showAddEmployerModal = true}">
+						</capitec-button>
+					</div>
+				</horizon-select-icon>
+				<capitec-text-field 
+					label="Employer"
+					.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName)}
+					@key-input=${(e) => this._getEmployersList(e)}
+					error=${this._validateEmploymentDetails()}>
+				</capitec-text-field>
+			</div>`
+		: html`
+		    <capitec-select 
+				label="Employer"
+				.value=${formatStringAsPascalCase(this.updatedClientDetails.employerName.replace(`_`, ` `))} 
+				.items="${EMPLOYMENT_STATUS.filter(status => status.key === this.updatedClientDetails.employmentStatus)}"
+				display-field="value"
+				id-field="key"
+				error=${this._validateEmploymentDetails()}
+				?disabled="${!isNullorEmpty(this.updatedClientDetails.employerName)}"
+				@value-changed=${(e) => this._detailsChange(`employerName`, e.detail.new.key)}>
+			</capitec-select>
+		`;
 	}
 
 	_renderIncomeDetails() {

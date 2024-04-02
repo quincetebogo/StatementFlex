@@ -216,7 +216,12 @@ export class ViewProfileDetails extends ViewBase {
 		// status = ``, type = PERMANENT_WORKER -> type = `` // In valid/Deficient case
 		// status = UNEMPLOYED, type = FULL_TIME_STUDENT => type = Full time student // Valid case
 		const employmentType = employmentStatus ? getValue(EMPLOYMENT_TYPE[employmentStatus], details.employmentType) : ``;
-		const employerName = INVALID_VALUE.EMPLOYER_NAME.includes(details.employerName) ? `` : details.employerName;
+		let employerName = details.employerName;
+		
+		if (INVALID_VALUE.EMPLOYER_NAME.includes(details.employerName) || (details.employmentStatus !== `EMPLOYED` && details.employerName?.replaceAll(`_`, ` `)?.toLowerCase() !== employmentStatus?.toLowerCase())) {
+			employerName = ``;
+		}
+	
 		const industryCode = getValue(INDUSTRY_CODE, details.industryCode);
 		const sourceOfFunds = employmentStatus ? getValue(SOURCE_FUNDS[employmentStatus], details.sourceOfFunds) : ``;
 
