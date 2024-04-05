@@ -223,6 +223,12 @@ export class Disputes extends Component {
 		this.date = ``;
 		this.input = ``; // Text or currency number
 		this.currencyCode = ``;
+
+		// Clearing the option selection on radio-group component
+		const radioGroup = this.shadowRoot.getElementById(`answers-radio-group`);
+		if (radioGroup) {
+			radioGroup._selected = -1;
+		}
 	}
 
 	_formatNextQusRequest() {
@@ -654,13 +660,12 @@ export class Disputes extends Component {
 			<capitec-title-bar class="multiple-ans-option" type="clear" label="Choose an option"></capitec-title-bar>
 			<capitec-card class="multiple-ans-option-card">
 				<capitec-content-box>
-					<capitec-radio-group layout="vertical" gap="clear" class="multiple-option-radio-group">
+					<capitec-radio-group id="answers-radio-group" layout="vertical" gap="clear" class="multiple-option-radio-group">
 						${answers.map(item => html`
 							<capitec-radio
 								label="${item.clientAnswerWording || item.agentAnswerWording}"
 								@value-change="${() => this._answerSelected(item.answerId)}"
-								?checked="${this.selectedAnswer === item.answerId}"
-								?disabled="${Boolean(this.selectedAnswer)}">
+								?checked="${this.selectedAnswer === item.answerId}">
 							</capitec-radio>
 						`)}
 					</capitec-radio-group>

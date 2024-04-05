@@ -175,7 +175,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
             const returnValue = await this.savingsService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 
-            if (returnValue.succeeded) {
+			if (returnValue.succeeded) {
                 this.landingPageInfo = returnValue.result;
 
 				// Do not create subs inc on performing return to screen
@@ -185,6 +185,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 					// setting inc status to not started for landing page needs
 					this._setIncidentNotstarted();
+				} else if (this.horizonStore.getScreenDetails()?.returningFromScreen === `card-disputes-success-done`) {
+					this.horizonStore.clearScreenDetails();
+					this.horizonStore.clearReturnScreen();
 				}
 
                 // Now we can update the information on the product buttons
@@ -193,9 +196,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
                 this.renderMode = RENDER_MODE.MAIN_PAGE;
             }
         }
-
-        this._loading = false;
-        this._performReturnToScreen();
+		this._loading = false;
+		this._performReturnToScreen();
     }
 
     _updateLeftBar() {
@@ -425,7 +427,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
 
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
