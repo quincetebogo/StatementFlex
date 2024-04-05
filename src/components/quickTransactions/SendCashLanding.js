@@ -152,9 +152,12 @@ export class SendCashLanding extends Component {
 		let fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
-
-		if (toDate.diff(fromDate, [`days`]).days > 30) {
-			toDate = fromDate.plus({ days: 30 });
+		
+		const maxDaysDifference = 90;
+		const daysDifference = toDate.diff(fromDate, `days`).days;
+		
+		if (daysDifference > maxDaysDifference) {
+			toDate = fromDate.plus({ days: maxDaysDifference });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
 				this.endDate = currentDateTime;
@@ -168,15 +171,15 @@ export class SendCashLanding extends Component {
 			}
 		} else if (e.detail.new.endDate === null || this.endDate === ``) {
 			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 30 });
-			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
+			toDate = fromDate.plus({ days: maxDaysDifference });
+			if (toDate.diff(currentDateTime, `days`).days > 0) {
 				this.endDate = currentDateTime;
 			} else {
 				this.endDate = toDate;
 			}
 		} else if (e.detail.new.startDate === null || this.startDate === ``) {
 			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
+			fromDate = toDate.minus({ days: maxDaysDifference });
 			this.startDate = fromDate;
 		} else {
 			this.startDate = fromDate;
@@ -186,6 +189,8 @@ export class SendCashLanding extends Component {
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
 
 		await this._loadFilteredVouchers();
+		fromDate = null;
+		toDate = null; 
 
 	}
 
