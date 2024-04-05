@@ -55,6 +55,8 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	connectedCallback() {
 		super.connectedCallback();
 
+		const totalArrearsPayable = this.accessFacilityDetails.totalArrearsPayable || `0`;
+
 		// formatting credit card details received from service
 		this.accountDetails = {
 			'title': formatStringAsPascalCase(this.accessFacilityDetails.accountDescription),
@@ -68,7 +70,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Account status': this.accessFacilityDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.accessFacilityDetails.accountStatusDescription)
 			},
 			'arrears': {
-				'Total arrears amount': formatCurrency(this.accessFacilityDetails.totalArrearsPayable || `0`),
+				[totalArrearsPayable < 0 ? `Total advance amount` : `Total arrears amount`]: formatCurrency(totalArrearsPayable),
 				'Last arrears date': this.accessFacilityDetails.lastArrearsDate ? formatDate(this.accessFacilityDetails.lastArrearsDate, `dd mmm yyyy`) : `-`
 			},
 			'repayment': {

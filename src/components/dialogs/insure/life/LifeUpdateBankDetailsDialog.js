@@ -200,7 +200,10 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @returns {void}  
 	 */
 	async _updatePaymentDetails() {
-		await this.getLifeUpdateBankingDetailsDocument();
+		const result = await this.getLifeUpdateBankingDetailsDocument(this.updatedPolicy);
+		if (!result) {
+			return;
+		}
 		this.currentStep = STEPS.AGREEMENT;
 	}
 

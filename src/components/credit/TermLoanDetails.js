@@ -55,6 +55,9 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	connectedCallback() {
 		super.connectedCallback();
 		ineum(`page`, `Credit Term Loan Details Dialog`);
+
+		const totalArrearsPayable = this.termLoanDetails.totalArrearsPayable || `0`;
+
 		// formatting credit card details received from service
 		this.accountDetails = {
 			'title': formatStringAsPascalCase(this.termLoanDetails.accountDescription),
@@ -67,7 +70,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Account status': this.termLoanDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.termLoanDetails.accountStatusDescription)
 			},
 			'arrears': {
-				'Total arrears amount': formatCurrency(this.termLoanDetails.totalArrearsPayable || `0`),
+				[totalArrearsPayable < 0 ? `Total advance amount` : `Total arrears amount`]: formatCurrency(totalArrearsPayable),
 				'Last arrears date': this.termLoanDetails.lastArrearsDate ? formatDate(this.termLoanDetails.lastArrearsDate, `dd mmm yyyy`) : `-`,
 				'December arrears': formatCurrency(this.termLoanDetails.decemberArrears || `0`),
 				'Arrears excluding December arrears': formatCurrency(this.termLoanDetails.arrearsExcludingDecemberArrears || `0`)

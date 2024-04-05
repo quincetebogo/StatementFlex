@@ -1199,9 +1199,9 @@ export class CreditAccount extends ViewBase {
 	async _getFirstQusToDispute() {
 		const request = {
 			"transactions": this.tranToDispute.map((item) => ({
-								transactionID: item.transactionId,
-								transactionPostingDate: item.postingDate
-							})),
+				transactionID: item.transactionId,
+				transactionPostingDate: item.postingDate
+			})),
 			"incident": this.cueSheetIncident,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
