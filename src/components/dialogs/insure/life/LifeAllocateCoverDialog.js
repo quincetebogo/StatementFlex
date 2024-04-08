@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel, validateEmailAddressCombo } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -31,7 +31,9 @@ class LifeAllocateCoverDialog extends Component {
 
 	constructor() {
 		super();
+		this.updateMode = ``;
 		this.isNewOffer = false;
+		this.newOffer = {};
 
 		// Allocate values
 		this.educationCoverValue = 0;
@@ -76,6 +78,7 @@ class LifeAllocateCoverDialog extends Component {
 			updatedPolicy: { type: Object, state: true },
 			isNewOffer: { type: Boolean, state: true },
 			newOffer: { type: Object, state: true },
+			updateMode: { type: String, state: true },
 
 			dialogTitle: { type: String, state: true },
 			currentDialogStep: { type: Number, state: true },
@@ -138,6 +141,11 @@ class LifeAllocateCoverDialog extends Component {
 	 */
 	_initialise() {
 		this.updatedPolicy = { ...this.currentPolicy };
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			this.isNewOffer = false;
+		} else {
+			this.isNewOffer = true;
+		}
 
 		// Allocate
 		for (const pocket of this.updatedPolicy.pockets) {
@@ -1027,13 +1035,15 @@ class LifeAllocateCoverDialog extends Component {
 				${this.isNewOffer === true ? html`
 					<div class="offer-details-cell">
 						<div>New offer cover amount</div>
-						<div class="offer-details-value">${formatCurrency(100)}</div>
+						<div class="offer-details-value">${formatCurrency(this.newOffer?.maximumAllowedCover)}</div>
 					</div>
-				` : html``}
-				<div class="offer-details-cell">
-					<div>Current cover amount</div>
-					<div class="offer-details-value">${formatCurrency(this.currentPolicy?.totalPolicySumAssured)}</div>
-				</div>
+				` : html`
+					<div class="offer-details-cell">
+						<div>Current cover amount</div>
+						<div class="offer-details-value">${formatCurrency(this.currentPolicy?.totalPolicySumAssured)}</div>
+					</div>
+				`}
+				
 				<div class="offer-details-cell">
 					<div>Remaining</div>
 					<div class="offer-details-value">${formatCurrency(this.remainingCoverToAllocate)}</div>

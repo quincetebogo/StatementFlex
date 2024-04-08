@@ -1284,7 +1284,13 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _healthQuestionnaire() {
-		const resp = await this.insureLifeService.lifeHealthQuestionnaire();
+		const req = {
+			"dateOfBirth": this.callerInformation.birthdate,
+			"forceRefresh": true,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeHealthQuestionnaire(req);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -1293,9 +1299,10 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeAllowedCover(allowedCoverRequest) {
-		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
+		allowedCoverRequest.clientDateOfBirth = new Date(this.callerInformation.birthdate);
 		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
 
 		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
 		if (!resp.succeeded) {

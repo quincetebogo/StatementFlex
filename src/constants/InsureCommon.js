@@ -394,3 +394,15 @@ export const LIFE_ARREARS_STATUSES = Object.freeze({
 	PENDING: `PENDING`,
 	PAID: `PAID`
 });
+
+/**
+ * LIFE_UPDATE_MODE
+ *
+ * @readonly
+ * @enum {Object} LIFE_UPDATE_MODE
+ */
+export const LIFE_UPDATE_MODE = Object.freeze({
+	INCREASE: `INCREASE`,
+	ALLOCATE: `ALLOCATE`,
+	REISSUE: `REISSUE`
+});

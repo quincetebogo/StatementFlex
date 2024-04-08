@@ -108,6 +108,7 @@ export const insureLifeClientSummary = {
 			"totalPremium": 0.0000000000,
 			"nextCollectionDate": `2023-12-28T00:00:00+00:00`,
 			"nextCollectionAmount": 1163.2000000000,
+			"canReIssue": true,
 			"bankDetails": {
 				"accountName": `Justin Brennand`,
 				"branchCode": `470010`,
