@@ -1,10 +1,10 @@
-import { DETAILS_TYPE, EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
+import { DETAILS_TYPE, EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, INVALID_VALUE, SOURCE_FUNDS, getValue } from 'app/constants/ficaDetails';
+import { checkForValidSACellNumber, formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import { css, html } from 'platform/elements';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
 
@@ -210,7 +210,23 @@ export class ViewProfileDetails extends ViewBase {
 
 	_formatProfileData() {
 		const details = this.clientFICADetails;
+		const address1 = INVALID_VALUE.ADDRESS1.includes(details.residentialAddress.address1) ? `` : details.residentialAddress.address1;
+		const employmentStatus = getValue(EMPLOYMENT_STATUS, details.employmentStatus) || ``;
 
+		/* status = UNEMPLOYED, type = PERMANENT_WORKER -> type = `` ----> In valid/Deficient case
+		 * status = ``, type = PERMANENT_WORKER -> type = `` ----> In valid/Deficient case
+		 * status = UNEMPLOYED, type = FULL_TIME_STUDENT => type = Full time student ----> Valid case
+		*/
+		const employmentType = employmentStatus ? getValue(EMPLOYMENT_TYPE[employmentStatus], details.employmentType) : ``;
+		let employerName = details.employerName;
+		
+		if (INVALID_VALUE.EMPLOYER_NAME.includes(details.employerName) || (details.employmentStatus !== `EMPLOYED` && details.employerName?.replaceAll(`_`, ` `)?.toLowerCase() !== employmentStatus?.toLowerCase())) {
+			employerName = ``;
+		}
+	
+		const industryCode = getValue(INDUSTRY_CODE, details.industryCode);
+		const sourceOfFunds = employmentStatus ? getValue(SOURCE_FUNDS[employmentStatus], details.sourceOfFunds) : ``;
+		
 		this.clientDetails = {
 			[DETAILS_TYPE.PREFERENCES]: {
 				"Preferred Language": getValue(LANGUAGE_LIST, this.callerInformation.languagePreference) || this.callerInformation.languagePreference
@@ -223,7 +239,7 @@ export class ViewProfileDetails extends ViewBase {
 				"Date of birth": this.callerInformation.birthdate,
 				"Nationality": details.nationalityCode,
 				"ID number / Passport Number": this.callerInformation.southAfricanIDNumber,
-				"Cellphone number": this.callerInformation.verifiedTelephoneNumber
+				"Cellphone number": checkForValidSACellNumber(this.callerInformation.verifiedTelephoneNumber) ? this.callerInformation.verifiedTelephoneNumber : null
 			},
 			[DETAILS_TYPE.CONTACT_DETAILS]: {
 				"Home contact number": details.residentialPhoneNumber,
@@ -231,20 +247,20 @@ export class ViewProfileDetails extends ViewBase {
 				"Email address": this.callerInformation.emailId
 			},
 			[DETAILS_TYPE.ADDRESS]: {
-				"Address line 1": formatStringAsPascalCase(details.residentialAddress.address1),
+				"Address line 1": address1 && formatStringAsPascalCase(address1),
 				"Address line 2 (optional)": formatStringAsPascalCase(details.residentialAddress.address2),
 				"Suburb": formatStringAsPascalCase(details.residentialAddress.suburb),
 				"City": formatStringAsPascalCase(details.residentialAddress.city),
 				"Postal code": details.residentialAddress.postalCode
 			},
 			[DETAILS_TYPE.EMPLOYMENT_DETAILS]: {
-				"Employment status": getValue(EMPLOYMENT_STATUS, details.employmentStatus),
-				"Employment type": getValue(Object.values(EMPLOYMENT_TYPE).flat(), details.employmentType),
-				"Employer": details.employerName,
-				"Industry": getValue(INDUSTRY_CODE, details.industryCode)
+				"Employment status": employmentStatus,
+				"Employment type": employmentType,
+				"Employer": employerName,
+				"Industry": industryCode
 			},
 			[DETAILS_TYPE.INCOME_DETAILS]: {
-				"Source of funds": getValue(Object.values(SOURCE_FUNDS).flat(), details.sourceOfFunds),
+				"Source of funds": sourceOfFunds,
 				"Expected monthly income": getValue(INCOME_RANGE, details.incomeRange.toString()),
 				"Income frequency": getValue(INCOME_FREQUENCY, details.incomeFrequency)
 			}
