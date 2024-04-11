@@ -159,9 +159,13 @@ class LifeHealthQuestionsDialog extends Component {
 		}
 
 		// Reset Form and Fields
+		const radioGroup = this.shadowRoot.querySelector(`#questions-radio-group`);
 		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
+		console.log(radioGroup);
+		radioGroup.removeAttribute(`selected`);
 		radioButtons.forEach(radioButton => {
 			radioButton.checked = false;
+			radioButton.removeAttribute(`aria-checked`);
 		});
 
 		this.currentQuestionIndex++;
@@ -210,6 +214,7 @@ class LifeHealthQuestionsDialog extends Component {
 			
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
+					--theme-modal-body-padding: 20px 20px 0px 20px;
 				}
 
 				capitec-radio-group {
@@ -257,8 +262,8 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderContent() {
 		return html`
-			<capitec-modal type="form" header="${this.showQuestionnaireResults === false ? `Health Question ${this.currentQuestion?.groupId}` : `Questions Complete`}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
-				<div slot="body">
+			<capitec-modal type="form" header="${this.showQuestionnaireResults === false ? `Question ${this.currentQuestion?.groupId}` : `Questions Complete`}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+				<div slot="body" style="width: 500px">
 					${this._renderDialogBody()}
 				</div>
 				<div slot="footer">
@@ -282,15 +287,14 @@ class LifeHealthQuestionsDialog extends Component {
 							<label>${unsafeHTML(this.currentQuestion?.description)}</label>
 						</div>
 						<div style="margin-top:15px;">
-							<capitec-radio-group layout="vertical" style="margin-bottom: 10px;">
+							<capitec-radio-group layout="vertical" style="margin-bottom: 10px;" id="questions-radio-group">
 								${this.currentQuestion?.answers.map(answer => html`
 									<capitec-radio
 										class="visibleControl"
 										id="${answer.answerId}" 
 										label="${answer.detail}" 
 										name="${answer.answerId}" 
-										@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}"
-										>
+										@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}">
 									</capitec-radio>
 								`)}
 							</capitec-radio-group>

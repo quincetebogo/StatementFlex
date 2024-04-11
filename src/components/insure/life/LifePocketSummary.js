@@ -97,11 +97,11 @@ class LifePocketSummary extends Component {
 	 */
 	_getTitleBarLabel() {
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout - Beneficiaries`;
+			return `Monthly Income - Beneficiaries`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund - Beneficiaries`;
+			return `Children's Needs - Beneficiaries`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout - Beneficiaries`;
+			return `Lump Sum - Beneficiaries`;
 		}
 		return ``;
 	}
@@ -112,11 +112,11 @@ class LifePocketSummary extends Component {
 	 */
 	_getBeneficiaryInfoMessage() {
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Choose who gets a monthly payout (up to 2):`;
+			return `Choose who gets a Monthly Income (up to 6):`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
 			return `Choose whose education to pay for (up to 10):`;
 		} else if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Choose who gets a once off payout (up to 2):`;
+			return `Choose who gets a Lump Sum (up to 6):`;
 		}
 	}
 

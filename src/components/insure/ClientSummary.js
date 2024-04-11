@@ -2292,27 +2292,27 @@ class ClientSummary extends Component {
 							</td>
 						</tr>
 						<tr>
-							<td>Monthly Payout</td>
+							<td>Monthly Income</td>
 							<td>
 								<div>Your nominated beneficiaries will receive money every month, for 24 months</div>
 								<div>Nominate up to 2 adult beneficiaries</div>
 							</td>
 						</tr>
 						<tr>
-							<td>Once-off Payout</td>
+							<td>Lump Sum</td>
 							<td>
 								<div>Your nominated beneficiaries will each receive one lump sum payout</div>
 								<div>Nominate up to 2 adult beneficiaries</div>
 							</td>
 						</tr>
 						<tr>
-							<td>Education Fund</td>
+							<td>Children's Needs</td>
 							<td>
 								<div>The umbrella trust will make payments towards each nominated child's education needs</div>
 								<div>Nominate up to 10 minor beneficiaries (younger than 18 years of age)</div>
 								<br>
 								<div>How it works:</div>
-								<div>•When you pass, the Education Fund benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
+								<div>•When you pass, the Children's Needs benefit will be transferred to an umbrella trust which will be set up for the nominated beneficiaries</div>
 								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
 								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
