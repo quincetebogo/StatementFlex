@@ -433,7 +433,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _initialise() {
 
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus !== `non-client` && this.callerInformation.verificationStatus !== `unverified`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -462,6 +462,7 @@ export class Favourites extends SavingsAccountBase {
 					}
 				}
 			}
+			this._updateLeftBar();
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
@@ -484,7 +485,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
-		this._updateLeftBar();
+
 		this._performReturnToScreen();
 	}
 
