@@ -76,7 +76,11 @@ export class SendCashLanding extends Component {
 			disposeData: { type: Object },
 
 			startDate: { type: String, state: true },
-			endDate: { type: String, state: true }
+			endDate: { type: String, state: true },
+
+			shouldDisableByRole: { type: Object },
+			showTooltip: { type: Object },
+			getTooltipMessage: { type: Object }
 		};
 	}
 
@@ -494,6 +498,7 @@ export class SendCashLanding extends Component {
 					--theme-container-padding-bottom: 8px;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-right: 14px;
+					overflow: visible;
 				}
 				.footer > capitec-button {
 					border-radius: 5px;
@@ -819,15 +824,33 @@ export class SendCashLanding extends Component {
 		if (HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))) {
 			return html`
 				<capitec-content-box layout="horizontal" halign="right" valign="center" gap="clear" class="footer">
-					<capitec-button
-							type="primary" 
-							label="Place hold"
-							?hidden="${!HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))}"
-							@click="${() => this._onPlaceHoldClick(item)}">
-					</capitec-button>
+					${this._renderHoldButton(item)}
 				</capitec-content-box>
 			`;
 		}
+	}
+
+	_renderHoldButton(item) {
+		return this.showTooltip(`send-cash-place-hold`)
+		? html`<capitec-tooltip
+					message=${this.getTooltipMessage(`send-cash-place-hold`)}
+					position="left-edge">
+					<capitec-button
+							type="primary" 
+							label="Place hold"
+							?disabled="${this.shouldDisableByRole(`send-cash-place-hold`)}"
+							?hidden="${!HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))}"
+							@click="${() => this._onPlaceHoldClick(item)}">
+					</capitec-button>
+				</capitec-tooltip>`
+		: html`
+				<capitec-button
+						type="primary" 
+						label="Place hold"
+						?disabled="${this.shouldDisableByRole(`send-cash-place-hold`)}"
+						?hidden="${!HOLD_RESTRICTION_SET.has(formatStringAsPascalCase(item.voucherStatus.replace(`_`, ` `)))}"
+						@click="${() => this._onPlaceHoldClick(item)}">
+				</capitec-button>`;
 	}
 
 }

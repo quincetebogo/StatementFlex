@@ -60,11 +60,11 @@
 			"enabled" : false
 		},
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -72,7 +72,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -88,28 +88,28 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
@@ -161,11 +161,11 @@
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsPlanLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"getClientProducts": {
@@ -177,7 +177,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -236,12 +236,8 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureAuditTransactionHistory": {
-			"enabled": false,
-			"positiveCase": true
-		},
 		"creditOverview": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditBalance": {
@@ -277,7 +273,7 @@
 			"postiveCase": false
 		},
 		"loadKBA": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
@@ -321,7 +317,7 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
@@ -420,6 +416,30 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"insureLifeClientSummary": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeCancelPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeGetArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeGetPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifePayArrears": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeQuestionnaire": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"payshapPop": {
 			"enabled": false,
 			"positiveCase": true
@@ -429,6 +449,26 @@
 			"positiveCase": true
 		},
 		"insureElectOption": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getClientDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getEmployer" : {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifePremiumHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeSMSHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureGenericLifeDocument": {
 			"enabled": false,
 			"positiveCase": true
 		}
