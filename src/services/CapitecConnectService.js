@@ -163,7 +163,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	async rechargeHistory(qry_args = {}, pagination_args = {}, mockArgs = {}) {
 		var request = this.sanitizeJsonObject(
 			qry_args,
-			[ "cif", "channel", "msisdn", "amount", "type", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
+			[ "cif", "channel", "msisdn", "amount", "type", "accountNumber", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
 		);
 
 		var requestLogTitle = ``;
@@ -211,6 +211,33 @@ export class CapitecConnectService extends ChannelServiceBase {
 			request,
 			this.setToken(),
 			requestLogTitle,
+			null,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	async advanceBalances(qry_args = {}) {
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			[ "cif", "msisdn" ]
+		);
+
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: advanceBalances()");
+			return [];
+		}
+
+		const url = `/v2/api/horizon/advances/${request.cif}/accounts/search`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			'capitecConnectAdvanceBalance',
 			null,
 			null,
 			2000,
