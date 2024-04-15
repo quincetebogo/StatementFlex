@@ -2,20 +2,20 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the YWNBP Agreement
+ * Dialog that will display the Bene Agreement
  * 
  * Events Raised 
  * -------------
  * agreementAccepted
  * close-modal
+ * 
  *  
  * @export
- * @class YWNBPAgreementDialog
+ * @class BeneAgreementDialog
  * @extends {Component}
  */
-export class YWNBPAgreementDialog extends Component {
+export class BeneAgreementDialog extends Component {
 
-	
 	// #region INITIALIZE
 
 	constructor() {
@@ -35,7 +35,7 @@ export class YWNBPAgreementDialog extends Component {
 	}
 
 	/**
-	 * Cancel and close modal 
+	 * Cancel dialog 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
@@ -72,7 +72,7 @@ export class YWNBPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="You will not be paid" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Beneficiaries" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,11 +88,13 @@ export class YWNBPAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>You will not be paid:</strong>
 		<ul>
-			<li>if a Life Assured dies because of participating in any illegal acts, active participation in war, civil commotion, illegal strikes etc. The full list of exclusions is in the Funeral Plan;</li>
-			<li>when a Life Assureds dies within 6 months from the Cover Start Date and the death is natural, unless the Insurer waives the waiting period. </li>
-		</ul>`;
+			<li>Your Beneficiary will be paid amount allocated to them when you pass away after 6 months or double the amount allocated if your death is accidental</li>
+			<li>Please make sure that they’re aware of this policy and claims process </li>
+			<li>Your beneficiary will not be paid if you die due to participation in illegal acts, active participation in war. Civil commotion illegal trikes and other reasons as set out in your policy</li>
+		</ul>
+		`;
+		
 	}
 
 	/**
@@ -108,25 +110,27 @@ export class YWNBPAgreementDialog extends Component {
 	}
 
 	// #endregion RENDERING
+
 }
-window.customElements.define(`horizon-insure-ywnbp-agreement-dialog`, YWNBPAgreementDialog);
+window.customElements.define(`horizon-insure-bene-agreement-dialog`, BeneAgreementDialog);
 
 /**
- * send close modal event to the consuming componant when 'cancel' is clicked
+ * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <horizon-insure-ywnbp-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-ywnbp-agreement-dialog>
+ * <horizon-insure-bene-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-bene-agreement-dialog>
  *
- * @event LAAgreementDialog#close-modal
+ * @event BeneAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
+
 /**
- * send agree event to the consuming componant when agreement is accepted 
+ * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <horizon-insure-ywnbp-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-ywnbp-agreement-dialog>
+ * <horizon-insure-bene-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-bene-agreement-dialog>
  *
- * @event LAAgreementDialog#agreementAccepted
+ * @event BeneAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */

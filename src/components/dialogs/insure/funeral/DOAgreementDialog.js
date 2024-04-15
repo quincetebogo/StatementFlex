@@ -2,20 +2,20 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the LA Agreement
+ * Dialog that will display the DO Agreement
  * 
  * Events Raised 
  * -------------
  * agreementAccepted
  * close-modal
+ * 
  *  
  * @export
- * @class LAAgreementDialog
+ * @class DOAgreementDialog
  * @extends {Component}
  */
-export class LAAgreementDialog extends Component {
+export class DOAgreementDialog extends Component {
 
-	
 	// #region INITIALIZE
 
 	constructor() {
@@ -35,13 +35,12 @@ export class LAAgreementDialog extends Component {
 	}
 
 	/**
-	 * Cancel and close modal 
+	 * Cancel dialog 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
-
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -72,7 +71,7 @@ export class LAAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Lives Assured" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Debit Order" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					${this._renderDialogBody()}
@@ -88,18 +87,12 @@ export class LAAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>This Funeral Plan covers</strong>
-		You and your family members who:
 		<ul>
-			<li>live in South Africa permanently; and </li>
-			<li>are related to you in a way recognised by us in the Funeral  Agreement; and </li>
-			<li>are listed by you in the Schedule. </li>
+			<li>Your premium is paid monthly by debit order from your nominated bank account and partial payments are not allowed</li>
+			<li>We may review you premium annually and we’ll give 31 days written notice before making any changes</li>
+			<li>Any arrears premiums will be deducted from your cover amount</li>
 		</ul>
-		In deciding who to include, please note:
-		<ul>
-			<li>Entry Age is how old the Life Assured is on the Cover Start Date and is used to calculate the premium and cover.</li>
-			<li>By law the total amount that can be paid out for a child’s death is limited. These limits apply across all our plans and benefit types.</li>
-		</ul>`;
+		`;
 	}
 
 	/**
@@ -115,25 +108,27 @@ export class LAAgreementDialog extends Component {
 	}
 
 	// #endregion RENDERING
+
 }
-window.customElements.define(`horizon-insure-la-agreement-dialog`, LAAgreementDialog);
+window.customElements.define(`horizon-insure-do-agreement-dialog`, DOAgreementDialog);
 
 /**
- * send close modal event to the consuming componant when 'cancel' is clicked
+ * Send close dialog event to consuming component when 'Cancel' is clicked
  *
  * @example
- * <horizon-insure-la-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-la-agreement-dialog>
+ * <horizon-insure-do-agreement-dialog ... @close-modal="${this._handler}"></horizon-insure-do-agreement-dialog>
  *
- * @event LAAgreementDialog#close-modal
+ * @event DOAgreementDialog#close-modal
  * @type {Object} - N/A
  */
 
+
 /**
- * send agree event to the consuming componant when agreement is accepted 
+ * Send agree dialog event to consuming componant when 'Agree' is clicked
  *
  * @example
- * <horizon-insure-la-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-la-agreement-dialog>
+ * <horizon-insure-do-agreement-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-do-agreement-dialog>
  *
- * @event LAAgreementDialog#agreementAccepted
+ * @event DOAgreementDialog#agreementAccepted
  * @type {Object} - N/A
  */
