@@ -206,6 +206,9 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 		const url = `/v2/api/horizon/recharges/${request.cif}/search?${this.convertJsonToUriString(pagination_args)}`
 
+		// we don't need the cif in the body request, seeing as we are only querying the records related to the current user
+		delete request.cif;
+
 		return this.post(
 			url,
 			request,
@@ -231,20 +234,34 @@ export class CapitecConnectService extends ChannelServiceBase {
 			return [];
 		}
 
-		const url = `/v2/api/horizon/advances/${request.cif}/accounts/search`;
+		// const url = `/v2/api/horizon/advances/${request.cif}/accounts/search`;
+		const url = `/v2/api/horizon/advances/${request.cif}/accounts`;
 
-		return this.post(
-			url,
-			request,
-			this.setToken(),
-			'capitecConnectAdvanceBalance',
-			null,
-			null,
-			2000,
-			null,
-			null,
+		delete request.cif;
+		
+		return this.get(
+			url, 
+			this.setToken(), 
+			`capitecConnectAdvanceBalance`, 
+			false, 
+			null, 
+			null, 
+			null, 
 			DEFAULT_AUTO_RETRIES
 		);
+
+		// return this.post(
+		// 	url,
+		// 	request,
+		// 	this.setToken(),
+		// 	'capitecConnectAdvanceBalance',
+		// 	null,
+		// 	null,
+		// 	2000,
+		// 	null,
+		// 	null,
+		// 	DEFAULT_AUTO_RETRIES
+		// );
 	}
 
 	async escalateForReversal(ref = null, reason = '', comments = '') {

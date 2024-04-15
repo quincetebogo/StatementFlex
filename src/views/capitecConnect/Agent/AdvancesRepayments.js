@@ -150,7 +150,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			};
 		} catch (error) {
 			this.showTable = false;
-			console.log(error);
+
+			console.error(error);
+
+			if (this.clientCif) {
+				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			}
 
 			return {
 				pagedItems: [],

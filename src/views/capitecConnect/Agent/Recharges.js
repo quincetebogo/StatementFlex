@@ -168,6 +168,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		} catch (error) {
 			this.showTable = false;
 
+			console.error(error);
+
+			if (this.clientCif) {
+				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			}
+
 			return {
 				pagedItems: [],
 				totalCount: 0
