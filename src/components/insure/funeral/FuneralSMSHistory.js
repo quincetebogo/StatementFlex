@@ -33,6 +33,7 @@ class FuneralSMSHistory extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.telemetryEvents = {};
 		this.commsHistory = [];
+		this.policyStartDate = ``;
 	}
 
 	// #endregion
@@ -47,6 +48,7 @@ class FuneralSMSHistory extends Component {
 	 * @property {Object} commsHistory contains the communication history of the client for the policy selected
 	 * @property {function} getCommsHistory Callback function to fetch more data
 	 * @property {function} filteredData Holds the filtered communication history data
+	 * @property {Object} policyStartDate Start date for restricting date range
 	 * 
 	 * @readonly
 	 * @static
@@ -59,7 +61,8 @@ class FuneralSMSHistory extends Component {
 			contactNumber: { type: String, state: true },
 			commsHistory: { type: Object, state: true },
 			getCommsHistory: { type: Object, state: true },
-			filteredData: { type: Object, state: true }
+			filteredData: { type: Object, state: true },
+			policyStartDate: { type: Object, state: true }
 		};
 	}
 
@@ -243,9 +246,9 @@ class FuneralSMSHistory extends Component {
 		let toDate = DateTime.fromISO(e.detail.new.endDate === null ? e.detail.old.endDate : e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
-		if (toDate.diff(fromDate, [`days`]).days > 90) {
+		if (toDate.diff(fromDate, [`days`]).days > 3650) {
 
-			toDate = fromDate.plus({ days: 90 });
+			toDate = fromDate.plus({ days: 3650 });
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate;
 				this.endDate = currentDateTime;
@@ -259,7 +262,7 @@ class FuneralSMSHistory extends Component {
 			}
 		} else if (e.detail.new.endDate === null && this.endDate === ``) {
 			this.startDate = fromDate;
-			toDate = fromDate.plus({ days: 90 });
+			toDate = fromDate.plus({ days: 3650 });
 			if (toDate.diff(currentDateTime, [`days`]).days > 0) {
 				this.endDate = currentDateTime;
 			} else {
@@ -267,7 +270,7 @@ class FuneralSMSHistory extends Component {
 			}
 		} else if (e.detail.new.startDate === null && this.startDate === ``) {
 			this.endDate = toDate;
-			fromDate = toDate.minus({ days: 90 });
+			fromDate = toDate.minus({ days: 3650 });
 			this.startDate = fromDate;
 		} else {
 
@@ -545,10 +548,11 @@ class FuneralSMSHistory extends Component {
 		return html`
 		<capitec-date-time-picker
 					id="calendarRange"
-					label = "Choose a date (up to 90 days)"
+					label = "Choose a date"
 					startDate="${this.startDate === `dd mm yyyy` ? `` : this.startDate}"
 					endDate="${this.endDate === `dd mm yyyy` ? `` : this.endDate}"
 					maxDate="${new Date().toString()}"
+					minDate = "${this.policyStartDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"

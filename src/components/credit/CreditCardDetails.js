@@ -55,6 +55,8 @@ import 'app/productControls/credit/src/AccountDetailsView';
 	connectedCallback() {
 		super.connectedCallback();
 
+		const totalArrearsPayable = this.creditCardDetails.totalArrearsPayable || `0`;
+
 		// formatting credit card details received from service
 		this.accountDetails = {
 			'title': formatStringAsPascalCase(this.creditCardDetails.accountDescription),
@@ -70,7 +72,7 @@ import 'app/productControls/credit/src/AccountDetailsView';
 				'Account status': this.creditCardDetails.arrearsStatus ? `In arrears` : formatStringAsPascalCase(this.creditCardDetails.accountStatusDescription)
 			},
 			'arrears': {
-				'Total arrears amount': formatCurrency(this.creditCardDetails.totalArrearsPayable || `0`)
+				[totalArrearsPayable < 0 ? `Total advance amount` : `Total arrears amount`]: formatCurrency(totalArrearsPayable)
 			},
 			'repayment': {
 				'Repayment day': `${this.creditCardDetails.repaymentDay}${getDateOrdinal(this.creditCardDetails.repaymentDay)} of every month`,
