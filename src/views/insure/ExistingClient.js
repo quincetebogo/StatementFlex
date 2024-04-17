@@ -403,7 +403,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -452,7 +452,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -513,7 +513,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -908,7 +908,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _printFuneralEstimate(e) {
-		await this._calculateFuneralEstimate(e);
 		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -921,13 +920,13 @@ export class ExistingClient extends InsureViewBase {
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails.productCode = this.funeralPolicies.checkInsuranceDetails[0].productCode;
-		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.funeralEstimateDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = e.detail;
 
 		const result = await this.insureFuneralService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(result.exception);
-			return;
+			return null;
 		}
 		super.isOnlyProductEnquiry = false;
 		return result;
@@ -1049,11 +1048,8 @@ export class ExistingClient extends InsureViewBase {
 				]
 			}
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1063,9 +1059,7 @@ export class ExistingClient extends InsureViewBase {
 		this.successPageMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.selectedFuneralPolicyContractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
-		console.log(`1.4 - `, this.selectedFuneralPolicyContractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5 - `, this.renderMode);
 	}
 
 	/**
@@ -1146,7 +1140,6 @@ export class ExistingClient extends InsureViewBase {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
 
-		console.log(`1.0 - `, documents);
 
 		const acceptPlanRequest =
 		{
@@ -1155,27 +1148,20 @@ export class ExistingClient extends InsureViewBase {
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.3 - `, this.contractReference);
 		await this._generateDocumentsFuneralReissue(true);
-		console.log(`1.4 - After documents for ReIssue`);
 
 		this.successPageMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.5`, this.contractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5`, this.renderMode);
 	}
 
 	/**
@@ -1244,20 +1230,20 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay arrears for active life policy
 	 * @param {string} contractReference contractReference
-	 * @param {string} accountNumber accountNumber
+	 * @param {object} selectedAccount selectedAccount
 	 * @param {string} selectedArrears selectedArrears
 	 * @returns {object} resp
 	 */
-	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
+	async _payArrearsLife(contractReference, selectedAccount, selectedArrears) {
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
 			"bankDetails": {
-				"accountName": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_NAME,
-				"branchCode": GLOBAL_ONE_GENERIC_DETAILS.BRANCH_CODE,
-				"accountNumber": this.defaultSavingsAccountNumber,
-				"bank": GLOBAL_ONE_GENERIC_DETAILS.BANK,
-				"accountType": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_TYPE,
+				"accountName": selectedAccount.accountName,
+				"branchCode": selectedAccount.branchCode,
+				"accountNumber": selectedAccount.accountNumber,
+				"bank": selectedAccount.bank,
+				"accountType": selectedAccount.accountType,
 				"effectiveDate": null
 			},
 			"arrears": selectedArrears
@@ -2033,7 +2019,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
-				.executeLifePayArrears="${(contractReference, accountNumber, selectedArrears) => this._payArrearsLife(contractReference, accountNumber, selectedArrears)}"
+				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
