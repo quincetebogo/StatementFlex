@@ -60,19 +60,19 @@
 			"enabled" : false
 		},
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -88,12 +88,12 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
@@ -101,11 +101,11 @@
 			"positiveCase": true
 		},
 		"itaVerification": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifyKBA": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -297,7 +297,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
@@ -309,11 +309,11 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
@@ -329,7 +329,7 @@
 			"positiveCase": true
 		},
 		"insureClaims": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureRequestCallback": {
@@ -417,7 +417,7 @@
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
@@ -425,15 +425,15 @@
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
