@@ -28,6 +28,11 @@ import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
 import 'app/components/dialogs/insure/life/LifePayArrearsDialog';
 import 'app/components/dialogs/insure/life/LifeHealthQuestionsDialog';
 import 'app/components/dialogs/insure/life/LifeAllocateCoverDialog';
+import 'app/components/dialogs/insure/life/LifeAddBeneficiaryDialog';
+import 'app/components/dialogs/insure/life/LifeDeleteBeneficiaryDialog';
+import 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
+import 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
+import 'app/components/dialogs/insure/life/LifeBeneficiariesAllocateError';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -2173,21 +2178,6 @@ class ClientSummary extends Component {
 				</horizon-option-button>
 			</capitec-group>
 		`;
-	}
-
-	/**
-	* Show pocket summary of selected pocket type
-	* @param {string} pocketType Pocket type chosen
-	* @returns {void}
-	*/
-	_openPocketSummary(pocketType) {
-		this.dispatchEvent(new CustomEvent(`navigate-to-life-pocket-summary`, {
-			detail: {
-				pocketType: pocketType,
-				lifePolicy: this.lifePolicies.policies[0],
-				selectedInsureTabIndex: this.selectedInsureTabIndex
-			}
-		}));
 	}
 
 	/**

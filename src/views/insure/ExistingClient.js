@@ -1649,19 +1649,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Prepare and navigate to Life Pocket Summary
-	 * @param {event} e e
-	 * @returns {void} 
-	 */
-	_goToLifePocketSummary(e) {
-		this.selectedLifePocketType = e.detail.pocketType;
-		this.selectedLifePolicy = e.detail.lifePolicy;
-
-		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
-		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY);
-	}
-
-	/**
 	 * Prepare and navigate to Life Policy Summary
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1977,8 +1964,6 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderSuccessPage()}`;
 			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
 				return html`${this._renderClaimSummaryPage()}`;
-			case INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY:
-				return html`${this._renderLifePocketSummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SUCCESS:
 				return html`${this._renderLifeSuccessPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
@@ -2049,7 +2034,6 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToFuneralTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
-				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
 				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
@@ -2203,20 +2187,6 @@ export class ExistingClient extends InsureViewBase {
 				.claimSummary="${this.claimSummary}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-claim-summary>`;
-	}
-
-	/**
-	 * Renders the pocket summary page, configured with the selected pocket type
-	 * 
-	 * @returns {html} html
-	 */
-	_renderLifePocketSummaryPage() {
-		return html`
-			<horizon-insure-life-pocket-summary 
-				.selectedPocketType="${this.selectedLifePocketType}"
-				.selectedLifePolicy="${this.selectedLifePolicy}"
-				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</horizon-insure-life-pocket-summary>`;
 	}
 
 	/**

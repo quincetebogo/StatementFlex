@@ -104,8 +104,8 @@ export const insureLifeClientSummary = {
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 1000000.000000000,
-					"premium": 571.1000000000000
+					"coverage": 0.000000000000000,
+					"premium": 0.000000000000000
 				},
 				{
 					"pocketType": `Education`,
@@ -118,7 +118,7 @@ export const insureLifeClientSummary = {
 					"firstName": `Bene`,
 					"lastName": `Fish`,
 					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 1000000.0000000000,
+					"onceOffPayoutBenefitAmount": 0.0000000000,
 					"educationBenefitAmount": 0.0000000000,
 					"monthlyPayoutBenefitAmount": 1000000.0000000000,
 					"bankDetails": {
@@ -131,11 +131,12 @@ export const insureLifeClientSummary = {
 					"gender": `Male`,
 					"dateOfBirth": `1968-12-16T00:00:00+00:00`,
 					"contactNumber": `0823214321`,
+					"idNumber": `9299292939292`,
 					"clientType": `Adult`,
 					"clientId": `983A69FA-E493-4E70-B9A9-1CB577DED4F4`
 				}
 			],
-			"totalPolicySumAssured": 2000000.0000000000,
+			"totalPolicySumAssured": 3000000.0000000000,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,

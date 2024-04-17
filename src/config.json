@@ -241,7 +241,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -473,6 +473,10 @@
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeQualifies": {
 			"enabled": true,
 			"positiveCase": true
 		}

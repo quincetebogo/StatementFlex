@@ -8,6 +8,7 @@ const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]
 
 export const LIFE_COVER_ERROR_MESSAGES = {
 	NO_COVER_ALLOCATED: `No cover allocated to any pocket`,
+	MINIMUM_COVER_NOT_REACHED: `Please allocate a minimum of R100 000 across benefit payout options`,
 	POCKET_MINIMUM: `Minimum pocket allocation is R1000`,
 	POCKET_MINIMUM_EDUCATION: `Minimum pocket allocation is R50000`,
 	COVER_MAXIMUM: `Combined pocket allocation exceeds maximum cover amount`,

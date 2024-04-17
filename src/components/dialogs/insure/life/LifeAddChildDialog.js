@@ -118,9 +118,9 @@ class LifeAddBeneficiaryDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
-			steps = [{ title: `New or existing` }, { title: `Beneficiary details` }, { title: `Allocate cover` }];
+			steps = [{ title: `New or existing` }, { title: `Personal details` }, { title: `Allocate cover` }];
 		} else {
-			steps = [{ title: `Beneficiary details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Personal details` }, { title: `Allocate cover` }];
 		}
 		return steps;
 	}

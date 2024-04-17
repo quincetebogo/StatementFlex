@@ -5,7 +5,6 @@
  * @constant insureAllowedCover
  */
 export const insureAllowedCover = {
-
 	"message": `'You are eligible for this Plan'`,
 	"minimumAllowedCover": 100000.0,
 	"maximumAllowedCover": 3000000.0,
@@ -15,5 +14,4 @@ export const insureAllowedCover = {
 	"channelFee": 27.9,
 	"underwriting": `No`,
 	"totalLoadingApplied": 0.0
-
 };

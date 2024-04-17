@@ -25,6 +25,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.finalAnswers = [];
 		this.showQuestionnaireResults = false;
 		this.freeTextAnswerId = ``;
+		this.radioRefresh = false;
 	}
 
 	// #endregion INITIALIZE
@@ -51,7 +52,8 @@ class LifeHealthQuestionsDialog extends Component {
 			executeLifeAllowedCover: { type: Object, state: true },
 			allowedCoverResults: { type: Object, state: true },
 			enableNextButton: { type: Boolean, state: true },
-			showQuestionnaireResults: { type: Boolean, state: true }
+			showQuestionnaireResults: { type: Boolean, state: true },
+			radioRefresh: { type: Boolean, state: true }
 		};
 	}
 
@@ -127,7 +129,6 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	async _nextQuestion() {
-
 		this.finalAnswers.push(this.currentAnswerSingle);
 
 		// Was it last question?
@@ -136,6 +137,7 @@ class LifeHealthQuestionsDialog extends Component {
 				answers: this.finalAnswers
 			};
 			this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
+			this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
 			this.showQuestionnaireResults = true;
 			return;
 		}
@@ -161,7 +163,7 @@ class LifeHealthQuestionsDialog extends Component {
 		// Reset Form and Fields
 		const radioGroup = this.shadowRoot.querySelector(`#questions-radio-group`);
 		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		console.log(radioGroup);
+
 		radioGroup.removeAttribute(`selected`);
 		radioButtons.forEach(radioButton => {
 			radioButton.checked = false;
@@ -173,6 +175,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswerSingle = {};
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
+		this.radioRefresh = !this.radioRefresh;
 	}
 
 	/**
@@ -262,7 +265,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderContent() {
 		return html`
-			<capitec-modal type="form" header="${this.showQuestionnaireResults === false ? `Question ${this.currentQuestion?.groupId}` : `Questions Complete`}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+			<capitec-modal type="form" header="${this.showQuestionnaireResults === false ? `Question ${this.currentQuestion?.groupId}` : `Life Cover offer`}" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
 				<div slot="body" style="width: 500px">
 					${this._renderDialogBody()}
 				</div>
@@ -281,44 +284,52 @@ class LifeHealthQuestionsDialog extends Component {
 	_renderDialogBody() {
 		return html`
 			${this.showQuestionnaireResults === false ? html`
-				<div>
-					<div id="capitec-form-group">
-						<div style="max-width: 500px;">
-							<label>${unsafeHTML(this.currentQuestion?.description)}</label>
-						</div>
-						<div style="margin-top:15px;">
-							<capitec-radio-group layout="vertical" style="margin-bottom: 10px;" id="questions-radio-group">
-								${this.currentQuestion?.answers.map(answer => html`
-									<capitec-radio
-										class="visibleControl"
-										id="${answer.answerId}" 
-										label="${answer.detail}" 
-										name="${answer.answerId}" 
-										@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}">
-									</capitec-radio>
-								`)}
-							</capitec-radio-group>
-						</div>
-					</div>
-				</div>
-			` : html`
-				<div style="min-width: 350px;">
-					<capitec-label style="text-align: center;  margin-bottom: 25px;"
-						label="${this.allowedCoverResults?.message}"
-						type="title">
-					</capitec-label>
-					<div>
-						<horizon-label label="Maximum Cover Amount"
+				${this.radioRefresh === true ? html`
+					${this._renderRadioGroup()}
+				` : html`
+					${this._renderRadioGroup()}
+				`}` : html`
+				<div style="min-width: 350px; min-height: 140px;">
+					<div style="display: flex; justify-content: space-around; padding-top: 40px;">
+						<horizon-label label="Get up to"
 							value="${formatCurrencyInsureCoverAmount(formatCurrency(this.allowedCoverResults?.maximumAllowedCover))}">
 						</horizon-label>
-					</div>
-					<div>
-						<horizon-label label="Maximum Premium"
+				
+						<horizon-label label="Monthly Premium"
 							value="${formatCurrency(this.allowedCoverResults?.maximumPremium)}">
 						</horizon-label>
 					</div>
 				</div>
 			`}
+		`;
+	}
+
+	/**
+	 * Render question set, in separate function because of refresh workaround
+	 * @returns {html} The html content of the component.
+	 */
+	_renderRadioGroup() {
+		return html`
+			<div style="min-height: 180px;">
+				<div id="capitec-form-group">
+					<div style="max-width: 500px; min-height: 50px;">
+						<label>${unsafeHTML(this.currentQuestion?.description)}</label>
+					</div>
+					<div style="margin-top:15px;">
+						<capitec-radio-group layout="vertical" style="margin-bottom: 10px;" id="questions-radio-group">
+							${this.currentQuestion?.answers.map(answer => html`
+								<capitec-radio
+									class="visibleControl"
+									id="${answer.answerId}" 
+									label="${answer.detail}" 
+									name="${answer.answerId}" 
+									@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}">
+								</capitec-radio>
+							`)}
+						</capitec-radio-group>
+					</div>
+				</div>
+			</div>
 		`;
 	}
 

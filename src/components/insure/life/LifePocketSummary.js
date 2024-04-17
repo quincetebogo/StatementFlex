@@ -2,10 +2,6 @@ import { Component, css, html } from 'platform/elements';
 import { LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LifeAddBeneficiaryDialog } from '../../dialogs/insure/life/LifeAddBeneficiaryDialog';
-import { LifeDeleteBeneficiaryDialog } from '../../dialogs/insure/life/LifeDeleteBeneficiaryDialog';
-import { LifeUpdateBeneficiaryDialog } from 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
-import { LifeUpdateMoneyDialog } from 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
