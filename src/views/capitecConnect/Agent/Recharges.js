@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
+import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount, formatDateAndTime } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect teamleader View
@@ -27,8 +27,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		// Static variables
 		this.searchTypes = [
 			{ value: `msisdn`, text: `MSISDN` },
+			{ value: `accountNumber`, text: `Account Number` },
 			{ value: `amount`, text: `Amount` },
-			{ value: `transactionReference`, text: `Transaction Reference` }
+			// { value: `transactionReference`, text: `Transaction Reference` }
 		];
 
 		this.pagingRows = [10, 20, 50];
@@ -104,61 +105,19 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return [
 			super.styles,
 			css`
-				.product-info{
-					width: 100%;
-					height: var(--horizon-panel-height, 888px);
+				.custom-flex-size {
+					flex: 1;
 				}
-				.content{
-					width: 100%;
-					height: 788px;
-				}
-				capitec-title-bar {
-					--theme-titlebar-shadow: 0px;
-					--theme-titlebar-padding: 12px 16px;
-				}
-				.transact {
-					--theme-type-primary-background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
-				}
-				.save {
-					--theme-type-primary-background: linear-gradient(135deg, #002A3F 0%, #00537D 52.97%, #024D73 100%);
-				}
-				.credit {
-					--theme-type-primary-background: linear-gradient(90deg, #B62825 0%, #E61414 100%);
-				}
-				.insure {
-					--theme-type-primary-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
-				}
-				.liveBetter {
-					--theme-type-primary-background: url(/images/liveBetter/lbb-bg-1092x64.png);
-				}
-				#id-more-info {
-					margin: 43px auto 8px auto;
-					color: #3A3A3A;
-					font-size: 24px;
-					font-weight: 600;
-				}
-				.insights-subtitle{
-					color: #3A3A3A;
-					font-size: 15px;
-					line-height: 20px;
-					text-align: center;
-					max-width: 684px;
-					margin-bottom: 32px;
-				}
-				.benefits-button {
-					height: 48px;
-					width: 146px;
-					--theme-button-primary-border-width: 0px;
-					--theme-button-line-height: 20px;
-					--theme-button-padding-top: 14px;
-					--theme-button-padding-bottom: 14px;
+
+				capitec-button-bar.no-border-top {
+					border-top: none;
 				}
 			`
 		];
 	}
 
 	_initialise() {
-		// this.clientCif = "386017913";
+		// this.clientCif = "281783047";
 
 		this.showTable = true;
 	}
@@ -184,7 +143,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				};
 			}
 
-			const response = await this.searchRecharges(filters, "RECHARGES");
+			const response = await this.searchRecharges(filters, "RECHARGE");
 
 			let r = response.result.content;
 
@@ -194,37 +153,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 				e.recharges = e.recharges.length > 0 ? sortObjectsByDateDescending(e.recharges, 'transactionDateTime') : e.recharges;
 				e.transactions = e.transactions.length > 0 ? sortObjectsByDateDescending(e.transactions, 'transactionDateTime') : e.transactions;
-
-				e.successfulRecharge = null;
-				e.successfulTransaction = null;
-				e.reversedTransaction = null;
-				e.pendingReversedTransaction = null;
-
-				if (e.recharges.length > 0) {
-					e.successfulRecharge = e.recharges.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
-					e.successfulRecharge = e.successfulRecharge.length ? e.successfulRecharge[0] : null;
-				}
-
-				if (e.transactions.length > 0) {
-					e.successfulTransaction = e.transactions.filter(t => t.type === `RECHARGE` && t.status === `SUCCESSFUL`);
-					e.successfulTransaction = e.successfulTransaction.length ? e.successfulTransaction[0] : null;
-
-					e.reversedTransaction = e.transactions.filter(t => t.type === `RECHARGE_REVERSAL` && t.status === `SUCCESSFUL`);
-					e.reversedTransaction = e.reversedTransaction.length ? e.reversedTransaction[0] : null;
-				
-					e.pendingReversedTransaction = e.transactions.filter(t => t.type === `RECHARGE_REVERSAL` && t.status === `PENDING`);
-					e.pendingReversedTransaction = e.pendingReversedTransaction.length ? e.pendingReversedTransaction[0] : null;
-				}
-
-				e.reversible = true;
-
-				if (
-					(e.pendingReversedTransaction !== null || e.reversedTransaction !== null) // pending or successful reversal
-					|| e.recharges.length === 0 // no recharges
-					|| e.transactions.length === 0 // no transactions
-				) { // then we cannot reverse
-					e.reversible = false;
-				}
 
 				return e;
 			});
@@ -239,6 +167,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			};
 		} catch (error) {
 			this.showTable = false;
+
+			console.error(error);
+
+			if (this.clientCif) {
+				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			}
 
 			return {
 				pagedItems: [],
@@ -332,19 +266,15 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	dateRangeHandler(e) {
-		var from = e.detail.new.startDate?.split('T')[0] || null;
-		var to = e.detail.new.endDate?.split('T')[0] || null;
+		var from = e.detail.new.startDate?.split('T')[0] || getDateInPast(0);
+		var to = e.detail.new.endDate?.split('T')[0] || getDateInPast(0);
 
-		if (from !== null && to !== null) {
-			this.activeFilters.dateRange = {
-				from,
-				to
-			}
+		console.log(e);
 
-			return this.onFilter();
-		}
+		this.activeFilters.dateRange.from = from;
+		this.activeFilters.dateRange.to = to;
 
-		return null;
+		return this.onFilter();
 	}
 
 	_mobileTemplate() {
@@ -363,6 +293,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-button-bar align="left">
 					<capitec-search-field label="Search" 
+						class="custom-flex-size" 
 						value="${this.activeFilters.searchValue}"
 						@value-change="${(e) => {
 							this.activeFilters.searchValue = e.detail.new;
@@ -370,6 +301,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						}}"></capitec-search-field>
 
 					<capitec-select 
+						class="custom-flex-size" 
 						label="Select option" 
 						.items="${this.searchTypes}" 
 						.value="${this.activeFilters.searchType}"
@@ -381,7 +313,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						id-field="value">
 					</capitec-select>
 
-					<capitec-date-time-picker
+					<capitec-date-time-picker 
+						label="Choose a start and end date"
+						class="custom-flex-size"
 						type="range"
 						mode="date"
 						startDate="${this.activeFilters.dateRange.from}"
@@ -399,13 +333,24 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					></capitec-button>
 				</capitec-button-bar>
 
+				<capitec-button-bar align="left" class="no-border-top">
+					<capitec-label type="strong" label="Bundle Types:"></capitec-label>
+					${this.availableBundleFilters.map(item => {
+						if (this.activeFilters?.bundleType.includes(item)) {
+							return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
+						}
+						return html`<capitec-chip label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
+					})}
+				</capitec-button-bar>
+
 				<capitec-button-bar align="left">
 					<capitec-label type="strong" label="Active Filters:"></capitec-label>
 					${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${this._filterSearchboxClick}" label="${this.activeFilters.searchType.text}: ${this.activeFilters.searchValue}"></capitec-chip>` : null}
 					${this.activeFilters.dateRange.to !== null && this.activeFilters.dateRange.from !== null ?
-				html`<capitec-chip label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"></capitec-chip>` :
-				null
-			}
+						html`<capitec-chip label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"></capitec-chip>` :
+						null
+					}
+					${this.activeFilters.bundleType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
 					<capitec-spacer></capitec-spacer>
 				</capitec-button-bar>
 
@@ -481,9 +426,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		let statusOfRecharge = ``;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = ``;
-		let isPending = false;
+		let transactionType = `Recharge`;
 
-		let theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
+		let theRecharge = item.recharges.length ? item.recharges[0] : null;
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
@@ -492,17 +437,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			typeOfRecharge = theRecharge.type
 		}
 
-		let theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
-
-		if (
-			item.pendingReversedTransaction !== null // if a there is a pending reversal
-			&& item.reversedTransaction === null // if there is no successful reversals
-			&& item.successfulTransaction !== null // if there was a successful transaction
-			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
-		) {
-			theTransaction = item.pendingReversedTransaction;
-			isPending = true;
-		}
+		let theTransaction = item.transactions.length ? item.transactions[0] : null;
 
 		if (isJson(theTransaction)) {
 			typeOfRecharge = theTransaction.type;
@@ -510,6 +445,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			accountNumber = theTransaction.accountNumber;
 			journalNumber = theTransaction.journalReference;
 			statusOfRecharge = theTransaction.status;
+
+			transactionType = theTransaction.type.toUpperCase().indexOf("REVERSAL") > -1 ? "Reversal" : transactionType;
 		}
 
 		product = toTitleCase(product);
@@ -570,7 +507,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-hyperlink
 						style="margin-right: 16px;
 						margin-top: 10px"
-						label="${isPending ? 'Reversal' : 'Recharge'} Status"
+						label="${transactionType} Status"
 						@click="${() => { this.selectedRechargeView = item; }}">
 					</capitec-hyperlink>
 					${!item.reversible 
@@ -596,12 +533,24 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		let product = item.bundleType,
 			productId = `-`,
 			type = `-`,
-			errorType = `-`,
+			errorType = null,
 			statusOfRecharge = `-`,
-			isPending = false;
+			transactionType = `Recharge`,
+			statusReason = null,
+			reversalReason = null,
+			transactionDuration = {
+				start: {
+					date: "",
+					time: ""
+				},
+				end: {
+					date: "",
+					time: ""
+				}
+			};
 
-		let theRecharge = isJson(item.successfulRecharge) ? item.successfulRecharge : (item.recharges.length ? item.recharges[0] : null);
-		let theTransaction = isJson(item.successfulTransaction) ? item.successfulTransaction : (item.transactions.length ? item.transactions[0] : null);
+		let theRecharge = item.recharges.length ? item.recharges[0] : null;
+		let theTransaction = item.transactions.length ? item.transactions[0] : null;
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
@@ -610,48 +559,47 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			productId = theRecharge.productId ? theRecharge.productId : productId;
 		}
 
-		if (
-			isJson(item.reversedTransaction) // if there is a successful reversal
-			&& isJson(item.successfulTransaction) // if there was a successful transaction
-			&& compareDates(item.reversedTransaction, item.successfulTransaction) > -1 // if the reversal is after the successful transaction
-		) {
-			theTransaction = item.reversedTransaction;
-		}
-
-		if (
-			isJson(item.pendingReversedTransaction) // if a there is a pending reversal
-			&& item.reversedTransaction === null // if there is no successful reversals
-			&& isJson(item.successfulTransaction) // if there was a successful transaction
-			&& compareDates(item.pendingReversedTransaction, item.successfulTransaction) > -1 // if the pending reversal is after the success transaction
-		) {
-			theTransaction = item.pendingReversedTransaction;
-			isPending = true;
-		}
-
 		if (isJson(theTransaction)) {
-			type = type !== `-` ? type : theTransaction.type;
-			statusOfRecharge = statusOfRecharge !== `-` ? statusOfRecharge : theTransaction.status;
+			type = theTransaction.type || type;
+			statusOfRecharge = theTransaction.status || statusOfRecharge;
 			product = product ? product : theRecharge.bundleType;
+			statusReason = theTransaction.statusReason || statusReason;
+			reversalReason = theTransaction.reversalReason || reversalReason;
+
+			if (theTransaction.type.toUpperCase().indexOf("REVERSAL") > -1) {
+				transactionType = "Reversal";
+
+				statusReason = reversalReason || statusReason;
+			}
+
+			switch (true) {
+				case (item.transactions.length === 0 && item.recharges.length === 0): // no transactions
+				case theTransaction.type.toUpperCase().indexOf("FAILED") > -1: // transaction failed
+					errorType = `TRANSACTION_FAILURE`;
+					break;
+				case theTransaction.type.toUpperCase().indexOf("REVERSAL") > -1 && theTransaction.status.toUpperCase() === "SUCCESSFUL":
+					errorType = `RECHARGE_REVERSED`;
+					break;
+				case theTransaction.type.toUpperCase().indexOf("PENDING") > -1: // pending transaction
+					errorType = `REVERSAL_PENDING`;
+					break;
+				default:
+					break;
+			}
+		}
+
+		if (item.transactions.length > 0) {
+			transactionDuration.start.date = item.transactions.length > 1 ? formatDate(item.transactions[item.transactions.length - 1].transactionDateTime) : transactionDuration.start.date;
+			transactionDuration.start.time = item.transactions.length > 1 ? getTimeFromDate(item.transactions[item.transactions.length - 1].transactionDateTime) : transactionDuration.start.time;
+
+			transactionDuration.end.date = formatDate(item.transactions[0].transactionDateTime);
+			transactionDuration.end.time = getTimeFromDate(item.transactions[0].transactionDateTime);
 		}
 
 		product = toTitleCase(product);
 
-		switch (true) {
-			case item.reversedTransaction !== null && item.pendingReversedTransaction === null: // reversed, no pending
-			case item.reversedTransaction !== null && item.pendingReversedTransaction !== null && compareDates(item.reversedTransaction, item.pendingReversedTransaction) > -1: // reversed, previously pending
-				errorType = `RECHARGE_REVERSED`;
-			case item.pendingReversedTransaction !== null && item.reversedTransaction === null: // pending, not reversal yet
-				errorType = `RECHARGE_REVERSAL_PENDING`;
-				break;
-			case item.successfulTransaction === null: // no successful transaction
-				errorType = `TRANSACTION_FAILURE`;
-				break;
-			default:
-				break;
-		}
-
 		return html`
-		<capitec-modal type="form" header="${isPending ? 'Reversal' : 'Recharge'} Status">
+		<capitec-modal type="form" header="${transactionType} Status">
 			<capitec-group slot="body" layout="grid" gap="clear">
 				<div row="1" column="1">
 					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>
@@ -696,13 +644,28 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
 				</div>
 
+				${errorType !== null ? html`
 				<capitec-spacer></capitec-spacer>
-
 				<div row="5" column="1">
 					<capitec-label label="Error Type"></capitec-label>
+					${statusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
 				</div>
 				<div row="5" column="2">
 					<capitec-label label="${errorType}"></capitec-label>
+					${statusReason !== null ? html`<capitec-label label="${statusReason}"></capitec-label>` : ``}
+				</div>
+				<capitec-spacer></capitec-spacer>
+				<div row="6" column="1" colspan="2">
+					${transactionDuration.start.date === transactionDuration.end.date ? html`
+					<capitec-label type="strong" label="${transactionDuration.end.date}"></capitec-label>
+					<capitec-label type="strong" label="${transactionDuration.start.time === transactionDuration.end.time ? "" : transactionDuration.start.time + " - "}${transactionDuration.end.time}"></capitec-label>
+					` : html`
+					<capitec-label type="strong" label="${transactionDuration.start.date} ${transactionDuration.start.time} - ${transactionDuration.end.date} ${transactionDuration.end.time}"></capitec-label>
+					`}
+				</div>
+				` : ``}
+				<div row="7" column="1" colspan="2">
+					<hr style="border-bottom: none;">
 				</div>
 			</capitec-group>
 

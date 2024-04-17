@@ -1,7 +1,7 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
+import { formatDate, getTimeFromDate, compareDates, getDateInPast, incrementDate, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect Agent View
@@ -28,7 +28,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		this.searchTypes = [
 			{ value: `msisdn`, text: `MSISDN` },
 			{ value: `amount`, text: `Amount` },
-			{ value: `transactionReference`, text: `Transaction Reference` }
+			{ value: `accountNumber`, text: `Account Number` },
+			// { value: `productName`, text: `Product` }
 		];
 
 		this.pagingRows = [10, 20, 50];
@@ -45,6 +46,9 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 				to: getDateInPast(0)
 			}
 		};
+
+		this.advanceBalances = [];
+		this.advanceBalancePopupOpen = false;
 
 		this.selectedAdvanceView = null;
 
@@ -79,7 +83,9 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			showTable: { type: Boolean },
 			callerInformation: { type: Object },
 			clientCif: { type: String },
-			searchValue: { type: String }
+			searchValue: { type: String },
+			advanceBalances: { type: Object },
+			advanceBalancePopupOpen: { type: Boolean }
 		};
 	}
 
@@ -87,7 +93,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		return [
 			super.styles,
 			css`
-				:host > .wrapper > ::slotted(:not(capitec-spacer)) {
+				.custom-flex-size {
 					flex: 1;
 				}
 			`
@@ -95,7 +101,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = "386017913";
+		// this.clientCif = "281783047";
 
 		this.showTable = true;
 	}
@@ -144,7 +150,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			};
 		} catch (error) {
 			this.showTable = false;
-			console.log(error);
+
+			console.error(error);
+
+			if (this.clientCif) {
+				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			}
 
 			return {
 				pagedItems: [],
@@ -171,19 +182,28 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	dateRangeHandler(e) {
-		var from = e.detail.new.startDate?.split('T')[0] || null;
-		var to = e.detail.new.endDate?.split('T')[0] || null;
+		var from = e.detail.new.startDate?.split('T')[0] || getDateInPast(0);
+		var to = e.detail.new.endDate?.split('T')[0] || getDateInPast(0);
 
-		if (from !== null && to !== null) {
-			this.activeFilters.dateRange = {
-				from,
-				to
-			}
-
-			return this.onFilter();
+		this.activeFilters.dateRange = {
+			from,
+			to
 		}
 
-		return null;
+		return this.onFilter();
+	}
+
+	async advancesBalanceButtonClickHandler(e) {
+		let filters = this.activeFilters;
+
+		if (this.clientCif) {
+			filters.cif = this.clientCif;
+		}
+
+		var { result } = await this.getAdvanceBalances(filters);
+		this.advanceBalances = result.content;
+
+		this.advanceBalancePopupOpen = true;
 	}
 
 	_mobileTemplate() {
@@ -202,6 +222,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-button-bar align="left">
 					<capitec-search-field label="Search" 
+						class="custom-flex-size" 
 					value="${this.activeFilters.searchValue}"
 					@value-change="${(e) => {
 				this.activeFilters.searchValue = e.detail.new;
@@ -209,6 +230,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			}}"></capitec-search-field>
 
 					<capitec-select 
+						class="custom-flex-size" 
 						label="Select option" 
 						.items="${this.searchTypes}" 
 						.value="${this.activeFilters.searchType}"
@@ -221,6 +243,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					</capitec-select>
 
 					<capitec-date-time-picker
+						class="custom-flex-size" 
+						label="Choose a start and end date"
 						type="range"
 						mode="date"
 						startDate="${this.activeFilters.dateRange.from}"
@@ -246,6 +270,13 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 				null
 			}
 					<capitec-spacer></capitec-spacer>
+					
+					${this.clientCif && html`
+					<capitec-button
+						type="primary"
+						label="Advance Balance"
+						@click="${this.advancesBalanceButtonClickHandler}">
+					</capitec-button>`}
 				</capitec-button-bar>
 
 				${this.showTable ? html`
@@ -281,6 +312,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			</capitec-content-box>
 
 			${this.selectedAdvanceView ? this._renderAdvanceStatusModal() : null}
+			${this.advanceBalancePopupOpen ? this._renderAdvanceBalanceModal() : null}
 		`;
 	}
 
@@ -302,23 +334,31 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let statusOfTransaction = ``;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = item.type;
-		let advanceAmountPaid = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` || `R0.00`;
+		let advanceAmountPaid = `R0.00`;
 		let transactionDate = `-`;
 		let account = `-`;
 		let airtimeSurplus = `-`;
+		let journalReference = `-`;
 
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
 			account = item.transactions[0].accountNumber;
 			statusOfTransaction = item.transactions[0].status;
+
+			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
+			journalReference = item.transactions[0].journalReference || journalReference;
+
+			advanceAmountPaid = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
 		}
 
 		let postingDate = item.friendlyDate;
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
-			airtimeSurplus = `R${parseFloat(item.recharges[0].quantity).toFixed(2)}`; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 		}
+
+		airtimeSurplus = "R" + airtimeSurplus;
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge.replace("_", " "));
@@ -363,13 +403,17 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					<capitec-label type="strong" label="${advanceAmountPaid}"></capitec-label>
 				</div>
 				<div row="3" column="4">
+					<capitec-label label="Airtime Surplus:"></capitec-label>
+					<capitec-label type="strong" label="${airtimeSurplus}"></capitec-label>
+				</div>
+
+				<div row="4" column="1">
 					<capitec-label label="Account:"></capitec-label>
 					<capitec-label type="strong" label="${account}"></capitec-label>
 				</div>
-
-				<div row="4" column="1" colspan="4">
-					<capitec-label label="Airtime Surplus:"></capitec-label>
-					<capitec-label type="strong" label="${airtimeSurplus}"></capitec-label>
+				<div row="4" column="2">
+					<capitec-label label="Journal Number:"></capitec-label>
+					<capitec-label type="strong" label="${journalReference}"></capitec-label>
 				</div>
 
 				<div row="5" column="1" colspan="4">
@@ -405,14 +449,21 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			account = item.transactions[0].accountNumber;
 
 			advanceRepayment = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
+
+			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
 		}
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
 
-			airtimeSurplus = `R${parseFloat(item.recharges[0].quantity).toFixed(2)}`; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 		}
+
+		airtimeSurplus = "R" + airtimeSurplus;
+
+		let statusReason = item.transactions[0]?.statusReason || null;
+		let transactionStatus = item.transactions[0]?.status || null;
 
 		statusOfRecharge = toTitleCase(statusOfRecharge);
 		product = toTitleCase(product);
@@ -464,9 +515,71 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					<capitec-label label="${advanceRepayment}"></capitec-label>
 					<capitec-label label="${airtimeSurplus}"></capitec-label>
 				</div>
+
+				${(transactionStatus !== null && transactionStatus.toUpperCase() !== "SUCCESSFUL") ? html`
+				<capitec-spacer></capitec-spacer>
+				<div row="5" column="1">
+					<capitec-label label="Error Type"></capitec-label>
+					${statusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
+				</div>
+				<div row="5" column="2">
+					<capitec-label label="${transactionStatus}"></capitec-label>
+					${statusReason !== null ? html`<capitec-label label="${statusReason}"></capitec-label>` : ``}
+				</div>
+				` : ``}
 			</capitec-group>
 
 			<capitec-button slot="footer" type="primary" label="Close" @click="${() => { this.selectedAdvanceView = null; }}"></capitec-button>
+		</capitec-modal>`;
+	}
+
+	_renderAdvanceBalanceModal() {
+		return html`
+		<capitec-modal type="form" header="Advance Balance">
+			${!this.advanceBalances.length ? html`
+			<capitec-group slot="body" layout="grid" gap="clear">
+				<div row="1" column="1">
+					<capitec-label type="strong" label="Advances balance not available"></capitec-label>
+				</div>
+			</capitec-group>
+			` : ``}
+			${this.advanceBalances.map(ab => html`
+				<capitec-group slot="body" layout="grid" gap="clear">
+					<div row="1" column="1" colspan="2">
+						<capitec-label type="strong" label="${ab.msisdn}"></capitec-label>
+					</div>
+					<div row="2" column="1">
+						<capitec-label label="Qualify"></capitec-label>
+						<capitec-label label="Available" type="strong"></capitec-label>
+						<capitec-label label="Taken"></capitec-label>
+						<capitec-label label="Fee"></capitec-label>
+						<capitec-label label="Total Outstanding" type="strong"></capitec-label>
+						<capitec-label label="Overdue"></capitec-label>
+						<capitec-label label="Status"></capitec-label>
+						${ab.nextPaymentDate && html`
+							<capitec-label label="Next payment date"></capitec-label>
+						`}
+					</div>
+					<div row="2" column="2">
+						<capitec-label label="R${parseFloat(ab.qualifyingLoanAmount).toFixed(2)}"></capitec-label>
+						<capitec-label label="R${parseFloat(ab.availableBalance).toFixed(2)}" type="strong"></capitec-label>
+						<capitec-label label="R${parseFloat(ab.totalOutstandingAdvanceBalance).toFixed(2)}"></capitec-label>
+						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}"></capitec-label>
+						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}" type="strong"></capitec-label>
+						<capitec-label label="${ab.repayDays > 0 ? 'YES' : '--'}"></capitec-label>
+						<capitec-label label="${ab.status || '--'}"></capitec-label>
+						${ab.nextPaymentDate && html`
+							<capitec-label label="${ab.nextPaymentDate}"></capitec-label>
+						`}
+					</div>
+
+					<div row="3" column="1" colspan="2">
+						<hr style="border-bottom: none;">
+					</div>
+				</capitec-group>`
+			)};
+
+			<capitec-button slot="footer" type="primary" label="Close" @click="${() => { this.advanceBalances = []; this.advanceBalancePopupOpen = false }}"></capitec-button>
 		</capitec-modal>`;
 	}
 
