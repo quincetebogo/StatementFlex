@@ -448,6 +448,14 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"getClientDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getEmployer" : {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureLifePremiumHistory": {
 			"enabled": false,
 			"positiveCase": true
@@ -457,6 +465,10 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCalculateEstimate": {
 			"enabled": false,
 			"positiveCase": true
 		}
