@@ -154,16 +154,20 @@ class LifeBeneficiariesAllocateError extends Component {
 					<span>
 						<capitec-group layout="horizontal">
 							<capitec-icon size="medium" icon="status/warning-trans" style="height: 28px; width: 26px;"></capitec-icon>
-							<capitec-label class="header-text" label="Allocation mismatch"></capitec-label>
+							<capitec-label class="header-text" label="Allocate Cover amount"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
 				<div slot="body" id="dialog-body">
 					<capitec-content-box gap="0px">
-						<p>The full cover amounts for all benefit payout options utilized, must be fully allocated to nominated people. Please check below tabs.</p>
-						${this.invalidPockets.map((pocket) => html`
-							<div><b>${pocket}</b></div>
-						`)}
+						<p>The full cover amount for each payout option must be allocated to the people nominated to receive a payout.</p>
+						<div>Please review the following payout options:</div>
+						<ul>
+							${this.invalidPockets.map((pocket) => html`
+								<li><b>${pocket}</b></li>
+							`)}
+						</ul>
+						
 					</capitec-content-box>
 				</div>
 				<div slot="footer" style="display: flex; flex-direction: column">

@@ -112,13 +112,11 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.eligibleBeneficiariesForQuickAdd = this._calculateQuickAddBeneficiaries();
+		console.log(this.eligibleBeneficiariesForQuickAdd);
 		if (this.eligibleBeneficiariesForQuickAdd.length === 0) {
-			console.log(`NEW!`);
 			this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
 		} else {
-			console.log(`EXISTING!`);
 		}
-
 
 		if (this.policy.beneficiaries.length > 0) {
 			for (const bene of this.policy.beneficiaries) {
@@ -145,7 +143,7 @@ class LifeAddBeneficiaryDialog extends Component {
 				this.pocketBeneficiaries.push(bene);
 			}
 		}
-		this._calculateCoverBreakdown(null);
+		this._calculateCoverBreakdown();
 	}
 
 	/**
@@ -156,14 +154,14 @@ class LifeAddBeneficiaryDialog extends Component {
 		const eligible = [];
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			for (const bene of this.policy.beneficiaries) {
-				if (bene.metaData.monthlyBenefitAdded === false && bene.metaData.monthlyBenefitAdded) {
+				if (bene.metaData.onceOffBenefitAdded === true) {
 					eligible.push(bene);
 				}
 			}
 		}
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			for (const bene of this.policy.beneficiaries) {
-				if (bene.metaData.onceOffBenefitAdded === false && bene.metaData.onceOffBenefitAdded) {
+				if (bene.metaData.monthlyBenefitAdded === true) {
 					eligible.push(bene);
 				}
 			}
@@ -173,10 +171,9 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	/**
 	 * Determine the initial cover breakdown for the selected pocket
-	 * @param {Object} newBeneficiary new beneficiary being added
 	 * @returns {void}
 	 */
-	_calculateCoverBreakdown(newBeneficiary) {
+	_calculateCoverBreakdown() {
 		let totalAllocated = 0;
 		for (const bene of this.pocketBeneficiaries) {
 			if (bene.metaData.monthlyBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
@@ -196,6 +193,10 @@ class LifeAddBeneficiaryDialog extends Component {
 				totalAllocated += this.newBeneficiary.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount);
 			}
 		}
+
+		console.log('this.pocketRemainingCover :>> ', this.pocketRemainingCover);
+		console.log('this.totalPocketCover :>> ', this.totalPocketCover);
+		console.log('totalAllocated :>> ', totalAllocated);
 
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
 	}
@@ -223,6 +224,13 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_continueWithNewBeneficiary() {
 		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
+		this.newBeneficiary = {
+			metaData: {
+				monthlyBenefitAdded: false,
+				onceOffBenefitAdded: false,
+				uniqueId: v4()
+			}
+		};
 		this.newOrExistingErrorMessage = ``;
 	}
 
@@ -235,7 +243,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	_continueWithExistingBeneficiary(beneficiary) {
 		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.EXISTING;
 		this.newOrExistingErrorMessage = ``;
-
 		this.newBeneficiary = beneficiary;
 	}
 
@@ -469,7 +476,7 @@ class LifeAddBeneficiaryDialog extends Component {
 					bene.metaData.onceOffBenefitAdded = true;
 				}
 			}
-			this._calculateCoverBreakdown(bene);
+			this._calculateCoverBreakdown();
 		}
 		this.requestUpdate();
 	}
@@ -498,19 +505,26 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
 			if (this.currentStep === 1) {
 				if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.UNSET) {
-					this.newOrExistingErrorMessage = `Please select an existing beneficiary or add a new one`;
+					this.newOrExistingErrorMessage = `Please select an existing adult or add a new one`;
+					console.log(`3434`);
 					stepValid = false;
 				}
 			}
 
 			if (this.currentStep === 2) {
+				console.log(`222`);
 				stepValid = this._validateBeneficiaryDetails();
+				if (stepValid && this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING) {
+					this.pocketBeneficiaries.push(this.newBeneficiary);
+				}
 			}
 		} else {
+			console.log(`ELSIE`);
 			stepValid = this._validateBeneficiaryDetails();
 		}
 
 		if (stepValid === true) {
+			console.log(`ffff`);
 			this.currentStep++;
 
 			this.newBeneficiaryErrors = {};
@@ -527,7 +541,12 @@ class LifeAddBeneficiaryDialog extends Component {
 	_backClick() {
 		this.currentStep--;
 
-		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
+		if (this.currentStep === 1 && this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING) {
+			this.pocketBeneficiaries.pop();
+			this._calculateCoverBreakdown();
+		}
+
+		// this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
 		this.beneficiaryDetailsErrorMessage = ``;
 		this.allocateMoneyErrorMessage = ``;
 	}
@@ -543,7 +562,8 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`add-beneficiary`, {
 				detail: {
-					beneficiary: this.newBeneficiary
+					beneficiary: this.newBeneficiary,
+					beneficiaryType: this.newBeneficiaryType
 				}
 			}));
 		}
@@ -707,7 +727,7 @@ class LifeAddBeneficiaryDialog extends Component {
 
 				<horizon-product-tile
 					type="radio-button"
-					label="Add New Beneficiary"
+					label="Add New Person"
 					subtitle="Not in any pocket"
 					?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW}"
 					@click="${() => this._continueWithNewBeneficiary()}">

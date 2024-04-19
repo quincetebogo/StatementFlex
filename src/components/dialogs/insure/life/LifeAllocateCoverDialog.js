@@ -177,10 +177,7 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Set Allocate values
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
-			// this.calculatedPremium = this.updatedPolicy.totalPremium;
-			// this.riskRate = this.newOffer.riskRate;
-			// this.channelFee = this.newOffer.channelFee;
-			// this.totalLoadingApplied = this.newOffer.totalLoadingApplied;
+			// MANAGE POLICY
 		} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 			this.calculatedPremium = 0;
 			this.remainingCoverToAllocate = this.newOffer.maximumAllowedCover;
@@ -577,13 +574,17 @@ class LifeAllocateCoverDialog extends Component {
 
 	_addBeneficiary(event) {
 		const beneficiary = event.detail.beneficiary;
-		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			beneficiary.metaData.monthlyBenefitAdded = true;
+		const beneficiaryType = event.detail.beneficiaryType;
+
+		if (beneficiaryType === `NEW`) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				beneficiary.metaData.monthlyBenefitAdded = true;
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				beneficiary.metaData.onceOffBenefitAdded = true;
+			}
+			this.updatedPolicy.beneficiaries.push(beneficiary);
 		}
-		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			beneficiary.metaData.onceOffBenefitAdded = true;
-		}
-		this.updatedPolicy.beneficiaries.push(beneficiary);
 		this.showAddBeneficiaryDialog = false;
 	}
 
@@ -864,7 +865,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.invalidPocketNames = [];
 			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
 			stepValid = allocatedStepResults[0];
-		
+
 			if (stepValid === false) {
 				this.invalidPocketNames = allocatedStepResults[1];
 				this.showBeneficiariesAllocateErrorDialog = true;

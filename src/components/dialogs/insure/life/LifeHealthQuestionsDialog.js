@@ -245,6 +245,15 @@ class LifeHealthQuestionsDialog extends Component {
 					line-height: 20px;
 					margin: 10px 0px;
 				}
+
+				.offer-details-cell{
+					text-align: center;
+				}
+
+				.offer-details-value{
+					font-weight: bold;
+					font-size: 20px;
+				}
 				`
 		];
 	}
@@ -290,15 +299,18 @@ class LifeHealthQuestionsDialog extends Component {
 					${this._renderRadioGroup()}
 				`}` : html`
 				<div style="min-width: 350px; min-height: 140px;">
-					<div style="display: flex; justify-content: space-around; padding-top: 40px;">
-						<horizon-label label="Get up to"
-							value="${formatCurrencyInsureCoverAmount(formatCurrency(this.allowedCoverResults?.maximumAllowedCover))}">
-						</horizon-label>
+					<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
+						<div class="offer-details-cell">
+							<div>Get up to</div>
+							<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.allowedCoverResults?.maximumAllowedCover))}</div>
+						</div>
 				
-						<horizon-label label="Monthly Premium"
-							value="${formatCurrency(this.allowedCoverResults?.maximumPremium)}">
-						</horizon-label>
+						<div class="offer-details-cell">
+							<div>Monthly Premium</div>
+							<div class="offer-details-value">${formatCurrency(this.allowedCoverResults?.maximumPremium)}</div>
+						</div>
 					</div>
+					<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>
 				</div>
 			`}
 		`;
