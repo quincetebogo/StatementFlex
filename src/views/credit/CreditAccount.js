@@ -589,12 +589,16 @@ export class CreditAccount extends ViewBase {
 
 			this.creditBalance = returnValue.result;
 
-			await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident(null, false);
+			if (this.horizonStore.getScreenDetails()?.returningFromScreen === `card-disputes-success-done`) {
+				this.horizonStore.clearScreenDetails();
+				this.horizonStore.clearReturnScreen();
+			} else {
+				await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+				await super.createAndClassifySubIncident(null, false);
 
-			// setting inc status to not started for landing page needs
-			this._setIncidentNotstarted();
-
+				// setting inc status to not started for landing page needs
+				this._setIncidentNotstarted();
+			}
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
 				"credit-active": true
@@ -665,6 +669,13 @@ export class CreditAccount extends ViewBase {
 
 		this.productType = productType;
 		await super.createAndClassifySubIncident(null, false);
+
+		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.creditType = creditType;
+		screenDetails.productType = productType;
+		screenDetails.selectedAccounts = accountDetails;
+		this.horizonStore.setScreenDetails(screenDetails);
 
 		this._setAccountHeaderDetails(accountDetails);
 		this._getTransactionHistory();
@@ -749,6 +760,7 @@ export class CreditAccount extends ViewBase {
 
 		await super.classifyIncident(() => this._toggleBusyFlag());
 
+		this.horizonStore.clearScreenDetails();
 		this._setIncidentDone();
 	}
 
@@ -1244,7 +1256,7 @@ export class CreditAccount extends ViewBase {
 		screenDetails.agentAnswerWording = event.detail.agentAnswerWording;
 
 		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, ``);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `transaction-history`);
 
 		this.horizonRouter.navigateToDisputesSuccess();
 	}
