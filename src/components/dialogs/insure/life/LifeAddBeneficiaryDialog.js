@@ -112,7 +112,6 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.eligibleBeneficiariesForQuickAdd = this._calculateQuickAddBeneficiaries();
-		console.log(this.eligibleBeneficiariesForQuickAdd);
 		if (this.eligibleBeneficiariesForQuickAdd.length === 0) {
 			this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
 		} else {
@@ -193,11 +192,6 @@ class LifeAddBeneficiaryDialog extends Component {
 				totalAllocated += this.newBeneficiary.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount);
 			}
 		}
-
-		console.log('this.pocketRemainingCover :>> ', this.pocketRemainingCover);
-		console.log('this.totalPocketCover :>> ', this.totalPocketCover);
-		console.log('totalAllocated :>> ', totalAllocated);
-
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
 	}
 
@@ -506,25 +500,21 @@ class LifeAddBeneficiaryDialog extends Component {
 			if (this.currentStep === 1) {
 				if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.UNSET) {
 					this.newOrExistingErrorMessage = `Please select an existing adult or add a new one`;
-					console.log(`3434`);
 					stepValid = false;
 				}
 			}
 
 			if (this.currentStep === 2) {
-				console.log(`222`);
 				stepValid = this._validateBeneficiaryDetails();
 				if (stepValid && this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING) {
 					this.pocketBeneficiaries.push(this.newBeneficiary);
 				}
 			}
 		} else {
-			console.log(`ELSIE`);
 			stepValid = this._validateBeneficiaryDetails();
 		}
 
 		if (stepValid === true) {
-			console.log(`ffff`);
 			this.currentStep++;
 
 			this.newBeneficiaryErrors = {};
@@ -558,7 +548,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_addClick() {
 		const allocationValid = this._validateAllocateCover();
-		console.log(this.newBeneficiary);
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`add-beneficiary`, {
 				detail: {
