@@ -136,6 +136,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} lifeCancelAgreementDocument contains the cancel policy document details
 	 * @property {Object} lifeDocsToEmail contains Life Document details to email
 	 * @property {Object} lifeUpdateBankingDetailsAgreement contains the update banking details document details
+	 * @property {Object} lifePolicyMandates contains life policy mandates
 	 * 
 	 * @readonly
 	 * @static
@@ -176,6 +177,7 @@ export class ExistingClient extends InsureViewBase {
 			defaultSavingsAccountAvailableBalance: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
 			lifePolicyArrears: { type: Object, state: true },
+			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			isLifeQualifyingClient: { type: Boolean, state: true }
@@ -1335,6 +1337,28 @@ export class ExistingClient extends InsureViewBase {
 		this.lifePolicyArrears = resp.result;
 	}
 
+		/**
+	 * gets the life policy mandates
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyMandates(selectedPolicy) {
+		const mandatesRequest =
+		{
+			"contractReference": selectedPolicy,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeGetMandates(mandatesRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.lifePolicyMandates = resp.result;
+	}
+
 	/**
 	 * gets clients arrears and payable accounts
 	 * 
@@ -2223,6 +2247,8 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
+				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(policy)}"
+				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}
