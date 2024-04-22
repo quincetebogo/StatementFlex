@@ -420,6 +420,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureLifeGetMandates": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"insureLifeGetArrears": {
 			"enabled": false,
 			"positiveCase": true
