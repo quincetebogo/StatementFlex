@@ -118,9 +118,9 @@ class LifeAddBeneficiaryDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
-			steps = [{ title: `New or existing` }, { title: `Beneficiary details` }, { title: `Allocate cover` }];
+			steps = [{ title: `New or existing` }, { title: `Personal details` }, { title: `Allocate cover` }];
 		} else {
-			steps = [{ title: `Beneficiary details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Personal details` }, { title: `Allocate cover` }];
 		}
 		return steps;
 	}
@@ -413,13 +413,13 @@ class LifeAddBeneficiaryDialog extends Component {
 
 	_determinePocketLabel() {
 		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
+			return `Children's Needs`;
 		}
 		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
+			return `Monthly Income`;
 		}
 		if (this.selectedPocket?.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
+			return `Lump Sum`;
 		}
 	}
 

@@ -104,11 +104,11 @@ class LifePolicySummary extends Component {
 	_displayPocketTypeLabel(pocketType) {
 
 		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
+			return `Monthly Income`;
 		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
+			return `Children's Needs`;
 		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
+			return `Lump Sum`;
 		}
 	}
 

@@ -74,7 +74,8 @@ export default class InsureChannelServiceMocks {
 		this.lifePremiumHistoryMocks = await this._loadMockModule(this.lifePremiumHistoryMocks, `insureLifePremiumHistory`, () => import(`../mocks/insure/life/LifePremiumHistory`).catch(err => logError(err)));
 		this.lifeSMSHistoryMocks = await this._loadMockModule(this.lifeSMSHistoryMocks, `insureLifeSMSHistory`, () => import(`../mocks/insure/life/LifeSMSHistory`).catch(err => logError(err)));
 		this.genericLifeDocumentMocks = await this._loadMockModule(this.genericLifeDocumentMocks, `insureGenericLifeDocument`, () => import(`../mocks/insure/life/GenericLifeDocument`).catch(err => logError(err)));
-		
+		this.lifeAllowedCoverMocks = await this._loadMockModule(this.lifeAllowedCoverMocks, `insureAllowedCover`, () => import(`../mocks/insure/life/LifeAllowedCover`).catch(err => logError(err)));
+		this.lifeClientQualifiesMocks = await this._loadMockModule(this.lifeAllowedCoverMocks, `insureLifeClientQualifies`, () => import(`../mocks/insure/life/LifeQualifies`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -402,6 +403,28 @@ export default class InsureChannelServiceMocks {
 	insureGenericLifeDocument() {
 		if (this._mockSettings.insureGenericLifeDocument.positiveCase) {
 			return this.genericLifeDocumentMocks.insureGenericLifeDocument;
+		}
+		return null;
+	}
+
+	/**
+	 * life allowed cover mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureAllowedCover() {
+		if (this._mockSettings.insureAllowedCover.positiveCase) {
+			return this.lifeAllowedCoverMocks.insureAllowedCover;
+		}
+		return null;
+	}
+
+	/**
+	 * life client qualifies mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeClientQualifies() {
+		if (this._mockSettings.insureLifeQualifies.positiveCase) {
+			return this.lifeClientQualifiesMocks.insureLifeQualifies;
 		}
 		return null;
 	}

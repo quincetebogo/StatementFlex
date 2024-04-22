@@ -217,7 +217,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -241,7 +241,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -413,7 +413,7 @@
 			"positiveCase": true
 		},
 		"insureLifeClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
@@ -474,6 +474,14 @@
 		},
 		"insureCalculateEstimate": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insureAllowedCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeQualifies": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

@@ -394,3 +394,28 @@ export const LIFE_ARREARS_STATUSES = Object.freeze({
 	PENDING: `PENDING`,
 	PAID: `PAID`
 });
+
+/**
+ * LIFE_UPDATE_MODE
+ *
+ * @readonly
+ * @enum {Object} LIFE_UPDATE_MODE
+ */
+export const LIFE_UPDATE_MODE = Object.freeze({
+	INCREASE: `INCREASE`,
+	ALLOCATE: `ALLOCATE`,
+	REISSUE: `REISSUE`
+});
+
+/**
+ * List of beneficiary types for life cover
+ * @readonly
+ * @enum {Object} LIFE_RELATIONSHIP_TYPES
+ */
+export const LIFE_BENEFICIARY_RELATIONSHIP_TYPES = Object.freeze([
+	{ code: `Spouse`, text: `Spouse` },
+	{ code: `Child`, text: `Child` },
+	{ code: `Parent`, text: `Parent` },
+	{ code: `ExtendedFamily`, text: `Extended Family` },
+	{ code: `Others`, text: `Other` }
+]);

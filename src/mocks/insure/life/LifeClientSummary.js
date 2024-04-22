@@ -45,29 +45,7 @@ export const insureLifeClientSummary = {
 					"premium": 0.000000000000000
 				}
 			],
-			"arrears": [
-				{
-					"arrearsID": `AR0000000194`,
-					"arrearsPaymentStatus": `PENDING`,
-					"arrearsPaymentDueAmount": `414.1200000000`,
-					"arrearsPaymentDueDate": `2023-09-05T00:00:00+00:00`,
-					"arrearsPaymentReceivedAmount": `0.0000000000`
-				},
-				{
-					"arrearsID": `AR0000000195`,
-					"arrearsPaymentStatus": `PENDING`,
-					"arrearsPaymentDueAmount": `414.1200000000`,
-					"arrearsPaymentDueDate": `2023-10-05T00:00:00+00:00`,
-					"arrearsPaymentReceivedAmount": `0.0000000000`
-				},
-				{
-					"arrearsID": `AR0000000196`,
-					"arrearsPaymentStatus": `PENDING`,
-					"arrearsPaymentDueAmount": `414.1200000000`,
-					"arrearsPaymentDueDate": `2023-11-05T00:00:00+00:00`,
-					"arrearsPaymentReceivedAmount": `0.0000000000`
-				}
-			],
+			"arrears": [],
 			"beneficiaries": [
 				{
 					"firstName": `Bene`,
@@ -127,16 +105,17 @@ export const insureLifeClientSummary = {
 		},
 		{
 			"contractReference": `LP00001379`,
-			"policyStatus": `Not Taken Up`,
-			"policyStatusEnum": `NotTakenUp`,
-			"displayPolicyStatus": `Not Taken Up`,
+			"policyStatus": `Cancelled`,
+			"policyStatusEnum": `Cancelled`,
+			"displayPolicyStatus": `Cancelled`,
 			"policyStartDate": `2023-11-09T00:00:00+00:00`,
 			"actualCancellationDate": `2023-11-14T00:00:00+00:00`,
 			"cancellationReason": ``,
 			"cancellationReasonEnum": `Unknown`,
-			"totalPremium": 0.0000000000,
+			"totalPremium": 1163.0000000000,
 			"nextCollectionDate": `2023-12-28T00:00:00+00:00`,
 			"nextCollectionAmount": 1163.2000000000,
+			"canReIssue": true,
 			"bankDetails": {
 				"accountName": `Justin Brennand`,
 				"branchCode": `470010`,
@@ -154,8 +133,8 @@ export const insureLifeClientSummary = {
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 1000000.000000000,
-					"premium": 571.1000000000000
+					"coverage": 0.000000000000000,
+					"premium": 0.000000000000000
 				},
 				{
 					"pocketType": `Education`,
@@ -168,7 +147,7 @@ export const insureLifeClientSummary = {
 					"firstName": `Bene`,
 					"lastName": `Fish`,
 					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 1000000.0000000000,
+					"onceOffPayoutBenefitAmount": 0.0000000000,
 					"educationBenefitAmount": 0.0000000000,
 					"monthlyPayoutBenefitAmount": 1000000.0000000000,
 					"bankDetails": {
@@ -181,11 +160,12 @@ export const insureLifeClientSummary = {
 					"gender": `Male`,
 					"dateOfBirth": `1968-12-16T00:00:00+00:00`,
 					"contactNumber": `0823214321`,
+					"idNumber": `9299292939292`,
 					"clientType": `Adult`,
 					"clientId": `983A69FA-E493-4E70-B9A9-1CB577DED4F4`
 				}
 			],
-			"totalPolicySumAssured": 2000000.0000000000,
+			"totalPolicySumAssured": 3000000.0000000000,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
