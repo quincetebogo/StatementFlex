@@ -260,6 +260,9 @@ class ClientSummary extends Component {
 		this.selectedInsureTabIndex = e.detail.selectedIndex;
 		if (this.readOnlyMode === false) {
 			if (e.detail.selectedIndex === 1) {
+				this.setInsureIncident(`life-cover-summary`);
+				return;
+			} else if (e.detail.selectedIndex === 2) {
 				this.setInsureIncident(`view-insurance-claim-summary`);
 				return;
 			}
@@ -724,6 +727,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_openLifeEmailDialog(policy) {
+		this.setInsureIncident(`life-cover-send-document`);
 		this.showLifeEmailDialog = true;
 		this.selectedLifePolicy = policy;
 	}
@@ -778,6 +782,7 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	_openLifeCancelPolicyDialog(selectedPolicy) {
+		this.setInsureIncident(`life-cover-cancel`);
 		this.contractReferenceToCancel = selectedPolicy?.contractReference;
 		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeCancelPolicyDialog = true;
@@ -789,6 +794,7 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	_openLifeUpdateBankDetailsDialog(selectedPolicy) {
+		this.setInsureIncident(`life-cover-update-payment-details`);
 		this.showLifeUpdateBankDetailsDialog = true;
 		this.selectedLifePolicy = selectedPolicy;
 	}
@@ -800,7 +806,7 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	async _openLifePayArrearsDialog(selectedPolicy) {
-
+		this.setInsureIncident(`life-cover-pay-arrears`);
 		// Call get arrears service
 		await this.lifeGetPolicyArrears(selectedPolicy);
 
@@ -815,6 +821,7 @@ class ClientSummary extends Component {
 	 * @returns {void} 
 	 */
 	async _openHealthQuestionsDialog(selectedPolicy, selectedLifeUpdateMode) {
+		this.setInsureIncident(`life-cover-increase-cover`);
 		this.lifeUpdateMode = selectedLifeUpdateMode;
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
 		this.selectedLifePolicy = selectedPolicy;
@@ -822,6 +829,7 @@ class ClientSummary extends Component {
 	}
 
 	_openAllocateCoverDialog(selectedPolicy, selectedLifeUpdateMode) {
+		this.setInsureIncident(`life-cover-manage-cover`);
 		this.lifeUpdateMode = selectedLifeUpdateMode;
 		this.selectedLifePolicy = selectedPolicy;
 		this.showLifeAllocateCoverDialog = true;

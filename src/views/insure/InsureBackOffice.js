@@ -86,7 +86,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			claims: { type: Object, state: true },
 			selectedInsureTabIndex: { type: Number, state: true },
 			isLifeQualifyingClient: { type: Boolean, state: true },
-			selectedFuneralPolicyProductCode: { type: String, state: true }
+			selectedFuneralPolicyProductCode: { type: String, state: true },
+			lifePolicyMandates: { type: Object, state: true }
 		};
 	}
 
@@ -284,6 +285,28 @@ export class InsureBackOfficeView extends InsureViewBase {
 			this.callerInformation.southAfricanIDNumber
 		);
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_SUMMARY);
+	}
+
+	/**
+	 * gets the life policy mandates
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyMandates(selectedPolicy) {
+		const mandatesRequest =
+		{
+			"contractReference": selectedPolicy,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeGetMandates(mandatesRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.lifePolicyMandates = resp.result;
 	}
 
 	/**
@@ -582,6 +605,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-client-summary 
 				.funeralPolicies = "${this.funeralPolicies}" 
+				.cifNumber="${this.callerInformation.cifNumber}"
 				.lifePolicies="${this.lifePolicies}" 
 				.readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
@@ -697,6 +721,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
+				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(this.policy)}"
+				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}

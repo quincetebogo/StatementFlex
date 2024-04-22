@@ -66,6 +66,7 @@ export default class InsureChannelServiceMocks {
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
 		this.lifeCancelPolicyMocks = await this._loadMockModule(this.lifeCancelPolicyMocks, `insureLifeCancelPolicy`, () => import(`../mocks/insure/life/LifeCancelPolicy`).catch(err => logError(err)));
+		this.lifeGetMandatesMocks = await this._loadMockModule(this.lifeGetMandatesMocks, `insureLifeGetMandates`, () => import(`../mocks/insure/life/LifeGetMandates`).catch(err => logError(err)));
 		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
 		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
 		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
@@ -314,6 +315,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeCancelPolicy() {
 		if (this._mockSettings.insureLifeCancelPolicy.positiveCase) {
 			return this.lifeCancelPolicyMocks.insureLifeCancelPolicy;
+		}
+		return null;
+	}
+
+	/**
+	 * Get Mandates policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeGetMandates() {
+		if (this._mockSettings.insureLifeGetMandates.positiveCase) {
+			return this.lifeGetMandatesMocks.insureLifeGetMandates;
 		}
 		return null;
 	}
