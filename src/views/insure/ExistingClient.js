@@ -1306,6 +1306,7 @@ export class ExistingClient extends InsureViewBase {
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
 
+		console.log(`allowedCoverRequest :>> `, allowedCoverRequest);
 		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);

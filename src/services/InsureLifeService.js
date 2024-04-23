@@ -268,6 +268,7 @@ export class InsureLifeService extends ChannelServiceBase {
 		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/product/health-questions`,
+			healthQuestionsRequest,
 			this._setInsureHeaders(),
 			`lifeHealthQuestions`,
 			null,

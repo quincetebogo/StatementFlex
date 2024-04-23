@@ -437,7 +437,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -477,7 +477,7 @@
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeQualifies": {
