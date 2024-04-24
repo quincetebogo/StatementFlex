@@ -185,7 +185,8 @@ class LifeHealthQuestionsDialog extends Component {
 	_continueToAllocation() {
 		this.dispatchEvent(new CustomEvent(`continue`, {
 			detail: {
-				allowedCoverResults: this.allowedCoverResults
+				allowedCoverResults: this.allowedCoverResults,
+				allowedCoverAnswers: this.finalAnswers
 			}
 		}));
 	}

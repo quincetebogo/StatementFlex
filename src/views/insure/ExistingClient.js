@@ -478,7 +478,7 @@ export class ExistingClient extends InsureViewBase {
 				"currentAccountType": policy.bankDetails.accountType,
 				"newAccountType": updatedPolicy.bankDetails.accountType,
 				"collectionDay": updatedPolicy.bankDetails.collectionDay
-			  }
+			}
 		};
 		// Fix this
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
@@ -758,7 +758,7 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-	
+
 		const resp = await this.insureFuneralService.clientSummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
@@ -1306,7 +1306,6 @@ export class ExistingClient extends InsureViewBase {
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
 
-		console.log(`allowedCoverRequest :>> `, allowedCoverRequest);
 		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
@@ -1314,6 +1313,32 @@ export class ExistingClient extends InsureViewBase {
 		}
 		return resp.result;
 	}
+
+	//
+
+	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
+		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
+
+		console.log(`generateIssueAgreementRequest: `, generateIssueAgreementRequest);
+		const resp = await this.insureLifeService.lifeIssueAgreement(generateIssueAgreementRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	_lifeReIssue(reIssueRequest) {
+		console.log(`executeLifeReIssue`);
+		reIssueRequest.idNumber = this.callerInformation.southAfricanIDNumber;
+		reIssueRequest.cifNumber = this.callerInformation.cifNumber;
+	}
+
+	_lifeIssue(issueRequest) {
+		console.log(`executeLifeIssue`);
+	}
+
+	//
 
 	_lifeUpdatePolicy(updatePolicyRequest) {
 		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, updatePolicyRequest.emailDetails.emailAddress, updatePolicyRequest.emailDetails.contractReference);
@@ -1345,12 +1370,12 @@ export class ExistingClient extends InsureViewBase {
 		this.lifePolicyArrears = resp.result;
 	}
 
-		/**
-	 * gets the life policy mandates
-	 * 
-	 * @param {object} selectedPolicy the selected policy
-	 * @returns {void}
-	 */
+	/**
+ * gets the life policy mandates
+ * 
+ * @param {object} selectedPolicy the selected policy
+ * @returns {void}
+ */
 	async _retrieveLifePolicyMandates(selectedPolicy) {
 		const mandatesRequest =
 		{
@@ -1477,7 +1502,7 @@ export class ExistingClient extends InsureViewBase {
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
 			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
-			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
 			}
 		});
 
@@ -2041,6 +2066,9 @@ export class ExistingClient extends InsureViewBase {
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
+				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this._lifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
+				.executeLifeReIssue="${(reIssueRequest) => this._lifeReIssue(reIssueRequest)}"
+				.executeLifeIssue="${(issueRequest) => this._lifeIssue(issueRequest)}"
 				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"

@@ -156,6 +156,9 @@ class ClientSummary extends Component {
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
 			executeLifeUpdatePolicy: { type: Object, state: true },
+			executeLifeGenerateIssueAgreement: { type: Object, state: true },
+			executeLifeReIssue: { type: Object, state: true },
+			executeLifeIssue: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -218,6 +221,8 @@ class ClientSummary extends Component {
 			isOnlyProductEnquiry: { type: Boolean, state: true },
 			setInsureIncident: { type: Object, state: true },
 			isLifeQualifyingClient: { type: Boolean, state: true },
+			newOffer: { type: Object, state: true },
+			newOfferAnswers: { type: Array, state: true },
 
 			lifeUpdateMode: { type: String, state: true }
 		};
@@ -711,6 +716,8 @@ class ClientSummary extends Component {
 	 */
 	_lifeHealthQuestionsCompleted(e) {
 		this.newOffer = e.detail.allowedCoverResults;
+		this.newOfferAnswers = e.detail.allowedCoverAnswers;
+
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
 	}
@@ -2544,8 +2551,12 @@ class ClientSummary extends Component {
 			<horizon-insure-life-allocate-cover-dialog
 				.currentPolicy="${this.selectedLifePolicy}"
 				.newOffer="${this.newOffer}"
+				.newOfferAnswers="${this.newOfferAnswers}"
 				.updateMode="${this.lifeUpdateMode}"
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
+				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this.executeLifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
+				.executeLifeReIssue="${(reIssueRequest) => this.executeLifeReIssue(reIssueRequest)}"
+				.executeLifeIssue="${(issueRequest) => this.executeLifeIssue(issueRequest)}"
 				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;

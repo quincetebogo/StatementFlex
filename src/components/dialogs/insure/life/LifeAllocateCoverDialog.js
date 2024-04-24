@@ -33,6 +33,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.updateMode = ``;
 		this.isNewOffer = false;
 		this.newOffer = {};
+		this.newOfferAnswers = [];
 
 		this.calculatedPremium = 0;
 		this.riskRate = 0;
@@ -85,6 +86,7 @@ class LifeAllocateCoverDialog extends Component {
 			updatedPolicy: { type: Object, state: true },
 			isNewOffer: { type: Boolean, state: true },
 			newOffer: { type: Object, state: true },
+			newOfferAnswers: { type: Array, state: true },
 			updateMode: { type: String, state: true },
 			calculatedPremium: { type: Number, state: true },
 
@@ -151,6 +153,7 @@ class LifeAllocateCoverDialog extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
+
 		this.updatedPolicy = { ...this.currentPolicy };
 		if (!isNullorEmpty(this.newOffer)) {
 			this.isNewOffer = true;
@@ -849,7 +852,7 @@ class LifeAllocateCoverDialog extends Component {
 	 * Next event from dialog footer button, validate step, call services and move to next step
 	 * @returns {void}
 	 */
-	_nextStep() {
+	async _nextStep() {
 		let stepValid = true;
 
 		// Allocate
@@ -858,6 +861,28 @@ class LifeAllocateCoverDialog extends Component {
 			if (stepValid === false) {
 				return;
 			}
+
+			const policyPockets = [];
+			if (this.monthlyCoverValue > 0) {
+				policyPockets.push({
+					"coverAmount": this.monthlyCoverValue,
+					"pocketType": `MonthlyPayout`
+				});
+			}
+			if (this.onceOffCoverValue > 0) {
+				policyPockets.push({
+					"coverAmount": this.onceOffCoverValue,
+					"pocketType": `LumpSum`
+				});
+			}
+			if (this.educationCoverValue > 0) {
+				policyPockets.push({
+					"coverAmount": this.educationCoverValue,
+					"pocketType": `Education`
+				});
+			}
+
+			this.updatedPolicy.pockets = policyPockets;
 		}
 
 		// Beneficiaries
@@ -887,8 +912,44 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
+			const reIssueRequest = {
+				"policyIssueDate": new Date(),
+				"previousPolicyNumber": this.updatedPolicy.contractReference,
+				"deductionDetails": {
+					"collectionDay": 0,
+					"bankDetails": {
+						// "accountName": this.updatedPolicy.bankDetails,
+						"branchCode": this.updatedPolicy.bankDetails.branchCode,
+						"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
+						"bank": this.updatedPolicy.bankDetails.bank,
+						"accountType": this.updatedPolicy.bankDetails.accountType
+					}
+				},
+				"totalLoadingApplied": this.newOffer.totalLoadingApplied,
+				"underwriting": this.newOffer.underwriting,
+				"channel": `Horizon`,
+				"riskRate": 0,
+				"channelFee": this.newOffer.channelFee,
+				"maxCoverApplicable": this.newOffer.maximumAllowedCover,
+				"beneficiaries": this.updatedPolicy.beneficiaries,
+				"pockets": this.updatedPolicy.pockets,
+				"answers": this.newOfferAnswers
+			};
+			const reIssueResult = await this.executeLifeReIssue(reIssueRequest);
+
+			console.log(`reIssueResult: `, reIssueResult);
+
+
 			// TODO Execute Agreement Call
-			this.agreementDocumentContent = null;
+			const agreementRequest = {
+				"saveDocument": false,
+				"policyNumber": this.updatedPolicy.contractReference,
+				"signatureDate": new Date()
+			};
+
+			const agreementResult = await this.executeLifeGenerateIssueAgreement(agreementRequest);
+			console.log(`agreementResult: `, agreementResult);
+			this.agreementDocumentContent = agreementResult.documentContent.base64EncodedString;
 		}
 
 		// All good move on

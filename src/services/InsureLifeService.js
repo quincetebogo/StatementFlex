@@ -493,7 +493,10 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	lifeReIssue(reIssueRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async lifeReIssue(reIssueRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeReIssuePolicy`)) {
+			return this.mock(`insureLifeReIssuePolicy`, reIssueRequest);
+		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/policy/re-issue`,
 			reIssueRequest,
@@ -542,7 +545,10 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	lifeCreatePolicy(issueRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async lifeCreatePolicy(issueRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeIssuePolicy`)) {
+			return this.mock(`insureLifeIssuePolicy`, issueRequest);
+		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/policy/create`,
 			issueRequest,

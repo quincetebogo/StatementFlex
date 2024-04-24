@@ -437,7 +437,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -469,7 +469,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCalculateEstimate": {
@@ -477,10 +477,18 @@
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeQualifies": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeReIssuePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIssuePolicy": {
 			"enabled": true,
 			"positiveCase": true
 		}
