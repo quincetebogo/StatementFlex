@@ -1009,6 +1009,21 @@ class LifeAllocateCoverDialog extends Component {
 					padding: 14px 24px;
 					border-radius:  5px;
 					margin-bottom:15px;
+					align-items: start;
+				}
+
+				.pocket-details-card-col{
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+					align-items: flex-end
+				}
+
+				.hint {
+					color: #969B9D;
+					
+					font-size: 12px;
+					font-weight: 300;
 				}
 
 				.pocket-details-badge{
@@ -1245,15 +1260,23 @@ class LifeAllocateCoverDialog extends Component {
 								@value-changed="${(e) => this._monthlyCoverChange(e, `TOTAL`)}"
 								error="${this.monthlyTotalCoverError}">
 							</capitec-text-field>
-							<capitec-text-field 
-								type="currency" 
-								class="pocket-details-input" 
-								label="They get" 
-								value="${this.monthlyCoverValue}"
-								@value-changed="${(e) => this._monthlyCoverChange(e, `PERMONTH`)}"
-								error="${this.monthlyCoverError}"
-								hint="Per month for 24 months. Minimum R1 000 per beneficiary">
-							</capitec-text-field>
+								<div class="pocket-details-card-col">
+									<capitec-text-field 
+										type="currency" 
+										class="pocket-details-input" 
+										label="They get" 
+										value="${this.monthlyCoverValue}"
+										@value-changed="${(e) => this._monthlyCoverChange(e, `PERMONTH`)}"
+										error="${this.monthlyCoverError}">
+									</capitec-text-field>
+									
+									<div class="hint" style="width:100%; padding-left: 17px">
+									Per month for 24 months.
+									</div>
+									<div class="hint" style="width:100%; padding-left: 17px; margin-bottom: 10px; line-height: 2px;">
+									Minimum R1 000 per beneficiary
+									</div>
+								</div>
 						</div>
 					</div>
 					<div class="pocket-details-card">
