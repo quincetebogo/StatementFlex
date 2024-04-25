@@ -34,6 +34,8 @@ class LifeAllocateCoverDialog extends Component {
 		this.isNewOffer = false;
 		this.newOffer = {};
 		this.newOfferAnswers = [];
+		
+		this.reIssueResult = {};
 
 		this.calculatedPremium = 0;
 		this.riskRate = 0;
@@ -272,22 +274,26 @@ class LifeAllocateCoverDialog extends Component {
 
 	/**
 	 * Change event for both monthly cover inputs
-	 * @param {event} event change event
+	 * @param {event} e change event
 	 * @param {string} type Monthly or Total
 	 * @returns {void}
 	 */
-	_monthlyCoverChange(event, type) {
-		if (type === `TOTAL`) {
-			this.monthlyTotalCoverValue = event.detail.new;
-			this.monthlyCoverValue = parseFloat(this.monthlyTotalCoverValue / 24).toFixed(0);
-		} else {
-			this.monthlyCoverValue = event.detail.new;
-			this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
-		}
+	_monthlyCoverChange(e) {
+		if (e.detail.new !== e.detail.old) {
+			const cover = parseFloat(e.detail.new);
+			if (!isNaN(cover) && cover >= 0) {
+				this.monthlyCoverValue = cover;
+				this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
+			} else {
+				this.monthlyCoverValue = 0;
+				this.monthlyTotalCoverValue = 0;
+				this.monthlyTotalCoverError = ``;
+			}
 
-		this.remainingCoverToAllocate = this._recalculateRemainingCover();
-		this._recalculatePremium();
-		this._validateAllocatePocketsStep();
+			this.remainingCoverToAllocate = this._recalculateRemainingCover();
+			this._recalculatePremium();
+			this._validateAllocatePocketsStep();
+		}
 	}
 
 	/**
@@ -398,6 +404,9 @@ class LifeAllocateCoverDialog extends Component {
 	_validateAllocatePocketsStep() {
 		let isValid = true;
 		this.allocatedCoverErrorMessage = ``;
+		this.monthlyTotalCoverError = ``;
+		this.educationCoverError = ``;
+		this.onceOffCoverError = ``;
 
 		// Nothing Allocated
 		if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
@@ -420,36 +429,28 @@ class LifeAllocateCoverDialog extends Component {
 				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 				isValid = false;
 			}
-		} else {
-			if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
-				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
-				isValid = false;
-			}
+		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
+			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
+			isValid = false;
 		}
 
 		// Check any errors on individual pockets
 		// Monthly
-		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && (this.monthlyTotalCoverValue !== 0 && !isNullorEmpty(this.monthlyTotalCoverValue))) {
+		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && this.monthlyTotalCoverValue !== 0) {
 			this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
-		} else {
-			this.monthlyTotalCoverError = ``;
 		}
 
 		// Education
 		if (parseFloat(this.educationCoverValue) < 50000 && this.educationCoverValue !== 0) {
 			this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM_EDUCATION;
 			isValid = false;
-		} else {
-			this.educationCoverError = ``;
 		}
 
 		// Once off
 		if (parseFloat(this.onceOffCoverValue) < 1000 && this.onceOffCoverValue !== 0) {
 			this.onceOffCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
-		} else {
-			this.onceOffCoverError = ``;
 		}
 
 		return isValid;
@@ -918,7 +919,6 @@ class LifeAllocateCoverDialog extends Component {
 				"deductionDetails": {
 					"collectionDay": 0,
 					"bankDetails": {
-						// "accountName": this.updatedPolicy.bankDetails,
 						"branchCode": this.updatedPolicy.bankDetails.branchCode,
 						"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
 						"bank": this.updatedPolicy.bankDetails.bank,
@@ -928,22 +928,22 @@ class LifeAllocateCoverDialog extends Component {
 				"totalLoadingApplied": this.newOffer.totalLoadingApplied,
 				"underwriting": this.newOffer.underwriting,
 				"channel": `Horizon`,
-				"riskRate": 0,
+				"riskRate": this.newOffer.riskRate,
 				"channelFee": this.newOffer.channelFee,
 				"maxCoverApplicable": this.newOffer.maximumAllowedCover,
 				"beneficiaries": this.updatedPolicy.beneficiaries,
 				"pockets": this.updatedPolicy.pockets,
 				"answers": this.newOfferAnswers
 			};
-			const reIssueResult = await this.executeLifeReIssue(reIssueRequest);
+			this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
 
-			console.log(`reIssueResult: `, reIssueResult);
+			console.log(`reIssueResult: `, this.reIssueResult);
 
 
 			// TODO Execute Agreement Call
 			const agreementRequest = {
 				"saveDocument": false,
-				"policyNumber": this.updatedPolicy.contractReference,
+				"policyNumber": this.reIssueResult.contractReference,
 				"signatureDate": new Date()
 			};
 
@@ -1318,7 +1318,6 @@ class LifeAllocateCoverDialog extends Component {
 								label="Cover amount"
 								disabled
 								value="${this._monthlyCoverValue()}"
-								@value-changed="${(e) => this._monthlyCoverChange(e, `TOTAL`)}"
 								error="${this.monthlyTotalCoverError}">
 							</capitec-text-field>
 								<div class="pocket-details-card-col">
@@ -1327,7 +1326,7 @@ class LifeAllocateCoverDialog extends Component {
 										class="pocket-details-input" 
 										label="They get" 
 										value="${this.monthlyCoverValue}"
-										@value-changed="${(e) => this._monthlyCoverChange(e, `PERMONTH`)}"
+										@value-changed="${(e) => this._monthlyCoverChange(e)}"
 										error="${this.monthlyCoverError}">
 									</capitec-text-field>
 									
