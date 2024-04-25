@@ -711,7 +711,7 @@ class LifePolicySummary extends Component {
 	}
 
 	_renderMandatesDetailsSection() {
-		const mandateDetails = this.lifePolicyMandates?.mandates ?? [];
+		const mandateDetails = this.lifePolicyMandates ?? [];
 
 		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
 			const date = new Date(e.mandateInitiationDate);
