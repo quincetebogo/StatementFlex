@@ -209,6 +209,7 @@ class ClientSummary extends Component {
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			defaultSavingsAccountNumber: { type: String, state: true },
 			defaultSavingsAccountAvailableBalance: { type: Number, state: true },
+			getDefaultSavingsAccountNumber: { type: Object, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -2568,6 +2569,8 @@ class ClientSummary extends Component {
 				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this.executeLifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
 				.executeLifeReIssue="${(reIssueRequest) => this.executeLifeReIssue(reIssueRequest)}"
 				.executeLifeAcceptPolicy="${(issueRequest) => this.executeLifeAcceptPolicy(issueRequest)}"
+				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
+				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
 				@life-reissue-completed="${(e) => this._lifeReIssueCompleted(e)}"
 				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
