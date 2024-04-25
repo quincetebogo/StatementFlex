@@ -64,8 +64,11 @@ export class DisputesSuccess extends ViewBase {
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_SUCCESS_DONE);
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY, {}, true, false, true);
 
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToSavingsAccount();
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returningFromScreen = `card-disputes-success-done`;
+		this.horizonStore.setScreenDetails(screenDetails);
+
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	async _disputeAnotherTran() {
