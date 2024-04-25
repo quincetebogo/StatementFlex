@@ -1779,7 +1779,7 @@ class LifeAllocateCoverDialog extends Component {
 					.updatingBeneficiary="${this.selectedBeneficiary}"
 					.selectedPocketType = "${this.selectedPocketType}"
 					.policy = "${this.updatedPolicy}"
-					.totalPocketCover = ${this._totalCoverAllocated(this.selectedPocketType)}
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
 					@close-dialog="${(e) => this._cancelUpdateBeneficiary(e)}"
 					@update-beneficiary="${(e) => this._updateBeneficiary(e)}">
 				</horizon-insure-life-update-beneficiary-dialog>
