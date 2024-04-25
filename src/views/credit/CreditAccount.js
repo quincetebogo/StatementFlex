@@ -60,6 +60,8 @@ const BUDGET_FACILITY = {
 	STATUS: `Active`
 };
 
+const DEFAULT_CCS_MESSAGE = `Unable to perform this transaction as there is a CCS status on this account.`;
+
 /** Credit Account View
  * 
  * @export
@@ -115,6 +117,7 @@ export class CreditAccount extends ViewBase {
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
 		this.cueSheetIncident = {};
+		this.declineMessage = ``;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -166,11 +169,12 @@ export class CreditAccount extends ViewBase {
 
 				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
 
-				const { permissionResult, declineReasons } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
+				const { permissionResult, declineReasons, declineMessage } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
 					!DECLINE_REASONS_EXCLUSION_LIST.includes(declineReasons);
 				this.declineReason = declineReasons;
 				this.selectedAccountDetails = selectedAccountDetails;
+				this.declineMessage = declineMessage || DEFAULT_CCS_MESSAGE;
 
 				// Perform the action only when permission result is granted
 				if (permissionResult === PERMISSION_STATUS.GRANTED) {
