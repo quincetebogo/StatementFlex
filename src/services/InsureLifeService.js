@@ -563,5 +563,31 @@ export class InsureLifeService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Accept life policy
+	 *
+	 * @param {Object} [acceptRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeAcceptPolicy(acceptRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeAcceptPolicy`)) {
+			return this.mock(`insureLifeAcceptPolicy`, acceptRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/accept-policy`,
+			acceptRequest,
+			this._setInsureHeaders(),
+			`lifeReIssue`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
 	// #endregion PUBLIC METHODS
 }

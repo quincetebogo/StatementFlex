@@ -491,6 +491,10 @@
 		"insureLifeIssuePolicy": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureLifeAcceptPolicy": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

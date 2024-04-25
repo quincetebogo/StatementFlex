@@ -722,6 +722,17 @@ class ClientSummary extends Component {
 		this.showLifeAllocateCoverDialog = true;
 	}
 
+	_lifeReIssueCompleted(e) {
+		console.log(`_lifeReIssueCompleted - client summary`);
+		console.log(e.detail.acceptResult);
+		this.showLifeAllocateCoverDialog = false;
+		this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
+			detail: {
+				acceptResult: e.detail.acceptResult
+			}
+		}));
+	}
+
 
 	_cancelLifeUpdatePolicyFlow() {
 		this.showLifeAllocateCoverDialog = false;
@@ -2556,7 +2567,8 @@ class ClientSummary extends Component {
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
 				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this.executeLifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
 				.executeLifeReIssue="${(reIssueRequest) => this.executeLifeReIssue(reIssueRequest)}"
-				.executeLifeIssue="${(issueRequest) => this.executeLifeIssue(issueRequest)}"
+				.executeLifeAcceptPolicy="${(issueRequest) => this.executeLifeAcceptPolicy(issueRequest)}"
+				@life-reissue-completed="${(e) => this._lifeReIssueCompleted(e)}"
 				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;

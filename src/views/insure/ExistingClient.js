@@ -569,7 +569,7 @@ export class ExistingClient extends InsureViewBase {
 			const lifeEmailSuccess = await this._sendLifeEmail(e);
 			this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
 			this.clientConfirmedEmail = e.detail.emailAddress;
-			this._goToLifeSuccess(e);
+			this._goToLifeSuccess();
 		} else {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
@@ -1328,14 +1328,39 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	_lifeReIssue(reIssueRequest) {
-		console.log(`executeLifeReIssue`);
+	async _lifeReIssue(reIssueRequest) {
+		console.log(`Executing ReIssue`);
 		reIssueRequest.idNumber = this.callerInformation.southAfricanIDNumber;
 		reIssueRequest.cifNumber = this.callerInformation.cifNumber;
+
+		const resp = await this.insureLifeService.lifeReIssue(reIssueRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
 	}
 
-	_lifeIssue(issueRequest) {
-		console.log(`executeLifeIssue`);
+	async _lifeAcceptPolicy(acceptPolicyRequest) {
+		console.log(`Executing Accept`);
+		acceptPolicyRequest.policyHolder = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"title": this.callerInformation.title,
+			"firstName": this.callerInformation.firstName,
+			"lastName": this.callerInformation.lastName
+		};
+
+		const resp = await this.insureLifeService.lifeAcceptPolicy(acceptPolicyRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return null;
+		}
+		return resp.result;
+	}
+
+	_lifeReissueCompleted(e) {
+		console.log(`_lifeReissueCompleted - Existing Client`);
 	}
 
 	//
@@ -1623,7 +1648,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToLifeSuccess(e) {
+	_goToLifeSuccess() {
 		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
@@ -2068,7 +2093,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
 				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this._lifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
 				.executeLifeReIssue="${(reIssueRequest) => this._lifeReIssue(reIssueRequest)}"
-				.executeLifeIssue="${(issueRequest) => this._lifeIssue(issueRequest)}"
+				.executeLifeAcceptPolicy="${(issueRequest) => this._lifeAcceptPolicy(issueRequest)}"
 				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
@@ -2077,6 +2102,7 @@ export class ExistingClient extends InsureViewBase {
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
 				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
+				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"

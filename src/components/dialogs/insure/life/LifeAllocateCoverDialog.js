@@ -34,7 +34,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.isNewOffer = false;
 		this.newOffer = {};
 		this.newOfferAnswers = [];
-		
+
 		this.reIssueResult = {};
 
 		this.calculatedPremium = 0;
@@ -943,7 +943,7 @@ class LifeAllocateCoverDialog extends Component {
 			// TODO Execute Agreement Call
 			const agreementRequest = {
 				"saveDocument": false,
-				"policyNumber": this.reIssueResult.contractReference,
+				"policyNumber": this.reIssueResult.policyNumber,
 				"signatureDate": new Date()
 			};
 
@@ -981,19 +981,24 @@ class LifeAllocateCoverDialog extends Component {
 			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_MISMATCH;
 			return;
 		}
-		const isEmailEmail = validateEmailAddressCombo(this.agreementEmail, this.agreementEmailConfirm);
-		if (isEmailEmail === false) {
+		const isEmailValid = validateEmailAddressCombo(this.agreementEmail, this.agreementEmailConfirm);
+		if (isEmailValid === false) {
 			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.INVALID_EMAIL;
 			return;
 		}
 
-		const updatePolicyRequest = {
-			emailDetails: {
-				emailAddress: this.agreementEmail,
-				contractReference: this.updatedPolicy.contractReference
-			}
+		const acceptPolicyRequest = {
+			"policyNumber": this.updatedPolicy.contractReference,
+			"emailAddress": this.agreementEmail
 		};
-		await this.executeLifeUpdatePolicy(updatePolicyRequest);
+		const acceptResult = await this.executeLifeAcceptPolicy(acceptPolicyRequest);
+		if (acceptResult !== null) {
+			this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
+				detail: {
+					acceptResult: acceptResult
+				}
+			}));
+		}
 	}
 
 	/**
