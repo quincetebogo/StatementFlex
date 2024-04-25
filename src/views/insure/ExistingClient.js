@@ -647,6 +647,13 @@ export class ExistingClient extends InsureViewBase {
 			} else {
 				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
 			}
+		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_REISSUE_DIALOG) {
+			successPageMessage.actionSuccessLabel = `The policy has been re-issued successfully`;
+			if (lifeEmailSuccess) {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
+			}
 		}
 		return successPageMessage;
 	}
@@ -1359,7 +1366,8 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_lifeReissueCompleted(e) {
-		console.log(`_lifeReissueCompleted - Existing Client`);
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_REISSUE_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
+		this._goToLifeSuccess();
 	}
 
 	//
