@@ -728,7 +728,9 @@ class ClientSummary extends Component {
 		this.showLifeAllocateCoverDialog = false;
 		this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
 			detail: {
-				acceptResult: e.detail.acceptResult
+				acceptResult: e.detail.acceptResult,
+				emailAddress: e.detail.emailAddress,
+				policyNumber: e.detail.policyNumber
 			}
 		}));
 	}

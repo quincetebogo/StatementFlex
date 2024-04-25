@@ -214,7 +214,6 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		if (this.updatingBeneficiary.idNumber.length === 13) {
 			this.updatingBeneficiary.dateOfBirth = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
 			this.beneficiaryErrors.idNumber = ``;
-			this.requestUpdate();
 		}
 		this.requestUpdate();
 	}

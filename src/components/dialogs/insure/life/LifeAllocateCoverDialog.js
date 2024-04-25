@@ -988,14 +988,16 @@ class LifeAllocateCoverDialog extends Component {
 		}
 
 		const acceptPolicyRequest = {
-			"policyNumber": this.updatedPolicy.contractReference,
+			"policyNumber": this.reIssueResult.policyNumber,
 			"emailAddress": this.agreementEmail
 		};
 		const acceptResult = await this.executeLifeAcceptPolicy(acceptPolicyRequest);
 		if (acceptResult !== null) {
 			this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
 				detail: {
-					acceptResult: acceptResult
+					acceptResult: acceptResult,
+					emailAddress: this.agreementEmail,
+					policyNumber: this.reIssueResult.policyNumber
 				}
 			}));
 		}
