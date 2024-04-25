@@ -123,3 +123,23 @@ export const BUDGET_TERMS = Object.freeze({
 	"FourtyTwo": 42,
 	"FourtyEight": 48
 });
+
+export const CCS_DECLINE_MESSAGE = Object.freeze({
+	'settle-close': {
+		'ClientApplicationForDebtReview': `Client has applied for debt review. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230`,
+		'ClientOverIndebtedCapitecZeroBalance': `Client is under debt review. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientOverIndebtedCapitecBalance': `Client is under debt review. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientStatusIsDeceased': `Client is reported deceased. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientStatusIsPossibleDeceased': `Client is possibly deceased. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientUnderDebtReview': `Client is under debt review. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientHandedOver': `Client account is handed over to external debt collector. Settle and Close cannot be actioned . Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientAccountsSold': `Clients account has been sold to external debt collector. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientHandedOverEDC': `Client account is handed over to external debt collector. Settle and Close cannot be actioned . Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientApplicationUnderAdministration': `Client has applied to be under administration. Settle and Close cannot be actioned.  Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientIsPensioner': `Client status shows as pensioner. Settle and Close cannot be actioned.  Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientApplicationUnderSequestration': `Client has applied to be under sequestration. Settle and Close cannot be actioned.  Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientUnderSequestrationOrder': `Client is under sequestration. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientIsRetrenched': `Client status shows retrenched. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`,
+		'ClientUnderAdministration': `Client is under administration. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`
+	}
+});
