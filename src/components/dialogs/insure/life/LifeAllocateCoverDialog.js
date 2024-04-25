@@ -778,12 +778,10 @@ class LifeAllocateCoverDialog extends Component {
 
 			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC` || this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
 				if (this.defaultSavingsAccountNumber === ``) {
-					console.log(`this.defaultSavingsAccountNumber === niks`);
 					this.updatedPolicy.bankDetails.accountNumber = ``;
 					this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
 					this.accountNumberDisabled = false;
 				} else {
-					console.log(`this.defaultSavingsAccountNumber === niks else`);
 					this.updatedPolicy.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
 					this.accountNumberErrorMsg = ``;
 					this.accountNumberDisabled = true;
