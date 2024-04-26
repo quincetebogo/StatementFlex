@@ -1735,10 +1735,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToLifePolicySummary(e) {
+	async _goToLifePolicySummary(e) {
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
-		this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
+		await this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
