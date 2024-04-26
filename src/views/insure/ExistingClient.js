@@ -1738,6 +1738,7 @@ export class ExistingClient extends InsureViewBase {
 	_goToLifePolicySummary(e) {
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
@@ -2287,7 +2288,6 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
-				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(policy)}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
