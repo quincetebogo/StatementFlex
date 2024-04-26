@@ -162,7 +162,7 @@ class LifeAllocateCoverDialog extends Component {
 	async _initialise() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		this.accountName = `${callerInfo.firstName} ${callerInfo.lastName}`;
-		
+
 		this.updatedPolicy = { ...this.currentPolicy };
 		if (!isNullorEmpty(this.newOffer)) {
 			this.isNewOffer = true;
@@ -956,13 +956,10 @@ class LifeAllocateCoverDialog extends Component {
 					{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
 				];
 				newBene.bankDetails = null;
-
-				// "benefits": [
-				// 	{ "benefitType": "LumpSum", "pocketAmount": 250000.0 },
-				// 	{ "benefitType": "MonthlyPayout", "pocketAmount": 600000.0 },
-				// 	{ "benefitType": "Education", "pocketAmount": 0.0 }
-				//   ],
-
+				newBene.contactDetails = {
+					contactNumber: bene.contactNumber
+				};
+				
 				requestBeneficiaries.push(newBene);
 			});
 
