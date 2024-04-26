@@ -1,6 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel, validateEmailAddressCombo } from 'app/utils/insureUtils';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -72,6 +73,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.accountNumberDisabled = false;
 		this.accountNumberErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
+		this.accountName = ``;
 
 		this.agreementEmail = ``;
 		this.agreementEmailConfirm = ``;
@@ -155,6 +157,8 @@ class LifeAllocateCoverDialog extends Component {
 	 * @returns {void}
 	 */
 	_initialise() {
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		this.accountName = `${callerInfo.firstName} ${callerInfo.lastName}`;
 
 		this.updatedPolicy = { ...this.currentPolicy };
 		if (!isNullorEmpty(this.newOffer)) {
@@ -866,19 +870,19 @@ class LifeAllocateCoverDialog extends Component {
 			const policyPockets = [];
 			if (this.monthlyCoverValue > 0) {
 				policyPockets.push({
-					"coverAmount": this.monthlyCoverValue,
+					"coverage": this.monthlyCoverValue,
 					"pocketType": `MonthlyPayout`
 				});
 			}
 			if (this.onceOffCoverValue > 0) {
 				policyPockets.push({
-					"coverAmount": this.onceOffCoverValue,
+					"coverage": this.onceOffCoverValue,
 					"pocketType": `LumpSum`
 				});
 			}
 			if (this.educationCoverValue > 0) {
 				policyPockets.push({
-					"coverAmount": this.educationCoverValue,
+					"coverage": this.educationCoverValue,
 					"pocketType": `Education`
 				});
 			}
@@ -913,12 +917,44 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
+			// Create request
+			const requestBeneficiaries = [];
+			this.updatedPolicy.beneficiaries.forEach(bene => {
+				const newBene = bene;
+				if (newBene.onceOffPayoutBenefitAmount) {
+					newBene.role = `Beneficiary`;
+				}
+				if (newBene.educationBenefitAmount) {
+					newBene.role = `Beneficiary`;
+				}
+				if (newBene.educationBenefitAmount) {
+					newBene.role = `Child`;
+				}
+
+				newBene.benefits = [
+					{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
+					{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
+					{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
+				];
+				newBene.bankDetails = null;
+
+				// "benefits": [
+				// 	{ "benefitType": "LumpSum", "pocketAmount": 250000.0 },
+				// 	{ "benefitType": "MonthlyPayout", "pocketAmount": 600000.0 },
+				// 	{ "benefitType": "Education", "pocketAmount": 0.0 }
+				//   ],
+
+				requestBeneficiaries.push(newBene);
+			});
+
+
 			const reIssueRequest = {
 				"policyIssueDate": new Date(),
 				"previousPolicyNumber": this.updatedPolicy.contractReference,
 				"deductionDetails": {
-					"collectionDay": 0,
+					"collectionDay": this.updatedPolicy.bankDetails.collectionDay,
 					"bankDetails": {
+						"accountName": this.accountName,
 						"branchCode": this.updatedPolicy.bankDetails.branchCode,
 						"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
 						"bank": this.updatedPolicy.bankDetails.bank,
@@ -931,14 +967,13 @@ class LifeAllocateCoverDialog extends Component {
 				"riskRate": this.newOffer.riskRate,
 				"channelFee": this.newOffer.channelFee,
 				"maxCoverApplicable": this.newOffer.maximumAllowedCover,
-				"beneficiaries": this.updatedPolicy.beneficiaries,
+				"beneficiaries": requestBeneficiaries,
 				"pockets": this.updatedPolicy.pockets,
 				"answers": this.newOfferAnswers
 			};
+			console.log(`reIssueRequest: `, reIssueRequest);
 			this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
-
 			console.log(`reIssueResult: `, this.reIssueResult);
-
 
 			// TODO Execute Agreement Call
 			const agreementRequest = {
@@ -947,6 +982,7 @@ class LifeAllocateCoverDialog extends Component {
 				"signatureDate": new Date()
 			};
 
+			console.log(`agreementRequest: `, agreementRequest);
 			const agreementResult = await this.executeLifeGenerateIssueAgreement(agreementRequest);
 			console.log(`agreementResult: `, agreementResult);
 			this.agreementDocumentContent = agreementResult.documentContent.base64EncodedString;
