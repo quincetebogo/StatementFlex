@@ -605,7 +605,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-client-summary 
 				.funeralPolicies = "${this.funeralPolicies}" 
-				.cifNumber="${this.callerInformation.cifNumber}"
 				.lifePolicies="${this.lifePolicies}" 
 				.readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
@@ -721,7 +720,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
-				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(this.policy)}"
+				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(policy)}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
