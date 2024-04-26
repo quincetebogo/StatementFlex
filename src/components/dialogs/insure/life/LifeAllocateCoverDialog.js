@@ -64,6 +64,9 @@ class LifeAllocateCoverDialog extends Component {
 		this.showDeleteBeneficiaryDialog = false;
 		this.showBeneficiariesAllocateErrorDialog = false;
 
+		// Children?
+		this.showAddChildDialog = false;
+
 		// Payment details
 		this.collectionDayOptions = DEBIT_ORDER_DAY_OPTIONS;
 		this.bankNameOptions = BANK_OPTIONS;
@@ -574,6 +577,16 @@ class LifeAllocateCoverDialog extends Component {
 	_openAddBeneficiaryDialog(pocketType) {
 		this.selectedPocketType = pocketType;
 		this.showAddBeneficiaryDialog = true;
+	}
+
+	/**
+	 * Add child
+	 * @param {String} pocketType pocket type
+	 * @returns {void}
+	 */
+	_openAddChildDialog(pocketType) {
+		this.selectedPocketType = pocketType;
+		this.showAddChildDialog = true;
 	}
 
 	_openEditBeneficiaryDialog(pocketType, beneficiary) {
@@ -1265,6 +1278,7 @@ class LifeAllocateCoverDialog extends Component {
 			${this._renderDeleteBeneficiaryDialog()}
 			${this._renderBeneficiariesAllocateErrorDialog()}
 			${this._renderAgreementDialog()}
+			${this._renderAddChildDialog()}
 		`;
 	}
 
@@ -1651,7 +1665,8 @@ class LifeAllocateCoverDialog extends Component {
 								</div>
 								` : html``}
 							`)}
-							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add child"></capitec-button>` : html``}
+							//TODO: Add child button properly
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddChildDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add child"></capitec-button>` : html``}
 						</div>
 					` : html`
 						<div class="no-cover-container">
@@ -1787,7 +1802,7 @@ class LifeAllocateCoverDialog extends Component {
 				<horizon-insure-life-add-beneficiary-dialog 
 					.selectedPocketType = "${this.selectedPocketType}"
 					.policy = "${this.updatedPolicy}"
-					.totalPocketCover = ${this._totalCoverAllocated(this.selectedPocketType)}
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
 					@close-dialog="${() => this.showAddBeneficiaryDialog = false}"
 					@add-beneficiary="${(e) => this._addBeneficiary(e)}">
 				</horizon-insure-life-add-beneficiary-dialog>
@@ -1851,6 +1866,20 @@ class LifeAllocateCoverDialog extends Component {
 			</horizon-insure-agreement-dialog>
 		`;
 	}
+
+	_renderAddChildDialog() {
+		return this.showAddChildDialog === false ? ``
+			: html`
+				<horizon-insure-life-add-child-dialog 
+					.selectedPocketType = "${this.selectedPocketType}"
+					.policy = "${this.updatedPolicy}"
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
+					@close-dialog="${() => this.showAddChildDialog = false}"
+					@add-child="${(e) => this._addChild(e)}">
+				</horizon-insure-life-add-child-dialog>
+		`;
+	}
+
 
 	// #endregion ADDITIONAL DIALOGS
 

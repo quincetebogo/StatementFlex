@@ -33,6 +33,7 @@ import 'app/components/dialogs/insure/life/LifeDeleteBeneficiaryDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
 import 'app/components/dialogs/insure/life/LifeBeneficiariesAllocateError';
+import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
