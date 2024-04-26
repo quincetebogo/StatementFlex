@@ -819,7 +819,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-
 		if (!isNullorEmpty(returnValue?.result?.accountNumber) && !isNullorEmpty(returnValue?.result?.accountNumber)) {
 			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
 			this.defaultSavingsAccountAvailableBalance = returnValue?.result?.accountAvailableBalance;
@@ -1736,9 +1735,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToLifePolicySummary(e) {
+	async _goToLifePolicySummary(e) {
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		await this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
@@ -2110,6 +2110,7 @@ export class ExistingClient extends InsureViewBase {
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
 				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
+				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
@@ -2287,7 +2288,6 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
-				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(policy)}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;

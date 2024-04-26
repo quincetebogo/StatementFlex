@@ -74,6 +74,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.accountNumberErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
 		this.accountName = ``;
+		this.defaultSavingsAccountNumber = ``;
 
 		this.agreementEmail = ``;
 		this.agreementEmailConfirm = ``;
@@ -122,12 +123,14 @@ class LifeAllocateCoverDialog extends Component {
 			accountNumberErrorMsg: { type: String, state: true },
 			accountNumberDisabled: { type: Boolean, state: true },
 			branchCodeErrorMsg: { type: String, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
 
 			agreementDocumentContent: { type: String, state: true },
 			agreementEmail: { type: String, state: true },
 			agreementEmailConfirm: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
-			showAgreementDocumentDialog: { type: Boolean, state: true }
+			showAgreementDocumentDialog: { type: Boolean, state: true },
+			getDefaultSavingsAccountNumber: { type: Object, state: true }
 		};
 	}
 
@@ -156,14 +159,18 @@ class LifeAllocateCoverDialog extends Component {
 	 * Initialise the component.
 	 * @returns {void}
 	 */
-	_initialise() {
+	async _initialise() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		this.accountName = `${callerInfo.firstName} ${callerInfo.lastName}`;
-
+		
 		this.updatedPolicy = { ...this.currentPolicy };
 		if (!isNullorEmpty(this.newOffer)) {
 			this.isNewOffer = true;
 		}
+
+		await this.getDefaultSavingsAccountNumber();
+
+		this.accountNumberDisabled = this._disableAccountNumber();
 
 		// Setup metadata
 		for (const bene of this.updatedPolicy.beneficiaries) {
@@ -233,6 +240,11 @@ class LifeAllocateCoverDialog extends Component {
 		} else {
 			this.dialogTitle = DIALOG_TITLES.AGREEMENT;
 		}
+	}
+
+	_disableAccountNumber() {
+		const isDisabled = this.defaultSavingsAccountNumber !== `` && this.updatedPolicy?.bankDetails?.bank.toUpperCase() === `CAPITEC BANK`;
+		return isDisabled;
 	}
 
 	// #region ALLOCATE
@@ -769,9 +781,16 @@ class LifeAllocateCoverDialog extends Component {
 			}
 
 			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC` || this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
-				// TODO Set primary account number
-				this.accountNumberDisabled = true;
-				this.accountNumberErrorMsg = ``;
+				if (this.defaultSavingsAccountNumber === ``) {
+					this.updatedPolicy.bankDetails.accountNumber = ``;
+					this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
+					this.accountNumberDisabled = false;
+				} else {
+					this.updatedPolicy.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
+					this.accountNumberErrorMsg = ``;
+					this.accountNumberDisabled = true;
+				}
+
 			} else {
 				this.updatedPolicy.bankDetails.accountNumber = ``;
 				this.accountNumberDisabled = false;
