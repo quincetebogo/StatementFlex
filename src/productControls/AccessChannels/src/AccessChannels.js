@@ -81,8 +81,8 @@ export class AccessChannels extends Component {
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString();
-		return localTime.replace(localTime.slice(-6, -2), ` `).toLowerCase();
+		const localTime = formatedDate.toLocaleString([], { hour: `numeric`, minute: `numeric`, hour12: true }).toLowerCase();
+		return localTime;
 	}
 
 	_getFormattedDateTime(datetime) {
@@ -160,6 +160,13 @@ export class AccessChannels extends Component {
 		return `${this.status.notification?.notificationType} | ${PREFERRED_MSG_TIME[this.status.notification?.notificationTime]}`;
 	}
 
+	_getAppRegisteredDate() {
+		if (this.status.app?.status !== ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
+			return this.status.app?.dateRegistered ? `\r\nRegistered on ${this._formatDate(this.status.app?.dateRegistered)} ${this._formatTime(this.status.app?.dateRegistered)}` : ``;
+		}
+		return null;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -204,6 +211,10 @@ export class AccessChannels extends Component {
 				horizon-product-tile[status*="Reduced menu"] {
 					--theme-product-tile-default-border-left: 4px solid #d4781c;
 				}
+				.registered-date {
+					--theme-product-tile-subtitle-white-space: pre;
+					--theme-product-tile--height: 89px;
+				}
 				.hide-tile {
 					display: none;
 				}
@@ -230,10 +241,11 @@ export class AccessChannels extends Component {
 
 				<horizon-product-tile 
 					data-automation-id="access-channels-app"
+					class="${this._getAppRegisteredDate() ? `registered-date` : ``}"
 					type="default"
 					label="App"
 					status="${this.status.app?.status}"
-					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.APP)}"
+					subtitle="${this._getStatusDetails(ACCESS_CHANNELS_TYPE.APP)}${this._getAppRegisteredDate()}"
 					detail=""
 					icon="system/cellphone"
 					@click="${() => this._tileClick(ACCESS_CHANNELS_TYPE.APP)}">
