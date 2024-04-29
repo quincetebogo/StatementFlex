@@ -161,14 +161,14 @@ class LifeHealthQuestionsDialog extends Component {
 		}
 
 		// Reset Form and Fields
-		const radioGroup = this.shadowRoot.querySelector(`#questions-radio-group`);
-		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
+		// const radioGroup = this.shadowRoot.querySelector(`#questions-radio-group`);
+		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
 
-		radioGroup.removeAttribute(`selected`);
-		radioButtons.forEach(radioButton => {
-			radioButton.checked = false;
-			radioButton.removeAttribute(`aria-checked`);
-		});
+		// radioGroup.removeAttribute(`selected`);
+		// radioButtons.forEach(radioButton => {
+		// 	radioButton.checked = false;
+		// 	radioButton.removeAttribute(`aria-checked`);
+		// });
 
 		this.currentQuestionIndex++;
 		this.currentQuestion = this.lifeHealthQuestions.questions[this.currentQuestionIndex];
