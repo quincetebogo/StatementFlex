@@ -98,11 +98,11 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_setAnswer(e, groupId, answerId, answerDetail) {
 		// Clear all
-		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		radioButtons.forEach(radioButton => {
-			radioButton.checked = false;
-			radioButton.removeAttribute(`aria-checked`);
-		});
+		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
+		// radioButtons.forEach(radioButton => {
+		// 	radioButton.checked = false;
+		// 	radioButton.removeAttribute(`aria-checked`);
+		// });
 
 		// Map new
 		if (e.detail.new === true) {
@@ -115,11 +115,11 @@ class LifeHealthQuestionsDialog extends Component {
 			this.enableNextButton = true;
 
 			// Set Selected
-			radioButtons.forEach(radioButton => {
-				if (radioButton.id === answerId) {
-					radioButton.checked = true;
-				}
-			});
+			// radioButtons.forEach(radioButton => {
+			// 	if (radioButton.id === answerId) {
+			// 		radioButton.checked = true;
+			// 	}
+			// });
 		}
 	}
 
