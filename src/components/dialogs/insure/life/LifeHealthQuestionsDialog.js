@@ -357,7 +357,7 @@ class LifeHealthQuestionsDialog extends Component {
 				</capitec-button>
 
 				${this.showQuestionnaireResults === false ? html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}" .disabled="${!this.enableNextButton}">
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}">
 					</capitec-button>
 				` : html`
 					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Continue" @click="${() => this._continueToAllocation()}">
