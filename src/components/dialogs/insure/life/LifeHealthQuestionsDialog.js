@@ -176,6 +176,9 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
 		this.radioRefresh = !this.radioRefresh;
+
+		// Force set answer to first
+		this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
 	}
 
 	/**
