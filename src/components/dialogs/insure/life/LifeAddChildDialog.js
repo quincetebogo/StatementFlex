@@ -7,7 +7,22 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
-	BENE_OVER_18: `Beneficiary must be under 18`
+	BENE_OVER_18: `Beneficiary must be under 18`,
+	INVALID_ID: `ID Number is invalid`,
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
+};
+
+const STEPS = {
+	//NEW_OR_EXISTING_BENEFICIARY: 1,
+	CHILD_DETAILS: 1,
+	GUARDIAN_DETAILS: 2,
+	MONEY_ALLOCATION: 3
+};
+
+const NEW_BENEFICIARY_TYPES = {
+	NEW: `NEW`,
+	EXISTING: `EXISTING`,
+	UNSET: `UNSET`
 };
 
 /**
@@ -15,7 +30,7 @@ const VALIDATION_ERRORS = {
  * @class LifeAddBeneficiaryDialog
  * @extends {Component}
  */
-class LifeAddBeneficiaryDialog extends Component {
+class LifeAddChildDialog extends Component {
 
 	// #region INITIALIZE
 
@@ -23,14 +38,16 @@ class LifeAddBeneficiaryDialog extends Component {
 		super();
 
 		this.isChild = false;
+		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
 
 		this.currentStep = 1;
 		this.newPocketBeneficiaries = [];
-		this.newBeneficiary = {};
-		this.newBeneficiaryErrors = {};
+		this.newChild = {};
+		this.newChildErrors = {};
 		this.guardianDetails = {};
 		this.selectedPocket = {};
 		this.policy = {};
+		this.newOrExistingErrorMessage = ``;
 
 		this.stepsUsed = {};
 
@@ -48,12 +65,15 @@ class LifeAddBeneficiaryDialog extends Component {
 			isChild: { type: Boolean, state: true },
 			selectedPocket: { type: Object, state: true },
 			eligibleBeneficiariesForQuickAdd: { type: Array, state: true },
+			newOrExistingErrorMessage: { type: String, state: true },
 
 			currentStep: { type: Number, state: true },
-			newBeneficiary: { type: Object, state: true },
-			newBeneficiaryErrors: { type: Object, state: true },
+			newChild: { type: Object, state: true },
+			newChildErrors: { type: Object, state: true },
 			guardianDetails: { type: Object, state: true },
-			newPocketBeneficiaries: { type: Array, state: true }
+			newPocketBeneficiaries: { type: Array, state: true },
+			totalPocketCover: { type: Number, state: true },
+			selectedPocketType: { type: String, state: true }
 		};
 	}
 
@@ -80,13 +100,39 @@ class LifeAddBeneficiaryDialog extends Component {
 	// #region PRIVATE METHODS
 
 	initialise() {
-		this.eligibleBeneficiariesForQuickAdd = this._determineQuickAddBeneficiaries();
-		if (this.eligibleBeneficiariesForQuickAdd > 0) {
-			this.stepsUsed = STEPS_EXISTING;
-		} else {
-			this.stepsUsed = STEPS_NEW;
-		}
+		// this.eligibleBeneficiariesForQuickAdd = this._determineQuickAddBeneficiaries();
+		// if (this.eligibleBeneficiariesForQuickAdd.length === 0) {
+		// 	this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.NEW;
+		// }
+
+		// if (this.policy.beneficiaries.length > 0) {
+		// 	for (const bene of this.policy.beneficiaries) {
+		// 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.metaData.monthlyBenefitAdded === true) {
+		// 			this.newChild.monthlyPayoutBenefitAmount = 0;
+		// 			this.newChild.metaData.monthlyBenefitAdded = true;
+		// 			this.pocketBeneficiaries.push(bene);
+		// 		}
+		// 		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && bene.metaData.onceOffBenefitAdded === true) {
+		// 			this.newChild.onceOffPayoutBenefitAmount = 0;
+		// 			this.newChild.metaData.onceOffBenefitAdded = true;
+		// 			this.pocketBeneficiaries.push(bene);
+		// 		}
+		// 	}
+		// } else {
+		// 	if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+		// 		this.newChild.monthlyPayoutBenefitAmount = 0;
+		// 		this.newChild.metaData.monthlyBenefitAdded = true;
+		// 		this.pocketBeneficiaries.push(bene);
+		// 	}
+		// 	if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+		// 		this.newChild.onceOffPayoutBenefitAmount = 0;
+		// 		this.newChild.metaData.onceOffBenefitAdded = true;
+		// 		this.pocketBeneficiaries.push(bene);
+		// 	}
+		// }
+		// this._calculateCoverBreakdown();
 	}
+
 
 	/**
 	 * Check if any other beneficiaries are available for quick add
@@ -112,16 +158,43 @@ class LifeAddBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Determine the initial cover breakdown for the selected pocket
+	 * @returns {void}
+	 */
+	_calculateCoverBreakdown() {
+		let totalAllocated = 0;
+		for (const bene of this.pocketBeneficiaries) {
+			if (bene.metaData.monthlyBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				totalAllocated += bene.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(bene.monthlyPayoutBenefitAmount);
+			}
+			if (bene.metaData.onceOffBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				totalAllocated += bene.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(bene.onceOffPayoutBenefitAmount);
+			}
+		}
+
+		// New Beneficiary?
+		if (this.newChild !== null) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				totalAllocated += this.newChild.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(this.newChild.monthlyPayoutBenefitAmount);
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				totalAllocated += this.newChild.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(this.newChild.onceOffPayoutBenefitAmount);
+			}
+		}
+		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+	}
+
+	/**
 	 * What steps are available for this add flow
 	 * @returns {Array} array of steps
 	 */
 	_determineSteps() {
-		let steps = [];
-		if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
-			steps = [{ title: `New or existing` }, { title: `Personal details` }, { title: `Allocate cover` }];
-		} else {
-			steps = [{ title: `Personal details` }, { title: `Allocate cover` }];
-		}
+		let steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		// if (this.eligibleBeneficiariesForQuickAdd.length > 0) {
+		// 	steps = [{ title: `New or existing` }, { title: `Personal details` }, { title: `Allocate cover` }];
+		// } else {
+		// 	steps = [{ title: `Personal details` }, { title: `Allocate cover` }];
+		// }
 		return steps;
 	}
 
@@ -142,23 +215,36 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * @returns {void}
 	 */
 	_nextClick() {
-		// let errors = false;
-		this.currentStep++;
+		let isValid = false;
+
+		if (this.currentStep === STEPS.CHILD_DETAILS) {
+			isValid = this._childValidations();
+		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			isValid = this._guardianValidations();
+		}
+
+		if (isValid) {
+			this.currentStep++;
+			return;
+		}
+
+		return;
+		
 		// if (this.currentStep === STEPS.BENEFICIARY_DETAILS) {
-		// 	if (isNullorEmpty(this.newBeneficiary?.firstName)) {
-		// 		this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+		// 	if (isNullorEmpty(this.newChild?.firstName)) {
+		// 		this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 		// 		errors = true;
 		// 	}
-		// 	if (isNullorEmpty(this.newBeneficiary?.lastName)) {
-		// 		this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+		// 	if (isNullorEmpty(this.newChild?.lastName)) {
+		// 		this.newChildErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 		// 		errors = true;
 		// 	}
-		// 	if (isNullorEmpty(this.newBeneficiary?.dateOfBirth)) {
-		// 		this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+		// 	if (isNullorEmpty(this.newChild?.dateOfBirth)) {
+		// 		this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 		// 		errors = true;
 		// 	}
-		// 	if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) > 18) {
-		// 		this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+		// 	if (getAgeFromDob(this.newChild?.dateOfBirth) > 18) {
+		// 		this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
 		// 		errors = true;
 		// 	}
 
@@ -167,22 +253,83 @@ class LifeAddBeneficiaryDialog extends Component {
 		// 		return;
 		// 	}
 
-		// 	this.newBeneficiaryErrors.firstName = ``;
-		// 	this.newBeneficiaryErrors.lastName = ``;
-		// 	this.newBeneficiaryErrors.dateOfBirth = ``;
+		// 	this.newChildErrors.firstName = ``;
+		// 	this.newChildErrors.lastName = ``;
+		// 	this.newChildErrors.dateOfBirth = ``;
 		// 	if (this.isChild) {
 		// 		this.currentStep = STEPS.GUARDIAN_DETAILS;
 		// 	} else {
 		// 		this.currentStep = STEPS.MONEY_ALLOCATION;
 		// 	}
 
-		// 	this.newPocketBeneficiaries.push(this.newBeneficiary);
+		// 	this.newPocketBeneficiaries.push(this.newChild);
 
 		// } else {
 		// 	this.currentStep = STEPS.MONEY_ALLOCATION;
 		// }
 
 		this.requestUpdate();
+	}
+
+	_childValidations() {
+		let stepValid = true;
+
+		if (isNullorEmpty(this.newChild?.firstName)) {
+			this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.firstName = ``;
+		}
+
+		if (isNullorEmpty(this.newChild?.lastName)) {
+			this.newChildErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.lastName = ``;
+		}
+
+		if (!isNullorEmpty(this.newChild?.contactNumber)) {
+			if (this.newChild?.contactNumber.length < 10) {
+				this.newChildErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+				stepValid = false;
+			} else {
+				this.newChildErrors.contactNumber = ``;
+			}
+		} else {
+			this.newChildErrors.contactNumber = ``;
+		}
+
+		if (isNullorEmpty(this.newChild?.relationship)) {
+			this.newChildErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.relationship = ``;
+		}
+
+		if (this.newChild.dateOfBirth === undefined || this.newChild.dateOfBirth === ``) {
+			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.dateOfBirth = ``;
+		}
+			
+
+		if (!isNullorEmpty(this.newChild.idNumber)) {
+			if (this.newChild.idNumber.length !== 13) {
+				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
+				stepValid = false;
+			} else {
+				this.newBeneficiaryErrors.idNumber = ``;
+			}
+		}
+
+		if (stepValid === false) {
+			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+		} else {
+			this.beneficiaryDetailsErrorMessage = ``;
+		}
+		this.requestUpdate();
+		return stepValid;
 	}
 
 	/**
@@ -224,11 +371,11 @@ class LifeAddBeneficiaryDialog extends Component {
 	_firstNameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				this.newBeneficiary.firstName = e.detail.new;
-				if (isNullorEmpty(this.newBeneficiary.firstName)) {
-					this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				this.newChild.firstName = e.detail.new;
+				if (isNullorEmpty(this.newChild.firstName)) {
+					this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 				} else {
-					this.newBeneficiaryErrors.firstName = ``;
+					this.newChildErrors.firstName = ``;
 				}
 			} else {
 				// guardian deets
@@ -247,11 +394,11 @@ class LifeAddBeneficiaryDialog extends Component {
 	_surnameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				this.newBeneficiary.lastName = e.detail.new;
-				if (isNullorEmpty(this.newBeneficiary.lastName)) {
-					this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				this.newChild.lastName = e.detail.new;
+				if (isNullorEmpty(this.newChild.lastName)) {
+					this.newChildErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 				} else {
-					this.newBeneficiaryErrors.lastName = ``;
+					this.newChildErrors.lastName = ``;
 				}
 			} else {
 				// guardian deets
@@ -287,23 +434,23 @@ class LifeAddBeneficiaryDialog extends Component {
 	_dobChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				this.newBeneficiary.dateOfBirth = e.detail.new.date;
-				const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
+				this.newChild.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.newChild.dateOfBirth.includes(`+02:00`);
 				if (wrongTimeZone === true) {
-					let dob = this.newBeneficiary.dateOfBirth;
+					let dob = this.newChild.dateOfBirth;
 					const timezone = `+02:00`;
 					dob = dob.replace(timezone, ``);
-					this.newBeneficiary.dateOfBirth = dob;
+					this.newChild.dateOfBirth = dob;
 				}
 
-				if (isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
-					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				if (isNullorEmpty(this.newChild.dateOfBirth)) {
+					this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 				} else {
-					this.newBeneficiaryErrors.dateOfBirth = ``;
+					this.newChildErrors.dateOfBirth = ``;
 				}
 				if (this.isChild) {
-					if (getAgeFromDob(this.newBeneficiary.dateOfBirth) > 18) {
-						this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+					if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
+						this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
 					}
 				}
 
@@ -527,7 +674,7 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="alert" header="Add Beneficiary" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+			<capitec-modal type="alert" header="Add Child" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
 				<div slot="body" >
 					${this._renderDialogBody()}
 				</div>
@@ -560,8 +707,8 @@ class LifeAddBeneficiaryDialog extends Component {
 			<div style="${this.currentStep === STEPS.NEW_OR_EXISTING_BENEFICIARY ? `display: block` : `display: none`}">
 				${this._renderNewOrExistingQuickAdd()}
 			</div>
-			<div style="${this.currentStep === STEPS.BENEFICIARY_DETAILS ? `display: block` : `display: none`}">
-				${this._renderBeneDetails()}
+			<div style="${this.currentStep === STEPS.CHILD_DETAILS ? `display: block` : `display: none`}">
+				${this._renderChildDetails()}
 			</div>
 			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
 				${this._renderGuardianDetails()}
@@ -572,7 +719,48 @@ class LifeAddBeneficiaryDialog extends Component {
 	}
 
 	_renderNewOrExistingQuickAdd() {
-		return html`Hello`;
+		// return html`
+		// 	${this.newOrExistingErrorMessage !== ``
+		// 		? html`
+		// 		<div style="padding: 20px 16px 0px 16px;">
+		// 			<horizon-alert-banner
+		// 				type="error"
+		// 				header="Step incomplete"
+		// 				label="${this.newOrExistingErrorMessage}"
+		// 				layout="vertical">
+		// 			</horizon-alert-banner>
+		// 		</div>`
+		// 		: html``
+		// 	}
+
+		// 	<capitec-content-box style="min-height:200px; padding-left: 15px;">
+
+		// 		<horizon-product-tile
+		// 			type="radio-button"
+		// 			label="Add New Person"
+		// 			subtitle="Not in any pocket"
+		// 			?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW}"
+		// 			@click="${() => this._continueWithNewBeneficiary()}">
+		// 		</horizon-product-tile>
+
+		// 		<div style="text-align: center;">
+		// 			<capitec-label 
+		// 				label="Or choose existing"
+		// 				type="strong">
+		// 			</capitec-label>
+		// 		</div>
+
+		// 		${this.eligibleBeneficiariesForQuickAdd.map((bene) => html`
+		// 			<horizon-product-tile
+		// 				type="radio-button"
+		// 				label="${`${bene.firstName} ${bene.lastName}`}"
+		// 				subtitle="${bene.relationship}"
+		// 				?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING}"
+		// 				@click="${() => this._continueWithExistingBeneficiary(bene)}">
+		// 			</horizon-product-tile>
+		// 		`)}
+		// 	</capitec-content-box>
+		// `;
 	}
 
 	/**
@@ -580,17 +768,17 @@ class LifeAddBeneficiaryDialog extends Component {
 	 * 
 	 * @returns {html} html content
 	 */
-	_renderBeneDetails() {
+	_renderChildDetails() {
 		return html`
 		
 			<div class="grouping" >
 				<capitec-text-field label="First Name" style="width: 50%" 
-					error="${this.newBeneficiaryErrors?.firstName === undefined ? `` : this.newBeneficiaryErrors.firstName}"
+					error="${this.newChildErrors?.firstName === undefined ? `` : this.newChildErrors.firstName}"
 					@value-changed="${(e) => this._firstNameChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-text-field label="Surname" style="width: 50%" 
-					error="${this.newBeneficiaryErrors?.lastName === undefined ? `` : this.newBeneficiaryErrors.lastName}"
+					error="${this.newChildErrors?.lastName === undefined ? `` : this.newChildErrors.lastName}"
 					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
 			</div>
@@ -602,7 +790,7 @@ class LifeAddBeneficiaryDialog extends Component {
 			
 				<capitec-date-time-picker style="width: 50%;" label="Date of Birth" type="single" mode="date" inputType="calendar"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					error="${this.newBeneficiaryErrors?.dateOfBirth === undefined ? `` : this.newBeneficiaryErrors.dateOfBirth}"
+					error="${this.newChildErrors?.dateOfBirth === undefined ? `` : this.newChildErrors.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e, true)}">
 				</capitec-date-time-picker>
 			</div>
@@ -718,11 +906,10 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.BENEFICIARY_DETAILS ? html`
+				${this.currentStep === STEPS.CHILD_DETAILS ? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 					</capitec-button>
-				`
-				: html`
+				` : html`
 						<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
 						</capitec-button>
 				`}
@@ -741,7 +928,7 @@ class LifeAddBeneficiaryDialog extends Component {
 	// #endregion RENDERING
 }
 
-window.customElements.define(`horizon-insure-life-add-beneficiary-dialog`, LifeAddBeneficiaryDialog);
+window.customElements.define(`horizon-insure-life-add-child-dialog`, LifeAddChildDialog);
 
 /**
  * Send close dialog event to consuming component when 'Cancel' is clicked
