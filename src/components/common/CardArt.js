@@ -257,7 +257,7 @@ export class CardArt extends Component {
 				}
 				.card-info-group {
 					width: inherit;
-					height: 68px;
+					height: var (--horizon-card-art-info-group-height, 68px);
 				}
 				.card-info-group > *:first-child {
 					padding-left: 16px;
@@ -342,6 +342,23 @@ export class CardArt extends Component {
 		switch (this.context) {
 			case `cardArt`:
 				return html`${this.cardArtSVG}`;
+			case `cardSettings`:
+				return html`
+					<capitec-card class="cardArt">
+						<capitec-group layout="vertical"
+								gap="line"
+								halign="stretch"
+								valign="top"
+								class="card-img-group">
+								${this._renderCardArt()}
+						</capitec-group>
+						<capitec-group layout="horizontal"
+									gap="none"
+									halign="top"
+									valign="center">
+									<slot id="cardInfo" name="cardInfo"></slot>
+						</capitec-group>
+					</capitec-card>`;
 			default:
 				return html`
 					<capitec-card class="cardArt">

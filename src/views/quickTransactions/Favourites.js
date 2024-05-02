@@ -16,6 +16,7 @@ import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
+import { cards } from 'app/mocks/CardLimitsMock';
 
 import 'app/components/dialogs/common/WarningDialog';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -31,6 +32,7 @@ import 'app/components/dialogs/common/Feedback';
 import 'app/components/dialogs/quickTransactions/PayshapUpdate';
 import 'app/components/quickTransactions/SettlementQuote';
 import 'app/components/quickTransactions/TaxCertificateLanding';
+import 'app/components/quickTransactions/UpdateCardSettings';
 
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
@@ -144,6 +146,7 @@ export class Favourites extends SavingsAccountBase {
 			const paidUpAccounts = () => this._paidUpAccounts();
 			const sendCash = () => this._sendCash();
 			const payShap = () => this._payShap();
+			const updateCardSettings = () => this._updateCardSettings();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -157,7 +160,8 @@ export class Favourites extends SavingsAccountBase {
 				'settlement-quote': settlementQuote,
 				'paid-up-accounts': paidUpAccounts,
 				'send-cash': sendCash,
-				'payshap': payShap
+				'payshap': payShap,
+				'update-card-settings': updateCardSettings
 			};
 
 			if (actions[option]) {
@@ -1138,6 +1142,12 @@ export class Favourites extends SavingsAccountBase {
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
 	}
 
+	/** Update card settings */
+
+	_updateCardSettings() {
+		this.renderMode = RENDER_MODE.UPDATE_CARD_SETTINGS;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1199,6 +1209,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderPayShap()}
 			${this._renderPayShapUpdateModal()}
 			${this._renderPayShapPOP()}
+			${this._renderUpdateCardSettings()}
 
 			${super._webTemplate()}
 		`;
@@ -1365,7 +1376,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 		<horizon-paid-up-accounts
 			.accountsInfo="${this.accountsInfo}"
-			@back="${() => this._backToLandingPage()}">
+			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 		</horizon-paid-up-accounts>`
 		: html``;
 	}
@@ -1442,6 +1453,15 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 
+	_renderUpdateCardSettings() {
+		return this.renderMode === RENDER_MODE.UPDATE_CARD_SETTINGS
+		? html`
+			<horizon-update-card-settings
+			.cards = ${cards}
+			@back="${() => this._backToLandingPage()}">
+			</horizon-update-card-settings>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
