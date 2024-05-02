@@ -162,7 +162,7 @@ export class AccessChannels extends Component {
 
 	_getAppRegisteredDate() {
 		if (this.status.app?.status !== ACCESS_CHANNEL_STATUS.NOTREGISTERED) {
-			return this.status.app?.dateRegistered ? `\r\nRegistered on ${this._formatDate(this.status.app?.dateRegistered)} ${this._formatTime(this.status.app?.dateRegistered)}` : ``;
+			return this.status.app?.dateRegistered ? `\r\nRegistered ${this._formatDate(this.status.app?.dateRegistered)} ${this._formatTime(this.status.app?.dateRegistered)}` : ``;
 		}
 		return null;
 	}
