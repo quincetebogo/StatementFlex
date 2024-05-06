@@ -41,7 +41,6 @@ class LifePolicySummary extends Component {
 	static get properties() {
 		return {
 			selectedLifePolicy: { type: Object, state: true },
-			lifeGetPolicyMandates: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true }
 		};
 	}
@@ -54,19 +53,10 @@ class LifePolicySummary extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		await this._initialise();
 	}
 
-		/**
-	 * Initialize component when loaded
-	 * @returns {void}
-	 */
-	async _initialise() {
-		await this.lifeGetPolicyMandates(this.selectedLifePolicy.contractReference);
-	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
