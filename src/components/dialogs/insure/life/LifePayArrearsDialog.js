@@ -130,30 +130,6 @@ class LifePayArrearsDialog extends Component {
 		}
 		this.payableAccounts = this.lifePolicyArrears.payableAccounts;
 
-		// Suffecient funds?
-
-
-		// Relook how will we get this data?
-		// this.payableAccounts = [
-		// 	{
-		// 		"accountName": `SAVINGS ACCOUNT`,
-		// 		"branchCode": `470010`,
-		// 		"accountNumber": `2009939669`,
-		// 		"bank": `Capitec Bank`,
-		// 		"accountType": `Savings`,
-		// 		"availableBalance": 120,
-		// 		"currentBalance": 250
-		// 	},
-		// 	{
-		// 		"accountName": `SAVINGS PLAN`,
-		// 		"branchCode": `470010`,
-		// 		"accountNumber": `2009939660`,
-		// 		"bank": `Capitec Bank`,
-		// 		"accountType": `Savings`,
-		// 		"availableBalance": 200,
-		// 		"currentBalance": 250
-		// 	}
-		// ];
 	}
 
 	/**
