@@ -394,6 +394,42 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		);
 	}
 
+	getFirstQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/cec-save-${this._version}/savings-account/transaction/dispute/cue-card/get-first-question`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getFirstQuestion`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	getNextQuestion(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		const url = `/cec-save-${this._version}/savings-account/transaction/dispute/cue-card/get-next-question`;
+
+		return this.post(
+			url, 
+			request, 
+			this.setToken(), 
+			`getNextQuestion`, 
+			null, 
+			null, 
+			1000,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------

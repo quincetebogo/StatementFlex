@@ -6,8 +6,6 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
 
-const TOOLTIP_MESSAGE = `Your role does not allow you to make use of this functionality.`;
-
 /**
  * Savings Account View
  *
@@ -59,7 +57,8 @@ export class SavingsAccount extends Component {
 		return {
 			landingPageInfo: { type: Object },
 			shouldDisableByRole: { type: Object },
-			showTooltip: { type: Object }
+			showTooltip: { type: Object },
+			getTooltipMessage: { type: Object }
 		};
 	}
 	
@@ -339,7 +338,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`transaction-history`)}"
 						?showTooltip="${this.showTooltip(`transaction-history`)}"
 						@click="${() => this._optionSelectedClick(`transaction-history`)}"
 						?disabled="${this.shouldDisableByRole(`transaction-history`)}">
@@ -349,7 +348,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debi-check-action"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`debi-check`)}"
 						?showTooltip="${this.showTooltip(`debi-check`)}"
 						@click="${() => this._optionSelectedClick(`debi-check-viewInfo`)}"
 						?disabled="${this.shouldDisableByRole(`debi-check`)}">
@@ -358,7 +357,7 @@ export class SavingsAccount extends Component {
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
-						.tooltipMessage="${TOOLTIP_MESSAGE}"
+						.tooltipMessage="${this.getTooltipMessage(`statements`)}"
 						?showTooltip="${this.showTooltip(`statements`)}"
 						@click="${() => this._optionSelectedClick(`statements-transact`)}"
 						?disabled="${this.shouldDisableByRole(`statements`)}">

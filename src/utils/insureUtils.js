@@ -8,7 +8,9 @@ const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]
 
 export const LIFE_COVER_ERROR_MESSAGES = {
 	NO_COVER_ALLOCATED: `No cover allocated to any pocket`,
-	POCKET_MINIMUM: `Minimum pocket allocation is R50 000`,
+	MINIMUM_COVER_NOT_REACHED: `Please allocate a minimum of R100 000 across benefit payout options`,
+	POCKET_MINIMUM: `Minimum pocket allocation is R1000`,
+	POCKET_MINIMUM_EDUCATION: `Minimum pocket allocation is R50000`,
 	COVER_MAXIMUM: `Combined pocket allocation exceeds maximum cover amount`,
 	BENEFICIARY_MINIMUM: `Minimum beneficiary allocation is R50 000`,
 	MAX_BENEFICIARIES: `Maximum of 2 beneficiaries allowed for pocket`,
@@ -457,11 +459,11 @@ export function pocketBadgeColorClass(pocketType) {
  */
 export function pocketBadgeLabel(pocketType) {
 	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-		return `Monthly Payout`;
+		return `Monthly Income`;
 	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-		return `Education Fund`;
+		return `Children's Needs`;
 	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-		return `Once Off Payout`;
+		return `Lump Sum`;
 	}
 }
 

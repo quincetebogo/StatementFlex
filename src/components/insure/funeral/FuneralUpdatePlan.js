@@ -492,12 +492,19 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].title = event.detail.new.code;
+					if (rolePlayer.title === `Mr` || rolePlayer.title === `Sir`) {
+						rolePlayer.gender = `Male`;
+					} else if (rolePlayer.title === `Mrs` || rolePlayer.title === `Ms` || rolePlayer.title === `Miss` || rolePlayer.title === `Lady`) {
+						rolePlayer.gender = `Female`;
+					}
 
 					if (rolePlayer.beneficiary === true) {
 						if (!isNullorEmpty(rolePlayer.title)) {
 							rolePlayer.coverDetails.titleErrorMessage = ``;
 						}
-					} else if (rolePlayer.lifeAssured === true) {
+					}
+					
+					if (rolePlayer.lifeAssured === true) {
 						if (!isNullorEmpty(rolePlayer.title)) {
 							rolePlayer.coverDetails.titleErrorMessageLA = ``;
 						}
@@ -519,6 +526,7 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].gender = event.detail.new.code;
+					this.policyDetails.roleplayers[index].title = ``;
 
 					if (rolePlayer.lifeAssured === true) {
 						if (!isNullorEmpty(rolePlayer.gender)) {
@@ -1502,7 +1510,6 @@ class FuneralUpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_acceptReinstatePolicy() {
-		console.log(`Firing Accept ReInstate Event`);
 		this.dispatchEvent(new CustomEvent(`accept-policy`, { detail: { policyResponse: this.createPolicyResponse, newContractRef: this.newContractReference } }));
 	}
 

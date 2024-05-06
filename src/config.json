@@ -64,7 +64,7 @@
 			"positiveCase": true
 		},
 		"searchCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -173,7 +173,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"liveBetterLanding": {
@@ -217,7 +217,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -225,7 +225,7 @@
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},
 		"insurePolicyTransactionHistory": {
@@ -233,7 +233,7 @@
 			"positiveCase": true
 		},
 		"creditOverview": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditBalance": {
@@ -241,7 +241,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -413,11 +413,15 @@
 			"positiveCase": true
 		},
 		"insureLifeClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeGetMandates": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
@@ -448,6 +452,14 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"getClientDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"getEmployer" : {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureLifePremiumHistory": {
 			"enabled": false,
 			"positiveCase": true
@@ -465,6 +477,18 @@
 			"positiveCase": true
 		},
 		"insureCancelPolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCalculateEstimate": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureAllowedCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeQualifies": {
 			"enabled": true,
 			"positiveCase": true
 		}

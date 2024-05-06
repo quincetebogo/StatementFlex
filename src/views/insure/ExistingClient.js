@@ -140,6 +140,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} lifeUpdateBankingDetailsAgreement contains the update banking details document details
 	 * @property {Object} funeralPolicyPauseSuccess contains the policy pause success flag
 	 * @property {Object} policyPauseSuccessMessage contains the policy pause success message
+	 * @property {Object} lifePolicyMandates contains life policy mandates
 	 * 
 	 * @readonly
 	 * @static
@@ -180,6 +181,7 @@ export class ExistingClient extends InsureViewBase {
 			defaultSavingsAccountAvailableBalance: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
 			lifePolicyArrears: { type: Object, state: true },
+			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			funeralPolicyPauseSuccess: { type: Boolean, state: true },
@@ -410,7 +412,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -459,7 +461,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -520,7 +522,7 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"metadata": {
 				"deviceId": null,
-				"signatureType": ``,
+				"signatureType": `V`,
 				"branchName": ``,
 				"branchNumber": ``,
 				"documentDate": new Date().toISOString(),
@@ -915,7 +917,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {Object} Estimate response
 	 */
 	async _printFuneralEstimate(e) {
-		await this._calculateFuneralEstimate(e);
 		const dob = new Date(this.callerInformation.birthdate);
 		const clientDetails = {
 			"cifNumber": this.callerInformation.cifNumber,
@@ -928,13 +929,13 @@ export class ExistingClient extends InsureViewBase {
 
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails = clientDetails;
 		GENERATE_DOCUMENT_REQUEST_PAYLOAD.clientDetails.productCode = this.funeralPolicies.checkInsuranceDetails[0].productCode;
-		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = this.funeralEstimateDetails;
+		GENERATE_DOCUMENT_REQUEST_PAYLOAD.input = e.detail;
 
 		const result = await this.insureFuneralService.generateEstimatePrintoutDocument(GENERATE_DOCUMENT_REQUEST_PAYLOAD);
 		if (!result.succeeded) {
 			super.isOnlyProductEnquiry = false;
 			this.handleToastError(result.exception);
-			return;
+			return null;
 		}
 		super.isOnlyProductEnquiry = false;
 		return result;
@@ -1056,11 +1057,8 @@ export class ExistingClient extends InsureViewBase {
 				]
 			}
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(acceptPlanResp.exception);
 			return;
@@ -1070,9 +1068,7 @@ export class ExistingClient extends InsureViewBase {
 		this.successPageMessage = `The policy has been successfully updated`;
 		this.callerPage = INSURE_CALLER_PAGE.UPDATE_PLAN;
 		this.selectedFuneralPolicyContractReference = event.detail.prepareUpdate.prepareUpdateResponse.contractReference;
-		console.log(`1.4 - `, this.selectedFuneralPolicyContractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5 - `, this.renderMode);
 	}
 
 	/**
@@ -1153,7 +1149,6 @@ export class ExistingClient extends InsureViewBase {
 			documents = [event.detail.policyResponse.issuePlanAgreement.documentDetails];
 		}
 
-		console.log(`1.0 - `, documents);
 
 		const acceptPlanRequest =
 		{
@@ -1162,27 +1157,20 @@ export class ExistingClient extends InsureViewBase {
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
-		console.log(`1.1 - `, acceptPlanRequest);
 
 		const acceptPlanResp = await this.insureFuneralService.policyAccept(acceptPlanRequest);
-		console.log(`1.2 - `, acceptPlanResp);
 		if (!acceptPlanResp.succeeded) {
-			console.log(`1.3 - `, acceptPlanResp.exception);
 			this.handleToastError(acceptPlanResp.exception);
 			return;
 		}
 
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.3 - `, this.contractReference);
 		await this._generateDocumentsFuneralReissue(true);
-		console.log(`1.4 - After documents for ReIssue`);
 
 		this.successPageMessage = `The policy ${event.detail.policyResponse.policyResponse.contractReference} has been successfully reissued`;
 		this.callerPage = INSURE_CALLER_PAGE.REINSTATE_POLICY;
 		this.contractReference = event.detail.policyResponse.policyResponse.contractReference;
-		console.log(`1.5`, this.contractReference);
 		this.renderMode = INSURE_RENDER_MODE.SUCCESS_PAGE;
-		console.log(`1.5`, this.renderMode);
 	}
 
 	/**
@@ -1251,20 +1239,20 @@ export class ExistingClient extends InsureViewBase {
 	/**
 	 * Pay arrears for active life policy
 	 * @param {string} contractReference contractReference
-	 * @param {string} accountNumber accountNumber
+	 * @param {object} selectedAccount selectedAccount
 	 * @param {string} selectedArrears selectedArrears
 	 * @returns {object} resp
 	 */
-	async _payArrearsLife(contractReference, accountNumber, selectedArrears) {
+	async _payArrearsLife(contractReference, selectedAccount, selectedArrears) {
 		const payArrears = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"policyNumber": contractReference,
 			"bankDetails": {
-				"accountName": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_NAME,
-				"branchCode": GLOBAL_ONE_GENERIC_DETAILS.BRANCH_CODE,
-				"accountNumber": this.defaultSavingsAccountNumber,
-				"bank": GLOBAL_ONE_GENERIC_DETAILS.BANK,
-				"accountType": GLOBAL_ONE_GENERIC_DETAILS.ACCOUNT_TYPE,
+				"accountName": selectedAccount.accountName,
+				"branchCode": selectedAccount.branchCode,
+				"accountNumber": selectedAccount.accountNumber,
+				"bank": selectedAccount.bank,
+				"accountType": selectedAccount.accountType,
 				"effectiveDate": null
 			},
 			"arrears": selectedArrears
@@ -1305,7 +1293,13 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _healthQuestionnaire() {
-		const resp = await this.insureLifeService.lifeHealthQuestionnaire();
+		const req = {
+			"dateOfBirth": this.callerInformation.birthdate,
+			"forceRefresh": true,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeHealthQuestionnaire(req);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -1314,9 +1308,10 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeAllowedCover(allowedCoverRequest) {
-		allowedCoverRequest.clientDateOfBirth = this.callerInformation.birthdate;
+		allowedCoverRequest.clientDateOfBirth = new Date(this.callerInformation.birthdate);
 		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
 
 		const resp = await this.insureLifeService.lifeAllowedCover(allowedCoverRequest);
 		if (!resp.succeeded) {
@@ -1354,6 +1349,28 @@ export class ExistingClient extends InsureViewBase {
 		await this._getSavingsAccountDetails();
 
 		this.lifePolicyArrears = resp.result;
+	}
+
+		/**
+	 * gets the life policy mandates
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyMandates(selectedPolicy) {
+		const mandatesRequest =
+		{
+			"contractReference": selectedPolicy,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeGetMandates(mandatesRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.lifePolicyMandates = resp.result;
 	}
 
 	/**
@@ -1701,19 +1718,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
-	 * Prepare and navigate to Life Pocket Summary
-	 * @param {event} e e
-	 * @returns {void} 
-	 */
-	_goToLifePocketSummary(e) {
-		this.selectedLifePocketType = e.detail.pocketType;
-		this.selectedLifePolicy = e.detail.lifePolicy;
-
-		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
-		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY);
-	}
-
-	/**
 	 * Prepare and navigate to Life Policy Summary
 	 * @param {event} e e
 	 * @returns {void} 
@@ -1730,6 +1734,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _goToLifePolicyPremiumHistory(e) {
+		super.setInsureIncident(`life-cover-premium-history`);
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		await this._retrieveLifePolicyPremiumHistory();
@@ -1742,6 +1747,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	_goToLifeSMSHistory(e) {
+		super.setInsureIncident(`life-cover-sms-history`);
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SMS_HISTORY);
@@ -2029,8 +2035,6 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderSuccessPage()}`;
 			case INSURE_RENDER_MODE.CLAIM_SUMMARY:
 				return html`${this._renderClaimSummaryPage()}`;
-			case INSURE_RENDER_MODE.LIFE_POCKET_SUMMARY:
-				return html`${this._renderLifePocketSummaryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SUCCESS:
 				return html`${this._renderLifeSuccessPage()}`;
 			case INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY:
@@ -2076,7 +2080,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
-				.executeLifePayArrears="${(contractReference, accountNumber, selectedArrears) => this._payArrearsLife(contractReference, accountNumber, selectedArrears)}"
+				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
@@ -2105,7 +2109,6 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-claim-summary="${(e) => this._goToClaimSummary(e)}"
 				@navigate-to-policy-transaction-history="${(e) => this._goToFuneralTransactionHistory(e)}"
 				@navigate-to-sms-history="${(e) => this._goToFuneralSMSHistory(e)}"
-				@navigate-to-life-pocket-summary="${(e) => this._goToLifePocketSummary(e)}"
 				@navigate-to-life-policy-summary="${(e) => this._goToLifePolicySummary(e)}"
 				@navigate-to-life-allocate-cover="${(e) => this._goToLifeAllocateCover(e)}"
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
@@ -2266,24 +2269,12 @@ export class ExistingClient extends InsureViewBase {
 	 * 
 	 * @returns {html} html
 	 */
-	_renderLifePocketSummaryPage() {
-		return html`
-			<horizon-insure-life-pocket-summary 
-				.selectedPocketType="${this.selectedLifePocketType}"
-				.selectedLifePolicy="${this.selectedLifePolicy}"
-				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
-			</horizon-insure-life-pocket-summary>`;
-	}
-
-	/**
-	 * Renders the pocket summary page, configured with the selected pocket type
-	 * 
-	 * @returns {html} html
-	 */
 	_renderLifePolicySummaryPage() {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
+				.lifeGetPolicyMandates="${(policy) => this._retrieveLifePolicyMandates(policy)}"
+				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}
