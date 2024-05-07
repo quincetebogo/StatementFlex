@@ -160,16 +160,7 @@ class LifeHealthQuestionsDialog extends Component {
 			}
 		}
 
-		// Reset Form and Fields
-		// const radioGroup = this.shadowRoot.querySelector(`#questions-radio-group`);
-		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-
-		// radioGroup.removeAttribute(`selected`);
-		// radioButtons.forEach(radioButton => {
-		// 	radioButton.checked = false;
-		// 	radioButton.removeAttribute(`aria-checked`);
-		// });
-
+		// Move on to next question
 		this.currentQuestionIndex++;
 		this.currentQuestion = this.lifeHealthQuestions.questions[this.currentQuestionIndex];
 		this.currentAnswerSingle = {};
@@ -179,6 +170,8 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Force set answer to first
 		this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
+		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
+		radioButtons[0].checked = true;
 	}
 
 	/**

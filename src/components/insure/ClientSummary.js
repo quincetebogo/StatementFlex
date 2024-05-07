@@ -34,6 +34,7 @@ import 'app/components/dialogs/insure/life/LifeUpdateBeneficiaryDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
 import 'app/components/dialogs/insure/life/LifeBeneficiariesAllocateError';
 import 'app/components/dialogs/insure/life/LifeAddChildDialog';
+import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -98,6 +99,7 @@ class ClientSummary extends Component {
 		this.showLifeAllocateCoverDialog = false;
 		this.requestCallbackSuccess = false;
 		this.showEarlyCollectionDialog = false;
+		this.showLifeHonestyPledgeDialog = false;
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
@@ -183,6 +185,7 @@ class ClientSummary extends Component {
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
 			showEarlyCollectionDialog: { type: Boolean, state: true },
+			showLifeHonestyPledgeDialog: { type: Boolean, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -378,7 +381,9 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_goToLifePolicyReIssue(lifePolicy) {
-		this._openHealthQuestionsDialog(lifePolicy, LIFE_UPDATE_MODE.REISSUE);
+		this.showLifeHonestyPledgeDialog = true;
+		this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.REISSUE;
+		this.selectedLifePolicy = lifePolicy;
 	}
 
 	/**
@@ -1188,6 +1193,13 @@ class ClientSummary extends Component {
 		lastMissedPaymentDate.setDate(lastMissedPaymentDate.getDate() + 15);
 		return lastMissedPaymentDate.toISOString();
 	}
+
+	_doneHonestyPledge() {
+		this.showLifeHonestyPledgeDialog = false;
+		if (this.selectedLifeUpdateMode === LIFE_UPDATE_MODE.REISSUE) {
+			this._openHealthQuestionsDialog(this.selectedLifePolicy, LIFE_UPDATE_MODE.REISSUE);
+		}
+	}
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -1571,6 +1583,8 @@ class ClientSummary extends Component {
 			${this._renderRequestCallbackDialog()}
 			${this._renderEarlyCollectionsDialog()}
 			${this._renderLifeEmailDialog()}
+			${this._renderLifeHonestyPledgeDialog()}
+
 		`;
 	}
 
@@ -2456,6 +2470,14 @@ class ClientSummary extends Component {
 			@agreementAccepted="${() => this._navigateAfterCFP()}"
 			@close-modal="${() => this.showCFPAgreementDialog = false}">
 		</horizon-insure-cfp-agreement-dialog>`;
+	}
+
+	_renderLifeHonestyPledgeDialog() {
+		return this.showLifeHonestyPledgeDialog === false ? `` : html`
+			<horizon-insure-life-honesty-pledge-dialog
+				@continue="${() => this._doneHonestyPledge()}"
+				@close-modal="${() => this.showLifeHonestyPledgeDialog = false}">
+			</horizon-insure-life-honesty-pledge-dialog>`;
 	}
 
 	/** 

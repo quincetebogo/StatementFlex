@@ -172,6 +172,7 @@ class LifeAllocateCoverDialog extends Component {
 		}
 
 		await this.getDefaultSavingsAccountNumber();
+		console.log(this.updatedPolicy);
 
 		this.accountNumberDisabled = this._disableAccountNumber();
 
@@ -427,16 +428,22 @@ class LifeAllocateCoverDialog extends Component {
 		this.educationCoverError = ``;
 		this.onceOffCoverError = ``;
 
+		console.log(`this.monthlyTotalCoverValue: ${this.monthlyTotalCoverValue}`);
+		console.log(`this.onceOffCoverValue: ${this.onceOffCoverValue}`);
+		console.log(`this.educationCoverValue: ${this.educationCoverValue}`);
+
 		// Nothing Allocated
 		if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
 			(isNullorEmpty(this.onceOffCoverValue) || this.onceOffCoverValue === 0) &&
 			(isNullorEmpty(this.educationCoverValue) || this.educationCoverValue === 0)) {
+			console.log(`Validating | _validateAllocatePocketsStep | 0`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
 			isValid = false;
 		}
 
 		// Less than policy minimum
 		if (parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue) < 100000) {
+			console.log(`Validating | _validateAllocatePocketsStep | 1`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
 			isValid = false;
 		}
@@ -445,10 +452,12 @@ class LifeAllocateCoverDialog extends Component {
 		const totalCoverage = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
 		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 			if (totalCoverage > this.newOffer.maximumAllowedCover) {
+				console.log(`Validating | _validateAllocatePocketsStep | 2`);
 				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 				isValid = false;
 			}
 		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
+			console.log(`Validating | _validateAllocatePocketsStep | 3`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 			isValid = false;
 		}
@@ -456,18 +465,21 @@ class LifeAllocateCoverDialog extends Component {
 		// Check any errors on individual pockets
 		// Monthly
 		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && this.monthlyTotalCoverValue !== 0) {
+			console.log(`Validating | _validateAllocatePocketsStep | 4`);
 			this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
 		}
 
 		// Education
 		if (parseFloat(this.educationCoverValue) < 50000 && this.educationCoverValue !== 0) {
+			console.log(`Validating | _validateAllocatePocketsStep | 5`);
 			this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM_EDUCATION;
 			isValid = false;
 		}
 
 		// Once off
 		if (parseFloat(this.onceOffCoverValue) < 1000 && this.onceOffCoverValue !== 0) {
+			console.log(`Validating | _validateAllocatePocketsStep | 6`);
 			this.onceOffCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
 		}
@@ -894,11 +906,13 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Allocate
 		if (this.currentDialogStep === 0) {
+			console.log(`Validating Step 0`);
 			stepValid = this._validateAllocatePocketsStep();
 			if (stepValid === false) {
 				return;
 			}
 
+			// Map to pockets
 			const policyPockets = [];
 			if (this.monthlyCoverValue > 0) {
 				policyPockets.push({
@@ -918,12 +932,12 @@ class LifeAllocateCoverDialog extends Component {
 					"pocketType": `Education`
 				});
 			}
-
 			this.updatedPolicy.pockets = policyPockets;
 		}
 
 		// Beneficiaries
 		if (this.currentDialogStep === 1) {
+			console.log(`Validating Step 1`);
 			this.invalidPocketNames = [];
 			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
 			stepValid = allocatedStepResults[0];
@@ -937,6 +951,7 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Payment details
 		if (this.currentDialogStep === 2) {
+			console.log(`Validating Step 2`);
 			if (isNullorEmpty(this.updatedPolicy.bankDetails.accountNumber)) {
 				this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
 				stepValid = false;
@@ -972,7 +987,7 @@ class LifeAllocateCoverDialog extends Component {
 				newBene.contactDetails = {
 					contactNumber: bene.contactNumber
 				};
-				
+
 				requestBeneficiaries.push(newBene);
 			});
 
@@ -1019,6 +1034,7 @@ class LifeAllocateCoverDialog extends Component {
 
 		// All good move on
 		if (stepValid === true) {
+			console.log(`Success | Done with step: ${this.currentDialogStep}`);
 			this.currentDialogStep++;
 			this._setDialogTitle(this.currentDialogStep);
 			this.allocatedCoverErrorMessage = ``;
