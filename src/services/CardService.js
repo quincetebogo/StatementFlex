@@ -374,4 +374,25 @@ export class CardService extends ChannelServiceBase {
 		);
 	};
 
+	async updateCardsSettings(cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`updateCardsSettings`)) {
+			return this.mock(`updateCardsSettings`);
+		} 
+
+		const url = `/clientcare-card-${this._version}/UpdateCardSettings`;
+
+		return this.post(
+			url, 
+			model, 
+			this.setToken(), 
+			`updateCardsSettings`, 
+			null, 
+			null, 
+			1000,
+			null, 
+			errorHandler,
+			autoRetries
+		);
+	}
+
 }

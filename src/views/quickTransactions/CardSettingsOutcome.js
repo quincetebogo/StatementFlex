@@ -24,6 +24,8 @@ export class CardSettingsOutcome extends ViewBase {
 		this.displayToast = true;
 		this.endCallContext = `QuickTransactionSuccess`;
 		this.header = ``;
+		this.displayImage = ``;
+		this.expandOtherCards = false;
 	}
 
 	// ----------
@@ -38,13 +40,9 @@ export class CardSettingsOutcome extends ViewBase {
 	*/
 	static get properties() {
 		return {
-			displayToast: { state: false }
+			displayToast: { state: false },
+			expandOtherCards: { state: false }
 		};
-	}
-
-	get incidentDescription() {
-		return `Type: Settlement Quote\nSucceeded: ${this._formateAccountNames(this.succeededCards)}\nFailed: ${this._formateAccountNames(this.failedCards)}
-				Receipient EmailID: ${this.emailAddress}`;
 	}
 
 	// -------------------
@@ -56,14 +54,17 @@ export class CardSettingsOutcome extends ViewBase {
 		
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
+		this.ecommerceUpdated = this.screenDetails?.ecommerceUpdated;
+		this.internationalUpdated = this.screenDetails?.internationalUpdated;
 
-		this.failedCards = this.screenDetails.cardSettingsDeactivationStatus.filter(card => !card.ecommerce);
-		this.succeededCards = this.screenDetails.cardSettingsDeactivationStatus.filter(card => card.ecommerce);
+		this.failedCards = this.screenDetails.deactivatedCardsList.filter(card => card.ecommerceUpdated === `ERROR` || card.internationalTransactionsUpdated === `ERROR`);
+		this.succeededCards = this.screenDetails.deactivatedCardsList.filter(card => (card.ecommerceUpdated === `SUCCESS` || card.internationalTransactionsUpdated === `SUCCESS`) && 
+																					!(this.failedCards.indexOf(card) > 0));
 
 		this._getOutcomeDetails();
 		this._updateIncidentState();
 
-		window.setTimeout(() => this.displayToast = false, 3000);
+		window.setTimeout(() => this.displayToast = false, 300000);
 	}
 
 	disconnectedCallback() {
@@ -75,15 +76,12 @@ export class CardSettingsOutcome extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		const returnToScreen = this.horizonStore.getReturnToScreen();
-		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
-
-		this.horizonRouter.navigateToReturnPage();
 		this.horizonStore.clearScreenDetails();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_tryAgain() {
-		this.horizonRouter.navigateToReturnPage();
+	_returnToCardList() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	// ---------------
@@ -91,40 +89,46 @@ export class CardSettingsOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonIncidentManager.setDescription(this.incidentDescription);
+		this.horizonIncidentManager.incidentState = this.failedCards.length === 0 ? super.HORIZON_NEED_STATUS.COMPLETED : super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	_getOutcomeDetails() {
-			this.header = ``;
-			this.toast = `Settlement quote${this._formateToastDetails(this.succeededCards)} was sent`;
-			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedCards)} was not sent`;
-			this.successDetail = html`Settlement quote for<b>${this._formateAccountNames(this.succeededCards)}</b> was emailed to <b>${this.emailAddress}</b>`;
-			this.failureDetails = html`Settlement quote for<b>${this._formateAccountNames(this.failedCards)}</b> was not emailed to <b>${this.emailAddress}</b>`;
-		}
-
-	_formateToastDetails(accounts) {
-		if (accounts.length === 1) {
-			return ` for ${accounts[0].toLowerCase()}`;
-		}
-		return `s`;
+			this.header = this._getHeaderDetails();
+			this.toast = this._getToast();
+			this.secondaryToast = this._getSecondaryToast();
+			this.displayImage = this.succeededCards.length > 0 && this.failedCards.length > 0 
+									? `/images/cardSettings/CardSettingsPartialSuccess.svg`
+									: `/images/cardSettings/CardSettingsSuccess.svg`;
 	}
 
-	_formateAccountNames(accounts) {
-		if (accounts.length === 1) {
-			return `${accounts[0].toLowerCase()}`;
+	_getHeaderDetails() {
+		if (this.failedCards.length > 0 && this.succeededCards.length > 0) {
+			return `${this.ecommerceUpdated ? `Online purchases` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `&` : ``} ${this.internationalUpdated ? `International transactions` : ``} partially updated`;
+		} else if (this.succeededCards.length > 0) {
+			return `${this.ecommerceUpdated ? `Online purchases` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `&` : ``} ${this.internationalUpdated ? `International transactions` : ``} have been turned off successfully`;
 		}
+		return `${this.ecommerceUpdated ? `Online purchases` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `&` : ``} ${this.internationalUpdated ? `International transactions` : ``} update failed`;
+	}
 
-		if (accounts.length === 2) {
-			return `${accounts.join(` and `).toLowerCase()}`;
+	_getToast() {
+		if (this.succeededCards.length > 0) {
+			// Check if all online or all International are success or only a partial success
+			const ecommerceUpdated = this.succeededCards.filter(card => card.ecommerceUpdated === `SUCCESS`).length > 0;
+			const internationalUpdated = this.succeededCards.filter(card => card.internationalTransactionsUpdated === `SUCCESS`).length > 0;
+			return `${ecommerceUpdated ? `Online purchases` : ``} ${ecommerceUpdated && internationalUpdated ? `&` : ``} ${internationalUpdated ? `International transactions` : ``} updated`;
 		}
+		return null;
+	}
 
-		if (accounts.length > 2) {
-			const lastAccount = accounts.slice(-1)[0];
-			return `${accounts.slice(0, -1).join(`, `).toLowerCase()} and ${lastAccount.toLowerCase()}`;
+	_getSecondaryToast() {
+		if (this.failedCards.length > 0) {
+			// Check if all online or all International are failure or only a partial failure
+			const ecommerceFailed = this.failedCards.filter(card => card.ecommerceUpdated === `ERROR`).length > 0;
+			const internationalFailed = this.failedCards.filter(card => card.internationalTransactionsUpdated === `ERROR`).length > 0;
+
+			return `${ecommerceFailed ? `Online purchases` : ``} ${ecommerceFailed && internationalFailed ? `&` : ``} ${internationalFailed ? `International transactions` : ``} could not be updated`;
 		}
-
-		return ``;
+		return null;
 	}
 
 	// ---------
@@ -183,6 +187,14 @@ export class CardSettingsOutcome extends ViewBase {
 				.secondary-toast {
 					top : 130px;
 				}
+				p {
+					margin: 0px;
+				}
+				.label-info {
+					--theme-label-default-font-size: 16px;
+					--theme-label-default-font-weight: 600;
+					margin-top: 32px;
+				}
 			`
 		];
 	}
@@ -237,7 +249,7 @@ export class CardSettingsOutcome extends ViewBase {
 			? html`
 				<capitec-toast 
 					?hidden="${!this.displayToast}"
-					class="secondary-toast"
+					class="${this.toast ? `secondary-toast` : ``}"
 					type="error" 
 					header="Unsuccessful" 
 					detail="${this.secondaryToast}"
@@ -249,43 +261,76 @@ export class CardSettingsOutcome extends ViewBase {
 
 	_renderContent() {
 		return html`
-			<img src="/images/statements/send-documents.svg"/>
+			<img src="${this.displayImage}"/>
 
-			<capitec-label
-				class="header"
-				label="${this.header}">
-			</capitec-label>
+			<capitec-label class="header" label="${this.header}"></capitec-label>
 
-			${this._renderSuccessDetails()}
-			${this._returnFailureDetails()}
+			<capitec-group layout="vertical" halign="left">
+				${this._renderSuccessDetails()}
+				${this._returnFailureDetails()}
+			</capitec-group>
+
+			<capitec-label class="label-info" label="Please use the APP to reactivate online & international transactions"></capitec-label>
+
 			${this._renderButtonGroup()}
 		`;
 	}
 
 	_renderSuccessDetails() {
-		return this.successDetail 
+		return this.succeededCards.length > 0 
 		? html`
 		<capitec-group layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
 				icon="status/success-trans">
 			</capitec-icon>
-			${this.successDetail}
+			<p>
+				${this.succeededCards.map((card, index) => this._renderCardsStatus(card, index, true))}
+			</p>
 		</capitec-group>`
 		: html``;
 	}
 
 	_returnFailureDetails() {
-		return this.failureDetails
+		return this.failedCards.length > 0
 		? html`
 			<capitec-group class="subdetail-group" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
 					icon="status/error-trans">
 				</capitec-icon>
-				${this.failureDetails}
+				<p>
+					${this.failedCards.map((card, index) => this._renderCardsStatus(card, index, false))}
+				</p>
 			</capitec-group>`
 		: html``;
+	}
+
+	_renderCardsStatus(card, index, succeeded) {
+		switch (index) {
+			case 0:
+				return html`
+					Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
+			case 1:
+				return html`
+					, <br/> Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
+			case 2:
+				return html`
+					${this._renderOtherCards(succeeded)}`;
+			default:
+				return html``;
+		}
+	}
+
+	_renderOtherCards(succeeded) {
+		const [, , ...otherCards] = succeeded ? this.succeededCards : this.failedCards;
+		return this.expandOtherCards
+		? html`
+		${otherCards.map(card => html`
+			, <br/> Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`)}`
+		: html`
+			, <br/> and <capitec-hyperlink label="${otherCards.length} other(s)" size="small" @click="${() => this.expandOtherCards = !this.expandOtherCards}"></capitec-hyperlink>
+		`;
 	}
 
 	_renderButtonGroup() {
@@ -293,14 +338,14 @@ export class CardSettingsOutcome extends ViewBase {
 			<capitec-group class="button-group" layout="horizontal" halign="center">
 				<capitec-button
 					class="button-left"
-					label="Done"
-					@click="${() => this._doneClick()}">
+					label="Return to Card list"
+					@click="${() => this._returnToCardList()}">
 				</capitec-button>
 
 				<capitec-button
 					type="primary"
-					label="Try Again"
-					@click="${() => this._tryAgain()}">
+					label="Done"
+					@click="${() => this._doneClick()}">
 				</capitec-button>
 			</capitec-group>`;
 	}

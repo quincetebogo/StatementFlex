@@ -22,7 +22,8 @@ export class ConfirmCardSettings extends Component {
 
 	constructor() {
 		super();
-
+		this.ecommerceUpdated = false;
+		this.internationalUpdated = false;
 	}
 
 	// ---------------
@@ -34,7 +35,9 @@ export class ConfirmCardSettings extends Component {
 	 */
 	static get properties() {
 		return {
-			deactivateCardsList: { type: Object }
+			deactivateCardsList: { type: Object },
+			ecommerceUpdated: { type: Boolean },
+			internationalUpdated: { type: Boolean }
 		};
 	}
 
@@ -197,9 +200,9 @@ export class ConfirmCardSettings extends Component {
 				</div>
 				<div slot="body">
 					<capitec-content-box>
-						<p>Are you sure you want to turn off online and international purchases on</p>
+						<p>Are you sure you want to turn off ${this.ecommerceUpdated ? `online` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `and` : ``} ${this.internationalUpdated ? `international` : ``} purchases on</p>
 						${this.deactivateCardsList.map(card => this._renderCardsList(card))}
-						<p>This will stop your online shopping, scan to pay transaction and international transactions.</p>
+						<p>This will stop your ${this.ecommerceUpdated ? `online shopping, scan to pay` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `and` : ``} ${this.internationalUpdated ? `international` : ``} transactions.</p>
 					</capitec-content-box>
 				</div>
 				<div slot="footer">

@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from 'platform/Utilities';
 
 import 'app/components/common/CardArt';
@@ -23,6 +24,9 @@ export class UpdateCardSettings extends Component {
 		this.showDeactivateConfirmationModal = false;
 		this.updatedCards = [];
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.ecommerceUpdated = false;
+		this.internationalUpdated = false;
 	}
 
 	// ---------------
@@ -72,7 +76,7 @@ export class UpdateCardSettings extends Component {
 			card.cardDisplayName = CARD_TYPE_MAPPING[card.cardType];
 		});
 
-		this.updatedCards = Utilities.deepCopy(this.cards);
+		this._deepCopyCardDetails();
 	}
 
 	_loading() {
@@ -92,6 +96,9 @@ export class UpdateCardSettings extends Component {
 		return updatedCardsList;
 	}
 
+	_deepCopyCardDetails() {
+		this.updatedCards = Utilities.deepCopy(this.cards);
+	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -107,11 +114,13 @@ export class UpdateCardSettings extends Component {
 	_toggleOnline(event, cardId) {
 		const index = this.cards.findIndex(item => item.cardId === cardId);
 		this.updatedCards[index].ecommerce = event.detail.new;
+		this.requestUpdate();
 	}
 
 	_toggleInternational(event, cardId) {
 		const index = this.cards.findIndex(item => item.cardId === cardId);
 		this.updatedCards[index].internationalTransactions = event.detail.new;
+		this.requestUpdate();
 	}
 
 	_deactivateAllOnline(event) {
@@ -133,41 +142,33 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_deactivateSelectedCards() {
+		this.ecommerceUpdated = this.updatedCards.filter(updatedcard => {
+															const card = this.cards.find(item => item.cardId === updatedcard.cardId); 
+															return updatedcard.ecommerce !== card.ecommerce;
+														})?.length > 0;
+	
+		this.internationalUpdated = this.updatedCards.filter(updatedcard => {
+																const card = this.cards.find(item => item.cardId === updatedcard.cardId); 
+																return updatedcard.internationalTransactions !== card.internationalTransactions;
+															})?.length > 0;
+
 		this.showDeactivateConfirmationModal = !this.showDeactivateConfirmationModal;
 	}
-
+	
 	_confirmDeactivation() {
-		// CS call to deactivate
-		const response = [
-			{
-				card: `5284 **** **** 1212`,
-				ecommerce: true
-			},
-			{
-				card: `5284 **** **** 1213`,
-				ecommerce: true
-			},
-			{
-				card: `5284 **** **** 1214`,
-				ecommerce: true
-			},
-			{
-				card: `5284 **** **** 1215`,
-				ecommerce: true
-			},
-			{
-				card: `5284 **** **** 1216`,
-				ecommerce: true
+		this.dispatchEvent(new CustomEvent(`deactivate`, {
+			detail: {
+				cardsListToDeactivate: this.updatedCards,
+				ecommerceUpdated: this.ecommerceUpdated,
+				internationalUpdated: this.internationalUpdated
 			}
-		];
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.cardSettingsDeactivationStatus = response;
-		this.horizonStore.setScreenDetails(screenDetails);
-
-		this.horizonRouter.navigateToCardSettingsOutcome();
+		}));
 	}
 
+	_deselectAll() {
+		this._deepCopyCardDetails();
+		this.shadowRoot.querySelectorAll(`#deactivation-check-box`).forEach(box => box.removeAttribute(`checked`));
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -238,7 +239,7 @@ export class UpdateCardSettings extends Component {
 				horizon-card-art {
 					--horizon-card-art-box-shadow:none!important;
 					--horizon-card-art-info-group-height: 200px;
-					--horizon-card-art-height: 452px
+					--horizon-card-art-height: 452px;
 				}
 
 				horizon-card-art:nth-child(n+3) {
@@ -338,6 +339,9 @@ export class UpdateCardSettings extends Component {
 				capitec-hyperlink {
 					--theme-hyperlink-color: #009DE0;
 				}
+				.blur-card {
+					--horizon-card-art-opacity: 20%;
+				}
 			`
 		];
 	}
@@ -410,8 +414,12 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_renderPrimaryCardArt(card, index, automationId) {
+		const originalEcommerceStatus = this.cards.find(item => item.cardId === card.cardId).ecommerce;
+		const originalInternationalStatus = this.cards.find(item => item.cardId === card.cardId).internationalTransactions;
+
 		return html`
 			<horizon-card-art
+				class="${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
 				id="primaryCard-widget-${index}"
 				data-automation-id="update-card-settings-${automationId}"
 				.card="${card}"
@@ -446,8 +454,12 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_renderSupplementaryCardArt(card, index, automationId) {
+		const originalEcommerceStatus = this.cards.find(item => item.cardId === card.cardId).ecommerce;
+		const originalInternationalStatus = this.cards.find(item => item.cardId === card.cardId).internationalTransactions;
+
 		return html`
 			<horizon-card-art
+				class="${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
 				id="supplementary-widget-${index}"
 				data-automation-id="update-card-settings-${automationId}"
 				.card="${card}"
@@ -519,16 +531,20 @@ export class UpdateCardSettings extends Component {
 					valign="center"
 					gap="clear">
 						<capitec-check
+							id="deactivation-check-box"
 							label="Deactivate all Online"
+							?checked=${this.updatedCards.every(card => !card.ecommerce)}
 							@value-change="${(e) => this._deactivateAllOnline(e)}">
 						</capitec-check>
 						<capitec-check
+							id="deactivation-check-box"
 							label="Deactivate all International"
+							?checked=${this.updatedCards.every(card => !card.internationalTransactions)}
 							@value-change="${(e) => this._decativateAllInternational(e)}">
 						</capitec-check>
 						<capitec-hyperlink 
 							label="Deselect All" 
-							@click="${() => this._deselect()}">
+							@click="${() => this._deselectAll()}">
 						</capitec-hyperlink>
 						<capitec-spacer></capitec-spacer>
 						<capitec-button 
@@ -545,9 +561,11 @@ export class UpdateCardSettings extends Component {
 		return this.showDeactivateConfirmationModal
 		? html`
 		<horizon-confirm-card-settings-dialog
-		.deactivateCardsList = "${this._getUpdatedCardsList()}"
-		@on-cancel="${() => this.showDeactivateConfirmationModal = !this.showDeactivateConfirmationModal}"
-		@on-confirm="${() => this._confirmDeactivation()}">
+			.deactivateCardsList = "${this._getUpdatedCardsList()}"
+			?ecommerceUpdated = "${this.ecommerceUpdated}"
+			?internationalUpdated = "${this.internationalUpdated}"
+			@on-cancel="${() => this.showDeactivateConfirmationModal = !this.showDeactivateConfirmationModal}"
+			@on-confirm="${() => this._confirmDeactivation()}">
 		</horizon-confirm-card-settings-dialog>
 		`
 		: html``;

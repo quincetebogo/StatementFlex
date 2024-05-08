@@ -1144,8 +1144,61 @@ export class Favourites extends SavingsAccountBase {
 
 	/** Update card settings */
 
-	_updateCardSettings() {
-		this.renderMode = RENDER_MODE.UPDATE_CARD_SETTINGS;
+	async _updateCardSettings() {
+		// service call to get list of cards
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
+
+		if (returnValue.succeeded) {
+			this.cardsList = returnValue.result.cards;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_SETTINGS;
+			return;
+		}
+		this.horizonRouter.navigateToSystemError();
+	}
+
+	_deactivateCardTransactions(event) {
+		// service call to deactivate online purchases and International transactions
+		// const returnValue = await this.cardService.updateCardsSettings(cardsList);
+		if (true) {
+			const response = [
+				{
+					cardNumber: `5284 **** **** 1212`,
+					internationalTransactionsUpdated: `SUCCESS`,
+					ecommerceUpdated: `ERROR`
+				},
+				{
+					cardNumber: `5284 **** **** 1213`,
+					internationalTransactionsUpdated: `SUCCESS`,
+					ecommerceUpdated: `ERROR`
+				},
+				{
+					cardNumber: `5284 **** **** 1214`,
+					internationalTransactionsUpdated: `SUCCESS`,
+					ecommerceUpdated: `ERROR`
+				},
+				{
+					cardNumber: `5284 **** **** 1215`,
+					internationalTransactionsUpdated: `SUCCESS`,
+					ecommerceUpdated: `ERROR`
+				},
+				{
+					cardNumber: `5284 **** **** 1216`,
+					internationalTransactionsUpdated: `ERROR`,
+					ecommerceUpdated: `ERROR`
+				}
+			];
+
+			const screenDetails = this.horizonStore.getScreenDetails();
+			// screenDetails.deactivatedCardsList = returnValue.result.cards;
+			screenDetails.deactivatedCardsList = response;
+			screenDetails.ecommerceUpdated = event.detail.ecommerceUpdated;
+			screenDetails.internationalUpdated = event.detail.internationalUpdated;
+
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToCardSettingsOutcome();
+			return;
+		}
+		this.horizonRouter.navigateToSystemError();
 	}
 
 	// ---------
@@ -1457,8 +1510,9 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_SETTINGS
 		? html`
 			<horizon-update-card-settings
-			.cards = ${cards}
-			@back="${() => this._backToLandingPage()}">
+					.cards = ${this.cardsList}
+					@back="${() => this._backToLandingPage()}"
+					@deactivate="${(event) => this._deactivateCardTransactions(event)}">
 			</horizon-update-card-settings>`
 		: html``;
 	}

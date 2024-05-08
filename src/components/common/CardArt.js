@@ -322,6 +322,7 @@ export class CardArt extends Component {
 
 				.card-img-group {
 					--theme-layout-gap-spacing: 0px;
+					opacity: var(--horizon-card-art-opacity, unset);
 				}
 				.card-number {
 					--horizon-label-value-font-size: 15px;
