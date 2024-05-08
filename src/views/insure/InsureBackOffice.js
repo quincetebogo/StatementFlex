@@ -59,7 +59,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.selectedFuneralPolicyProductCode = ``;
 		this.selectedFuneralPolicyStartDate = ``;
 
-		this.readOnlyMode = true;
+		this.readOnlyMode = false;
 		this.isLifeQualifyingClient = false;
 	}
 

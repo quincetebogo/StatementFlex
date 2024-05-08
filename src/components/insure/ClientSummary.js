@@ -2147,9 +2147,9 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							<!-- ${pol.canReIssue === false ? html`` : html`
+							${pol.canReIssue === false ? html`` : html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							`} -->
+							`}
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)

@@ -421,11 +421,11 @@
 			"positiveCase": true
 		},
 		"insureLifeGetMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
@@ -433,7 +433,7 @@
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
