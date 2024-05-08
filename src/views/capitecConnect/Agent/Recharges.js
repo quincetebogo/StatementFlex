@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { DateTime } from 'luxon';
 import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount, formatDateAndTime } from 'app/utils/capitecConnectUtils';
 
 /**
@@ -255,26 +256,81 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return;
 	}
 
+	getPredefinedDateRanges() {
+		return [
+			{ text: `Last 30 days`, value: { startDate: getDateInPast(30), endDate: getDateInPast(0) } },
+			{ text: `Last 60 days`, value: { startDate: getDateInPast(60), endDate: getDateInPast(0) } },
+			{ text: `Last 90 days`, value: { startDate: getDateInPast(90), endDate: getDateInPast(0) } }
+		];
+	}
+
+	async _dateChanged(e) {
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate?.split('T')[0] || getDateInPast(0);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = incrementDate(e.detail.new.endDate.split('T')[0], -30);
+		}
+
+		const currentDateTime = DateTime.local();
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate);
+
+		let from,
+			to;
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			toDate = fromDate.plus({ days: 90 });
+
+			if (toDate > currentDateTime) {
+				from = e.detail.new.startDate;
+				to = getDateInPast(0);
+			} else {
+				from = e.detail.new.startDate;
+				to = e.detail.new.endDate;
+
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else {
+			from = e.detail.new.startDate || getDateInPast(30);
+			to = e.detail.new.endDate || incrementDate(from, 30);
+		}
+
+		Object.keys(e.detail).forEach(d => {
+			Object.keys(e.detail[d]).forEach(x => {
+				if (e.detail[d][x] !== null && e.detail[d][x].indexOf("T") > -1) {
+					e.detail[d][x] = e.detail[d][x].split('T')[0]
+				}
+			});
+		});
+
+		this.activeFilters.dateRange = {
+			from: from.split('T')[0],
+			to: to.split('T')[0]
+		}
+
+		return this.onFilter();
+	}
+
 	onFilter() {
 		this.showTable = false;
-		// this.requestUpdate();
 
 		setTimeout(() => {
 			this.showTable = true;
 			this.requestUpdate();
 		}, 100);
-	}
-
-	dateRangeHandler(e) {
-		var from = e.detail.new.startDate?.split('T')[0] || getDateInPast(0);
-		var to = e.detail.new.endDate?.split('T')[0] || getDateInPast(0);
-
-		console.log(e);
-
-		this.activeFilters.dateRange.from = from;
-		this.activeFilters.dateRange.to = to;
-
-		return this.onFilter();
 	}
 
 	_mobileTemplate() {
@@ -293,15 +349,14 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-button-bar align="left">
 					<capitec-search-field label="Search" 
+						value="${this.activeFilters.searchValue}" 
 						class="custom-flex-size" 
-						value="${this.activeFilters.searchValue}"
 						@value-change="${(e) => {
 							this.activeFilters.searchValue = e.detail.new;
 							this.onFilter();
 						}}"></capitec-search-field>
 
 					<capitec-select 
-						class="custom-flex-size" 
 						label="Select option" 
 						.items="${this.searchTypes}" 
 						.value="${this.activeFilters.searchType}"
@@ -313,17 +368,20 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						id-field="value">
 					</capitec-select>
 
-					<capitec-date-time-picker 
+					<capitec-date-time-picker
+						id="calendarRange" 
+						class="custom-flex-size" 
 						label="Choose a start and end date"
-						class="custom-flex-size"
-						type="range"
-						mode="date"
 						startDate="${this.activeFilters.dateRange.from}"
 						endDate="${this.activeFilters.dateRange.to}"
 						maxDate="${getDateInPast(0)}"
+						type="range"
+						mode="date"
 						inputType="calendar"
 						outputType="string"
-						@value-change="${this.dateRangeHandler}">
+						.predefinedRanges="${this.getPredefinedDateRanges()}"
+						@apply-clicked="${(e) => this._dateChanged(e)}"
+						data-automation-id="connect-history-date-filter">
 					</capitec-date-time-picker>
 
 					<capitec-button
@@ -443,7 +501,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			typeOfRecharge = theTransaction.type;
 			processedDate = theTransaction.transactionDateTime;
 			accountNumber = theTransaction.accountNumber;
-			journalNumber = theTransaction.journalReference;
+			journalNumber = theTransaction.journalReference || journalNumber;
 			statusOfRecharge = theTransaction.status;
 
 			transactionType = theTransaction.type.toUpperCase().indexOf("REVERSAL") > -1 ? "Reversal" : transactionType;
@@ -470,40 +528,45 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					<capitec-label type="strong" label="${product}"></capitec-label>
 				</div>
 				<div row="2" column="2">
+					<capitec-label label="Product Name:"></capitec-label>
+					<capitec-label type="strong" label="${item.productName ? item.productName : '-'}"></capitec-label>
+				</div>
+				<div row="2" column="3">
 					<capitec-label label="Transaction Type:"></capitec-label>
 					<capitec-label type="strong" label="${typeOfRecharge}"></capitec-label>
 				</div>
-				<div row="2" column="3">
+				<div row="2" column="4">
 					<capitec-label label="Transaction Status:"></capitec-label>
 					<capitec-label type="strong" label="${statusOfRecharge}"></capitec-label>
 				</div>
-				<div row="2" column="4">
+
+				<div row="3" column="1">
 					<capitec-label label="Account:"></capitec-label>
 					<capitec-label type="strong" label="${accountNumber}"></capitec-label>
 				</div>
-
-				<div row="3" column="1">
+				<div row="3" column="2">
 					<capitec-label label="Transaction Date:"></capitec-label>
 					<capitec-label type="strong" label="${transactionDate}"></capitec-label>
 				</div>
-				<div row="3" column="2">
+				<div row="3" column="3">
 					<capitec-label label="Processed Date:"></capitec-label>
 					<capitec-label type="strong" label="${processedDate}"></capitec-label>
 				</div>
-				<div row="3" column="3">
+				<div row="3" column="4">
 					<capitec-label label="Transaction Code:"></capitec-label>
 					<capitec-label type="strong" label="${transactionCode}"></capitec-label>
 				</div>
-				<div row="3" column="4">
+
+				<div row="4" column="1">
 					<capitec-label label="Journal Number:"></capitec-label>
 					<capitec-label type="strong" label="${journalNumber}"></capitec-label>
 				</div>
 
-				<div row="4" column="1" colspan="4">
+				<div row="5" column="1" colspan="4">
 					<capitec-spacer></capitec-spacer>
 				</div>
 
-				<div row="5" column="1" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
+				<div row="6" column="1" colspan="4" style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
 					<capitec-hyperlink
 						style="margin-right: 16px;
 						margin-top: 10px"
