@@ -32,7 +32,6 @@ class LifePolicySummary extends Component {
 
 	/**
 	 * @property {Object} selectedLifePolicy Selected policy being viewed
-	 * @property {Function} lifeGetPolicyMandates callback function to fetch life policy mandates
 	 * @property {Object} lifePolicyMandates Selected policy mandate details
 	 * 
 	 * @readonly
@@ -54,10 +53,8 @@ class LifePolicySummary extends Component {
 	 * @returns {void}
 	 */
 	connectedCallback() {
-		console.log(`this.lifePolicyMandates :>> `, this.lifePolicyMandates);
 		super.connectedCallback();
 	}
-
 
 	// #endregion LIFECYCLE OVERRIDES
 
@@ -702,19 +699,12 @@ class LifePolicySummary extends Component {
 	}
 
 	_renderMandatesDetailsSection() {
-		console.log(`_renderMandatesDetailsSection | this.lifePolicyMandates: `, this.lifePolicyMandates);
 		const mandateDetails = this.lifePolicyMandates ?? [];
-
-		console.log(`_renderMandatesDetailsSection | mandateDetails: `, mandateDetails);
 
 		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
 			const date = new Date(e.mandateInitiationDate);
-			console.log(`date :>> `, date);
 			return date;
 		})));
-
-		console.log(`_renderMandatesDetailsSection | latestDate :>> `, latestDate);
-		console.log(`_renderMandatesDetailsSection | mandateDetails.length :>> `, mandateDetails.length);
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
