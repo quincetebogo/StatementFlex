@@ -467,6 +467,7 @@ class LifeAllocateCoverDialog extends Component {
 		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && this.monthlyTotalCoverValue !== 0) {
 			console.log(`Validating | _validateAllocatePocketsStep | 4`);
 			this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
+			this.monthlyTotalCoverValue = ``;
 			isValid = false;
 		}
 

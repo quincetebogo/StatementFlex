@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -43,6 +43,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		this.pocketRemainingCover = 0;
 
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
+		this.genderOptions = GENDER_OPTIONS;
+		this.titleOptions = TITLE_OPTIONS;
 	}
 
 	// #endregion INITIALIZE
@@ -117,6 +119,44 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Event fired when a beneficiary TITLE value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_titleChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.title = e.detail.new.code;
+			if (this.updatingBeneficiary.title === `Mr` || this.updatingBeneficiary.title === `Sir`) {
+				this.updatingBeneficiary.gender = `Male`;
+				this.newBeneficiaryErrors.gender = ``;
+			} else if (this.updatingBeneficiary.title === `Mrs` || this.updatingBeneficiary.title === `Ms` || this.updatingBeneficiary.title === `Miss` || this.updatingBeneficiary.title === `Lady`) {
+				this.updatingBeneficiary.gender = `Female`;
+				this.newBeneficiaryErrors.gender = ``;
+			}
+		}
+		if (!isNullorEmpty(this.updatingBeneficiary.title)) {
+			this.beneficiaryErrors.title = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary GENDER value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_genderChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.gender = e.detail.new.code;
+		}
+		if (!isNullorEmpty(this.updatingBeneficiary.gender)) {
+			this.beneficiaryErrors.gender = ``;
+		}
+		this.requestUpdate();
+	}
+
+
+	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
 	 * @returns {void}
@@ -124,7 +164,6 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_firstNameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.firstName = e.detail.new;
-			//this._validateBeneficiaryDetails();
 			if (!isNullorEmpty(this.updatingBeneficiary.firstName)) {
 				this.beneficiaryErrors.firstName = ``;
 			}
@@ -140,7 +179,6 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_surnameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.lastName = e.detail.new;
-			//this._validateBeneficiaryDetails();
 			if (!isNullorEmpty(this.updatingBeneficiary.lastName)) {
 				this.beneficiaryErrors.lastName = ``;
 			}
@@ -537,6 +575,21 @@ class LifeUpdateBeneficiaryDialog extends Component {
 				</div>`
 				: html``
 			}
+			
+			<div class="grouping">
+				<capitec-select label="Title" display-field="text" id-field="code" style="width: 50%" value="${this.updatingBeneficiary?.title}" 
+					error="${this.updatingBeneficiary?.title === undefined ? `` : this.beneficiaryErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e)}">
+				</capitec-select>
+
+				<capitec-select label="Gender"  display-field="text" id-field="code"  style="width: 50%" 
+					value="${this.updatingBeneficiary?.gender}" 
+					error="${this.updatingBeneficiary?.gender === undefined ? `` : this.beneficiaryErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e)}">
+				</capitec-select>
+			</div>
 
 			<div class="grouping">
 				<capitec-text-field 

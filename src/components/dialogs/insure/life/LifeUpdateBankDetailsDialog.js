@@ -26,9 +26,11 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.accountTypeOptions = ACCOUNT_TYPES;
 
 		this.branchCodeDisabled = true;
+		this.disableAccountNumber = true;
 		this.accountNumberErrorMsg = ``;
 		this.showAgreementDocumentDialog = false;
-	}
+		this.defaultSavingsAccountNumber = ``;
+	}s
 
 	// #endregion INITIALIZE
 
@@ -46,6 +48,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * @property {String} emailAlertBannerMessage Error message for email addresses
 	 * @property {Function} getLifeUpdateBankingDetailsDocument callback function to get agreement
 	 * @property {Object} lifeUpdateBankingDetailsAgreement contains agreement content
+	 * @property {String} defaultSavingsAccountNumber default account number if available
 	 */
 	static get properties() {
 		return {
@@ -59,7 +62,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 			confirmedEmailAddress: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
 			getLifeUpdateBankingDetailsDocument: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
+			getDefaultSavingsAccountNumber: { type: Object, state: true }
 		};
 	}
 
@@ -71,10 +76,13 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		this.collectionDay = this.policy.bankDetails.collectionDay;
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
+
+		await this.getDefaultSavingsAccountNumber();
+		console.log(this.defaultSavingsAccountNumber);
 	}
 
 	/**
@@ -133,8 +141,21 @@ class LifeUpdateBankDetailsDialog extends Component {
 				this.branchCodeDisabled = true;
 			}
 
-			this.updatedPolicy.bankDetails.accountNumber = ``;
-			this.accountNumberErrorMsg = `Account number is a required field`;
+			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
+				if (this.defaultSavingsAccountNumber === ``) {
+					this.updatedPolicy.bankDetails.accountNumber = ``;
+					this.accountNumberErrorMsg = `Account number is a required field`;
+					this.disableAccountNumber = false;
+				} else {
+					this.updatedPolicy.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
+					this.accountNumberErrorMsg = ``;
+					this.disableAccountNumber = true;
+				}
+			} else {
+				this.updatedPolicy.bankDetails.accountNumber = ``;
+				this.accountNumberErrorMsg = `Account number is a required field`;
+				this.disableAccountNumber = false;
+			}
 		}
 		this.requestUpdate();
 	}
@@ -439,6 +460,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 					class="banking-form-input"
 					value="${this.updatedPolicy?.bankDetails?.accountNumber}"
 					error = "${this.accountNumberErrorMsg}"
+					.disabled = "${this.disableAccountNumber}"
 					@value-changed = "${(e) => this._accountNumChanged(e)}">
 				</capitec-text-field>
 			</div>

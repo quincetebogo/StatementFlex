@@ -144,6 +144,8 @@ export const insureLifeClientSummary = {
 			],
 			"beneficiaries": [
 				{
+					"title": `Mr`,
+					"gender": `Male`,
 					"firstName": `Bene`,
 					"lastName": `Fish`,
 					"rolePlayer": `Primary Beneficiary`,

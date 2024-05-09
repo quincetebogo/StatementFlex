@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
+import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -48,6 +48,8 @@ class LifeAddBeneficiaryDialog extends Component {
 
 		this.newBeneficiaryErrors = {};
 		this.pocketBeneficiaries = [];
+		this.genderOptions = GENDER_OPTIONS;
+		this.titleOptions = TITLE_OPTIONS;
 
 		this.newOrExistingErrorMessage = ``;
 		this.beneficiaryDetailsErrorMessage = ``;
@@ -247,6 +249,43 @@ class LifeAddBeneficiaryDialog extends Component {
 	// #region Beneficiary Details
 
 	/**
+	 * Event fired when a beneficiary TITLE value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_titleChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.title = e.detail.new.code;
+			if (this.newBeneficiary.title === `Mr` || this.newBeneficiary.title === `Sir`) {
+				this.newBeneficiary.gender = `Male`;
+				this.newBeneficiaryErrors.gender = ``;
+			} else if (this.newBeneficiary.title === `Mrs` || this.newBeneficiary.title === `Ms` || this.newBeneficiary.title === `Miss` || this.newBeneficiary.title === `Lady`) {
+				this.newBeneficiary.gender = `Female`;
+				this.newBeneficiaryErrors.gender = ``;
+			}
+		}
+		if (!isNullorEmpty(this.newBeneficiary.title)) {
+			this.newBeneficiaryErrors.title = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary GENDER value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_genderChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.gender = e.detail.new.code;
+		}
+		if (!isNullorEmpty(this.newBeneficiary.gender)) {
+			this.newBeneficiaryErrors.gender = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
 	 * @returns {void}
@@ -254,7 +293,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	_firstNameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.firstName = e.detail.new;
-			//this._validateBeneficiaryDetails();
 		}
 		if (!isNullorEmpty(this.newBeneficiary.firstName)) {
 			this.newBeneficiaryErrors.firstName = ``;
@@ -270,7 +308,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	_surnameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.lastName = e.detail.new;
-			//this._validateBeneficiaryDetails();
 		}
 		if (!isNullorEmpty(this.newBeneficiary.lastName)) {
 			this.newBeneficiaryErrors.lastName = ``;
@@ -328,7 +365,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	_cellphoneNumChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.contactNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
 		}
 		if (!isNullorEmpty(this.newBeneficiary.contactNumber)) {
 			this.newBeneficiaryErrors.contactNumber = ``;
@@ -345,16 +381,12 @@ class LifeAddBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.idNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
-			
 		}
 		if (this.newBeneficiary.idNumber.length === 13) {
 			this.newBeneficiary.dateOfBirth = getDobFromIDNumber(this.newBeneficiary.idNumber);
 			this.newBeneficiaryErrors.idNumber = ``;
 			this.requestUpdate();
 		}
-
-
 	}
 
 	/**
@@ -363,6 +395,20 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_validateBeneficiaryDetails() {
 		let stepValid = true;
+
+		if (isNullorEmpty(this.newBeneficiary?.title)) {
+			this.newBeneficiaryErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.title = ``;
+		}
+
+		if (isNullorEmpty(this.newBeneficiary?.gender)) {
+			this.newBeneficiaryErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.gender = ``;
+		}
 
 		if (isNullorEmpty(this.newBeneficiary?.firstName)) {
 			this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
@@ -797,6 +843,20 @@ class LifeAddBeneficiaryDialog extends Component {
 				</div>`
 				: html``
 			}
+			<div class="grouping">
+				<capitec-select label="Title" display-field="text" id-field="code" style="width: 50%" value="${this.newBeneficiary?.title}" 
+					error="${this.newBeneficiaryErrors?.title === undefined ? `` : this.newBeneficiaryErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e)}">
+				</capitec-select>
+
+				<capitec-select label="Gender"  display-field="text" id-field="code"  style="width: 50%" 
+					value="${this.newBeneficiary?.gender}" 
+					error="${this.newBeneficiaryErrors?.gender === undefined ? `` : this.newBeneficiaryErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e)}">
+				</capitec-select>
+			</div>
 
 			<div class="grouping">
 				<capitec-text-field 
