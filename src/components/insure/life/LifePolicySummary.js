@@ -54,6 +54,7 @@ class LifePolicySummary extends Component {
 	 * @returns {void}
 	 */
 	connectedCallback() {
+		console.log(`this.lifePolicyMandates :>> `, this.lifePolicyMandates);
 		super.connectedCallback();
 	}
 
@@ -701,12 +702,19 @@ class LifePolicySummary extends Component {
 	}
 
 	_renderMandatesDetailsSection() {
-		const mandateDetails = this.lifePolicyMandates?.mandates ?? [];
+		console.log(`_renderMandatesDetailsSection | this.lifePolicyMandates: `, this.lifePolicyMandates);
+		const mandateDetails = this.lifePolicyMandates ?? [];
+
+		console.log(`_renderMandatesDetailsSection | mandateDetails: `, mandateDetails);
 
 		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
 			const date = new Date(e.mandateInitiationDate);
+			console.log(`date :>> `, date);
 			return date;
 		})));
+
+		console.log(`_renderMandatesDetailsSection | latestDate :>> `, latestDate);
+		console.log(`_renderMandatesDetailsSection | mandateDetails.length :>> `, mandateDetails.length);
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>

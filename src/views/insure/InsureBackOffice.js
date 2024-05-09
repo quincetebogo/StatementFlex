@@ -300,13 +300,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 			"cifNumber": this.callerInformation.cifNumber
 		};
 
+		console.log(`mandatesRequest :>> `, mandatesRequest);
+
 		const resp = await this.insureLifeService.lifeGetMandates(mandatesRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
 		}
 
+		console.log(`_retrieveLifePolicyMandates | resp :>> `, resp);
 		this.lifePolicyMandates = resp.result;
+		console.log(`_retrieveLifePolicyMandates | this.lifePolicyMandates :>> `, this.lifePolicyMandates);
 	}
 
 	/**
@@ -499,6 +503,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 	async _goToLifePolicySummary(e) {
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		console.log(`_goToLifePolicySummary | this.selectedInsureTabIndex :>> `, this.selectedInsureTabIndex);
+		console.log(`_goToLifePolicySummary | e :>> `, e);
 		await this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
