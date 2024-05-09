@@ -1,7 +1,10 @@
 import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { DateTime } from 'luxon';
 import { formatDate, getTimeFromDate, compareDates, getDateInPast, incrementDate, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
+
+const today = new Date();
 
 /**
  * Capitec Connect Agent View
@@ -27,9 +30,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		// Static variables
 		this.searchTypes = [
 			{ value: `msisdn`, text: `MSISDN` },
-			{ value: `amount`, text: `Amount` },
-			// { value: `accountNumber`, text: `Account Number` },
-			// { value: `productName`, text: `Product` }
+			{ value: `amount`, text: `Amount` }
 		];
 
 		this.pagingRows = [10, 20, 50];
@@ -170,26 +171,81 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		return;
 	}
 
+	getPredefinedDateRanges() {
+		return [
+			{ text: `Last 30 days`, value: { startDate: getDateInPast(30), endDate: getDateInPast(0) } },
+			{ text: `Last 60 days`, value: { startDate: getDateInPast(60), endDate: getDateInPast(0) } },
+			{ text: `Last 90 days`, value: { startDate: getDateInPast(90), endDate: getDateInPast(0) } }
+		];
+	}
+
+	async _dateChanged(e) {
+
+		/**
+		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
+		 *    In such case, data refresh can be skipped.
+		 * 2. Sometimes start date/ end date could be null when one of its not selected, for which
+		 *    either before 90 days or after 90 days set accordingly.
+		 */
+
+		if (!e.detail.new.startDate && !e.detail.new.endDate) {
+			return false;
+		} else if (!e.detail.new.endDate) {
+			e.detail.new.endDate = e.detail.old.endDate?.split('T')[0] || getDateInPast(0);
+		} else if (!e.detail.new.startDate) {
+			e.detail.new.startDate = incrementDate(e.detail.new.endDate.split('T')[0], -30);
+		}
+
+		const currentDateTime = DateTime.local();
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate);
+
+		let from,
+			to;
+
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			toDate = fromDate.plus({ days: 90 });
+
+			if (toDate > currentDateTime) {
+				from = e.detail.new.startDate;
+				to = getDateInPast(0);
+			} else {
+				from = e.detail.new.startDate;
+				to = e.detail.new.endDate;
+
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
+			}
+		} else {
+			from = e.detail.new.startDate || getDateInPast(30);
+			to = e.detail.new.endDate || incrementDate(from, 30);
+		}
+
+		Object.keys(e.detail).forEach(d => {
+			Object.keys(e.detail[d]).forEach(x => {
+				if (e.detail[d][x] !== null && e.detail[d][x].indexOf("T") > -1) {
+					e.detail[d][x] = e.detail[d][x].split('T')[0]
+				}
+			});
+		});
+
+		this.activeFilters.dateRange = {
+			from: from.split('T')[0],
+			to: to.split('T')[0]
+		}
+
+		return this.onFilter();
+	}
+
 	onFilter() {
 		this.showTable = false;
-		// this.requestUpdate();
 
 		setTimeout(() => {
 			this.showTable = true;
 			this.requestUpdate();
 		}, 100);
-	}
-
-	dateRangeHandler(e) {
-		var from = e.detail.new.startDate?.split('T')[0] || getDateInPast(0);
-		var to = e.detail.new.endDate?.split('T')[0] || getDateInPast(0);
-
-		this.activeFilters.dateRange = {
-			from,
-			to
-		}
-
-		return this.onFilter();
 	}
 
 	async advancesBalanceButtonClickHandler(e) {
@@ -221,8 +277,8 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 			<capitec-content-box noPadding style="width:CALC(var(--horizon-center-panel-width) - 30px); height:CALC(var(--horizon-panel-height) - 180px)" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-button-bar align="left">
 					<capitec-search-field label="Search" 
+						value="${this.activeFilters.searchValue}" 
 						class="custom-flex-size" 
-						value="${this.activeFilters.searchValue}"
 						@value-change="${(e) => {
 							this.activeFilters.searchValue = e.detail.new;
 							this.onFilter();
@@ -230,7 +286,6 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					</capitec-search-field>
 
 					<capitec-select 
-						class="custom-flex-size" 
 						label="Select option" 
 						.items="${this.searchTypes}" 
 						.value="${this.activeFilters.searchType}"
@@ -242,17 +297,20 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 						id-field="value">
 					</capitec-select>
 
-					<capitec-date-time-picker 
+					<capitec-date-time-picker
+						id="calendarRange" 
 						class="custom-flex-size" 
 						label="Choose a start and end date"
+						startDate="${this.activeFilters.dateRange.from}"
+						endDate="${this.activeFilters.dateRange.to}"
+						maxDate="${getDateInPast(0)}"
 						type="range"
 						mode="date"
-						startDate="${this.activeFilters.dateRange.from}"
- 						endDate="${this.activeFilters.dateRange.to}"
- 						maxDate="${getDateInPast(0)}"
 						inputType="calendar"
 						outputType="string"
-						@value-change="${this.dateRangeHandler}">
+						.predefinedRanges="${this.getPredefinedDateRanges()}"
+						@apply-clicked="${(e) => this._dateChanged(e)}"
+						data-automation-id="connect-advances-date-filter">
 					</capitec-date-time-picker>
 
 					<capitec-button
@@ -331,7 +389,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 	_expandRenderer(item) {
 		let channel = toTitleCase(item.channel);
 		let product = item.bundleType;
-		let statusOfRecharge = ``;
+		let statusOfRecharge = `---`;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = item.type;
 		let advanceAmount = `R${parseFloat(item.amount).toFixed(2)}` || `R0.00`;
@@ -344,12 +402,13 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 
 		let postingDate = item.friendlyDate;
 
-		product = product ? product : item.recharges[0].bundleType;
-		statusOfRecharge = item.recharges[0].status;
+		if (item.recharges.length > 0) {
+			product = product ? product : item.recharges[0].bundleType;
+			statusOfRecharge = toTitleCase(item.recharges[0].status);
+		}
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge);
-		statusOfRecharge = toTitleCase(statusOfRecharge);
 
 		return html`
 			<capitec-spacer></capitec-spacer>
@@ -402,7 +461,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-hyperlink
 						style="margin-right: 16px;
 						margin-top: 10px"
-						label="Advance Status"
+						label="Recharge Status"
 						@click="${() => { this.selectedAdvanceView = item; }}">
 					</capitec-hyperlink>
 				</div>
