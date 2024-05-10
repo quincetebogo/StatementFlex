@@ -32,7 +32,6 @@ class LifePolicySummary extends Component {
 
 	/**
 	 * @property {Object} selectedLifePolicy Selected policy being viewed
-	 * @property {Function} lifeGetPolicyMandates callback function to fetch life policy mandates
 	 * @property {Object} lifePolicyMandates Selected policy mandate details
 	 * 
 	 * @readonly
@@ -56,7 +55,6 @@ class LifePolicySummary extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 	}
-
 
 	// #endregion LIFECYCLE OVERRIDES
 
@@ -701,7 +699,7 @@ class LifePolicySummary extends Component {
 	}
 
 	_renderMandatesDetailsSection() {
-		const mandateDetails = this.lifePolicyMandates?.mandates ?? [];
+		const mandateDetails = this.lifePolicyMandates ?? [];
 
 		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
 			const date = new Date(e.mandateInitiationDate);
