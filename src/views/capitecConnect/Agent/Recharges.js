@@ -490,7 +490,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		if (isJson(theRecharge)) {
 			product = product ? product : theRecharge.bundleType;
-			transactionDate = theRecharge.transactionDateTime;
+			processedDate = theRecharge.transactionDateTime;
 			statusOfRecharge = theRecharge.status;
 			typeOfRecharge = theRecharge.type
 		}
@@ -499,7 +499,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
 		if (isJson(theTransaction)) {
 			typeOfRecharge = theTransaction.type;
-			processedDate = theTransaction.transactionDateTime;
+			transactionDate = theTransaction.transactionDateTime;
 			accountNumber = theTransaction.accountNumber;
 			journalNumber = theTransaction.journalReference || journalNumber;
 			statusOfRecharge = theTransaction.status;
@@ -601,6 +601,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			transactionType = `Recharge`,
 			statusReason = null,
 			reversalReason = null,
+			processedDate = ``,
 			transactionDuration = {
 				start: {
 					date: "",
@@ -620,6 +621,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			statusOfRecharge = theRecharge.status ? theRecharge.status : statusOfRecharge;
 			type = theRecharge.type ? theRecharge.type : type;
 			productId = theRecharge.productId ? theRecharge.productId : productId;
+			processedDate = formatDate(theRecharge.transactionDateTime) + ` ` + getTimeFromDate(theRecharge.transactionDateTime);
 		}
 
 		if (isJson(theTransaction)) {
@@ -680,7 +682,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				</div>
 				<div row="2" column="2">
 					<capitec-label label="${item.transactionReference}"></capitec-label>
-					<capitec-label label="${item.friendlyDate}"></capitec-label>
+					<capitec-label label="${processedDate}"></capitec-label>
 					<capitec-label label="${item.cif}"></capitec-label>
 				</div>
 

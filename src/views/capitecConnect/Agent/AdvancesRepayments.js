@@ -389,7 +389,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	_expandRenderer(item) {
 		let channel = toTitleCase(item.channel);
 		let product = item.bundleType;
-		let statusOfTransaction = ``;
+		let status = `---`;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = item.type;
 		let advanceAmountPaid = `R0.00`;
@@ -401,7 +401,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
 			account = item.transactions[0].accountNumber;
-			statusOfTransaction = item.transactions[0].status;
+			status = item.transactions[0].status || status;
+			status = toTitleCase(status);
 
 			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
 			journalReference = item.transactions[0].journalReference || journalReference;
@@ -420,7 +421,6 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge.replace("_", " "));
-		statusOfTransaction = toTitleCase(statusOfTransaction);
 
 		return html`
 			<capitec-spacer></capitec-spacer>
@@ -441,7 +441,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 				</div>
 				<div row="2" column="3">
 					<capitec-label label="Transaction Status:"></capitec-label>
-					<capitec-label type="strong" label="${statusOfTransaction}"></capitec-label>
+					<capitec-label type="strong" label="${status}"></capitec-label>
 				</div>
 				<div row="2" column="4">
 					<capitec-label label="Transaction Code:"></capitec-label>
@@ -494,36 +494,38 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let item = this.selectedAdvanceView;
 
 		let product = item.bundleType,
-			productId = `-`,
+			productId = `---`,
 			type = item.type,
-			statusOfRecharge = `-`,
-			airtimeSurplus = `-`,
-			advanceRepayment = `-`,
-			account = `-`;
+			statusOfRecharge = `---`,
+			airtimeSurplus = `---`,
+			advanceRepayment = `---`,
+			account = `---`;
+
+		let rechargeStatusReason = null;
+		let rechargeStatus = null;
 
 		if (item.transactions.length > 0) {
-			statusOfRecharge = item.transactions[0].status;
 			product = product ? product : item.transactions[0].bundleType;
 			account = item.transactions[0].accountNumber;
-
 			advanceRepayment = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
-
 			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
 		}
 
 		if (item.recharges.length > 0) {
+			statusOfRecharge = item.recharges[0].status || statusOfRecharge;
+			statusOfRecharge = toTitleCase(statusOfRecharge);
+
 			product = product ? product : item.recharges[0].bundleType;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
 
 			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
+
+			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
+			rechargeStatus = item.recharges[0]?.status || rechargeStatus;
 		}
 
 		airtimeSurplus = "R" + airtimeSurplus;
 
-		let statusReason = item.transactions[0]?.statusReason || null;
-		let transactionStatus = item.transactions[0]?.status || null;
-
-		statusOfRecharge = toTitleCase(statusOfRecharge);
 		product = toTitleCase(product);
 
 		return html`
@@ -574,15 +576,15 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					<capitec-label label="${airtimeSurplus}"></capitec-label>
 				</div>
 
-				${(transactionStatus !== null && transactionStatus.toUpperCase() !== "SUCCESSFUL") ? html`
+				${(rechargeStatus !== null && rechargeStatus.toUpperCase() !== "SUCCESSFUL") ? html`
 				<capitec-spacer></capitec-spacer>
 				<div row="5" column="1">
 					<capitec-label label="Error Type"></capitec-label>
-					${statusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
+					${rechargeStatusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
 				</div>
 				<div row="5" column="2">
-					<capitec-label label="${transactionStatus}"></capitec-label>
-					${statusReason !== null ? html`<capitec-label label="${statusReason}"></capitec-label>` : ``}
+					<capitec-label label="${rechargeStatus}"></capitec-label>
+					${rechargeStatusReason !== null ? html`<capitec-label label="${rechargeStatusReason}"></capitec-label>` : ``}
 				</div>
 				` : ``}
 			</capitec-group>
@@ -623,7 +625,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 						<capitec-label label="R${parseFloat(ab.availableBalance).toFixed(2)}" type="strong"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingAdvanceBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}"></capitec-label>
-						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}" type="strong"></capitec-label>
+						<capitec-label label="R${parseFloat(ab.totalOutstandingBalance).toFixed(2)}" type="strong"></capitec-label>
 						<capitec-label label="${ab.repayDays > 0 ? 'YES' : '--'}"></capitec-label>
 						<capitec-label label="${ab.status || '--'}"></capitec-label>
 						${ab.nextPaymentDate && html`
