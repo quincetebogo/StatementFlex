@@ -32,7 +32,7 @@ import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 
 import 'app/components/insure/life/LifeSuccess';
-import 'app/components/insure/life/LifePocketSummary';
+
 import 'app/components/insure/life/LifePolicySummary';
 import 'app/components/insure/life/LifePremiumHistory';
 import 'app/components/insure/life/LifeSMSHistory';

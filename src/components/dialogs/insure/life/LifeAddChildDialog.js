@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { GENDER_OPTIONS, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob } from 'app/utils/insureUtils';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -38,19 +38,22 @@ class LifeAddChildDialog extends Component {
 		super();
 
 		this.isChild = false;
+		this.currentStep = 1;
+		this.policy = {};
+		this.selectedPocket = {};
+
 		this.newBeneficiaryType = NEW_BENEFICIARY_TYPES.UNSET;
 
-		this.currentStep = 1;
 		this.newPocketBeneficiaries = [];
 		this.newChild = {};
 		this.newChildErrors = {};
 		this.guardianDetails = {};
-		this.selectedPocket = {};
-		this.policy = {};
+
+		this.beneficiaryDetailsErrorMessage = ``;
 		this.newOrExistingErrorMessage = ``;
 
-		this.stepsUsed = {};
-
+		this.genderOptions = GENDER_OPTIONS;
+		this.titleOptions = TITLE_OPTIONS;
 	}
 
 	// #endregion INITIALIZE
@@ -66,6 +69,7 @@ class LifeAddChildDialog extends Component {
 			selectedPocket: { type: Object, state: true },
 			eligibleBeneficiariesForQuickAdd: { type: Array, state: true },
 			newOrExistingErrorMessage: { type: String, state: true },
+			beneficiaryDetailsErrorMessage: { type: String, state: true },
 
 			currentStep: { type: Number, state: true },
 			newChild: { type: Object, state: true },
@@ -218,9 +222,11 @@ class LifeAddChildDialog extends Component {
 		let isValid = false;
 
 		if (this.currentStep === STEPS.CHILD_DETAILS) {
-			isValid = this._childValidations();
+			isValid = this._validateChildStep();
+			console.log(`Child validations is: ${isValid}`);
 		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
 			isValid = this._guardianValidations();
+			console.log(`Guardian validations is: ${isValid}`);
 		}
 
 		if (isValid) {
@@ -229,7 +235,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		return;
-		
+
 		// if (this.currentStep === STEPS.BENEFICIARY_DETAILS) {
 		// 	if (isNullorEmpty(this.newChild?.firstName)) {
 		// 		this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
@@ -271,8 +277,26 @@ class LifeAddChildDialog extends Component {
 		this.requestUpdate();
 	}
 
-	_childValidations() {
+	/**
+	 *  Validate child details step
+	 * @returns {void}
+	 */
+	_validateChildStep() {
 		let stepValid = true;
+
+		if (isNullorEmpty(this.newChild?.title)) {
+			this.newChildErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.title = ``;
+		}
+
+		if (isNullorEmpty(this.newChild?.gender)) {
+			this.newChildErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newChildErrors.gender = ``;
+		}
 
 		if (isNullorEmpty(this.newChild?.firstName)) {
 			this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
@@ -312,7 +336,7 @@ class LifeAddChildDialog extends Component {
 		} else {
 			this.newChildErrors.dateOfBirth = ``;
 		}
-			
+
 
 		if (!isNullorEmpty(this.newChild.idNumber)) {
 			if (this.newChild.idNumber.length !== 13) {
@@ -359,6 +383,43 @@ class LifeAddChildDialog extends Component {
 	 */
 	_addClick() {
 		// do another round of validations before adding
+	}
+
+	/**
+	 * Event fired when a beneficiary TITLE value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_titleChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newChild.title = e.detail.new.code;
+			if (this.newChild.title === `Mr` || this.newChild.title === `Sir`) {
+				this.newChild.gender = `Male`;
+				this.newChildErrors.gender = ``;
+			} else if (this.newBeneficiary.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss` || this.newChild.title === `Lady`) {
+				this.newChild.gender = `Female`;
+				this.newChildErrors.gender = ``;
+			}
+		}
+		if (!isNullorEmpty(this.newChild.title)) {
+			this.newChildErrors.title = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary GENDER value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_genderChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newChild.gender = e.detail.new.code;
+		}
+		if (!isNullorEmpty(this.newChild.gender)) {
+			this.newChildErrors.gender = ``;
+		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -417,9 +478,14 @@ class LifeAddChildDialog extends Component {
 	_idChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				// find out about this, no id field for bene
+				this.newChild.idNumber = e.detail.new;
+				if (this.newChild.idNumber.length === 13) {
+					this.newChild.dateOfBirth = getDobFromIDNumber(this.newChild.idNumber);
+					this.newChildErrors.idNumber = ``;
+					this.requestUpdate();
+				}
 			} else {
-				// guardian deets
+				// guardian deets 
 			}
 		}
 	}
@@ -448,12 +514,10 @@ class LifeAddChildDialog extends Component {
 				} else {
 					this.newChildErrors.dateOfBirth = ``;
 				}
-				if (this.isChild) {
-					if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
-						this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
-					}
-				}
 
+				if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
+					this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+				}
 			} else {
 				// guardian deets
 			}
@@ -770,7 +834,34 @@ class LifeAddChildDialog extends Component {
 	 */
 	_renderChildDetails() {
 		return html`
-		
+			${this.beneficiaryDetailsErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						.label="${this.beneficiaryDetailsErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+			<div class="grouping">
+				<capitec-select label="Title" display-field="text" id-field="code" style="width: 50%" value="${this.newChild?.title}" 
+					value="${this.newChild?.title}"
+					error="${this.newChildErrors?.title === undefined ? `` : this.newChildErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e, true)}">
+				</capitec-select>
+
+				<capitec-select label="Gender"  display-field="text" id-field="code"  style="width: 50%" 
+					value="${this.newChild?.gender}" 
+					error="${this.newChildErrors?.gender === undefined ? `` : this.newChildErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e, true)}">
+				</capitec-select>
+			</div>
+			
 			<div class="grouping" >
 				<capitec-text-field label="First Name" style="width: 50%" 
 					error="${this.newChildErrors?.firstName === undefined ? `` : this.newChildErrors.firstName}"
@@ -921,7 +1012,6 @@ class LifeAddChildDialog extends Component {
 					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
 					</capitec-button>
 				`}
-				
 		`;
 	}
 

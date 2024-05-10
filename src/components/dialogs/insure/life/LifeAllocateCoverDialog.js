@@ -117,6 +117,7 @@ class LifeAllocateCoverDialog extends Component {
 			showAddBeneficiaryDialog: { type: Boolean, state: true },
 			showEditBeneficiaryDialog: { type: Boolean, state: true },
 			showDeleteBeneficiaryDialog: { type: Boolean, state: true },
+			showAddChildDialog: { type: Boolean, state: true },
 			showBeneficiariesAllocateErrorDialog: { type: Boolean, state: true },
 			selectedBeneficiary: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
