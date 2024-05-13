@@ -357,6 +357,21 @@ class LifeAddBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_emailChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.contactEmail = e.detail.new;
+		}
+		if (!isNullorEmpty(this.newBeneficiary.contactEmail)) {
+			this.newBeneficiaryErrors.contactEmail = ``;
+		}
+	}
+
+	/**
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
@@ -914,6 +929,18 @@ class LifeAddBeneficiaryDialog extends Component {
 					error="${this.newBeneficiaryErrors?.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Email address (optional)" 
+					style="width: 50%" 
+					maxlength="10" 
+					type="numeric"
+					value="${this.newBeneficiary?.contactEmail}"
+					error="${this.newBeneficiaryErrors?.contactEmail === undefined ? `` : this.newBeneficiaryErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e)}">
+				</capitec-text-field>
 			</div>
 		`;
 	}

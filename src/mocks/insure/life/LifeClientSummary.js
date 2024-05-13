@@ -68,6 +68,29 @@ export const insureLifeClientSummary = {
 					"clientId": `E17FEFFB-BC20-4662-9718-C520C99C3E53`
 				}
 			],
+			"guardians": [
+				{
+					"firstName": `Fred`,
+					"lastName": `Flintstone`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 1000000.0000000000,
+					"educationBenefitAmount": 0.0000000000,
+					"monthlyPayoutBenefitAmount": 1000000.0000000000,
+					"bankDetails": {
+						"branchCode": `470010`,
+						"accountNumber": `2010184188`,
+						"bank": `CAPITEC`,
+						"accountType": `Savings`
+					},
+					"relationship": `Others`,
+					"gender": `Male`,
+					"dateOfBirth": `1968-12-16T00:00:00+00:00`,
+					"contactNumber": `0823214321`,
+					"clientType": `Adult`,
+					"clientId": `E17FEFFB-BC20-4662-9718-C520C99C3E53`,
+					"guardianId": `E17FEFFB-BC20-4662-9718-C520C99C3E54`
+				}
+			],
 			"totalPolicySumAssured": 2000000.0000000000,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
@@ -165,6 +188,29 @@ export const insureLifeClientSummary = {
 					"idNumber": `9299292939292`,
 					"clientType": `Adult`,
 					"clientId": `983A69FA-E493-4E70-B9A9-1CB577DED4F4`
+				}
+			],
+			"guardians": [
+				{
+					"firstName": `Fred`,
+					"lastName": `Flintstone`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 1000000.0000000000,
+					"educationBenefitAmount": 0.0000000000,
+					"monthlyPayoutBenefitAmount": 1000000.0000000000,
+					"bankDetails": {
+						"branchCode": `470010`,
+						"accountNumber": `2010184188`,
+						"bank": `CAPITEC`,
+						"accountType": `Savings`
+					},
+					"relationship": `Others`,
+					"gender": `Male`,
+					"dateOfBirth": `1968-12-16T00:00:00+00:00`,
+					"contactNumber": `0823214321`,
+					"clientType": `Adult`,
+					"clientId": `E17FEFFB-BC20-4662-9718-C520C99C3E53`,
+					"guardianId": `E17FEFFB-BC20-4662-9718-C520C99C3E54`
 				}
 			],
 			"totalPolicySumAssured": 3000000.0000000000,

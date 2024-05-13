@@ -1716,7 +1716,6 @@ class LifeAllocateCoverDialog extends Component {
 								</div>
 								` : html``}
 							`)}
-							//TODO: Add child button properly
 							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddChildDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add child"></capitec-button>` : html``}
 						</div>
 					` : html`

@@ -420,3 +420,14 @@ export const LIFE_BENEFICIARY_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
 ]);
+
+/**
+ * List of child beneficiary types for life cover
+ * @readonly
+ * @enum {Object} LIFE_RELATIONSHIP_TYPES
+ */
+export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
+	{ code: `Child`, text: `Child` },
+	{ code: `ExtendedFamily`, text: `Extended Family` },
+	{ code: `Others`, text: `Other` }
+]);
