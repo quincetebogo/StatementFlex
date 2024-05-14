@@ -494,15 +494,14 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let item = this.selectedAdvanceView;
 
 		let product = item.bundleType,
-			productId = `---`,
+			productId = `N/A`,
 			type = item.type,
-			statusOfRecharge = `---`,
 			airtimeSurplus = `---`,
 			advanceRepayment = `---`,
 			account = `---`;
 
+		let rechargeStatus = 'Failed';
 		let rechargeStatusReason = null;
-		let rechargeStatus = null;
 
 		if (item.transactions.length > 0) {
 			product = product ? product : item.transactions[0].bundleType;
@@ -512,16 +511,15 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		}
 
 		if (item.recharges.length > 0) {
-			statusOfRecharge = item.recharges[0].status || statusOfRecharge;
-			statusOfRecharge = toTitleCase(statusOfRecharge);
-
 			product = product ? product : item.recharges[0].bundleType;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
 
 			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 
-			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
 			rechargeStatus = item.recharges[0]?.status || rechargeStatus;
+			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
+		} else {
+			rechargeStatusReason = "No recharge occurred."
 		}
 
 		airtimeSurplus = "R" + airtimeSurplus;
@@ -529,10 +527,10 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		product = toTitleCase(product);
 
 		return html`
-		<capitec-modal type="form" header="Advance Status">
+		<capitec-modal type="form" header="Recharge Status">
 			<capitec-group slot="body" layout="grid" gap="clear">
 				<div row="1" column="1">
-					<capitec-label type="strong" label="Status: ${statusOfRecharge}"></capitec-label>
+					<capitec-label type="strong" label="Status: ${rechargeStatus}"></capitec-label>
 					<capitec-label type="strong" label="${product} ${toTitleCase(type.replace("_", " "))}"></capitec-label>
 				</div>
 				<div row="1" column="2">
@@ -583,7 +581,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					${rechargeStatusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
 				</div>
 				<div row="5" column="2">
-					<capitec-label label="${rechargeStatus}"></capitec-label>
+					<capitec-label label="${rechargeStatus.toUpperCase()}"></capitec-label>
 					${rechargeStatusReason !== null ? html`<capitec-label label="${rechargeStatusReason}"></capitec-label>` : ``}
 				</div>
 				` : ``}

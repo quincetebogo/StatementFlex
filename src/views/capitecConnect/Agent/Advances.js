@@ -473,9 +473,9 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		let item = this.selectedAdvanceView;
 
 		let product = item.bundleType,
-			productId = `-`,
+			productId = `N/A`,
 			type = `-`,
-			rechargeStatus = null,
+			rechargeStatus = `Failed`,
 			rechargeStatusReason = null;
 
 		if (item.recharges.length > 0) {
@@ -486,6 +486,8 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 			rechargeStatus = rechargeStatus !== null ? toTitleCase(rechargeStatus) : rechargeStatus;
 			rechargeStatusReason = item.recharges[0].statusReason || rechargeStatusReason;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
+		} else {
+			rechargeStatusReason = "No recharge occurred."
 		}
 
 		if (item.transactions.length > 0) {
@@ -548,7 +550,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					${rechargeStatusReason !== null ? html`<capitec-label label="Error Message"></capitec-label>` : ``}
 				</div>
 				<div row="5" column="2">
-					<capitec-label label="${rechargeStatus}"></capitec-label>
+					<capitec-label label="${rechargeStatus.toUpperCase()}"></capitec-label>
 					${rechargeStatusReason !== null ? html`<capitec-label label="${rechargeStatusReason}"></capitec-label>` : ``}
 				</div>
 				` : ``}
