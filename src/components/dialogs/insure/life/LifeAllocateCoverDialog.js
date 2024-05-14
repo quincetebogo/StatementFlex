@@ -635,6 +635,24 @@ class LifeAllocateCoverDialog extends Component {
 		this.showAddBeneficiaryDialog = false;
 	}
 
+	_addChild(event) {
+		console.log(`addChild`);
+		const child = event.detail.child;
+		const guardian = event.detail.guardian;
+		const newGuardianType = event.detail.newGuardianType;
+
+		let guardianId = guardian.guardianId;
+		if (newGuardianType === `NEW`) {
+			guardianId = v4();
+			guardian.guardianId = guardianId;
+			this.updatedPolicy.guardians.push(guardian);
+		}
+		
+		child.guardianId = guardianId;
+		this.updatedPolicy.beneficiaries.push(child);
+		this.showAddChildDialog = false;
+	}
+
 	_updateBeneficiary() {
 		this.showEditBeneficiaryDialog = false;
 	}

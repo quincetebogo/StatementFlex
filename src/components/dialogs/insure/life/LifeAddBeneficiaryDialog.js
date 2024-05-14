@@ -935,8 +935,6 @@ class LifeAddBeneficiaryDialog extends Component {
 				<capitec-text-field 
 					label="Email address (optional)" 
 					style="width: 50%" 
-					maxlength="10" 
-					type="numeric"
 					value="${this.newBeneficiary?.contactEmail}"
 					error="${this.newBeneficiaryErrors?.contactEmail === undefined ? `` : this.newBeneficiaryErrors.contactEmail}"
 					@value-changed="${(e) => this._emailChange(e)}">
