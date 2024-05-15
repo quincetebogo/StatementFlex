@@ -35,6 +35,7 @@ import 'app/components/dialogs/insure/life/LifeUpdateMoneyDialog';
 import 'app/components/dialogs/insure/life/LifeBeneficiariesAllocateError';
 import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
+import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -105,7 +106,6 @@ class ClientSummary extends Component {
 		this.isOnlyProductEnquiry = true;
 
 		this.showLifeEmailDialog = false;
-		this.isLifeQualifyingClient = false;
 		this.lifeUpdateMode = ``;
 	}
 
@@ -225,7 +225,6 @@ class ClientSummary extends Component {
 			updateEarlyCollectionPreferences: { type: Object, state: true },
 			isOnlyProductEnquiry: { type: Boolean, state: true },
 			setInsureIncident: { type: Object, state: true },
-			isLifeQualifyingClient: { type: Boolean, state: true },
 			newOffer: { type: Object, state: true },
 			newOfferAnswers: { type: Array, state: true },
 
@@ -1735,16 +1734,13 @@ class ClientSummary extends Component {
 					${this._renderFooter()}
 				</capitec-tab>
 
-				${this.isLifeQualifyingClient === true ? html`
-						<capitec-tab
-							data-automation-id="insure-landing-life-policies-tab"
-							label="Life Cover">
-							${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
-							${this._renderFooter()}
-						</capitec-tab>`
-				: html``
-			}
-
+				<capitec-tab
+					data-automation-id="insure-landing-life-policies-tab"
+					label="Life Cover">
+					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
+					${this._renderFooter()}
+				</capitec-tab>
+				
 				<capitec-tab
 					data-automation-id="insure-landing-claims-tab"
 					label="Claims">

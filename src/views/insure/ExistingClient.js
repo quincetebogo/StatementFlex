@@ -101,10 +101,8 @@ export class ExistingClient extends InsureViewBase {
 		this.defaultSavingsAccountAvailableBalance = 0;
 		this.lifePremiumHistory = {};
 		this.lifeDocsToEmail = {};
-		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
-		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -180,7 +178,6 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
-			isLifeQualifyingClient: { type: Boolean, state: true }
 		};
 	}
 
@@ -212,11 +209,8 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
-		const lifeQualify = await this._clientQualifiesLife();
-		if (lifeQualify === true) {
-			this.lifePolicies = await this._retrieveClientLifePolicies();
-			super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
-		}
+		this.lifePolicies = await this._retrieveClientLifePolicies();
+		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
 	// --- Document Generation
@@ -772,25 +766,6 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		return resp.result;
-	}
-
-	/**
-	 * Check if client qualifies for Life product
-	 * @returns {Object} Client Life policies 
-	 */
-	async _clientQualifiesLife() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber
-		};
-
-		const resp = await this.insureLifeService.lifeClientQualify(request);
-		if (!resp.succeeded) {
-			this.isLifeQualifyingClient = false;
-		} else {
-			this.isLifeQualifyingClient = resp.result.qualify;
-		}
-
-		return this.isLifeQualifyingClient;
 	}
 
 	/**
@@ -2108,7 +2083,6 @@ export class ExistingClient extends InsureViewBase {
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
-				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
 				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"

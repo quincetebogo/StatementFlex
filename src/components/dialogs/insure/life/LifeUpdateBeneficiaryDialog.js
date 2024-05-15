@@ -128,10 +128,10 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			this.updatingBeneficiary.title = e.detail.new.code;
 			if (this.updatingBeneficiary.title === `Mr` || this.updatingBeneficiary.title === `Sir`) {
 				this.updatingBeneficiary.gender = `Male`;
-				this.newBeneficiaryErrors.gender = ``;
+				this.beneficiaryErrors.gender = ``;
 			} else if (this.updatingBeneficiary.title === `Mrs` || this.updatingBeneficiary.title === `Ms` || this.updatingBeneficiary.title === `Miss` || this.updatingBeneficiary.title === `Lady`) {
 				this.updatingBeneficiary.gender = `Female`;
-				this.newBeneficiaryErrors.gender = ``;
+				this.beneficiaryErrors.gender = ``;
 			}
 		}
 		if (!isNullorEmpty(this.updatingBeneficiary.title)) {

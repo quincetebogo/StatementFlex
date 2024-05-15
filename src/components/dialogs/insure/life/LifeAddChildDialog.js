@@ -4,6 +4,7 @@ import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, poc
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { v4 } from 'uuid';
 
 const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
@@ -87,7 +88,7 @@ class LifeAddChildDialog extends Component {
 			newGuardian: { type: Object, state: true },
 			pocketBeneficiaries: { type: Array, state: true },
 			selectedPocketType: { type: String, state: true },
-			
+
 			totalPocketCover: { type: Number, state: true },
 			pocketRemainingCover: { type: Number, state: true }
 		};
@@ -125,12 +126,12 @@ class LifeAddChildDialog extends Component {
 					this.pocketBeneficiaries.push(bene);
 				}
 			}
-		} 
+		}
 
 		this.newChild.educationBenefitAmount = 0;
-		this.newChild.metaData = {
-			educationBenefitAdded: true
-		};
+		this.newChild.metaData = {};
+		this.newChild.metaData.uniqueId = v4();
+		this.newChild.metaData.educationBenefitAdded = true;
 		this._calculateCoverBreakdown();
 	}
 
@@ -140,17 +141,28 @@ class LifeAddChildDialog extends Component {
 	 */
 	_calculateCoverBreakdown() {
 		let totalAllocated = 0;
+
+		console.log(`_calculateCoverBreakdown`);
+		console.log(`this.pocketBeneficiaries`);
+		console.log(this.pocketBeneficiaries);
+		console.log(`this.pocketBeneficiaries.length: ${this.pocketBeneficiaries.length}`);
 		for (const bene of this.pocketBeneficiaries) {
-			if (bene.metaData.monthlyBenefitAdded) {
+			if (bene.metaData.educationBenefitAdded) {
+				console.log(`found a child: ${bene.firstName}`);
 				totalAllocated += bene.educationBenefitAmount === `` ? 0 : parseFloat(bene.educationBenefitAmount);
 			}
 		}
+
+		console.log(`totalAllocated after looping pocketBeneficiaries: ${totalAllocated}`);
 
 		// New Beneficiary?
 		if (this.newChild !== null) {
 			totalAllocated += this.newChild.educationBenefitAmount === `` ? 0 : parseFloat(this.newChild.educationBenefitAmount);
 		}
+
+		console.log(`totalAllocated after new child: ${totalAllocated}`);
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+		console.log(`this.pocketRemainingCover after calc: ${this.pocketRemainingCover}`);
 	}
 
 	/**
@@ -766,11 +778,11 @@ class LifeAddChildDialog extends Component {
 	}
 
 
-	 /* gets the allocated amount for the current pocket
-	 * 
-	 * @param {object} beneficiary beneficiary object
-	 * @returns {Number} number 
-	 */
+	/* gets the allocated amount for the current pocket
+	* 
+	* @param {object} beneficiary beneficiary object
+	* @returns {Number} number 
+	*/
 	_getBenePocketAllocation(beneficiary) {
 		if (this.selectedPocket.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
 			return beneficiary.educationBenefitAmount;
@@ -833,6 +845,11 @@ class LifeAddChildDialog extends Component {
 					padding: 20px 15px 15px 15px; 
 					gap: 10px;
 				}
+
+				.beneficiary-list{
+					max-height: 500px;
+					overflow-y: scroll;
+				}
 				
 				.beneficiary-card{
 					display: flex;
@@ -842,21 +859,6 @@ class LifeAddChildDialog extends Component {
 					padding: 14px 24px;
 					border-radius:  5px;
 					margin: 15px;
-				}
-
-				.education-label{
-					align-self: center;
-					--theme-label-font-color: #AA1580;
-				}
-
-				.monthly-label{
-					align-self: center;
-					--theme-label-font-color: #852CB3;
-				}
-
-				.onceoff-label{
-					align-self: center;
-					--theme-label-font-color: #009E96;
 				}
 				
 				.pocket-type-label{
