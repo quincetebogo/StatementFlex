@@ -15,6 +15,13 @@ const VALIDATION_ERRORS = {
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
 };
 
+const STEPS = {
+	CHILD_DETAILS: 1,
+	NEW_OR_EXISTING_GUARDIAN: 2,
+	GUARDIAN_DETAILS: 3,
+	MONEY_ALLOCATION: 4
+};
+
 /**
  * @export
  * @class LifeUpdateChildDialog
@@ -58,6 +65,7 @@ class LifeUpdateChildDialog extends Component {
 		return {
 			currentStep: { type: Number, state: true },
 			totalPocketCover: { type: Number, state: true },
+			eligibleGuardiansForQuickAdd: { type: Array, state: true },
 			updatingChild: { type: Object, state: true },
 			pocketRemainingCover: { type: Number, state: true },
 			policy: { type: Object, state: true },
@@ -89,6 +97,17 @@ class LifeUpdateChildDialog extends Component {
 	// #region PRIVATE METHODS
 
 	initialise() {
+		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
+
+		// Find guardian of current editing child
+		const updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.id === this.updatingChild.guardianId);
+		console.log(`updatingGuardian: `, updatingGuardian);
+
+		if (updatingGuardian) {
+			const index = this.eligibleGuardiansForQuickAdd.indexOf(updatingGuardian);
+			this.eligibleGuardiansForQuickAdd.splice(index, 1);
+		}
+
 		this.originalChild = JSON.parse(JSON.stringify(this.updatingChild));
 		for (const bene of this.policy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.metaData.educationBenefitAdded === true) {
@@ -110,6 +129,20 @@ class LifeUpdateChildDialog extends Component {
 			}
 		}
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+	}
+
+	/**
+	 * What steps are available for this add flow
+	 * @returns {Array} array of steps
+	 */
+	_determineSteps() {
+		let steps = [];
+		if (this.eligibleGuardiansForQuickAdd.length > 0) {
+			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		} else {
+			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		}
+		return steps;
 	}
 
 	/**
@@ -148,7 +181,6 @@ class LifeUpdateChildDialog extends Component {
 		}
 		this.requestUpdate();
 	}
-
 
 	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
@@ -523,7 +555,7 @@ class LifeUpdateChildDialog extends Component {
 		return html`
 			<capitec-stepper
 				layout="horizontal"
-				.steps="${[{ title: `Personal details` }, { title: `Allocate cover` }]}"
+				.steps="${this._determineSteps()}"
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
