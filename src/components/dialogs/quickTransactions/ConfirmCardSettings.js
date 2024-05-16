@@ -167,18 +167,27 @@ export class ConfirmCardSettings extends Component {
 				.card-details {
 					border: 1px solid rgb(225, 225, 225);
 					border-radius: 4px;
-					padding: 0px 16px;
-					border-left: 4px solid #E61414;
 				}
 				horizon-label {
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-value-font-size: 16px;
-					padding: 8px 0px;
+					padding: 8px 16px;
 					--horizon-label-text-color: #3A3A3A;
 					--horizon-label-value-color: #3A3A3A;
+					border-radius: 4px;
 				}
+				horizon-label[label="Debit card"] {
+					border-left: 4px solid #009DE0 ;
+				}
+				horizon-label[label="Credit card"] {
+					border-left: 4px solid #E61414;
+				}
+
 				.card-label {
 					width: 202px;
+				}
+				.hide {
+					display: none;
 				}
 			`
 		];
@@ -226,6 +235,7 @@ export class ConfirmCardSettings extends Component {
 					value="${card.maskedCardNumber}">
 				</horizon-label>
 				<horizon-label
+					class="${card.type !== `VIRTUAL_CARD` ? `hide` : ``}"
 					label="Friendly name"
 					value="${card.cardFriendlyName}">
 				</horizon-label>

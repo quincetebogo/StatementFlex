@@ -8,7 +8,20 @@ import 'app/components/dialogs/quickTransactions/ConfirmCardSettings';
 
 const CARD_TYPE_MAPPING = {
 	DEBIT_MASTERCARD: `Debit card`,
-	MASTERCARD_CREDIT: `Credit card`
+	MASTERCARD_CREDIT: `Credit card`,
+	DEBIT_MASTERCARD_VIRTUAL: `Debit card`
+};
+
+const CARD_TYPE_LIST = [
+	{ key: `PRIMARY_CARD`, value: `Primary Cards` },
+	{ key: `SUPPLEMENTARY_CARD`, value: `Suppplementary Cards` },
+	{ key: `VIRTUAL_CARD`, value: `Virtual Cards` }
+];
+
+const FILTER_BY = {
+	All: `All`,
+	DEBIT: `Debit card`,
+	CREDIT: `Credit card` 
 };
 
 export class UpdateCardSettings extends Component {
@@ -27,6 +40,9 @@ export class UpdateCardSettings extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.ecommerceUpdated = false;
 		this.internationalUpdated = false;
+		this.filteredCards = [];
+		this.filterBy = `ALL`;
+		this.filterByType = ``;
 	}
 
 	// ---------------
@@ -42,7 +58,10 @@ export class UpdateCardSettings extends Component {
 			cards: { type: Object },
 			hasCardsAvailable: { type: Boolean },
 			updatedCards: { type: Array },
-			showDeactivateConfirmationModal: { type: Boolean }
+			showDeactivateConfirmationModal: { state: false },
+			filteredCards: { state: false },
+			filterBy: { state: false },
+			filterByType: { state: false }
 		};
 	}
 
@@ -66,7 +85,6 @@ export class UpdateCardSettings extends Component {
 	// ---------------
 
 	_initialise() {
-
 		this.hasCardsAvailable = this.cards.length > 0;
 
 		this.cards.forEach(card => {
@@ -74,8 +92,16 @@ export class UpdateCardSettings extends Component {
 				card.cardDisplayName = `Supplementary ${CARD_TYPE_MAPPING[card.cardType].toLowerCase()}`;
 			} 
 			card.cardDisplayName = CARD_TYPE_MAPPING[card.cardType];
+			
+			if (card.supplementaryCard) {
+				card.type = `SUPPLEMENTARY_CARD`;
+			} else if (card.cardType === `DEBIT_MASTERCARD_VIRTUAL`) {
+				card.type = `VIRTUAL_CARD`;
+			} else {
+				card.type = `PRIMARY_CARD`;
+			}
 		});
-
+		
 		this._deepCopyCardDetails();
 	}
 
@@ -98,7 +124,9 @@ export class UpdateCardSettings extends Component {
 
 	_deepCopyCardDetails() {
 		this.updatedCards = Utilities.deepCopy(this.cards);
+		this.filteredCards = Utilities.deepCopy(this.cards);
 	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -124,20 +152,29 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_deactivateAllOnline(event) {
-		if (event.detail.new) {
-			this.updatedCards.forEach(card => card.ecommerce = false);
-		} else {
-			this.updatedCards.forEach(card => card.ecommerce = this.cards.find(item => item.cardId === card.cardId).ecommerce);
-		}
+		this.filteredCards.forEach(card => {
+			const cardToUpdate = this.updatedCards.find(item => item.cardId === card.cardId);
+			if (event.detail.new && cardToUpdate) {
+				card.ecommerce = false;
+				cardToUpdate.ecommerce = false;
+			} else {
+				cardToUpdate.ecommerce = card.ecommerce = this.cards.find(originalCard => originalCard.cardId === card.cardId).ecommerce;
+			}
+		});
+			
 		this.requestUpdate();
 	}
 
 	_decativateAllInternational(event) {
-		if (event.detail.new) {
-			this.updatedCards.forEach(card => card.internationalTransactions = false);
-		} else {
-			this.updatedCards.forEach(card => card.internationalTransactions = this.cards.find(item => item.cardId === card.cardId).internationalTransactions);
-		}
+		this.filteredCards.forEach(card => {
+			const cardToUpdate = this.updatedCards.find(item => item.cardId === card.cardId);
+			if (event.detail.new && cardToUpdate) {
+				card.internationalTransactions = false;
+				cardToUpdate.internationalTransactions = false;
+			} else {
+				cardToUpdate.internationalTransactions = card.internationalTransactions = this.cards.find(originalCard => originalCard.cardId === card.cardId).internationalTransactions;
+			}
+		});
 		this.requestUpdate();
 	}
 
@@ -166,9 +203,47 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_deselectAll() {
-		this._deepCopyCardDetails();
+
+		this.filteredCards.forEach(card => {
+			const filteredCard = this.cards.find(item => item.cardId === card.cardId);
+			const updatedCard = this.updatedCards.find(item => item.cardId === card.cardId);
+
+			card.ecommerce = updatedCard.ecommerce = filteredCard.ecommerce;
+			card.internationalTransactions = updatedCard.internationalTransactions = filteredCard.internationalTransactions;
+		});
 		this.shadowRoot.querySelectorAll(`#deactivation-check-box`).forEach(box => box.removeAttribute(`checked`));
+		this.requestUpdate();
 	}
+	
+	_filterCards(type) {
+		this.filterBy = type;
+		this._refineSearch();
+	}
+
+	_filterCardsByType(event) {
+		this.filterByType = event.detail.new.key;
+		this._refineSearch();
+	} 
+
+	_refineSearch() {
+		this.filteredCards = Utilities.deepCopy(this.cards);
+		this.filteredCards.forEach(card => {
+			const cardToUpdate = this.updatedCards.find(item => item.cardId === card.cardId);
+			if (cardToUpdate) {
+				card.ecommerce = cardToUpdate.ecommerce;
+				card.internationalTransactions = cardToUpdate.internationalTransactions;
+			}
+		});
+
+		if (this.filterBy && this.filterBy !== `ALL`) {
+			this.filteredCards = this.filteredCards.filter(card => card.cardDisplayName === FILTER_BY[this.filterBy]);
+		}
+
+		if (this.filterByType) {
+			this.filteredCards = this.filteredCards.filter(card => card.type === this.filterByType);
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -240,6 +315,10 @@ export class UpdateCardSettings extends Component {
 					--horizon-card-art-box-shadow:none!important;
 					--horizon-card-art-info-group-height: 200px;
 					--horizon-card-art-height: 452px;
+					margin-bottom: 32px;
+				}
+				.no-friendly-name {
+					--horizon-card-art-height: 400px;
 				}
 
 				horizon-card-art:nth-child(n+3) {
@@ -342,6 +421,32 @@ export class UpdateCardSettings extends Component {
 				.blur-card {
 					--horizon-card-art-opacity: 20%;
 				}
+
+				/* Filter bar */
+				.type-normal{
+					--theme-chip-label-color: #3A3A3A;
+					--theme-chip-background-color: #FFFFFF;
+				}
+				capitec-chip{
+					width: 104px;
+					margin: 0px 8px;
+					--theme-chip-font-size: 12px;
+					--theme-chip-label-padding-left: 15px;
+					--theme-chip-label-padding-right: 11px;
+					--theme-chip-label-line-height: 20px;
+					--theme-chip-font-weight: 500;
+				}
+				capitec-chip[label="All Cards"] {
+					--theme-chip-label-padding-left: 24px;
+				}
+				.type-selected{
+					--theme-chip-label-color: #FFFFFF;
+					--theme-chip-background-color: #009DE0;
+					--theme-chip-font-weight: 600;
+				}
+				.hide {
+					display: none;
+				}
 			`
 		];
 	}
@@ -370,6 +475,8 @@ export class UpdateCardSettings extends Component {
 					<capitec-label class="title-label" label="Update Card Settings" type="title"></capitec-label>
 				</capitec-title-bar>
 
+				${this._renderActionBar()}
+
 				<capitec-content-box class="content-body">
 					${this._renderContent()}
 				</capitec-content-box>
@@ -379,11 +486,46 @@ export class UpdateCardSettings extends Component {
 		`;
 	}
 
+	_renderActionBar() {
+		return html`
+			<capitec-action-bar class="card-settings-action-bar">
+			<capitec-select
+				data-automation-id="card-settings-card-type"
+				label="Choose an option"
+				.items=${Object.values(CARD_TYPE_LIST)}
+				id-field="key"
+				display-field="value"
+				@value-changed="${(e) => this._filterCardsByType(e)}"
+				tabindex=3
+				select-mode="single">
+			</capitec-select>
+				<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+						<capitec-chip 
+							label="All Cards" 
+							class="${this.filterBy === `ALL` ? `type-selected` : `type-normal`}" 
+							@click="${() => this._filterCards(`ALL`)}">
+						</capitec-chip>
+						<capitec-chip 
+							label="Debit Cards" 
+							class="${this.filterBy === `DEBIT` ? `type-selected` : `type-normal`}" 
+							@click="${() => this._filterCards(`DEBIT`)}">
+						</capitec-chip>
+						<capitec-chip 
+							label="Credit Cards" 
+							class="${this.filterBy === `CREDIT` ? `type-selected` : `type-normal`}" 
+							@click="${() => this._filterCards(`CREDIT`)}">
+						</capitec-chip>
+					</capitec-group>
+			</capitec-action-bar>
+		`;
+	}
+
 	_renderContent() {
 		return this.hasCardsAvailable
 		? html`
 			${this._renderPrimaryCards()}
-			${this._renderSupplementaryCards()}`
+			${this._renderSupplementaryCards()}
+			${this._renderVirtualCards()}`
 		: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
 			<capitec-label type="title" class="no-cards-available" label="Client has no cards to fulfill this transaction"></capitec-label>
@@ -391,7 +533,7 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_renderPrimaryCards() {
-		const primaryCards = this.updatedCards.filter(card => !card.supplementaryCard);
+		const primaryCards = this.filteredCards.filter(card => card.type === `PRIMARY_CARD`);
 		return primaryCards.length > 0 
 		? html`
 			<capitec-label
@@ -419,7 +561,7 @@ export class UpdateCardSettings extends Component {
 
 		return html`
 			<horizon-card-art
-				class="${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
+				class="no-friendly-name ${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
 				id="primaryCard-widget-${index}"
 				data-automation-id="update-card-settings-${automationId}"
 				.card="${card}"
@@ -431,8 +573,8 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_renderSupplementaryCards() {
-		const supplementaryCards = this.updatedCards.filter(card => card.supplementaryCard);
-		return supplementaryCards 
+		const supplementaryCards = this.filteredCards.filter(card => card.supplementaryCard);
+		return supplementaryCards.length > 0 
 		? html`
 			<capitec-label
 				class="supplementary-card-label"
@@ -459,8 +601,48 @@ export class UpdateCardSettings extends Component {
 
 		return html`
 			<horizon-card-art
-				class="${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
+				class="no-friendly-name ${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
 				id="supplementary-widget-${index}"
+				data-automation-id="update-card-settings-${automationId}"
+				.card="${card}"
+				?disable-hover="${true}"
+				context="cardSettings">
+				${this._renderInforGroup(card)}
+			</horizon-card-art>
+		`;
+	}
+
+	_renderVirtualCards() {
+		const virtualCards = this.filteredCards.filter(card => card.type === `VIRTUAL_CARD`);
+		return virtualCards.length > 0 
+		? html`
+			<capitec-label
+				class="primary-card-label"
+				type="title"
+				label="Virtual cards"
+				data-automation-id="update-card-settings-virtual-cards">
+			</capitec-label>
+
+			<capitec-group
+				class="primary-cards"
+				valign="top"
+				halign="left"
+				gap="clear"
+				layout="horizontal"
+				wrap>
+					${virtualCards.map((item, itemIndex) => this._renderVirtualCardArt(item, itemIndex, `virtual-card-art`))}
+			</capitec-group>`
+		: html``;
+	}
+
+	_renderVirtualCardArt(card, index, automationId) {
+		const originalEcommerceStatus = this.cards.find(item => item.cardId === card.cardId).ecommerce;
+		const originalInternationalStatus = this.cards.find(item => item.cardId === card.cardId).internationalTransactions;
+
+		return html`
+			<horizon-card-art
+				class="${originalEcommerceStatus || originalInternationalStatus ? `` : `blur-card`}"
+				id="virtual-widget-${index}"
 				data-automation-id="update-card-settings-${automationId}"
 				.card="${card}"
 				?disable-hover="${true}"
@@ -478,6 +660,7 @@ export class UpdateCardSettings extends Component {
 					value="${card.maskedCardNumber}">
 				</horizon-label>
 				<horizon-label
+					class="${card.type !== `VIRTUAL_CARD` ? `hide` : ``}"
 					label="Friendly name"
 					value="${card.cardFriendlyName}">
 				</horizon-label>
@@ -521,6 +704,17 @@ export class UpdateCardSettings extends Component {
 		`;
 	}
 
+	_checkboxStatus(deactivationType) {
+		const activeCards = this.cards.filter(card => card[deactivationType]);
+		const filteredCards = this.filteredCards.filter(card => activeCards.find(item => item.cardId === card.cardId));
+		const checkBoxValue = filteredCards?.every(item => item[deactivationType] === false);
+		return checkBoxValue;
+	}
+
+	_isIndeterminate(deactivationType) {
+		return this.filteredCards.every(card => !this.cards.find(item => item.cardId === card.cardId)[deactivationType]);
+	}
+
 	_renderFooter() {
 		return html`
 			<capitec-button-bar
@@ -533,13 +727,15 @@ export class UpdateCardSettings extends Component {
 						<capitec-check
 							id="deactivation-check-box"
 							label="Deactivate all Online"
-							?checked=${this.updatedCards.every(card => !card.ecommerce)}
+							?indeterminate = ${this._isIndeterminate(`ecommerce`)}
+							?checked=${this._checkboxStatus(`ecommerce`)}
 							@value-change="${(e) => this._deactivateAllOnline(e)}">
 						</capitec-check>
 						<capitec-check
 							id="deactivation-check-box"
 							label="Deactivate all International"
-							?checked=${this.updatedCards.every(card => !card.internationalTransactions)}
+							?indeterminate = ${this._isIndeterminate(`internationalTransactions`)}
+							?checked=${this._checkboxStatus(`internationalTransactions`)}
 							@value-change="${(e) => this._decativateAllInternational(e)}">
 						</capitec-check>
 						<capitec-hyperlink 
