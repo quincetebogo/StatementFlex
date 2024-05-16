@@ -160,10 +160,43 @@ export class CapitecConnectService extends ChannelServiceBase {
 		return sanitizedObject;
 	}
 
-	async rechargeHistory(qry_args = {}, pagination_args = {}, capitecConnectRechargeHistory, isForEscalationDetails = false) {
-		// if (await this.isMockEnabled(`capitecConnectRechargeHistory`) && !isForEscalationDetails) {
-		// 	return this.mock(`capitecConnectRechargeHistory`, capitecConnectRechargeHistory);
-		// }
+	async rechargeHistory(qry_args = {}, pagination_args = {}, mockArgs = {}) {
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			[ "cif", "channel", "msisdn", "amount", "type", "accountNumber", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
+		);
+
+		var requestLogTitle = ``;
+
+		if (typeof request.type === "string") {
+			switch (request.type.toUpperCase()) {
+				case 'RECHARGES':
+				case '':
+					if (await this.isMockEnabled(`capitecConnectRechargeHistory`)) {
+						console.log('capitecConnectRechargeHistory isActive');
+						return this.mock(`capitecConnectRechargeHistory`, mockArgs);
+					}
+					requestLogTitle = "capitecConnectRechargeHistory";
+					break;
+				case 'ADVANCE':
+					if (await this.isMockEnabled(`capitecConnectAdvancesHistory`)) {
+						console.log('capitecConnectAdvancesHistory isActive');
+						return this.mock(`capitecConnectAdvancesHistory`, mockArgs);
+					}
+					requestLogTitle = "capitecConnectAdvanceHistory";
+					break;
+				case 'ADVANCE_PAYMENT':
+					requestLogTitle = "capitecConnectAdvancePaymentHistory";
+					break;
+				default:
+					break;
+			}
+		}
+
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: rechargeHistory()");
+			return [];
+		}
 
 		pagination_args = {
 			"page": pagination_args.page || 0,
@@ -171,25 +204,16 @@ export class CapitecConnectService extends ChannelServiceBase {
 			"sort": typeof pagination_args.sort === "object" && pagination_args.sort.length > 0 ? pagination_args.sort : ["cif"]
 		}
 
-		var request = this.sanitizeJsonObject(
-			qry_args,
-			[ "cif", "channel", "msisdn", "amount", "type", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
-		);
+		const url = `/v2/api/horizon/recharges/${request.cif}/search?${this.convertJsonToUriString(pagination_args)}`
 
-		if (!request) {
-			console.warn("Invalid query arguments passed into function: rechargeHistory()");
-			return [];
-		}
-
-		const url = !isForEscalationDetails ?
-			`/${this._version}/api/horizon/recharges/search?${this.convertJsonToUriString(pagination_args)}`
-			: `/v1/api/horizon/recharges/reverse/actions/AVAILABLE/search`;
+		// we don't need the cif in the body request, seeing as we are only querying the records related to the current user
+		delete request.cif;
 
 		return this.post(
 			url,
 			request,
 			this.setToken(),
-			!isForEscalationDetails ? `capitecConnectRechargeHistory` : `capitecConnectEscalationHistory`,
+			requestLogTitle,
 			null,
 			null,
 			2000,
@@ -197,6 +221,47 @@ export class CapitecConnectService extends ChannelServiceBase {
 			null,
 			DEFAULT_AUTO_RETRIES
 		);
+	}
+
+	async advanceBalances(qry_args = {}) {
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			[ "cif", "msisdn" ]
+		);
+
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: advanceBalances()");
+			return [];
+		}
+
+		// const url = `/v2/api/horizon/advances/${request.cif}/accounts/search`;
+		const url = `/v2/api/horizon/advances/${request.cif}/accounts`;
+
+		delete request.cif;
+		
+		return this.get(
+			url, 
+			this.setToken(), 
+			`capitecConnectAdvanceBalance`, 
+			false, 
+			null, 
+			null, 
+			null, 
+			DEFAULT_AUTO_RETRIES
+		);
+
+		// return this.post(
+		// 	url,
+		// 	request,
+		// 	this.setToken(),
+		// 	'capitecConnectAdvanceBalance',
+		// 	null,
+		// 	null,
+		// 	2000,
+		// 	null,
+		// 	null,
+		// 	DEFAULT_AUTO_RETRIES
+		// );
 	}
 
 	async escalateForReversal(ref = null, reason = '', comments = '') {
