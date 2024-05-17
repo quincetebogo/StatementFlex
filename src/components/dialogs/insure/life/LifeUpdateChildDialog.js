@@ -12,7 +12,8 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
-	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
 };
 
 const STEPS = {
@@ -67,6 +68,7 @@ class LifeUpdateChildDialog extends Component {
 			totalPocketCover: { type: Number, state: true },
 			eligibleGuardiansForQuickAdd: { type: Array, state: true },
 			updatingChild: { type: Object, state: true },
+			updatingGuardian: { type: Object, state: true },
 			pocketRemainingCover: { type: Number, state: true },
 			policy: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
@@ -99,16 +101,17 @@ class LifeUpdateChildDialog extends Component {
 	initialise() {
 		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
 
-		// Find guardian of current editing child
-		const updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.id === this.updatingChild.guardianId);
-		console.log(`updatingGuardian: `, updatingGuardian);
-
-		if (updatingGuardian) {
-			const index = this.eligibleGuardiansForQuickAdd.indexOf(updatingGuardian);
+		// Find guardian of current editing child / remove from quick add
+		this.updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.id === this.updatingChild.guardianId);
+		if (this.updatingGuardian) {
+			const index = this.eligibleGuardiansForQuickAdd.indexOf(this.updatingGuardian);
 			this.eligibleGuardiansForQuickAdd.splice(index, 1);
 		}
 
 		this.originalChild = JSON.parse(JSON.stringify(this.updatingChild));
+
+		console.log(`this.originalChild`);
+		console.log(this.originalChild);
 		for (const bene of this.policy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.metaData.educationBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
@@ -298,7 +301,7 @@ class LifeUpdateChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.educationBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -421,6 +424,7 @@ class LifeUpdateChildDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		console.log(`cancel click`);
 		this.updatingChild = this.originalChild;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { child: this.updatingChild } }));
 	}
@@ -470,8 +474,8 @@ class LifeUpdateChildDialog extends Component {
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 					--theme-modal-header-color: black; 
-					--theme-modal-free-m-l-xl-width: 642px;
-					--theme-modal-alert-m-l-xl-width: 840px;
+					--theme-modal-free-m-l-xl-width: 842px;
+					--theme-modal-alert-m-l-xl-width: 950px;
 					--theme-modal-body-padding: 0;
 					z-index: 99;
 				}
@@ -559,13 +563,66 @@ class LifeUpdateChildDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === 1 ? `display: block` : `display: none`}">
-				${this._renderBeneDetails()}
+			<div style="${this.currentStep === STEPS.CHILD_DETAILS ? `display: block` : `display: none`}">
+				${this._renderChildDetails()}
 			</div>
 
-			<div style="${this.currentStep === 2 ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN ? `display: block` : `display: none`}">
+				${this._renderNewOrExistingQuickAdd()}
+			</div>
+
+			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
+				${this._renderGuardianDetails()}
+			</div>
+
+			<div style="${this.currentStep === STEPS.MONEY_ALLOCATION ? `display: block` : `display: none`}">
 				${this._renderMoneyAllocation()}
 			</div>
+		`;
+	}
+
+	_renderNewOrExistingQuickAdd() {
+		return html`
+			${this.newOrExistingErrorMessage !== ``
+				? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						label="${this.newOrExistingErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>`
+				: html``
+			}
+
+			<capitec-content-box style="min-height:200px; padding-left: 15px;">
+
+				<horizon-product-tile
+					type="radio-button"
+					label="Add Guardian"
+					subtitle="Add a new guardian for this child"
+					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
+					@click="${() => this._continueWithNewGuardian()}">
+				</horizon-product-tile>
+
+				<div style="text-align: center;">
+					<capitec-label 
+						label="Or choose existing"
+						type="strong">
+					</capitec-label>
+				</div>
+
+				${this.eligibleGuardiansForQuickAdd.map((guardian) => html`
+					<horizon-product-tile
+						type="radio-button"
+						label="${`${guardian.firstName} ${guardian.lastName}`}"
+						subtitle="${guardian.relationship}"
+						?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
+						@click="${() => this._continueWithExistingGuardian(guardian)}">
+					</horizon-product-tile>
+				`)}
+			</capitec-content-box>
 		`;
 	}
 
@@ -574,7 +631,7 @@ class LifeUpdateChildDialog extends Component {
 	 * 
 	 * @returns {html} html content
 	 */
-	_renderBeneDetails() {
+	_renderChildDetails() {
 		return html`
 			${this.beneficiaryDetailsErrorMessage !== ``
 				? html`
@@ -740,7 +797,7 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			${this.currentStep === 1
+			${this.currentStep === STEPS.CHILD_DETAILS
 				? html`
 				<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 				</capitec-button>

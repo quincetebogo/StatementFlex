@@ -1981,10 +1981,11 @@ class LifeAllocateCoverDialog extends Component {
 		return this.showEditChildDialog === false ? ``
 			: html`
 				<horizon-insure-life-update-child-dialog 
+					.updatingChild = "${this.selectedBeneficiary}"
 					.selectedPocketType = "${this.selectedPocketType}"
 					.policy = "${this.updatedPolicy}"
 					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
-					@close-dialog="${() => this.showAddChildDialog = false}"
+					@close-dialog="${() => this.showEditChildDialog = false}"
 					@add-child="${(e) => this._addChild(e)}">
 				</horizon-insure-life-update-child-dialog>
 		`;

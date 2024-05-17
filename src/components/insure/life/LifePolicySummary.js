@@ -54,6 +54,7 @@ class LifePolicySummary extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+		console.log(this.selectedLifePolicy);
 	}
 
 	// #endregion LIFECYCLE OVERRIDES

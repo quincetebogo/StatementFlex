@@ -11,6 +11,7 @@ const VALIDATION_ERRORS = {
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
 };
@@ -197,6 +198,7 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 		}
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+		this.requestUpdate();
 	}
 
 	/**
@@ -501,12 +503,12 @@ class LifeAddBeneficiaryDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.monthlyPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && bene.onceOffPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.onceOffPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -569,6 +571,9 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 			this._calculateCoverBreakdown();
 		}
+
+		console.log(`_beneficiaryCoverAmountChange bene: `, bene);
+		console.log(`_beneficiaryCoverAmountChange: newBeneficiary`, this.newBeneficiary);
 		this.requestUpdate();
 	}
 
@@ -1000,6 +1005,7 @@ class LifeAddBeneficiaryDialog extends Component {
 							type="currency" 
 							class="pocket-details-input pocket-details-label" 
 							label=""
+							.error="${this.newBeneficiary.metaData.coverErrorMsg}"
 							value="${this._beneficiaryCoverValue(this.newBeneficiary)}"
 							@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, null)}">
 						</capitec-text-field>
@@ -1022,6 +1028,7 @@ class LifeAddBeneficiaryDialog extends Component {
 								type="currency" 
 								class="pocket-details-input pocket-details-label" 
 								label=""
+								.error="${bene.metaData.coverErrorMsg}"
 								value="${this._beneficiaryCoverValue(bene)}"
 								@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}">
 							</capitec-text-field>

@@ -13,7 +13,8 @@ const VALIDATION_ERRORS = {
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
-	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`
+	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
 };
 
 const STEPS = {
@@ -445,7 +446,7 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.educationBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}

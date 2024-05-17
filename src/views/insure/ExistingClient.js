@@ -1903,7 +1903,10 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _refreshLifePolicies() {
 		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
+		this.lifePolicies = {};
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		console.log(`this.lifePolicies: `, this.lifePolicies);
+		this.requestUpdate();
 	}
 
 	/**
