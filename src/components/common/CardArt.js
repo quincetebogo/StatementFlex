@@ -387,19 +387,25 @@ export class CardArt extends Component {
 	}
 
 	_renderCardInfo() {
-		return html`
-			${this._renderCardNumber()}
-			<capitec-spacer></capitec-spacer>
-	
-			<capitec-group layout="vertical"
-							gap="clear"
-							halign="right"
-							valign="top"
-							class="${this.tapToPayStatus === null ? `hide` : `show`}">
+		switch (this.context) {
+			case `stop-card`:
+				return html`<slot id="cardInfo" name="cardInfo"></slot>`;
+			default:
+				return html`
+					${this._renderCardNumber()}
+					<capitec-spacer></capitec-spacer>
+			
+					<capitec-group layout="vertical"
+									gap="clear"
+									halign="right"
+									valign="top"
+									class="${this.tapToPayStatus === null ? `hide` : `show`}">
 
-							${this._renderLabelOrToggle()}
-			</capitec-group>
-		`;
+									${this._renderLabelOrToggle()}
+					</capitec-group>
+				`;
+		}
+		
 	}
 
 	_renderLabelOrToggle() {
