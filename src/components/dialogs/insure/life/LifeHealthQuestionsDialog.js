@@ -25,7 +25,6 @@ class LifeHealthQuestionsDialog extends Component {
 		this.finalAnswers = [];
 		this.showQuestionnaireResults = false;
 		this.freeTextAnswerId = ``;
-		this.radioRefresh = false;
 	}
 
 	// #endregion INITIALIZE
@@ -52,8 +51,7 @@ class LifeHealthQuestionsDialog extends Component {
 			executeLifeAllowedCover: { type: Object, state: true },
 			allowedCoverResults: { type: Object, state: true },
 			enableNextButton: { type: Boolean, state: true },
-			showQuestionnaireResults: { type: Boolean, state: true },
-			radioRefresh: { type: Boolean, state: true }
+			showQuestionnaireResults: { type: Boolean, state: true }
 		};
 	}
 
@@ -90,26 +88,23 @@ class LifeHealthQuestionsDialog extends Component {
 	/**
 	 * Set answer change event for checkboxes and radio buttons
 	 * 
-	 * @param {*} e event from control
 	 * @param {*} groupId question groupID
 	 * @param {*} answerId answerID
 	 * @param {*} answerDetail answer details
 	 * @returns {void}
 	 */
-	_setAnswer(e, groupId, answerId, answerDetail) {
-		// Clear all
-		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		// radioButtons.forEach(radioButton => {
-		// 	radioButton.checked = false;
-		// 	radioButton.removeAttribute(`aria-checked`);
-		// });
+	_setAnswer(groupId, answerId, answerDetail) {
+		console.log(`Setting answer`);
+		console.log(groupId);
+		console.log(answerId);
+		console.log(answerDetail);
 
 		// Map new
-		if (e.detail.new === true) {
+		// if (e.detail.new === true) {
 			this.currentAnswerSingle = {
 				questionGroupId: groupId,
 				answerId: answerId,
-				answer: e.detail.new,
+				answer: ``,
 				answerDetailDescription: answerDetail
 			};
 			this.enableNextButton = true;
@@ -120,7 +115,7 @@ class LifeHealthQuestionsDialog extends Component {
 			// 		radioButton.checked = true;
 			// 	}
 			// });
-		}
+		// }
 	}
 
 	/**
@@ -166,12 +161,20 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswerSingle = {};
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
-		this.radioRefresh = !this.radioRefresh;
 
 		// Force set answer to first
-		this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
+		// this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
+		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
+		// radioButtons[0].checked = true;
+
+		// Clear all
 		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		radioButtons[0].checked = true;
+		radioButtons.forEach(radioButton => {
+			radioButton.checked = false;
+			radioButton.removeAttribute(`aria-checked`);
+		});
+
+		console.log(`this.finalAnswers: `, this.finalAnswers);
 	}
 
 	/**
@@ -290,11 +293,7 @@ class LifeHealthQuestionsDialog extends Component {
 	_renderDialogBody() {
 		return html`
 			${this.showQuestionnaireResults === false ? html`
-				${this.radioRefresh === true ? html`
-					${this._renderRadioGroup()}
-				` : html`
-					${this._renderRadioGroup()}
-				`}` : html`
+				${this._renderCustomRadioGroup()}` : html`
 				<div style="min-width: 350px; min-height: 140px;">
 					<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
 						<div class="offer-details-cell">
@@ -312,6 +311,25 @@ class LifeHealthQuestionsDialog extends Component {
 			`}
 		`;
 	}
+
+	_renderCustomRadioGroup() {
+		return html`
+			<div id="group1">
+				<div style="max-width: 500px; min-height: 50px; margin-bottom: 10px;">
+					<label>${unsafeHTML(this.currentQuestion?.description)}</label>
+				</div>
+
+				${this.currentQuestion?.answers.map(answer => html`
+					<div style="display: block; margin-bottom: 10px;">
+						<input @click=${() => this._setAnswer(this.currentQuestion.groupId, answer.answerId, answer.detail)} class="visibleControl" type="radio" style="cursor: pointer;" value="${answer.detail}" name="${this.currentQuestion.groupId}" id="${answer.answerId}">
+						<label style="cursor: pointer;" for="${answer.answerId}">${answer.detail}</label>
+					</div>
+				`)}
+			</div>
+		`;
+	}
+
+	// @change="${this._setAnswer(this.currentQuestion.groupId, answer.answerId, answer.detail)}"
 
 	/**
 	 * Render question set, in separate function because of refresh workaround
@@ -353,7 +371,7 @@ class LifeHealthQuestionsDialog extends Component {
 				</capitec-button>
 
 				${this.showQuestionnaireResults === false ? html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}">
+					<capitec-button .disabled="${!this.enableNextButton}" class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}">
 					</capitec-button>
 				` : html`
 					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Continue" @click="${() => this._continueToAllocation()}">
