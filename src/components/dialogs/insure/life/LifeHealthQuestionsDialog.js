@@ -314,11 +314,10 @@ class LifeHealthQuestionsDialog extends Component {
 
 	_renderCustomRadioGroup() {
 		return html`
-			<div id="group1">
+			<div>
 				<div style="max-width: 500px; min-height: 50px; margin-bottom: 10px;">
 					<label>${unsafeHTML(this.currentQuestion?.description)}</label>
 				</div>
-
 				${this.currentQuestion?.answers.map(answer => html`
 					<div style="display: block; margin-bottom: 10px;">
 						<input @click=${() => this._setAnswer(this.currentQuestion.groupId, answer.answerId, answer.detail)} class="visibleControl" type="radio" style="cursor: pointer;" value="${answer.detail}" name="${this.currentQuestion.groupId}" id="${answer.answerId}">
@@ -335,30 +334,30 @@ class LifeHealthQuestionsDialog extends Component {
 	 * Render question set, in separate function because of refresh workaround
 	 * @returns {html} The html content of the component.
 	 */
-	_renderRadioGroup() {
-		return html`
-			<div style="min-height: 180px;">
-				<div id="capitec-form-group">
-					<div style="max-width: 500px; min-height: 50px;">
-						<label>${unsafeHTML(this.currentQuestion?.description)}</label>
-					</div>
-					<div style="margin-top:15px;">
-						<capitec-radio-group layout="vertical" style="margin-bottom: 10px;" id="questions-radio-group">
-							${this.currentQuestion?.answers.map(answer => html`
-								<capitec-radio
-									class="visibleControl"
-									id="${answer.answerId}" 
-									label="${answer.detail}" 
-									name="${answer.answerId}" 
-									@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}">
-								</capitec-radio>
-							`)}
-						</capitec-radio-group>
-					</div>
-				</div>
-			</div>
-		`;
-	}
+	// _renderRadioGroup() {
+	// 	return html`
+	// 		<div style="min-height: 180px;">
+	// 			<div id="capitec-form-group">
+	// 				<div style="max-width: 500px; min-height: 50px;">
+	// 					<label>${unsafeHTML(this.currentQuestion?.description)}</label>
+	// 				</div>
+	// 				<div style="margin-top:15px;">
+	// 					<capitec-radio-group layout="vertical" style="margin-bottom: 10px;" id="questions-radio-group">
+	// 						${this.currentQuestion?.answers.map(answer => html`
+	// 							<capitec-radio
+	// 								class="visibleControl"
+	// 								id="${answer.answerId}" 
+	// 								label="${answer.detail}" 
+	// 								name="${answer.answerId}" 
+	// 								@value-changed="${(e) => this._setAnswer(e, this.currentQuestion.groupId, answer.answerId, answer.detail)}">
+	// 							</capitec-radio>
+	// 						`)}
+	// 					</capitec-radio-group>
+	// 				</div>
+	// 			</div>
+	// 		</div>
+	// 	`;
+	// }
 
 	/**
 	 * Render modal footer section
