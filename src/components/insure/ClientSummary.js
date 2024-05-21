@@ -73,6 +73,7 @@ class ClientSummary extends Component {
 		this._horizonInsureStore = HorizonInsureStore.getInstance();
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
+		this.readOnlyMode = this.roleManager.isInsureAgent;
 
 		this.clientClaims = null;
 		this.funeralPolicies = null;
@@ -267,18 +268,14 @@ class ClientSummary extends Component {
 
 	_tabChange(e) {
 		this.selectedInsureTabIndex = e.detail.selectedIndex;
-		if (this.readOnlyMode === false) {
-			if (e.detail.selectedIndex === 1) {
-				this.setInsureIncident(`life-cover-summary`);
-				return;
-			} else if (e.detail.selectedIndex === 2) {
-				this.setInsureIncident(`view-insurance-claim-summary`);
-				return;
-			}
-			if (this.readOnlyMode === false) {
-				this.setInsureIncident(`funeral-plan-summary`);
-			}
+		if (e.detail.selectedIndex === 1) {
+			this.setInsureIncident(`life-cover-summary`);
+			return;
+		} else if (e.detail.selectedIndex === 2) {
+			this.setInsureIncident(`view-insurance-claim-summary`);
+			return;
 		}
+		this.setInsureIncident(`funeral-plan-summary`);
 	}
 
 	/**
@@ -647,11 +644,6 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
-
-		if (this.readOnlyMode === true) {
-			return;
-		}
-
 		this.selectedFlow = flow;
 		this.canReinstate = policyItem?.canReinstate;
 
@@ -954,7 +946,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -963,7 +954,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Email Plan" 
 				icon="system/profile-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference, policyItem.productCode)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
@@ -972,7 +962,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -981,7 +970,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Update Plan" 
 				icon="system/profile-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
@@ -990,7 +978,6 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Cancel Plan" 
 				icon="system/delete-action"
-				.disabled="${this.readOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
@@ -1668,13 +1655,13 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.readOnlyMode === true ? `` : html`
+					${this.clientPolicies?.summaryDetails?.policies?.length === 0 ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openClaimInfoDialog()}">
 						</capitec-button>
 					`}
 					${this.selectedInsureTabIndex === 0 ? this._renderGetFuneralEstimateButton() : html``}
-					${this.readOnlyMode === true || this.selectedInsureTabIndex !== 0 ? html``
+					${this.selectedInsureTabIndex !== 0 ? html``
 				: html`
 							<capitec-overflow-menu label="Menu" icon="system/more-white">
 								<capitec-overflow-menu-item icon="system/phone-call-action" label="Request callback" 
@@ -1705,17 +1692,16 @@ class ClientSummary extends Component {
 					data-automation-id="insure-landing-get-estimate">
 				</capitec-button>
 			</capitec-popover>`;
-		} else if (this.readOnlyMode === false || this.readOnlyMode === undefined) {
-			return html`
-				<capitec-button 
-					type="white" 
-					class="capitec-button-medium" 
-					label="Get Estimate" 
-					data-automation-id="insure-landing-get-estimate"
-					@click="${() => this._displayCFPDisclosure(`estimate`)}">
-				</capitec-button>`;
-		}
-		return html``;
+		} 
+
+		return html`
+			<capitec-button 
+				type="white" 
+				class="capitec-button-medium" 
+				label="Get Estimate" 
+				data-automation-id="insure-landing-get-estimate"
+				@click="${() => this._displayCFPDisclosure(`estimate`)}">
+			</capitec-button>`;
 	}
 
 	/**
@@ -2143,7 +2129,7 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							${pol.canReIssue === false ? html`` : html`
+							${this.readOnlyMode === true || pol.canReIssue === false ? html`` : html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
 							`}
 						</capitec-overflow-menu>
