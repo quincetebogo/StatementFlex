@@ -8,7 +8,8 @@ import { v4 } from 'uuid';
 
 const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
-	BENE_OVER_18: `Beneficiary must be under 18`,
+	BENE_OVER_18: `Beneficiary must be over 18`,
+	BENE_UNDER_18: `Beneficiary must be under 18`,
 	GUARDIAN_UNDER_18: `Guardian must be over 18`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
@@ -87,6 +88,7 @@ class LifeAddChildDialog extends Component {
 			newChild: { type: Object, state: true },
 			newChildErrors: { type: Object, state: true },
 			newGuardian: { type: Object, state: true },
+			newGuardianErrors: { type: Object, state: true },
 			pocketBeneficiaries: { type: Array, state: true },
 			selectedPocketType: { type: String, state: true },
 
@@ -323,6 +325,9 @@ class LifeAddChildDialog extends Component {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 			console.log(`Issue with newChild?.dateOfBirth`);
+		} else if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
+			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+			stepValid = false;
 		} else {
 			this.newChildErrors.dateOfBirth = ``;
 		}
@@ -384,14 +389,12 @@ class LifeAddChildDialog extends Component {
 			this.newGuardianErrors.lastName = ``;
 		}
 
-		if (!isNullorEmpty(this.newGuardian?.contactNumber)) {
-			if (this.newGuardian?.contactNumber.length < 10) {
-				this.newGuardianErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
-				console.log(`Issue with newGuardian?.contactNumber`);
-				stepValid = false;
-			} else {
-				this.newGuardianErrors.contactNumber = ``;
-			}
+		if (isNullorEmpty(this.newGuardian?.contactNumber)) {
+			this.newGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (this.newGuardian?.contactNumber.length > 0 && this.newGuardian?.contactNumber.length < 10) {
+			this.newGuardianErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+			stepValid = false;
 		} else {
 			this.newGuardianErrors.contactNumber = ``;
 		}
@@ -404,11 +407,19 @@ class LifeAddChildDialog extends Component {
 			this.newGuardianErrors.relationship = ``;
 		}
 
+		console.log(`Validating Guardian DOB`);
+		console.log(this.newGuardian.dateOfBirth);
 		if (this.newGuardian.dateOfBirth === undefined || this.newGuardian.dateOfBirth === ``) {
+			console.log(`Validating Guardian: 1`);
 			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			console.log(`Issue with newGuardian?.dateOfBirth`);
 			stepValid = false;
+		} else if (getAgeFromDob(this.newGuardian?.dateOfBirth) < 18) {
+			console.log(`Validating Guardian: 2`);
+			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			stepValid = false;
 		} else {
+			console.log(`Validating Guardian: 3`);
 			this.newGuardianErrors.dateOfBirth = ``;
 		}
 
@@ -708,7 +719,7 @@ class LifeAddChildDialog extends Component {
 					this.newChildErrors.dateOfBirth = ``;
 				}
 				if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
-					this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+					this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 				}
 			} else {
 				this.newGuardian.dateOfBirth = e.detail.new.date;

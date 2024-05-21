@@ -124,7 +124,10 @@ export const insureLifeClientSummary = {
 					"bank": `Capitec Bank`,
 					"accountType": `Bond`
 				}
-			]
+			],
+			"riskRate": 0.361037,
+			"channelFee": 27.9,
+			"totalLoadingApplied": 3.5
 		},
 		{
 			"contractReference": `LP00001379`,

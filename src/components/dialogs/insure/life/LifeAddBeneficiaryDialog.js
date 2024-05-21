@@ -444,7 +444,7 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (isNullorEmpty(this.newBeneficiary?.contactNumber)) {
 			this.newBeneficiaryErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (this.newBeneficiary?.contactNumber.length < 10) {
+		} else if (this.newBeneficiary?.contactNumber.length > 0 && this.newBeneficiary?.contactNumber.length < 10) {
 			this.newBeneficiaryErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
 			stepValid = false;
 		} else {
@@ -836,7 +836,7 @@ class LifeAddBeneficiaryDialog extends Component {
 						type="radio-button"
 						label="${`${bene.firstName} ${bene.lastName}`}"
 						subtitle="${bene.relationship}"
-						?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING}"
+						?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING && bene.metaData.uniqueId === this.newBeneficiary.metaData.uniqueId}"
 						@click="${() => this._continueWithExistingBeneficiary(bene)}">
 					</horizon-product-tile>
 				`)}
