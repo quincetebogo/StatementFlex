@@ -175,8 +175,10 @@ class LifeAddChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.eligibleGuardiansForQuickAdd.length > 0) {
+			console.log(`There are some`);
 			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		} else {
+			console.log(`Nope none`);
 			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		}
 		return steps;
@@ -240,7 +242,12 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (isValid) {
-			this.currentStep++;
+			if (this.eligibleGuardiansForQuickAdd.length === 0 && this.currentStep === STEPS.CHILD_DETAILS) {
+				this.currentStep = STEPS.GUARDIAN_DETAILS;
+			} else {
+				this.currentStep++;
+			}
+
 		}
 	}
 
@@ -685,8 +692,11 @@ class LifeAddChildDialog extends Component {
 				}
 			} else {
 				this.newGuardian.idNumber = e.detail.new;
+				console.log('this.newGuardian.idNumber  :>> ', this.newGuardian.idNumber);
 				if (this.newGuardian.idNumber.length === 13) {
+					console.log(`this.newGuardian.idNumber.length === 13`);
 					this.newGuardian.dateOfBirth = getDobFromIDNumber(this.newGuardian.idNumber);
+					console.log('this.newGuardian.dateOfBirth :>> ', this.newGuardian.dateOfBirth);
 					this.newGuardianErrors.dateOfBirth = ``;
 					this.newGuardianErrors.idNumber = ``;
 				}

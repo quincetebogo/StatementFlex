@@ -160,6 +160,8 @@ class ClientSummary extends Component {
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
 			executeLifeUpdatePolicy: { type: Object, state: true },
+			executeLifeUpdatePocket: { type: Object, state: true },
+			executeLifeUpdateDocument: { type: Object, state: true },
 			executeLifeGenerateIssueAgreement: { type: Object, state: true },
 			executeLifeReIssue: { type: Object, state: true },
 			executeLifeIssue: { type: Object, state: true },
@@ -733,6 +735,17 @@ class ClientSummary extends Component {
 		}));
 	}
 
+	_lifeUpdateCompleted(e) {
+		console.log(`_lifeUpdateCompleted - client summary`);;
+		this.showLifeAllocateCoverDialog = false;
+		this.dispatchEvent(new CustomEvent(`life-update-completed`, {
+			detail: {
+				emailAddress: e.detail.emailAddress,
+				policyNumber: e.detail.policyNumber
+			}
+		}));
+	}
+
 
 	_cancelLifeUpdatePolicyFlow() {
 		this.showLifeAllocateCoverDialog = false;
@@ -840,10 +853,10 @@ class ClientSummary extends Component {
 	 */
 	async _openHealthQuestionsDialog(selectedPolicy, selectedLifeUpdateMode) {
 		if (this.lifeUpdateMode === LIFE_UPDATE_MODE.REISSUE) {
-            this.setInsureIncident(`life-cover-reissue`);
-        } else {
-            this.setInsureIncident(`life-cover-increase-cover`);
-        }
+			this.setInsureIncident(`life-cover-reissue`);
+		} else {
+			this.setInsureIncident(`life-cover-increase-cover`);
+		}
 		this.lifeUpdateMode = selectedLifeUpdateMode;
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
 		this.selectedLifePolicy = selectedPolicy;
@@ -2578,13 +2591,16 @@ class ClientSummary extends Component {
 				.newOffer="${this.newOffer}"
 				.newOfferAnswers="${this.newOfferAnswers}"
 				.updateMode="${this.lifeUpdateMode}"
-				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
 				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this.executeLifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
 				.executeLifeReIssue="${(reIssueRequest) => this.executeLifeReIssue(reIssueRequest)}"
 				.executeLifeAcceptPolicy="${(issueRequest) => this.executeLifeAcceptPolicy(issueRequest)}"
+				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this.executeLifeUpdatePolicy(updatePolicyRequest)}"
+				.executeLifeUpdateDocument="${(documentRequest) => this.executeLifeUpdateDocument(documentRequest)}"
+				.executeLifeUpdatePocket="${(updatePocketRequest) => this.executeLifeUpdatePocket(updatePocketRequest)}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
 				@life-reissue-completed="${(e) => this._lifeReIssueCompleted(e)}"
+				@life-update-completed="${(e) => this._lifeUpdateCompleted(e)}"
 				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;

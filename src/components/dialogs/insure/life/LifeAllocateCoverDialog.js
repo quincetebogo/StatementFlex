@@ -136,7 +136,12 @@ class LifeAllocateCoverDialog extends Component {
 			agreementEmailConfirm: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
 			showAgreementDocumentDialog: { type: Boolean, state: true },
-			getDefaultSavingsAccountNumber: { type: Object, state: true }
+			getDefaultSavingsAccountNumber: { type: Object, state: true },
+
+			// Manage/Allocate service calls
+			executeLifeUpdatePolicy: { type: Object, state: true },
+			executeLifeUpdateDocument: { type: Object, state: true },
+			executeLifeUpdatePocket: { type: Object, state: true }
 		};
 	}
 
@@ -208,7 +213,7 @@ class LifeAllocateCoverDialog extends Component {
 
 			this.riskRate = this.updatedPolicy.riskRate;
 			this.channelFee = this.updatedPolicy.channelFee; // ?
-			this.totalLoadingApplied = this.updatedPolicy.totalLoadingApplied; //?
+			this.totalLoadingApplied = this.updatedPolicy.totalLoadingApplied; // ?
 			// this.updatedPolicy.totalPolicySumAssured;
 
 			// const calculatedPremiumMinusFee = this.calculatedPremium - this.updatedPolicy.channelFee;
@@ -217,23 +222,23 @@ class LifeAllocateCoverDialog extends Component {
 			// console.log('premiumForCalc :>> ', premiumForCalc);
 			this.updatedPolicy.beneficiaries.forEach(bene => {
 				if (bene.monthlyPayoutBenefitAmount > 0) {
-					console.log('bene.monthlyPayoutBenefitAmount :>> ', bene.monthlyPayoutBenefitAmount);
+					console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
 					this.monthlyTotalCoverValue += parseFloat(bene.monthlyPayoutBenefitAmount);
 				}
 				if (bene.educationBenefitAmount > 0) {
-					console.log('bene.educationBenefitAmount :>> ', bene.educationBenefitAmount);
+					console.log(`bene.educationBenefitAmount :>> `, bene.educationBenefitAmount);
 					this.educationCoverValue += parseFloat(bene.educationBenefitAmount);
 				}
 				if (bene.onceOffPayoutBenefitAmount > 0) {
-					console.log('bene.onceOffPayoutBenefitAmount :>> ', bene.onceOffPayoutBenefitAmount);
+					console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 					this.onceOffCoverValue += parseFloat(bene.onceOffPayoutBenefitAmount);
 				}
 			});
 			// this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
 			this.monthlyCoverValue = parseFloat(this.monthlyTotalCoverValue / 24).toFixed(0);
-			console.log('this.monthlyTotalCoverValue :>> ', this.monthlyTotalCoverValue);
-			console.log('this.educationCoverValue :>> ', this.educationCoverValue);
-			console.log('this.onceOffCoverValue :>> ', this.onceOffCoverValue);
+			console.log(`this.monthlyTotalCoverValue :>> `, this.monthlyTotalCoverValue);
+			console.log(`this.educationCoverValue :>> `, this.educationCoverValue);
+			console.log(`this.onceOffCoverValue :>> `, this.onceOffCoverValue);
 
 			this.remainingCoverToAllocate = parseFloat(this.updatedPolicy.totalPolicySumAssured) - parseFloat(this.monthlyTotalCoverValue) - parseFloat(this.onceOffCoverValue) - parseFloat(this.educationCoverValue);
 			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium) + parseFloat(this.channelFee);
@@ -440,19 +445,32 @@ class LifeAllocateCoverDialog extends Component {
 			return;
 		}
 
-		const lumpSumPremiumBase = this.onceOffCoverValue / 1000 * this.riskRate;
-		const lumpSumPremiumloading = lumpSumPremiumBase * this.totalLoadingApplied;
-		const lumpsumTotal = lumpSumPremiumBase + lumpSumPremiumloading;
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			const totalAllocation = this.updatedPolicy.totalPolicySumAssured;
+			const totalPremium = this.currentPolicy.totalPremium;
+			const premiumMInusChannelFee = totalPremium - this.channelFee;
+			const premiumForCal = premiumMInusChannelFee / totalAllocation;
+			const lumpsumTotal = this.onceOffCoverValue * premiumForCal;
+			const educationTotal = this.educationCoverValue * premiumForCal;
+			const monthlyPayoutTotal = this.monthlyCoverValue * 24 * premiumForCal;
+			this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
+		}
 
-		const educationPremiumBase = this.educationCoverValue / 1000 * this.riskRate;
-		const educationPremiumloading = educationPremiumBase * this.totalLoadingApplied;
-		const educationTotal = educationPremiumBase + educationPremiumloading;
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			const lumpSumPremiumBase = this.onceOffCoverValue / 1000 * this.riskRate;
+			const lumpSumPremiumloading = lumpSumPremiumBase * this.totalLoadingApplied;
+			const lumpsumTotal = lumpSumPremiumBase + lumpSumPremiumloading;
 
-		const monthlyPayoutPremiumBase = this.monthlyCoverValue * 24 / 1000 * this.riskRate;
-		const monthlyPayoutPremiumloading = monthlyPayoutPremiumBase * this.totalLoadingApplied;
-		const monthlyPayoutTotal = monthlyPayoutPremiumBase + monthlyPayoutPremiumloading;
+			const educationPremiumBase = this.educationCoverValue / 1000 * this.riskRate;
+			const educationPremiumloading = educationPremiumBase * this.totalLoadingApplied;
+			const educationTotal = educationPremiumBase + educationPremiumloading;
 
-		this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
+			const monthlyPayoutPremiumBase = this.monthlyCoverValue * 24 / 1000 * this.riskRate;
+			const monthlyPayoutPremiumloading = monthlyPayoutPremiumBase * this.totalLoadingApplied;
+			const monthlyPayoutTotal = monthlyPayoutPremiumBase + monthlyPayoutPremiumloading;
+
+			this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
+		}
 	}
 
 	/**
@@ -802,37 +820,42 @@ class LifeAllocateCoverDialog extends Component {
 
 		const invalidPocketNames = [];
 
-		console.log('this.updatedPolicy.beneficiaries :>> ', this.updatedPolicy.beneficiaries);
+		console.log(`this.updatedPolicy.beneficiaries :>> `, this.updatedPolicy.beneficiaries);
 		for (const bene of this.updatedPolicy.beneficiaries) {
-			console.log('bene :>> ', bene);
+			console.log(`bene :>> `, bene);
 			if (bene.onceOffPayoutBenefitAmount > 0) {
-				console.log('bene.onceOffPayoutBenefitAmount :>> ', bene.onceOffPayoutBenefitAmount);
+				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 				onceOffTotalAllocated += parseFloat(bene.onceOffPayoutBenefitAmount);
-				console.log('onceOffTotalAllocated :>> ', onceOffTotalAllocated);
+				console.log(`onceOffTotalAllocated :>> `, onceOffTotalAllocated);
 			}
 
 			if (bene.monthlyPayoutBenefitAmount > 0) {
+				console.log('bene.monthlyPayoutBenefitAmount :>> ', bene.monthlyPayoutBenefitAmount);
 				monthlyTotalAllocated += parseFloat(bene.monthlyPayoutBenefitAmount);
 			}
 
 			if (bene.educationBenefitAmount > 0) {
+				console.log('bene.educationBenefitAmount :>> ', bene.educationBenefitAmount);
 				educationTotalAllocated += parseFloat(bene.educationBenefitAmount);
 			}
 		}
 
-		console.log('onceOffTotalAllocated :>> ', onceOffTotalAllocated);
-		console.log('this.onceOffCoverValue :>> ', this.onceOffCoverValue);
 		if (onceOffTotalAllocated !== this.onceOffCoverValue) {
 			onceOffValid = false;
 			invalidPocketNames.push(`Lump Sum`);
 		}
 
-		if (monthlyTotalAllocated !== this.monthlyTotalCoverValue) {
+		console.log('monthlyTotalAllocated :>> ', monthlyTotalAllocated);
+		console.log('this.monthlyTotalCoverValue :>> ', this.monthlyTotalCoverValue);
+		console.log(monthlyTotalAllocated !== this.monthlyTotalCoverValue);
+		console.log(typeof monthlyTotalAllocated);
+		console.log(typeof this.monthlyTotalCoverValue);
+		if (parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
 			monthlyValid = false;
 			invalidPocketNames.push(`Monthly Income`);
 		}
 
-		if (educationTotalAllocated !== this.educationCoverValue) {
+		if (parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
 			educationValid = false;
 			invalidPocketNames.push(`Children's Needs`);
 		}
@@ -1015,6 +1038,22 @@ class LifeAllocateCoverDialog extends Component {
 				});
 			}
 			this.updatedPolicy.pockets = policyPockets;
+
+			// remove allocations from beneficiaries in pockets with zero cover
+			this.updatedPolicy.beneficiaries.forEach(bene => {
+				if (this.monthlyCoverValue === 0) {
+					bene.monthlyPayoutBenefitAmount = 0;
+					bene.metaData.monthlyBenefitAdded = false;
+				}
+				if (this.onceOffCoverValue === 0) {
+					bene.onceOffPayoutBenefitAmount = 0;
+					bene.metaData.onceOffBenefitAdded = false;
+				}
+				if (this.educationCoverValue === 0) {
+					bene.educationBenefitAmount = 0;
+					bene.metaData.educationBenefitAdded = false;
+				}
+			});
 		}
 
 		// Beneficiaries
@@ -1072,7 +1111,8 @@ class LifeAllocateCoverDialog extends Component {
 					};
 					requestBeneficiaries.push(newBene);
 				});
-				const updatePolicyRequest = {
+
+				const updatePolicyReq = {
 					"effectiveDate": new Date(),
 					"policyNumber": this.updatedPolicy.contractReference,
 					"deductionDetails": {
@@ -1095,8 +1135,23 @@ class LifeAllocateCoverDialog extends Component {
 					"pockets": this.updatedPolicy.pockets
 				};
 
-				// Call Update
-				// Call Agreement
+				const updateResp = await this.executeLifeUpdatePolicy(updatePolicyReq);
+				console.log(`updateResp :>> `, updateResp);
+
+				if (updateResp === null) {
+					stepValid = false;
+					return;
+				}
+
+				const updateAgreementReq = {};
+				const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
+
+				if (updateAgreementResp === null) {
+					stepValid = false;
+					return;
+				}
+
+				this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
 			}
 
 			// ReIssue
@@ -1207,7 +1262,21 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Allocate
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
-			// TODO: Update Pocket call
+			const updateAgreementReq = {};
+			const updateAgreementResp = await this.executeLifeUpdatePocket(updateAgreementReq);
+
+			if (updateAgreementResp === null) {
+				return;
+			}
+
+			// All good, exit flow
+			this.dispatchEvent(new CustomEvent(`life-update-completed`, {
+				detail: {
+					emailAddress: this.agreementEmail,
+					policyNumber: `ABC123`
+				}
+			}));
+
 		}
 
 		// ReIssue

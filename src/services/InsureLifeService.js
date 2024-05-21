@@ -589,5 +589,57 @@ export class InsureLifeService extends ChannelServiceBase {
 		);
 	}
 	
+	/**
+	 * Update life policy
+	 *
+	 * @param {Object} [updateRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeUpdatePolicy(updateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeUpdatePolicy`)) {
+			return this.mock(`insureLifeUpdatePolicy`, updateRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/update-policy`,
+			updateRequest,
+			this._setInsureHeaders(),
+			`lifeUpdatePolicy`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Update life pocket
+	 *
+	 * @param {Object} [updateRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeUpdatePocket(updateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeUpdatePocket`)) {
+			return this.mock(`insureLifeUpdatePocket`, updateRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/update-pocket`,
+			updateRequest,
+			this._setInsureHeaders(),
+			`lifeUpdatePocket`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+	
 	// #endregion PUBLIC METHODS
 }
