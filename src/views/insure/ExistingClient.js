@@ -80,7 +80,6 @@ export class ExistingClient extends InsureViewBase {
 		this.productParams = {};
 		this.insuranceClaims = [];
 		this.successPageMessage = ``;
-		this.readOnly = false;
 		this.selectedInsureTabIndex = 0;
 
 		this.selectedFuneralPolicyContractReference = ``;
@@ -117,7 +116,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} callerPage from which success page is invoked.
 	 * @property {String} mainLifeGender Gender of Main Life on policy
 	 * @property {Object} clientConfirmedEmail clients confirmed email address
-	 * @property {Object} readOnly determines whether read only mode is on or off
 	 * @property {Object} selectedFuneralPolicyDetails  Local object for Policy Summary requests
 	 * @property {String} selectedFuneralPolicyContractReference Contract Reference of selected policy
 	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
@@ -148,7 +146,6 @@ export class ExistingClient extends InsureViewBase {
 			callerPage: { type: String },
 			mainLifeGender: { type: String, state: true },
 			clientConfirmedEmail: { type: Object, state: true },
-			readOnly: { type: Object, state: true },
 			selectedFuneralPolicyDetails: { type: Object, state: true },
 			selectedFuneralPolicyContractReference: { type: String, state: true },
 			selectedFuneralPolicyProductCode: { type: String, state: true },
@@ -2070,7 +2067,6 @@ export class ExistingClient extends InsureViewBase {
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
 				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
-				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
