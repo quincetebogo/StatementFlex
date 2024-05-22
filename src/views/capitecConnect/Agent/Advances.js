@@ -476,7 +476,8 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 			productId = `N/A`,
 			type = `-`,
 			rechargeStatus = `Failed`,
-			rechargeStatusReason = null;
+			rechargeStatusReason = null,
+			approvedAmount = item.approvedAmount || null;
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
@@ -493,6 +494,10 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		if (item.transactions.length > 0) {
 			type = type !== `-` ? type : item.transactions[0].type;
 			product = product ? product : item.transactions[0].bundleType;
+		}
+
+		if (rechargeStatus.toUpperCase() === "SUCCESSFUL") {
+			approvedAmount = formatAmount(approvedAmount !== null ? approvedAmount : item.amount);
 		}
 
 		product = toTitleCase(product);
@@ -530,7 +535,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-label label="Product Name"></capitec-label>
 					<capitec-label label="Product Type"></capitec-label>
 					<capitec-label label="Request Amount"></capitec-label>
-					<capitec-label label="Approved Amount"></capitec-label>
+					${approvedAmount !== null ? html`<capitec-label label="Approved Amount"></capitec-label>` : ``}
 				</div>
 				<div row="4" column="2">
 					<capitec-label label="${item.channel.toUpperCase()}"></capitec-label>
@@ -540,7 +545,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-label label="${item.productName}"></capitec-label>
 					<capitec-label label="${product}"></capitec-label>
 					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
-					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
+					${approvedAmount !== null ? html`<capitec-label label="${approvedAmount}"></capitec-label>` : ``}
 				</div>
 
 				${(rechargeStatus !== null && rechargeStatus.toUpperCase() !== "SUCCESSFUL") ? html`
