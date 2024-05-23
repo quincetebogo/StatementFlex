@@ -1175,8 +1175,9 @@ class LifeAddChildDialog extends Component {
 					type="single" 
 					mode="date" 
 					inputType="calendar"
+					date="${this.newGuardian?.dateOfBirth}"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					value="${this.newGuardian.dateOfBirth}"
+					value="${formatDate(this.newGuardian.dateOfBirth)}"
 					error="${this.newGuardianErrors?.dateOfBirth === undefined ? `` : this.newGuardianErrors.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e, false)}">
 				</capitec-date-time-picker>
