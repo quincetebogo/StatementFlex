@@ -8,7 +8,9 @@ const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]
 
 export const LIFE_COVER_ERROR_MESSAGES = {
 	NO_COVER_ALLOCATED: `No cover allocated to any pocket`,
-	POCKET_MINIMUM: `Minimum pocket allocation is R50 000`,
+	MINIMUM_COVER_NOT_REACHED: `Please allocate a minimum of R100 000 across benefit payout options`,
+	POCKET_MINIMUM: `Minimum pocket allocation is R1000`,
+	POCKET_MINIMUM_EDUCATION: `Minimum pocket allocation is R50000`,
 	COVER_MAXIMUM: `Combined pocket allocation exceeds maximum cover amount`,
 	BENEFICIARY_MINIMUM: `Minimum beneficiary allocation is R50 000`,
 	MAX_BENEFICIARIES: `Maximum of 2 beneficiaries allowed for pocket`,
@@ -457,11 +459,11 @@ export function pocketBadgeColorClass(pocketType) {
  */
 export function pocketBadgeLabel(pocketType) {
 	if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-		return `Monthly Payout`;
+		return `Monthly Income`;
 	} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-		return `Education Fund`;
+		return `Children's Needs`;
 	} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-		return `Once Off Payout`;
+		return `Lump Sum`;
 	}
 }
 
@@ -527,4 +529,23 @@ export function determineInactiveLifePolicies(lifePolicies) {
 		return null;
 	}
 	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
+}
+
+/**
+ * determine date of birth from id number 
+ * @param {string} idNumber idNumber
+ * @returns {String} birthDateString
+ */
+export function getDobFromIDNumber(idNumber) {
+		const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+
+		if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+			birthdate.setFullYear(birthdate.getFullYear() + 100);
+		}
+
+		const month = birthdate.getMonth() + 1;
+		const day = birthdate.getDate();
+		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
+
+		return birthDateString;
 }

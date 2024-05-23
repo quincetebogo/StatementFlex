@@ -1,18 +1,18 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel, validateEmailAddressCombo } from 'app/utils/insureUtils';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { LifeAddBeneficiaryDialog } from './LifeAddBeneficiaryDialog';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
 
 const DIALOG_TITLES = {
-	ALLOCATE: `Step 1: Allocate Money`,
-	BENEFICIARIES: `Step 2: Manage Beneficiaries`,
-	PAYMENT_DETAILS: `Step 3: Payment Details`,
-	AGREEMENT: `Step 4: Agreement`
+	ALLOCATE: `Allocate Money`,
+	BENEFICIARIES: `Nominate people to receive a payout`,
+	PAYMENT_DETAILS: `Payment Details`,
+	AGREEMENT: `Agreement`
 };
 
 const ERROR_MESSAGES = {
@@ -31,7 +31,17 @@ class LifeAllocateCoverDialog extends Component {
 
 	constructor() {
 		super();
+		this.updateMode = ``;
 		this.isNewOffer = false;
+		this.newOffer = {};
+		this.newOfferAnswers = [];
+
+		this.reIssueResult = {};
+
+		this.calculatedPremium = 0;
+		this.riskRate = 0;
+		this.channelFee = 0;
+		this.totalLoadingApplied = 0;
 
 		// Allocate values
 		this.educationCoverValue = 0;
@@ -39,6 +49,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.monthlyCoverValue = 0;
 		this.monthlyTotalCoverValue = 0;
 		this.remainingCoverToAllocate = 0;
+		this.totalCoverAllocatedAllPockets = 0;
 
 		// Allocate errors
 		this.educationCoverError = ``;
@@ -46,11 +57,17 @@ class LifeAllocateCoverDialog extends Component {
 		this.monthlyCoverError = ``;
 		this.monthlyTotalCoverError = ``;
 		this.allocatedCoverErrorMessage = ``;
+		this.invalidPocketNames = [];
 
 		// Beneficiaries
 		this.showAddBeneficiaryDialog = false;
 		this.showEditBeneficiaryDialog = false;
 		this.showDeleteBeneficiaryDialog = false;
+		this.showBeneficiariesAllocateErrorDialog = false;
+
+		// Children
+		this.showAddChildDialog = false;
+		this.showEditChildDialog = false;
 
 		// Payment details
 		this.collectionDayOptions = DEBIT_ORDER_DAY_OPTIONS;
@@ -60,6 +77,8 @@ class LifeAllocateCoverDialog extends Component {
 		this.accountNumberDisabled = false;
 		this.accountNumberErrorMsg = ``;
 		this.branchCodeErrorMsg = ``;
+		this.accountName = ``;
+		this.defaultSavingsAccountNumber = ``;
 
 		this.agreementEmail = ``;
 		this.agreementEmailConfirm = ``;
@@ -76,6 +95,9 @@ class LifeAllocateCoverDialog extends Component {
 			updatedPolicy: { type: Object, state: true },
 			isNewOffer: { type: Boolean, state: true },
 			newOffer: { type: Object, state: true },
+			newOfferAnswers: { type: Array, state: true },
+			updateMode: { type: String, state: true },
+			calculatedPremium: { type: Number, state: true },
 
 			dialogTitle: { type: String, state: true },
 			currentDialogStep: { type: Number, state: true },
@@ -89,11 +111,16 @@ class LifeAllocateCoverDialog extends Component {
 			monthlyCoverError: { type: String, state: true },
 			monthlyTotalCoverError: { type: String, state: true },
 			allocatedCoverErrorMessage: { type: String, state: true },
+			invalidPocketNames: { type: Array, state: true },
 			remainingCoverToAllocate: { type: Number, state: true },
+			totalCoverAllocatedAllPockets: { type: Number, state: true },
 
 			showAddBeneficiaryDialog: { type: Boolean, state: true },
 			showEditBeneficiaryDialog: { type: Boolean, state: true },
 			showDeleteBeneficiaryDialog: { type: Boolean, state: true },
+			showAddChildDialog: { type: Boolean, state: true },
+			showEditChildDialog: { type: Boolean, state: true },
+			showBeneficiariesAllocateErrorDialog: { type: Boolean, state: true },
 			selectedBeneficiary: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
 
@@ -102,12 +129,19 @@ class LifeAllocateCoverDialog extends Component {
 			accountNumberErrorMsg: { type: String, state: true },
 			accountNumberDisabled: { type: Boolean, state: true },
 			branchCodeErrorMsg: { type: String, state: true },
+			defaultSavingsAccountNumber: { type: String, state: true },
 
 			agreementDocumentContent: { type: String, state: true },
 			agreementEmail: { type: String, state: true },
 			agreementEmailConfirm: { type: String, state: true },
 			emailAlertBannerMessage: { type: String, state: true },
-			showAgreementDocumentDialog: { type: Boolean, state: true }
+			showAgreementDocumentDialog: { type: Boolean, state: true },
+			getDefaultSavingsAccountNumber: { type: Object, state: true },
+
+			// Manage/Allocate service calls
+			executeLifeUpdatePolicy: { type: Object, state: true },
+			executeLifeUpdateDocument: { type: Object, state: true },
+			executeLifeUpdatePocket: { type: Object, state: true }
 		};
 	}
 
@@ -136,23 +170,19 @@ class LifeAllocateCoverDialog extends Component {
 	 * Initialise the component.
 	 * @returns {void}
 	 */
-	_initialise() {
-		this.updatedPolicy = { ...this.currentPolicy };
+	async _initialise() {
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		this.accountName = `${callerInfo.firstName} ${callerInfo.lastName}`;
 
-		// Allocate
-		for (const pocket of this.updatedPolicy.pockets) {
-			if (pocket.pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-				this.monthlyTotalCoverValue = pocket.coverage;
-				this.monthlyCoverValue = parseFloat(pocket.coverage / 24).toFixed(0);
-			}
-			if (pocket.pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-				this.educationCoverValue = parseFloat(pocket.coverage);
-			}
-			if (pocket.pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-				this.onceOffCoverValue = parseFloat(pocket.coverage);
-			}
+		this.updatedPolicy = { ...this.currentPolicy };
+		if (!isNullorEmpty(this.newOffer)) {
+			this.isNewOffer = true;
 		}
-		this.remainingCoverToAllocate = this._recalculateRemainingCover();
+
+		await this.getDefaultSavingsAccountNumber();
+		console.log(this.updatedPolicy);
+
+		this.accountNumberDisabled = this._disableAccountNumber();
 
 		// Setup metadata
 		for (const bene of this.updatedPolicy.beneficiaries) {
@@ -171,6 +201,67 @@ class LifeAllocateCoverDialog extends Component {
 			if (bene.onceOffPayoutBenefitAmount > 0) {
 				bene.metaData.onceOffBenefitAdded = true;
 			}
+		}
+
+		this.monthlyTotalCoverValue = 0;
+		this.onceOffCoverValue = 0;
+		this.educationCoverValue = 0;
+
+		// Set Allocate values
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+
+
+			this.riskRate = this.updatedPolicy.riskRate;
+			this.channelFee = this.updatedPolicy.channelFee; // ?
+			this.totalLoadingApplied = this.updatedPolicy.totalLoadingApplied; // ?
+			// this.updatedPolicy.totalPolicySumAssured;
+
+			// const calculatedPremiumMinusFee = this.calculatedPremium - this.updatedPolicy.channelFee;
+			// console.log('calculatedPremiumMinusFee :>> ', calculatedPremiumMinusFee);
+			// const premiumForCalc = calculatedPremiumMinusFee / this.updatedPolicy.totalPolicySumAssured;
+			// console.log('premiumForCalc :>> ', premiumForCalc);
+			this.updatedPolicy.beneficiaries.forEach(bene => {
+				if (bene.monthlyPayoutBenefitAmount > 0) {
+					console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
+					this.monthlyTotalCoverValue += parseFloat(bene.monthlyPayoutBenefitAmount);
+				}
+				if (bene.educationBenefitAmount > 0) {
+					console.log(`bene.educationBenefitAmount :>> `, bene.educationBenefitAmount);
+					this.educationCoverValue += parseFloat(bene.educationBenefitAmount);
+				}
+				if (bene.onceOffPayoutBenefitAmount > 0) {
+					console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
+					this.onceOffCoverValue += parseFloat(bene.onceOffPayoutBenefitAmount);
+				}
+			});
+			// this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
+			this.monthlyCoverValue = parseFloat(this.monthlyTotalCoverValue / 24).toFixed(0);
+			console.log(`this.monthlyTotalCoverValue :>> `, this.monthlyTotalCoverValue);
+			console.log(`this.educationCoverValue :>> `, this.educationCoverValue);
+			console.log(`this.onceOffCoverValue :>> `, this.onceOffCoverValue);
+
+			this.remainingCoverToAllocate = parseFloat(this.updatedPolicy.totalPolicySumAssured) - parseFloat(this.monthlyTotalCoverValue) - parseFloat(this.onceOffCoverValue) - parseFloat(this.educationCoverValue);
+			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium) + parseFloat(this.channelFee);
+			this.totalCoverAllocatedAllPockets = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
+			// const premiumForCal = premiumMInusChannelFee / totalAllocation;
+			// lumpsumTotal = lumpSum * premiumForCal;
+			// educationTotal = education * premiumForCal;
+			// monthlyPayoutTotal = monthlyPayout * 24 * premiumForCal;
+
+		} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			this.calculatedPremium = 0;
+			this.remainingCoverToAllocate = this.newOffer.maximumAllowedCover;
+
+			this.riskRate = this.newOffer.riskRate;
+			this.channelFee = this.newOffer.channelFee;
+			this.totalLoadingApplied = this.newOffer.totalLoadingApplied;
+
+			// Remove cover amounts from beneficiaries
+			this.updatedPolicy.beneficiaries.forEach(bene => {
+				bene.onceOffPayoutBenefitAmount = 0;
+				bene.educationBenefitAmount = 0;
+				bene.monthlyPayoutBenefitAmount = 0;
+			});
 		}
 
 		// Payment details
@@ -201,6 +292,11 @@ class LifeAllocateCoverDialog extends Component {
 		}
 	}
 
+	_disableAccountNumber() {
+		const isDisabled = this.defaultSavingsAccountNumber !== `` && this.updatedPolicy?.bankDetails?.bank.toUpperCase() === `CAPITEC BANK`;
+		return isDisabled;
+	}
+
 	// #region ALLOCATE
 
 	/**
@@ -225,31 +321,45 @@ class LifeAllocateCoverDialog extends Component {
 			education = 0;
 		}
 
-		const remaining = parseFloat(this.currentPolicy?.totalPolicySumAssured) - parseFloat(monthly) - parseFloat(onceOff) - parseFloat(education);
+		let remaining = 0;
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			remaining = parseFloat(this.newOffer.maximumAllowedCover) - parseFloat(monthly) - parseFloat(onceOff) - parseFloat(education);
+		} else if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			remaining = parseFloat(this.updatedPolicy?.totalPolicySumAssured) - parseFloat(monthly) - parseFloat(onceOff) - parseFloat(education);
+		}
+
 		if (isNaN(remaining)) {
 			return 0;
 		}
+
+		// Total Allocated
+		this.totalCoverAllocatedAllPockets = parseFloat(monthly) + parseFloat(onceOff) + parseFloat(education);
 
 		return remaining % 0 ? 0 : remaining;
 	}
 
 	/**
 	 * Change event for both monthly cover inputs
-	 * @param {event} event change event
+	 * @param {event} e change event
 	 * @param {string} type Monthly or Total
 	 * @returns {void}
 	 */
-	_monthlyCoverChange(event, type) {
-		if (type === `TOTAL`) {
-			this.monthlyTotalCoverValue = event.detail.new;
-			this.monthlyCoverValue = parseFloat(this.monthlyTotalCoverValue / 24).toFixed(0);
-		} else {
-			this.monthlyCoverValue = event.detail.new;
-			this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
-		}
+	_monthlyCoverChange(e) {
+		if (e.detail.new !== e.detail.old) {
+			const cover = parseFloat(e.detail.new);
+			if (!isNaN(cover) && cover >= 0) {
+				this.monthlyCoverValue = cover;
+				this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
+			} else {
+				this.monthlyCoverValue = 0;
+				this.monthlyTotalCoverValue = 0;
+				this.monthlyTotalCoverError = ``;
+			}
 
-		this.remainingCoverToAllocate = this._recalculateRemainingCover();
-		this._validateAllocatePocketsStep();
+			this.remainingCoverToAllocate = this._recalculateRemainingCover();
+			this._recalculatePremium();
+			this._validateAllocatePocketsStep();
+		}
 	}
 
 	/**
@@ -262,6 +372,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.educationCoverValue = parseFloat(e.detail.new);
 
 			this.remainingCoverToAllocate = this._recalculateRemainingCover();
+			this._recalculatePremium();
 			this._validateAllocatePocketsStep();
 		}
 	}
@@ -276,6 +387,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.onceOffCoverValue = parseFloat(e.detail.new);
 
 			this.remainingCoverToAllocate = this._recalculateRemainingCover();
+			this._recalculatePremium();
 			this._validateAllocatePocketsStep();
 		}
 	}
@@ -314,6 +426,54 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	/**
+	 * Recalculate premium based on cover values
+	 * @returns {void}
+	 */
+	_recalculatePremium() {
+		if (isNullorEmpty(this.onceOffCoverValue) || isNaN(this.onceOffCoverValue)) {
+			this.onceOffCoverValue = 0;
+		}
+		if (isNullorEmpty(this.educationCoverValue) || isNaN(this.educationCoverValue)) {
+			this.educationCoverValue = 0;
+		}
+		if (isNullorEmpty(this.monthlyCoverValue) || isNaN(this.monthlyCoverValue)) {
+			this.monthlyCoverValue = 0;
+		}
+
+		if (this.onceOffCoverValue === 0 && this.educationCoverValue === 0 && this.monthlyCoverValue === 0) {
+			this.calculatedPremium = 0;
+			return;
+		}
+
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			const totalAllocation = this.updatedPolicy.totalPolicySumAssured;
+			const totalPremium = this.currentPolicy.totalPremium;
+			const premiumMInusChannelFee = totalPremium - this.channelFee;
+			const premiumForCal = premiumMInusChannelFee / totalAllocation;
+			const lumpsumTotal = this.onceOffCoverValue * premiumForCal;
+			const educationTotal = this.educationCoverValue * premiumForCal;
+			const monthlyPayoutTotal = this.monthlyCoverValue * 24 * premiumForCal;
+			this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
+		}
+
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			const lumpSumPremiumBase = this.onceOffCoverValue / 1000 * this.riskRate;
+			const lumpSumPremiumloading = lumpSumPremiumBase * this.totalLoadingApplied;
+			const lumpsumTotal = lumpSumPremiumBase + lumpSumPremiumloading;
+
+			const educationPremiumBase = this.educationCoverValue / 1000 * this.riskRate;
+			const educationPremiumloading = educationPremiumBase * this.totalLoadingApplied;
+			const educationTotal = educationPremiumBase + educationPremiumloading;
+
+			const monthlyPayoutPremiumBase = this.monthlyCoverValue * 24 / 1000 * this.riskRate;
+			const monthlyPayoutPremiumloading = monthlyPayoutPremiumBase * this.totalLoadingApplied;
+			const monthlyPayoutTotal = monthlyPayoutPremiumBase + monthlyPayoutPremiumloading;
+
+			this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
+		}
+	}
+
+	/**
 	 * Validate Allocate step
 	 * 1. Nothing Allocated check
 	 * 2. Totals exceed max allowed cover
@@ -323,45 +483,65 @@ class LifeAllocateCoverDialog extends Component {
 	_validateAllocatePocketsStep() {
 		let isValid = true;
 		this.allocatedCoverErrorMessage = ``;
+		this.monthlyTotalCoverError = ``;
+		this.educationCoverError = ``;
+		this.onceOffCoverError = ``;
+
+		console.log(`this.monthlyTotalCoverValue: ${this.monthlyTotalCoverValue}`);
+		console.log(`this.onceOffCoverValue: ${this.onceOffCoverValue}`);
+		console.log(`this.educationCoverValue: ${this.educationCoverValue}`);
 
 		// Nothing Allocated
 		if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
 			(isNullorEmpty(this.onceOffCoverValue) || this.onceOffCoverValue === 0) &&
 			(isNullorEmpty(this.educationCoverValue) || this.educationCoverValue === 0)) {
-			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.NO_COVER_ALLOCATED;
+			console.log(`Validating | _validateAllocatePocketsStep | 0`);
+			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
+			isValid = false;
+		}
+
+		// Less than policy minimum
+		if (parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue) < 100000) {
+			console.log(`Validating | _validateAllocatePocketsStep | 1`);
+			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
 			isValid = false;
 		}
 
 		// Totals exceed max allowed cover
 		const totalCoverage = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
-		if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			if (totalCoverage > this.newOffer.maximumAllowedCover) {
+				console.log(`Validating | _validateAllocatePocketsStep | 2`);
+				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
+				isValid = false;
+			}
+		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
+			console.log(`Validating | _validateAllocatePocketsStep | 3`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 			isValid = false;
 		}
 
 		// Check any errors on individual pockets
 		// Monthly
-		if (parseFloat(this.monthlyTotalCoverValue) < 50000 && (this.monthlyTotalCoverValue !== 0 && !isNullorEmpty(this.monthlyTotalCoverValue))) {
+		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && this.monthlyTotalCoverValue !== 0) {
+			console.log(`Validating | _validateAllocatePocketsStep | 4`);
 			this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
+			this.monthlyTotalCoverValue = ``;
 			isValid = false;
-		} else {
-			this.monthlyTotalCoverError = ``;
 		}
 
 		// Education
 		if (parseFloat(this.educationCoverValue) < 50000 && this.educationCoverValue !== 0) {
-			this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
+			console.log(`Validating | _validateAllocatePocketsStep | 5`);
+			this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM_EDUCATION;
 			isValid = false;
-		} else {
-			this.educationCoverError = ``;
 		}
 
 		// Once off
-		if (parseFloat(this.onceOffCoverValue) < 50000 && this.onceOffCoverValue !== 0) {
+		if (parseFloat(this.onceOffCoverValue) < 1000 && this.onceOffCoverValue !== 0) {
+			console.log(`Validating | _validateAllocatePocketsStep | 6`);
 			this.onceOffCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
-		} else {
-			this.onceOffCoverError = ``;
 		}
 
 		return isValid;
@@ -457,11 +637,11 @@ class LifeAllocateCoverDialog extends Component {
 	 */
 	_getBeneficiaryInfoMessage(pocketType) {
 		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Choose who gets a monthly payout (up to 2):`;
+			return `Choose who gets a onthly Income (up to 6):`;
 		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
 			return `Choose whose education to pay for (up to 10):`;
 		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Choose who gets a once off payout (up to 2):`;
+			return `Choose who gets a Lump Sum (up to 6):`;
 		}
 	}
 
@@ -475,38 +655,110 @@ class LifeAllocateCoverDialog extends Component {
 		this.showAddBeneficiaryDialog = true;
 	}
 
+	/**
+	 * Add child
+	 * @param {String} pocketType pocket type
+	 * @returns {void}
+	 */
+	_openAddChildDialog(pocketType) {
+		this.selectedPocketType = pocketType;
+		this.showAddChildDialog = true;
+	}
+
 	_openEditBeneficiaryDialog(pocketType, beneficiary) {
 		this.selectedBeneficiary = beneficiary;
 		this.selectedPocketType = pocketType;
 		this.showEditBeneficiaryDialog = true;
 	}
 
+	_openEditChildDialog(pocketType, beneficiary) {
+		this.selectedBeneficiary = beneficiary;
+		this.selectedPocketType = pocketType;
+		this.showEditChildDialog = true;
+	}
+
 	_openDeleteBeneficiaryDialog(pocketType, beneficiary) {
 		this.selectedBeneficiary = beneficiary;
 		this.selectedPocketType = pocketType;
 		this.showDeleteBeneficiaryDialog = true;
+		console.log(`_openDeleteBeneficiaryDialog: this.selectedBeneficiary: `, this.selectedBeneficiary);
+		console.log(`_openDeleteBeneficiaryDialog: this.updatedPolicy.beneficiaries: `, this.updatedPolicy.beneficiaries);
 	}
 
 	_addBeneficiary(event) {
+		const beneficiary = event.detail.beneficiary;
+		const beneficiaryType = event.detail.beneficiaryType;
 
+		if (beneficiaryType === `NEW`) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+				beneficiary.metaData.monthlyBenefitAdded = true;
+			}
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+				beneficiary.metaData.onceOffBenefitAdded = true;
+			}
+			this.updatedPolicy.beneficiaries.push(beneficiary);
+		}
+		this.showAddBeneficiaryDialog = false;
 	}
 
-	_editBeneficiary() {
+	_addChild(event) {
+		console.log(`addChild`);
+		const child = event.detail.child;
+		const guardian = event.detail.guardian;
+		const newGuardianType = event.detail.newGuardianType;
 
+		let guardianId = guardian.guardianId;
+		if (newGuardianType === `NEW`) {
+			guardianId = v4();
+			guardian.guardianId = guardianId;
+			this.updatedPolicy.guardians.push(guardian);
+		}
+
+		child.guardianId = guardianId;
+		this.updatedPolicy.beneficiaries.push(child);
+		this.showAddChildDialog = false;
+
+
+		console.log(`Done Adding child: ${child.firstName} ${child.lastName}, cover amount ${child.educationBenefitAmount}, with guardian: ${guardian.firstName} ${guardian.lastName}`);
+	}
+
+	_updateBeneficiary() {
+		this.showEditBeneficiaryDialog = false;
+	}
+
+	_cancelUpdateBeneficiary(e) {
+		this.updatedPolicy.beneficiaries.forEach(bene => {
+			if (bene.metaData.uniqueId === e.detail.beneficiary.metaData.uniqueId) {
+				bene.firstName = e.detail.beneficiary.firstName;
+				bene.lastName = e.detail.beneficiary.lastName;
+				bene.dateOfBirth = e.detail.beneficiary.dateOfBirth;
+				bene.contactNumber = e.detail.beneficiary.contactNumber;
+				bene.monthlyPayoutBenefitAmount = e.detail.beneficiary.monthlyPayoutBenefitAmount;
+				bene.onceOffPayoutBenefitAmount = e.detail.beneficiary.onceOffPayoutBenefitAmount;
+				bene.educationBenefitAmount = e.detail.beneficiary.educationBenefitAmount;
+			}
+		});
+		this.selectedBeneficiary = null;
+		this.showEditBeneficiaryDialog = false;
 	}
 
 	_deleteBeneficiary() {
+		console.log(`Deleting Beneficiary`);
+		console.log(`this.selectedBeneficiary: `, this.selectedBeneficiary);
 		for (const bene of this.updatedPolicy.beneficiaries) {
 			if (bene.metaData.uniqueId === this.selectedBeneficiary.metaData.uniqueId) {
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
+					console.log(`Removing in MONTHLY`);
 					bene.metaData.monthlyBenefitAdded = false;
 					bene.monthlyPayoutBenefitAmount = 0;
 				}
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
+					console.log(`Removing in ONCEOFF`);
 					bene.metaData.onceOffBenefitAdded = false;
 					bene.onceOffPayoutBenefitAmount = 0;
 				}
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
+					console.log(`Removing in EDUCATION`);
 					bene.metaData.educationBenefitAdded = false;
 					bene.educationBenefitAmount = 0;
 				}
@@ -523,7 +775,7 @@ class LifeAllocateCoverDialog extends Component {
 					totalBeneficiariesInPocket++;
 				}
 			}
-			if (totalBeneficiariesInPocket >= 2) {
+			if (totalBeneficiariesInPocket >= 6) {
 				return false;
 			}
 			return true;
@@ -534,7 +786,7 @@ class LifeAllocateCoverDialog extends Component {
 					totalBeneficiariesInPocket++;
 				}
 			}
-			if (totalBeneficiariesInPocket >= 2) {
+			if (totalBeneficiariesInPocket >= 6) {
 				return false;
 			}
 			return true;
@@ -550,6 +802,66 @@ class LifeAllocateCoverDialog extends Component {
 			}
 			return true;
 		}
+	}
+
+	/**
+	 * Validate allocate beneficiaries to pockets step
+	 * @returns {Boolean} isValid
+	 */
+	_validateAllocateBeneficiariesStep() {
+		let isValid = true;
+		let monthlyValid = true;
+		let onceOffValid = true;
+		let educationValid = true;
+
+		let onceOffTotalAllocated = 0;
+		let monthlyTotalAllocated = 0;
+		let educationTotalAllocated = 0;
+
+		const invalidPocketNames = [];
+
+		console.log(`this.updatedPolicy.beneficiaries :>> `, this.updatedPolicy.beneficiaries);
+		for (const bene of this.updatedPolicy.beneficiaries) {
+			console.log(`bene :>> `, bene);
+			if (bene.onceOffPayoutBenefitAmount > 0) {
+				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
+				onceOffTotalAllocated += parseFloat(bene.onceOffPayoutBenefitAmount);
+				console.log(`onceOffTotalAllocated :>> `, onceOffTotalAllocated);
+			}
+
+			if (bene.monthlyPayoutBenefitAmount > 0) {
+				console.log('bene.monthlyPayoutBenefitAmount :>> ', bene.monthlyPayoutBenefitAmount);
+				monthlyTotalAllocated += parseFloat(bene.monthlyPayoutBenefitAmount);
+			}
+
+			if (bene.educationBenefitAmount > 0) {
+				console.log('bene.educationBenefitAmount :>> ', bene.educationBenefitAmount);
+				educationTotalAllocated += parseFloat(bene.educationBenefitAmount);
+			}
+		}
+
+		if (onceOffTotalAllocated !== this.onceOffCoverValue) {
+			onceOffValid = false;
+			invalidPocketNames.push(`Lump Sum`);
+		}
+
+		console.log('monthlyTotalAllocated :>> ', monthlyTotalAllocated);
+		console.log('this.monthlyTotalCoverValue :>> ', this.monthlyTotalCoverValue);
+		console.log(monthlyTotalAllocated !== this.monthlyTotalCoverValue);
+		console.log(typeof monthlyTotalAllocated);
+		console.log(typeof this.monthlyTotalCoverValue);
+		if (parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
+			monthlyValid = false;
+			invalidPocketNames.push(`Monthly Income`);
+		}
+
+		if (parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
+			educationValid = false;
+			invalidPocketNames.push(`Children's Needs`);
+		}
+
+		isValid = onceOffValid && monthlyValid && educationValid;
+		return [isValid, invalidPocketNames];
 	}
 
 	// #endregion BENEFICIARIES
@@ -599,9 +911,16 @@ class LifeAllocateCoverDialog extends Component {
 			}
 
 			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC` || this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
-				// TODO Set primary account number
-				this.accountNumberDisabled = true;
-				this.accountNumberErrorMsg = ``;
+				if (this.defaultSavingsAccountNumber === ``) {
+					this.updatedPolicy.bankDetails.accountNumber = ``;
+					this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
+					this.accountNumberDisabled = false;
+				} else {
+					this.updatedPolicy.bankDetails.accountNumber = this.defaultSavingsAccountNumber;
+					this.accountNumberErrorMsg = ``;
+					this.accountNumberDisabled = true;
+				}
+
 			} else {
 				this.updatedPolicy.bankDetails.accountNumber = ``;
 				this.accountNumberDisabled = false;
@@ -687,22 +1006,73 @@ class LifeAllocateCoverDialog extends Component {
 	 * Next event from dialog footer button, validate step, call services and move to next step
 	 * @returns {void}
 	 */
-	_nextStep() {
-
+	async _nextStep() {
 		let stepValid = true;
 
 		// Allocate
 		if (this.currentDialogStep === 0) {
+			console.log(`Validating Step 0`);
 			stepValid = this._validateAllocatePocketsStep();
+			if (stepValid === false) {
+				return;
+			}
+
+			// Map to pockets
+			const policyPockets = [];
+			if (this.monthlyCoverValue > 0) {
+				policyPockets.push({
+					"coverage": this.monthlyCoverValue,
+					"pocketType": `MonthlyPayout`
+				});
+			}
+			if (this.onceOffCoverValue > 0) {
+				policyPockets.push({
+					"coverage": this.onceOffCoverValue,
+					"pocketType": `LumpSum`
+				});
+			}
+			if (this.educationCoverValue > 0) {
+				policyPockets.push({
+					"coverage": this.educationCoverValue,
+					"pocketType": `Education`
+				});
+			}
+			this.updatedPolicy.pockets = policyPockets;
+
+			// remove allocations from beneficiaries in pockets with zero cover
+			this.updatedPolicy.beneficiaries.forEach(bene => {
+				if (this.monthlyCoverValue === 0) {
+					bene.monthlyPayoutBenefitAmount = 0;
+					bene.metaData.monthlyBenefitAdded = false;
+				}
+				if (this.onceOffCoverValue === 0) {
+					bene.onceOffPayoutBenefitAmount = 0;
+					bene.metaData.onceOffBenefitAdded = false;
+				}
+				if (this.educationCoverValue === 0) {
+					bene.educationBenefitAmount = 0;
+					bene.metaData.educationBenefitAdded = false;
+				}
+			});
 		}
 
 		// Beneficiaries
 		if (this.currentDialogStep === 1) {
-			stepValid = true;
+			console.log(`Validating Step 1`);
+			this.invalidPocketNames = [];
+			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
+			stepValid = allocatedStepResults[0];
+
+			if (stepValid === false) {
+				this.invalidPocketNames = allocatedStepResults[1];
+				this.showBeneficiariesAllocateErrorDialog = true;
+				return;
+			}
 		}
 
 		// Payment details
 		if (this.currentDialogStep === 2) {
+			console.log(`Validating Step 2`);
 			if (isNullorEmpty(this.updatedPolicy.bankDetails.accountNumber)) {
 				this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
 				stepValid = false;
@@ -715,15 +1085,150 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
-			// TODO Execute Agreement Call
-			this.agreementDocumentContent = null;
+			// Update / Re Allocate Only
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+				const requestBeneficiaries = [];
+				this.updatedPolicy.beneficiaries.forEach(bene => {
+					const newBene = bene;
+					if (newBene.onceOffPayoutBenefitAmount) {
+						newBene.role = `Beneficiary`;
+					}
+					if (newBene.educationBenefitAmount) {
+						newBene.role = `Beneficiary`;
+					}
+					if (newBene.educationBenefitAmount) {
+						newBene.role = `Child`;
+					}
+
+					newBene.benefits = [
+						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
+						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
+						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
+					];
+					newBene.bankDetails = {};
+					newBene.contactDetails = {
+						contactNumber: bene.contactNumber
+					};
+					requestBeneficiaries.push(newBene);
+				});
+
+				const updatePolicyReq = {
+					"effectiveDate": new Date(),
+					"policyNumber": this.updatedPolicy.contractReference,
+					"deductionDetails": {
+						"collectionDay": this.updatedPolicy.bankDetails.collectionDay,
+						"bankDetails": {
+							"accountName": this.accountName,
+							"branchCode": this.updatedPolicy.bankDetails.branchCode,
+							"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
+							"bank": this.updatedPolicy.bankDetails.bank,
+							"accountType": this.updatedPolicy.bankDetails.accountType
+						}
+					},
+					"totalLoadingApplied": this.updatedPolicy.totalLoadingApplied,
+					"underwriting": this.updatedPolicy.underwriting,
+					"channel": `Horizon`,
+					"riskRate": this.updatedPolicy.riskRate,
+					"channelFee": this.updatedPolicy.channelFee,
+					"maxCoverApplicable": this.updatedPolicy.maximumAllowedCover,
+					"beneficiaries": requestBeneficiaries,
+					"pockets": this.updatedPolicy.pockets
+				};
+
+				const updateResp = await this.executeLifeUpdatePolicy(updatePolicyReq);
+				console.log(`updateResp :>> `, updateResp);
+
+				if (updateResp === null) {
+					stepValid = false;
+					return;
+				}
+
+				const updateAgreementReq = {};
+				const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
+
+				if (updateAgreementResp === null) {
+					stepValid = false;
+					return;
+				}
+
+				this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
+			}
+
+			// ReIssue
+			if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+				const requestBeneficiaries = [];
+				this.updatedPolicy.beneficiaries.forEach(bene => {
+					const newBene = bene;
+					if (newBene.onceOffPayoutBenefitAmount) {
+						newBene.role = `Beneficiary`;
+					}
+					if (newBene.educationBenefitAmount) {
+						newBene.role = `Beneficiary`;
+					}
+					if (newBene.educationBenefitAmount) {
+						newBene.role = `Child`;
+					}
+
+					newBene.benefits = [
+						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
+						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
+						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
+					];
+					newBene.bankDetails = {};
+					newBene.contactDetails = {
+						contactNumber: bene.contactNumber
+					};
+
+					requestBeneficiaries.push(newBene);
+				});
+
+
+				const reIssueRequest = {
+					"policyIssueDate": new Date(),
+					"previousPolicyNumber": this.updatedPolicy.contractReference,
+					"deductionDetails": {
+						"collectionDay": this.updatedPolicy.bankDetails.collectionDay,
+						"bankDetails": {
+							"accountName": this.accountName,
+							"branchCode": this.updatedPolicy.bankDetails.branchCode,
+							"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
+							"bank": this.updatedPolicy.bankDetails.bank,
+							"accountType": this.updatedPolicy.bankDetails.accountType
+						}
+					},
+					"totalLoadingApplied": this.newOffer.totalLoadingApplied,
+					"underwriting": this.newOffer.underwriting,
+					"channel": `Horizon`,
+					"riskRate": this.newOffer.riskRate,
+					"channelFee": this.newOffer.channelFee,
+					"maxCoverApplicable": this.newOffer.maximumAllowedCover,
+					"beneficiaries": requestBeneficiaries,
+					"pockets": this.updatedPolicy.pockets,
+					"answers": this.newOfferAnswers
+				};
+				console.log(`reIssueRequest: `, reIssueRequest);
+				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
+				console.log(`reIssueResult: `, this.reIssueResult);
+
+				// TODO Execute Agreement Call
+				const agreementRequest = {
+					"saveDocument": false,
+					"policyNumber": this.reIssueResult.policyNumber,
+					"signatureDate": new Date()
+				};
+
+				console.log(`agreementRequest: `, agreementRequest);
+				const agreementResult = await this.executeLifeGenerateIssueAgreement(agreementRequest);
+				console.log(`agreementResult: `, agreementResult);
+				this.agreementDocumentContent = agreementResult.documentContent.base64EncodedString;
+			}
 		}
 
 		// All good move on
 		if (stepValid === true) {
+			console.log(`Success | Done with step: ${this.currentDialogStep}`);
 			this.currentDialogStep++;
 			this._setDialogTitle(this.currentDialogStep);
-
 			this.allocatedCoverErrorMessage = ``;
 		}
 	}
@@ -749,19 +1254,48 @@ class LifeAllocateCoverDialog extends Component {
 			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.EMAIL_MISMATCH;
 			return;
 		}
-		const isEmailEmail = validateEmailAddressCombo(this.agreementEmail, this.agreementEmailConfirm);
-		if (isEmailEmail === false) {
+		const isEmailValid = validateEmailAddressCombo(this.agreementEmail, this.agreementEmailConfirm);
+		if (isEmailValid === false) {
 			this.emailAlertBannerMessage = EMAIL_ADDRESS_ERROR_MESSAGES.INVALID_EMAIL;
 			return;
 		}
 
-		const updatePolicyRequest = {
-			emailDetails: {
-				emailAddress: this.agreementEmail,
-				contractReference: this.updatedPolicy.contractReference
+		// Allocate
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			const updateAgreementReq = {};
+			const updateAgreementResp = await this.executeLifeUpdatePocket(updateAgreementReq);
+
+			if (updateAgreementResp === null) {
+				return;
 			}
-		};
-		await this.executeLifeUpdatePolicy(updatePolicyRequest);
+
+			// All good, exit flow
+			this.dispatchEvent(new CustomEvent(`life-update-completed`, {
+				detail: {
+					emailAddress: this.agreementEmail,
+					policyNumber: `ABC123`
+				}
+			}));
+
+		}
+
+		// ReIssue
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			const acceptPolicyRequest = {
+				"policyNumber": this.reIssueResult.policyNumber,
+				"emailAddress": this.agreementEmail
+			};
+			const acceptResult = await this.executeLifeAcceptPolicy(acceptPolicyRequest);
+			if (acceptResult !== null) {
+				this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
+					detail: {
+						acceptResult: acceptResult,
+						emailAddress: this.agreementEmail,
+						policyNumber: this.reIssueResult.policyNumber
+					}
+				}));
+			}
+		}
 	}
 
 	/**
@@ -838,6 +1372,21 @@ class LifeAllocateCoverDialog extends Component {
 					padding: 14px 24px;
 					border-radius:  5px;
 					margin-bottom:15px;
+					align-items: start;
+				}
+
+				.pocket-details-card-col{
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+					align-items: flex-end
+				}
+
+				.hint {
+					color: #969B9D;
+					
+					font-size: 12px;
+					font-weight: 300;
 				}
 
 				.pocket-details-badge{
@@ -900,7 +1449,9 @@ class LifeAllocateCoverDialog extends Component {
 
 				.beneficiary-list{
 					width: 100%;
-					min-height: 400px;
+					min-height: 350px;
+					max-height: 500px;
+					overflow-y: scroll;
 				}
 
 				.no-cover-container{
@@ -909,6 +1460,7 @@ class LifeAllocateCoverDialog extends Component {
 					display: flex;
 					justify-content: center;
 					align-items: center;
+					padding: 0px 20px;
 				}
 
 				.add-beneficiary-button{
@@ -987,7 +1539,10 @@ class LifeAllocateCoverDialog extends Component {
 			${this._renderAddBeneficiaryDialog()}
 			${this._renderEditBeneficiaryDialog()}
 			${this._renderDeleteBeneficiaryDialog()}
+			${this._renderBeneficiariesAllocateErrorDialog()}
 			${this._renderAgreementDialog()}
+			${this._renderAddChildDialog()}
+			${this._renderEditChildDialog()}
 		`;
 	}
 
@@ -1024,15 +1579,25 @@ class LifeAllocateCoverDialog extends Component {
 			}
 
 			<div id="offer-details">
+				<div class="offer-details-cell">
+					<div>Monthly Premium</div>
+					<div class="offer-details-value">${formatCurrency(this.calculatedPremium)}</div>
+				</div>
+
 				${this.isNewOffer === true ? html`
 					<div class="offer-details-cell">
-						<div>New offer cover amount</div>
-						<div class="offer-details-value">${formatCurrency(100)}</div>
+						<div>Offered Cover amount</div>
+						<div class="offer-details-value">${formatCurrency(this.newOffer?.maximumAllowedCover)}</div>
 					</div>
-				` : html``}
+				` : html`
+					<div class="offer-details-cell">
+						<div>Current Cover amount</div>
+						<div class="offer-details-value">${formatCurrency(this.updatedPolicy?.totalPolicySumAssured)}</div>
+					</div>
+				`}
 				<div class="offer-details-cell">
-					<div>Current cover amount</div>
-					<div class="offer-details-value">${formatCurrency(this.currentPolicy?.totalPolicySumAssured)}</div>
+					<div>Allocated</div>
+					<div class="offer-details-value">${formatCurrency(this.totalCoverAllocatedAllPockets)}</div>
 				</div>
 				<div class="offer-details-cell">
 					<div>Remaining</div>
@@ -1055,18 +1620,27 @@ class LifeAllocateCoverDialog extends Component {
 								type="currency" 
 								class="pocket-details-input pocket-details-label" 
 								label="Cover amount"
+								disabled
 								value="${this._monthlyCoverValue()}"
-								@value-changed="${(e) => this._monthlyCoverChange(e, `TOTAL`)}"
 								error="${this.monthlyTotalCoverError}">
 							</capitec-text-field>
-							<capitec-text-field 
-								type="currency" 
-								class="pocket-details-input" 
-								label="They get" 
-								value="${this.monthlyCoverValue}"
-								@value-changed="${(e) => this._monthlyCoverChange(e, `PERMONTH`)}"
-								error="${this.monthlyCoverError}">
-							</capitec-text-field>
+								<div class="pocket-details-card-col">
+									<capitec-text-field 
+										type="currency" 
+										class="pocket-details-input" 
+										label="They get" 
+										value="${this.monthlyCoverValue}"
+										@value-changed="${(e) => this._monthlyCoverChange(e)}"
+										error="${this.monthlyCoverError}">
+									</capitec-text-field>
+									
+									<div class="hint" style="width:100%; padding-left: 17px">
+									Per month for 24 months.
+									</div>
+									<div class="hint" style="width:100%; padding-left: 17px; margin-bottom: 10px; line-height: 2px;">
+									Minimum R1 000 per beneficiary
+									</div>
+								</div>
 						</div>
 					</div>
 					<div class="pocket-details-card">
@@ -1084,7 +1658,8 @@ class LifeAllocateCoverDialog extends Component {
 								label="They get" 
 								value="${this._onceOffCoverValue()}"
 								@value-changed="${(e) => this._onceOffCoverChange(e)}"
-								error="${this.onceOffCoverError}">
+								error="${this.onceOffCoverError}"
+								hint="Minimum R1 000 per beneficiary">
 							</capitec-text-field>
 						</div>
 					</div>
@@ -1104,7 +1679,8 @@ class LifeAllocateCoverDialog extends Component {
 								label="They get" 
 								value="${this._educationCoverValue()}"
 								@value-changed="${(e) => this._educationCoverChange(e)}"
-								error="${this.educationCoverError}">
+								error="${this.educationCoverError}"
+								hint="Minimum R50 000 per beneficiary">
 							</capitec-text-field>
 						</div>
 					</div>
@@ -1122,17 +1698,17 @@ class LifeAllocateCoverDialog extends Component {
 			<capitec-tab-group style="--theme-tab-min-width: 265px;">
 
 				<!-- Monthly -->
-				<capitec-tab label="Pocket | Monthly Payout" layout="vertical" halign="left">
+				<capitec-tab label="Monthly Income" layout="vertical" halign="left">
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.MONTHLY) === true ? html`
 
 						<!-- Per Pocket Errors -->
 						${this._remainingPocketBalance(LIFE_POCKET_TYPES.MONTHLY) !== 0 ? html`
 							<horizon-alert-banner
-								type="unsuccessful-red"
+								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
-								label="Combined beneficiary amounts does not match allocated cover amount for this pocket"
-								layout="horizontal">
+								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
 
@@ -1187,20 +1763,20 @@ class LifeAllocateCoverDialog extends Component {
 											value="${formatCurrencyInsureCoverAmount(formatCurrency(bene.monthlyPayoutBenefitAmount))}">
 										</horizon-label>
 										<capitec-overflow-menu label="More">
-											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Update Person"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY, bene)}" label="Delete Person"></capitec-overflow-menu-item>
 										</capitec-overflow-menu>
 									</div>
 								</div>` : html``}`)}
-							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.MONTHLY) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.MONTHLY) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.MONTHLY)}"  class="add-beneficiary-button" icon="system/add-action" label="Add someone"></capitec-button>` : html``}
 						</div>
 					` : html`
 						<div class="no-cover-container">
 							<div>
 								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 								<horizon-label 
-									label="No cover allocated to pocket"
-									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+									label="No cover allocated to this benefit payout option"
+									value="Go back to allocate cover to this benefit payout option and then nominate someone to receive a payout">
 								</horizon-label>
 							</div>
 						</div>
@@ -1208,17 +1784,17 @@ class LifeAllocateCoverDialog extends Component {
 				</capitec-tab>
 				
 				<!-- Once Off -->
-				<capitec-tab label="Pocket | Once Off Payout" layout="vertical" halign="left">
+				<capitec-tab label="Lump Sum" layout="vertical" halign="left">
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`
 
 						<!-- Per Pocket Errors -->
 						${this._remainingPocketBalance(LIFE_POCKET_TYPES.ONCEOFF) !== 0 ? html`
 							<horizon-alert-banner
-								type="unsuccessful-red"
+								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
-								label="Combined beneficiary amounts does not match allocated cover amount for this pocket"
-								layout="horizontal">
+								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
 
@@ -1266,22 +1842,22 @@ class LifeAllocateCoverDialog extends Component {
 											value="${formatCurrencyInsureCoverAmount(formatCurrency(bene.onceOffPayoutBenefitAmount))}">
 										</horizon-label>
 										<capitec-overflow-menu label="More">
-											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Update Person"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF, bene)}" label="Delete Person"></capitec-overflow-menu-item>
 										</capitec-overflow-menu>
 									</div>
 								</div>
 								` : html``}
 							`)}
-							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.ONCEOFF)}"  class="add-beneficiary-button" icon="system/add-action" label="Add someone"></capitec-button>` : html``}
 						</div>
 					` : html`
 						<div class="no-cover-container">
 							<div>
 								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 								<horizon-label 
-									label="No cover allocated to pocket"
-									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+									label="No cover allocated to this benefit payout option"
+									value="Go back to allocate cover to this benefit payout option and then nominate someone to receive a payout">
 								</horizon-label>
 							</div>
 						</div>
@@ -1289,17 +1865,16 @@ class LifeAllocateCoverDialog extends Component {
 				</capitec-tab>
 				
 				<!-- Education -->
-				<capitec-tab label="Pocket | Education Fund" layout="vertical" halign="left">
+				<capitec-tab label="Children's Needs" layout="vertical" halign="left">
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.EDUCATION) === true ? html`
-
 						<!-- Per Pocket Errors -->
 						${this._remainingPocketBalance(LIFE_POCKET_TYPES.EDUCATION) !== 0 ? html`
 							<horizon-alert-banner
-								type="unsuccessful-red"
+								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
-								label="Combined beneficiary amounts does not match allocated cover amount for this pocket"
-								layout="horizontal">
+								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
 
@@ -1346,22 +1921,22 @@ class LifeAllocateCoverDialog extends Component {
 											value="${formatCurrency(bene.educationBenefitAmount)}">
 										</horizon-label>
 										<capitec-overflow-menu label="More">
-											<capitec-overflow-menu-item @click="${() => this._openEditBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Edit Beneficiary"></capitec-overflow-menu-item>
-											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Delete Beneficiary"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openEditChildDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Update Child"></capitec-overflow-menu-item>
+											<capitec-overflow-menu-item @click="${() => this._openDeleteBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION, bene)}" label="Delete Child"></capitec-overflow-menu-item>
 										</capitec-overflow-menu>
 									</div>
 								</div>
 								` : html``}
 							`)}
-							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddBeneficiaryDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add another beneficiary"></capitec-button>` : html``}
+							${this._allowAddBeneficiary(LIFE_POCKET_TYPES.EDUCATION) === true ? html`<capitec-button @click="${() => this._openAddChildDialog(LIFE_POCKET_TYPES.EDUCATION)}"  class="add-beneficiary-button" icon="system/add-action" label="Add child"></capitec-button>` : html``}
 						</div>
 					` : html`
 						<div class="no-cover-container">
 							<div>
 								<capitec-image src="platform/illustrations/beneficiaries.svg" style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 								<horizon-label 
-									label="No cover allocated to pocket"
-									value="Go back to allocate cover to this pocket first in order to add a beneficiary">
+									label="No cover allocated to this benefit payout option"
+									value="Go back to allocate cover to this benefit payout option and then nominate someone to receive a payout">
 								</horizon-label>
 							</div>
 						</div>
@@ -1462,7 +2037,6 @@ class LifeAllocateCoverDialog extends Component {
 
 	/**
 	 * Render modal footer section
-	 * 
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogFooter() {
@@ -1472,7 +2046,7 @@ class LifeAllocateCoverDialog extends Component {
 				: html`<capitec-button class="capitec-button-small" slot="footer" type="secondary" @click="${() => this._backStep()}" label="Back" ></capitec-button>`}
 
 			${this.currentDialogStep === 3
-				? html`<capitec-button class="capitec-button-medium" slot="footer" type="primary" @click="${() => this._doneStep()}" label="Update Policy" ></capitec-button>`
+				? html`<capitec-button class="capitec-button-medium" slot="footer" type="primary" @click="${() => this._doneStep()}" label="Done" ></capitec-button>`
 				: html`<capitec-button class="capitec-button-small" slot="footer" type="primary" @click="${() => this._nextStep()}" label="Next" ></capitec-button>`}
 		`;
 	}
@@ -1489,7 +2063,7 @@ class LifeAllocateCoverDialog extends Component {
 				<horizon-insure-life-add-beneficiary-dialog 
 					.selectedPocketType = "${this.selectedPocketType}"
 					.policy = "${this.updatedPolicy}"
-					.totalPocketCover = ${this._totalCoverAllocated(this.selectedPocketType)}
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
 					@close-dialog="${() => this.showAddBeneficiaryDialog = false}"
 					@add-beneficiary="${(e) => this._addBeneficiary(e)}">
 				</horizon-insure-life-add-beneficiary-dialog>
@@ -1504,7 +2078,12 @@ class LifeAllocateCoverDialog extends Component {
 		return this.showEditBeneficiaryDialog === false ? ``
 			: html`
 				<horizon-insure-life-update-beneficiary-dialog 
-					@close-dialog="${() => this.showEditBeneficiaryDialog = false}">
+					.updatingBeneficiary="${this.selectedBeneficiary}"
+					.selectedPocketType = "${this.selectedPocketType}"
+					.policy = "${this.updatedPolicy}"
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
+					@close-dialog="${(e) => this._cancelUpdateBeneficiary(e)}"
+					@update-beneficiary="${(e) => this._updateBeneficiary(e)}">
 				</horizon-insure-life-update-beneficiary-dialog>
 			`;
 	}
@@ -1526,6 +2105,20 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	/**
+	 * Beneficiary allocation, all pockets, error dialog
+	 * @returns {html} The html content of the component.
+	 */
+	_renderBeneficiariesAllocateErrorDialog() {
+		return this.showBeneficiariesAllocateErrorDialog === false ? ``
+			: html`
+				<horizon-insure-life-beneficiaries-allocate-error-dialog
+					.invalidPockets=${this.invalidPocketNames}
+					@close-dialog="${() => this.showBeneficiariesAllocateErrorDialog = false}">
+				</horizon-insure-life-beneficiaries-allocate-error-dialog>
+		`;
+	}
+
+	/**
 	 * Agreement dialog
 	 * @returns {html} The html content of the component.
 	 */
@@ -1536,6 +2129,41 @@ class LifeAllocateCoverDialog extends Component {
 				.agreementContent="${this.agreementDocumentContent}"
 				@back-click="${() => this.showAgreementDocumentDialog = false}">
 			</horizon-insure-agreement-dialog>
+		`;
+	}
+
+	/**
+	 * Add child dialog
+	 * @returns {html} The html content of the component.
+	 */
+	_renderAddChildDialog() {
+		return this.showAddChildDialog === false ? ``
+			: html`
+				<horizon-insure-life-add-child-dialog 
+					.selectedPocketType = "${this.selectedPocketType}"
+					.policy = "${this.updatedPolicy}"
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
+					@close-dialog="${() => this.showAddChildDialog = false}"
+					@add-child="${(e) => this._addChild(e)}">
+				</horizon-insure-life-add-child-dialog>
+		`;
+	}
+
+	/**
+	 * Edit child dialog
+	 * @returns {html} The html content of the component.
+	 */
+	_renderEditChildDialog() {
+		return this.showEditChildDialog === false ? ``
+			: html`
+				<horizon-insure-life-update-child-dialog 
+					.updatingChild = "${this.selectedBeneficiary}"
+					.selectedPocketType = "${this.selectedPocketType}"
+					.policy = "${this.updatedPolicy}"
+					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
+					@close-dialog="${() => this.showEditChildDialog = false}"
+					@add-child="${(e) => this._addChild(e)}">
+				</horizon-insure-life-update-child-dialog>
 		`;
 	}
 

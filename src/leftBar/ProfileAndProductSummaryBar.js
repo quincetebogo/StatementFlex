@@ -394,6 +394,9 @@ export class ProfileAndProductSummaryBar extends Component {
 				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}
+			.insureAgent{
+				display: none;
+			}
 			`
 		];
 	}
@@ -424,7 +427,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		return html`
 				<horizon-favourites-tile
 					data-automation-id="profile-and-product-summary-bar-favourites"
-					class="favourites-button"
+					class="favourites-button ${this.roleManager.isInsureAgent ? `insureAgent` : ``}"
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
 					@click="${() => this._favouritesClicked()}"
