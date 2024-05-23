@@ -486,13 +486,11 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 		}
 
-		if (isNullorEmpty(this.newBeneficiary?.contactEmail)) {
-			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.REQUIRED_FIELD;
-			stepValid = false;
-		} else if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
-			this.newBeneficiaryErrors.contactEmail = ``;
-		} else {
+		if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
 			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -885,13 +883,22 @@ class LifeAddBeneficiaryDialog extends Component {
 				: html``
 			}
 			<div class="grouping">
-				<capitec-select label="Title" display-field="text" id-field="code" style="width: 50%" value="${this.newBeneficiary?.title}" 
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" 
+					style="width: 50%" 
+					value="${this.newBeneficiary?.title}" 
 					error="${this.newBeneficiaryErrors?.title === undefined ? `` : this.newBeneficiaryErrors.title}"
 					.items="${this.titleOptions}" 
 					@value-changed="${(e) => this._titleChange(e)}">
 				</capitec-select>
 
-				<capitec-select label="Gender"  display-field="text" id-field="code"  style="width: 50%" 
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code"  
+					style="width: 50%" 
 					value="${this.newBeneficiary?.gender}" 
 					error="${this.newBeneficiaryErrors?.gender === undefined ? `` : this.newBeneficiaryErrors.gender}"
 					.items="${this.genderOptions}"
@@ -918,7 +925,11 @@ class LifeAddBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-select label="Relationship" .items="${this.beneficiaryRelationships}" display-field="text" id-field="code"
+				<capitec-select 
+					label="Relationship" 
+					.items="${this.beneficiaryRelationships}" 
+					display-field="text" 
+					id-field="code"
 					style="width: 50%" value="${this.newBeneficiary?.relationship}" 
 					error="${this.newBeneficiaryErrors?.relationship === undefined ? `` : this.newBeneficiaryErrors.relationship}"
 					@value-changed = "${(e) => this._relationshipChange(e)}">
@@ -936,7 +947,12 @@ class LifeAddBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
+					value="${this.newBeneficiary?.idNumber}"
 					error="${this.newBeneficiaryErrors?.idNumber === undefined ? `` : this.newBeneficiaryErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
