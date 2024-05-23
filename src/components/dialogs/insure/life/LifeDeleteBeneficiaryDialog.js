@@ -165,7 +165,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 					<span>
 						<capitec-group layout="horizontal">
 							<capitec-icon size="medium" icon="status/warning-trans" style="height: 28px; width: 26px;"></capitec-icon>
-							<capitec-label class="header-text" label="Delete Beneficiary"></capitec-label>
+							<capitec-label class="header-text" label="Delete Person"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
@@ -189,7 +189,7 @@ class LifeDeleteBeneficiaryDialog extends Component {
 	_renderDialogBody() {
 		return html`
 			<capitec-content-box gap="0px" >
-				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> as a beneficiary from <b>${this.selectedPocketType}</b></p>
+				<p class="dialog-copy">You are about to remove <b>${this.selectedBeneficiaryName}</b> from the <b>${this.selectedPocketType}</b> payout option</p>
 			</capitec-content-box>
 		`;
 	}

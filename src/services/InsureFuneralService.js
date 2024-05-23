@@ -208,7 +208,10 @@ export class InsureFuneralService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async calculateEstimate(estimateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCalculateEstimate`)) {
+			return this.mock(`insureCalculateEstimate`, estimateRequest);
+		}
 		return this.post(
 			`/horizon-insurance/funeral/api/estimate`,
 			estimateRequest,

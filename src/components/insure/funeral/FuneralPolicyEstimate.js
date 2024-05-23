@@ -187,16 +187,38 @@ class FuneralPolicyEstimate extends Component {
 			} else {
 				delete this.estimate.totalPremium;
 			}
+
 			const request = {
 				...this.estimate
 			};
 
 			if (printOrCalculate === 1) {
-				this.estimate = await this.calculateEstimate({ detail: request });
+				const estimateResponse = await this.calculateEstimate({ detail: request });
+				if (estimateResponse === null) {
+					this.estimate.totalPremium = 0;
+					this.requestUpdate();
+					return;
+				}
+				this.estimate = estimateResponse;
 			} else {
+				
+				const estimateResponse = await this.calculateEstimate({ detail: request });
+				if (estimateResponse === null) {
+					this.estimate.totalPremium = 0;
+					this.requestUpdate();
+					return;
+				}
+				this.estimate = estimateResponse;
 				const printEstimateResponse = await this.printEstimate({ detail: request });
+				if (printEstimateResponse === null) {
+					this.requestUpdate();
+					return;
+				}
+
 				this.printEstimateDocumentContent = printEstimateResponse?.result?.documentContent.value;
 				this.showPrintEstimateDialog = true;
+				this.estimate.totalPremium = estimateResponse.totalPremium;
+				this.requestUpdate();
 			}
 			this.requestUpdate();
 		}
@@ -595,7 +617,7 @@ class FuneralPolicyEstimate extends Component {
 	_renderLeftColumn() {
 		return html`
 		<div id="insure-calc-column-left">
-			${this.estimate.lifesAssured?.map((lifeAssured, index) => html`
+			${this.estimate?.lifesAssured?.map((lifeAssured, index) => html`
 			<div class="calc-card" id=${index !== 0 ? `calc-card-other` : ``}>
 				${index !== 0 ? html`
 				<div class="calc-card-header">
@@ -666,7 +688,7 @@ class FuneralPolicyEstimate extends Component {
 						<capitec-label label="Funeral Plan" type="Strong"></capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-label label="Total estimated monthly premium"></capitec-label>
-						<capitec-label label="${!this.estimate.totalPremium ? `R0.00` : formatCurrency(this.estimate.totalPremium)}" class="calc-premium-total"
+						<capitec-label label="${isNaN(this.estimate?.totalPremium) ? `R0.00` : formatCurrency(this.estimate?.totalPremium)}" class="calc-premium-total"
 							data-automation-id="insure-estimate-heading-total-premium">
 						</capitec-label>
 						<capitec-label label="Summary of estimated monthly premium:" class="stronger"></capitec-label>
@@ -676,14 +698,14 @@ class FuneralPolicyEstimate extends Component {
 						<div class="calc-life-list">
 							<capitec-label label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}">
 							</capitec-label>
-							<capitec-label label="${formatCurrency(life.premium)}"
+							<capitec-label label="${isNaN(life?.premium) ? `R0.00` : formatCurrency(life?.premium)}"
 								data-automation-id="insure-estimate-list-premium"></capitec-label>
 						</div>
 						<hr>`)}
 			
 						<div class="calc-life-list">
 							<capitec-label label="Total premium amount" class="stronger"></capitec-label>
-							<capitec-label label="${!this.estimate.totalPremium ? `R0.00` : formatCurrency(this.estimate.totalPremium)}" class="stronger"
+							<capitec-label label="${isNaN(this.estimate?.totalPremium) ? `R0.00` : formatCurrency(this.estimate?.totalPremium)}" class="stronger"
 								data-automation-id="insure-estimate-list-total-premium"></capitec-label>
 						</div>
 					</div>

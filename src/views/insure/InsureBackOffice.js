@@ -59,7 +59,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.selectedFuneralPolicyProductCode = ``;
 		this.selectedFuneralPolicyStartDate = ``;
 
-		this.readOnlyMode = true;
 		this.isLifeQualifyingClient = false;
 	}
 
@@ -68,7 +67,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @property {Object} policySummary Local object for new Quote requests
 	 * @property {Object} policyDetails data and flags for a specific policy
 	 * @property {String} contractReference contains the contract reference for the selected policy 
-	 * @property {Boolean} readOnlyMode determines if the view is in read only mode or not
 	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
 	 * 
 	 * @readonly
@@ -81,12 +79,12 @@ export class InsureBackOfficeView extends InsureViewBase {
 			policySummary: { type: Object, state: true },
 			policyDetails: { type: Object, state: true },
 			contractReference: { type: String, state: true },
-			readOnlyMode: { type: Boolean, state: true },
 			renderMode: { type: Number, state: true },
 			claims: { type: Object, state: true },
 			selectedInsureTabIndex: { type: Number, state: true },
 			isLifeQualifyingClient: { type: Boolean, state: true },
-			selectedFuneralPolicyProductCode: { type: String, state: true }
+			selectedFuneralPolicyProductCode: { type: String, state: true },
+			lifePolicyMandates: { type: Object, state: true }
 		};
 	}
 
@@ -287,6 +285,28 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
+	 * gets the life policy mandates
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyMandates(selectedPolicy) {
+		const mandatesRequest =
+		{
+			"contractReference": selectedPolicy,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeGetMandates(mandatesRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		this.lifePolicyMandates = resp.result;
+	}
+
+	/**
 	 * Prepare and navigate to Life Policy Premium History
 	 * @param {event} e e
 	 * @returns {void}
@@ -473,9 +493,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToLifePolicySummary(e) {
+	async _goToLifePolicySummary(e) {
 		this.selectedLifePolicy = e.detail.lifePolicy;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		await this._retrieveLifePolicyMandates(this.selectedLifePolicy.contractReference);
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_POLICY_SUMMARY);
 	}
 
@@ -583,7 +604,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 			<horizon-insure-client-summary 
 				.funeralPolicies = "${this.funeralPolicies}" 
 				.lifePolicies="${this.lifePolicies}" 
-				.readOnlyMode="${this.readOnlyMode}"
 				.clientClaims="${this.claims}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
@@ -607,8 +627,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			<horizon-insure-funeral-policy-summary 
 				.policyDetails = "${this.policyDetails}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@unloading="${() => this._unloadClientPolicies()}"
-				.readOnlyMode="${this.readOnlyMode}">
+				@unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-funeral-policy-summary>`;
 	}
 
@@ -624,8 +643,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.disposeData="${() => this.policyTransactionHistory = []}"
 				.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				@unloading="${() => this._unloadPolicyTransactionHistory()}"
-				.readOnlyMode="${this.readOnlyMode}">
+				@unloading="${() => this._unloadPolicyTransactionHistory()}">
 			</horizon-insure-funeral-policy-transaction-history>`
 			: html``;
 	}
@@ -637,7 +655,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 			.contractReference = ${this.policyNumber} 
 			.contactNumber = ${this.callerInformation.verifiedTelephoneNumber}
 			.getCommsHistory="${(contractReference, startDate, endDate) => this._retrieveCommsHistory(contractReference, startDate, endDate)}"
-			.readOnlyMode="${this.readOnlyMode}"
 			.policyStartDate="${this.selectedFuneralPolicyStartDate}"
 			@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-funeral-sms-history-page>`
@@ -697,6 +714,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return html`
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
+				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}
