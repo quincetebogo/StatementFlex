@@ -12,8 +12,11 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
-	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
+	INVALID_EMAIL: `Enter a valid email address`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -221,6 +224,23 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_emailChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.contactEmail = e.detail.new;
+		}
+
+		if (!isNullorEmpty(this.updatingBeneficiary.contactEmail)) {
+			this.beneficiaryErrors.contactEmail = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
@@ -229,7 +249,6 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_cellphoneNumChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.contactNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
 			if (this.updatingBeneficiary.contactNumber.length === 10) {
 				this.beneficiaryErrors.contactNumber = ``;
 			}
@@ -273,6 +292,7 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
+			console.log('bene :>> ', bene);
 			bene.metaData.coverErrorMsg = ``;
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
@@ -318,11 +338,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
 			const value = e.detail.new;
+			console.log('value :>> ', value);
+			console.log('this.selectedPocketType :>> ', this.selectedPocketType);
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-				bene.monthlyPayoutBenefitAmount = value;
+				bene.monthlyPayoutBenefitAmount = parseFloat(value);
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-				bene.onceOffPayoutBenefitAmount = value;
+				bene.onceOffPayoutBenefitAmount = parseFloat(value);
 			}
 			this._calculateCoverBreakdown();
 		}
@@ -376,6 +398,14 @@ class LifeUpdateBeneficiaryDialog extends Component {
 				stepValid = false;
 			}
 		}
+
+		if (!isNullorEmpty(this.updatingBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingBeneficiary?.contactEmail)) {
+			this.beneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.beneficiaryErrors.contactEmail = ``;
+		}
+
 
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
@@ -666,9 +696,18 @@ class LifeUpdateBeneficiaryDialog extends Component {
 					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
 			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Email address (optional)" 
+					style="width: 50%" 
+					value="${this.updatingBeneficiary?.contactEmail}"
+					error="${this.beneficiaryErrors?.contactEmail === undefined ? `` : this.beneficiaryErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e)}">
+				</capitec-text-field>
+			</div>
 		`;
 	}
-
 
 	/**
 	 * Render Money Allocation step

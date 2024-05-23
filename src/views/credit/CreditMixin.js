@@ -1,4 +1,4 @@
-import { ACTION_IDENTIFIER, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
+import { ACTION_IDENTIFIER, CCS_DECLINE_MESSAGE, PERMISSION_STATUS, PRODUCTS } from 'app/constants/Credit';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
@@ -57,12 +57,14 @@ export const creditMixin = {
 			permission = {};
 			permission.permissionResult = PERMISSION_STATUS.GRANTED;
 			permission.declineReasons = ``;
+			permission.declineMessage = ``;
 		}
 
 		return {
 			ccsStatus: permission?.permissionResult === PERMISSION_STATUS.DENIED,
 			permissionResult: permission?.permissionResult,
-			declineReasons: permission?.declineReasons
+			declineReasons: permission?.declineReasons,
+			declineMessage: CCS_DECLINE_MESSAGE[option] && CCS_DECLINE_MESSAGE[option][permission?.declineReasons]
 		};
 	},
 
@@ -233,7 +235,7 @@ export const creditMixin = {
 		return this.ccsStatus
 		? html`
 			<horizon-warn-dialog
-				content="Unable to perform this transaction as there is a CCS status on this account."
+				content="${this.declineMessage}"
 				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
 			</horizon-warn-dialog>`
 		: html``;

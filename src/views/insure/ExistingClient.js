@@ -431,9 +431,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {String} policy policy being updated
 	 * @param {String} updatedPolicy policy that has been updated
 	 * @param {boolean} saveToDocumentum saveToDocumentum
-	 * @returns {void}  
+	 * @param {boolean} updatePolicy should policy be updated too or just banking details
+	 * @returns {void}
 	 */
-	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum) {
+	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, updatePolicy) {
 		const lifeBankingDetailsAgreement = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -469,15 +470,19 @@ export class ExistingClient extends InsureViewBase {
 				"currentAccountType": policy.bankDetails.accountType,
 				"newAccountType": updatedPolicy.bankDetails.accountType,
 				"collectionDay": updatedPolicy.bankDetails.collectionDay
-			}
+			},
+			"updatePolicy": true,
+			"beneficiaries": updatedPolicy.beneficiaries,
+			"totalPremium": updatedPolicy.totalPremium,
+			"totalCoverAmount": updatePolicy.totalPolicySumAssured
 		};
-		// Fix this
+
+
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.lifeUpdateBankingDetailsAgreement = resp.result;
 			this.lifeDocsToEmail = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return false;
 		}
@@ -597,14 +602,31 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
-		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true);
+		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true, false);
 		if (docResponse === false) {
 			return;
 		}
 		const lifeEmailSuccess = await this._sendLifeEmail(e);
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, resp.result.policyNumber);
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, ehang.detail.contractReference);
 		this.clientConfirmedEmail = e.detail.emailAddress;
 		this._goToLifeSuccess();
+	}
+
+	/**
+	 * Update life policy and sets to pending
+	 * @param {*} e event 
+	 * @returns {void} 
+	 */
+	async _updateLifePocket(e) {
+		const updateReq = {
+			"quoteId": e.detail.quoteId,
+			"cifNumber": this.callerInformation.cifNumber,
+			"contractReference": this.selectedLifePolicy.contractReference
+		};
+		const updateResp = await this.insureLifeService.lifeUpdatePocket(updateReq, () => true);
+		if (!updateResp.succeeded) {
+			this.handleToastError(updateResp.exception);
+		}
 	}
 
 	/** 
@@ -1342,12 +1364,50 @@ export class ExistingClient extends InsureViewBase {
 		this._goToLifeSuccess();
 	}
 
+	_lifeUpdateCompleted(e) {
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
+		this._goToLifeSuccess();
+	}
+
 	//
 
-	_lifeUpdatePolicy(updatePolicyRequest) {
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, updatePolicyRequest.emailDetails.emailAddress, updatePolicyRequest.emailDetails.contractReference);
-		this.clientConfirmedEmail = updatePolicyRequest.emailDetails.emailAddress;
-		this._goToLifeSuccess();
+	// Update life policy, but not yet accepted
+	async _lifeUpdatePolicy(updateRequest) {
+		const updateReq = updateRequest;
+		updateReq.idNumber = this.callerInformation.southAfricanIDNumber;
+		updateReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updateResp = await this.insureLifeService.lifeUpdatePolicy(updateReq, () => true);
+		if (!updateResp.succeeded) {
+			this.handleToastError(updateResp.exception);
+			return null;
+		}
+		return updateResp.result;
+
+	}
+
+	async _lifeUpdateDocument(documentRequest) {
+		const updateDocReq = documentRequest;
+		updateDocReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updateDocResp = await this.insureLifeService.lifeUpdateAgreement(updateDocReq, () => true);
+		if (!updateDocResp.succeeded) {
+			this.handleToastError(updateDocResp.exception);
+			return null;
+		}
+		return updateDocResp.result;
+	}
+
+	async _lifeUpdatePocket(updatePocketRequest) {
+		const updatePocketReq = updatePocketRequest;
+		updatePocketReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updatePocketResp = await this.insureLifeService.lifeUpdatePocket(updatePocketRequest, () => true);
+		if (!updatePocketResp.succeeded) {
+			this.handleToastError(updatePocketResp.exception);
+			return null;
+		}
+		return updatePocketResp.result;
 	}
 
 	/**
@@ -1375,11 +1435,11 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	/**
- * gets the life policy mandates
- * 
- * @param {object} selectedPolicy the selected policy
- * @returns {void}
- */
+	 * gets the life policy mandates
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
 	async _retrieveLifePolicyMandates(selectedPolicy) {
 		const mandatesRequest =
 		{
@@ -2065,7 +2125,7 @@ export class ExistingClient extends InsureViewBase {
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
-				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum)}"
+				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, false)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
@@ -2076,6 +2136,8 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this._lifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
 				.executeLifeReIssue="${(reIssueRequest) => this._lifeReIssue(reIssueRequest)}"
 				.executeLifeAcceptPolicy="${(issueRequest) => this._lifeAcceptPolicy(issueRequest)}"
+				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
+				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
 				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
@@ -2085,6 +2147,7 @@ export class ExistingClient extends InsureViewBase {
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
 				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
+				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"

@@ -15,7 +15,9 @@ const VALIDATION_ERRORS = {
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	FUTURE_DATE: `Date of birth cannot be in the future`
 };
 
 const STEPS = {
@@ -30,6 +32,8 @@ const NEW_BENEFICIARY_TYPES = {
 	EXISTING: `EXISTING`,
 	UNSET: `UNSET`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -120,8 +124,20 @@ class LifeAddChildDialog extends Component {
 	// #region PRIVATE METHODS
 
 	initialise() {
-		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
+		const eligible = this.policy.guardians ?? [];
 
+		const sortedEligible = eligible.sort((a, b) => {
+			if (a.firstName < b.firstName) {
+				return -1;
+			  }
+			  if (a.firstName > b.firstName) {
+				return 1;
+			  }
+			  return 0;
+			});
+
+		this.eligibleGuardiansForQuickAdd = sortedEligible;
+		
 		// Add all existing children or new one to list
 		if (this.policy.beneficiaries.length > 0) {
 			for (const bene of this.policy.beneficiaries) {
@@ -175,8 +191,10 @@ class LifeAddChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.eligibleGuardiansForQuickAdd.length > 0) {
+			console.log(`There are some`);
 			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		} else {
+			console.log(`Nope none`);
 			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		}
 		return steps;
@@ -240,7 +258,12 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (isValid) {
-			this.currentStep++;
+			if (this.eligibleGuardiansForQuickAdd.length === 0 && this.currentStep === STEPS.CHILD_DETAILS) {
+				this.currentStep = STEPS.GUARDIAN_DETAILS;
+			} else {
+				this.currentStep++;
+			}
+
 		}
 	}
 
@@ -328,6 +351,9 @@ class LifeAddChildDialog extends Component {
 		} else if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 			stepValid = false;
+		} else if (new Date(this.newChildErrors.dateOfBirth) > new Date()) {
+			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
+			stepValid = false;
 		} else {
 			this.newChildErrors.dateOfBirth = ``;
 		}
@@ -339,6 +365,13 @@ class LifeAddChildDialog extends Component {
 			} else {
 				this.newChildErrors.idNumber = ``;
 			}
+		}
+
+		if (!isNullorEmpty(this.newChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newChild?.contactEmail)) {
+			this.newChildErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newChildErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -431,6 +464,13 @@ class LifeAddChildDialog extends Component {
 			} else {
 				this.newGuardianErrors.idNumber = ``;
 			}
+		}
+
+		if (!isNullorEmpty(this.newGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newGuardian?.contactEmail)) {
+			this.newGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newGuardianErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -685,8 +725,11 @@ class LifeAddChildDialog extends Component {
 				}
 			} else {
 				this.newGuardian.idNumber = e.detail.new;
+				console.log('this.newGuardian.idNumber  :>> ', this.newGuardian.idNumber);
 				if (this.newGuardian.idNumber.length === 13) {
+					console.log(`this.newGuardian.idNumber.length === 13`);
 					this.newGuardian.dateOfBirth = getDobFromIDNumber(this.newGuardian.idNumber);
+					console.log('this.newGuardian.dateOfBirth :>> ', this.newGuardian.dateOfBirth);
 					this.newGuardianErrors.dateOfBirth = ``;
 					this.newGuardianErrors.idNumber = ``;
 				}
@@ -1044,7 +1087,8 @@ class LifeAddChildDialog extends Component {
 			
 				<capitec-text-field 
 					label="Surname"
-					style="width: 50%" 
+					style="width: 50%"
+					value="${this.newChild?.lastName}"
 					error="${this.newChildErrors?.lastName === undefined ? `` : this.newChildErrors.lastName}"
 					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
@@ -1054,6 +1098,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="ID Number" 
 					style="width: 50%" 
+					value="${this.newChild?.idNumber}"
+					error="${this.newChildErrors?.idNumber === undefined ? `` : this.newChildErrors.idNumber}"
 					maxlength="13" 
 					type="numeric"
 					@value-changed="${(e) => this._idChange(e, true)}">
@@ -1077,6 +1123,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="Cellphone number (optional)" 
 					style="width: 50%" 
+					value="${this.newChild?.contactNumber}"
+					error="${this.newChildErrors?.contactNumber === undefined ? `` : this.newChildErrors.contactNumber}"
 					maxlength="10" 
 					type="numeric"
 					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
@@ -1085,6 +1133,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="Email address (optional)" 
 					style="width: 50%"
+					value="${this.newChild?.contactEmail}"
+					error="${this.newChildErrors?.contactEmail === undefined ? `` : this.newChildErrors.contactEmail}"
 					@value-changed="${(e) => this._emailChange(e, true)}" >
 				</capitec-text-field>
 			</div>
@@ -1165,8 +1215,9 @@ class LifeAddChildDialog extends Component {
 					type="single" 
 					mode="date" 
 					inputType="calendar"
+					date="${this.newGuardian?.dateOfBirth}"
 					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
-					value="${this.newGuardian.dateOfBirth}"
+					value="${formatDate(this.newGuardian.dateOfBirth)}"
 					error="${this.newGuardianErrors?.dateOfBirth === undefined ? `` : this.newGuardianErrors.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e, false)}">
 				</capitec-date-time-picker>

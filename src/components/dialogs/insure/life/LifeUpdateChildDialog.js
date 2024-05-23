@@ -13,7 +13,8 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	INVALID_EMAIL: `Enter a valid email address`
 };
 
 const STEPS = {
@@ -22,6 +23,8 @@ const STEPS = {
 	GUARDIAN_DETAILS: 3,
 	MONEY_ALLOCATION: 4
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -393,6 +396,13 @@ class LifeUpdateChildDialog extends Component {
 			}
 		}
 
+		if (!isNullorEmpty(this.updatingChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingChild?.contactEmail)) {
+			this.childErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.childErrors.contactEmail = ``;
+		}
+
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
@@ -647,13 +657,22 @@ class LifeUpdateChildDialog extends Component {
 			}
 			
 			<div class="grouping">
-				<capitec-select label="Title" display-field="text" id-field="code" style="width: 50%" value="${this.updatingChild?.title}" 
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" 
+					style="width: 50%" 
+					value="${this.updatingChild?.title}" 
 					error="${this.updatingChild?.title === undefined ? `` : this.childErrors.title}"
 					.items="${this.titleOptions}" 
 					@value-changed="${(e) => this._titleChange(e)}">
 				</capitec-select>
 
-				<capitec-select label="Gender"  display-field="text" id-field="code"  style="width: 50%" 
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code" 
+					style="width: 50%" 
 					value="${this.updatingChild?.gender}" 
 					error="${this.updatingChild?.gender === undefined ? `` : this.childErrors.gender}"
 					.items="${this.genderOptions}"
@@ -680,7 +699,11 @@ class LifeUpdateChildDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-select label="Relationship" .items="${this.childBeneficiaryRelationships}" display-field="text" id-field="code"
+				<capitec-select 
+					label="Relationship" 
+					.items="${this.childBeneficiaryRelationships}" 
+					display-field="text" 
+					id-field="code"
 					style="width: 50%" value="${this.updatingChild?.relationship}" 
 					@value-changed = "${(e) => this._relationshipChange(e)}">
 				</capitec-select>
@@ -697,7 +720,11 @@ class LifeUpdateChildDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
 					error="${this.childErrors?.idNumber === undefined ? `` : this.childErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
@@ -716,6 +743,16 @@ class LifeUpdateChildDialog extends Component {
 					error="${this.childErrors?.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Email address (optional)" 
+					style="width: 50%" 
+					value="${this.updatingChild?.contactEmail}"
+					error="${this.childErrors?.contactEmail === undefined ? `` : this.childErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e)}">
+				</capitec-text-field>
 			</div>
 		`;
 	}
