@@ -13,7 +13,8 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
-	INVALID_CELL_NUMBER: `Cellphone Number is invalid`
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
+	INVALID_EMAIL: `Enter a valid email address`
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -21,6 +22,8 @@ const NEW_BENEFICIARY_TYPES = {
 	EXISTING: `EXISTING`,
 	UNSET: `UNSET`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -374,9 +377,11 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.contactEmail = e.detail.new;
 		}
+
 		if (!isNullorEmpty(this.newBeneficiary.contactEmail)) {
 			this.newBeneficiaryErrors.contactEmail = ``;
 		}
+
 	}
 
 	/**
@@ -479,6 +484,15 @@ class LifeAddBeneficiaryDialog extends Component {
 				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			}
+		}
+
+		if (isNullorEmpty(this.newBeneficiary?.contactEmail)) {
+			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
+			this.newBeneficiaryErrors.contactEmail = ``;
+		} else {
+			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 		}
 
 		if (stepValid === false) {

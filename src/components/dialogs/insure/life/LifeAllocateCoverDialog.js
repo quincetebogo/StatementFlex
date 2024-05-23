@@ -1105,7 +1105,7 @@ class LifeAllocateCoverDialog extends Component {
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
 					];
-					newBene.bankDetails = null;
+					newBene.bankDetails = {};
 					newBene.contactDetails = {
 						contactNumber: bene.contactNumber
 					};
@@ -1174,7 +1174,7 @@ class LifeAllocateCoverDialog extends Component {
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
 					];
-					newBene.bankDetails = null;
+					newBene.bankDetails = {};
 					newBene.contactDetails = {
 						contactNumber: bene.contactNumber
 					};
