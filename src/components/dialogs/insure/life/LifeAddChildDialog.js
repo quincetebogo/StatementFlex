@@ -15,7 +15,9 @@ const VALIDATION_ERRORS = {
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	INVALID_EMAIL: `Enter a valid email address`,
+	FUTURE_DATE: `Date of birth cannot be in the future`
 };
 
 const STEPS = {
@@ -30,6 +32,8 @@ const NEW_BENEFICIARY_TYPES = {
 	EXISTING: `EXISTING`,
 	UNSET: `UNSET`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -335,6 +339,9 @@ class LifeAddChildDialog extends Component {
 		} else if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 			stepValid = false;
+		} else if (new Date(this.newChildErrors.dateOfBirth) > new Date()) {
+			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
+			stepValid = false;
 		} else {
 			this.newChildErrors.dateOfBirth = ``;
 		}
@@ -346,6 +353,13 @@ class LifeAddChildDialog extends Component {
 			} else {
 				this.newChildErrors.idNumber = ``;
 			}
+		}
+
+		if (!isNullorEmpty(this.newChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newChild?.contactEmail)) {
+			this.newChildErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newChildErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -438,6 +452,13 @@ class LifeAddChildDialog extends Component {
 			} else {
 				this.newGuardianErrors.idNumber = ``;
 			}
+		}
+
+		if (!isNullorEmpty(this.newGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newGuardian?.contactEmail)) {
+			this.newGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newGuardianErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -1054,7 +1075,8 @@ class LifeAddChildDialog extends Component {
 			
 				<capitec-text-field 
 					label="Surname"
-					style="width: 50%" 
+					style="width: 50%"
+					value="${this.newChild?.lastName}"
 					error="${this.newChildErrors?.lastName === undefined ? `` : this.newChildErrors.lastName}"
 					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
@@ -1064,6 +1086,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="ID Number" 
 					style="width: 50%" 
+					value="${this.newChild?.idNumber}"
+					error="${this.newChildErrors?.idNumber === undefined ? `` : this.newChildErrors.idNumber}"
 					maxlength="13" 
 					type="numeric"
 					@value-changed="${(e) => this._idChange(e, true)}">
@@ -1087,6 +1111,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="Cellphone number (optional)" 
 					style="width: 50%" 
+					value="${this.newChild?.contactNumber}"
+					error="${this.newChildErrors?.contactNumber === undefined ? `` : this.newChildErrors.contactNumber}"
 					maxlength="10" 
 					type="numeric"
 					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
@@ -1095,6 +1121,8 @@ class LifeAddChildDialog extends Component {
 				<capitec-text-field 
 					label="Email address (optional)" 
 					style="width: 50%"
+					value="${this.newChild?.contactEmail}"
+					error="${this.newChildErrors?.contactEmail === undefined ? `` : this.newChildErrors.contactEmail}"
 					@value-changed="${(e) => this._emailChange(e, true)}" >
 				</capitec-text-field>
 			</div>
