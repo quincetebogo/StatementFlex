@@ -2100,7 +2100,7 @@ class ClientSummary extends Component {
 								<horizon-label
 									label="Cancelation Date"
 									class="ghost-label"
-									value="${isNullorEmpty(pol?.actualCancellationDate) ? `-` : formatDate(pol?.actualCancellationDate, `dd mmm yyyy`)}">
+									value="${isNullorEmpty(pol?.effectiveCancellationDate) ? `-` : formatDate(pol?.effectiveCancellationDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
 							<div>
