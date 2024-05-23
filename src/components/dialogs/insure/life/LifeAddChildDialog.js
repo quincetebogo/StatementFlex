@@ -120,8 +120,20 @@ class LifeAddChildDialog extends Component {
 	// #region PRIVATE METHODS
 
 	initialise() {
-		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
+		const eligible = this.policy.guardians ?? [];
 
+		const sortedEligible = eligible.sort((a, b) => {
+			if (a.firstName < b.firstName) {
+				return -1;
+			  }
+			  if (a.firstName > b.firstName) {
+				return 1;
+			  }
+			  return 0;
+			});
+
+		this.eligibleGuardiansForQuickAdd = sortedEligible;
+		
 		// Add all existing children or new one to list
 		if (this.policy.beneficiaries.length > 0) {
 			for (const bene of this.policy.beneficiaries) {
