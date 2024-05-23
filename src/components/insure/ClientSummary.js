@@ -466,7 +466,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendFuneralEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
 		this.showFuneralEmailPlanDialog = false;
 	}
 
@@ -2146,9 +2146,9 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							<!-- ${this.readOnlyMode === true || pol.canReIssue === false ? html`` : html`
+							<!-- ${this.readOnlyMode === false && pol.canReIssue === true ? html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							`}  -->
+							` : html``}  -->
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)

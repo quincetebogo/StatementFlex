@@ -174,7 +174,7 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyArrears: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
 		};
 	}
 
