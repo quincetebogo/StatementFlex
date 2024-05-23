@@ -464,7 +464,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_sendFuneralEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
+		this.dispatchEvent(new CustomEvent(`send-funeral-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES, contractRef: this.emailContractRef, productCode: this.selectedProductCode } }));
 		this.showFuneralEmailPlanDialog = false;
 	}
 
