@@ -607,7 +607,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 		const lifeEmailSuccess = await this._sendLifeEmail(e);
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, resp.result.policyNumber);
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, ehang.detail.contractReference);
 		this.clientConfirmedEmail = e.detail.emailAddress;
 		this._goToLifeSuccess();
 	}
