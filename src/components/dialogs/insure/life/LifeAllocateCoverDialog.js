@@ -1085,21 +1085,17 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
+
 			// Update / Re Allocate Only
 			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+				this.updatedPolicy.pockets.forEach(pocket => {
+					pocket.premium = 0.0;
+				});
+
 				const requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
-					if (newBene.onceOffPayoutBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Child`;
-					}
-
+					newBene.role = `Beneficiary`;
 					newBene.benefits = [
 						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
@@ -1107,8 +1103,10 @@ class LifeAllocateCoverDialog extends Component {
 					];
 					newBene.bankDetails = {};
 					newBene.contactDetails = {
-						contactNumber: bene.contactNumber,
-						contactEmail: bene.contactEmail
+						cellphone: bene.contactNumber,
+						email: bene.contactEmail,
+						homephone: ``,
+						workphone: ``
 					};
 					requestBeneficiaries.push(newBene);
 				});
@@ -1126,7 +1124,7 @@ class LifeAllocateCoverDialog extends Component {
 							"accountType": this.updatedPolicy.bankDetails.accountType
 						}
 					},
-					"totalLoadingApplied": this.updatedPolicy.totalLoadingApplied,
+					"totalLoadingApplied": 0.0,
 					"underwriting": `No`,
 					"channel": `Horizon`,
 					"riskRate": this.updatedPolicy.riskRate,
