@@ -240,7 +240,7 @@ export class StopCard extends Component {
 			item.cardStopReason = ``;
 			item.cardHoldName = item.cardholderName;
 			item.primaryAccountId = item.primarySavingsAccountId || item.primaryCreditAccountId;
-
+			item.cardDisplayName = item.cardArt.split(`_`).includes(`DEBIT`) ? `Debit Card` : `Credit Card`;
 			return item;
 		});
 
@@ -301,10 +301,11 @@ export class StopCard extends Component {
 				}
 				horizon-card-art {
 					--horizon-card-art-width: 328px;
-					--horizon-card-art-height: 304px;
+					--horizon-card-art-height: 316px;
 					width: var(--horizon-card-art-width);
 					height: var(--horizon-card-art-height);
 					margin-bottom: 32px;
+					--horizon-card-art-info-group-height: auto;
 				}
 				.virtual-card-art {
 					--horizon-card-art-height: 362px;
@@ -454,7 +455,7 @@ export class StopCard extends Component {
 				<horizon-label
 					class="${card.cardDisplayType !== `Virtual_Card` ? `hide` : ``}"
 					label="Friendly name"
-					value="${card.cardFriendlyName}">
+					value="${card.cardFriendlyName || `-`}">
 				</horizon-label>
 			</capitec-content-box>
 		`;
