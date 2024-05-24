@@ -31,6 +31,7 @@ import 'app/components/dialogs/common/Feedback';
 import 'app/components/dialogs/quickTransactions/PayshapUpdate';
 import 'app/components/quickTransactions/SettlementQuote';
 import 'app/components/quickTransactions/TaxCertificateLanding';
+import 'app/components/quickTransactions/UpdateCardSettings';
 
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
@@ -144,6 +145,7 @@ export class Favourites extends SavingsAccountBase {
 			const paidUpAccounts = () => this._paidUpAccounts();
 			const sendCash = () => this._sendCash();
 			const payShap = () => this._payShap();
+			const updateCardSettings = () => this._updateCardSettings();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -157,7 +159,8 @@ export class Favourites extends SavingsAccountBase {
 				'settlement-quote': settlementQuote,
 				'paid-up-accounts': paidUpAccounts,
 				'send-cash': sendCash,
-				'payshap': payShap
+				'payshap': payShap,
+				'update-card-settings': updateCardSettings
 			};
 
 			if (actions[option]) {
@@ -1138,6 +1141,48 @@ export class Favourites extends SavingsAccountBase {
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
 	}
 
+	/** Update card settings */
+
+	async _updateCardSettings() {
+		// service call to get list of cards
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
+
+		if (returnValue.succeeded) {
+			this.cardsList = returnValue.result.cards;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_SETTINGS;
+			return;
+		}
+		this.horizonRouter.navigateToSystemError();
+	}
+
+	async _deactivateCardTransactions(event) {
+		// service call to deactivate online purchases and International transactions
+		
+		const requestDetails = event.detail.cardsListToDeactivate?.map(card => {
+			const updatedCard = {
+				cardNumber: card.cardNumber,
+				internationalTransactions: card.internationalTransactions ? null : false,
+				ecommerce: card.ecommerce ? null : false
+			};
+			return updatedCard;
+		});
+
+		const returnValue = await this.cardService.updateCardsSettings(this.callerInformation.cifNumber, requestDetails);
+		if (returnValue.succeeded) {
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-settings`);
+
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.deactivatedCardsList = returnValue.result.cards;
+			screenDetails.ecommerceUpdated = event.detail.ecommerceUpdated;
+			screenDetails.internationalUpdated = event.detail.internationalUpdated;
+
+			this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonRouter.navigateToCardSettingsOutcome();
+			return;
+		}
+		this.horizonRouter.navigateToSystemError();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1199,6 +1244,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderPayShap()}
 			${this._renderPayShapUpdateModal()}
 			${this._renderPayShapPOP()}
+			${this._renderUpdateCardSettings()}
 
 			${super._webTemplate()}
 		`;
@@ -1365,7 +1411,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 		<horizon-paid-up-accounts
 			.accountsInfo="${this.accountsInfo}"
-			@back="${() => this._backToLandingPage()}">
+			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 		</horizon-paid-up-accounts>`
 		: html``;
 	}
@@ -1442,6 +1488,16 @@ export class Favourites extends SavingsAccountBase {
 		: html``;
 	}
 
+	_renderUpdateCardSettings() {
+		return this.renderMode === RENDER_MODE.UPDATE_CARD_SETTINGS
+		? html`
+			<horizon-update-card-settings
+					.cards = ${this.cardsList}
+					@back="${() => this._backToLandingPage()}"
+					@deactivate="${(event) => this._deactivateCardTransactions(event)}">
+			</horizon-update-card-settings>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
