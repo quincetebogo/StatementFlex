@@ -151,10 +151,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		} catch (error) {
 			this.showTable = false;
 
-			console.error(error);
-
-			if (this.clientCif) {
-				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			if (
+				this.activeFilters.searchType.value === `msisdn` &&
+				this.activeFilters.searchValue.trim() !== `` &&
+				this.clientCif
+			) {
+				alert("Error: " + `The provided MSISDN [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif}]`);
 			}
 
 			return {
@@ -519,7 +521,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			rechargeStatus = item.recharges[0]?.status || rechargeStatus;
 			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
 		} else {
-			rechargeStatusReason = "No recharge occurred."
+			rechargeStatusReason = "No recharge occurred.";
+
+			// if there was a transaction, chances are that this was a transaction that didn't have a surplus
+			if (item.transactions.length > 0) {
+				rechargeStatus = item.transactions[0].status;
+			}
 		}
 
 		airtimeSurplus = "R" + airtimeSurplus;
