@@ -1129,7 +1129,7 @@ class LifeAllocateCoverDialog extends Component {
 					"channel": `Horizon`,
 					"riskRate": this.updatedPolicy.riskRate,
 					"channelFee": this.updatedPolicy.channelFee,
-					"maxCoverApplicable": this.updatedPolicy.maximumAllowedCover,
+					"maxCoverApplicable": this.updatedPolicy.totalPolicySumAssured,
 					"discountPercent": 0.0,
 					"beneficiaries": requestBeneficiaries,
 					"pockets": this.updatedPolicy.pockets
