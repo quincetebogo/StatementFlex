@@ -169,10 +169,12 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		} catch (error) {
 			this.showTable = false;
 
-			console.error(error);
-
-			if (this.clientCif) {
-				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			if (
+				this.activeFilters.searchType.value === `msisdn` &&
+				this.activeFilters.searchValue.trim() !== `` &&
+				this.clientCif
+			) {
+				alert("Error: " + `The provided MSISDN [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif}]`);
 			}
 
 			return {
