@@ -374,16 +374,21 @@ export class CardService extends ChannelServiceBase {
 		);
 	};
 
-	async updateCardsSettings(cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updateCardsSettings(cif, cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`updateCardsSettings`)) {
 			return this.mock(`updateCardsSettings`);
 		} 
 
+		const request = {
+			cifNumber: cif,
+			cards: cardsList
+		}
+		
 		const url = `/clientcare-card-${this._version}/UpdateCardSettings`;
 
 		return this.post(
 			url, 
-			model, 
+			request, 
 			this.setToken(), 
 			`updateCardsSettings`, 
 			null, 

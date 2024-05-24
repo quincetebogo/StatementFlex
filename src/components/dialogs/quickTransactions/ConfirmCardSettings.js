@@ -1,12 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
-const CARD_TYPE_MAPPING = {
-	DEBIT_MASTERCARD: `Debit`,
-	MASTERCARD_CREDIT: `Credit`,
-	DEBIT_MASTERCARD_VIRTUAL: `Debit`
-};
-
 /**
  *
  * @export
@@ -176,10 +170,10 @@ export class ConfirmCardSettings extends Component {
 					--horizon-label-value-color: #3A3A3A;
 					border-radius: 4px;
 				}
-				horizon-label[label="Debit card"] {
+				horizon-label[label="Debit Card"] {
 					border-left: 4px solid #009DE0 ;
 				}
-				horizon-label[label="Credit card"] {
+				horizon-label[label="Credit Card"] {
 					border-left: 4px solid #E61414;
 				}
 
@@ -231,13 +225,13 @@ export class ConfirmCardSettings extends Component {
 				layout="horizontal">
 				<horizon-label
 					class="card-label"
-					label="${CARD_TYPE_MAPPING[card.cardType]} card"
+					label="${card.cardDisplayName}"
 					value="${card.maskedCardNumber}">
 				</horizon-label>
 				<horizon-label
-					class="${card.type !== `VIRTUAL_CARD` ? `hide` : ``}"
+					class="${card.cardDisplayType !== `Virtual_Card` || card.cardFriendlyName ? `hide` : ``}"
 					label="Friendly name"
-					value="${card.cardFriendlyName}">
+					value="${card.cardFriendlyName || `-`}">
 				</horizon-label>
 			</capitec-group>`;
 	}

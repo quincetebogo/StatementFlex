@@ -1156,41 +1156,24 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	_deactivateCardTransactions(event) {
+	async _deactivateCardTransactions(event) {
 		// service call to deactivate online purchases and International transactions
-		// const returnValue = await this.cardService.updateCardsSettings(cardsList);
-		if (true) {
-			const response = [
-				{
-					cardNumber: `5284 **** **** 1212`,
-					internationalTransactionsUpdated: `SUCCESS`,
-					ecommerceUpdated: `ERROR`
-				},
-				{
-					cardNumber: `5284 **** **** 1213`,
-					internationalTransactionsUpdated: `SUCCESS`,
-					ecommerceUpdated: `ERROR`
-				},
-				{
-					cardNumber: `5284 **** **** 1214`,
-					internationalTransactionsUpdated: `SUCCESS`,
-					ecommerceUpdated: `ERROR`
-				},
-				{
-					cardNumber: `5284 **** **** 1215`,
-					internationalTransactionsUpdated: `SUCCESS`,
-					ecommerceUpdated: `ERROR`
-				},
-				{
-					cardNumber: `5284 **** **** 1216`,
-					internationalTransactionsUpdated: `ERROR`,
-					ecommerceUpdated: `ERROR`
-				}
-			];
+		
+		const requestDetails = event.detail.cardsListToDeactivate?.map(card => {
+			const updatedCard = {
+				cardNumber: card.cardNumber,
+				internationalTransactions: card.internationalTransactions ? null : false,
+				ecommerce: card.ecommerce ? null : false
+			};
+			return updatedCard;
+		});
+
+		const returnValue = await this.cardService.updateCardsSettings(this.callerInformation.cifNumber, requestDetails);
+		if (returnValue.succeeded) {
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-settings`);
 
 			const screenDetails = this.horizonStore.getScreenDetails();
-			// screenDetails.deactivatedCardsList = returnValue.result.cards;
-			screenDetails.deactivatedCardsList = response;
+			screenDetails.deactivatedCardsList = returnValue.result.cards;
 			screenDetails.ecommerceUpdated = event.detail.ecommerceUpdated;
 			screenDetails.internationalUpdated = event.detail.internationalUpdated;
 

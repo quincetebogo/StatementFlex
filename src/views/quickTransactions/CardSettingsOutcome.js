@@ -64,7 +64,7 @@ export class CardSettingsOutcome extends ViewBase {
 		this._getOutcomeDetails();
 		this._updateIncidentState();
 
-		window.setTimeout(() => this.displayToast = false, 300000);
+		window.setTimeout(() => this.displayToast = false, 3000);
 	}
 
 	disconnectedCallback() {
@@ -77,6 +77,7 @@ export class CardSettingsOutcome extends ViewBase {
 
 	_doneClick() {
 		this.horizonStore.clearScreenDetails();
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -97,7 +98,7 @@ export class CardSettingsOutcome extends ViewBase {
 			this.toast = this._getToast();
 			this.secondaryToast = this._getSecondaryToast();
 			this.displayImage = this.succeededCards.length > 0 && this.failedCards.length > 0 
-									? `/images/cardSettings/CardSettingsPartialSuccess.svg`
+									? `/images/insure/assign-pay-arrears.svg`
 									: `/images/cardSettings/CardSettingsSuccess.svg`;
 	}
 
