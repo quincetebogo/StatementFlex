@@ -309,6 +309,18 @@ export class FavouriteTransactions extends Component {
 					?disabled="${this.shouldDisableByRole(`stop-card`)}">
 				</horizon-option-button>
 
+				<!-- Update Card Setting -->
+				<horizon-option-button
+					data-automation-id="favourite-transactions-update-card-settings"
+					label="Update Card Settings"
+					icon="system/cards-action" 
+					iconSize="default"
+					?showTooltip="${this.showTooltip(`update-card-settings`)}"
+					.tooltipMessage="${this.getTooltipMessage(`update-card-settings`)}"
+					@click="${() => this._optionSelectedClick(`update-card-settings`)}"
+					?disabled="${this.shouldDisableByRole(`update-card-settings`)}">
+				</horizon-option-button>
+
 				<!-- Update Card Limits -->
 				<!-- Agent should inform Client to update through APP. -->
 				<horizon-option-button
@@ -322,18 +334,6 @@ export class FavouriteTransactions extends Component {
 					?disabled="${true}">
 				</horizon-option-button>
 				</capitec-tooltip>
-
-				<!-- Update Card Setting -->
-				<horizon-option-button
-					data-automation-id="favourite-transactions-update-card-settings"
-					label="Update Card Settings"
-					icon="system/cards-action" 
-					iconSize="default"
-					?showTooltip="${this.showTooltip(`update-card-settings`)}"
-					.tooltipMessage="${this.getTooltipMessage(`update-card-settings`)}"
-					@click="${() => this._optionSelectedClick(`update-card-settings`)}"
-					?disabled="${this.shouldDisableByRole(`update-card-settings`)}">
-				</horizon-option-button>
 
 				<!-- Tap to Pay -->
 				<horizon-option-button

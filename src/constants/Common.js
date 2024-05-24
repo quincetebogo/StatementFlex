@@ -18,7 +18,6 @@ export const HIGH_RISK_TRANSACTIONS = [
 		`tax-certificate`, 
 		`proof-of-account`,
 		`send-cash-place-hold`
-		// `update-card-settings`
 	];
 
 /**

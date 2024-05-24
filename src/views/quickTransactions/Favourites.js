@@ -16,7 +16,6 @@ import { creditMixin } from 'app/views/credit/CreditMixin';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { searchOtherNeedMixin } from 'app/views/common/SearchOtherNeedMixin';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
-import { cards } from 'app/mocks/CardLimitsMock';
 
 import 'app/components/dialogs/common/WarningDialog';
 import 'app/components/dialogs/common/ClientNotVerified';
