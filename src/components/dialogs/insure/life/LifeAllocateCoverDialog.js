@@ -1723,12 +1723,22 @@ class LifeAllocateCoverDialog extends Component {
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.MONTHLY) === true ? html`
 
 						<!-- Per Pocket Errors -->
-						${this._remainingPocketBalance(LIFE_POCKET_TYPES.MONTHLY) !== 0 ? html`
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.MONTHLY) > 0 ? html`
 							<horizon-alert-banner
 								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
 								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
+							</horizon-alert-banner>
+						` : html``}
+
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.MONTHLY) < 0 ? html`
+							<horizon-alert-banner
+								type="error"
+								class="per-pocket-error-banner"
+								header="Allocation mismatch:"
+								label="Please reduce the amount for one or more beneficiaries so that the total amount is equal to ${formatCurrency(this.monthlyTotalCoverValue)}"
 								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
@@ -1809,12 +1819,22 @@ class LifeAllocateCoverDialog extends Component {
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.ONCEOFF) === true ? html`
 
 						<!-- Per Pocket Errors -->
-						${this._remainingPocketBalance(LIFE_POCKET_TYPES.ONCEOFF) !== 0 ? html`
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.ONCEOFF) > 0 ? html`
 							<horizon-alert-banner
 								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
 								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
+							</horizon-alert-banner>
+						` : html``}
+
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.ONCEOFF) < 0 ? html`
+							<horizon-alert-banner
+								type="error"
+								class="per-pocket-error-banner"
+								header="Allocation mismatch:"
+								label="Please reduce the amount for one or more beneficiaries so that the total amount is equal to ${formatCurrency(this.onceOffCoverValue)}"
 								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
@@ -1889,12 +1909,22 @@ class LifeAllocateCoverDialog extends Component {
 				<capitec-tab label="Children's Needs" layout="vertical" halign="left">
 					${this._pocketHasCoverAllocated(LIFE_POCKET_TYPES.EDUCATION) === true ? html`
 						<!-- Per Pocket Errors -->
-						${this._remainingPocketBalance(LIFE_POCKET_TYPES.EDUCATION) !== 0 ? html`
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.EDUCATION) > 0 ? html`
 							<horizon-alert-banner
 								type="error"
 								class="per-pocket-error-banner"
 								header="Allocation mismatch:"
 								label="The full cover amount for this benefit payout option must be allocated to nominated people"
+								layout="vertical">
+							</horizon-alert-banner>
+						` : html``}
+
+						${this._remainingPocketBalance(LIFE_POCKET_TYPES.EDUCATION) < 0 ? html`
+							<horizon-alert-banner
+								type="error"
+								class="per-pocket-error-banner"
+								header="Allocation mismatch:"
+								label="Please reduce the amount for one or more beneficiaries so that the total amount is equal to ${formatCurrency(this.educationCoverValue)}"
 								layout="vertical">
 							</horizon-alert-banner>
 						` : html``}
