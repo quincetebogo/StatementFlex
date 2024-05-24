@@ -166,6 +166,11 @@ export class FavouriteTransactions extends Component {
 					margin-right: 16px;
 				}
 
+				horizon-option-button[label="Update Card Settings"] {
+					--theme-button-padding-left: 16px;
+					--theme-button-padding-right: 16px;
+				}
+
 				.toast {
 					position: absolute;
 					top : 70px;
@@ -302,6 +307,18 @@ export class FavouriteTransactions extends Component {
 					.tooltipMessage="${this.getTooltipMessage(`stop-card`)}"
 					@click="${() => this._optionSelectedClick(`stop-card`)}"
 					?disabled="${this.shouldDisableByRole(`stop-card`)}">
+				</horizon-option-button>
+
+				<!-- Update Card Setting -->
+				<horizon-option-button
+					data-automation-id="favourite-transactions-update-card-settings"
+					label="Update Card Settings"
+					icon="system/cards-action" 
+					iconSize="default"
+					?showTooltip="${this.showTooltip(`update-card-settings`)}"
+					.tooltipMessage="${this.getTooltipMessage(`update-card-settings`)}"
+					@click="${() => this._optionSelectedClick(`update-card-settings`)}"
+					?disabled="${this.shouldDisableByRole(`update-card-settings`)}">
 				</horizon-option-button>
 
 				<!-- Update Card Limits -->
