@@ -81,6 +81,11 @@ class LifeAllocateCoverDialog extends Component {
 		this.accountName = ``;
 		this.defaultSavingsAccountNumber = ``;
 
+		this.originalBankName = ``;
+		this.originalAccountNumber = ``;
+		this.originalBranchCode = ``;
+		this.originalAccountType = ``;
+
 		this.agreementEmail = ``;
 		this.agreementEmailConfirm = ``;
 		this.showAgreementDocumentDialog = false;
@@ -174,6 +179,11 @@ class LifeAllocateCoverDialog extends Component {
 	async _initialise() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		this.accountName = `${callerInfo.firstName} ${callerInfo.lastName}`;
+
+		this.originalBankName = this.currentPolicy.bankDetails.bank;
+		this.originalAccountNumber = this.currentPolicy.bankDetails.accountNumber;
+		this.originalBranchCode = this.currentPolicy.bankDetails.branchCode;
+		this.originalAccountType = this.currentPolicy.bankDetails.accountType;
 
 		this.updatedPolicy = { ...this.currentPolicy };
 		if (!isNullorEmpty(this.newOffer)) {
@@ -1145,6 +1155,16 @@ class LifeAllocateCoverDialog extends Component {
 					return;
 				}
 
+
+				// "collectionDay": this.updatedPolicy.bankDetails.collectionDay,
+				// "bankDetails": {
+				// 	"accountName": this.accountName,
+				// 	"branchCode": this.updatedPolicy.bankDetails.branchCode,
+				// 	"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
+				// 	"bank": this.updatedPolicy.bankDetails.bank,
+				// 	"accountType": this.updatedPolicy.bankDetails.accountType
+				// }
+
 				const updateAgreementReq = {
 					"saveDocument": false,
 					"documentOptions": {
@@ -1154,15 +1174,30 @@ class LifeAllocateCoverDialog extends Component {
 						"channel": `Horizon`,
 						"contentType": `Pdf`
 					},
+					"bankingDetails": {
+						"currentBankName": this.originalBankName,
+						"newBankName": this.updatedPolicy.bankDetails.bank,
+						"currentAccountNumber": this.originalAccountNumber,
+						"newAccountNumber": this.updatedPolicy.bankDetails.accountNumber,
+						"currentBranchCode": this.originalBranchCode,
+						"newBranchCode": this.updatedPolicy.bankDetails.branchCode,
+						"currentAccountType": this.originalAccountType,
+						"newAccountType": this.updatedPolicy.bankDetails.accountType,
+						"collectionDay": this.updatedPolicy.bankDetails.collectionDay
+					},
+					"acceptanceDate": new Date(),
+					"signatureDate": new Date(),
 					"metadata": {},
 					"nonPrimarySignatoryDetails": {},
 					"userDetails": {},
 					"policyNumber": this.updatePolicyResult.policyNumber,
-					"updatePolicy": false,
+					"updatePolicy": true,
 					"totalPremium": this.updatePolicyResult.newPremium,
 					"totalCoverAmount": this.updatePolicyResult.newCoverAmount,
 					"beneficiaries": requestBeneficiaries
 				};
+
+				console.log('updateAgreementReq :>> ', updateAgreementReq);
 				const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
 				console.log(`updateAgreementResp :>> `, updateAgreementResp);
 				if (updateAgreementResp === null) {

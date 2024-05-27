@@ -1389,6 +1389,7 @@ export class ExistingClient extends InsureViewBase {
 	async _lifeUpdateDocument(documentRequest) {
 		const updateDocReq = documentRequest;
 		updateDocReq.cifNumber = this.callerInformation.cifNumber;
+		updateDocReq.bankingDetails.idNumber = this.callerInformation.southAfricanIDNumber;
 
 		const updateDocResp = await this.insureLifeService.lifeUpdateAgreement(updateDocReq, () => true);
 		if (!updateDocResp.succeeded) {
