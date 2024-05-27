@@ -339,7 +339,10 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
-			const value = e.detail.new;
+			let value = e.detail.new;
+			if (isNaN(value) || value === `` || value < 0) {
+				value = 0;
+			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
 				bene.educationBenefitAmount = value;
 			}

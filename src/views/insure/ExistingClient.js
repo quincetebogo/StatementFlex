@@ -1961,7 +1961,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _refreshLifePolicies() {
 		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
-		this.lifePolicies = {};
 		this.lifePolicies = await this._retrieveClientLifePolicies();
 		console.log(`this.lifePolicies: `, this.lifePolicies);
 		this.requestUpdate();
@@ -2139,7 +2138,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeAcceptPolicy="${(issueRequest) => this._lifeAcceptPolicy(issueRequest)}"
 				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
 				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
-				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
+				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"

@@ -222,6 +222,7 @@ class ClientSummary extends Component {
 			executeLifePayArrears: { type: Object, state: true },
 			executeLifeArrearsSendEmail: { type: Object, state: true },
 			executeGetLifeQuestionnaire: { type: Object, state: true },
+			executeLifeRefreshPolicies: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
@@ -746,10 +747,9 @@ class ClientSummary extends Component {
 		}));
 	}
 
-
-	_cancelLifeUpdatePolicyFlow() {
+	async _cancelLifeUpdatePolicyFlow() {
+		await this.executeLifeRefreshPolicies();
 		this.showLifeAllocateCoverDialog = false;
-		this.refreshLifePolicies();
 	}
 
 	/**
