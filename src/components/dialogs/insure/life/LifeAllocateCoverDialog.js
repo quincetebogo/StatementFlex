@@ -1285,7 +1285,7 @@ class LifeAllocateCoverDialog extends Component {
 				"emailAddress": this.agreementEmail,
 				"quoteId": this.updatePolicyResult.quoteId,
 				"cifNumber": this.updatePolicyResult.cifNumber,
-				"contractReference": this.updatePolicyResult.contractReference
+				"contractReference": this.updatePolicyResult.policyNumber
 			};
 			const updatePocketResp = await this.executeLifeUpdatePocket(updatePocketReq);
 
