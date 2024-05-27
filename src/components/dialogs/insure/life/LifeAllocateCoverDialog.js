@@ -37,6 +37,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.newOfferAnswers = [];
 
 		this.reIssueResult = {};
+		this.updatePolicyResult = {};
 
 		this.calculatedPremium = 0;
 		this.riskRate = 0;
@@ -1085,7 +1086,6 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
-
 			// Update / Re Allocate Only
 			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
 				this.updatedPolicy.pockets.forEach(pocket => {
@@ -1137,10 +1137,10 @@ class LifeAllocateCoverDialog extends Component {
 
 				console.log(`updatePolicyReq :>> `, updatePolicyReq);
 
-				const updateResp = await this.executeLifeUpdatePolicy(updatePolicyReq);
-				console.log(`updateResp :>> `, updateResp);
+				this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
+				console.log(`updateResp :>> `, this.updatePolicyResult);
 
-				if (updateResp === null) {
+				if (this.updatePolicyResult === null) {
 					stepValid = false;
 					return;
 				}
@@ -1157,14 +1157,14 @@ class LifeAllocateCoverDialog extends Component {
 					"metadata": {},
 					"nonPrimarySignatoryDetails": {},
 					"userDetails": {},
-					"policyNumber": updateResp.policyNumber,
+					"policyNumber": this.updatePolicyResult.policyNumber,
 					"updatePolicy": false,
-					"totalPremium": updateResp.newPremium,
-					"totalCoverAmount": updateResp.newCoverAmount,
-					"beneficiaries": requestBeneficiaries,
+					"totalPremium": this.updatePolicyResult.newPremium,
+					"totalCoverAmount": this.updatePolicyResult.newCoverAmount,
+					"beneficiaries": requestBeneficiaries
 				};
 				const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
-				console.log(`updateResp :>> `, updateResp);
+				console.log(`updateAgreementResp :>> `, updateAgreementResp);
 				if (updateAgreementResp === null) {
 					stepValid = false;
 					return;
@@ -1281,10 +1281,15 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Allocate
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
-			const updateAgreementReq = {};
-			const updateAgreementResp = await this.executeLifeUpdatePocket(updateAgreementReq);
+			const updatePocketReq = {
+				"emailAddress": this.agreementEmail,
+				"quoteId": this.updatePolicyResult.quoteId,
+				"cifNumber": this.updatePolicyResult.cifNumber,
+				"contractReference": this.updatePolicyResult.contractReference
+			};
+			const updatePocketResp = await this.executeLifeUpdatePocket(updatePocketReq);
 
-			if (updateAgreementResp === null) {
+			if (updatePocketResp === null) {
 				return;
 			}
 
@@ -1292,7 +1297,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.dispatchEvent(new CustomEvent(`life-update-completed`, {
 				detail: {
 					emailAddress: this.agreementEmail,
-					policyNumber: `ABC123`
+					policyNumber: this.updatePolicyResult.contractReference
 				}
 			}));
 
