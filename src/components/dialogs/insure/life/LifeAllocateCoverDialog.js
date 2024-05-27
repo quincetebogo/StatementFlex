@@ -252,7 +252,7 @@ class LifeAllocateCoverDialog extends Component {
 			console.log(`this.onceOffCoverValue :>> `, this.onceOffCoverValue);
 
 			this.remainingCoverToAllocate = parseFloat(this.updatedPolicy.totalPolicySumAssured) - parseFloat(this.monthlyTotalCoverValue) - parseFloat(this.onceOffCoverValue) - parseFloat(this.educationCoverValue);
-			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium) + parseFloat(this.channelFee);
+			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium);
 			this.totalCoverAllocatedAllPockets = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
 			// const premiumForCal = premiumMInusChannelFee / totalAllocation;
 			// lumpsumTotal = lumpSum * premiumForCal;
@@ -1029,25 +1029,20 @@ class LifeAllocateCoverDialog extends Component {
 			}
 
 			// Map to pockets
-			const policyPockets = [];
-			if (this.monthlyCoverValue > 0) {
-				policyPockets.push({
-					"coverage": this.monthlyCoverValue,
+			const policyPockets = [
+				{
+					"coverage": this.monthlyTotalCoverValue || 0,
 					"pocketType": `MonthlyPayout`
-				});
-			}
-			if (this.onceOffCoverValue > 0) {
-				policyPockets.push({
-					"coverage": this.onceOffCoverValue,
+				},
+				{
+					"coverage": this.onceOffCoverValue || 0,
 					"pocketType": `LumpSum`
-				});
-			}
-			if (this.educationCoverValue > 0) {
-				policyPockets.push({
-					"coverage": this.educationCoverValue,
+				},
+				{
+					"coverage": this.educationCoverValue || 0,
 					"pocketType": `Education`
-				});
-			}
+				}
+			];
 			this.updatedPolicy.pockets = policyPockets;
 
 			// remove allocations from beneficiaries in pockets with zero cover
@@ -1154,16 +1149,6 @@ class LifeAllocateCoverDialog extends Component {
 					stepValid = false;
 					return;
 				}
-
-
-				// "collectionDay": this.updatedPolicy.bankDetails.collectionDay,
-				// "bankDetails": {
-				// 	"accountName": this.accountName,
-				// 	"branchCode": this.updatedPolicy.bankDetails.branchCode,
-				// 	"accountNumber": this.updatedPolicy.bankDetails.accountNumber,
-				// 	"bank": this.updatedPolicy.bankDetails.bank,
-				// 	"accountType": this.updatedPolicy.bankDetails.accountType
-				// }
 
 				const updateAgreementReq = {
 					"saveDocument": false,
