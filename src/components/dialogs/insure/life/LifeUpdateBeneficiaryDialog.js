@@ -295,11 +295,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			console.log('bene :>> ', bene);
 			bene.metaData.coverErrorMsg = ``;
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
+				console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.onceOffPayoutBenefitAmount < 1000)) {
+				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -337,9 +339,10 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 */
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
-			const value = e.detail.new;
-			console.log('value :>> ', value);
-			console.log('this.selectedPocketType :>> ', this.selectedPocketType);
+			let value = e.detail.new;
+			if (isNaN(value) || value === `` || value < 0) {
+				value = 0;
+			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				bene.monthlyPayoutBenefitAmount = parseFloat(value);
 			}

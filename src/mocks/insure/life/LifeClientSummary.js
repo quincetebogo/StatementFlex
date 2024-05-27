@@ -66,8 +66,8 @@ export const insureLifeClientSummary = {
 				},
 				{
 					"title": `Dr`,
-					"firstName": `Demo`,
-					"lastName": `Man`,
+					"firstName": `Demo2`,
+					"lastName": `Man2`,
 					"rolePlayer": `Primary Beneficiary`,
 					"onceOffPayoutBenefitAmount": 0.0,
 					"educationBenefitAmount": 0.0,
@@ -80,7 +80,7 @@ export const insureLifeClientSummary = {
 					"dateOfBirth": `2005-01-01T00:00:00+00:00`,
 					"contactNumber": `1234567890`,
 					"clientType": `Adult`,
-					"clientId": `13F984EE-32B0-4B83-84DA-91C3743DDA3F`
+					"clientId": `13F984EE-32B0-4B83-84DA-91C3743D6465`
 				}
 			],
 			"totalPolicySumAssured": 2400000.0,

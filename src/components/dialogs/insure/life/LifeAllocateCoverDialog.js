@@ -1116,6 +1116,8 @@ class LifeAllocateCoverDialog extends Component {
 					requestBeneficiaries.push(newBene);
 				});
 
+				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
+
 				const updatePolicyReq = {
 					"effectiveDate": new Date(),
 					"policyNumber": this.updatedPolicy.contractReference,
@@ -1220,7 +1222,6 @@ class LifeAllocateCoverDialog extends Component {
 
 					requestBeneficiaries.push(newBene);
 				});
-
 
 				const reIssueRequest = {
 					"policyIssueDate": new Date(),
