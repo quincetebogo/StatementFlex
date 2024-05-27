@@ -651,8 +651,10 @@ export class EndCallSession extends Component {
 				verifiedNumber: this.callerInformation.verifiedTelephoneNumber === this.incomingCallDetails.incomingTelephoneNumber,
 				incidentReference: incidentReferenceNumber
 			};
-			// We don't mind if this service call fails. This is just to send automated messaging to client
-			await this.callHandleService.endCall(req);
+			if (!this.roleManager.isInsureAgent) {
+				// We don't mind if this service call fails. This is just to send automated messaging to client
+				await this.callHandleService.endCall(req);
+			}
 		}
 	}
 

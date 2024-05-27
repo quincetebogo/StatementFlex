@@ -32,7 +32,6 @@ class LifePolicySummary extends Component {
 
 	/**
 	 * @property {Object} selectedLifePolicy Selected policy being viewed
-	 * @property {Function} lifeGetPolicyMandates callback function to fetch life policy mandates
 	 * @property {Object} lifePolicyMandates Selected policy mandate details
 	 * 
 	 * @readonly
@@ -41,7 +40,6 @@ class LifePolicySummary extends Component {
 	static get properties() {
 		return {
 			selectedLifePolicy: { type: Object, state: true },
-			lifeGetPolicyMandates: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true }
 		};
 	}
@@ -54,18 +52,9 @@ class LifePolicySummary extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		await this._initialise();
-	}
-
-		/**
-	 * Initialize component when loaded
-	 * @returns {void}
-	 */
-	async _initialise() {
-		await this.lifeGetPolicyMandates(this.selectedLifePolicy.contractReference);
+		console.log(this.selectedLifePolicy);
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
@@ -494,7 +483,7 @@ class LifePolicySummary extends Component {
 				</horizon-label>
 				${this.selectedLifePolicy?.policyStatus === LIFE_POLICY_STATUSES.CANCELLED ? html`
 					<horizon-label label="Cancellation date"
-						value="${isNullorEmpty(this.selectedLifePolicy?.actualCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.actualCancellationDate, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.selectedLifePolicy?.effectiveCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.effectiveCancellationDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Reason"
 						value="${this.selectedLifePolicy?.cancellationReason}">
@@ -711,7 +700,7 @@ class LifePolicySummary extends Component {
 	}
 
 	_renderMandatesDetailsSection() {
-		const mandateDetails = this.lifePolicyMandates?.mandates ?? [];
+		const mandateDetails = this.lifePolicyMandates ?? [];
 
 		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
 			const date = new Date(e.mandateInitiationDate);

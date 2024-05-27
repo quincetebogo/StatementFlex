@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -10,7 +10,11 @@ const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
-	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`
+	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	INVALID_ID: `ID Number is invalid`,
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
+	INVALID_EMAIL: `Enter a valid email address`
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -18,6 +22,8 @@ const NEW_BENEFICIARY_TYPES = {
 	EXISTING: `EXISTING`,
 	UNSET: `UNSET`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -46,6 +52,8 @@ class LifeAddBeneficiaryDialog extends Component {
 
 		this.newBeneficiaryErrors = {};
 		this.pocketBeneficiaries = [];
+		this.genderOptions = GENDER_OPTIONS;
+		this.titleOptions = TITLE_OPTIONS;
 
 		this.newOrExistingErrorMessage = ``;
 		this.beneficiaryDetailsErrorMessage = ``;
@@ -153,19 +161,29 @@ class LifeAddBeneficiaryDialog extends Component {
 		const eligible = [];
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 			for (const bene of this.policy.beneficiaries) {
-				if (bene.metaData.onceOffBenefitAdded === true) {
+				if (bene.metaData.onceOffBenefitAdded === true && bene.metaData.monthlyBenefitAdded === false) {
 					eligible.push(bene);
 				}
 			}
 		}
 		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 			for (const bene of this.policy.beneficiaries) {
-				if (bene.metaData.monthlyBenefitAdded === true) {
+				if (bene.metaData.monthlyBenefitAdded === true && bene.metaData.onceOffBenefitAdded === false) {
 					eligible.push(bene);
 				}
 			}
 		}
-		return eligible;
+		const sortedEligible = eligible.sort((a, b) => {
+			if (a.firstName < b.firstName) {
+				return -1;
+			  }
+			  if (a.firstName > b.firstName) {
+				return 1;
+			  }
+			  return 0;
+			});
+
+		return sortedEligible;
 	}
 
 	/**
@@ -175,6 +193,7 @@ class LifeAddBeneficiaryDialog extends Component {
 	_calculateCoverBreakdown() {
 		let totalAllocated = 0;
 		for (const bene of this.pocketBeneficiaries) {
+			console.log(`_calculateCoverBreakdown bene:>> `, bene);
 			if (bene.metaData.monthlyBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				totalAllocated += bene.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(bene.monthlyPayoutBenefitAmount);
 			}
@@ -184,7 +203,9 @@ class LifeAddBeneficiaryDialog extends Component {
 		}
 
 		// New Beneficiary?
-		if (this.newBeneficiary !== null) {
+		console.log(`this.newBeneficiary !== null :>> `, this.newBeneficiary !== null);
+		if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW) {
+			console.log(`this.newBeneficiary :>> `, this.newBeneficiary);
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				totalAllocated += this.newBeneficiary.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount);
 			}
@@ -192,7 +213,11 @@ class LifeAddBeneficiaryDialog extends Component {
 				totalAllocated += this.newBeneficiary.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount);
 			}
 		}
+		console.log(`totalAllocated :>> `, totalAllocated);
+		console.log(`this.pocketRemainingCover :>> `, this.pocketRemainingCover);
+		console.log(`this.totalPocketCover :>> `, this.totalPocketCover);
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
+		this.requestUpdate();
 	}
 
 	/**
@@ -245,6 +270,43 @@ class LifeAddBeneficiaryDialog extends Component {
 	// #region Beneficiary Details
 
 	/**
+	 * Event fired when a beneficiary TITLE value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_titleChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.title = e.detail.new.code;
+			if (this.newBeneficiary.title === `Mr` || this.newBeneficiary.title === `Sir`) {
+				this.newBeneficiary.gender = `Male`;
+				this.newBeneficiaryErrors.gender = ``;
+			} else if (this.newBeneficiary.title === `Mrs` || this.newBeneficiary.title === `Ms` || this.newBeneficiary.title === `Miss` || this.newBeneficiary.title === `Lady`) {
+				this.newBeneficiary.gender = `Female`;
+				this.newBeneficiaryErrors.gender = ``;
+			}
+		}
+		if (!isNullorEmpty(this.newBeneficiary.title)) {
+			this.newBeneficiaryErrors.title = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary GENDER value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_genderChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.gender = e.detail.new.code;
+		}
+		if (!isNullorEmpty(this.newBeneficiary.gender)) {
+			this.newBeneficiaryErrors.gender = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
 	 * @returns {void}
@@ -252,7 +314,9 @@ class LifeAddBeneficiaryDialog extends Component {
 	_firstNameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.firstName = e.detail.new;
-			this._validateBeneficiaryDetails();
+		}
+		if (!isNullorEmpty(this.newBeneficiary.firstName)) {
+			this.newBeneficiaryErrors.firstName = ``;
 		}
 		this.requestUpdate();
 	}
@@ -265,7 +329,9 @@ class LifeAddBeneficiaryDialog extends Component {
 	_surnameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.lastName = e.detail.new;
-			this._validateBeneficiaryDetails();
+		}
+		if (!isNullorEmpty(this.newBeneficiary.lastName)) {
+			this.newBeneficiaryErrors.lastName = ``;
 		}
 		this.requestUpdate();
 	}
@@ -279,6 +345,10 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.relationship = e.detail.new.code;
 		}
+		if (!isNullorEmpty(this.newBeneficiary.relationship)) {
+			this.newBeneficiaryErrors.relationship = ``;
+		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -301,7 +371,27 @@ class LifeAddBeneficiaryDialog extends Component {
 
 			this._validateBeneficiaryDetails();
 		}
+		if (!isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
+			this.newBeneficiaryErrors.dateOfBirth = ``;
+		}
 		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_emailChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.newBeneficiary.contactEmail = e.detail.new;
+		}
+
+		if (!isNullorEmpty(this.newBeneficiary.contactEmail)) {
+			this.newBeneficiaryErrors.contactEmail = ``;
+		}
+
 	}
 
 	/**
@@ -313,7 +403,9 @@ class LifeAddBeneficiaryDialog extends Component {
 	_cellphoneNumChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.contactNumber = e.detail.new;
-			this._validateBeneficiaryDetails();
+		}
+		if (!isNullorEmpty(this.newBeneficiary.contactNumber)) {
+			this.newBeneficiaryErrors.contactNumber = ``;
 		}
 		this.requestUpdate();
 	}
@@ -327,7 +419,11 @@ class LifeAddBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.idNumber = e.detail.new;
-			this._validateBeneficiaryDetails();
+		}
+		if (this.newBeneficiary.idNumber.length === 13) {
+			this.newBeneficiary.dateOfBirth = getDobFromIDNumber(this.newBeneficiary.idNumber);
+			this.newBeneficiaryErrors.idNumber = ``;
+			this.requestUpdate();
 		}
 	}
 
@@ -337,6 +433,20 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_validateBeneficiaryDetails() {
 		let stepValid = true;
+
+		if (isNullorEmpty(this.newBeneficiary?.title)) {
+			this.newBeneficiaryErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.title = ``;
+		}
+
+		if (isNullorEmpty(this.newBeneficiary?.gender)) {
+			this.newBeneficiaryErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.gender = ``;
+		}
 
 		if (isNullorEmpty(this.newBeneficiary?.firstName)) {
 			this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
@@ -354,6 +464,9 @@ class LifeAddBeneficiaryDialog extends Component {
 
 		if (isNullorEmpty(this.newBeneficiary?.contactNumber)) {
 			this.newBeneficiaryErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (this.newBeneficiary?.contactNumber.length > 0 && this.newBeneficiary?.contactNumber.length < 10) {
+			this.newBeneficiaryErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.contactNumber = ``;
@@ -374,6 +487,20 @@ class LifeAddBeneficiaryDialog extends Component {
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.dateOfBirth = ``;
+		}
+
+		if (!isNullorEmpty(this.newBeneficiary.idNumber)) {
+			if (this.newBeneficiary.idNumber.length !== 13) {
+				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
+				stepValid = false;
+			}
+		}
+
+		if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
+			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.newBeneficiaryErrors.contactEmail = ``;
 		}
 
 		if (stepValid === false) {
@@ -404,12 +531,13 @@ class LifeAddBeneficiaryDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.monthlyPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(bene.monthlyPayoutBenefitAmount) > 0 && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000)) {
+				console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
-
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && bene.onceOffPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(bene.onceOffPayoutBenefitAmount) > 0 && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000)) {
+				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -472,6 +600,9 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 			this._calculateCoverBreakdown();
 		}
+
+		console.log(`_beneficiaryCoverAmountChange bene: `, bene);
+		console.log(`_beneficiaryCoverAmountChange: newBeneficiary`, this.newBeneficiary);
 		this.requestUpdate();
 	}
 
@@ -734,7 +865,7 @@ class LifeAddBeneficiaryDialog extends Component {
 						type="radio-button"
 						label="${`${bene.firstName} ${bene.lastName}`}"
 						subtitle="${bene.relationship}"
-						?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING}"
+						?selected="${this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.EXISTING && bene.metaData.uniqueId === this.newBeneficiary.metaData.uniqueId}"
 						@click="${() => this._continueWithExistingBeneficiary(bene)}">
 					</horizon-product-tile>
 				`)}
@@ -761,6 +892,29 @@ class LifeAddBeneficiaryDialog extends Component {
 				</div>`
 				: html``
 			}
+			<div class="grouping">
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" 
+					style="width: 50%" 
+					value="${this.newBeneficiary?.title}" 
+					error="${this.newBeneficiaryErrors?.title === undefined ? `` : this.newBeneficiaryErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e)}">
+				</capitec-select>
+
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code"  
+					style="width: 50%" 
+					value="${this.newBeneficiary?.gender}" 
+					error="${this.newBeneficiaryErrors?.gender === undefined ? `` : this.newBeneficiaryErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e)}">
+				</capitec-select>
+			</div>
 
 			<div class="grouping">
 				<capitec-text-field 
@@ -781,7 +935,11 @@ class LifeAddBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-select label="Relationship" .items="${this.beneficiaryRelationships}" display-field="text" id-field="code"
+				<capitec-select 
+					label="Relationship" 
+					.items="${this.beneficiaryRelationships}" 
+					display-field="text" 
+					id-field="code"
 					style="width: 50%" value="${this.newBeneficiary?.relationship}" 
 					error="${this.newBeneficiaryErrors?.relationship === undefined ? `` : this.newBeneficiaryErrors.relationship}"
 					@value-changed = "${(e) => this._relationshipChange(e)}">
@@ -799,7 +957,13 @@ class LifeAddBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
+					value="${this.newBeneficiary?.idNumber}"
+					error="${this.newBeneficiaryErrors?.idNumber === undefined ? `` : this.newBeneficiaryErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
 
@@ -817,6 +981,16 @@ class LifeAddBeneficiaryDialog extends Component {
 					error="${this.newBeneficiaryErrors?.dateOfBirth}"
 					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Email address (optional)" 
+					style="width: 50%" 
+					value="${this.newBeneficiary?.contactEmail}"
+					error="${this.newBeneficiaryErrors?.contactEmail === undefined ? `` : this.newBeneficiaryErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e)}">
+				</capitec-text-field>
 			</div>
 		`;
 	}
@@ -878,6 +1052,7 @@ class LifeAddBeneficiaryDialog extends Component {
 							type="currency" 
 							class="pocket-details-input pocket-details-label" 
 							label=""
+							.error="${this.newBeneficiary.metaData.coverErrorMsg}"
 							value="${this._beneficiaryCoverValue(this.newBeneficiary)}"
 							@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, null)}">
 						</capitec-text-field>
@@ -900,6 +1075,7 @@ class LifeAddBeneficiaryDialog extends Component {
 								type="currency" 
 								class="pocket-details-input pocket-details-label" 
 								label=""
+								.error="${bene.metaData.coverErrorMsg}"
 								value="${this._beneficiaryCoverValue(bene)}"
 								@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}">
 							</capitec-text-field>

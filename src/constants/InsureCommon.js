@@ -6,6 +6,7 @@
  */
 export const BANK_OPTIONS = Object.freeze([
 	{ code: `CAPITEC BANK`, text: `CAPITEC BANK`, branchCode: `470010` },
+	{ code: `CAPITEC`, text: `CAPITEC`, branchCode: `470010` },
 	{ code: `20TWENTY`, text: `20TWENTY`, branchCode: `730020` },
 	{ code: `ABN AMRO BANK`, text: `ABN AMRO BANK`, branchCode: `740000` },
 	{ code: `ABSA BANK`, text: `ABSA BANK`, branchCode: `632005` },
@@ -225,7 +226,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	ESTIMATE: 5,
 	FUNERAL_CLIENT_POLICIES: 6,
 	LIFE_CANCEL_POLICY_DIALOG: 7,
-	LIFE_UPDATE_POLICY_DIALOG: 8
+	LIFE_UPDATE_POLICY_DIALOG: 8,
+	LIFE_REISSUE_DIALOG: 9
 });
 
 /**
@@ -428,6 +430,17 @@ export const LIFE_BENEFICIARY_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `Spouse`, text: `Spouse` },
 	{ code: `Child`, text: `Child` },
 	{ code: `Parent`, text: `Parent` },
+	{ code: `ExtendedFamily`, text: `Extended Family` },
+	{ code: `Others`, text: `Other` }
+]);
+
+/**
+ * List of child beneficiary types for life cover
+ * @readonly
+ * @enum {Object} LIFE_RELATIONSHIP_TYPES
+ */
+export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
+	{ code: `Child`, text: `Child` },
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
 ]);

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -10,8 +10,13 @@ const VALIDATION_ERRORS = {
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`
+	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	INVALID_ID: `ID Number is invalid`,
+	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
+	INVALID_EMAIL: `Enter a valid email address`
 };
+
+const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
  * @export
@@ -41,6 +46,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		this.pocketRemainingCover = 0;
 
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
+		this.genderOptions = GENDER_OPTIONS;
+		this.titleOptions = TITLE_OPTIONS;
 	}
 
 	// #endregion INITIALIZE
@@ -115,6 +122,44 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Event fired when a beneficiary TITLE value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_titleChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.title = e.detail.new.code;
+			if (this.updatingBeneficiary.title === `Mr` || this.updatingBeneficiary.title === `Sir`) {
+				this.updatingBeneficiary.gender = `Male`;
+				this.beneficiaryErrors.gender = ``;
+			} else if (this.updatingBeneficiary.title === `Mrs` || this.updatingBeneficiary.title === `Ms` || this.updatingBeneficiary.title === `Miss` || this.updatingBeneficiary.title === `Lady`) {
+				this.updatingBeneficiary.gender = `Female`;
+				this.beneficiaryErrors.gender = ``;
+			}
+		}
+		if (!isNullorEmpty(this.updatingBeneficiary.title)) {
+			this.beneficiaryErrors.title = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary GENDER value changes
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_genderChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.gender = e.detail.new.code;
+		}
+		if (!isNullorEmpty(this.updatingBeneficiary.gender)) {
+			this.beneficiaryErrors.gender = ``;
+		}
+		this.requestUpdate();
+	}
+
+
+	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
 	 * @returns {void}
@@ -122,7 +167,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_firstNameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.firstName = e.detail.new;
-			this._validateBeneficiaryDetails();
+			if (!isNullorEmpty(this.updatingBeneficiary.firstName)) {
+				this.beneficiaryErrors.firstName = ``;
+			}
 		}
 		this.requestUpdate();
 	}
@@ -135,7 +182,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_surnameChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.lastName = e.detail.new;
-			this._validateBeneficiaryDetails();
+			if (!isNullorEmpty(this.updatingBeneficiary.lastName)) {
+				this.beneficiaryErrors.lastName = ``;
+			}
 		}
 		this.requestUpdate();
 	}
@@ -159,7 +208,7 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_dobChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.dateOfBirth = e.detail.new.date;
-			const wrongTimeZone = this.newBeneficiary.dateOfBirth.includes(`+02:00`);
+			const wrongTimeZone = this.updatingBeneficiary.dateOfBirth.includes(`+02:00`);
 			if (wrongTimeZone === true) {
 				let dob = this.updatingBeneficiary.dateOfBirth;
 				const timezone = `+02:00`;
@@ -175,6 +224,23 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	}
 
 	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_emailChange(e) {
+		if (e.detail.old !== e.detail.new) {
+			this.updatingBeneficiary.contactEmail = e.detail.new;
+		}
+
+		if (!isNullorEmpty(this.updatingBeneficiary.contactEmail)) {
+			this.beneficiaryErrors.contactEmail = ``;
+		}
+		this.requestUpdate();
+	}
+
+	/**
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
@@ -183,7 +249,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_cellphoneNumChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.contactNumber = e.detail.new;
-			this._validateBeneficiaryDetails();
+			if (this.updatingBeneficiary.contactNumber.length === 10) {
+				this.beneficiaryErrors.contactNumber = ``;
+			}
 		}
 		this.requestUpdate();
 	}
@@ -197,8 +265,14 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.idNumber = e.detail.new;
-			this._validateBeneficiaryDetails();
+			//this._validateBeneficiaryDetails();
 		}
+
+		if (this.updatingBeneficiary.idNumber.length === 13) {
+			this.updatingBeneficiary.dateOfBirth = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
+			this.beneficiaryErrors.idNumber = ``;
+		}
+		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -218,13 +292,14 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
+			console.log('bene :>> ', bene);
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.monthlyPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && bene.onceOffPayoutBenefitAmount < 1000) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -263,11 +338,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
 			const value = e.detail.new;
+			console.log('value :>> ', value);
+			console.log('this.selectedPocketType :>> ', this.selectedPocketType);
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-				bene.monthlyPayoutBenefitAmount = value;
+				bene.monthlyPayoutBenefitAmount = parseFloat(value);
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-				bene.onceOffPayoutBenefitAmount = value;
+				bene.onceOffPayoutBenefitAmount = parseFloat(value);
 			}
 			this._calculateCoverBreakdown();
 		}
@@ -298,6 +375,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		if (isNullorEmpty(this.updatingBeneficiary?.contactNumber)) {
 			this.beneficiaryErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
+		} else if (this.updatingBeneficiary?.contactNumber.length !== 10) {
+			this.beneficiaryErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+			stepValid = false;
 		} else {
 			this.beneficiaryErrors.contactNumber = ``;
 		}
@@ -312,12 +392,27 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			this.beneficiaryErrors.dateOfBirth = ``;
 		}
 
+		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber)) {
+			if (this.updatingBeneficiary?.idNumber.length !== 13) {
+				this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
+				stepValid = false;
+			}
+		}
+
+		if (!isNullorEmpty(this.updatingBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingBeneficiary?.contactEmail)) {
+			this.beneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.beneficiaryErrors.contactEmail = ``;
+		}
+
+
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
-
+		this.requestUpdate();
 		return stepValid;
 	}
 
@@ -332,7 +427,7 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 		if (stepValid === true) {
 			this.currentStep++;
-			this.newBeneficiaryErrors = {};
+			this.beneficiaryErrors = {};
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
 		this.requestUpdate();
@@ -510,6 +605,30 @@ class LifeUpdateBeneficiaryDialog extends Component {
 				</div>`
 				: html``
 			}
+			
+			<div class="grouping">
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" 
+					style="width: 50%" 
+					value="${this.updatingBeneficiary?.title}" 
+					error="${this.updatingBeneficiary?.title === undefined ? `` : this.beneficiaryErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e)}">
+				</capitec-select>
+
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code"  
+					style="width: 50%" 
+					value="${this.updatingBeneficiary?.gender}" 
+					error="${this.updatingBeneficiary?.gender === undefined ? `` : this.beneficiaryErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e)}">
+				</capitec-select>
+			</div>
 
 			<div class="grouping">
 				<capitec-text-field 
@@ -530,8 +649,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-select label="Relationship" .items="${this.beneficiaryRelationships}" display-field="text" id-field="code"
-					style="width: 50%" value="${this.updatingBeneficiary?.relationship}" 
+				<capitec-select 
+					label="Relationship" 
+					.items="${this.beneficiaryRelationships}" 
+					display-field="text" 
+					id-field="code"
+					style="width: 50%" 
+					value="${this.updatingBeneficiary?.relationship}" 
 					@value-changed = "${(e) => this._relationshipChange(e)}">
 				</capitec-select>
 
@@ -547,7 +671,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			</div>
 
 			<div class="grouping">
-				<capitec-text-field label="ID Number" style="width: 50%" maxlength="13" type="numeric"
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
+					value="${this.updatingBeneficiary?.idNumber}"
+					error="${this.beneficiaryErrors?.idNumber === undefined ? `` : this.beneficiaryErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
 
@@ -566,9 +696,18 @@ class LifeUpdateBeneficiaryDialog extends Component {
 					@value-changed="${(e) => this._dobChange(e)}">
 				</capitec-date-time-picker>
 			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Email address (optional)" 
+					style="width: 50%" 
+					value="${this.updatingBeneficiary?.contactEmail}"
+					error="${this.beneficiaryErrors?.contactEmail === undefined ? `` : this.beneficiaryErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e)}">
+				</capitec-text-field>
+			</div>
 		`;
 	}
-
 
 	/**
 	 * Render Money Allocation step

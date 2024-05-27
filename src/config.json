@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
@@ -421,11 +421,11 @@
 			"positiveCase": true
 		},
 		"insureLifeGetMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeGetArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
@@ -433,7 +433,7 @@
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
@@ -469,7 +469,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureActivatePolicyPause": {
@@ -489,6 +489,26 @@
 			"positiveCase": true
 		},
 		"insureLifeQualifies": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeReIssuePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIssuePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeAcceptPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdatePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdatePocket": {
 			"enabled": true,
 			"positiveCase": true
 		}
