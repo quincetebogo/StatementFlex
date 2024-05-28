@@ -502,6 +502,18 @@ class LifeAllocateCoverDialog extends Component {
 		console.log(`this.onceOffCoverValue: ${this.onceOffCoverValue}`);
 		console.log(`this.educationCoverValue: ${this.educationCoverValue}`);
 
+		if (isNullorEmpty(this.monthlyTotalCoverValue) || isNaN(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === undefined) {
+			this.monthlyTotalCoverValue = 0;
+		}
+
+		if (isNullorEmpty(this.onceOffCoverValue) || isNaN(this.onceOffCoverValue) || this.onceOffCoverValue === undefined) {
+			this.onceOffCoverValue = 0;
+		}
+
+		if (isNullorEmpty(this.educationCoverValue) || isNaN(this.educationCoverValue) || this.educationCoverValue === undefined) {
+			this.educationCoverValue = 0;
+		}
+
 		// Nothing Allocated
 		if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
 			(isNullorEmpty(this.onceOffCoverValue) || this.onceOffCoverValue === 0) &&
@@ -1097,7 +1109,7 @@ class LifeAllocateCoverDialog extends Component {
 					pocket.premium = 0.0;
 				});
 
-				const requestBeneficiaries = [];
+				let requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
 					newBene.role = `Beneficiary`;
