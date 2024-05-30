@@ -394,11 +394,11 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let status = `---`;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = item.type;
-		let advanceAmountPaid = `R0.00`;
 		let transactionDate = `-`;
 		let account = `-`;
-		let airtimeSurplus = `-`;
 		let journalReference = `-`;
+		let advanceAmountPaid = `R0.00`;
+		let airtimeSurplus = `R0.00`;
 
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
@@ -406,20 +406,18 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			status = item.transactions[0].status || status;
 			status = toTitleCase(status);
 
-			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
 			journalReference = item.transactions[0].journalReference || journalReference;
-
-			advanceAmountPaid = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
+			
+			advanceAmountPaid = typeof item.transactions[0].advanceAmountPaid === "number" ? `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` : advanceAmountPaid;
+			airtimeSurplus = typeof item.transactions[0].advanceSurplus === "number" ? `R${parseFloat(item.transactions[0].advanceSurplus).toFixed(2)}` : airtimeSurplus;
 		}
 
 		let postingDate = item.friendlyDate;
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
-			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = typeof item.recharges[0].quantity === "number" ? `R${parseFloat(item.recharges[0].quantity).toFixed(2)}` : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 		}
-
-		airtimeSurplus = "R" + airtimeSurplus;
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge.replace("_", " "));
