@@ -410,6 +410,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			
 			advanceAmountPaid = typeof item.transactions[0].advanceAmountPaid === "number" ? `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` : advanceAmountPaid;
 			airtimeSurplus = typeof item.transactions[0].advanceSurplus === "number" ? `R${parseFloat(item.transactions[0].advanceSurplus).toFixed(2)}` : airtimeSurplus;
+
+			typeOfRecharge = typeof item.transactions[0].type === "string" ? item.transactions[0].type : typeOfRecharge;
 		}
 
 		let postingDate = item.friendlyDate;
@@ -506,15 +508,18 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		if (item.transactions.length > 0) {
 			product = product ? product : item.transactions[0].bundleType;
 			account = item.transactions[0].accountNumber;
-			advanceRepayment = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
-			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
+
+			advanceRepayment = typeof item.transactions[0].advanceAmountPaid === "number" ? `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` : advanceRepayment;
+			airtimeSurplus = typeof item.transactions[0].advanceSurplus === "number" ? `R${parseFloat(item.transactions[0].advanceSurplus).toFixed(2)}` : airtimeSurplus;
+
+			type = typeof item.transactions[0].type === "string" ? item.transactions[0].type : type;
 		}
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
 
-			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = typeof item.recharges[0].quantity === "number" ? `R${parseFloat(item.recharges[0].quantity).toFixed(2)}` : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 
 			rechargeStatus = item.recharges[0]?.status || rechargeStatus;
 			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
@@ -526,8 +531,6 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 				rechargeStatus = item.transactions[0].status;
 			}
 		}
-
-		airtimeSurplus = "R" + airtimeSurplus;
 
 		product = toTitleCase(product);
 
