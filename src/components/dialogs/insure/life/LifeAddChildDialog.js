@@ -21,10 +21,10 @@ const VALIDATION_ERRORS = {
 };
 
 const STEPS = {
-	CHILD_DETAILS: 1,
-	NEW_OR_EXISTING_GUARDIAN: 2,
-	GUARDIAN_DETAILS: 3,
-	MONEY_ALLOCATION: 4
+	SETP_1: 1,
+	STEP_2: 2,
+	STEP_3: 3,
+	STEP_4: 4
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -47,7 +47,7 @@ class LifeAddChildDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = 1;
+		this.currentStep = STEPS.SETP_1;
 		this.policy = {};
 		this.selectedPocket = {};
 
@@ -70,6 +70,9 @@ class LifeAddChildDialog extends Component {
 		this.titleOptions = TITLE_OPTIONS;
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
+
+		this.isLastStep = false;
+		this.guardianExists = false;
 	}
 
 	// #endregion INITIALIZE
@@ -97,7 +100,10 @@ class LifeAddChildDialog extends Component {
 			selectedPocketType: { type: String, state: true },
 
 			totalPocketCover: { type: Number, state: true },
-			pocketRemainingCover: { type: Number, state: true }
+			pocketRemainingCover: { type: Number, state: true },
+
+			guardianExists: { type: Boolean, state: true },
+			isLastStep: { type: Boolean, state: false }
 		};
 	}
 
@@ -137,6 +143,10 @@ class LifeAddChildDialog extends Component {
 			});
 
 		this.eligibleGuardiansForQuickAdd = sortedEligible;
+
+		if (this.eligibleGuardiansForQuickAdd?.length > 0) {
+			this.guardianExists = true;
+		}
 		
 		// Add all existing children or new one to list
 		if (this.policy.beneficiaries.length > 0) {
@@ -185,18 +195,39 @@ class LifeAddChildDialog extends Component {
 	}
 
 	/**
+	 * Update the current step based on the available guardians
+	 * @returns {void}
+	 */
+	_updateCurrentStep() {
+		this.isLastStep = false;
+
+		if (this.guardianExists) {
+			if (this.currentStep === STEPS.STEP_3) {
+				this.isLastStep = true;
+			}
+		} else if (!this.guardianExists) {
+			if (this.currentStep === STEPS.STEP_2) {
+				this.isLastStep = true;
+			}
+		}
+
+		this.currentStep++;
+	}
+
+	/**
 	 * What steps are available for this add flow
 	 * @returns {Array} array of steps
 	 */
 	_determineSteps() {
 		let steps = [];
-		if (this.eligibleGuardiansForQuickAdd.length > 0) {
+		if (this.guardianExists) {
 			console.log(`There are some`);
 			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		} else {
 			console.log(`Nope none`);
 			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
 		}
+
 		return steps;
 	}
 
@@ -242,28 +273,24 @@ class LifeAddChildDialog extends Component {
 	_nextClick() {
 		let isValid = false;
 
-		if (this.currentStep === STEPS.CHILD_DETAILS) {
+		if (this.currentStep === STEPS.SETP_1) {
 			isValid = this._validateChildStep();
-			console.log(`Child validations is: ${isValid}`);
-		} else if (this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN) {
+		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
 				this.newOrExistingErrorMessage = `Please select an existing guardian or add a new one`;
 			} else {
 				this.newOrExistingErrorMessage = ``;
 				isValid = true;
 			}
-		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+		} else if (this.guardianExists && this.currentStep === STEPS.STEP_3) {
 			isValid = this._validateGuardianStep();
-			console.log(`Guardian validations is: ${isValid}`);
+		}
+		else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
+			isValid = this._validateGuardianStep();
 		}
 
 		if (isValid) {
-			if (this.eligibleGuardiansForQuickAdd.length === 0 && this.currentStep === STEPS.CHILD_DETAILS) {
-				this.currentStep = STEPS.GUARDIAN_DETAILS;
-			} else {
-				this.currentStep++;
-			}
-
+			this._updateCurrentStep();
 		}
 	}
 
@@ -554,17 +581,19 @@ class LifeAddChildDialog extends Component {
 	 */
 	_backClick() {
 		this.currentStep--;
+		this.isLastStep = false;
+
 		// if (this.currentStep === STEPS.MONEY_ALLOCATION) {
-		// 	if (this.isChild) {
-		// 		this.currentStep = STEPS.GUARDIAN_DETAILS;
-		// 	} else {
-		// 		this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
-		// 		this.currentStep = STEPS.BENEFICIARY_DETAILS;
-		// 	}
+		// if (this.isChild) {
+		// this.currentStep = STEPS.GUARDIAN_DETAILS;
+		// } else {
+		// this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
+		// this.currentStep = STEPS.BENEFICIARY_DETAILS;
+		// 
 
 		// } else {
-		// 	this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
-		// 	this.currentStep = STEPS.BENEFICIARY_DETAILS;
+		// this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
+		// this.currentStep = STEPS.BENEFICIARY_DETAILS;
 		// }
 	}
 
@@ -970,23 +999,39 @@ class LifeAddChildDialog extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogBody() {
-		return html`
+		return this.guardianExists ? html`
+		<capitec-stepper
+					layout="horizontal"
+					.steps="${this._determineSteps()}"
+					active-step-number="${this.currentStep}">
+				</capitec-stepper>
+
+			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+				${this._renderChildDetails()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
+				${this._renderNewOrExistingQuickAdd()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_3 ? `display: block` : `display: none`}">
+				${this._renderGuardianDetails()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_4 ? `display: block` : `display: none`}">
+				${this._renderMoneyAllocation()}
+			</div>` 
+		: html`
 			<capitec-stepper
 				layout="horizontal"
 				.steps="${this._determineSteps()}"
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN ? `display: block` : `display: none`}">
-				${this._renderNewOrExistingQuickAdd()}
-			</div>
-			<div style="${this.currentStep === STEPS.CHILD_DETAILS ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
-			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
 				${this._renderGuardianDetails()}
 			</div>
-			<div style="${this.currentStep === STEPS.MONEY_ALLOCATION ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_3 ? `display: block` : `display: none`}">
 				${this._renderMoneyAllocation()}
 			</div>`;
 	}
@@ -1349,7 +1394,7 @@ class LifeAddChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.CHILD_DETAILS ? html`
+				${this.currentStep === STEPS.SETP_1 ? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 					</capitec-button>
 				` : html`
@@ -1357,11 +1402,12 @@ class LifeAddChildDialog extends Component {
 						</capitec-button>
 				`}
 				
-				${this.currentStep !== STEPS.MONEY_ALLOCATION ? html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
+				${this.isLastStep
+					? html`
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
 					</capitec-button>
 				` : html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
 					</capitec-button>
 				`}
 		`;

@@ -24,6 +24,12 @@ const STEPS = {
 	MONEY_ALLOCATION: 4
 };
 
+const NEW_BENEFICIARY_TYPES = {
+	NEW: `NEW`,
+	EXISTING: `EXISTING`,
+	UNSET: `UNSET`
+};
+
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
@@ -143,11 +149,16 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_determineSteps() {
 		let steps = [];
-		if (this.eligibleGuardiansForQuickAdd.length > 0) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		}
+
+		// TODO: Need to handle tabs for guardian details.
+		// if (this.eligibleGuardiansForQuickAdd.length > 0) {
+		// steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		// } else {
+		// steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Allocate cover` }];
+		// }
+
+		steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Allocate cover` }];
+
 		return steps;
 	}
 
@@ -582,10 +593,6 @@ class LifeUpdateChildDialog extends Component {
 
 			<div style="${this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN ? `display: block` : `display: none`}">
 				${this._renderNewOrExistingQuickAdd()}
-			</div>
-
-			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
-				${this._renderGuardianDetails()}
 			</div>
 
 			<div style="${this.currentStep === STEPS.MONEY_ALLOCATION ? `display: block` : `display: none`}">

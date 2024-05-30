@@ -83,6 +83,25 @@ export const insureLifeClientSummary = {
 					"clientId": `13F984EE-32B0-4B83-84DA-91C3743D6465`
 				}
 			],
+			"guardians": [
+				{
+					"title": `Miss`,
+					"firstName": `Nick`,
+					"lastName": `Parkar`,
+					"rolePlayer": `Guardian`,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Others`,
+					"gender": `Female`,
+					"dateOfBirth": `1995-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
+					"clientType": `Guardian`,
+					"guardianId": `GID001`,
+					"clientId": `51A2EA8C-4391-45A6-BFCD-3FBC0BE8AA1B`
+				}
+			],
 			"totalPolicySumAssured": 2400000.0,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
