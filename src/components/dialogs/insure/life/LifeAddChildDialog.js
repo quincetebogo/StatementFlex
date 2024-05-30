@@ -195,10 +195,10 @@ class LifeAddChildDialog extends Component {
 	}
 
 	/**
-	 * Calculate the current step based on the available guardians
+	 * Update the current step based on the available guardians
 	 * @returns {void}
 	 */
-	_calculateCurrentStep() {
+	_updateCurrentStep() {
 		this.isLastStep = false;
 
 		if (this.guardianExists) {
@@ -290,7 +290,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (isValid) {
-			this._calculateCurrentStep();
+			this._updateCurrentStep();
 		}
 	}
 
