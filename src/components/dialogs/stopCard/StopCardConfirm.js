@@ -139,15 +139,15 @@ export class StopCardConfirm extends Component {
 				capitec-title-bar {
 					position: absolute;
 					top: -30px;
-					left: -434px;
-					width: 455px;
+					left: -619px;
+					width: 640px;
 					--theme-type-default-background: rgb(249, 235, 221);
 					--theme-titlebar-padding: 0px 0px 0px 16px;
 					--theme-label-title-font-size: 18px;
 					--theme-titlebar-title-margin-left: 12px;
 				}
 				capitec-content-box[slot="body"] {
-					width: 456px;
+					width: 640px;
 					height: 350px;
 					border-bottom: var(--theme-divider);
 				}
@@ -241,6 +241,10 @@ export class StopCardConfirm extends Component {
 					<horizon-label row="1" column="2"
 						label="Reason"
 						value="${card.cardStopReason.value}">
+					</horizon-label>
+					<horizon-label row="1" column="3"
+						label="Friendly name"
+						value="${card.cardFriendlyName || `-`}">
 					</horizon-label>
 				</capitec-group>
 			</capitec-card>`);
