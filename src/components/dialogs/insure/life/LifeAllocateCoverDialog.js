@@ -254,11 +254,6 @@ class LifeAllocateCoverDialog extends Component {
 			this.remainingCoverToAllocate = parseFloat(this.updatedPolicy.totalPolicySumAssured) - parseFloat(this.monthlyTotalCoverValue) - parseFloat(this.onceOffCoverValue) - parseFloat(this.educationCoverValue);
 			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium);
 			this.totalCoverAllocatedAllPockets = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
-			// const premiumForCal = premiumMInusChannelFee / totalAllocation;
-			// lumpsumTotal = lumpSum * premiumForCal;
-			// educationTotal = education * premiumForCal;
-			// monthlyPayoutTotal = monthlyPayout * 24 * premiumForCal;
-
 		} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 			this.calculatedPremium = 0;
 			this.remainingCoverToAllocate = this.newOffer.maximumAllowedCover;
@@ -309,6 +304,13 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	// #region ALLOCATE
+
+	totalPremiumDisplay() {
+		if (this.totalCoverAllocatedAllPockets < 100000 || this._recalculateRemainingCover() < 0) {
+			return `-`;
+		}
+		return formatCurrency(this.calculatedPremium);
+	}
 
 	/**
 	 * Determine remaining cover at allocate step
@@ -1642,7 +1644,7 @@ class LifeAllocateCoverDialog extends Component {
 			<div id="offer-details">
 				<div class="offer-details-cell">
 					<div>Monthly Premium</div>
-					<div class="offer-details-value">${formatCurrency(this.calculatedPremium)}</div>
+					<div class="offer-details-value">${this.totalPremiumDisplay()}</div>
 				</div>
 
 				${this.isNewOffer === true ? html`
