@@ -730,6 +730,10 @@ class LifeAllocateCoverDialog extends Component {
 		const guardian = event.detail.guardian;
 		const newGuardianType = event.detail.newGuardianType;
 
+		if (!this.updatedPolicy.guardians) {
+			this.updatedPolicy.guardians = [];
+		}
+
 		let guardianId = guardian.guardianId;
 		if (newGuardianType === `NEW`) {
 			guardianId = v4();
@@ -2249,7 +2253,7 @@ class LifeAllocateCoverDialog extends Component {
 					.policy = "${this.updatedPolicy}"
 					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
 					@close-dialog="${() => this.showEditChildDialog = false}"
-					@add-child="${(e) => this._addChild(e)}">
+					@update-child="${(e) => this._addChild(e)}">
 				</horizon-insure-life-update-child-dialog>
 		`;
 	}

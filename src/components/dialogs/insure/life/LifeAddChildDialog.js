@@ -51,7 +51,7 @@ class LifeAddChildDialog extends Component {
 		this.policy = {};
 		this.selectedPocket = {};
 
-		this.newGuardianType = NEW_BENEFICIARY_TYPES.UNSET;
+		this.newGuardianType = NEW_BENEFICIARY_TYPES.NEW;
 
 		this.pocketBeneficiaries = [];
 		this.newChild = {};
