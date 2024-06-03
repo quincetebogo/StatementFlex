@@ -654,6 +654,11 @@ export const ClientSummary = {
 						"type": `NewBorn`,
 						"available": true,
 						"availableDate": `2022-03-24T13:22:51.820Z`
+					},
+					{
+						"type": `PolicyPause`,
+						"available": true,
+						"availableDate": `2024-03-24T13:22:51.820Z`
 					}
 				],
 				"mandates": [
@@ -1055,6 +1060,11 @@ export const ClientSummary = {
 						"type": `NewBorn`,
 						"available": true,
 						"availableDate": `2022-03-24T13:22:51.820Z`
+					},
+					{
+						"type": `PolicyPause`,
+						"available": true,
+						"availableDate": `2022-03-24T13:22:51.820Z`
 					}
 				],
 				"mandates": [
@@ -1316,6 +1326,11 @@ export const ClientSummary = {
 				"benefits": [
 					{
 						"type": `NewBorn`,
+						"available": true,
+						"availableDate": `2022-03-24T13:22:51.820Z`
+					},
+					{
+						"type": `PolicyPause`,
 						"available": true,
 						"availableDate": `2022-03-24T13:22:51.820Z`
 					}

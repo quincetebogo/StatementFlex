@@ -193,11 +193,11 @@ class FuneralPolicyPauseDialog extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal header = "Policy Pause" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
-				<div slot="body" >
-				<capitec-content-box style="padding: 0px">
+			<capitec-modal header = "Voluntary Policy Pause" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
+				<div slot="body" style="padding-bottom: 0px" >
+				<!-- <capitec-content-box style="padding: 0px"> -->
 					${this._renderDialogBody()}
-				</capitec-content-box>
+				<!-- </capitec-content-box> -->
 				</div>
 				<div slot="footer" >
 					${this._renderDialogFooter()}
@@ -222,9 +222,16 @@ class FuneralPolicyPauseDialog extends Component {
 			: html`
 				${this.policy.policyRule === `PolicyPause` 
 				? html`
-					<div style="padding-bottom: 10px; height: 100px;">
-						<p>Are you sure you want to cancel the pause on policy <b>${this.policy.contractReference}</b>?</p>
+					<div style="padding-bottom: 10px; height: 200px;">
+						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>dd/mm/yyyy</b>?</p>
+						<div>
+							<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Funeral plan" detail="" icon="" @click="${() => this._showAgreement()}">
+								<capitec-label slot="detail" type="strong" label="View Document" >
+								</capitec-label>
+							</horizon-product-tile>
+						</div>
 					</div>
+
 				`
 				: html`
 					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 230px;` : `height: 220px;`} ">
@@ -243,7 +250,7 @@ class FuneralPolicyPauseDialog extends Component {
 
 						${!isNullorEmpty(this.selectedReason) ? html`
 							<div>
-								<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Life Cover" detail="" icon="" @click="${() => this._showAgreement()}">
+								<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Funeral plan" detail="" icon="" @click="${() => this._showAgreement()}">
 									<capitec-label slot="detail" type="strong" label="View Document" >
 									</capitec-label>
 								</horizon-product-tile>
