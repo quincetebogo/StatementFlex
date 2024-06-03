@@ -471,12 +471,11 @@ export class ExistingClient extends InsureViewBase {
 				"newAccountType": updatedPolicy.bankDetails.accountType,
 				"collectionDay": updatedPolicy.bankDetails.collectionDay
 			},
-			"updatePolicy": true,
+			"updatePolicy": updatePolicy,
 			"beneficiaries": updatedPolicy.beneficiaries,
 			"totalPremium": updatedPolicy.totalPremium,
-			"totalCoverAmount": updatePolicy.totalPolicySumAssured
+			"totalCoverAmount": updatedPolicy.totalPolicySumAssured
 		};
-
 
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
