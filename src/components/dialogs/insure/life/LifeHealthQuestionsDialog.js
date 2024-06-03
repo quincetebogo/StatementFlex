@@ -94,28 +94,13 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_setAnswer(groupId, answerId, answerDetail) {
-		console.log(`Setting answer`);
-		console.log(groupId);
-		console.log(answerId);
-		console.log(answerDetail);
-
-		// Map new
-		// if (e.detail.new === true) {
-			this.currentAnswerSingle = {
-				questionGroupId: groupId,
-				answerId: answerId,
-				answer: ``,
-				answerDetailDescription: answerDetail
-			};
-			this.enableNextButton = true;
-
-			// Set Selected
-			// radioButtons.forEach(radioButton => {
-			// 	if (radioButton.id === answerId) {
-			// 		radioButton.checked = true;
-			// 	}
-			// });
-		// }
+		this.currentAnswerSingle = {
+			questionGroupId: groupId,
+			answerId: answerId,
+			answer: ``,
+			answerDetailDescription: answerDetail
+		};
+		this.enableNextButton = true;
 	}
 
 	/**
@@ -162,19 +147,12 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
 
-		// Force set answer to first
-		// this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
-		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		// radioButtons[0].checked = true;
-
 		// Clear all
 		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
 		radioButtons.forEach(radioButton => {
 			radioButton.checked = false;
 			radioButton.removeAttribute(`aria-checked`);
 		});
-
-		console.log(`this.finalAnswers: `, this.finalAnswers);
 	}
 
 	/**
