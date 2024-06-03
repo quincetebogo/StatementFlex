@@ -24,6 +24,12 @@ const STEPS = {
 	MONEY_ALLOCATION: 4
 };
 
+const NEW_BENEFICIARY_TYPES = {
+	NEW: `NEW`,
+	EXISTING: `EXISTING`,
+	UNSET: `UNSET`
+};
+
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 /**
@@ -46,6 +52,11 @@ class LifeUpdateChildDialog extends Component {
 		this.originalChild = {};
 		this.childErrors = {};
 		this.pocketBeneficiaries = [];
+
+		this.updatingGuardian = {};
+		this.updatingGuardianErrors = {};
+
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
 
 		this.beneficiaryDetailsErrorMessage = ``;
 		this.allocateMoneyErrorMessage = ``;
@@ -72,6 +83,7 @@ class LifeUpdateChildDialog extends Component {
 			eligibleGuardiansForQuickAdd: { type: Array, state: true },
 			updatingChild: { type: Object, state: true },
 			updatingGuardian: { type: Object, state: true },
+			updatingGuardianErrors: { type: Object, state: true },
 			pocketRemainingCover: { type: Number, state: true },
 			policy: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
@@ -105,11 +117,11 @@ class LifeUpdateChildDialog extends Component {
 		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
 
 		// Find guardian of current editing child / remove from quick add
-		this.updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.id === this.updatingChild.guardianId);
-		if (this.updatingGuardian) {
-			const index = this.eligibleGuardiansForQuickAdd.indexOf(this.updatingGuardian);
-			this.eligibleGuardiansForQuickAdd.splice(index, 1);
-		}
+		this.updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.guardianId === this.updatingChild.guardianId);
+		// if (this.updatingGuardian) {
+		// 	const index = this.eligibleGuardiansForQuickAdd.indexOf(this.updatingGuardian);
+		// 	this.eligibleGuardiansForQuickAdd.splice(index, 1);
+		// }
 
 		this.originalChild = JSON.parse(JSON.stringify(this.updatingChild));
 
@@ -143,12 +155,33 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_determineSteps() {
 		let steps = [];
-		if (this.eligibleGuardiansForQuickAdd.length > 0) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		}
+
+		steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+
 		return steps;
+	}
+
+	/**
+	 * Continue with new Guardian
+	 * 
+	 * @returns {void}
+	 */
+	_continueWithNewGuardian() {
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.NEW;
+		this.updatingGuardian = {};
+		this.newOrExistingErrorMessage = ``;
+	}
+
+	/**
+	 * Continue with existing Guardian
+	 * 
+	 * @param {Object} guardian guardian being modified
+	 * @returns {void} 
+	 */
+	_continueWithExistingGuardian(guardian) {
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
+		this.newOrExistingErrorMessage = ``;
+		this.updatingGuardian = guardian;
 	}
 
 	/**
@@ -372,12 +405,13 @@ class LifeUpdateChildDialog extends Component {
 			this.childErrors.lastName = ``;
 		}
 
-		if (isNullorEmpty(this.updatingChild?.contactNumber)) {
-			this.childErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
-			stepValid = false;
-		} else if (this.updatingChild?.contactNumber.length !== 10) {
-			this.childErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
-			stepValid = false;
+		if (!isNullorEmpty(this.updatingChild?.contactNumber)) {
+			if (this.updatingChild?.contactNumber.length < 10) {
+				this.childErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+				stepValid = false;
+			} else {
+				this.childErrors.contactNumber = ``;
+			}
 		} else {
 			this.childErrors.contactNumber = ``;
 		}
@@ -385,8 +419,11 @@ class LifeUpdateChildDialog extends Component {
 		if (this.updatingChild.dateOfBirth === undefined || this.updatingChild.dateOfBirth === ``) {
 			this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (getAgeFromDob(this.updatingChild?.dateOfBirth) < 18) {
-			this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+		} else if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+			this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+			stepValid = false;
+		} else if (new Date(this.childErrors.dateOfBirth) > new Date()) {
+			this.childErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
 			stepValid = false;
 		} else {
 			this.childErrors.dateOfBirth = ``;
@@ -552,8 +589,8 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Nominated person" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
-				<div slot="body" style="width: 678px">
+			<capitec-modal type="alert" header="Update Child" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+				<div slot="body" >
 					${this._renderDialogBody()}
 				</div>
 				<div slot="footer">
@@ -596,47 +633,149 @@ class LifeUpdateChildDialog extends Component {
 
 	_renderNewOrExistingQuickAdd() {
 		return html`
-			${this.newOrExistingErrorMessage !== ``
-				? html`
-				<div style="padding: 20px 16px 0px 16px;">
-					<horizon-alert-banner
-						type="error"
-						header="Step incomplete"
-						label="${this.newOrExistingErrorMessage}"
-						layout="vertical">
-					</horizon-alert-banner>
-				</div>`
-				: html``
-			}
+		${this.newOrExistingErrorMessage !== ``
+			? html`
+			<div style="padding: 20px 16px 0px 16px;">
+				<horizon-alert-banner
+					type="error"
+					header="Step incomplete"
+					label="${this.newOrExistingErrorMessage}"
+					layout="vertical">
+				</horizon-alert-banner>
+			</div>`
+			: html``
+		}
 
-			<capitec-content-box style="min-height:200px; padding-left: 15px;">
+		<capitec-content-box style="min-height:200px; padding-left: 15px;">
 
+			<horizon-product-tile
+				type="radio-button"
+				label="Add Guardian"
+				subtitle="Add a new guardian for this child"
+				?selected="${this.updatingGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
+				@click="${() => this._continueWithNewGuardian()}">
+			</horizon-product-tile>
+
+			<div style="text-align: center;">
+				<capitec-label 
+					label="Or choose existing"
+					type="strong">
+				</capitec-label>
+			</div>
+
+			${this.eligibleGuardiansForQuickAdd.map((guardian) => html`
 				<horizon-product-tile
 					type="radio-button"
-					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
-					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
-					@click="${() => this._continueWithNewGuardian()}">
+					label="${`${guardian.firstName} ${guardian.lastName}`}"
+					subtitle="${guardian.relationship}"
+					?selected="${this.updatingGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
+					@click="${() => this._continueWithExistingGuardian(guardian)}">
 				</horizon-product-tile>
-
-				<div style="text-align: center;">
-					<capitec-label 
-						label="Or choose existing"
-						type="strong">
-					</capitec-label>
-				</div>
-
-				${this.eligibleGuardiansForQuickAdd.map((guardian) => html`
-					<horizon-product-tile
-						type="radio-button"
-						label="${`${guardian.firstName} ${guardian.lastName}`}"
-						subtitle="${guardian.relationship}"
-						?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
-						@click="${() => this._continueWithExistingGuardian(guardian)}">
-					</horizon-product-tile>
-				`)}
-			</capitec-content-box>
+			`)}
+		</capitec-content-box>
 		`;
+	}
+
+		/**
+	 * Render Guardian details step
+	 * 
+	 * @returns {html} html content
+	 */
+	_renderGuardianDetails() {
+		return html`
+			<div class="grouping">
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" style="width: 50%" 
+					value="${this.updatingGuardian?.title}"
+					error="${this.updatingGuardianErrors?.title === undefined ? `` : this.updatingGuardianErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e, false)}">
+				</capitec-select>
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code"  style="width: 50%" 
+					value="${this.updatingGuardian?.gender}" 
+					error="${this.updatingGuardianErrors?.gender === undefined ? `` : this.updatingGuardianErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e, false)}">
+				</capitec-select>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="First Name" 
+					style="width: 50%"
+					value="${this.updatingGuardian?.firstName}"
+					error="${this.updatingGuardianErrors?.firstName === undefined ? `` : this.updatingGuardianErrors.firstName}"
+					@value-changed="${(e) => this._firstNameChange(e, false)}">
+				</capitec-text-field>
+				<capitec-text-field 
+					label="Surname" 
+					style="width: 50%" 
+					value="${this.updatingGuardian?.lastName}"
+					error="${this.updatingGuardianErrors?.lastName === undefined ? `` : this.updatingGuardianErrors.lastName}"
+					@value-changed="${(e) => this._surnameChange(e, false)}">
+				</capitec-text-field>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
+					value="${this.updatingGuardian?.idNumber}"
+					error="${this.updatingGuardianErrors?.idNumber === undefined ? `` : this.updatingGuardianErrors.idNumber}"
+					@value-changed="${(e) => this._idChange(e, false)}">
+				</capitec-text-field>
+			
+				<capitec-date-time-picker 
+					style="width: 50%" 
+					label="Date of Birth" 
+					type="single" 
+					mode="date" 
+					inputType="calendar"
+					date="${this.updatingGuardian?.dateOfBirth}"
+					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
+					value="${formatDate(this.updatingGuardian?.dateOfBirth)}"
+					error="${this.updatingGuardianErrors?.dateOfBirth === undefined ? `` : this.updatingGuardianErrors.dateOfBirth}"
+					@value-changed="${(e) => this._dobChange(e, false)}">
+				</capitec-date-time-picker>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Cellphone number" 
+					style="width: 50%" 
+					maxlength="10" 
+					type="numeric"
+					value="${this.updatingGuardian?.contactNumber}"
+					error="${this.updatingGuardianErrors?.contactNumber === undefined ? `` : this.updatingGuardianErrors.contactNumber}"
+					@value-changed="${(e) => this._cellphoneNumChange(e, false)}">
+				</capitec-text-field>
+				<capitec-text-field 
+					label="Email address (optional)"
+					style="width: 50%"
+					value="${this.updatingGuardian?.contactEmail}"
+					error="${this.updatingGuardianErrors?.contactEmail === undefined ? `` : this.updatingGuardianErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e, false)}">
+				</capitec-text-field>
+			</div>
+
+			<div class="grouping">
+				<capitec-select 
+					label="Relationship" 
+					display-field="text" 
+					id-field="code"
+					style="width: 50%" value="${this.updatingGuardian?.relationship}" 
+					.items="${this.beneficiaryRelationships}" 
+					error="${this.updatingGuardianErrors?.relationship === undefined ? `` : this.updatingGuardianErrors?.relationship}"
+					@value-changed = "${(e) => this._relationshipChange(e, false)}">
+				</capitec-select>
+			</div>`;
 	}
 
 	/**
@@ -837,18 +976,22 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			${this.currentStep === STEPS.CHILD_DETAILS
-				? html`
-				<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
-				</capitec-button>
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}" ></capitec-button>
-				`
-				: html`
+		${this.currentStep === STEPS.CHILD_DETAILS ? html`
+			<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
+			</capitec-button>
+		` : html`
 				<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
 				</capitec-button>
+		`}
 
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._updateClick()}"></capitec-button>
-			`}
+		${this.currentStep === STEPS.MONEY_ALLOCATION
+			? html`
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._updateClick()}">
+			</capitec-button>
+		` : html`
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
+			</capitec-button>
+		`}
 		`;
 	}
 
