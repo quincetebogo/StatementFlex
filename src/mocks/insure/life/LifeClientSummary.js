@@ -9,105 +9,150 @@
 export const insureLifeClientSummary = {
 	"policies": [
 		{
-			"contractReference": `LP00001830`,
+			"contractReference": `LP00008099`,
 			"policyStatus": `Pending In Force`,
 			"policyStatusEnum": `PendingInForce`,
 			"displayPolicyStatus": `Active - Pending Payment`,
-			"policyStartDate": `2024-02-03T00:00:00+00:00`,
+			"policyStartDate": `2024-06-04T00:00:00+00:00`,
 			"cancellationReason": ``,
 			"cancellationReasonEnum": `Unknown`,
-			"totalPremium": 8474.80146816,
-			"nextCollectionDate": `2024-03-01T00:00:00+00:00`,
-			"nextCollectionAmount": 8474.80146816,
+			"totalPremium": 373.3478346228,
+			"nextCollectionDate": `2024-07-01T00:00:00+00:00`,
+			"nextCollectionAmount": 373.3478346228,
 			"bankDetails": {
 				"accountName": `Savings Account`,
 				"branchCode": `470010`,
-				"accountNumber": `1467487730`,
+				"accountNumber": `1302232795`,
 				"bank": `CAPITEC`,
 				"accountType": `Savings`,
 				"collectionDay": 1,
-				"mandateReference": `3aedb441-2595-455e-90e3-cd44c7aab73`
+				"mandateReference": `001020240604AF2D149D9C`
 			},
 			"pockets": [
 				{
 					"pocketType": `LumpSum`,
-					"coverage": 0.0,
-					"premium": 0.0
+					"coverage": 658000.0,
+					"premium": 248.26
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 2400000.0,
-					"premium": 8446.9
+					"coverage": 57600.0,
+					"premium": 21.73
 				},
 				{
 					"pocketType": `Education`,
-					"coverage": 0.0,
-					"premium": 0.0
+					"coverage": 200000.0,
+					"premium": 75.46
 				}
 			],
 			"beneficiaries": [
 				{
-					"title": `Dr`,
-					"firstName": `Demo`,
-					"lastName": `Man`,
+					"title": `Mr`,
+					"firstName": `Childre`,
+					"lastName": `Ben`,
 					"rolePlayer": `Primary Beneficiary`,
 					"onceOffPayoutBenefitAmount": 0.0,
-					"educationBenefitAmount": 0.0,
-					"monthlyPayoutBenefitAmount": 1200000.0,
+					"educationBenefitAmount": 200000.0,
+					"monthlyPayoutBenefitAmount": 0.0,
 					"bankDetails": {
 						"accountType": `Bond`
 					},
 					"relationship": `Others`,
 					"gender": `Male`,
-					"dateOfBirth": `2005-01-01T00:00:00+00:00`,
-					"contactNumber": `1234567890`,
-					"clientType": `Adult`,
-					"clientId": `13F984EE-32B0-4B83-84DA-91C3743DDA3F`
+					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
+					"clientType": `Child`,
+					"guardianId": `GD01`,
+					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
 				},
 				{
-					"title": `Dr`,
-					"firstName": `Demo2`,
-					"lastName": `Man2`,
+					"title": `Mr`,
+					"firstName": `Monthly`,
+					"lastName": `Ben`,
 					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 0.0,
+					"onceOffPayoutBenefitAmount": 329000.0,
 					"educationBenefitAmount": 0.0,
-					"monthlyPayoutBenefitAmount": 1200000.0,
+					"monthlyPayoutBenefitAmount": 57600.0,
 					"bankDetails": {
 						"accountType": `Bond`
 					},
 					"relationship": `Others`,
 					"gender": `Male`,
-					"dateOfBirth": `2005-01-01T00:00:00+00:00`,
-					"contactNumber": `1234567890`,
+					"dateOfBirth": `1997-06-04T00:00:00+00:00`,
+					"contactNumber": `0842572454`,
 					"clientType": `Adult`,
-					"clientId": `13F984EE-32B0-4B83-84DA-91C3743D6465`
-				}
-			],
-			"guardians": [
+					"clientId": `63AA50E9-BEAB-49E1-8563-26088547E99D`
+				},
 				{
 					"title": `Miss`,
-					"firstName": `Nick`,
-					"lastName": `Parkar`,
-					"rolePlayer": `Guardian`,
+					"firstName": `Lump`,
+					"lastName": `Ben`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 329000.0,
+					"educationBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 0.0,
 					"bankDetails": {
 						"accountType": `Bond`
 					},
 					"relationship": `Others`,
 					"gender": `Female`,
-					"dateOfBirth": `1995-05-02T00:00:00+00:00`,
-					"contactNumber": `1234567890`,
-					"contactEmail": `lisaparkar05@xyz.com`,
-					"clientType": `Guardian`,
-					"guardianId": `GID001`,
-					"clientId": `51A2EA8C-4391-45A6-BFCD-3FBC0BE8AA1B`
+					"dateOfBirth": `1990-06-04T00:00:00+00:00`,
+					"contactNumber": `0614891717`,
+					"clientType": `Adult`,
+					"clientId": `B3E69DA4-91B7-4C10-8382-7A2BACF07B5C`
 				}
 			],
-			"totalPolicySumAssured": 2400000.0,
+			"guardians": [
+				{
+					"title": `Mr`,
+					"firstName": `Test`,
+					"lastName": `Test`,
+					"rolePlayer": `Guardian`,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Others`,
+					"gender": `Male`,
+					"dateOfBirth": `1991-06-04T00:00:00+00:00`,
+					"contactNumber": `0845725454`,
+					"clientType": `Guardian`,
+					"guardianId": `GD01`,
+					"clientId": `780D47ED-2786-4886-8F8B-6322E5D4F3BA`
+				}
+			],
+			"totalPolicySumAssured": 915600.0,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
 			"canReIssue": false,
-			"channelFee": 25
+			"mandates": [
+				{
+					"accountName": `Mr SURNAME DEV`,
+					"branchCode": `470010`,
+					"accountNumber": `1302232795`,
+					"bank": `CAPITEC BANK`,
+					"accountType": `Bond`,
+					"mandateType": `Debicheck`,
+					"initialInstalmentAmount": 373.35,
+					"firstCollectionDate": `2024-07-01T00:00:00+00:00`,
+					"numberOfDebitInstalments": 9999,
+					"statusReason": `ACCEPTED`,
+					"mandateStatus": `Active`,
+					"mandateInitiationDate": `2024-06-04T00:00:00+00:00`,
+					"mandateId": 16047,
+					"instalmentAmount": 373.35,
+					"contractReference": `LP00008099`,
+					"collectionDay": 1,
+					"cifNumber": 161961533,
+					"idNumber": `9002196146085`,
+					"instalmentOccurrence": `RCUR`,
+					"authRequired": false,
+					"mandateReferenceNumber": `001020240604AF2D149D9C`,
+					"contactNumber": ``,
+					"voiceRecordingNumber": ``,
+					"mandateRequestTransactionIdentifier": `00102024-06-04000000005`
+				}
+			],
+			"channelFee": 27.9
 		},
 		{
 			"contractReference": `LP00001813`,
