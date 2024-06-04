@@ -234,34 +234,37 @@ export class CapitecConnectService extends ChannelServiceBase {
 			return [];
 		}
 
-		// const url = `/v2/api/horizon/advances/${request.cif}/accounts/search`;
-		const url = `/v2/api/horizon/advances/${request.cif}/accounts`;
+		var url = `/v2/api/horizon/advances/${request.cif}/accounts`;
 
 		delete request.cif;
-		
-		return this.get(
-			url, 
-			this.setToken(), 
-			`capitecConnectAdvanceBalance`, 
-			false, 
-			null, 
-			null, 
-			null, 
-			DEFAULT_AUTO_RETRIES
-		);
 
-		// return this.post(
-		// 	url,
-		// 	request,
-		// 	this.setToken(),
-		// 	'capitecConnectAdvanceBalance',
-		// 	null,
-		// 	null,
-		// 	2000,
-		// 	null,
-		// 	null,
-		// 	DEFAULT_AUTO_RETRIES
-		// );
+		if (request.msisdn) {
+			url += `/search`;
+
+			return this.post(
+				url,
+				request,
+				this.setToken(),
+				'capitecConnectAdvanceBalance',
+				null,
+				null,
+				2000,
+				null,
+				null,
+				DEFAULT_AUTO_RETRIES
+			);
+		} else {
+			return this.get(
+				url, 
+				this.setToken(), 
+				`capitecConnectAdvanceBalance`, 
+				false, 
+				null, 
+				null, 
+				null, 
+				DEFAULT_AUTO_RETRIES
+			);
+		}
 	}
 
 	async escalateForReversal(ref = null, reason = '', comments = '') {
