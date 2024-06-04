@@ -1317,8 +1317,6 @@ export class ExistingClient extends InsureViewBase {
 
 	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
 		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
-
-		console.log(`generateIssueAgreementRequest: `, generateIssueAgreementRequest);
 		const resp = await this.insureLifeService.lifeIssueAgreement(generateIssueAgreementRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
@@ -1328,7 +1326,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeReIssue(reIssueRequest) {
-		console.log(`Executing ReIssue`);
 		reIssueRequest.idNumber = this.callerInformation.southAfricanIDNumber;
 		reIssueRequest.cifNumber = this.callerInformation.cifNumber;
 
@@ -1341,7 +1338,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeAcceptPolicy(acceptPolicyRequest) {
-		console.log(`Executing Accept`);
 		acceptPolicyRequest.policyHolder = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
@@ -1961,7 +1957,6 @@ export class ExistingClient extends InsureViewBase {
 	async _refreshLifePolicies() {
 		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		this.lifePolicies = await this._retrieveClientLifePolicies();
-		console.log(`this.lifePolicies: `, this.lifePolicies);
 		this.requestUpdate();
 	}
 

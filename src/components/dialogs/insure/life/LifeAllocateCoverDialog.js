@@ -191,8 +191,6 @@ class LifeAllocateCoverDialog extends Component {
 		}
 
 		await this.getDefaultSavingsAccountNumber();
-		console.log(this.updatedPolicy);
-
 		this.accountNumberDisabled = this._disableAccountNumber();
 
 		// Setup metadata
@@ -220,36 +218,23 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Set Allocate values
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
-
-
 			this.riskRate = this.updatedPolicy.riskRate;
-			this.channelFee = this.updatedPolicy.channelFee; // ?
-			this.totalLoadingApplied = 0.0; // ?
-			// this.updatedPolicy.totalPolicySumAssured;
+			this.channelFee = this.updatedPolicy.channelFee;
+			this.totalLoadingApplied = 0.0; 
 
-			// const calculatedPremiumMinusFee = this.calculatedPremium - this.updatedPolicy.channelFee;
-			// console.log('calculatedPremiumMinusFee :>> ', calculatedPremiumMinusFee);
-			// const premiumForCalc = calculatedPremiumMinusFee / this.updatedPolicy.totalPolicySumAssured;
-			// console.log('premiumForCalc :>> ', premiumForCalc);
 			this.updatedPolicy.beneficiaries.forEach(bene => {
 				if (bene.monthlyPayoutBenefitAmount > 0) {
-					console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
 					this.monthlyTotalCoverValue += parseFloat(bene.monthlyPayoutBenefitAmount);
 				}
 				if (bene.educationBenefitAmount > 0) {
-					console.log(`bene.educationBenefitAmount :>> `, bene.educationBenefitAmount);
 					this.educationCoverValue += parseFloat(bene.educationBenefitAmount);
 				}
 				if (bene.onceOffPayoutBenefitAmount > 0) {
-					console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 					this.onceOffCoverValue += parseFloat(bene.onceOffPayoutBenefitAmount);
 				}
 			});
-			// this.monthlyTotalCoverValue = parseFloat(this.monthlyCoverValue * 24).toFixed(0);
+
 			this.monthlyCoverValue = parseFloat(this.monthlyTotalCoverValue / 24).toFixed(0);
-			console.log(`this.monthlyTotalCoverValue :>> `, this.monthlyTotalCoverValue);
-			console.log(`this.educationCoverValue :>> `, this.educationCoverValue);
-			console.log(`this.onceOffCoverValue :>> `, this.onceOffCoverValue);
 
 			this.remainingCoverToAllocate = parseFloat(this.updatedPolicy.totalPolicySumAssured) - parseFloat(this.monthlyTotalCoverValue) - parseFloat(this.onceOffCoverValue) - parseFloat(this.educationCoverValue);
 			this.calculatedPremium = parseFloat(this.updatedPolicy.totalPremium);
@@ -500,10 +485,6 @@ class LifeAllocateCoverDialog extends Component {
 		this.educationCoverError = ``;
 		this.onceOffCoverError = ``;
 
-		console.log(`this.monthlyTotalCoverValue: ${this.monthlyTotalCoverValue}`);
-		console.log(`this.onceOffCoverValue: ${this.onceOffCoverValue}`);
-		console.log(`this.educationCoverValue: ${this.educationCoverValue}`);
-
 		if (isNullorEmpty(this.monthlyTotalCoverValue) || isNaN(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === undefined) {
 			this.monthlyTotalCoverValue = 0;
 		}
@@ -520,14 +501,12 @@ class LifeAllocateCoverDialog extends Component {
 		if ((isNullorEmpty(this.monthlyTotalCoverValue) || this.monthlyTotalCoverValue === 0) &&
 			(isNullorEmpty(this.onceOffCoverValue) || this.onceOffCoverValue === 0) &&
 			(isNullorEmpty(this.educationCoverValue) || this.educationCoverValue === 0)) {
-			console.log(`Validating | _validateAllocatePocketsStep | 0`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
 			isValid = false;
 		}
 
 		// Less than policy minimum
 		if (parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue) < 100000) {
-			console.log(`Validating | _validateAllocatePocketsStep | 1`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.MINIMUM_COVER_NOT_REACHED;
 			isValid = false;
 		}
@@ -536,12 +515,10 @@ class LifeAllocateCoverDialog extends Component {
 		const totalCoverage = parseFloat(this.monthlyTotalCoverValue) + parseFloat(this.onceOffCoverValue) + parseFloat(this.educationCoverValue);
 		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 			if (totalCoverage > this.newOffer.maximumAllowedCover) {
-				console.log(`Validating | _validateAllocatePocketsStep | 2`);
 				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 				isValid = false;
 			}
 		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
-			console.log(`Validating | _validateAllocatePocketsStep | 3`);
 			this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
 			isValid = false;
 		}
@@ -549,7 +526,6 @@ class LifeAllocateCoverDialog extends Component {
 		// Check any errors on individual pockets
 		// Monthly
 		if (parseFloat(this.monthlyTotalCoverValue) < 1000 && this.monthlyTotalCoverValue !== 0) {
-			console.log(`Validating | _validateAllocatePocketsStep | 4`);
 			this.monthlyTotalCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			this.monthlyTotalCoverValue = ``;
 			isValid = false;
@@ -557,18 +533,15 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Education
 		if (parseFloat(this.educationCoverValue) < 50000 && this.educationCoverValue !== 0) {
-			console.log(`Validating | _validateAllocatePocketsStep | 5`);
 			this.educationCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM_EDUCATION;
 			isValid = false;
 		}
 
 		// Once off
 		if (parseFloat(this.onceOffCoverValue) < 1000 && this.onceOffCoverValue !== 0) {
-			console.log(`Validating | _validateAllocatePocketsStep | 6`);
 			this.onceOffCoverError = LIFE_COVER_ERROR_MESSAGES.POCKET_MINIMUM;
 			isValid = false;
 		}
-
 		return isValid;
 	}
 
@@ -706,8 +679,6 @@ class LifeAllocateCoverDialog extends Component {
 		this.selectedBeneficiary = beneficiary;
 		this.selectedPocketType = pocketType;
 		this.showDeleteBeneficiaryDialog = true;
-		console.log(`_openDeleteBeneficiaryDialog: this.selectedBeneficiary: `, this.selectedBeneficiary);
-		console.log(`_openDeleteBeneficiaryDialog: this.updatedPolicy.beneficiaries: `, this.updatedPolicy.beneficiaries);
 	}
 
 	_addBeneficiary(event) {
@@ -727,7 +698,6 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	_addChild(event) {
-		console.log(`addChild`);
 		const child = event.detail.child;
 		const guardian = event.detail.guardian;
 		const newGuardianType = event.detail.newGuardianType;
@@ -746,13 +716,18 @@ class LifeAllocateCoverDialog extends Component {
 		child.guardianId = guardianId;
 		this.updatedPolicy.beneficiaries.push(child);
 		this.showAddChildDialog = false;
-
-
-		console.log(`Done Adding child: ${child.firstName} ${child.lastName}, cover amount ${child.educationBenefitAmount}, with guardian: ${guardian.firstName} ${guardian.lastName}`);
 	}
 
 	_updateBeneficiary() {
 		this.showEditBeneficiaryDialog = false;
+	}
+
+	_updateChild(event) {
+		const guardian = event.detail.guardian;
+		if (guardian !== null) {
+			this.updatedPolicy.guardians.push(guardian);
+		}
+		this.showEditChildDialog = false;
 	}
 
 	_cancelUpdateBeneficiary(e) {
@@ -772,22 +747,17 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	_deleteBeneficiary() {
-		console.log(`Deleting Beneficiary`);
-		console.log(`this.selectedBeneficiary: `, this.selectedBeneficiary);
 		for (const bene of this.updatedPolicy.beneficiaries) {
 			if (bene.metaData.uniqueId === this.selectedBeneficiary.metaData.uniqueId) {
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
-					console.log(`Removing in MONTHLY`);
 					bene.metaData.monthlyBenefitAdded = false;
 					bene.monthlyPayoutBenefitAmount = 0;
 				}
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-					console.log(`Removing in ONCEOFF`);
 					bene.metaData.onceOffBenefitAdded = false;
 					bene.onceOffPayoutBenefitAmount = 0;
 				}
 				if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
-					console.log(`Removing in EDUCATION`);
 					bene.metaData.educationBenefitAdded = false;
 					bene.educationBenefitAmount = 0;
 				}
@@ -849,22 +819,16 @@ class LifeAllocateCoverDialog extends Component {
 
 		const invalidPocketNames = [];
 
-		console.log(`this.updatedPolicy.beneficiaries :>> `, this.updatedPolicy.beneficiaries);
 		for (const bene of this.updatedPolicy.beneficiaries) {
-			console.log(`bene :>> `, bene);
 			if (bene.onceOffPayoutBenefitAmount > 0) {
-				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
 				onceOffTotalAllocated += parseFloat(bene.onceOffPayoutBenefitAmount);
-				console.log(`onceOffTotalAllocated :>> `, onceOffTotalAllocated);
 			}
 
 			if (bene.monthlyPayoutBenefitAmount > 0) {
-				console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
 				monthlyTotalAllocated += parseFloat(bene.monthlyPayoutBenefitAmount);
 			}
 
 			if (bene.educationBenefitAmount > 0) {
-				console.log(`bene.educationBenefitAmount :>> `, bene.educationBenefitAmount);
 				educationTotalAllocated += parseFloat(bene.educationBenefitAmount);
 			}
 		}
@@ -874,11 +838,6 @@ class LifeAllocateCoverDialog extends Component {
 			invalidPocketNames.push(`Lump Sum`);
 		}
 
-		console.log(`monthlyTotalAllocated :>> `, monthlyTotalAllocated);
-		console.log(`this.monthlyTotalCoverValue :>> `, this.monthlyTotalCoverValue);
-		console.log(monthlyTotalAllocated !== this.monthlyTotalCoverValue);
-		console.log(typeof monthlyTotalAllocated);
-		console.log(typeof this.monthlyTotalCoverValue);
 		if (parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
 			monthlyValid = false;
 			invalidPocketNames.push(`Monthly Income`);
@@ -1040,7 +999,6 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Allocate
 		if (this.currentDialogStep === 0) {
-			console.log(`Validating Step 0`);
 			stepValid = this._validateAllocatePocketsStep();
 			if (stepValid === false) {
 				return;
@@ -1082,7 +1040,6 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Beneficiaries
 		if (this.currentDialogStep === 1) {
-			console.log(`Validating Step 1`);
 			this.invalidPocketNames = [];
 			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
 			stepValid = allocatedStepResults[0];
@@ -1096,7 +1053,6 @@ class LifeAllocateCoverDialog extends Component {
 
 		// Payment details
 		if (this.currentDialogStep === 2) {
-			console.log(`Validating Step 2`);
 			if (isNullorEmpty(this.updatedPolicy.bankDetails.accountNumber)) {
 				this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
 				stepValid = false;
@@ -1160,10 +1116,7 @@ class LifeAllocateCoverDialog extends Component {
 					"pockets": this.updatedPolicy.pockets
 				};
 
-				console.log(`updatePolicyReq :>> `, updatePolicyReq);
-
 				this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
-				console.log(`updateResp :>> `, this.updatePolicyResult);
 
 				if (this.updatePolicyResult === null) {
 					stepValid = false;
@@ -1202,9 +1155,8 @@ class LifeAllocateCoverDialog extends Component {
 					"beneficiaries": requestBeneficiaries
 				};
 
-				console.log('updateAgreementReq :>> ', updateAgreementReq);
 				const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
-				console.log(`updateAgreementResp :>> `, updateAgreementResp);
+
 				if (updateAgreementResp === null) {
 					stepValid = false;
 					return;
@@ -1264,27 +1216,23 @@ class LifeAllocateCoverDialog extends Component {
 					"pockets": this.updatedPolicy.pockets,
 					"answers": this.newOfferAnswers
 				};
-				console.log(`reIssueRequest: `, reIssueRequest);
-				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
-				console.log(`reIssueResult: `, this.reIssueResult);
 
-				// TODO Execute Agreement Call
+				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
+
+				// Execute Agreement Call
 				const agreementRequest = {
 					"saveDocument": false,
 					"policyNumber": this.reIssueResult.policyNumber,
 					"signatureDate": new Date()
 				};
 
-				console.log(`agreementRequest: `, agreementRequest);
 				const agreementResult = await this.executeLifeGenerateIssueAgreement(agreementRequest);
-				console.log(`agreementResult: `, agreementResult);
 				this.agreementDocumentContent = agreementResult.documentContent.base64EncodedString;
 			}
 		}
 
 		// All good move on
 		if (stepValid === true) {
-			console.log(`Success | Done with step: ${this.currentDialogStep}`);
 			this.currentDialogStep++;
 			this._setDialogTitle(this.currentDialogStep);
 			this.allocatedCoverErrorMessage = ``;
@@ -2255,7 +2203,7 @@ class LifeAllocateCoverDialog extends Component {
 					.policy = "${this.updatedPolicy}"
 					.totalPocketCover = "${this._totalCoverAllocated(this.selectedPocketType)}"
 					@close-dialog="${() => this.showEditChildDialog = false}"
-					@update-child="${(e) => this._addChild(e)}">
+					@update-child="${(e) => this._updateChild(e)}">
 				</horizon-insure-life-update-child-dialog>
 		`;
 	}

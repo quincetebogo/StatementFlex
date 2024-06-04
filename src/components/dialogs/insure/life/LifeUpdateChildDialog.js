@@ -4,6 +4,7 @@ import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, poc
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { v4 } from 'uuid';
 
 const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
@@ -13,7 +14,6 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_EMAIL: `Enter a valid email address`
 };
 
@@ -60,6 +60,7 @@ class LifeUpdateChildDialog extends Component {
 
 		this.beneficiaryDetailsErrorMessage = ``;
 		this.allocateMoneyErrorMessage = ``;
+		this.newOrExistingErrorMessage = ``;
 
 		this.totalPocketCover = 0;
 		this.pocketRemainingCover = 0;
@@ -115,18 +116,8 @@ class LifeUpdateChildDialog extends Component {
 
 	initialise() {
 		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
-
-		// Find guardian of current editing child / remove from quick add
-		this.updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.guardianId === this.updatingChild.guardianId);
-		// if (this.updatingGuardian) {
-		// 	const index = this.eligibleGuardiansForQuickAdd.indexOf(this.updatingGuardian);
-		// 	this.eligibleGuardiansForQuickAdd.splice(index, 1);
-		// }
-
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.NEW;
 		this.originalChild = JSON.parse(JSON.stringify(this.updatingChild));
-
-		console.log(`this.originalChild`);
-		console.log(this.originalChild);
 		for (const bene of this.policy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.metaData.educationBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
@@ -168,7 +159,11 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_continueWithNewGuardian() {
 		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.NEW;
-		this.updatingGuardian = {};
+		this.updatingGuardian = {
+			guardianId: v4()
+		};
+		this.updatingGuardianErrors = {};
+		this.updatingChild.guardianId = this.updatingGuardian.guardianId;
 		this.newOrExistingErrorMessage = ``;
 	}
 
@@ -181,7 +176,9 @@ class LifeUpdateChildDialog extends Component {
 	_continueWithExistingGuardian(guardian) {
 		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
 		this.newOrExistingErrorMessage = ``;
+		this.updatingGuardianErrors = {};
 		this.updatingGuardian = guardian;
+		this.updatingChild.guardianId = this.updatingGuardian.guardianId;
 	}
 
 	/**
@@ -337,7 +334,7 @@ class LifeUpdateChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000)) {
+			if (parseFloat(bene.educationBenefitAmount) < 1000 && parseFloat(bene.educationBenefitAmount) !== 0) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -453,13 +450,106 @@ class LifeUpdateChildDialog extends Component {
 	}
 
 	/**
+	 *  Validate guardian step
+	 * @returns {void}
+	 */
+	_validateGuardianStep() {
+		let stepValid = true;
+
+		if (isNullorEmpty(this.updatingGuardian?.title)) {
+			this.updatingGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.title = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.gender)) {
+			this.updatingGuardianErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.gender = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.firstName)) {
+			this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.firstName = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.lastName)) {
+			this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.lastName = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.contactNumber)) {
+			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (this.updatingGuardian?.contactNumber.length > 0 && this.updatingGuardian?.contactNumber.length < 10) {
+			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.contactNumber = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.relationship)) {
+			this.updatingGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.relationship = ``;
+		}
+
+		if (this.updatingGuardian.dateOfBirth === undefined || this.updatingGuardian.dateOfBirth === ``) {
+			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (getAgeFromDob(this.updatingGuardian?.dateOfBirth) < 18) {
+			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.dateOfBirth = ``;
+		}
+
+		if (!isNullorEmpty(this.updatingGuardian.idNumber)) {
+			if (this.updatingGuardian.idNumber.length !== 13) {
+				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
+				stepValid = false;
+			} else {
+				this.updatingGuardianErrors.idNumber = ``;
+			}
+		}
+
+		if (!isNullorEmpty(this.updatingGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingGuardian?.contactEmail)) {
+			this.updatingGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.contactEmail = ``;
+		}
+
+		if (stepValid === false) {
+			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+		} else {
+			this.beneficiaryDetailsErrorMessage = ``;
+		}
+		this.requestUpdate();
+		return stepValid;
+	}
+
+	/**
 	 * Next event from dialog footer button, moves to next step and validates fields from the current step
 	 * 
 	 * @returns {void}
 	 */
 	_nextClick() {
 		let stepValid = true;
-		stepValid = this._validateBeneficiaryDetails();
+		if (this.currentStep === STEPS.CHILD_DETAILS) {
+			stepValid = this._validateBeneficiaryDetails();
+		}
+		if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			stepValid = this._validateGuardianStep();
+		}
+
 
 		if (stepValid === true) {
 			this.currentStep++;
@@ -474,7 +564,6 @@ class LifeUpdateChildDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
-		console.log(`cancel click`);
 		this.updatingChild = this.originalChild;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { child: this.updatingChild } }));
 	}
@@ -486,9 +575,16 @@ class LifeUpdateChildDialog extends Component {
 	_updateClick() {
 		const allocationValid = this._validateAllocateCover();
 		if (allocationValid === true) {
+
+			let guardian = null;
+			if (this.updatingGuardianType === NEW_BENEFICIARY_TYPES.NEW) {
+				guardian = this.updatingGuardian;
+			}
+
 			this.dispatchEvent(new CustomEvent(`update-child`, {
 				detail: {
-					child: this.updatingChild
+					child: this.updatingChild,
+					guardian: guardian
 				}
 			}));
 		}
@@ -502,6 +598,7 @@ class LifeUpdateChildDialog extends Component {
 	_backClick() {
 		this.currentStep--;
 		this.beneficiaryDetailsErrorMessage = ``;
+		this.updatingGuardianErrors = {};
 		this.allocateMoneyErrorMessage = ``;
 	}
 	// #endregion EVENT HANDLERS
@@ -634,7 +731,7 @@ class LifeUpdateChildDialog extends Component {
 	_renderNewOrExistingQuickAdd() {
 		return html`
 		${this.newOrExistingErrorMessage !== ``
-			? html`
+				? html`
 			<div style="padding: 20px 16px 0px 16px;">
 				<horizon-alert-banner
 					type="error"
@@ -643,8 +740,8 @@ class LifeUpdateChildDialog extends Component {
 					layout="vertical">
 				</horizon-alert-banner>
 			</div>`
-			: html``
-		}
+				: html``
+			}
 
 		<capitec-content-box style="min-height:200px; padding-left: 15px;">
 
@@ -668,7 +765,7 @@ class LifeUpdateChildDialog extends Component {
 					type="radio-button"
 					label="${`${guardian.firstName} ${guardian.lastName}`}"
 					subtitle="${guardian.relationship}"
-					?selected="${this.updatingGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
+					?selected="${this.updatingGuardian.firstName === guardian.firstName}"
 					@click="${() => this._continueWithExistingGuardian(guardian)}">
 				</horizon-product-tile>
 			`)}
@@ -676,11 +773,11 @@ class LifeUpdateChildDialog extends Component {
 		`;
 	}
 
-		/**
-	 * Render Guardian details step
-	 * 
-	 * @returns {html} html content
-	 */
+	/**
+ * Render Guardian details step
+ * 
+ * @returns {html} html content
+ */
 	_renderGuardianDetails() {
 		return html`
 			<div class="grouping">
@@ -959,7 +1056,7 @@ class LifeUpdateChildDialog extends Component {
 								label=""
 								value="${this._beneficiaryCoverValue(bene)}"
 								@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}"
-								error="${bene?.metaData?.coverErrorMsg}">
+								.error="${bene.metaData.coverErrorMsg}">
 							</capitec-text-field>
 						</div>
 					</div>
@@ -985,7 +1082,7 @@ class LifeUpdateChildDialog extends Component {
 		`}
 
 		${this.currentStep === STEPS.MONEY_ALLOCATION
-			? html`
+				? html`
 			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._updateClick()}">
 			</capitec-button>
 		` : html`

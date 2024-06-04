@@ -82,7 +82,6 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
 
 		await this.getDefaultSavingsAccountNumber();
-		console.log(this.defaultSavingsAccountNumber);
 	}
 
 	/**

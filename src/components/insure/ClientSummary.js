@@ -724,8 +724,6 @@ class ClientSummary extends Component {
 	}
 
 	_lifeReIssueCompleted(e) {
-		console.log(`_lifeReIssueCompleted - client summary`);
-		console.log(e.detail.acceptResult);
 		this.showLifeAllocateCoverDialog = false;
 		this.dispatchEvent(new CustomEvent(`life-reissue-completed`, {
 			detail: {
@@ -737,7 +735,6 @@ class ClientSummary extends Component {
 	}
 
 	_lifeUpdateCompleted(e) {
-		console.log(`_lifeUpdateCompleted - client summary`);;
 		this.showLifeAllocateCoverDialog = false;
 		this.dispatchEvent(new CustomEvent(`life-update-completed`, {
 			detail: {
