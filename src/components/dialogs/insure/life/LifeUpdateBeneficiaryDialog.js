@@ -342,9 +342,15 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				bene.monthlyPayoutBenefitAmount = parseFloat(value);
+				if (bene.monthlyPayoutBenefitAmount >= 1000) {
+					bene.metaData.coverErrorMsg = ``;
+				}
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 				bene.onceOffPayoutBenefitAmount = parseFloat(value);
+				if (bene.monthlyPayoutBenefitAmount >= 1000) {
+					bene.metaData.coverErrorMsg = ``;
+				}
 			}
 			this._calculateCoverBreakdown();
 		}
