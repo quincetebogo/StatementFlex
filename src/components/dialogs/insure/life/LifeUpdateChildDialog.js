@@ -1,5 +1,5 @@
+import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -14,7 +14,9 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	INVALID_EMAIL: `Enter a valid email address`
+	INVALID_EMAIL: `Enter a valid email address`,
+	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	BENE_UNDER_18: `Beneficiary must be under 18`
 };
 
 const STEPS = {
@@ -69,6 +71,7 @@ class LifeUpdateChildDialog extends Component {
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.childTitleOptions = CHILD_TITLE_OPTIONS;
 	}
 
 	// #endregion INITIALIZE
@@ -184,21 +187,36 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary TITLE value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_titleChange(e) {
+	_titleChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.title = e.detail.new.code;
-			if (this.updatingChild.title === `Mr` || this.updatingChild.title === `Sir`) {
-				this.updatingChild.gender = `Male`;
-				this.childErrors.gender = ``;
-			} else if (this.updatingChild.title === `Mrs` || this.updatingChild.title === `Ms` || this.updatingChild.title === `Miss` || this.updatingChild.title === `Lady`) {
-				this.updatingChild.gender = `Female`;
-				this.childErrors.gender = ``;
+			if (beneficiary) {
+				this.updatingChild.title = e.detail.new.code;
+				if (this.updatingChild.title === `Mr`) {
+					this.updatingChild.gender = `Male`;
+					this.childErrors.gender = ``;
+				} else if (this.updatingChild.title === `Mrs` || this.updatingChild.title === `Ms` || this.updatingChild.title === `Miss`) {
+					this.updatingChild.gender = `Female`;
+					this.childErrors.gender = ``;
+				}
+				if (!isNullorEmpty(this.updatingChild.title)) {
+					this.childErrors.title = ``;
+				}
+			} else {
+				this.updatingGuardian.title = e.detail.new.code;
+				if (this.updatingGuardian.title === `Mr` || this.updatingGuardian.title === `Sir`) {
+					this.updatingGuardian.gender = `Male`;
+					this.updatingGuardianErrors.gender = ``;
+				} else if (this.updatingGuardian.title === `Mrs` || this.updatingGuardian.title === `Ms` || this.updatingGuardian.title === `Miss` || this.updatingGuardian.title === `Lady`) {
+					this.updatingGuardian.gender = `Female`;
+					this.updatingGuardianErrors.gender = ``;
+				}
+				if (!isNullorEmpty(this.updatingGuardian.title)) {
+					this.updatingGuardianErrors.title = ``;
+				}
 			}
-		}
-		if (!isNullorEmpty(this.updatingChild.title)) {
-			this.childErrors.title = ``;
 		}
 		this.requestUpdate();
 	}
@@ -206,29 +224,52 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary GENDER value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_genderChange(e) {
+	_genderChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.gender = e.detail.new.code;
+			if (beneficiary) {
+				this.updatingChild.gender = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingChild.gender)) {
+					this.childErrors.gender = ``;
+				}
+			} else {
+				this.updatingGuardian.gender = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingGuardian.gender)) {
+					this.updatingGuardianErrors.gender = ``;
+				}
+			}
+			
 		}
-		if (!isNullorEmpty(this.updatingChild.gender)) {
-			this.childErrors.gender = ``;
-		}
+		
 		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_firstNameChange(e) {
+	_firstNameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.firstName = e.detail.new;
-			if (!isNullorEmpty(this.updatingChild.firstName)) {
-				this.childErrors.firstName = ``;
+			if (beneficiary) {
+				this.updatingChild.firstName = e.detail.new;
+				if (isNullorEmpty(this.updatingChild.firstName)) {
+					this.childErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.firstName = ``;
+				}
+			} else {
+				this.updatingGuardian.firstName = e.detail.new;
+				if (isNullorEmpty(this.updatingGuardian.firstName)) {
+					this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.firstName = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -236,14 +277,27 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary SURNAME value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_surnameChange(e) {
+	_surnameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.lastName = e.detail.new;
-			if (!isNullorEmpty(this.updatingChild.lastName)) {
-				this.childErrors.lastName = ``;
+			if (beneficiary) {
+				this.updatingChild.lastName = e.detail.new;
+				if (isNullorEmpty(this.updatingChild.lastName)) {
+					this.childErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.lastName = ``;
+				}
+			} else {
+				this.updatingGuardian.lastName = e.detail.new;
+				if (isNullorEmpty(this.updatingGuardian.lastName)) {
+					this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.lastName = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -251,33 +305,72 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary RELATIONSHIP value changes
 	 * @param {*} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_relationshipChange(e) {
+	_relationshipChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.relationship = e.detail.new.code;
+			if (beneficiary) {
+				this.updatingChild.relationship = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingChild.relationship)) {
+					this.childErrors.relationship = ``;
+				}
+			} else {
+				this.updatingGuardian.relationship = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingGuardian.relationship)) {
+					this.updatingGuardianErrors.relationship = ``;
+				}
+			}
+			
 		}
+		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary DoB value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_dobChange(e) {
+	_dobChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.dateOfBirth = e.detail.new.date;
-			const wrongTimeZone = this.updatingChild.dateOfBirth.includes(`+02:00`);
-			if (wrongTimeZone === true) {
-				let dob = this.updatingChild.dateOfBirth;
-				const timezone = `+02:00`;
-				dob = dob.replace(timezone, ``);
-				this.updatingChild.dateOfBirth = dob;
-			} else {
+			if (beneficiary) {
 				this.updatingChild.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.updatingChild.dateOfBirth.includes(`+02:00`);
+				if (wrongTimeZone === true) {
+					let dob = this.updatingChild.dateOfBirth;
+					const timezone = `+02:00`;
+					dob = dob.replace(timezone, ``);
+					this.updatingChild.dateOfBirth = dob;
+				} 
+				if (isNullorEmpty(this.updatingChild.dateOfBirth)) {
+					this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.dateOfBirth = ``;
+				}
+				if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+					this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+				}
+			} else {
+				this.updatingGuardian.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.updatingGuardian.dateOfBirth.includes(`+02:00`);
+				if (wrongTimeZone === true) {
+					let dob = this.updatingGuardian.dateOfBirth;
+					const timezone = `+02:00`;
+					dob = dob.replace(timezone, ``);
+					this.updatingGuardian.dateOfBirth = dob;
+				}
+				if (isNullorEmpty(this.updatingGuardian.dateOfBirth)) {
+					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.dateOfBirth = ``;
+				}
+				if (getAgeFromDob(this.updatingGuardian.dateOfBirth) < 18) {
+					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+				}
 			}
 
-			this._validateBeneficiaryDetails();
+			// this._validateBeneficiaryDetails();
 		}
 		this.requestUpdate();
 	}
@@ -286,14 +379,29 @@ class LifeUpdateChildDialog extends Component {
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_cellphoneNumChange(e) {
+	_cellphoneNumChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.contactNumber = e.detail.new;
-			if (this.updatingChild.contactNumber.length === 10) {
-				this.childErrors.contactNumber = ``;
+			if (beneficiary) {
+				this.updatingChild.contactNumber = e.detail.new;
+				if (this.updatingChild.contactNumber.length === 10) {
+					this.childErrors.contactNumber = ``;
+				}
+				if (!isNullorEmpty(this.newChild.contactNumber)) {
+					this.childErrors.contactNumber = ``;
+				}
+			} else {
+				this.updatingGuardian.contactNumber = e.detail.new;
+				if (this.updatingGuardian.contactNumber.length === 10) {
+					this.updatingGuardianErrors.contactNumber = ``;
+				}
+				if (!isNullorEmpty(this.updatingGuardian.contactNumber)) {
+					this.updatingGuardianErrors.contactNumber = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -302,16 +410,39 @@ class LifeUpdateChildDialog extends Component {
 	 * Event fired when a beneficiary ID NUMBER value changes
 	 * 
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_idChange(e) {
+	_idChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.idNumber = e.detail.new;
-		}
+			if (beneficiary) {
+				this.updatingChild.idNumber = e.detail.new;
+				if (this.updatingChild.idNumber.length === 13) {
+					this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
+					this.childErrors.idNumber = ``;
+					if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					} else {
+						this.childErrors.dateOfBirth = ``;
+					}
 
-		if (this.updatingChild.idNumber.length === 13) {
-			this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
-			this.childErrors.idNumber = ``;
+					;
+				}
+			} else {
+				this.updatingGuardian.idNumber = e.detail.new;
+				if (this.updatingGuardian.idNumber.length === 13) {
+					this.updatingGuardian.dateOfBirth = getDobFromIDNumber(this.updatingGuardian.idNumber);
+					this.updatingGuardianErrors.idNumber = ``;
+					if (getAgeFromDob(this.updatingChild.dateOfBirth) < 18) {
+						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+					} else {
+						this.updatingGuardianErrors.dateOfBirth = ``;
+					}
+					
+				}
+			}
+			
+
 		}
 		this.requestUpdate();
 	}
@@ -903,8 +1034,8 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					value="${this.updatingChild?.title}" 
 					error="${this.updatingChild?.title === undefined ? `` : this.childErrors.title}"
-					.items="${this.titleOptions}" 
-					@value-changed="${(e) => this._titleChange(e)}">
+					.items="${this.childTitleOptions}" 
+					@value-changed="${(e) => this._titleChange(e, true)}">
 				</capitec-select>
 
 				<capitec-select 
@@ -915,7 +1046,7 @@ class LifeUpdateChildDialog extends Component {
 					value="${this.updatingChild?.gender}" 
 					error="${this.updatingChild?.gender === undefined ? `` : this.childErrors.gender}"
 					.items="${this.genderOptions}"
-					@value-changed="${(e) => this._genderChange(e)}">
+					@value-changed="${(e) => this._genderChange(e, true)}">
 				</capitec-select>
 			</div>
 
@@ -925,7 +1056,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%"
 					value="${this.updatingChild?.firstName}"
 					error="${this.childErrors?.firstName === undefined ? `` : this.childErrors.firstName}"
-					@value-changed="${(e) => this._firstNameChange(e)}">
+					@value-changed="${(e) => this._firstNameChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-text-field 
@@ -933,7 +1064,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%"
 					value="${this.updatingChild?.lastName}"
 					error="${this.childErrors?.lastName === undefined ? `` : this.childErrors.lastName}"
-					@value-changed="${(e) => this._surnameChange(e)}">
+					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
 			</div>
 
@@ -944,7 +1075,7 @@ class LifeUpdateChildDialog extends Component {
 					display-field="text" 
 					id-field="code"
 					style="width: 50%" value="${this.updatingChild?.relationship}" 
-					@value-changed = "${(e) => this._relationshipChange(e)}">
+					@value-changed = "${(e) => this._relationshipChange(e, true)}">
 				</capitec-select>
 
 				<capitec-text-field 
@@ -954,7 +1085,7 @@ class LifeUpdateChildDialog extends Component {
 					type="numeric"
 					value="${this.updatingChild?.contactNumber}"
 					error="${this.childErrors?.contactNumber === undefined ? `` : this.childErrors.contactNumber}"
-					@value-changed="${(e) => this._cellphoneNumChange(e)}">
+					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
 				</capitec-text-field>
 			</div>
 
@@ -980,7 +1111,7 @@ class LifeUpdateChildDialog extends Component {
 					maxdate="${this.today}" 
 					minDate="1901-01-01"
 					error="${this.childErrors?.dateOfBirth}"
-					@value-changed="${(e) => this._dobChange(e)}">
+					@value-changed="${(e) => this._dobChange(e, true)}">
 				</capitec-date-time-picker>
 			</div>
 
@@ -990,7 +1121,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					value="${this.updatingChild?.contactEmail}"
 					error="${this.childErrors?.contactEmail === undefined ? `` : this.childErrors.contactEmail}"
-					@value-changed="${(e) => this._emailChange(e)}">
+					@value-changed="${(e) => this._emailChange(e, true)}">
 				</capitec-text-field>
 			</div>
 		`;

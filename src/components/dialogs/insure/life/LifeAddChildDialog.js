@@ -1,5 +1,5 @@
+import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -68,6 +68,7 @@ class LifeAddChildDialog extends Component {
 
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.childTitleOptions = CHILD_TITLE_OPTIONS;
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
 
@@ -582,10 +583,10 @@ class LifeAddChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.newChild.title = e.detail.new.code;
-				if (this.newChild.title === `Mr` || this.newChild.title === `Sir`) {
+				if (this.newChild.title === `Mr`) {
 					this.newChild.gender = `Male`;
 					this.newChildErrors.gender = ``;
-				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss` || this.newChild.title === `Lady`) {
+				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss`) {
 					this.newChild.gender = `Female`;
 					this.newChildErrors.gender = ``;
 				}
@@ -1079,7 +1080,7 @@ class LifeAddChildDialog extends Component {
 					id-field="code" style="width: 50%" 
 					value="${this.newChild?.title}"
 					error="${this.newChildErrors?.title === undefined ? `` : this.newChildErrors.title}"
-					.items="${this.titleOptions}" 
+					.items="${this.childTitleOptions}" 
 					@value-changed="${(e) => this._titleChange(e, true)}">
 				</capitec-select>
 
