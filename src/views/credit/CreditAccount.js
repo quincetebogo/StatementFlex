@@ -1026,7 +1026,7 @@ export class CreditAccount extends ViewBase {
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
 			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount),
 			settlementAmount: this.settleAndCloseDetails.settlementAmount,
-			action: this.settleAndCloseDetails.type === PRODUCTS.CREDIT_CARD && this.settleAndCloseDetails.currentBalance > 0 ? `Transfer To Account` : `Settle from account`
+			action: this.settleAndCloseDetails.type === PRODUCTS.CREDIT_CARD && this.settleAndCloseDetails.settlementAmount < 0 ? `Transfer To Account` : `Settle from account`
 		};
 
 		if (this.settleAndCloseCreditOption === `CreditCard`) {
