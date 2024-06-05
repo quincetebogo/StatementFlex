@@ -32,7 +32,7 @@ import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
 
 import 'app/components/insure/life/LifeSuccess';
-import 'app/components/insure/life/LifePocketSummary';
+
 import 'app/components/insure/life/LifePolicySummary';
 import 'app/components/insure/life/LifePremiumHistory';
 import 'app/components/insure/life/LifeSMSHistory';
@@ -80,7 +80,6 @@ export class ExistingClient extends InsureViewBase {
 		this.productParams = {};
 		this.insuranceClaims = [];
 		this.successPageMessage = ``;
-		this.readOnly = false;
 		this.selectedInsureTabIndex = 0;
 
 		this.selectedFuneralPolicyContractReference = ``;
@@ -101,10 +100,8 @@ export class ExistingClient extends InsureViewBase {
 		this.defaultSavingsAccountAvailableBalance = 0;
 		this.lifePremiumHistory = {};
 		this.lifeDocsToEmail = {};
-		// this.auditTransactionHistory = {};
 
 		this.showInsureSuccessToast = false;
-		this.isLifeQualifyingClient = false;
 	}
 
 	// #endregion INITIALISATION
@@ -119,7 +116,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {String} callerPage from which success page is invoked.
 	 * @property {String} mainLifeGender Gender of Main Life on policy
 	 * @property {Object} clientConfirmedEmail clients confirmed email address
-	 * @property {Object} readOnly determines whether read only mode is on or off
 	 * @property {Object} selectedFuneralPolicyDetails  Local object for Policy Summary requests
 	 * @property {String} selectedFuneralPolicyContractReference Contract Reference of selected policy
 	 * @property {String} selectedFuneralPolicyProductCode Product code of selected policy
@@ -150,7 +146,6 @@ export class ExistingClient extends InsureViewBase {
 			callerPage: { type: String },
 			mainLifeGender: { type: String, state: true },
 			clientConfirmedEmail: { type: Object, state: true },
-			readOnly: { type: Object, state: true },
 			selectedFuneralPolicyDetails: { type: Object, state: true },
 			selectedFuneralPolicyContractReference: { type: String, state: true },
 			selectedFuneralPolicyProductCode: { type: String, state: true },
@@ -179,8 +174,7 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyArrears: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
-			isLifeQualifyingClient: { type: Boolean, state: true }
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
 		};
 	}
 
@@ -212,11 +206,8 @@ export class ExistingClient extends InsureViewBase {
 	async _initialise() {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
-		const lifeQualify = await this._clientQualifiesLife();
-		if (lifeQualify === true) {
-			this.lifePolicies = await this._retrieveClientLifePolicies();
-			super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
-		}
+		this.lifePolicies = await this._retrieveClientLifePolicies();
+		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
 	// --- Document Generation
@@ -440,9 +431,10 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {String} policy policy being updated
 	 * @param {String} updatedPolicy policy that has been updated
 	 * @param {boolean} saveToDocumentum saveToDocumentum
-	 * @returns {void}  
+	 * @param {boolean} updatePolicy should policy be updated too or just banking details
+	 * @returns {void}
 	 */
-	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum) {
+	async _generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, updatePolicy) {
 		const lifeBankingDetailsAgreement = {
 			"saveDocument": saveToDocumentum,
 			"documentOptions": {
@@ -478,15 +470,18 @@ export class ExistingClient extends InsureViewBase {
 				"currentAccountType": policy.bankDetails.accountType,
 				"newAccountType": updatedPolicy.bankDetails.accountType,
 				"collectionDay": updatedPolicy.bankDetails.collectionDay
-			  }
+			},
+			"updatePolicy": updatePolicy,
+			"beneficiaries": updatedPolicy.beneficiaries,
+			"totalPremium": updatedPolicy.totalPremium,
+			"totalCoverAmount": updatedPolicy.totalPolicySumAssured
 		};
-		// Fix this
+
 		const resp = await this.insureLifeService.lifeUpdateAgreement(lifeBankingDetailsAgreement, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			this.lifeUpdateBankingDetailsAgreement = resp.result;
 			this.lifeDocsToEmail = resp.result;
 		} else {
-			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
 			return false;
 		}
@@ -569,7 +564,7 @@ export class ExistingClient extends InsureViewBase {
 			const lifeEmailSuccess = await this._sendLifeEmail(e);
 			this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_CANCEL_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
 			this.clientConfirmedEmail = e.detail.emailAddress;
-			this._goToLifeSuccess(e);
+			this._goToLifeSuccess();
 		} else {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			this.handleToastError(resp.exception);
@@ -606,14 +601,31 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(resp.exception);
 			return;
 		}
-		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true);
+		const docResponse = await this._generateDocumentsLifeUpdateBankingDetails(e.detail.policy, e.detail.updatedPolicy, true, false);
 		if (docResponse === false) {
 			return;
 		}
 		const lifeEmailSuccess = await this._sendLifeEmail(e);
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, resp.result.policyNumber);
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, ehang.detail.contractReference);
 		this.clientConfirmedEmail = e.detail.emailAddress;
 		this._goToLifeSuccess();
+	}
+
+	/**
+	 * Update life policy and sets to pending
+	 * @param {*} e event 
+	 * @returns {void} 
+	 */
+	async _updateLifePocket(e) {
+		const updateReq = {
+			"quoteId": e.detail.quoteId,
+			"cifNumber": this.callerInformation.cifNumber,
+			"contractReference": this.selectedLifePolicy.contractReference
+		};
+		const updateResp = await this.insureLifeService.lifeUpdatePocket(updateReq, () => true);
+		if (!updateResp.succeeded) {
+			this.handleToastError(updateResp.exception);
+		}
 	}
 
 	/** 
@@ -642,6 +654,13 @@ export class ExistingClient extends InsureViewBase {
 			}
 		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG) {
 			successPageMessage.actionSuccessLabel = `The policy has been updated`;
+			if (lifeEmailSuccess) {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
+			}
+		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_REISSUE_DIALOG) {
+			successPageMessage.actionSuccessLabel = `The policy has been re-issued successfully`;
 			if (lifeEmailSuccess) {
 				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
 			} else {
@@ -758,32 +777,13 @@ export class ExistingClient extends InsureViewBase {
 			cifNumber: this.callerInformation.cifNumber,
 			idNumber: this.callerInformation.southAfricanIDNumber
 		};
-	
+
 		const resp = await this.insureFuneralService.clientSummary(request);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
 		}
 		return resp.result;
-	}
-
-	/**
-	 * Check if client qualifies for Life product
-	 * @returns {Object} Client Life policies 
-	 */
-	async _clientQualifiesLife() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber
-		};
-
-		const resp = await this.insureLifeService.lifeClientQualify(request);
-		if (!resp.succeeded) {
-			this.isLifeQualifyingClient = false;
-		} else {
-			this.isLifeQualifyingClient = resp.result.qualify;
-		}
-
-		return this.isLifeQualifyingClient;
 	}
 
 	/**
@@ -812,7 +812,6 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-
 		if (!isNullorEmpty(returnValue?.result?.accountNumber) && !isNullorEmpty(returnValue?.result?.accountNumber)) {
 			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
 			this.defaultSavingsAccountAvailableBalance = returnValue?.result?.accountAvailableBalance;
@@ -1314,10 +1313,97 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	_lifeUpdatePolicy(updatePolicyRequest) {
-		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, updatePolicyRequest.emailDetails.emailAddress, updatePolicyRequest.emailDetails.contractReference);
-		this.clientConfirmedEmail = updatePolicyRequest.emailDetails.emailAddress;
+	//
+
+	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
+		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
+		const resp = await this.insureLifeService.lifeIssueAgreement(generateIssueAgreementRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	async _lifeReIssue(reIssueRequest) {
+		reIssueRequest.idNumber = this.callerInformation.southAfricanIDNumber;
+		reIssueRequest.cifNumber = this.callerInformation.cifNumber;
+
+		const resp = await this.insureLifeService.lifeReIssue(reIssueRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
+	async _lifeAcceptPolicy(acceptPolicyRequest) {
+		acceptPolicyRequest.policyHolder = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"title": this.callerInformation.title,
+			"firstName": this.callerInformation.firstName,
+			"lastName": this.callerInformation.lastName
+		};
+
+		const resp = await this.insureLifeService.lifeAcceptPolicy(acceptPolicyRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return null;
+		}
+		return resp.result;
+	}
+
+	_lifeReissueCompleted(e) {
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_REISSUE_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
 		this._goToLifeSuccess();
+	}
+
+	_lifeUpdateCompleted(e) {
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
+		this._goToLifeSuccess();
+	}
+
+	//
+
+	// Update life policy, but not yet accepted
+	async _lifeUpdatePolicy(updateRequest) {
+		const updateReq = updateRequest;
+		updateReq.idNumber = this.callerInformation.southAfricanIDNumber;
+		updateReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updateResp = await this.insureLifeService.lifeUpdatePolicy(updateReq, () => true);
+		if (!updateResp.succeeded) {
+			this.handleToastError(updateResp.exception);
+			return null;
+		}
+		return updateResp.result;
+
+	}
+
+	async _lifeUpdateDocument(documentRequest) {
+		const updateDocReq = documentRequest;
+		updateDocReq.cifNumber = this.callerInformation.cifNumber;
+		updateDocReq.bankingDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+
+		const updateDocResp = await this.insureLifeService.lifeUpdateAgreement(updateDocReq, () => true);
+		if (!updateDocResp.succeeded) {
+			this.handleToastError(updateDocResp.exception);
+			return null;
+		}
+		return updateDocResp.result;
+	}
+
+	async _lifeUpdatePocket(updatePocketRequest) {
+		const updatePocketReq = updatePocketRequest;
+		updatePocketReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updatePocketResp = await this.insureLifeService.lifeUpdatePocket(updatePocketRequest, () => true);
+		if (!updatePocketResp.succeeded) {
+			this.handleToastError(updatePocketResp.exception);
+			return null;
+		}
+		return updatePocketResp.result;
 	}
 
 	/**
@@ -1344,7 +1430,7 @@ export class ExistingClient extends InsureViewBase {
 		this.lifePolicyArrears = resp.result;
 	}
 
-		/**
+	/**
 	 * gets the life policy mandates
 	 * 
 	 * @param {object} selectedPolicy the selected policy
@@ -1476,7 +1562,7 @@ export class ExistingClient extends InsureViewBase {
 		let totalArrears = 0;
 		this.selectedLifePolicy?.arrears?.forEach(arrears => {
 			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
-			totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
 			}
 		});
 
@@ -1597,7 +1683,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {event} e e
 	 * @returns {void} 
 	 */
-	_goToLifeSuccess(e) {
+	_goToLifeSuccess() {
 		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
 		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
 	}
@@ -1871,6 +1957,7 @@ export class ExistingClient extends InsureViewBase {
 	async _refreshLifePolicies() {
 		this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES);
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.requestUpdate();
 	}
 
 	/**
@@ -2032,23 +2119,29 @@ export class ExistingClient extends InsureViewBase {
 				.lifePolicies = "${this.lifePolicies}"
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.generateDocumentsLifeCancel="${(contractReference, cancelReason, saveToDocumentum) => this._generateDocumentsLifeCancel(contractReference, cancelReason, saveToDocumentum)}"
-				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum)}"
+				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, false)}"
 				.lifeCancelAgreementDocument="${this.lifeCancelAgreementDocument}"
-				.readOnlyMode="${this.readOnly}"
 				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
 				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
 				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
 				.executeGetLifeQuestionnaire="${() => this._healthQuestionnaire()}"
 				.executeLifeAllowedCover="${(answersRequest) => this._lifeAllowedCover(answersRequest)}"
 				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
-				.refreshLifePolicies="${() => this._retrieveClientLifePolicies()}"
+				.executeLifeGenerateIssueAgreement="${(generateIssueAgreementRequest) => this._lifeGenerateIssueAgreement(generateIssueAgreementRequest)}"
+				.executeLifeReIssue="${(reIssueRequest) => this._lifeReIssue(reIssueRequest)}"
+				.executeLifeAcceptPolicy="${(issueRequest) => this._lifeAcceptPolicy(issueRequest)}"
+				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
+				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
+				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
-				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
+				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
+				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
+				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"

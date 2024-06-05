@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -1520,17 +1520,19 @@ class FuneralUpdatePlan extends Component {
 	 * @returns {String} string
 	 */
 	_setDOB(idNumber) {
-		const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+		return getDobFromIDNumber(idNumber);
+		
+		// const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
 
-		if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
-			birthdate.setFullYear(birthdate.getFullYear() + 100);
-		}
+		// if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+		// 	birthdate.setFullYear(birthdate.getFullYear() + 100);
+		// }
 
-		const month = birthdate.getMonth() + 1;
-		const day = birthdate.getDate();
-		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
+		// const month = birthdate.getMonth() + 1;
+		// const day = birthdate.getDate();
+		// const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
 
-		return birthDateString;
+		// return birthDateString;
 	}
 
 	/**

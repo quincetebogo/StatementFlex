@@ -530,3 +530,22 @@ export function determineInactiveLifePolicies(lifePolicies) {
 	}
 	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
 }
+
+/**
+ * determine date of birth from id number 
+ * @param {string} idNumber idNumber
+ * @returns {String} birthDateString
+ */
+export function getDobFromIDNumber(idNumber) {
+		const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+
+		if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+			birthdate.setFullYear(birthdate.getFullYear() + 100);
+		}
+
+		const month = birthdate.getMonth() + 1;
+		const day = birthdate.getDate();
+		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
+
+		return birthDateString;
+}

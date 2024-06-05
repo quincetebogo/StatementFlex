@@ -482,7 +482,7 @@ class LifePolicySummary extends Component {
 				</horizon-label>
 				${this.selectedLifePolicy?.policyStatus === LIFE_POLICY_STATUSES.CANCELLED ? html`
 					<horizon-label label="Cancellation date"
-						value="${isNullorEmpty(this.selectedLifePolicy?.actualCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.actualCancellationDate, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.selectedLifePolicy?.effectiveCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.effectiveCancellationDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Reason"
 						value="${this.selectedLifePolicy?.cancellationReason}">
