@@ -260,6 +260,14 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		var { result } = await this.getAdvanceBalances(filters);
 		this.advanceBalances = result.content;
 
+		if (
+			filters.searchType.value === `msisdn` &&
+			filters.searchValue.trim() !== `` &&
+			this.clientCif
+		) {
+			this.advanceBalances = this.advanceBalances.filter(e => e.msisdn === filters.searchValue);
+		}
+
 		this.advanceBalancePopupOpen = true;
 	}
 

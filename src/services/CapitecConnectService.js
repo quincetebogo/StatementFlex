@@ -238,22 +238,22 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 		delete request.cif;
 
-		if (request.msisdn) {
-			url += `/search`;
+		// if (request.msisdn) {
+		// 	url += `/search`;
 
-			return this.post(
-				url,
-				request,
-				this.setToken(),
-				'capitecConnectAdvanceBalance',
-				null,
-				null,
-				2000,
-				null,
-				null,
-				DEFAULT_AUTO_RETRIES
-			);
-		} else {
+		// 	return this.post(
+		// 		url,
+		// 		request,
+		// 		this.setToken(),
+		// 		'capitecConnectAdvanceBalance',
+		// 		null,
+		// 		null,
+		// 		2000,
+		// 		null,
+		// 		null,
+		// 		DEFAULT_AUTO_RETRIES
+		// 	);
+		// } else {
 			return this.get(
 				url, 
 				this.setToken(), 
@@ -264,7 +264,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 				null, 
 				DEFAULT_AUTO_RETRIES
 			);
-		}
+		// }
 	}
 
 	async escalateForReversal(ref = null, reason = '', comments = '') {
