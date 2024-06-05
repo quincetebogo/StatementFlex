@@ -384,6 +384,7 @@ export class HorizonProductTile extends Component {
 					font-size: var(--theme-product-tile-subtitle-font-size, 18px);
 					line-height: var(--theme-product-tile-subtitle-height, 27px);
 					text-align: left;
+					white-space: var(--theme-product-tile-subtitle-white-space, normal);
 				}
 
 				.detail {
