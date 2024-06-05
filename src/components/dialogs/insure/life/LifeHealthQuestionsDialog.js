@@ -1,5 +1,6 @@
 import { Component, css, html, unsafeHTML } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
@@ -25,6 +26,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.finalAnswers = [];
 		this.showQuestionnaireResults = false;
 		this.freeTextAnswerId = ``;
+		this.updateMode = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -39,6 +41,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @property {Object} allowedCoverResults Results from allowed cover call
 	 * @property {Boolean} enableNextButton Flag to control next button via current questions validation results
 	 * @property {Boolean} showQuestionnaireResults Flag to control results view
+	 * @property {function} executeLifeIncreaseCover callback function to execute increase cover call
 	 * 
 	 * @readonly
 	 * @static
@@ -51,7 +54,9 @@ class LifeHealthQuestionsDialog extends Component {
 			executeLifeAllowedCover: { type: Object, state: true },
 			allowedCoverResults: { type: Object, state: true },
 			enableNextButton: { type: Boolean, state: true },
-			showQuestionnaireResults: { type: Boolean, state: true }
+			showQuestionnaireResults: { type: Boolean, state: true },
+			updateMode: { type: String, state: true },
+			executeLifeIncreaseCover: { type: Object, state: true }
 		};
 	}
 
@@ -113,11 +118,21 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Was it last question?
 		if (this.currentQuestionIndex === this.lifeHealthQuestions.questions.length - 1) {
-			const allowedCoverReq = {
-				answers: this.finalAnswers
-			};
-			this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
-			this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
+			console.log(`last question`);
+			if (this.updateMode = LIFE_UPDATE_MODE.ALLOCATE) {
+				const allowedCoverReq = {
+					answers: this.finalAnswers
+				};
+				this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
+				this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
+			} else { // Increase cover
+				const increaseCoverReq = {
+					answers: this.finalAnswers
+				};
+				this.increaseCoverResults = await this.executeLifeIncreaseCover(increaseCoverReq);
+				console.log(`this.increaseCoverResults :>> `, this.increaseCoverResults);
+			}
+			
 			this.showQuestionnaireResults = true;
 			return;
 		}
@@ -160,12 +175,22 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_continueToAllocation() {
-		this.dispatchEvent(new CustomEvent(`continue`, {
-			detail: {
-				allowedCoverResults: this.allowedCoverResults,
-				allowedCoverAnswers: this.finalAnswers
-			}
-		}));
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			this.dispatchEvent(new CustomEvent(`continue`, {
+				detail: {
+					allowedCoverResults: this.allowedCoverResults,
+					allowedCoverAnswers: this.finalAnswers
+				}
+			}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`continue`, {
+				detail: {
+					increaseCoverResults: this.increaseCoverResults,
+					increaseCoverAnswers: this.finalAnswers
+				}
+			}));
+		}
+		
 	}
 
 	/**
