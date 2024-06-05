@@ -388,9 +388,9 @@ export class InternetBankingProfileDetails extends Component {
 
 	_formatTime(timeToFormat) {
 		const formatedDate = new Date(timeToFormat);
-		const localTime = formatedDate.toLocaleTimeString();
+		const localTime = formatedDate.toLocaleString([], { hour: `numeric`, minute: `numeric`, hour12: true }).toLowerCase();
 
-		return localTime.replace(localTime.slice(-6, -2), ` `).toLowerCase();
+		return localTime;
 	}
 
 	_getFormattedDateTime(datetime) {
