@@ -261,6 +261,14 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		var { result } = await this.getAdvanceBalances(filters);
 		this.advanceBalances = result.content;
 
+		if (
+			filters.searchType.value === `msisdn` &&
+			filters.searchValue.trim() !== `` &&
+			this.clientCif
+		) {
+			this.advanceBalances = this.advanceBalances.filter(e => e.msisdn === filters.searchValue);
+		}
+
 		this.advanceBalancePopupOpen = true;
 	}
 
@@ -600,6 +608,9 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_renderAdvanceBalanceModal() {
+		var today = new Date();
+		today = today.toISOString().split('T')[0];
+
 		return html`
 		<capitec-modal type="text" header="Advance Balance">
 			${!this.advanceBalances.length ? html`
@@ -632,7 +643,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 						<capitec-label label="R${parseFloat(ab.totalOutstandingAdvanceBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingBalance).toFixed(2)}" type="strong"></capitec-label>
-						<capitec-label label="${ab.repayDays > 0 ? 'YES' : '--'}"></capitec-label>
+						<capitec-label label="${ab.nextPaymentDate && compareDates(ab.nextPaymentDate, today) < 1 ? 'YES' : '--'}"></capitec-label>
 						<capitec-label label="${ab.status || '--'}"></capitec-label>
 						${ab.nextPaymentDate && html`
 							<capitec-label label="${ab.nextPaymentDate}"></capitec-label>
