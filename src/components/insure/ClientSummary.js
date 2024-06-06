@@ -718,8 +718,14 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_lifeHealthQuestionsCompleted(e) {
-		this.newOffer = e.detail.allowedCoverResults;
-		this.newOfferAnswers = e.detail.allowedCoverAnswers;
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			this.newOffer = e.detail.allowedCoverResults;
+			this.newOfferAnswers = e.detail.allowedCoverAnswers;
+		} else {
+			this.newOffer = e.detail.increasedCoverResults;
+			this.newOfferAnswers = e.detail.increasedCoverAnswers;
+		}
+		
 
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
@@ -859,6 +865,7 @@ class ClientSummary extends Component {
 		this.lifeUpdateMode = selectedLifeUpdateMode;
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
 		this.selectedLifePolicy = selectedPolicy;
+		console.log(`this.selectedLifePolicy :>> `, this.selectedLifePolicy);
 		this.showLifeHealthQuestionsDialog = true;
 	}
 
@@ -2573,7 +2580,7 @@ class ClientSummary extends Component {
 				.updateMode="${this.lifeUpdateMode}"
 				.lifeHealthQuestions = ${this.lifeHealthQuestions}
 				.executeLifeAllowedCover="${(allowedCoverRequest) => this.executeLifeAllowedCover(allowedCoverRequest)}"
-				.executeLifeIncreaseCover="${(increaseCoverRequest) => this.executeLifeIncreaseCover(increaseCoverRequest)}"
+				.executeLifeIncreaseCover="${(increaseCoverRequest) => this.executeLifeIncreaseCover(this.selectedLifePolicy, increaseCoverRequest)}"
 				@close-dialog="${() => this.showLifeHealthQuestionsDialog = false}"
 				@continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
 			</horizon-insure-life-health-questions-dialog>

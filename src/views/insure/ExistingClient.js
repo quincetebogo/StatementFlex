@@ -1313,8 +1313,21 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	_lifeIncreaseCover(increaseCoverRequest) {
-	
+	async _lifeIncreaseCover(selectedPolicy, increaseCoverRequest) {
+		console.log(`selectedPolicy :>> `, selectedPolicy);
+
+		increaseCoverRequest.policyNumber = selectedPolicy.contractReference;
+		increaseCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		increaseCoverRequest.cifNumber = this.callerInformation.cifNumber;
+		console.log(`before cover available call`);
+		const resp = await this.insureLifeService.lifeCoverAvailable(increaseCoverRequest);
+		console.log(`resp :>> `, resp);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+
 	}
 
 	//
@@ -2137,7 +2150,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
 				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
 				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
-				.executeLifeIncreaseCover = "${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
+				.executeLifeIncreaseCover = "${(selectedPolicy, increaseCoverRequest) => this._lifeIncreaseCover(selectedPolicy, increaseCoverRequest)}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"

@@ -253,6 +253,12 @@ class LifeAllocateCoverDialog extends Component {
 				bene.educationBenefitAmount = 0;
 				bene.monthlyPayoutBenefitAmount = 0;
 			});
+		} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
+			console.log(`initialise increase mode on allocate`);
+
+			this.riskRate = this.newOffer.riskRate;
+			this.channelFee = this.newOffer.channelFee;
+			this.totalLoadingApplied = this.newOffer.totalLoadingApplied;
 		}
 
 		// Payment details
@@ -290,7 +296,7 @@ class LifeAllocateCoverDialog extends Component {
 
 	// #region ALLOCATE
 
-	totalPremiumDisplay() {
+	_totalPremiumDisplay() {
 		if (this.totalCoverAllocatedAllPockets < 100000 || this._recalculateRemainingCover() < 0) {
 			return `-`;
 		}
@@ -1592,7 +1598,7 @@ class LifeAllocateCoverDialog extends Component {
 			<div id="offer-details">
 				<div class="offer-details-cell">
 					<div>Monthly Premium</div>
-					<div class="offer-details-value">${this.totalPremiumDisplay()}</div>
+					<div class="offer-details-value">${this._totalPremiumDisplay()}</div>
 				</div>
 
 				${this.isNewOffer === true ? html`

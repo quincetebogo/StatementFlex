@@ -640,6 +640,32 @@ export class InsureLifeService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Update life pocket
+	 *
+	 * @param {Object} [coverAvailableRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 lifeCoverAvailable(coverAvailableRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		// if (await this.isMockEnabled(`insureLifeUpdatePocket`)) {
+		// 	return this.mock(`insureLifeUpdatePocket`, coverAvailableRequest);
+		// }
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/cover-available`,
+			coverAvailableRequest,
+			this._setInsureHeaders(),
+			`lifeCoverAvailable`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 	
 	// #endregion PUBLIC METHODS
 }
