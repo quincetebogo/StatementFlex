@@ -217,7 +217,7 @@ export const insureLifeClientSummary = {
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
-			"canReIssue": false,
+			"canReIssue": true,
 			"channelFee": 25
 		},
 		{
@@ -582,6 +582,71 @@ export const insureLifeClientSummary = {
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
 			"canReIssue": false
+		},
+		{
+			"contractReference": `LP00000887`,
+			"policyStatus": `Cool-Off`,
+			"policyStatusEnum": `CoolOff`,
+			"displayPolicyStatus": `Not Taken Up`,
+			"policyStartDate": `2024-06-05T00:00:00+00:00`,
+			"cancellationReason": ``,
+			"cancellationReasonEnum": `Unknown`,
+			"totalPremium": 0.0,
+			"nextCollectionDate": `2024-07-25T00:00:00+00:00`,
+			"nextCollectionAmount": 1027.9,
+			"bankDetails": {
+				"accountName": `Testing`,
+				"branchCode": `470010`,
+				"accountNumber": `1370520032`,
+				"bank": `Capitec`,
+				"accountType": `Savings`,
+				"collectionDay": 25,
+				"mandateReference": `21740c59-12b9-430c-a388-af1c4676089`
+			},
+			"pockets": [
+				{
+					"pocketType": `LumpSum`,
+					"coverage": 200000.0,
+					"premium": 1000.0
+				},
+				{
+					"pocketType": `MonthlyPayout`,
+					"coverage": 0.0,
+					"premium": 0.0
+				},
+				{
+					"pocketType": `Education`,
+					"coverage": 0.0,
+					"premium": 0.0
+				}
+			],
+			"beneficiaries": [
+				{
+					"title": `Mr`,
+					"firstName": `Justin`,
+					"lastName": `Brennand`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 200000.0,
+					"educationBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 0.0,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Others`,
+					"gender": `Male`,
+					"dateOfBirth": `1974-04-04T00:00:00+00:00`,
+					"contactNumber": `0823214321`,
+					"contactEmail": `justin@youwish.org`,
+					"clientType": `Adult`,
+					"clientId": `CCCF17F6-B0E8-4A1B-ADFE-012B9794695C`
+				}
+			],
+			"totalPolicySumAssured": 200000.0,
+			"policyReinstatementCount": 0,
+			"newBornPremiumWaiverAvailable": false,
+			"voluntaryPremiumPauseAvailable": false,
+			"canReIssue": false,
+			"channelFee": 27.9
 		}
 	]
 };
