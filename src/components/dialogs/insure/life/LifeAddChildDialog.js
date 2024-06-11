@@ -10,7 +10,7 @@ const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
@@ -211,9 +211,9 @@ class LifeAddChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.guardianExists) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		}
 
 		return steps;
@@ -267,7 +267,7 @@ class LifeAddChildDialog extends Component {
 			isValid = this._validateChildStep();
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
-				this.newOrExistingErrorMessage = `Please select an existing guardian or add a new one`;
+				this.newOrExistingErrorMessage = `Please select an existing caregiver or add a new one`;
 			} else {
 				this.newOrExistingErrorMessage = ``;
 				isValid = true;
@@ -1029,7 +1029,7 @@ class LifeAddChildDialog extends Component {
 				<horizon-product-tile
 					type="radio-button"
 					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
+					subtitle="Add a new caregiver for this child"
 					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
 					@click="${() => this._continueWithNewGuardian()}">
 				</horizon-product-tile>

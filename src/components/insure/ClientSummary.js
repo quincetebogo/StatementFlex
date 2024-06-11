@@ -2345,7 +2345,7 @@ class ClientSummary extends Component {
 								<br>
 								<div>How it works:</div>
 								<div>•When you pass, the Children's Needs benefit will be transferred to an umbrella trust which will be set up for the nominated children</div>
-								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
+								<div>•Once the claim is approved, the Trust provider will contact the child's caregiver and set up the trust in the name of the child</div>
 								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
 						</tr>

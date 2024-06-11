@@ -41,14 +41,14 @@ export const insureLifeClientSummary = {
 				},
 				{
 					"pocketType": `Education`,
-					"coverage": 200000.0,
-					"premium": 75.46
+					"coverage": 600000.0,
+					"premium": 175.46
 				}
 			],
 			"beneficiaries": [
 				{
 					"title": `Mr`,
-					"firstName": `Childre`,
+					"firstName": `Children`,
 					"lastName": `Ben`,
 					"rolePlayer": `Primary Beneficiary`,
 					"onceOffPayoutBenefitAmount": 0.0,
@@ -62,6 +62,43 @@ export const insureLifeClientSummary = {
 					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
 					"clientType": `Child`,
 					"guardianId": `GD01`,
+					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
+				},
+				{
+					"title": `Mr`,
+					"firstName": `Children 2`,
+					"lastName": `Ben`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 0.0,
+					"educationBenefitAmount": 200000.0,
+					"monthlyPayoutBenefitAmount": 0.0,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Child`,
+					"gender": `Male`,
+					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
+					"clientType": `Child`,
+					"guardianId": `GD01`,
+					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
+				},
+				,
+				{
+					"title": `Mr`,
+					"firstName": `Children 3`,
+					"lastName": `Benificiary`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 0.0,
+					"educationBenefitAmount": 200000.0,
+					"monthlyPayoutBenefitAmount": 0.0,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Child`,
+					"gender": `Male`,
+					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
+					"clientType": `Child`,
+					"guardianId": `GD02`,
 					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
 				},
 				{
@@ -116,6 +153,22 @@ export const insureLifeClientSummary = {
 					"contactNumber": `0845725454`,
 					"clientType": `Guardian`,
 					"guardianId": `GD01`,
+					"clientId": `780D47ED-2786-4886-8F8B-6322E5D4F3BA`
+				},
+				{
+					"title": `Mr`,
+					"firstName": `Test 2`,
+					"lastName": `Test 2`,
+					"rolePlayer": `Guardian`,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `Others`,
+					"gender": `Male`,
+					"dateOfBirth": `1991-06-04T00:00:00+00:00`,
+					"contactNumber": `0845725454`,
+					"clientType": `Guardian`,
+					"guardianId": `GD02`,
 					"clientId": `780D47ED-2786-4886-8F8B-6322E5D4F3BA`
 				}
 			],
