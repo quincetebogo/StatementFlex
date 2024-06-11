@@ -1313,6 +1313,10 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
+	_lifeIncreaseCover(increaseCoverRequest) {
+	
+	}
+
 	//
 
 	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
@@ -2133,6 +2137,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
 				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
 				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
+				.executeLifeIncreaseCover = "${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"

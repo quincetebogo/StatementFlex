@@ -146,6 +146,7 @@ class ClientSummary extends Component {
 	 * @property {Object} lifeHealthQuestions Health questions for increase cover
 	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
 	 * @property {Function} lifeUpdateBankingDetailsAgreement contains the agreement document for updating banking details
+	 * @property {Function} executeLifeIncreaseCover callback function to execute increase cover call
 	 * 
 	 * @readonly
 	 * @static
@@ -159,6 +160,7 @@ class ClientSummary extends Component {
 			lifePolicies: { type: Object, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
+			executeLifeIncreaseCover: { type: Object, state: true },
 			executeLifeUpdatePolicy: { type: Object, state: true },
 			executeLifeUpdatePocket: { type: Object, state: true },
 			executeLifeUpdateDocument: { type: Object, state: true },
@@ -1972,10 +1974,10 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
+					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -2076,7 +2078,7 @@ class ClientSummary extends Component {
 							</horizon-label>
 						</div>`}
 
-						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || pol.policyStatusEnum === LIFE_POLICY_STATUSES.COOL_OFF ? html`
 							<div>
 								<horizon-label
 									label="Premium"
@@ -2143,9 +2145,9 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							<!-- ${this.readOnlyMode === false && pol.canReIssue === true ? html`
+							${this.readOnlyMode === false && pol.canReIssue === true ? html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							` : html``}  -->
+							` : html``}
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
@@ -2568,8 +2570,10 @@ class ClientSummary extends Component {
 		return this.showLifeHealthQuestionsDialog === false ? html``
 			: html`
 			<horizon-insure-life-health-questions-dialog
+				.updateMode="${this.lifeUpdateMode}"
 				.lifeHealthQuestions = ${this.lifeHealthQuestions}
 				.executeLifeAllowedCover="${(allowedCoverRequest) => this.executeLifeAllowedCover(allowedCoverRequest)}"
+				.executeLifeIncreaseCover="${(increaseCoverRequest) => this.executeLifeIncreaseCover(increaseCoverRequest)}"
 				@close-dialog="${() => this.showLifeHealthQuestionsDialog = false}"
 				@continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
 			</horizon-insure-life-health-questions-dialog>
