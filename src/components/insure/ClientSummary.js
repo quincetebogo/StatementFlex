@@ -2078,7 +2078,7 @@ class ClientSummary extends Component {
 							</horizon-label>
 						</div>`}
 
-						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || pol.policyStatusEnum === LIFE_POLICY_STATUSES.COOL_OFF ? html`
 							<div>
 								<horizon-label
 									label="Premium"
