@@ -15,7 +15,7 @@ const VALIDATION_ERRORS = {
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	INVALID_EMAIL: `Enter a valid email address`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`
 };
 
@@ -150,7 +150,7 @@ class LifeUpdateChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 
-		steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 
 		return steps;
 	}
