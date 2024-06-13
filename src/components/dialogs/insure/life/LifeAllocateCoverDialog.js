@@ -220,7 +220,7 @@ class LifeAllocateCoverDialog extends Component {
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
 			this.riskRate = this.updatedPolicy.riskRate;
 			this.channelFee = this.updatedPolicy.channelFee;
-			this.totalLoadingApplied = 0.0; 
+			this.totalLoadingApplied = 0.0;
 
 			this.updatedPolicy.beneficiaries.forEach(bene => {
 				if (bene.monthlyPayoutBenefitAmount > 0) {
@@ -1166,7 +1166,7 @@ class LifeAllocateCoverDialog extends Component {
 			}
 
 			// ReIssue
-			if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				const requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
@@ -1187,11 +1187,16 @@ class LifeAllocateCoverDialog extends Component {
 					];
 					newBene.bankDetails = {};
 					newBene.contactDetails = {
-						contactNumber: bene.contactNumber
+						cellphone: bene.contactNumber,
+						email: bene.contactEmail,
+						homephone: ``,
+						workphone: ``
 					};
 
 					requestBeneficiaries.push(newBene);
 				});
+
+				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 
 				const reIssueRequest = {
 					"policyIssueDate": new Date(),
