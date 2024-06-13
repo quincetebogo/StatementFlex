@@ -102,7 +102,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswerSingle = {
 			questionGroupId: groupId,
 			answerId: answerId,
-			answer: ``,
+			answer: true,
 			answerDetailDescription: answerDetail
 		};
 		this.enableNextButton = true;
