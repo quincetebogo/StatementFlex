@@ -41,7 +41,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @property {Object} allowedCoverResults Results from allowed cover call
 	 * @property {Boolean} enableNextButton Flag to control next button via current questions validation results
 	 * @property {Boolean} showQuestionnaireResults Flag to control results view
-	 * @property {function} executeLifeIncreaseCover callback function to execute increase cover call
+	 * @property {function} executeLifeCoverAvailable callback function to execute increase cover call
 	 * 
 	 * @readonly
 	 * @static
@@ -56,7 +56,8 @@ class LifeHealthQuestionsDialog extends Component {
 			enableNextButton: { type: Boolean, state: true },
 			showQuestionnaireResults: { type: Boolean, state: true },
 			updateMode: { type: String, state: true },
-			executeLifeIncreaseCover: { type: Object, state: true }
+			executeLifeCoverAvailable: { type: Object, state: true },
+			policy: { type: Object, state: true }
 		};
 	}
 
@@ -119,7 +120,6 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Was it last question?
 		if (this.currentQuestionIndex === this.lifeHealthQuestions.questions.length - 1) {
-			console.log(`last question`);
 			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
 				const allowedCoverReq = {
 					answers: this.finalAnswers
@@ -127,12 +127,10 @@ class LifeHealthQuestionsDialog extends Component {
 				this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
 				this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
 			} else { // Increase cover
-				console.log(`in Increase`);
-				const increaseCoverReq = {
+				const coverAvailableReq = {
 					answers: this.finalAnswers
 				};
-				this.increaseCoverResults = await this.executeLifeIncreaseCover(increaseCoverReq);
-				console.log(`this.increaseCoverResults :>> `, this.increaseCoverResults);
+				this.coverAvailableResults = await this.executeLifeCoverAvailable(coverAvailableReq);
 			}
 			
 			this.showQuestionnaireResults = true;
@@ -187,7 +185,7 @@ class LifeHealthQuestionsDialog extends Component {
 		} else {
 			this.dispatchEvent(new CustomEvent(`continue`, {
 				detail: {
-					increaseCoverResults: this.increaseCoverResults,
+					increaseCoverResults: this.coverAvailableResults,
 					increaseCoverAnswers: this.finalAnswers
 				}
 			}));
@@ -259,6 +257,14 @@ class LifeHealthQuestionsDialog extends Component {
 					font-weight: bold;
 					font-size: 20px;
 				}
+
+				.body-box {
+					height: 90px;
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 17px;
+					--theme-container-padding-right: 16px;
+				}
 				`
 		];
 	}
@@ -318,20 +324,31 @@ class LifeHealthQuestionsDialog extends Component {
 		` : html`
 			${this.showQuestionnaireResults === false ? html`
 				${this._renderCustomRadioGroup()}` : html`
-				<div style="min-width: 350px; min-height: 140px;">
-					<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
-						<div class="offer-details-cell">
-							<div>Get up to</div>
-							<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.increaseCoverResults?.maximumAllowedCover))}</div>
+					${this.policy.totalPolicySumAssured >= this.coverAvailableResults?.maximumAllowedCover ? html`
+					<capitec-content-box class="body-box">
+						<div >
+							<p>You do not qualify for an increase</p>
 						</div>
+					</capitec-content-box>
+						
+					` 
+					: html`
+						<div style="min-width: 350px; min-height: 140px;">
+							<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
+								<div class="offer-details-cell">
+									<div>Get up to</div>
+									<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.coverAvailableResults?.maximumAllowedCover))}</div>
+								</div>
+						
+								<div class="offer-details-cell">
+									<div>Monthly Premium</div>
+									<div class="offer-details-value">${formatCurrency(this.coverAvailableResults?.maximumPremium)}</div>
+								</div>
+							</div>
+							<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>
+						</div>
+					`}
 				
-						<div class="offer-details-cell">
-							<div>Monthly Premium</div>
-							<div class="offer-details-value">${formatCurrency(this.increaseCoverResults?.maximumPremium)}</div>
-						</div>
-					</div>
-					<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>
-				</div>
 			`}
 		`}
 			
@@ -392,9 +409,14 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
+
+			${this.policy.totalPolicySumAssured >= this.coverAvailableResults?.maximumAllowedCover ? html`
+				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Confirm" @click="${() => this._cancelClick()}">
+				</capitec-button>
+			`
+			: html`
 				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 				</capitec-button>
-
 				${this.showQuestionnaireResults === false ? html`
 					<capitec-button .disabled="${!this.enableNextButton}" class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}">
 					</capitec-button>
@@ -402,6 +424,7 @@ class LifeHealthQuestionsDialog extends Component {
 					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Continue" @click="${() => this._continueToAllocation()}">
 					</capitec-button>
 				`}
+			`}
 		`;
 	}
 

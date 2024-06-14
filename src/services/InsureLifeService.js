@@ -642,22 +642,48 @@ export class InsureLifeService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Update life pocket
+	 * Cover Available 
 	 *
 	 * @param {Object} [coverAvailableRequest] Request data for service call
 	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 lifeCoverAvailable(coverAvailableRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// if (await this.isMockEnabled(`insureLifeUpdatePocket`)) {
-		// 	return this.mock(`insureLifeUpdatePocket`, coverAvailableRequest);
-		// }
+	async lifeCoverAvailable(coverAvailableRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeCoverAvailable`)) {
+			return this.mock(`insureLifeCoverAvailable`, coverAvailableRequest);
+		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/policy/cover-available`,
 			coverAvailableRequest,
 			this._setInsureHeaders(),
 			`lifeCoverAvailable`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Increase cover
+	 *
+	 * @param {Object} [increaseCoverRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeIncreaseCover(increaseCoverRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeIncreaseCover`)) {
+			return this.mock(`insureLifeIncreaseCover`, increaseCoverRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/increase-cover`,
+			increaseCoverRequest,
+			this._setInsureHeaders(),
+			`lifeIncreaseCover`,
 			null,
 			null,
 			900,
