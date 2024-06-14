@@ -136,17 +136,6 @@ class lifeIncreaseCoverUnavailableDialog extends Component {
 					line-height: 24px;
 				}
 
-				.body-details{
-					height: 166px;
-					width: 343px;
-					color: #545D60;
-					margin: 0px;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-				}
 
 				capitec-icon {
 					font-size: 27px;
