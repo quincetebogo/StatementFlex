@@ -905,7 +905,6 @@ class ClientSummary extends Component {
 		this.lifeUpdateMode = selectedLifeUpdateMode;
 		this.lifeHealthQuestions = await this.executeGetLifeQuestionnaire();
 		this.selectedLifePolicy = selectedPolicy;
-		console.log(`this.selectedLifePolicy :>> `, this.selectedLifePolicy);
 		this.showLifeHealthQuestionsDialog = true;
 	}
 

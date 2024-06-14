@@ -1322,7 +1322,6 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeCoverAvailable(selectedPolicy, coverAvailableRequest) {
-		console.log(`selectedPolicy :>> `, selectedPolicy);
 
 		
 		this.coverAvailableAnswers = coverAvailableRequest.answers;

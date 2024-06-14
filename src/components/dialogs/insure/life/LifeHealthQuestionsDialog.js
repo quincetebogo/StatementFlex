@@ -72,7 +72,6 @@ class LifeHealthQuestionsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.currentQuestion = this.lifeHealthQuestions.questions[this.currentQuestionIndex];
-		console.log(`this.updateMode :>> `, this.updateMode);
 	}
 
 	/**

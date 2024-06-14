@@ -256,7 +256,6 @@ class LifeAllocateCoverDialog extends Component {
 				bene.monthlyPayoutBenefitAmount = 0;
 			});
 		} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
-			console.log(`initialise increase mode on allocate`);
 
 			this.riskRate = this.newOffer.riskRate;
 			this.channelFee = this.newOffer.channelFee;
