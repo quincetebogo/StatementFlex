@@ -154,18 +154,6 @@ class lifeIncreaseCoverUnavailableDialog extends Component {
 					margin-right: 0px;
 				}
 
-				#id-decline-button {
-					width : 100px;
-					--theme-button-primary-border-width: 0px;
-					
-				}
-
-				#id-cancel-button {
-					width : 79px;
-					margin-right: 16px;
-					--theme-button-clear-border-width: 0px;
-					
-				}
 				capitec-button {
 					height: 48px;
 					border-radius: 5px;
