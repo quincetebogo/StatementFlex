@@ -441,7 +441,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -506,6 +506,14 @@
 		},
 		"insureLifeUpdatePocket": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeCoverAvailable": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIncreaseCover": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

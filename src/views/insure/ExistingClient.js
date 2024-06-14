@@ -174,7 +174,8 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyArrears: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
-			lifeUpdateBankingDetailsAgreement: { type: Object, state: true }
+			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			coverAvailableAnswers: { type: Array, state: true }
 		};
 	}
 
@@ -661,6 +662,13 @@ export class ExistingClient extends InsureViewBase {
 			}
 		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_REISSUE_DIALOG) {
 			successPageMessage.actionSuccessLabel = `The policy has been re-issued successfully`;
+			if (lifeEmailSuccess) {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
+			} else {
+				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has failed to email to <b>${emailAddress}</b>`;
+			}
+		} else if (callerPage === INSURE_CALLER_PAGE.LIFE_INCREASE_COVER_DIALOG) {
+			successPageMessage.actionSuccessLabel = `The policy cover has been increased successfully`;
 			if (lifeEmailSuccess) {
 				successPageMessage.emailMessage = `Your documentation for policy number <b>${contractRef}</b> has been emailed to <b>${emailAddress}</b>`;
 			} else {
@@ -1313,8 +1321,36 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	_lifeIncreaseCover(increaseCoverRequest) {
-	
+	async _lifeCoverAvailable(selectedPolicy, coverAvailableRequest) {
+
+		
+		this.coverAvailableAnswers = coverAvailableRequest.answers;
+
+		coverAvailableRequest.policyNumber = selectedPolicy.contractReference;
+		coverAvailableRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
+		coverAvailableRequest.cifNumber = this.callerInformation.cifNumber;
+		const resp = await this.insureLifeService.lifeCoverAvailable(coverAvailableRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+
+	}
+
+	async _lifeIncreaseCover(increaseCoverRequest) {
+
+		increaseCoverRequest.idNumber = this.callerInformation.southAfricanIDNumber;
+		increaseCoverRequest.cifNumber = this.callerInformation.cifNumber;
+		increaseCoverRequest.answers = this.coverAvailableAnswers;
+
+		const resp = await this.insureLifeService.lifeIncreaseCover(increaseCoverRequest);
+
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception); 
+			return;
+		}
+		return resp.result;
 	}
 
 	//
@@ -1365,6 +1401,11 @@ export class ExistingClient extends InsureViewBase {
 
 	_lifeUpdateCompleted(e) {
 		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
+		this._goToLifeSuccess();
+	}
+
+	_lifeIncreaseCoverCompleted(e) {
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_INCREASE_COVER_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
 		this._goToLifeSuccess();
 	}
 
@@ -2137,7 +2178,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
 				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
 				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
-				.executeLifeIncreaseCover = "${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
+				.executeLifeCoverAvailable = "${(selectedPolicy, coverAvailableRequest) => this._lifeCoverAvailable(selectedPolicy, coverAvailableRequest)}"
 				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
 				.lifePolicyArrears = "${this.lifePolicyArrears}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
@@ -2145,8 +2186,11 @@ export class ExistingClient extends InsureViewBase {
 				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
 				.updateEarlyCollectionPreferences = "${(e) => this._updateElectOptions(e)}"
 				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
+				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
+				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
+				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@life-cancel-policy="${(e) => this._cancelLifePolicy(e)}"
 				@life-update-banking-details="${(e) => this._updateBankingDetailsLifePolicy(e)}"

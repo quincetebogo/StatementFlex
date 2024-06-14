@@ -92,7 +92,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.originalBeneficiary = JSON.parse(JSON.stringify(this.updatingBeneficiary));
-		for (const bene of this.policy.beneficiaries) {
+		const policyCopy = JSON.parse(JSON.stringify(this.policy));
+		for (const bene of policyCopy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.metaData.monthlyBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
 			}
@@ -102,6 +103,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			}
 		}
 		this._calculateCoverBreakdown();
+
+		this.originalPocketBeneficiaries = JSON.parse(JSON.stringify(this.pocketBeneficiaries));
 	}
 
 	/**
@@ -265,7 +268,7 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.idNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
+			// this._validateBeneficiaryDetails();
 		}
 
 		if (this.updatingBeneficiary.idNumber.length === 13) {
@@ -444,6 +447,15 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		this.pocketBeneficiaries = this.originalPocketBeneficiaries;
+
+		
+		for (let i = 0; i < this.pocketBeneficiaries.length; i++) {
+			if (this.pocketBeneficiaries[i].metaData?.coverErrorMsg === VALIDATION_ERRORS.BENEFICIARY_MINIMUM) {
+				this.pocketBeneficiaries[i].metaData.coverErrorMsg = ``;
+			}
+		}
+		
 		this.updatingBeneficiary = this.originalBeneficiary;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { beneficiary: this.updatingBeneficiary } }));
 	}
@@ -453,6 +465,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_updateClick() {
+
+		this.policy.beneficiaries = this.pocketBeneficiaries;
+
 		const allocationValid = this._validateAllocateCover();
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`update-beneficiary`, {

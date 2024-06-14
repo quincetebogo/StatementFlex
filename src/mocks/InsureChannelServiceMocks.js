@@ -81,6 +81,8 @@ export default class InsureChannelServiceMocks {
 		this.lifeAcceptPolicyMocks = await this._loadMockModule(this.lifeAcceptPolicyMocks, `insureLifeAcceptPolicy`, () => import(`../mocks/insure/life/LifeAcceptPolicy`).catch(err => logError(err)));
 		this.lifeUpdatePolicyMocks = await this._loadMockModule(this.lifeUpdatePolicyMocks, `insureLifeUpdatePolicy`, () => import(`../mocks/insure/life/LifeUpdatePolicy`).catch(err => logError(err)));
 		this.lifeUpdatePocketMocks = await this._loadMockModule(this.lifeUpdatePocketMocks, `insureLifeUpdatePocket`, () => import(`../mocks/insure/life/LifeUpdatePocket`).catch(err => logError(err)));
+		this.lifeCoverAvailableMocks = await this._loadMockModule(this.lifeCoverAvailableMocks, `insureLifeCoverAvailable`, () => import(`../mocks/insure/life/LifeCoverAvailable`).catch(err => logError(err)));
+		this.lifeIncreaseCoverMocks = await this._loadMockModule(this.lifeIncreaseCoverMocks, `insureLifeIncreaseCover`, () => import(`../mocks/insure/life/LifeIncreaseCover`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -489,7 +491,28 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
-		
+	
+	/**
+	 * life update pocket mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeCoverAvailable() {
+		if (this._mockSettings.insureLifeCoverAvailable.positiveCase) {
+			return this.lifeCoverAvailableMocks.insureLifeCoverAvailable;
+		}
+		return null;
+	}
+
+	/**
+	 * life update pocket mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeIncreaseCover() {
+		if (this._mockSettings.insureLifeIncreaseCover.positiveCase) {
+			return this.lifeIncreaseCoverMocks.insureLifeIncreaseCover;
+		}
+		return null;
+	}
 
 	// #endregion LIFE
 	

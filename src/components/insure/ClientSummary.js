@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
-import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, getAgeFromIDNumber, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
 import { HorizonInsureStore } from 'app/store/HorizonInsureStore';
@@ -36,6 +36,7 @@ import 'app/components/dialogs/insure/life/LifeBeneficiariesAllocateError';
 import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
+import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -102,6 +103,8 @@ class ClientSummary extends Component {
 		this.requestCallbackSuccess = false;
 		this.showEarlyCollectionDialog = false;
 		this.showLifeHonestyPledgeDialog = false;
+		this.showLifeIncreaseUnavailableDialog = false;
+		this.lifeIncreaseCoverUnavailableMessage = ``;
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
@@ -147,6 +150,11 @@ class ClientSummary extends Component {
 	 * @property {Function} lifeGetPolicyArrears callback function to fetch life policy arrears
 	 * @property {Function} lifeUpdateBankingDetailsAgreement contains the agreement document for updating banking details
 	 * @property {Function} executeLifeIncreaseCover callback function to execute increase cover call
+	 * @property {Function} executeLifeCoverAvailable callback function to execute cover available call
+	 * @property {String} mainLifeIdNumber main life id number
+	 * @property {String} mainLifeIdNumber main life id number
+	 * @property {Boolean} showLifeIncreaseUnavailableDialog determines whether to show the increase cover unavailable dialog
+	 * @property {String} lifeIncreaseCoverUnavailableMessage message to display in the increase cover unavailable dialog
 	 * 
 	 * @readonly
 	 * @static
@@ -160,13 +168,14 @@ class ClientSummary extends Component {
 			lifePolicies: { type: Object, state: true },
 			lifeHealthQuestions: { type: Object, state: true },
 			executeLifeAllowedCover: { type: Object, state: true },
-			executeLifeIncreaseCover: { type: Object, state: true },
+			executeLifeCoverAvailable: { type: Object, state: true },
 			executeLifeUpdatePolicy: { type: Object, state: true },
 			executeLifeUpdatePocket: { type: Object, state: true },
 			executeLifeUpdateDocument: { type: Object, state: true },
 			executeLifeGenerateIssueAgreement: { type: Object, state: true },
 			executeLifeReIssue: { type: Object, state: true },
 			executeLifeIssue: { type: Object, state: true },
+			executeLifeIncreaseCover: { type: Object, state: true },
 
 			funeralPolicyArrears: { type: Object, state: true },
 			funeralPolicyPayArrears: { type: Object, state: true },
@@ -219,6 +228,8 @@ class ClientSummary extends Component {
 			defaultSavingsAccountNumber: { type: String, state: true },
 			defaultSavingsAccountAvailableBalance: { type: Number, state: true },
 			getDefaultSavingsAccountNumber: { type: Object, state: true },
+			showLifeIncreaseUnavailableDialog: { type: Boolean, state: true },
+			lifeIncreaseCoverUnavailableMessage: { type: String, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -233,6 +244,8 @@ class ClientSummary extends Component {
 			setInsureIncident: { type: Object, state: true },
 			newOffer: { type: Object, state: true },
 			newOfferAnswers: { type: Array, state: true },
+
+			mainLifeIdNumber: { type: String, state: true },
 
 			lifeUpdateMode: { type: String, state: true }
 		};
@@ -385,6 +398,23 @@ class ClientSummary extends Component {
 		this.showLifeHonestyPledgeDialog = true;
 		this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.REISSUE;
 		this.selectedLifePolicy = lifePolicy;
+	}
+
+	_goToIncreaseCover(lifePolicy) {
+		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65) {
+			this.showLifeHonestyPledgeDialog = true;
+			this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.INCREASE;
+			this.selectedLifePolicy = lifePolicy;
+		} else {
+			// show increase unavailable dailog
+			this.lifeIncreaseCoverUnavailableMessage = `To qualify for increasing cover on your policy, you must be younger than 65.`;
+			this.showLifeIncreaseUnavailableDialog = true;
+		}
+		
+	}
+
+	_closeLifeIncreaseCoverUnavailableDialog() {
+		this.showLifeIncreaseUnavailableDialog = false;
 	}
 
 	/**
@@ -718,8 +748,14 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_lifeHealthQuestionsCompleted(e) {
-		this.newOffer = e.detail.allowedCoverResults;
-		this.newOfferAnswers = e.detail.allowedCoverAnswers;
+		if (this.lifeUpdateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			this.newOffer = e.detail.allowedCoverResults;
+			this.newOfferAnswers = e.detail.allowedCoverAnswers;
+		} else if (this.lifeUpdateMode === LIFE_UPDATE_MODE.INCREASE) {
+			this.newOffer = e.detail.increaseCoverResults;
+			this.newOfferAnswers = e.detail.increaseCoverAnswers;
+		}
+		
 
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
@@ -744,6 +780,17 @@ class ClientSummary extends Component {
 				policyNumber: e.detail.policyNumber
 			}
 		}));
+	}
+
+	_lifeIncreaseCoverCompleted() {
+		this.showLifeAllocateCoverDialog = false;
+		this.dispatchEvent(new CustomEvent(`life-increase-cover-completed`, {
+			detail: {
+				emailAddress: this.newOfferAnswers?.emailAddress,
+				policyNumber: this.selectedLifePolicy?.contractReference
+			}
+		}));
+	
 	}
 
 	async _cancelLifeUpdatePolicyFlow() {
@@ -778,8 +825,7 @@ class ClientSummary extends Component {
 
 	// #region PRIVATE FUNCTIONS
 
-	async _initialise() {
-
+	_initialise() {
 	}
 
 	/**
@@ -1200,6 +1246,8 @@ class ClientSummary extends Component {
 		this.showLifeHonestyPledgeDialog = false;
 		if (this.selectedLifeUpdateMode === LIFE_UPDATE_MODE.REISSUE) {
 			this._openHealthQuestionsDialog(this.selectedLifePolicy, LIFE_UPDATE_MODE.REISSUE);
+		} else if (this.selectedLifeUpdateMode === LIFE_UPDATE_MODE.INCREASE) {
+			this._openHealthQuestionsDialog(this.selectedLifePolicy, LIFE_UPDATE_MODE.INCREASE);
 		}
 	}
 	// #endregion PRIVATE FUNCTIONS
@@ -1586,6 +1634,7 @@ class ClientSummary extends Component {
 			${this._renderEarlyCollectionsDialog()}
 			${this._renderLifeEmailDialog()}
 			${this._renderLifeHonestyPledgeDialog()}
+			${this._renderLifeIncreaseCoverUnavailable()}
 
 		`;
 	}
@@ -1974,8 +2023,8 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
-				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._openHealthQuestionsDialog(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
+					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false 
+				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -2573,7 +2622,8 @@ class ClientSummary extends Component {
 				.updateMode="${this.lifeUpdateMode}"
 				.lifeHealthQuestions = ${this.lifeHealthQuestions}
 				.executeLifeAllowedCover="${(allowedCoverRequest) => this.executeLifeAllowedCover(allowedCoverRequest)}"
-				.executeLifeIncreaseCover="${(increaseCoverRequest) => this.executeLifeIncreaseCover(increaseCoverRequest)}"
+				.executeLifeCoverAvailable="${(coverAvailableRequest) => this.executeLifeCoverAvailable(this.selectedLifePolicy, coverAvailableRequest)}"
+				.policy = "${this.selectedLifePolicy}" 
 				@close-dialog="${() => this.showLifeHealthQuestionsDialog = false}"
 				@continue="${(e) => this._lifeHealthQuestionsCompleted(e)}">
 			</horizon-insure-life-health-questions-dialog>
@@ -2600,8 +2650,10 @@ class ClientSummary extends Component {
 				.executeLifeUpdatePocket="${(updatePocketRequest) => this.executeLifeUpdatePocket(updatePocketRequest)}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
+				.executeLifeIncreaseCover = "${(increaseCoverRequest) => this.executeLifeIncreaseCover(increaseCoverRequest)}"
 				@life-reissue-completed="${(e) => this._lifeReIssueCompleted(e)}"
 				@life-update-completed="${(e) => this._lifeUpdateCompleted(e)}"
+				@life-increase-cover-completed="${(e) => this._lifeIncreaseCoverCompleted(e)}"
 				@close-dialog="${() => this._cancelLifeUpdatePolicyFlow()}">
 			</horizon-insure-life-allocate-cover-dialog>
 		`;
@@ -2690,6 +2742,20 @@ class ClientSummary extends Component {
 					@close-modal="${() => this.showLifeEmailDialog = false}"
 					@send-email = "${(emailAddress) => this._sendLifeEmail(emailAddress)}">
 				</horizon-insure-email-dialog>
+			`;
+	}
+
+	/**
+	 *  Render dialog for Life email
+	 * @returns {void}
+	 */
+	_renderLifeIncreaseCoverUnavailable() {
+		return this.showLifeIncreaseUnavailableDialog === false ? html``
+			: html`
+				<horizon-insure-life-increase-cover-unavailable-dialog 
+					.unavailableMessage = "${this.lifeIncreaseCoverUnavailableMessage}"
+					@close-modal="${() => this._closeLifeIncreaseCoverUnavailableDialog()}">
+				</horizon-insure-life-increase-cover-unavailable-dialog>
 			`;
 	}
 
