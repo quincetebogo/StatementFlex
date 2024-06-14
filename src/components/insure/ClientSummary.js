@@ -2128,7 +2128,7 @@ class ClientSummary extends Component {
 							</horizon-label>
 						</div>`}
 
-						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`
+						${pol.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || pol.policyStatusEnum === LIFE_POLICY_STATUSES.COOL_OFF ? html`
 							<div>
 								<horizon-label
 									label="Premium"
@@ -2195,9 +2195,9 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							<!-- ${this.readOnlyMode === false && pol.canReIssue === true ? html`
+							${this.readOnlyMode === false && pol.canReIssue === true ? html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							` : html``}  -->
+							` : html``}
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
@@ -2395,7 +2395,7 @@ class ClientSummary extends Component {
 								<br>
 								<div>How it works:</div>
 								<div>•When you pass, the Children's Needs benefit will be transferred to an umbrella trust which will be set up for the nominated children</div>
-								<div>•Once the claim is approved, the Trust provider will contact the child’s caregiver and set up the trust in the name of the child</div>
+								<div>•Once the claim is approved, the Trust provider will contact the child's caregiver and set up the trust in the name of the child</div>
 								<div>•Once a child turns 21, the money left in the umbrella trust will be paid to them in one lump sum</div>
 							</td>
 						</tr>

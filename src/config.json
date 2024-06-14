@@ -145,8 +145,12 @@
 			"positiveCase": false
 		},
 		"capitecConnectRechargeHistory": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
+		},
+		"capitecConnectAdvancesHistory": {
+			"enabled": false,
+			"positiveCase": false
 		},
 		"transactionHistory": {
 			"enabled": false,

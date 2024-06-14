@@ -1,5 +1,5 @@
+import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -10,7 +10,7 @@ const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
@@ -68,6 +68,7 @@ class LifeAddChildDialog extends Component {
 
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.childTitleOptions = CHILD_TITLE_OPTIONS;
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
 
@@ -210,9 +211,9 @@ class LifeAddChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.guardianExists) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		}
 
 		return steps;
@@ -266,7 +267,7 @@ class LifeAddChildDialog extends Component {
 			isValid = this._validateChildStep();
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
-				this.newOrExistingErrorMessage = `Please select an existing guardian or add a new one`;
+				this.newOrExistingErrorMessage = `Please select an existing caregiver or add a new one`;
 			} else {
 				this.newOrExistingErrorMessage = ``;
 				isValid = true;
@@ -582,10 +583,10 @@ class LifeAddChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.newChild.title = e.detail.new.code;
-				if (this.newChild.title === `Mr` || this.newChild.title === `Sir`) {
+				if (this.newChild.title === `Mr`) {
 					this.newChild.gender = `Male`;
 					this.newChildErrors.gender = ``;
-				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss` || this.newChild.title === `Lady`) {
+				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss`) {
 					this.newChild.gender = `Female`;
 					this.newChildErrors.gender = ``;
 				}
@@ -1028,7 +1029,7 @@ class LifeAddChildDialog extends Component {
 				<horizon-product-tile
 					type="radio-button"
 					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
+					subtitle="Add a new caregiver for this child"
 					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
 					@click="${() => this._continueWithNewGuardian()}">
 				</horizon-product-tile>
@@ -1079,7 +1080,7 @@ class LifeAddChildDialog extends Component {
 					id-field="code" style="width: 50%" 
 					value="${this.newChild?.title}"
 					error="${this.newChildErrors?.title === undefined ? `` : this.newChildErrors.title}"
-					.items="${this.titleOptions}" 
+					.items="${this.childTitleOptions}" 
 					@value-changed="${(e) => this._titleChange(e, true)}">
 				</capitec-select>
 

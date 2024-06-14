@@ -88,6 +88,20 @@ export const TITLE_OPTIONS = Object.freeze([
 ]);
 
 /**
+ * List of Child title's Insure supports
+ * 
+ * @readonly
+ * @enum {Object} TITLE_OPTIONS
+ */
+export const CHILD_TITLE_OPTIONS = Object.freeze([
+	{ code: `Mr`, text: `Mr` },
+	{ code: `Mrs`, text: `Mrs` },
+	{ code: `Ms`, text: `Ms` },
+	{ code: `Miss`, text: `Miss` }
+	
+]);
+
+/**
  * List of genders Insure supports
  * 
  * @readonly
@@ -384,7 +398,8 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	LAPSED: `Lapsed`,
 	NOT_TAKEN_UP: `NotTakenUp`,
 	CANCELLED: `Cancelled`,
-	OUT_OF_FORCE: `OutOfForce `
+	OUT_OF_FORCE: `OutOfForce`,
+	COOL_OFF: `CoolOff`
 });
 
 /**

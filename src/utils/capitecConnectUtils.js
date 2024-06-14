@@ -53,6 +53,25 @@ export function getDateInPast(days) {
 	return `${year}-${month}-${day}`;
 }
 
+export function incrementDate(dateString, daysToAdd) {
+	// Split the date string into year, month, and day
+	const [year, month, day] = dateString.split('-').map(Number);
+
+	// Create a Date object
+	const date = new Date(year, month - 1, day); // month is 0-indexed
+
+	// Increment the date by the specified number of days
+	date.setDate(date.getDate() + daysToAdd);
+
+	// Get the updated year, month, and day
+	const newYear = date.getFullYear();
+	const newMonth = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+	const newDay = String(date.getDate()).padStart(2, '0');
+
+	// Return the new date in the same format
+	return `${newYear}-${newMonth}-${newDay}`;
+}
+
 export function sortObjectsByDateDescending(array, dateKey) {
 	return array.sort((a, b) => {
 		const dateA = new Date(a[dateKey]);
@@ -84,7 +103,7 @@ export function formatCellphoneNumber(cellphoneNumber, withoutSpaces = false) {
 }
 
 export function isArray(obj) {
-	return obj !== null && typeof obj === `object` && obj.length; // arrays are objects and have length
+	return Array.isArray(obj);
 }
 
 export function isJson(obj) {

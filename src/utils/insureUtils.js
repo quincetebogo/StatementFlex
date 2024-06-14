@@ -528,7 +528,7 @@ export function determineInactiveLifePolicies(lifePolicies) {
 	if (isNullorEmpty(lifePolicies)) {
 		return null;
 	}
-	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
+	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.COOL_OFF);
 }
 
 /**
