@@ -375,6 +375,8 @@ export class CardService extends ChannelServiceBase {
 	};
 
 	async updateCardsSettings(cif, cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`updateCardsSettings`)) {
 			return this.mock(`updateCardsSettings`);
 		} 
@@ -382,7 +384,7 @@ export class CardService extends ChannelServiceBase {
 		const request = {
 			cifNumber: cif,
 			cards: cardsList
-		}
+		};
 		
 		const url = `/clientcare-card-${this._version}/UpdateCardSettings`;
 
