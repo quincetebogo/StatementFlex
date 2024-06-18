@@ -74,7 +74,10 @@ class ClientSummary extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.readOnlyMode = this.roleManager.isInsureAgent;
-
+		this.funeralReadOnlyMode = false;
+		if (this.roleManager.isInsureAgent) {
+			this.funeralReadOnlyMode = true;
+		}
 		this.clientClaims = null;
 		this.funeralPolicies = null;
 		this.funeralArrearsPaymentAmount = 0;
@@ -127,7 +130,8 @@ class ClientSummary extends Component {
 	 * @property {String} contractReferenceToCancel Selected contract reference for cancel action
 	 * @property {Function} generateDocumentsFuneralCancel Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} funeralCancelAgreementDocument cancel document
-	 * @property {boolean} readOnlyMode toggle to disable actions based on rules
+	 * @property {boolean} readOnlyMode toggle to disable lifeCover actions based on rules
+	 * @property {boolean} funeralReadOnlyMode toggle to disable funeral actions based on rules
 	 * @property {boolean} showFuneralCancelPolicyDialog Determines if the Cancel Policy dialog should be shown
 	 * @property {boolean} showFuneralEmailPlanDialog Determines if the Email Plan dialog should be shown
 	 * @property {boolean} showFuneralPayPremiumDialog Determines if the Pay Premium dialog should be shown
@@ -181,6 +185,7 @@ class ClientSummary extends Component {
 			funeralCancelAgreementDocument: { type: Object, state: true },
 
 			readOnlyMode: { type: Boolean, state: true },
+			funeralReadOnlyMode: { type: Boolean, state: true },
 			showFuneralCancelPolicyDialog: { type: Boolean, state: true },
 			showFuneralEmailPlanDialog: { type: Boolean, state: true },
 			showFuneralPayPremiumDialog: { type: Boolean, state: true },
@@ -649,6 +654,11 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
+		
+		if (this.funeralReadOnlyMode === true) {
+			return;
+		}
+
 		this.selectedFlow = flow;
 		this.canReinstate = policyItem?.canReinstate;
 
@@ -962,6 +972,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
+				.disabled="${this.funeralReadOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -970,6 +981,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Email Plan" 
 				icon="system/profile-action"
+				.disabled="${this.funeralReadOnlyMode}"
 				@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference, policyItem.productCode)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
@@ -978,6 +990,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
+				.disabled="${this.funeralReadOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -986,6 +999,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Update Plan" 
 				icon="system/profile-action"
+				.disabled="${this.funeralReadOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
@@ -994,6 +1008,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Cancel Plan" 
 				icon="system/delete-action"
+				.disabled="${this.funeralReadOnlyMode}"
 				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
@@ -1027,23 +1042,24 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.funeralReadOnlyMode}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
-					label="Email Plan">
+					label="Email Plan" .disabled="${this.funeralReadOnlyMode}"
+					@click="${() => this._showFuneralEmailPlanDialog(policyItem.contractReference, policyItem.productCode)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${this.funeralReadOnlyMode}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
-					label="Update Plan" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Update Plan" .disabled="${this.funeralReadOnlyMode}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/delete-action" 
-					label="Cancel Plan" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
+					label="Cancel Plan" .disabled="${this.funeralReadOnlyMode}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
@@ -1597,7 +1613,8 @@ class ClientSummary extends Component {
 	 */
 	_renderContent() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
-		if (callerInfo && callerInfo.verificationStatus !== `verified` && !this.roleManager.isInsureAgent) {
+		if (callerInfo && callerInfo.verificationStatus !== `verified` && !this.roleManager.isInsureAgent &&
+		 !this.roleManager.isInsureAdministrator) {
 			return html`
 				<capitec-card 
 					data-automation-id="insure-unverified-page"
@@ -1671,13 +1688,13 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this.clientPolicies?.summaryDetails?.policies?.length === 0 ? `` : html`
+					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.funeralReadOnlyMode === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openClaimInfoDialog()}">
 						</capitec-button>
 					`}
 					${this.selectedInsureTabIndex === 0 ? this._renderGetFuneralEstimateButton() : html``}
-					${this.selectedInsureTabIndex !== 0 ? html``
+					${this.funeralReadOnlyMode === true || this.selectedInsureTabIndex !== 0 ? html``
 				: html`
 							<capitec-overflow-menu label="Menu" icon="system/more-white">
 								<capitec-overflow-menu-item icon="system/phone-call-action" label="Request callback" 
@@ -1708,16 +1725,18 @@ class ClientSummary extends Component {
 					data-automation-id="insure-landing-get-estimate">
 				</capitec-button>
 			</capitec-popover>`;
-		} 
+		} else if (this.readOnlyMode === false || this.readOnlyMode === undefined) {
+			return html`
+				<capitec-button 
+					type="white" 
+					class="capitec-button-medium" 
+					label="Get Estimate" 
+					data-automation-id="insure-landing-get-estimate"
+					@click="${() => this._displayCFPDisclosure(`estimate`)}">
+				</capitec-button>`;
+		}
 
-		return html`
-			<capitec-button 
-				type="white" 
-				class="capitec-button-medium" 
-				label="Get Estimate" 
-				data-automation-id="insure-landing-get-estimate"
-				@click="${() => this._displayCFPDisclosure(`estimate`)}">
-			</capitec-button>`;
+		return html``;
 	}
 
 	/**
@@ -2099,7 +2118,7 @@ class ClientSummary extends Component {
 								<horizon-label
 									label="Cancelation Date"
 									class="ghost-label"
-									value="${isNullorEmpty(pol?.effectiveCancellationDate) ? `-` : formatDate(pol?.effectiveCancellationDate, `dd mmm yyyy`)}">
+										value="${isNullorEmpty(pol?.effectiveCancellationDate) ? `-` : formatDate(pol?.effectiveCancellationDate, `dd mmm yyyy`)}">
 								</horizon-label>
 							</div>
 							<div>
