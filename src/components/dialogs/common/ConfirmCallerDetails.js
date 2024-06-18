@@ -203,7 +203,7 @@ export class ConfirmCallerDetails extends Component {
 		});
 
 		// TODO: If insure role then navigate to Insure landing page.
-		if (this.roleManager.isInsureAgent) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
 			this._navigateToInsureBackOfficePage();
 			return;
 		}
@@ -836,7 +836,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLanguagePreference() {
-		return this.roleManager.isInsureAgent 
+		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator
 		? html`
 				<horizon-label 
 					class="client-info-row" 

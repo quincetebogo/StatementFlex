@@ -42,6 +42,10 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
 
+	get isInsureAdministrator() {
+		return this.roles && this.roles.includes(`insure-administrator`);
+	}
+
 	get isCapitecConnectTeamleader() {
 		return this.roles && this.roles.includes(`capitecconnect-teamleader`);
 	}

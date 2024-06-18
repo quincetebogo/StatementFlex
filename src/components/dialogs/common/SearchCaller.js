@@ -997,7 +997,7 @@ export class SearchCaller extends Component {
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2"
-						?hidden="${this.roleManager.isInsureAgent}">
+						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}">
 					</capitec-radio>
 					<capitec-radio 
 						id="branch" 
@@ -1006,7 +1006,7 @@ export class SearchCaller extends Component {
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3"
 						?checked="${this.clientType === CLIENT_TYPE.BRANCH}"
-						?hidden="${this.roleManager.isInsureAgent}">
+						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}">
 					</capitec-radio>
 
 			</capitec-radio-group>`;
