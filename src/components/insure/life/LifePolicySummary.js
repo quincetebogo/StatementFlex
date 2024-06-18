@@ -265,7 +265,7 @@ class LifePolicySummary extends Component {
 				}
 
 				.horizon-label-long{
-					width: 200px;
+					width: 195px;
 					padding-left: 16px;
 				}
 				.details-box {
@@ -668,9 +668,9 @@ class LifePolicySummary extends Component {
 
 		// Education
 		return html`
-			<capitec-group class="options-group" layout="vertical" gap="none" H-Align="left">
+			<capitec-group class="options-group" style="margin: 0px;" layout="vertical" gap="none" H-Align="left">
 				${groupedByGuardian?.map((guardian, index) => html`
-					<div style="display: flex; margin-bottom: 10px;">
+					<div style="display: flex; margin-bottom: 10px; background: rgb(244, 244, 244); padding: 10px 5px;">
 						<horizon-label
 							class="horizon-label-long"
 							label="Caregiver"

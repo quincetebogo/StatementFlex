@@ -153,22 +153,34 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 ]);
 
 /**
- * List of genders Insure supports
+ * List of cancel reasons for funeral - client care
  * 
  * @readonly
  * @enum {Object} CANCELATION_REASONS
  */
 export const CANCELATION_REASONS = Object.freeze([
-
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Other_Provider`, text: `Policy with other service provider` },
 	{ code: `Already_Covered`, text: `Already covered` },
 	{ code: `Confidential`, text: `Confidential` }
-	// { code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
-	// { code: `Audit`, text: `Internal audit compliance` },
-	// { code: `Invalid`, text: `Invalid policy` },
-	// { code: ``, text: `Global One savings account is closed` }
 ]);
+
+/**
+ * List of cancel reasons for funeral - backoffice
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS_BACKOFFICE
+ */
+export const CANCELATION_REASONS_BACKOFFICE = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Other_Provider`, text: `Policy with other service provider` },
+	{ code: `Already_Covered`, text: `Already covered` },
+	{ code: `Confidential`, text: `Confidential` },
+	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
+	{ code: `Audit`, text: `Internal audit compliance` },
+	{ code: `Invalid`, text: `Invalid policy` }
+]);
+
 
 /**
  * List of cancelation reasons Life supports
