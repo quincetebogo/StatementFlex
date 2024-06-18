@@ -203,7 +203,7 @@ export class ConfirmCardSettings extends Component {
 				</div>
 				<div slot="body">
 					<capitec-content-box>
-						<p>Are you sure you want to turn off ${this.ecommerceUpdated ? `online` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `and` : ``} ${this.internationalUpdated ? `international` : ``} purchases on</p>
+						<p>Are you sure you want to turn off ${this.ecommerceUpdated ? `online` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `and` : ``} ${this.internationalUpdated ? `international` : ``} purchases?</p>
 						${this.deactivateCardsList.map(card => this._renderCardsList(card))}
 						<p>This will stop your ${this.ecommerceUpdated ? `online shopping, scan to pay` : ``} ${this.ecommerceUpdated && this.internationalUpdated ? `and` : ``} ${this.internationalUpdated ? `international` : ``} transactions.</p>
 					</capitec-content-box>
