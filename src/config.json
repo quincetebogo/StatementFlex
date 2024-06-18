@@ -57,7 +57,7 @@
 	"mock": {
 		"enabled": true,
 		"createIncident": {
-			"enabled" : false
+			"enabled" : true
 		},
 		"acceptCall": {
 			"enabled": true,
@@ -221,15 +221,15 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCalculateQuote": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},
 		"insurePolicyTransactionHistory": {
@@ -245,7 +245,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -417,15 +417,19 @@
 			"positiveCase": true
 		},
 		"insureLifeClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureLifeGetMandates": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureLifeGetArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeGetPolicy": {
@@ -433,7 +437,7 @@
 			"positiveCase": true
 		},
 		"insureLifePayArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
@@ -469,7 +473,39 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCalculateEstimate": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"insureAllowedCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeQualifies": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeReIssuePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIssuePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeAcceptPolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdatePolicy": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdatePocket": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

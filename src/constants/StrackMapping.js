@@ -142,6 +142,20 @@
 	"funeral-plan-calculate-estimate": `FUNERAL_PLAN_CALCULATE_ESTIMATE`,
 	"funeral-plan-send-document": `FUNERAL_PLAN_SEND_DOCUMENT`,
 	"funeral-plan-reissue": `FUNERAL_PLAN_REISSUE`,
+	
+	"life-cover-summary": `LIFE_COVER_SUMMARY`,
+	"life-cover-sms-history": `LIFE_COVER_SMS_HISTORY`,
+	"life-cover-premium-history": `LIFE_COVER_PREMIUM_HISTORY`,
+	"life-cover-manage-cover": `LIFE_COVER_MANAGE_COVER_AND_BENEFICIARIES`,
+	"life-cover-update-payment-details": `LIFE_COVER_UPDATE_PAYMENT_DETAILS`,
+	"life-cover-pay-arrears": `LIFE_COVER_PAY_ARREARS`,
+	"life-cover-cancel": `LIFE_COVER_CANCEL`,
+	"life-cover-send-document": `LIFE_COVER_SEND_DOCUMENT`,
+	"life-cover-reissue": `LIFE_COVER_REISSUE`,
+	"life-cover-increase-cover": `LIFE_COVER_INCREASE_COVER`,
+	"life-cover-lodge-claim": `LIFE_COVER_LODGE_CLAIM`,
+	"life-cover-claim-summary": `LIFE_COVER_CLAIM_SUMMARY`,
+
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`

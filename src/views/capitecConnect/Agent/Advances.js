@@ -151,10 +151,12 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		} catch (error) {
 			this.showTable = false;
 
-			console.error(error);
-
-			if (this.clientCif) {
-				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			if (
+				this.activeFilters.searchType.value === `msisdn` &&
+				this.activeFilters.searchValue.trim() !== `` &&
+				this.clientCif
+			) {
+				alert("Error: " + `The provided MSISDN [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif}]`);
 			}
 
 			return {
@@ -257,6 +259,14 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 
 		var { result } = await this.getAdvanceBalances(filters);
 		this.advanceBalances = result.content;
+
+		if (
+			filters.searchType.value === `msisdn` &&
+			filters.searchValue.trim() !== `` &&
+			this.clientCif
+		) {
+			this.advanceBalances = this.advanceBalances.filter(e => e.msisdn === filters.searchValue);
+		}
 
 		this.advanceBalancePopupOpen = true;
 	}
@@ -476,7 +486,8 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 			productId = `N/A`,
 			type = `-`,
 			rechargeStatus = `Failed`,
-			rechargeStatusReason = null;
+			rechargeStatusReason = null,
+			approvedAmount = item.approvedAmount || null;
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
@@ -493,6 +504,10 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 		if (item.transactions.length > 0) {
 			type = type !== `-` ? type : item.transactions[0].type;
 			product = product ? product : item.transactions[0].bundleType;
+		}
+
+		if (rechargeStatus.toUpperCase() === "SUCCESSFUL") {
+			approvedAmount = formatAmount(approvedAmount !== null ? approvedAmount : item.amount);
 		}
 
 		product = toTitleCase(product);
@@ -530,7 +545,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-label label="Product Name"></capitec-label>
 					<capitec-label label="Product Type"></capitec-label>
 					<capitec-label label="Request Amount"></capitec-label>
-					<capitec-label label="Approved Amount"></capitec-label>
+					${approvedAmount !== null ? html`<capitec-label label="Approved Amount"></capitec-label>` : ``}
 				</div>
 				<div row="4" column="2">
 					<capitec-label label="${item.channel.toUpperCase()}"></capitec-label>
@@ -540,7 +555,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 					<capitec-label label="${item.productName}"></capitec-label>
 					<capitec-label label="${product}"></capitec-label>
 					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
-					<capitec-label label="${formatAmount(item.amount)}"></capitec-label>
+					${approvedAmount !== null ? html`<capitec-label label="${approvedAmount}"></capitec-label>` : ``}
 				</div>
 
 				${(rechargeStatus !== null && rechargeStatus.toUpperCase() !== "SUCCESSFUL") ? html`
@@ -561,6 +576,9 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 	}
 
 	_renderAdvanceBalanceModal() {
+		var today = new Date();
+		today = today.toISOString().split('T')[0];
+
 		return html`
 		<capitec-modal type="text" header="Advance Balance">
 			${!this.advanceBalances.length ? html`
@@ -593,7 +611,7 @@ export class CapitecConnectAgentAdvances extends ViewBase {
 						<capitec-label label="R${parseFloat(ab.totalOutstandingAdvanceBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingBalance).toFixed(2)}" type="strong"></capitec-label>
-						<capitec-label label="${ab.repayDays > 0 ? 'YES' : '--'}"></capitec-label>
+						<capitec-label label="${ab.nextPaymentDate && compareDates(ab.nextPaymentDate, today) < 1 ? 'YES' : '--'}"></capitec-label>
 						<capitec-label label="${ab.status || '--'}"></capitec-label>
 						${ab.nextPaymentDate && html`
 							<capitec-label label="${ab.nextPaymentDate}"></capitec-label>

@@ -61,10 +61,12 @@ export default class InsureChannelServiceMocks {
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/funeral/InsureArrears`).catch(err => logError(err)));
+		this.estimateMocks = await this._loadMockModule(this.estimateMocks, `insureCalculateEstimate`, () => import(`../mocks/insure/funeral/InsureCalculateEstimate`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
 		this.lifeCancelPolicyMocks = await this._loadMockModule(this.lifeCancelPolicyMocks, `insureLifeCancelPolicy`, () => import(`../mocks/insure/life/LifeCancelPolicy`).catch(err => logError(err)));
+		this.lifeGetMandatesMocks = await this._loadMockModule(this.lifeGetMandatesMocks, `insureLifeGetMandates`, () => import(`../mocks/insure/life/LifeGetMandates`).catch(err => logError(err)));
 		this.lifeGetArrearsMocks = await this._loadMockModule(this.lifeGetArrearsMocks, `insureLifeGetArrears`, () => import(`../mocks/insure/life/LifeGetArrears`).catch(err => logError(err)));
 		this.lifeGetPolicyMocks = await this._loadMockModule(this.lifeGetPolicyMocks, `insureLifeGetPolicy`, () => import(`../mocks/insure/life/LifeGetPolicy`).catch(err => logError(err)));
 		this.lifePayArrearsMocks = await this._loadMockModule(this.lifePayArrearsMocks, `insureLifePayArrears`, () => import(`../mocks/insure/life/LifePayArrears`).catch(err => logError(err)));
@@ -72,7 +74,13 @@ export default class InsureChannelServiceMocks {
 		this.lifePremiumHistoryMocks = await this._loadMockModule(this.lifePremiumHistoryMocks, `insureLifePremiumHistory`, () => import(`../mocks/insure/life/LifePremiumHistory`).catch(err => logError(err)));
 		this.lifeSMSHistoryMocks = await this._loadMockModule(this.lifeSMSHistoryMocks, `insureLifeSMSHistory`, () => import(`../mocks/insure/life/LifeSMSHistory`).catch(err => logError(err)));
 		this.genericLifeDocumentMocks = await this._loadMockModule(this.genericLifeDocumentMocks, `insureGenericLifeDocument`, () => import(`../mocks/insure/life/GenericLifeDocument`).catch(err => logError(err)));
-		
+		this.lifeAllowedCoverMocks = await this._loadMockModule(this.lifeAllowedCoverMocks, `insureAllowedCover`, () => import(`../mocks/insure/life/LifeAllowedCover`).catch(err => logError(err)));
+		this.lifeClientQualifiesMocks = await this._loadMockModule(this.lifeClientQualifiesMocks, `insureLifeClientQualifies`, () => import(`../mocks/insure/life/LifeQualifies`).catch(err => logError(err)));
+		this.lifeIssuePolicyMocks = await this._loadMockModule(this.lifeIssuePolicyMocks, `insureLifeIssuePolicy`, () => import(`../mocks/insure/life/LifeIssuePolicy`).catch(err => logError(err)));
+		this.lifeReIssuePolicyMocks = await this._loadMockModule(this.lifeReIssuePolicyMocks, `insureLifeReIssuePolicy`, () => import(`../mocks/insure/life/LifeReIssuePolicy`).catch(err => logError(err)));
+		this.lifeAcceptPolicyMocks = await this._loadMockModule(this.lifeAcceptPolicyMocks, `insureLifeAcceptPolicy`, () => import(`../mocks/insure/life/LifeAcceptPolicy`).catch(err => logError(err)));
+		this.lifeUpdatePolicyMocks = await this._loadMockModule(this.lifeUpdatePolicyMocks, `insureLifeUpdatePolicy`, () => import(`../mocks/insure/life/LifeUpdatePolicy`).catch(err => logError(err)));
+		this.lifeUpdatePocketMocks = await this._loadMockModule(this.lifeUpdatePocketMocks, `insureLifeUpdatePocket`, () => import(`../mocks/insure/life/LifeUpdatePocket`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -283,6 +291,13 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
+	insureCalculateEstimate() {
+		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
+			return this.estimateMocks.InsureCalculateEstimate;
+		}
+		return null;
+	}
+
 	// #endregion FUNERAL
 
 	// #region LIFE
@@ -305,6 +320,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeCancelPolicy() {
 		if (this._mockSettings.insureLifeCancelPolicy.positiveCase) {
 			return this.lifeCancelPolicyMocks.insureLifeCancelPolicy;
+		}
+		return null;
+	}
+
+	/**
+	 * Get Mandates policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeGetMandates() {
+		if (this._mockSettings.insureLifeGetMandates.positiveCase) {
+			return this.lifeGetMandatesMocks.insureLifeGetMandates;
 		}
 		return null;
 	}
@@ -385,6 +411,85 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
+
+	/**
+	 * life allowed cover mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureAllowedCover() {
+		if (this._mockSettings.insureAllowedCover.positiveCase) {
+			return this.lifeAllowedCoverMocks.insureAllowedCover;
+		}
+		return null;
+	}
+
+	/**
+	 * life re-issue mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeReIssuePolicy() {
+		if (this._mockSettings.insureLifeReIssuePolicy.positiveCase) {
+			return this.lifeReIssuePolicyMocks.insureLifeReIssuePolicy;
+		}
+		return null;
+	}
+
+	/**
+	 * life issue policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeIssuePolicy() {
+		if (this._mockSettings.insureLifeIssuePolicy.positiveCase) {
+			return this.lifeIssuePolicyMocks.insureLifeIssuePolicy;
+		}
+		return null;
+	}
+
+	/**
+	 * life client qualifies mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeClientQualifies() {
+		if (this._mockSettings.insureLifeQualifies.positiveCase) {
+			return this.lifeClientQualifiesMocks.insureLifeQualifies;
+		}
+		return null;
+	}
+	
+	/**
+	 * life accept policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeAcceptPolicy() {
+		if (this._mockSettings.insureLifeAcceptPolicy.positiveCase) {
+			return this.lifeAcceptPolicyMocks.insureLifeAcceptPolicy;
+		}
+		return null;
+	}
+
+		
+	/**
+	 * life update policy mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeUpdatePolicy() {
+		if (this._mockSettings.insureLifeUpdatePolicy.positiveCase) {
+			return this.lifeUpdatePolicyMocks.insureLifeUpdatePolicy;
+		}
+		return null;
+	}
+	
+	/**
+	 * life update pocket mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeUpdatePocket() {
+		if (this._mockSettings.insureLifeUpdatePocket.positiveCase) {
+			return this.lifeUpdatePocketMocks.insureLifeUpdatePocket;
+		}
+		return null;
+	}
+		
 
 	// #endregion LIFE
 	
