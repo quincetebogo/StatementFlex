@@ -179,10 +179,6 @@ class CancelPolicyDialog extends Component {
 		await this.getCancelPolicyDocument(this.contractReference, cancelReason);
 	}
 
-	_initialise() {
-		console.log('this.funeralCancelationReasons :>> ', this.funeralCancelationReasons);
-	}
-
 	//  #endregion PRIVATE METHODS
 
 	//  #region RENDERING
