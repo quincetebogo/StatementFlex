@@ -315,10 +315,10 @@ export class FavouriteTransactions extends Component {
 					label="Update Card Settings"
 					icon="system/cards-action" 
 					iconSize="default"
-					?showTooltip="${this.showTooltip(`update-card-settings`)}"
-					.tooltipMessage="${this.getTooltipMessage(`update-card-settings`)}"
-					@click="${() => this._optionSelectedClick(`update-card-settings`)}"
-					?disabled="${this.shouldDisableByRole(`update-card-settings`)}">
+					?showTooltip="${this.showTooltip(`card-settings`)}"
+					.tooltipMessage="${this.getTooltipMessage(`card-settings`)}"
+					@click="${() => this._optionSelectedClick(`card-settings`)}"
+					?disabled="${this.shouldDisableByRole(`card-settings`)}">
 				</horizon-option-button>
 
 				<!-- Update Card Limits -->

@@ -145,7 +145,7 @@ export class Favourites extends SavingsAccountBase {
 			const paidUpAccounts = () => this._paidUpAccounts();
 			const sendCash = () => this._sendCash();
 			const payShap = () => this._payShap();
-			const updateCardSettings = () => this._updateCardSettings();
+			const cardSettings = () => this._updateCardSettings();
 			
 			const actions = {
 				'stop-card': stopCard,
@@ -160,7 +160,7 @@ export class Favourites extends SavingsAccountBase {
 				'paid-up-accounts': paidUpAccounts,
 				'send-cash': sendCash,
 				'payshap': payShap,
-				'update-card-settings': updateCardSettings
+				'card-settings': cardSettings
 			};
 
 			if (actions[option]) {
@@ -1147,6 +1147,8 @@ export class Favourites extends SavingsAccountBase {
 		// service call to get list of cards
 		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
+		await super.createAndClassifySubIncident(null, false);
+
 		if (returnValue.succeeded) {
 			this.cardsList = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.UPDATE_CARD_SETTINGS;
@@ -1156,8 +1158,9 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _deactivateCardTransactions(event) {
+		await super._inicidentManager_(`update-card-settings`, () => this._toggleBusyFlag());
+
 		// service call to deactivate online purchases and International transactions
-		
 		const requestDetails = event.detail.cardsListToDeactivate?.map(card => {
 			const updatedCard = {
 				cardNumber: card.cardNumber,
@@ -1169,7 +1172,7 @@ export class Favourites extends SavingsAccountBase {
 
 		const returnValue = await this.cardService.updateCardsSettings(this.callerInformation.cifNumber, requestDetails);
 		if (returnValue.succeeded) {
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-settings`);
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `card-settings`);
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.deactivatedCardsList = returnValue.result.cards;
@@ -1181,6 +1184,13 @@ export class Favourites extends SavingsAccountBase {
 			return;
 		}
 		this.horizonRouter.navigateToSystemError();
+	}
+
+	async _exitCardSettings() {
+		await super.classifyIncident(() => this._toggleBusyFlag());
+		
+		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -1493,7 +1503,7 @@ export class Favourites extends SavingsAccountBase {
 		? html`
 			<horizon-update-card-settings
 					.cards = ${this.cardsList}
-					@back="${() => this._backToLandingPage()}"
+					@back="${() => this._exitCardSettings()}"
 					@deactivate="${(event) => this._deactivateCardTransactions(event)}">
 			</horizon-update-card-settings>`
 		: html``;
