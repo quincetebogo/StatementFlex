@@ -156,9 +156,9 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
  * List of cancel reasons for funeral - client care
  * 
  * @readonly
- * @enum {Object} CANCELATION_REASONS
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_CLIENTCARE
  */
-export const CANCELATION_REASONS = Object.freeze([
+export const CANCELATION_REASONS_FUNERAL_CLIENTCARE = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Other_Provider`, text: `Policy with other service provider` },
 	{ code: `Already_Covered`, text: `Already covered` },
@@ -169,13 +169,9 @@ export const CANCELATION_REASONS = Object.freeze([
  * List of cancel reasons for funeral - backoffice
  * 
  * @readonly
- * @enum {Object} CANCELATION_REASONS_BACKOFFICE
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_BACKOFFICE
  */
-export const CANCELATION_REASONS_BACKOFFICE = Object.freeze([
-	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Other_Provider`, text: `Policy with other service provider` },
-	{ code: `Already_Covered`, text: `Already covered` },
-	{ code: `Confidential`, text: `Confidential` },
+export const CANCELATION_REASONS_FUNERAL_BACKOFFICE = Object.freeze([
 	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
 	{ code: `Audit`, text: `Internal audit compliance` },
 	{ code: `Invalid`, text: `Invalid policy` }

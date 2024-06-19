@@ -188,6 +188,7 @@ class ClientSummary extends Component {
 			generateDocumentsFuneralArrears: { type: Object },
 			funeralArrearsPaymentDocumentDetails: { type: Object },
 			funeralGetPolicyArrears: { type: Object, state: true },
+			funeralCancelationReasons: { type: Object, state: true },
 
 			contractReferenceToCancel: { type: String, state: true },
 			generateDocumentsFuneralCancel: { type: Object, state: true },
@@ -269,7 +270,6 @@ class ClientSummary extends Component {
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
 		this._initialise();
-
 	}
 
 	async disconnectedCallback() {
@@ -415,7 +415,7 @@ class ClientSummary extends Component {
 			this.lifeIncreaseCoverUnavailableMessage = `To qualify for increasing cover on your policy, you must be younger than 65.`;
 			this.showLifeIncreaseUnavailableDialog = true;
 		}
-		
+
 	}
 
 	_closeLifeIncreaseCoverUnavailableDialog() {
@@ -684,7 +684,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
-		
+
 		if (this.funeralReadOnlyMode === true) {
 			return;
 		}
@@ -765,7 +765,7 @@ class ClientSummary extends Component {
 			this.newOffer = e.detail.increaseCoverResults;
 			this.newOfferAnswers = e.detail.increaseCoverAnswers;
 		}
-		
+
 
 		this.showLifeHealthQuestionsDialog = false;
 		this.showLifeAllocateCoverDialog = true;
@@ -800,7 +800,7 @@ class ClientSummary extends Component {
 				policyNumber: this.selectedLifePolicy?.contractReference
 			}
 		}));
-	
+
 	}
 
 	async _cancelLifeUpdatePolicyFlow() {
@@ -1663,7 +1663,7 @@ class ClientSummary extends Component {
 	_renderContent() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		if (callerInfo && callerInfo.verificationStatus !== `verified` && !this.roleManager.isInsureAgent &&
-		 !this.roleManager.isInsureAdministrator) {
+			!this.roleManager.isInsureAdministrator) {
 			return html`
 				<capitec-card 
 					data-automation-id="insure-unverified-page"
@@ -2042,7 +2042,7 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false 
+					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && this.readOnlyMode === false
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -2459,6 +2459,7 @@ class ClientSummary extends Component {
 			.contractReference = ${this.contractReferenceToCancel}
 			.cancelPolicyDocumentDetails = "${this.funeralCancelAgreementDocument}"
 			.getCancelPolicyDocument="${(contractReference, cancelReason) => this._generateDocumentsFuneralCancel(contractReference, cancelReason)}"
+			.funeralCancelationReasons=${this.funeralCancelationReasons}
 			@close-modal="${() => this._closeFuneralCancelPolicyDialog()}"
 			@agree="${(e) => this._funeralCancelPolicyConfirm(e)}" >
 		</horizon-insure-cancel-policy-dialog>`;

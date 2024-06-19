@@ -29,7 +29,7 @@ class CancelPolicyDialog extends Component {
 	constructor() {
 		super();
 
-		this.cancelationReasons = CANCELATION_REASONS;
+		this.funeralCancelationReasons = {};
 		this.selected = false;
 		this.errorMsg = ``;
 		this.cancelReason = ``;
@@ -52,6 +52,7 @@ class CancelPolicyDialog extends Component {
 	 * @property {Function} getCancelPolicyDocument Callback function to fetch Cancel Policy Agreement
 	 * @property {Object} cancelPolicyDocumentDetails contains the cancel policy agreement document details
 	 * @property {String} errorMsg error message to be displayed if cancellation reason is not selected
+	 * @property {String} funeralCancelationReasons filtered cancelation reasons for backoffice or clientcare
 	 * 
 	 */
 	static get properties() {
@@ -63,7 +64,8 @@ class CancelPolicyDialog extends Component {
 			getCancelPolicyDocument: { type: Object, state: true },
 			cancelPolicyDocumentDetails: { type: Object, state: true },
 			errorMsg: { type: String, state: true },
-			showCancelAgreement: { type: Boolean, state: true }
+			showCancelAgreement: { type: Boolean, state: true },
+			funeralCancelationReasons: { type: Boolean, state: true }
 		};
 	}
 
@@ -178,6 +180,7 @@ class CancelPolicyDialog extends Component {
 	}
 
 	_initialise() {
+		console.log('this.funeralCancelationReasons :>> ', this.funeralCancelationReasons);
 	}
 
 	//  #endregion PRIVATE METHODS
@@ -313,7 +316,7 @@ class CancelPolicyDialog extends Component {
 			<div class="select" data-automation-id="horizon-insure-cancel-policy-dialog-cancelation-reason">
 				<capitec-select 
 					label="Cancellation Reason" 
-					.items= "${this.cancelationReasons}"
+					.items= "${this.funeralCancelationReasons}"
 					display-field="text"
 					id-field="code"
 					@value-change = "${(e) => this._valueSelected(e)}"

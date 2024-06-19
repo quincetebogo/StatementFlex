@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -102,6 +102,8 @@ export class ExistingClient extends InsureViewBase {
 		this.lifeDocsToEmail = {};
 
 		this.showInsureSuccessToast = false;
+
+		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
 	}
 
 	// #endregion INITIALISATION
@@ -2188,6 +2190,7 @@ export class ExistingClient extends InsureViewBase {
 				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
+				.funeralCancelationReasons="${this.funeralCancelationReasons}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"
