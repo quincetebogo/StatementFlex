@@ -758,7 +758,7 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_lifeHealthQuestionsCompleted(e) {
-		if (this.lifeUpdateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+		if (this.lifeUpdateMode === LIFE_UPDATE_MODE.REISSUE) {
 			this.newOffer = e.detail.allowedCoverResults;
 			this.newOfferAnswers = e.detail.allowedCoverAnswers;
 		} else if (this.lifeUpdateMode === LIFE_UPDATE_MODE.INCREASE) {

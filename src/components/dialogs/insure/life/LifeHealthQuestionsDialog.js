@@ -119,7 +119,7 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Was it last question?
 		if (this.currentQuestionIndex === this.lifeHealthQuestions.questions.length - 1) {
-			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+			if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				const allowedCoverReq = {
 					answers: this.finalAnswers
 				};
@@ -174,7 +174,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_continueToAllocation() {
-		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 			this.dispatchEvent(new CustomEvent(`continue`, {
 				detail: {
 					allowedCoverResults: this.allowedCoverResults,
@@ -302,7 +302,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		${this.updateMode === LIFE_UPDATE_MODE.ALLOCATE ? html`
+		${this.updateMode === LIFE_UPDATE_MODE.REISSUE ? html`
 			${this.showQuestionnaireResults === false ? html`
 				${this._renderCustomRadioGroup()}` : html`
 				<div style="min-width: 350px; min-height: 140px;">
