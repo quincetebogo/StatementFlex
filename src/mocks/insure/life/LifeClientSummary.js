@@ -90,7 +90,7 @@ export const insureLifeClientSummary = {
 					"clientType": `Child`,
 					"guardianId": `GD01`,
 					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
-				},,				
+				},
 				{
 					"title": `Mr`,
 					"firstName": `Children 3`,
