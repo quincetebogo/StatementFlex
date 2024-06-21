@@ -692,6 +692,32 @@ export class InsureLifeService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Increase cover Premium Calc
+	 *
+	 * @param {Object} [calcIncreaseCoverPremiumRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeClacIncreaseCoverPremium(calcIncreaseCoverPremiumRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeCalcIncreaseCoverPremium`)) {
+			return this.mock(`insureLifeCalcIncreaseCoverPremium`, calcIncreaseCoverPremiumRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/calc-increase-premium`,
+			calcIncreaseCoverPremiumRequest,
+			this._setInsureHeaders(),
+			`lifeCalcIncreaseCoverPremium`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 	
 	// #endregion PUBLIC METHODS
 }

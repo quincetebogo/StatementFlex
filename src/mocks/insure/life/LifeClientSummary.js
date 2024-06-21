@@ -82,7 +82,6 @@ export const insureLifeClientSummary = {
 					"guardianId": `GD01`,
 					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
 				},
-				,
 				{
 					"title": `Mr`,
 					"firstName": `Children 3`,
@@ -177,6 +176,7 @@ export const insureLifeClientSummary = {
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
 			"canReIssue": false,
+			"canIncreaseCover": true,
 			"mandates": [
 				{
 					"accountName": `Mr SURNAME DEV`,
