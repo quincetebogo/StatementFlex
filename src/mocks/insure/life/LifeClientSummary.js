@@ -28,6 +28,15 @@ export const insureLifeClientSummary = {
 				"collectionDay": 1,
 				"mandateReference": `001020240604AF2D149D9C`
 			},
+			"arrears": [
+                {
+                    "arrearsID": `AR0000000284`,
+                    "arrearsPaymentStatus": `PENDING`,
+                    "arrearsPaymentDueAmount": `542.1000000000`,
+                    "arrearsPaymentDueDate": `2024-02-25T00:00:00+00:00`,
+                    "arrearsPaymentReceivedAmount": `0.0000000000`
+                }
+            ],
 			"pockets": [
 				{
 					"pocketType": `LumpSum`,
@@ -82,7 +91,6 @@ export const insureLifeClientSummary = {
 					"guardianId": `GD01`,
 					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
 				},
-				,
 				{
 					"title": `Mr`,
 					"firstName": `Children 3`,

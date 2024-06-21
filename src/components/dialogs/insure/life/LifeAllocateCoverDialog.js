@@ -1227,7 +1227,7 @@ class LifeAllocateCoverDialog extends Component {
 
 				this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
 			} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
-				const requestBeneficiaries = [];
+				let requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
 					if (newBene.onceOffPayoutBenefitAmount) {
