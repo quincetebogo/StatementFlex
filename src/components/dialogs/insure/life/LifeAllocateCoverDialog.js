@@ -149,7 +149,8 @@ class LifeAllocateCoverDialog extends Component {
 			executeLifeUpdatePolicy: { type: Object, state: true },
 			executeLifeUpdateDocument: { type: Object, state: true },
 			executeLifeUpdatePocket: { type: Object, state: true },
-			executeLifeIncreaseCover: { type: Object, state: true } 
+			executeLifeIncreaseCover: { type: Object, state: true },
+			getIncreaseCoverPremium: { type: Object, state: true }
 		};
 	}
 
@@ -451,7 +452,7 @@ class LifeAllocateCoverDialog extends Component {
 	 * Recalculate premium based on cover values
 	 * @returns {void}
 	 */
-	_recalculatePremium() {
+	async _recalculatePremium() {
 		if (isNullorEmpty(this.onceOffCoverValue) || isNaN(this.onceOffCoverValue)) {
 			this.onceOffCoverValue = 0;
 		}
@@ -493,6 +494,22 @@ class LifeAllocateCoverDialog extends Component {
 
 			this.calculatedPremium = monthlyPayoutTotal + lumpsumTotal + educationTotal + this.channelFee;
 		}
+
+		if (this.updateMode === LIFE_UPDATE_MODE.INCREASE && this.totalCoverAllocatedAllPockets >= 100000) {
+
+			const calcIncreasedPremiumRequest = {
+			"riskRate": this.newOffer.riskRate,
+  			"loading": this.newOffer.totalLoadingApplied,
+			"channelFee": this.newOffer.channelFee,
+			"totalCover": this.totalCoverAllocatedAllPockets,
+			"currentCover": this.currentPolicy.totalPolicySumAssured,
+			"currentPremium": this.currentPolicy.totalPremium
+			};
+			const newIncreasePremium = await this.getIncreaseCoverPremium(calcIncreasedPremiumRequest);
+			this.calculatedPremium = newIncreasePremium.newPremium;
+
+		}
+
 	}
 
 	/**

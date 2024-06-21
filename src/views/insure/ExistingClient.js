@@ -1355,7 +1355,16 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	//
+	async _getIncreaseCoverPremium(increaseCoverPremiumRequest) {
+		
+		const resp = await this.insureLifeService.lifeClacIncreaseCoverPremium(increaseCoverPremiumRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+
+	}
 
 	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
 		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
@@ -2191,6 +2200,7 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
+				.getIncreaseCoverPremium = "${(increaseCoverPremiumRequest) => this._getIncreaseCoverPremium(increaseCoverPremiumRequest)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"
