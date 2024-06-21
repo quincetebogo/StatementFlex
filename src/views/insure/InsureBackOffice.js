@@ -29,7 +29,7 @@ import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { DOCUMENT_TYPE, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -86,6 +86,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		this.isLifeQualifyingClient = false;
 		this.showInsureSuccessToast = false;
+
+		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_BACKOFFICE;
 	}
 
 	/**
@@ -1512,6 +1514,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.lifePolicies="${this.lifePolicies}" 
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
+				.funeralCancelationReasons="${this.funeralCancelationReasons}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"

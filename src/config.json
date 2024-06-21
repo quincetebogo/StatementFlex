@@ -57,7 +57,7 @@
 	"mock": {
 		"enabled": true,
 		"createIncident": {
-			"enabled" : false
+			"enabled" : true
 		},
 		"acceptCall": {
 			"enabled": true,
@@ -145,8 +145,12 @@
 			"positiveCase": false
 		},
 		"capitecConnectRechargeHistory": {
-			"enabled": true,
-			"positiveCase": true
+			"enabled": false,
+			"positiveCase": false
+		},
+		"capitecConnectAdvancesHistory": {
+			"enabled": false,
+			"positiveCase": false
 		},
 		"transactionHistory": {
 			"enabled": false,
@@ -437,7 +441,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -510,6 +514,14 @@
 		},
 		"insureLifeUpdatePocket": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeCoverAvailable": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIncreaseCover": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

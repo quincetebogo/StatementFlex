@@ -88,6 +88,20 @@ export const TITLE_OPTIONS = Object.freeze([
 ]);
 
 /**
+ * List of Child title's Insure supports
+ * 
+ * @readonly
+ * @enum {Object} TITLE_OPTIONS
+ */
+export const CHILD_TITLE_OPTIONS = Object.freeze([
+	{ code: `Mr`, text: `Mr` },
+	{ code: `Mrs`, text: `Mrs` },
+	{ code: `Ms`, text: `Ms` },
+	{ code: `Miss`, text: `Miss` }
+	
+]);
+
+/**
  * List of genders Insure supports
  * 
  * @readonly
@@ -139,22 +153,30 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 ]);
 
 /**
- * List of genders Insure supports
+ * List of cancel reasons for funeral - client care
  * 
  * @readonly
- * @enum {Object} CANCELATION_REASONS
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_CLIENTCARE
  */
-export const CANCELATION_REASONS = Object.freeze([
-
+export const CANCELATION_REASONS_FUNERAL_CLIENTCARE = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Other_Provider`, text: `Policy with other service provider` },
 	{ code: `Already_Covered`, text: `Already covered` },
 	{ code: `Confidential`, text: `Confidential` }
-	// { code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
-	// { code: `Audit`, text: `Internal audit compliance` },
-	// { code: `Invalid`, text: `Invalid policy` },
-	// { code: ``, text: `Global One savings account is closed` }
 ]);
+
+/**
+ * List of cancel reasons for funeral - backoffice
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_BACKOFFICE
+ */
+export const CANCELATION_REASONS_FUNERAL_BACKOFFICE = Object.freeze([
+	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
+	{ code: `Audit`, text: `Internal audit compliance` },
+	{ code: `Invalid`, text: `Invalid policy` }
+]);
+
 
 /**
  * List of cancelation reasons Life supports
@@ -227,7 +249,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	FUNERAL_CLIENT_POLICIES: 6,
 	LIFE_CANCEL_POLICY_DIALOG: 7,
 	LIFE_UPDATE_POLICY_DIALOG: 8,
-	LIFE_REISSUE_DIALOG: 9
+	LIFE_REISSUE_DIALOG: 9,
+	LIFE_INCREASE_COVER_DIALOG: 10
 });
 
 /**
@@ -395,7 +418,8 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	LAPSED: `Lapsed`,
 	NOT_TAKEN_UP: `NotTakenUp`,
 	CANCELLED: `Cancelled`,
-	OUT_OF_FORCE: `OutOfForce `
+	OUT_OF_FORCE: `OutOfForce`,
+	COOL_OFF: `CoolOff`
 });
 
 /**

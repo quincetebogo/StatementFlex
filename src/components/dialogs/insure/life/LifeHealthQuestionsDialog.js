@@ -1,5 +1,6 @@
 import { Component, css, html, unsafeHTML } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
+import { LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { formatCurrencyInsureCoverAmount } from 'app/utils/insureUtils';
 
@@ -25,6 +26,7 @@ class LifeHealthQuestionsDialog extends Component {
 		this.finalAnswers = [];
 		this.showQuestionnaireResults = false;
 		this.freeTextAnswerId = ``;
+		this.updateMode = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -39,6 +41,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @property {Object} allowedCoverResults Results from allowed cover call
 	 * @property {Boolean} enableNextButton Flag to control next button via current questions validation results
 	 * @property {Boolean} showQuestionnaireResults Flag to control results view
+	 * @property {function} executeLifeCoverAvailable callback function to execute increase cover call
 	 * 
 	 * @readonly
 	 * @static
@@ -51,7 +54,10 @@ class LifeHealthQuestionsDialog extends Component {
 			executeLifeAllowedCover: { type: Object, state: true },
 			allowedCoverResults: { type: Object, state: true },
 			enableNextButton: { type: Boolean, state: true },
-			showQuestionnaireResults: { type: Boolean, state: true }
+			showQuestionnaireResults: { type: Boolean, state: true },
+			updateMode: { type: String, state: true },
+			executeLifeCoverAvailable: { type: Object, state: true },
+			policy: { type: Object, state: true }
 		};
 	}
 
@@ -94,28 +100,13 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_setAnswer(groupId, answerId, answerDetail) {
-		console.log(`Setting answer`);
-		console.log(groupId);
-		console.log(answerId);
-		console.log(answerDetail);
-
-		// Map new
-		// if (e.detail.new === true) {
-			this.currentAnswerSingle = {
-				questionGroupId: groupId,
-				answerId: answerId,
-				answer: ``,
-				answerDetailDescription: answerDetail
-			};
-			this.enableNextButton = true;
-
-			// Set Selected
-			// radioButtons.forEach(radioButton => {
-			// 	if (radioButton.id === answerId) {
-			// 		radioButton.checked = true;
-			// 	}
-			// });
-		// }
+		this.currentAnswerSingle = {
+			questionGroupId: groupId,
+			answerId: answerId,
+			answer: true,
+			answerDetailDescription: answerDetail
+		};
+		this.enableNextButton = true;
 	}
 
 	/**
@@ -128,11 +119,19 @@ class LifeHealthQuestionsDialog extends Component {
 
 		// Was it last question?
 		if (this.currentQuestionIndex === this.lifeHealthQuestions.questions.length - 1) {
-			const allowedCoverReq = {
-				answers: this.finalAnswers
-			};
-			this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
-			this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
+			if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+				const allowedCoverReq = {
+					answers: this.finalAnswers
+				};
+				this.allowedCoverResults = await this.executeLifeAllowedCover(allowedCoverReq);
+				this.allowedCoverResults.message = this.allowedCoverResults.message.replaceAll(`'`, ``);
+			} else { // Increase cover
+				const coverAvailableReq = {
+					answers: this.finalAnswers
+				};
+				this.coverAvailableResults = await this.executeLifeCoverAvailable(coverAvailableReq);
+			}
+			
 			this.showQuestionnaireResults = true;
 			return;
 		}
@@ -162,19 +161,12 @@ class LifeHealthQuestionsDialog extends Component {
 		this.currentAnswersMultiple = [];
 		this.enableNextButton = false;
 
-		// Force set answer to first
-		// this._setAnswer({ detail: { new: true } }, this.currentQuestion.groupId, this.currentQuestion.answers[0].answerId, this.currentQuestion.answers[0].detail);
-		// const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
-		// radioButtons[0].checked = true;
-
 		// Clear all
 		const radioButtons = this.shadowRoot.querySelectorAll(`.visibleControl`);
 		radioButtons.forEach(radioButton => {
 			radioButton.checked = false;
 			radioButton.removeAttribute(`aria-checked`);
 		});
-
-		console.log(`this.finalAnswers: `, this.finalAnswers);
 	}
 
 	/**
@@ -182,12 +174,22 @@ class LifeHealthQuestionsDialog extends Component {
 	 * @returns {void}
 	 */
 	_continueToAllocation() {
-		this.dispatchEvent(new CustomEvent(`continue`, {
-			detail: {
-				allowedCoverResults: this.allowedCoverResults,
-				allowedCoverAnswers: this.finalAnswers
-			}
-		}));
+		if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			this.dispatchEvent(new CustomEvent(`continue`, {
+				detail: {
+					allowedCoverResults: this.allowedCoverResults,
+					allowedCoverAnswers: this.finalAnswers
+				}
+			}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`continue`, {
+				detail: {
+					increaseCoverResults: this.coverAvailableResults,
+					increaseCoverAnswers: this.finalAnswers
+				}
+			}));
+		}
+		
 	}
 
 	/**
@@ -254,6 +256,14 @@ class LifeHealthQuestionsDialog extends Component {
 					font-weight: bold;
 					font-size: 20px;
 				}
+
+				.body-box {
+					height: 90px;
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 17px;
+					--theme-container-padding-right: 16px;
+				}
 				`
 		];
 	}
@@ -292,6 +302,7 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
+		${this.updateMode === LIFE_UPDATE_MODE.REISSUE ? html`
 			${this.showQuestionnaireResults === false ? html`
 				${this._renderCustomRadioGroup()}` : html`
 				<div style="min-width: 350px; min-height: 140px;">
@@ -309,6 +320,37 @@ class LifeHealthQuestionsDialog extends Component {
 					<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>
 				</div>
 			`}
+		` : html`
+			${this.showQuestionnaireResults === false ? html`
+				${this._renderCustomRadioGroup()}` : html`
+					${this.policy.totalPolicySumAssured >= this.coverAvailableResults?.maximumAllowedCover ? html`
+					<capitec-content-box class="body-box">
+						<div >
+							<p>You do not qualify for an increase</p>
+						</div>
+					</capitec-content-box>
+						
+					` 
+					: html`
+						<div style="min-width: 350px; min-height: 140px;">
+							<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
+								<div class="offer-details-cell">
+									<div>Get up to</div>
+									<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.coverAvailableResults?.maximumAllowedCover))}</div>
+								</div>
+						
+								<div class="offer-details-cell">
+									<div>Monthly Premium</div>
+									<div class="offer-details-value">${formatCurrency(this.coverAvailableResults?.maximumPremium)}</div>
+								</div>
+							</div>
+							<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>
+						</div>
+					`}
+				
+			`}
+		`}
+			
 		`;
 	}
 
@@ -366,9 +408,14 @@ class LifeHealthQuestionsDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
+
+			${this.policy.totalPolicySumAssured >= this.coverAvailableResults?.maximumAllowedCover ? html`
+				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Confirm" @click="${() => this._cancelClick()}">
+				</capitec-button>
+			`
+			: html`
 				<capitec-button class="capitec-button-small" slot="footer" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 				</capitec-button>
-
 				${this.showQuestionnaireResults === false ? html`
 					<capitec-button .disabled="${!this.enableNextButton}" class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextQuestion()}">
 					</capitec-button>
@@ -376,6 +423,7 @@ class LifeHealthQuestionsDialog extends Component {
 					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Continue" @click="${() => this._continueToAllocation()}">
 					</capitec-button>
 				`}
+			`}
 		`;
 	}
 

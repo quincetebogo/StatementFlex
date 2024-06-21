@@ -92,7 +92,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.originalBeneficiary = JSON.parse(JSON.stringify(this.updatingBeneficiary));
-		for (const bene of this.policy.beneficiaries) {
+		const policyCopy = JSON.parse(JSON.stringify(this.policy));
+		for (const bene of policyCopy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.metaData.monthlyBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
 			}
@@ -102,6 +103,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			}
 		}
 		this._calculateCoverBreakdown();
+
+		this.originalPocketBeneficiaries = JSON.parse(JSON.stringify(this.pocketBeneficiaries));
 	}
 
 	/**
@@ -265,7 +268,7 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.idNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
+			// this._validateBeneficiaryDetails();
 		}
 
 		if (this.updatingBeneficiary.idNumber.length === 13) {
@@ -292,14 +295,13 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
-			console.log('bene :>> ', bene);
 			bene.metaData.coverErrorMsg = ``;
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.onceOffPayoutBenefitAmount < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -337,14 +339,21 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 */
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
-			const value = e.detail.new;
-			console.log('value :>> ', value);
-			console.log('this.selectedPocketType :>> ', this.selectedPocketType);
+			let value = e.detail.new;
+			if (isNaN(value) || value === `` || value < 0) {
+				value = 0;
+			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				bene.monthlyPayoutBenefitAmount = parseFloat(value);
+				if (bene.monthlyPayoutBenefitAmount >= 1000) {
+					bene.metaData.coverErrorMsg = ``;
+				}
 			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF) {
 				bene.onceOffPayoutBenefitAmount = parseFloat(value);
+				if (bene.monthlyPayoutBenefitAmount >= 1000) {
+					bene.metaData.coverErrorMsg = ``;
+				}
 			}
 			this._calculateCoverBreakdown();
 		}
@@ -438,6 +447,15 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		this.pocketBeneficiaries = this.originalPocketBeneficiaries;
+
+		
+		for (let i = 0; i < this.pocketBeneficiaries.length; i++) {
+			if (this.pocketBeneficiaries[i].metaData?.coverErrorMsg === VALIDATION_ERRORS.BENEFICIARY_MINIMUM) {
+				this.pocketBeneficiaries[i].metaData.coverErrorMsg = ``;
+			}
+		}
+		
 		this.updatingBeneficiary = this.originalBeneficiary;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { beneficiary: this.updatingBeneficiary } }));
 	}
@@ -447,6 +465,9 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_updateClick() {
+
+		this.policy.beneficiaries = this.pocketBeneficiaries;
+
 		const allocationValid = this._validateAllocateCover();
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`update-beneficiary`, {

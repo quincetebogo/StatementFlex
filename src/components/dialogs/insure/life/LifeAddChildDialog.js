@@ -1,5 +1,5 @@
+import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -10,7 +10,7 @@ const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
@@ -21,10 +21,10 @@ const VALIDATION_ERRORS = {
 };
 
 const STEPS = {
-	CHILD_DETAILS: 1,
-	NEW_OR_EXISTING_GUARDIAN: 2,
-	GUARDIAN_DETAILS: 3,
-	MONEY_ALLOCATION: 4
+	SETP_1: 1,
+	STEP_2: 2,
+	STEP_3: 3,
+	STEP_4: 4
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -47,11 +47,11 @@ class LifeAddChildDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = 1;
+		this.currentStep = STEPS.SETP_1;
 		this.policy = {};
 		this.selectedPocket = {};
 
-		this.newGuardianType = NEW_BENEFICIARY_TYPES.UNSET;
+		this.newGuardianType = NEW_BENEFICIARY_TYPES.NEW;
 
 		this.pocketBeneficiaries = [];
 		this.newChild = {};
@@ -68,8 +68,12 @@ class LifeAddChildDialog extends Component {
 
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.childTitleOptions = CHILD_TITLE_OPTIONS;
 		this.beneficiaryRelationships = LIFE_BENEFICIARY_RELATIONSHIP_TYPES;
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
+
+		this.isLastStep = false;
+		this.guardianExists = false;
 	}
 
 	// #endregion INITIALIZE
@@ -97,7 +101,10 @@ class LifeAddChildDialog extends Component {
 			selectedPocketType: { type: String, state: true },
 
 			totalPocketCover: { type: Number, state: true },
-			pocketRemainingCover: { type: Number, state: true }
+			pocketRemainingCover: { type: Number, state: true },
+
+			guardianExists: { type: Boolean, state: true },
+			isLastStep: { type: Boolean, state: false }
 		};
 	}
 
@@ -129,15 +136,19 @@ class LifeAddChildDialog extends Component {
 		const sortedEligible = eligible.sort((a, b) => {
 			if (a.firstName < b.firstName) {
 				return -1;
-			  }
-			  if (a.firstName > b.firstName) {
+			}
+			if (a.firstName > b.firstName) {
 				return 1;
-			  }
-			  return 0;
-			});
+			}
+			return 0;
+		});
 
 		this.eligibleGuardiansForQuickAdd = sortedEligible;
-		
+
+		if (this.eligibleGuardiansForQuickAdd?.length > 0) {
+			this.guardianExists = true;
+		}
+
 		// Add all existing children or new one to list
 		if (this.policy.beneficiaries.length > 0) {
 			for (const bene of this.policy.beneficiaries) {
@@ -160,28 +171,37 @@ class LifeAddChildDialog extends Component {
 	 */
 	_calculateCoverBreakdown() {
 		let totalAllocated = 0;
-
-		console.log(`_calculateCoverBreakdown`);
-		console.log(`this.pocketBeneficiaries`);
-		console.log(this.pocketBeneficiaries);
-		console.log(`this.pocketBeneficiaries.length: ${this.pocketBeneficiaries.length}`);
 		for (const bene of this.pocketBeneficiaries) {
 			if (bene.metaData.educationBenefitAdded) {
-				console.log(`found a child: ${bene.firstName}`);
 				totalAllocated += bene.educationBenefitAmount === `` ? 0 : parseFloat(bene.educationBenefitAmount);
 			}
 		}
 
-		console.log(`totalAllocated after looping pocketBeneficiaries: ${totalAllocated}`);
-
-		// New Beneficiary?
+		// New Beneficiary
 		if (this.newChild !== null) {
 			totalAllocated += this.newChild.educationBenefitAmount === `` ? 0 : parseFloat(this.newChild.educationBenefitAmount);
 		}
-
-		console.log(`totalAllocated after new child: ${totalAllocated}`);
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
-		console.log(`this.pocketRemainingCover after calc: ${this.pocketRemainingCover}`);
+	}
+
+	/**
+	 * Update the current step based on the available guardians
+	 * @returns {void}
+	 */
+	_updateCurrentStep() {
+		this.isLastStep = false;
+
+		if (this.guardianExists) {
+			if (this.currentStep === STEPS.STEP_3) {
+				this.isLastStep = true;
+			}
+		} else if (!this.guardianExists) {
+			if (this.currentStep === STEPS.STEP_2) {
+				this.isLastStep = true;
+			}
+		}
+
+		this.currentStep++;
 	}
 
 	/**
@@ -190,13 +210,12 @@ class LifeAddChildDialog extends Component {
 	 */
 	_determineSteps() {
 		let steps = [];
-		if (this.eligibleGuardiansForQuickAdd.length > 0) {
-			console.log(`There are some`);
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		if (this.guardianExists) {
+			steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		} else {
-			console.log(`Nope none`);
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		}
+
 		return steps;
 	}
 
@@ -209,6 +228,7 @@ class LifeAddChildDialog extends Component {
 		this.newGuardianType = NEW_BENEFICIARY_TYPES.NEW;
 		this.newGuardian = {};
 		this.newOrExistingErrorMessage = ``;
+		this.newGuardianErrors = {};
 	}
 
 	/**
@@ -220,6 +240,7 @@ class LifeAddChildDialog extends Component {
 	_continueWithExistingGuardian(guardian) {
 		this.newGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
 		this.newOrExistingErrorMessage = ``;
+		this.newGuardianErrors = {};
 		this.newGuardian = guardian;
 	}
 
@@ -242,28 +263,24 @@ class LifeAddChildDialog extends Component {
 	_nextClick() {
 		let isValid = false;
 
-		if (this.currentStep === STEPS.CHILD_DETAILS) {
+		if (this.currentStep === STEPS.SETP_1) {
 			isValid = this._validateChildStep();
-			console.log(`Child validations is: ${isValid}`);
-		} else if (this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN) {
+		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
-				this.newOrExistingErrorMessage = `Please select an existing guardian or add a new one`;
+				this.newOrExistingErrorMessage = `Please select an existing caregiver or add a new one`;
 			} else {
 				this.newOrExistingErrorMessage = ``;
 				isValid = true;
 			}
-		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+		} else if (this.guardianExists && this.currentStep === STEPS.STEP_3) {
 			isValid = this._validateGuardianStep();
-			console.log(`Guardian validations is: ${isValid}`);
+		}
+		else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
+			isValid = this._validateGuardianStep();
 		}
 
 		if (isValid) {
-			if (this.eligibleGuardiansForQuickAdd.length === 0 && this.currentStep === STEPS.CHILD_DETAILS) {
-				this.currentStep = STEPS.GUARDIAN_DETAILS;
-			} else {
-				this.currentStep++;
-			}
-
+			this._updateCurrentStep();
 		}
 	}
 
@@ -273,10 +290,7 @@ class LifeAddChildDialog extends Component {
 	 */
 	_addClick() {
 		const allocationValid = this._validateAllocateCover();
-
-		console.log(`allocationValid: ${allocationValid}`);
 		if (allocationValid === true) {
-			console.log(`add-child event`);
 			this.dispatchEvent(new CustomEvent(`add-child`, {
 				detail: {
 					child: this.newChild,
@@ -297,7 +311,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newChild?.title)) {
 			this.newChildErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newChild?.titlesss`);
 		} else {
 			this.newChildErrors.title = ``;
 		}
@@ -305,7 +318,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newChild?.gender)) {
 			this.newChildErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newChild?.gender`);
 		} else {
 			this.newChildErrors.gender = ``;
 		}
@@ -313,7 +325,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newChild?.firstName)) {
 			this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newChild?.firstName`);
 		} else {
 			this.newChildErrors.firstName = ``;
 		}
@@ -321,7 +332,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newChild?.lastName)) {
 			this.newChildErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newChild?.lastName`);
 		} else {
 			this.newChildErrors.lastName = ``;
 		}
@@ -347,7 +357,6 @@ class LifeAddChildDialog extends Component {
 		if (this.newChild.dateOfBirth === undefined || this.newChild.dateOfBirth === ``) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newChild?.dateOfBirth`);
 		} else if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 			stepValid = false;
@@ -393,7 +402,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newGuardian?.title)) {
 			this.newGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newGuardian?.title`);
 		} else {
 			this.newGuardianErrors.title = ``;
 		}
@@ -401,7 +409,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newGuardian?.gender)) {
 			this.newGuardianErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newGuardian?.gender`);
 		} else {
 			this.newGuardianErrors.gender = ``;
 		}
@@ -409,7 +416,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newGuardian?.firstName)) {
 			this.newGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newGuardian?.firstName`);
 		} else {
 			this.newGuardianErrors.firstName = ``;
 		}
@@ -417,7 +423,6 @@ class LifeAddChildDialog extends Component {
 		if (isNullorEmpty(this.newGuardian?.lastName)) {
 			this.newGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-			console.log(`Issue with newGuardian?.lastName`);
 		} else {
 			this.newGuardianErrors.lastName = ``;
 		}
@@ -434,32 +439,24 @@ class LifeAddChildDialog extends Component {
 
 		if (isNullorEmpty(this.newGuardian?.relationship)) {
 			this.newGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
-			console.log(`Issue with newGuardian?.relationship`);
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.relationship = ``;
 		}
 
-		console.log(`Validating Guardian DOB`);
-		console.log(this.newGuardian.dateOfBirth);
 		if (this.newGuardian.dateOfBirth === undefined || this.newGuardian.dateOfBirth === ``) {
-			console.log(`Validating Guardian: 1`);
 			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
-			console.log(`Issue with newGuardian?.dateOfBirth`);
 			stepValid = false;
 		} else if (getAgeFromDob(this.newGuardian?.dateOfBirth) < 18) {
-			console.log(`Validating Guardian: 2`);
 			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
 			stepValid = false;
 		} else {
-			console.log(`Validating Guardian: 3`);
 			this.newGuardianErrors.dateOfBirth = ``;
 		}
 
 		if (!isNullorEmpty(this.newGuardian.idNumber)) {
 			if (this.newGuardian.idNumber.length !== 13) {
 				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
-				console.log(`Issue with newGuardian?.idNumber`);
 				stepValid = false;
 			} else {
 				this.newGuardianErrors.idNumber = ``;
@@ -497,11 +494,18 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000)) {
+			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 		});
+
+		// Validate in flight child
+		this.newChild.metaData.coverErrorMsg = ``;
+		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < 1000) {
+			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+			beneficiariesValid = false;
+		}
 
 		if (beneficiariesValid === false) {
 			this.requestUpdate();
@@ -538,7 +542,6 @@ class LifeAddChildDialog extends Component {
 				this.newChild.educationBenefitAmount = value;
 				this.newChild.metaData.educationBenefitAdded = true;
 			} else {
-				console.log(`_beneficiaryCoverAmountChange: ${value}`);
 				bene.educationBenefitAmount = value;
 				bene.metaData.educationBenefitAdded = true;
 			}
@@ -554,17 +557,19 @@ class LifeAddChildDialog extends Component {
 	 */
 	_backClick() {
 		this.currentStep--;
+		this.isLastStep = false;
+
 		// if (this.currentStep === STEPS.MONEY_ALLOCATION) {
-		// 	if (this.isChild) {
-		// 		this.currentStep = STEPS.GUARDIAN_DETAILS;
-		// 	} else {
-		// 		this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
-		// 		this.currentStep = STEPS.BENEFICIARY_DETAILS;
-		// 	}
+		// if (this.isChild) {
+		// this.currentStep = STEPS.GUARDIAN_DETAILS;
+		// } else {
+		// this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
+		// this.currentStep = STEPS.BENEFICIARY_DETAILS;
+		// 
 
 		// } else {
-		// 	this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
-		// 	this.currentStep = STEPS.BENEFICIARY_DETAILS;
+		// this.pocketBeneficiaries.splice(this.pocketBeneficiaries.length - 1, 1);
+		// this.currentStep = STEPS.BENEFICIARY_DETAILS;
 		// }
 	}
 
@@ -578,10 +583,10 @@ class LifeAddChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.newChild.title = e.detail.new.code;
-				if (this.newChild.title === `Mr` || this.newChild.title === `Sir`) {
+				if (this.newChild.title === `Mr`) {
 					this.newChild.gender = `Male`;
 					this.newChildErrors.gender = ``;
-				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss` || this.newChild.title === `Lady`) {
+				} else if (this.newChild.title === `Mrs` || this.newChild.title === `Ms` || this.newChild.title === `Miss`) {
 					this.newChild.gender = `Female`;
 					this.newChildErrors.gender = ``;
 				}
@@ -725,11 +730,8 @@ class LifeAddChildDialog extends Component {
 				}
 			} else {
 				this.newGuardian.idNumber = e.detail.new;
-				console.log('this.newGuardian.idNumber  :>> ', this.newGuardian.idNumber);
 				if (this.newGuardian.idNumber.length === 13) {
-					console.log(`this.newGuardian.idNumber.length === 13`);
 					this.newGuardian.dateOfBirth = getDobFromIDNumber(this.newGuardian.idNumber);
-					console.log('this.newGuardian.dateOfBirth :>> ', this.newGuardian.dateOfBirth);
 					this.newGuardianErrors.dateOfBirth = ``;
 					this.newGuardianErrors.idNumber = ``;
 				}
@@ -970,23 +972,39 @@ class LifeAddChildDialog extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDialogBody() {
-		return html`
+		return this.guardianExists ? html`
+		<capitec-stepper
+					layout="horizontal"
+					.steps="${this._determineSteps()}"
+					active-step-number="${this.currentStep}">
+				</capitec-stepper>
+
+			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+				${this._renderChildDetails()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
+				${this._renderNewOrExistingQuickAdd()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_3 ? `display: block` : `display: none`}">
+				${this._renderGuardianDetails()}
+			</div>
+			<div style="${this.currentStep === STEPS.STEP_4 ? `display: block` : `display: none`}">
+				${this._renderMoneyAllocation()}
+			</div>`
+			: html`
 			<capitec-stepper
 				layout="horizontal"
 				.steps="${this._determineSteps()}"
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN ? `display: block` : `display: none`}">
-				${this._renderNewOrExistingQuickAdd()}
-			</div>
-			<div style="${this.currentStep === STEPS.CHILD_DETAILS ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
-			<div style="${this.currentStep === STEPS.GUARDIAN_DETAILS ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
 				${this._renderGuardianDetails()}
 			</div>
-			<div style="${this.currentStep === STEPS.MONEY_ALLOCATION ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_3 ? `display: block` : `display: none`}">
 				${this._renderMoneyAllocation()}
 			</div>`;
 	}
@@ -1011,7 +1029,7 @@ class LifeAddChildDialog extends Component {
 				<horizon-product-tile
 					type="radio-button"
 					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
+					subtitle="Add a new caregiver for this child"
 					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
 					@click="${() => this._continueWithNewGuardian()}">
 				</horizon-product-tile>
@@ -1028,7 +1046,7 @@ class LifeAddChildDialog extends Component {
 						type="radio-button"
 						label="${`${guardian.firstName} ${guardian.lastName}`}"
 						subtitle="${guardian.relationship}"
-						?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
+						?selected="${this.newGuardian.firstName === guardian.firstName}"
 						@click="${() => this._continueWithExistingGuardian(guardian)}">
 					</horizon-product-tile>
 				`)}
@@ -1062,7 +1080,7 @@ class LifeAddChildDialog extends Component {
 					id-field="code" style="width: 50%" 
 					value="${this.newChild?.title}"
 					error="${this.newChildErrors?.title === undefined ? `` : this.newChildErrors.title}"
-					.items="${this.titleOptions}" 
+					.items="${this.childTitleOptions}" 
 					@value-changed="${(e) => this._titleChange(e, true)}">
 				</capitec-select>
 
@@ -1311,6 +1329,7 @@ class LifeAddChildDialog extends Component {
 						type="currency" 
 						class="pocket-details-input pocket-details-label" 
 						label=""
+						.error="${this.newChild?.metaData?.coverErrorMsg}"
 						value="${this._beneficiaryCoverValue(this.newChild)}"
 						@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, null)}">
 					</capitec-text-field>
@@ -1333,6 +1352,7 @@ class LifeAddChildDialog extends Component {
 								class="pocket-details-input pocket-details-label" 
 								label=""
 								value="${this._beneficiaryCoverValue(bene)}"
+								.error="${bene.metaData.coverErrorMsg}"
 								@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}">
 							</capitec-text-field>
 						</div>
@@ -1349,7 +1369,7 @@ class LifeAddChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.CHILD_DETAILS ? html`
+				${this.currentStep === STEPS.SETP_1 ? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 					</capitec-button>
 				` : html`
@@ -1357,11 +1377,12 @@ class LifeAddChildDialog extends Component {
 						</capitec-button>
 				`}
 				
-				${this.currentStep !== STEPS.MONEY_ALLOCATION ? html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
+				${this.isLastStep
+				? html`
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
 					</capitec-button>
 				` : html`
-					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Add" @click="${() => this._addClick()}">
+					<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
 					</capitec-button>
 				`}
 		`;

@@ -1,9 +1,10 @@
+import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { v4 } from 'uuid';
 
 const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
@@ -13,8 +14,9 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
-	INVALID_EMAIL: `Enter a valid email address`
+	INVALID_EMAIL: `Enter a valid email address`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
+	BENE_UNDER_18: `Beneficiary must be under 18`
 };
 
 const STEPS = {
@@ -22,6 +24,12 @@ const STEPS = {
 	NEW_OR_EXISTING_GUARDIAN: 2,
 	GUARDIAN_DETAILS: 3,
 	MONEY_ALLOCATION: 4
+};
+
+const NEW_BENEFICIARY_TYPES = {
+	NEW: `NEW`,
+	EXISTING: `EXISTING`,
+	UNSET: `UNSET`
 };
 
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
@@ -47,8 +55,14 @@ class LifeUpdateChildDialog extends Component {
 		this.childErrors = {};
 		this.pocketBeneficiaries = [];
 
+		this.updatingGuardian = {};
+		this.updatingGuardianErrors = {};
+
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
+
 		this.beneficiaryDetailsErrorMessage = ``;
 		this.allocateMoneyErrorMessage = ``;
+		this.newOrExistingErrorMessage = ``;
 
 		this.totalPocketCover = 0;
 		this.pocketRemainingCover = 0;
@@ -57,6 +71,7 @@ class LifeUpdateChildDialog extends Component {
 		this.childBeneficiaryRelationships = LIFE_CHILD_RELATIONSHIP_TYPES;
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
+		this.childTitleOptions = CHILD_TITLE_OPTIONS;
 	}
 
 	// #endregion INITIALIZE
@@ -72,6 +87,7 @@ class LifeUpdateChildDialog extends Component {
 			eligibleGuardiansForQuickAdd: { type: Array, state: true },
 			updatingChild: { type: Object, state: true },
 			updatingGuardian: { type: Object, state: true },
+			updatingGuardianErrors: { type: Object, state: true },
 			pocketRemainingCover: { type: Number, state: true },
 			policy: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
@@ -103,18 +119,8 @@ class LifeUpdateChildDialog extends Component {
 
 	initialise() {
 		this.eligibleGuardiansForQuickAdd = this.policy.guardians ?? [];
-
-		// Find guardian of current editing child / remove from quick add
-		this.updatingGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.id === this.updatingChild.guardianId);
-		if (this.updatingGuardian) {
-			const index = this.eligibleGuardiansForQuickAdd.indexOf(this.updatingGuardian);
-			this.eligibleGuardiansForQuickAdd.splice(index, 1);
-		}
-
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.NEW;
 		this.originalChild = JSON.parse(JSON.stringify(this.updatingChild));
-
-		console.log(`this.originalChild`);
-		console.log(this.originalChild);
 		for (const bene of this.policy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && bene.metaData.educationBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
@@ -143,32 +149,74 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_determineSteps() {
 		let steps = [];
-		if (this.eligibleGuardiansForQuickAdd.length > 0) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
-		}
+
+		steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
+
 		return steps;
+	}
+
+	/**
+	 * Continue with new Guardian
+	 * 
+	 * @returns {void}
+	 */
+	_continueWithNewGuardian() {
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.NEW;
+		this.updatingGuardian = {
+			guardianId: v4()
+		};
+		this.updatingGuardianErrors = {};
+		this.updatingChild.guardianId = this.updatingGuardian.guardianId;
+		this.newOrExistingErrorMessage = ``;
+	}
+
+	/**
+	 * Continue with existing Guardian
+	 * 
+	 * @param {Object} guardian guardian being modified
+	 * @returns {void} 
+	 */
+	_continueWithExistingGuardian(guardian) {
+		this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
+		this.newOrExistingErrorMessage = ``;
+		this.updatingGuardianErrors = {};
+		this.updatingGuardian = guardian;
+		this.updatingChild.guardianId = this.updatingGuardian.guardianId;
 	}
 
 	/**
 	 * Event fired when a beneficiary TITLE value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_titleChange(e) {
+	_titleChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.title = e.detail.new.code;
-			if (this.updatingChild.title === `Mr` || this.updatingChild.title === `Sir`) {
-				this.updatingChild.gender = `Male`;
-				this.childErrors.gender = ``;
-			} else if (this.updatingChild.title === `Mrs` || this.updatingChild.title === `Ms` || this.updatingChild.title === `Miss` || this.updatingChild.title === `Lady`) {
-				this.updatingChild.gender = `Female`;
-				this.childErrors.gender = ``;
+			if (beneficiary) {
+				this.updatingChild.title = e.detail.new.code;
+				if (this.updatingChild.title === `Mr`) {
+					this.updatingChild.gender = `Male`;
+					this.childErrors.gender = ``;
+				} else if (this.updatingChild.title === `Mrs` || this.updatingChild.title === `Ms` || this.updatingChild.title === `Miss`) {
+					this.updatingChild.gender = `Female`;
+					this.childErrors.gender = ``;
+				}
+				if (!isNullorEmpty(this.updatingChild.title)) {
+					this.childErrors.title = ``;
+				}
+			} else {
+				this.updatingGuardian.title = e.detail.new.code;
+				if (this.updatingGuardian.title === `Mr` || this.updatingGuardian.title === `Sir`) {
+					this.updatingGuardian.gender = `Male`;
+					this.updatingGuardianErrors.gender = ``;
+				} else if (this.updatingGuardian.title === `Mrs` || this.updatingGuardian.title === `Ms` || this.updatingGuardian.title === `Miss` || this.updatingGuardian.title === `Lady`) {
+					this.updatingGuardian.gender = `Female`;
+					this.updatingGuardianErrors.gender = ``;
+				}
+				if (!isNullorEmpty(this.updatingGuardian.title)) {
+					this.updatingGuardianErrors.title = ``;
+				}
 			}
-		}
-		if (!isNullorEmpty(this.updatingChild.title)) {
-			this.childErrors.title = ``;
 		}
 		this.requestUpdate();
 	}
@@ -176,29 +224,52 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary GENDER value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_genderChange(e) {
+	_genderChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.gender = e.detail.new.code;
+			if (beneficiary) {
+				this.updatingChild.gender = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingChild.gender)) {
+					this.childErrors.gender = ``;
+				}
+			} else {
+				this.updatingGuardian.gender = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingGuardian.gender)) {
+					this.updatingGuardianErrors.gender = ``;
+				}
+			}
+			
 		}
-		if (!isNullorEmpty(this.updatingChild.gender)) {
-			this.childErrors.gender = ``;
-		}
+		
 		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary FIRST NAME value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_firstNameChange(e) {
+	_firstNameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.firstName = e.detail.new;
-			if (!isNullorEmpty(this.updatingChild.firstName)) {
-				this.childErrors.firstName = ``;
+			if (beneficiary) {
+				this.updatingChild.firstName = e.detail.new;
+				if (isNullorEmpty(this.updatingChild.firstName)) {
+					this.childErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.firstName = ``;
+				}
+			} else {
+				this.updatingGuardian.firstName = e.detail.new;
+				if (isNullorEmpty(this.updatingGuardian.firstName)) {
+					this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.firstName = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -206,14 +277,27 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary SURNAME value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_surnameChange(e) {
+	_surnameChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.lastName = e.detail.new;
-			if (!isNullorEmpty(this.updatingChild.lastName)) {
-				this.childErrors.lastName = ``;
+			if (beneficiary) {
+				this.updatingChild.lastName = e.detail.new;
+				if (isNullorEmpty(this.updatingChild.lastName)) {
+					this.childErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.lastName = ``;
+				}
+			} else {
+				this.updatingGuardian.lastName = e.detail.new;
+				if (isNullorEmpty(this.updatingGuardian.lastName)) {
+					this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.lastName = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -221,33 +305,72 @@ class LifeUpdateChildDialog extends Component {
 	/**
 	 * Event fired when a beneficiary RELATIONSHIP value changes
 	 * @param {*} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_relationshipChange(e) {
+	_relationshipChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.relationship = e.detail.new.code;
+			if (beneficiary) {
+				this.updatingChild.relationship = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingChild.relationship)) {
+					this.childErrors.relationship = ``;
+				}
+			} else {
+				this.updatingGuardian.relationship = e.detail.new.code;
+				if (!isNullorEmpty(this.updatingGuardian.relationship)) {
+					this.updatingGuardianErrors.relationship = ``;
+				}
+			}
+			
 		}
+		this.requestUpdate();
 	}
 
 	/**
 	 * Event fired when a beneficiary DoB value changes
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_dobChange(e) {
+	_dobChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.dateOfBirth = e.detail.new.date;
-			const wrongTimeZone = this.updatingChild.dateOfBirth.includes(`+02:00`);
-			if (wrongTimeZone === true) {
-				let dob = this.updatingChild.dateOfBirth;
-				const timezone = `+02:00`;
-				dob = dob.replace(timezone, ``);
-				this.updatingChild.dateOfBirth = dob;
-			} else {
+			if (beneficiary) {
 				this.updatingChild.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.updatingChild.dateOfBirth.includes(`+02:00`);
+				if (wrongTimeZone === true) {
+					let dob = this.updatingChild.dateOfBirth;
+					const timezone = `+02:00`;
+					dob = dob.replace(timezone, ``);
+					this.updatingChild.dateOfBirth = dob;
+				} 
+				if (isNullorEmpty(this.updatingChild.dateOfBirth)) {
+					this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.childErrors.dateOfBirth = ``;
+				}
+				if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+					this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+				}
+			} else {
+				this.updatingGuardian.dateOfBirth = e.detail.new.date;
+				const wrongTimeZone = this.updatingGuardian.dateOfBirth.includes(`+02:00`);
+				if (wrongTimeZone === true) {
+					let dob = this.updatingGuardian.dateOfBirth;
+					const timezone = `+02:00`;
+					dob = dob.replace(timezone, ``);
+					this.updatingGuardian.dateOfBirth = dob;
+				}
+				if (isNullorEmpty(this.updatingGuardian.dateOfBirth)) {
+					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+				} else {
+					this.updatingGuardianErrors.dateOfBirth = ``;
+				}
+				if (getAgeFromDob(this.updatingGuardian.dateOfBirth) < 18) {
+					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+				}
 			}
 
-			this._validateBeneficiaryDetails();
+			// this._validateBeneficiaryDetails();
 		}
 		this.requestUpdate();
 	}
@@ -256,14 +379,29 @@ class LifeUpdateChildDialog extends Component {
 	 * Event fired when a beneficiary CELL NUMBER value changes
 	 * 
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_cellphoneNumChange(e) {
+	_cellphoneNumChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.contactNumber = e.detail.new;
-			if (this.updatingChild.contactNumber.length === 10) {
-				this.childErrors.contactNumber = ``;
+			if (beneficiary) {
+				this.updatingChild.contactNumber = e.detail.new;
+				if (this.updatingChild.contactNumber.length === 10) {
+					this.childErrors.contactNumber = ``;
+				}
+				if (!isNullorEmpty(this.newChild.contactNumber)) {
+					this.childErrors.contactNumber = ``;
+				}
+			} else {
+				this.updatingGuardian.contactNumber = e.detail.new;
+				if (this.updatingGuardian.contactNumber.length === 10) {
+					this.updatingGuardianErrors.contactNumber = ``;
+				}
+				if (!isNullorEmpty(this.updatingGuardian.contactNumber)) {
+					this.updatingGuardianErrors.contactNumber = ``;
+				}
 			}
+			
 		}
 		this.requestUpdate();
 	}
@@ -272,16 +410,39 @@ class LifeUpdateChildDialog extends Component {
 	 * Event fired when a beneficiary ID NUMBER value changes
 	 * 
 	 * @param {event} e e
+	 * @param {Boolean} beneficiary beneficiary
 	 * @returns {void}
 	 */
-	_idChange(e) {
+	_idChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
-			this.updatingChild.idNumber = e.detail.new;
-		}
+			if (beneficiary) {
+				this.updatingChild.idNumber = e.detail.new;
+				if (this.updatingChild.idNumber.length === 13) {
+					this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
+					this.childErrors.idNumber = ``;
+					if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					} else {
+						this.childErrors.dateOfBirth = ``;
+					}
 
-		if (this.updatingChild.idNumber.length === 13) {
-			this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
-			this.childErrors.idNumber = ``;
+					;
+				}
+			} else {
+				this.updatingGuardian.idNumber = e.detail.new;
+				if (this.updatingGuardian.idNumber.length === 13) {
+					this.updatingGuardian.dateOfBirth = getDobFromIDNumber(this.updatingGuardian.idNumber);
+					this.updatingGuardianErrors.idNumber = ``;
+					if (getAgeFromDob(this.updatingChild.dateOfBirth) < 18) {
+						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+					} else {
+						this.updatingGuardianErrors.dateOfBirth = ``;
+					}
+					
+				}
+			}
+			
+
 		}
 		this.requestUpdate();
 	}
@@ -304,7 +465,7 @@ class LifeUpdateChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION && (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000)) {
+			if (parseFloat(bene.educationBenefitAmount) < 1000 && parseFloat(bene.educationBenefitAmount) !== 0) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -339,7 +500,10 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
-			const value = e.detail.new;
+			let value = e.detail.new;
+			if (isNaN(value) || value === `` || value < 0) {
+				value = 0;
+			}
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.EDUCATION) {
 				bene.educationBenefitAmount = value;
 			}
@@ -369,12 +533,13 @@ class LifeUpdateChildDialog extends Component {
 			this.childErrors.lastName = ``;
 		}
 
-		if (isNullorEmpty(this.updatingChild?.contactNumber)) {
-			this.childErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
-			stepValid = false;
-		} else if (this.updatingChild?.contactNumber.length !== 10) {
-			this.childErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
-			stepValid = false;
+		if (!isNullorEmpty(this.updatingChild?.contactNumber)) {
+			if (this.updatingChild?.contactNumber.length < 10) {
+				this.childErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+				stepValid = false;
+			} else {
+				this.childErrors.contactNumber = ``;
+			}
 		} else {
 			this.childErrors.contactNumber = ``;
 		}
@@ -382,8 +547,11 @@ class LifeUpdateChildDialog extends Component {
 		if (this.updatingChild.dateOfBirth === undefined || this.updatingChild.dateOfBirth === ``) {
 			this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (getAgeFromDob(this.updatingChild?.dateOfBirth) < 18) {
-			this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+		} else if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+			this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+			stepValid = false;
+		} else if (new Date(this.childErrors.dateOfBirth) > new Date()) {
+			this.childErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
 			stepValid = false;
 		} else {
 			this.childErrors.dateOfBirth = ``;
@@ -413,13 +581,106 @@ class LifeUpdateChildDialog extends Component {
 	}
 
 	/**
+	 *  Validate guardian step
+	 * @returns {void}
+	 */
+	_validateGuardianStep() {
+		let stepValid = true;
+
+		if (isNullorEmpty(this.updatingGuardian?.title)) {
+			this.updatingGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.title = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.gender)) {
+			this.updatingGuardianErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.gender = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.firstName)) {
+			this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.firstName = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.lastName)) {
+			this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.lastName = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.contactNumber)) {
+			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (this.updatingGuardian?.contactNumber.length > 0 && this.updatingGuardian?.contactNumber.length < 10) {
+			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.contactNumber = ``;
+		}
+
+		if (isNullorEmpty(this.updatingGuardian?.relationship)) {
+			this.updatingGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.relationship = ``;
+		}
+
+		if (this.updatingGuardian.dateOfBirth === undefined || this.updatingGuardian.dateOfBirth === ``) {
+			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else if (getAgeFromDob(this.updatingGuardian?.dateOfBirth) < 18) {
+			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.dateOfBirth = ``;
+		}
+
+		if (!isNullorEmpty(this.updatingGuardian.idNumber)) {
+			if (this.updatingGuardian.idNumber.length !== 13) {
+				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
+				stepValid = false;
+			} else {
+				this.updatingGuardianErrors.idNumber = ``;
+			}
+		}
+
+		if (!isNullorEmpty(this.updatingGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingGuardian?.contactEmail)) {
+			this.updatingGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
+			stepValid = false;
+		} else {
+			this.updatingGuardianErrors.contactEmail = ``;
+		}
+
+		if (stepValid === false) {
+			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+		} else {
+			this.beneficiaryDetailsErrorMessage = ``;
+		}
+		this.requestUpdate();
+		return stepValid;
+	}
+
+	/**
 	 * Next event from dialog footer button, moves to next step and validates fields from the current step
 	 * 
 	 * @returns {void}
 	 */
 	_nextClick() {
 		let stepValid = true;
-		stepValid = this._validateBeneficiaryDetails();
+		if (this.currentStep === STEPS.CHILD_DETAILS) {
+			stepValid = this._validateBeneficiaryDetails();
+		}
+		if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			stepValid = this._validateGuardianStep();
+		}
+
 
 		if (stepValid === true) {
 			this.currentStep++;
@@ -434,7 +695,6 @@ class LifeUpdateChildDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
-		console.log(`cancel click`);
 		this.updatingChild = this.originalChild;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { child: this.updatingChild } }));
 	}
@@ -446,9 +706,16 @@ class LifeUpdateChildDialog extends Component {
 	_updateClick() {
 		const allocationValid = this._validateAllocateCover();
 		if (allocationValid === true) {
+
+			let guardian = null;
+			if (this.updatingGuardianType === NEW_BENEFICIARY_TYPES.NEW) {
+				guardian = this.updatingGuardian;
+			}
+
 			this.dispatchEvent(new CustomEvent(`update-child`, {
 				detail: {
-					child: this.updatingChild
+					child: this.updatingChild,
+					guardian: guardian
 				}
 			}));
 		}
@@ -462,6 +729,7 @@ class LifeUpdateChildDialog extends Component {
 	_backClick() {
 		this.currentStep--;
 		this.beneficiaryDetailsErrorMessage = ``;
+		this.updatingGuardianErrors = {};
 		this.allocateMoneyErrorMessage = ``;
 	}
 	// #endregion EVENT HANDLERS
@@ -549,8 +817,8 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-			<capitec-modal type="form" header="Nominated person" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
-				<div slot="body" style="width: 678px">
+			<capitec-modal type="alert" header="Update Child" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: auto; z-index: 4000;">
+				<div slot="body" >
 					${this._renderDialogBody()}
 				</div>
 				<div slot="footer">
@@ -593,47 +861,149 @@ class LifeUpdateChildDialog extends Component {
 
 	_renderNewOrExistingQuickAdd() {
 		return html`
-			${this.newOrExistingErrorMessage !== ``
+		${this.newOrExistingErrorMessage !== ``
 				? html`
-				<div style="padding: 20px 16px 0px 16px;">
-					<horizon-alert-banner
-						type="error"
-						header="Step incomplete"
-						label="${this.newOrExistingErrorMessage}"
-						layout="vertical">
-					</horizon-alert-banner>
-				</div>`
+			<div style="padding: 20px 16px 0px 16px;">
+				<horizon-alert-banner
+					type="error"
+					header="Step incomplete"
+					label="${this.newOrExistingErrorMessage}"
+					layout="vertical">
+				</horizon-alert-banner>
+			</div>`
 				: html``
 			}
 
-			<capitec-content-box style="min-height:200px; padding-left: 15px;">
+		<capitec-content-box style="min-height:200px; padding-left: 15px;">
 
+			<horizon-product-tile
+				type="radio-button"
+				label="Add Guardian"
+				subtitle="Add a new guardian for this child"
+				?selected="${this.updatingGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
+				@click="${() => this._continueWithNewGuardian()}">
+			</horizon-product-tile>
+
+			<div style="text-align: center;">
+				<capitec-label 
+					label="Or choose existing"
+					type="strong">
+				</capitec-label>
+			</div>
+
+			${this.eligibleGuardiansForQuickAdd.map((guardian) => html`
 				<horizon-product-tile
 					type="radio-button"
-					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
-					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
-					@click="${() => this._continueWithNewGuardian()}">
+					label="${`${guardian.firstName} ${guardian.lastName}`}"
+					subtitle="${guardian.relationship}"
+					?selected="${this.updatingGuardian.firstName === guardian.firstName}"
+					@click="${() => this._continueWithExistingGuardian(guardian)}">
 				</horizon-product-tile>
-
-				<div style="text-align: center;">
-					<capitec-label 
-						label="Or choose existing"
-						type="strong">
-					</capitec-label>
-				</div>
-
-				${this.eligibleGuardiansForQuickAdd.map((guardian) => html`
-					<horizon-product-tile
-						type="radio-button"
-						label="${`${guardian.firstName} ${guardian.lastName}`}"
-						subtitle="${guardian.relationship}"
-						?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.EXISTING}"
-						@click="${() => this._continueWithExistingGuardian(guardian)}">
-					</horizon-product-tile>
-				`)}
-			</capitec-content-box>
+			`)}
+		</capitec-content-box>
 		`;
+	}
+
+	/**
+ * Render Guardian details step
+ * 
+ * @returns {html} html content
+ */
+	_renderGuardianDetails() {
+		return html`
+			<div class="grouping">
+				<capitec-select 
+					label="Title" 
+					display-field="text" 
+					id-field="code" style="width: 50%" 
+					value="${this.updatingGuardian?.title}"
+					error="${this.updatingGuardianErrors?.title === undefined ? `` : this.updatingGuardianErrors.title}"
+					.items="${this.titleOptions}" 
+					@value-changed="${(e) => this._titleChange(e, false)}">
+				</capitec-select>
+				<capitec-select 
+					label="Gender"  
+					display-field="text" 
+					id-field="code"  style="width: 50%" 
+					value="${this.updatingGuardian?.gender}" 
+					error="${this.updatingGuardianErrors?.gender === undefined ? `` : this.updatingGuardianErrors.gender}"
+					.items="${this.genderOptions}"
+					@value-changed="${(e) => this._genderChange(e, false)}">
+				</capitec-select>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="First Name" 
+					style="width: 50%"
+					value="${this.updatingGuardian?.firstName}"
+					error="${this.updatingGuardianErrors?.firstName === undefined ? `` : this.updatingGuardianErrors.firstName}"
+					@value-changed="${(e) => this._firstNameChange(e, false)}">
+				</capitec-text-field>
+				<capitec-text-field 
+					label="Surname" 
+					style="width: 50%" 
+					value="${this.updatingGuardian?.lastName}"
+					error="${this.updatingGuardianErrors?.lastName === undefined ? `` : this.updatingGuardianErrors.lastName}"
+					@value-changed="${(e) => this._surnameChange(e, false)}">
+				</capitec-text-field>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="ID Number" 
+					style="width: 50%" 
+					maxlength="13" 
+					type="numeric"
+					value="${this.updatingGuardian?.idNumber}"
+					error="${this.updatingGuardianErrors?.idNumber === undefined ? `` : this.updatingGuardianErrors.idNumber}"
+					@value-changed="${(e) => this._idChange(e, false)}">
+				</capitec-text-field>
+			
+				<capitec-date-time-picker 
+					style="width: 50%" 
+					label="Date of Birth" 
+					type="single" 
+					mode="date" 
+					inputType="calendar"
+					date="${this.updatingGuardian?.dateOfBirth}"
+					outputType="string" maxdate="${this.today}" minDate="1901-01-01"
+					value="${formatDate(this.updatingGuardian?.dateOfBirth)}"
+					error="${this.updatingGuardianErrors?.dateOfBirth === undefined ? `` : this.updatingGuardianErrors.dateOfBirth}"
+					@value-changed="${(e) => this._dobChange(e, false)}">
+				</capitec-date-time-picker>
+			</div>
+
+			<div class="grouping">
+				<capitec-text-field 
+					label="Cellphone number" 
+					style="width: 50%" 
+					maxlength="10" 
+					type="numeric"
+					value="${this.updatingGuardian?.contactNumber}"
+					error="${this.updatingGuardianErrors?.contactNumber === undefined ? `` : this.updatingGuardianErrors.contactNumber}"
+					@value-changed="${(e) => this._cellphoneNumChange(e, false)}">
+				</capitec-text-field>
+				<capitec-text-field 
+					label="Email address (optional)"
+					style="width: 50%"
+					value="${this.updatingGuardian?.contactEmail}"
+					error="${this.updatingGuardianErrors?.contactEmail === undefined ? `` : this.updatingGuardianErrors.contactEmail}"
+					@value-changed="${(e) => this._emailChange(e, false)}">
+				</capitec-text-field>
+			</div>
+
+			<div class="grouping">
+				<capitec-select 
+					label="Relationship" 
+					display-field="text" 
+					id-field="code"
+					style="width: 50%" value="${this.updatingGuardian?.relationship}" 
+					.items="${this.beneficiaryRelationships}" 
+					error="${this.updatingGuardianErrors?.relationship === undefined ? `` : this.updatingGuardianErrors?.relationship}"
+					@value-changed = "${(e) => this._relationshipChange(e, false)}">
+				</capitec-select>
+			</div>`;
 	}
 
 	/**
@@ -664,8 +1034,8 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					value="${this.updatingChild?.title}" 
 					error="${this.updatingChild?.title === undefined ? `` : this.childErrors.title}"
-					.items="${this.titleOptions}" 
-					@value-changed="${(e) => this._titleChange(e)}">
+					.items="${this.childTitleOptions}" 
+					@value-changed="${(e) => this._titleChange(e, true)}">
 				</capitec-select>
 
 				<capitec-select 
@@ -676,7 +1046,7 @@ class LifeUpdateChildDialog extends Component {
 					value="${this.updatingChild?.gender}" 
 					error="${this.updatingChild?.gender === undefined ? `` : this.childErrors.gender}"
 					.items="${this.genderOptions}"
-					@value-changed="${(e) => this._genderChange(e)}">
+					@value-changed="${(e) => this._genderChange(e, true)}">
 				</capitec-select>
 			</div>
 
@@ -686,7 +1056,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%"
 					value="${this.updatingChild?.firstName}"
 					error="${this.childErrors?.firstName === undefined ? `` : this.childErrors.firstName}"
-					@value-changed="${(e) => this._firstNameChange(e)}">
+					@value-changed="${(e) => this._firstNameChange(e, true)}">
 				</capitec-text-field>
 			
 				<capitec-text-field 
@@ -694,7 +1064,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%"
 					value="${this.updatingChild?.lastName}"
 					error="${this.childErrors?.lastName === undefined ? `` : this.childErrors.lastName}"
-					@value-changed="${(e) => this._surnameChange(e)}">
+					@value-changed="${(e) => this._surnameChange(e, true)}">
 				</capitec-text-field>
 			</div>
 
@@ -705,7 +1075,7 @@ class LifeUpdateChildDialog extends Component {
 					display-field="text" 
 					id-field="code"
 					style="width: 50%" value="${this.updatingChild?.relationship}" 
-					@value-changed = "${(e) => this._relationshipChange(e)}">
+					@value-changed = "${(e) => this._relationshipChange(e, true)}">
 				</capitec-select>
 
 				<capitec-text-field 
@@ -715,7 +1085,7 @@ class LifeUpdateChildDialog extends Component {
 					type="numeric"
 					value="${this.updatingChild?.contactNumber}"
 					error="${this.childErrors?.contactNumber === undefined ? `` : this.childErrors.contactNumber}"
-					@value-changed="${(e) => this._cellphoneNumChange(e)}">
+					@value-changed="${(e) => this._cellphoneNumChange(e, true)}">
 				</capitec-text-field>
 			</div>
 
@@ -741,7 +1111,7 @@ class LifeUpdateChildDialog extends Component {
 					maxdate="${this.today}" 
 					minDate="1901-01-01"
 					error="${this.childErrors?.dateOfBirth}"
-					@value-changed="${(e) => this._dobChange(e)}">
+					@value-changed="${(e) => this._dobChange(e, true)}">
 				</capitec-date-time-picker>
 			</div>
 
@@ -751,7 +1121,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					value="${this.updatingChild?.contactEmail}"
 					error="${this.childErrors?.contactEmail === undefined ? `` : this.childErrors.contactEmail}"
-					@value-changed="${(e) => this._emailChange(e)}">
+					@value-changed="${(e) => this._emailChange(e, true)}">
 				</capitec-text-field>
 			</div>
 		`;
@@ -817,7 +1187,7 @@ class LifeUpdateChildDialog extends Component {
 								label=""
 								value="${this._beneficiaryCoverValue(bene)}"
 								@value-changed="${(e) => this._beneficiaryCoverAmountChange(e, bene)}"
-								error="${bene?.metaData?.coverErrorMsg}">
+								.error="${bene.metaData.coverErrorMsg}">
 							</capitec-text-field>
 						</div>
 					</div>
@@ -834,18 +1204,22 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			${this.currentStep === STEPS.CHILD_DETAILS
-				? html`
-				<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
-				</capitec-button>
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}" ></capitec-button>
-				`
-				: html`
+		${this.currentStep === STEPS.CHILD_DETAILS ? html`
+			<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
+			</capitec-button>
+		` : html`
 				<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
 				</capitec-button>
+		`}
 
-				<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._updateClick()}"></capitec-button>
-			`}
+		${this.currentStep === STEPS.MONEY_ALLOCATION
+				? html`
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Update" @click="${() => this._updateClick()}">
+			</capitec-button>
+		` : html`
+			<capitec-button class="capitec-button-small" slot="footer" type="primary" label="Next" @click="${() => this._nextClick()}">
+			</capitec-button>
+		`}
 		`;
 	}
 

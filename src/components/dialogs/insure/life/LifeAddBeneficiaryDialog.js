@@ -193,7 +193,6 @@ class LifeAddBeneficiaryDialog extends Component {
 	_calculateCoverBreakdown() {
 		let totalAllocated = 0;
 		for (const bene of this.pocketBeneficiaries) {
-			console.log(`_calculateCoverBreakdown bene:>> `, bene);
 			if (bene.metaData.monthlyBenefitAdded && this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				totalAllocated += bene.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(bene.monthlyPayoutBenefitAmount);
 			}
@@ -202,10 +201,8 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 		}
 
-		// New Beneficiary?
-		console.log(`this.newBeneficiary !== null :>> `, this.newBeneficiary !== null);
+		// New Beneficiary
 		if (this.newBeneficiaryType === NEW_BENEFICIARY_TYPES.NEW) {
-			console.log(`this.newBeneficiary :>> `, this.newBeneficiary);
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY) {
 				totalAllocated += this.newBeneficiary.monthlyPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount);
 			}
@@ -213,9 +210,6 @@ class LifeAddBeneficiaryDialog extends Component {
 				totalAllocated += this.newBeneficiary.onceOffPayoutBenefitAmount === `` ? 0 : parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount);
 			}
 		}
-		console.log(`totalAllocated :>> `, totalAllocated);
-		console.log(`this.pocketRemainingCover :>> `, this.pocketRemainingCover);
-		console.log(`this.totalPocketCover :>> `, this.totalPocketCover);
 		this.pocketRemainingCover = this.totalPocketCover - totalAllocated;
 		this.requestUpdate();
 	}
@@ -531,17 +525,25 @@ class LifeAddBeneficiaryDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(bene.monthlyPayoutBenefitAmount) > 0 && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000)) {
-				console.log(`bene.monthlyPayoutBenefitAmount :>> `, bene.monthlyPayoutBenefitAmount);
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(bene.monthlyPayoutBenefitAmount) !== 0 && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(bene.onceOffPayoutBenefitAmount) > 0 && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000)) {
-				console.log(`bene.onceOffPayoutBenefitAmount :>> `, bene.onceOffPayoutBenefitAmount);
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(bene.onceOffPayoutBenefitAmount) !== 0 && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000)) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 		});
+
+		this.newBeneficiary.metaData.coverErrorMsg = ``;
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount) !== 0 && parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount) < 1000)) {
+			this.newBeneficiary.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+			beneficiariesValid = false;
+		}
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount) !== 0 && parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount) < 1000)) {
+			this.newBeneficiary.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+			beneficiariesValid = false;
+		}
 
 		if (beneficiariesValid === false) {
 			this.requestUpdate();
@@ -600,9 +602,6 @@ class LifeAddBeneficiaryDialog extends Component {
 			}
 			this._calculateCoverBreakdown();
 		}
-
-		console.log(`_beneficiaryCoverAmountChange bene: `, bene);
-		console.log(`_beneficiaryCoverAmountChange: newBeneficiary`, this.newBeneficiary);
 		this.requestUpdate();
 	}
 
