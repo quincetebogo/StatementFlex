@@ -541,6 +541,32 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Provides Policy Pause Info such as start and end dates
+	 *
+	 * @param {policyPauseInfoRequest} [policyPauseInfoRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyPauseInfo(policyPauseInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyPauseInfo`)) {
+			return this.mock(`insurePolicyPauseInfo`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/policyPauseInfo`,
+			policyPauseInfoRequest,
+			this._setInsureHeaders(),
+			`policyPauseInfo`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents

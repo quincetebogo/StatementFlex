@@ -1,5 +1,6 @@
 
 import { Component, css, html } from 'platform/elements';
+import { formatDateToInsure } from 'app/utils/insureUtils';
 
 /**
  * Dialog that will display VPP confirmation
@@ -36,7 +37,8 @@ export class ConfirmPolicyPauseDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			policy: { type: Object, state: true }
+			policy: { type: Object, state: true },
+			policyPauseInfo: { type: Object, state: true }
 			
 		};
 	}
@@ -113,13 +115,13 @@ export class ConfirmPolicyPauseDialog extends Component {
 			${this.policy.policyRule !== `PolicyPause` 
 			? html`
 			<ul>
-				<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>dd/mm/yyyy</b> and will expire on <b>dd/mm/yyyy</b>.</li>
-				<li>Your next collection date will be <b>dd/mm/yyyy</b>.</li>
+				<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>${formatDateToInsure(this.policyPauseInfo.pauseStartDate)}</b> and will expire on <b>${formatDateToInsure(this.policyPauseInfo.pauseEndDate)}</b>.</li>
+				<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo.nextCollectionDate)}</b>.</li>
 			</ul>
 			` 
 			: html`
 			<ul>
-				<li>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date wil be on the <b>dd/mm/yyyy</b>.</li>
+				<li>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date wil be on the <b>${formatDateToInsure(this.policyPauseInfo.nextCollectionDate)}</b>.</li>
 			</ul>
 			`}
 		`;

@@ -221,6 +221,8 @@ class ClientSummary extends Component {
 			showLifeHonestyPledgeDialog: { type: Boolean, state: true },
 			confirmPolicyPauseDialog: { type: Boolean, state: true },
 			policyPauseReason: { type: String, state: true },
+			funeralPolicyPauseInfo: { type: Object, state: true },
+			executeFuneralPolicyPauseInfo: { type: Object, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -863,10 +865,11 @@ class ClientSummary extends Component {
 		}
 	}
 
-	_openConfirmPolicyPauseDialog(reason) {
+	async _openConfirmPolicyPauseDialog(reason) {
 		if (!isNullorEmpty(reason)) {
 			this.policyPauseReason = reason;
 		}
+		this.funeralPolicyPauseInfo = await this.executeFuneralPolicyPauseInfo();
 		this.showPolicyPauseDialog = false;
 		this.confirmPolicyPauseDialog = true;
 			
@@ -2884,6 +2887,7 @@ class ClientSummary extends Component {
 			: html`
 				<horizon-insure-confirm-policy-pause-dialog
 					.policy="${this.selectedPolicyItem}"
+					.policyPauseInfo = "${this.funeralPolicyPauseInfo}"
 					@confirm = "${() => this._activateOrCancelPolicyPause()}"
 					@close-modal = "${() => this.showPolicyPauseDialog = false}">
 				</horizon-insure-confirm-policy-pause-dialog>

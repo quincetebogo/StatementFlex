@@ -523,6 +523,10 @@
 		"insureLifeIncreaseCover": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insurePolicyPauseInfo": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

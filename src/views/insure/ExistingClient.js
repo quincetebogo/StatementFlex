@@ -1120,15 +1120,28 @@ export class ExistingClient extends InsureViewBase {
 		return resinstatePolicyResponse;
 	}
 
+	async _getFuneralPolicyPauseInfo() {
+		const request = {
+			
+		};
+
+		const resp = await this.insureFuneralService.policyPauseInfo(request);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		return resp.result;
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
 
 
-	/*
-	* Navigate so specific subview
-	* @param {String} newMode New render mode string to change renderMode to
-	* @returns {void} void
+	/**
+	 * Navigate so specific subview
+	 * @param {String} newMode New render mode string to change renderMode to
+	 * @returns {void} void
 	 */
 	_navigateToSubView(newMode) {
 		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
@@ -2243,6 +2256,7 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
+				.executeFuneralPolicyPauseInfo = "${() => this._getFuneralPolicyPauseInfo()}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"
