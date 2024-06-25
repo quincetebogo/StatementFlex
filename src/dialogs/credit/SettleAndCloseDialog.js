@@ -96,6 +96,11 @@ export class SettleAndCloseDialog extends Component {
 	}
 
 	_CheckSavStatus() {
+		if (this.settleAndCloseDetails.settlementAmount < 0) {
+			this.hasEnoughFunds = true;
+			return;
+		}
+
 		this.hasEnoughFunds = this._deformatCurrency(this.productSelected.availableBalance) >= this._deformatCurrency(this.settleAndCloseDetails[`Settlement amount`]);
 		if (this.hasEnoughFunds === false) {
 			this.bannerMessage = `You do not have enough funds in your account to do the transfer.`;
@@ -305,7 +310,7 @@ export class SettleAndCloseDialog extends Component {
 			</capitec-group>
 
 			<capitec-label
-				label="Settle from account">
+				label="${this.settleAndCloseDetails.action}">
 			</capitec-label>
 			
 			<horizon-select-icon
