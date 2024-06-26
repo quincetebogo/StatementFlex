@@ -9,211 +9,141 @@
 export const insureLifeClientSummary = {
 	"policies": [
 		{
-			"contractReference": `LP00008099`,
-			"policyStatus": `Pending In Force`,
-			"policyStatusEnum": `PendingInForce`,
-			"displayPolicyStatus": `Active - Pending Payment`,
-			"policyStartDate": `2024-06-04T00:00:00+00:00`,
+			"contractReference": `LP00008243`,
+			"policyStatus": `Lapsed`,
+			"policyStatusEnum": `Lapsed`,
+			"displayPolicyStatus": `Lapsed`,
+			"policyStartDate": `2024-02-01T00:00:00+00:00`,
+			"actualCancellationDate": `2024-06-25T00:00:00+00:00`,
 			"cancellationReason": ``,
 			"cancellationReasonEnum": `Unknown`,
-			"totalPremium": 373.3478346228,
-			"nextCollectionDate": `2024-07-01T00:00:00+00:00`,
-			"nextCollectionAmount": 373.3478346228,
+			"totalPremium": 0.0,
+			"lastCollectionDate": `2024-03-10T00:00:00+00:00`,
+			"lastCollectionAmount": 91.0,
+			"nextCollectionDate": `2024-07-10T00:00:00+00:00`,
+			"nextCollectionAmount": 91.0,
 			"bankDetails": {
-				"accountName": `Savings Account`,
+				"accountName": `Faith Holdings`,
 				"branchCode": `470010`,
-				"accountNumber": `1302232795`,
+				"accountNumber": `1370520032`,
 				"bank": `CAPITEC`,
-				"accountType": `Savings`,
-				"collectionDay": 1,
-				"mandateReference": `001020240604AF2D149D9C`
+				"accountType": `Current`,
+				"collectionDay": 10,
+				"mandateReference": `MD2001`
 			},
-			"arrears": [
-                {
-                    "arrearsID": `AR0000000284`,
-                    "arrearsPaymentStatus": `PENDING`,
-                    "arrearsPaymentDueAmount": `542.1000000000`,
-                    "arrearsPaymentDueDate": `2024-02-25T00:00:00+00:00`,
-                    "arrearsPaymentReceivedAmount": `0.0000000000`
-                }
-            ],
 			"pockets": [
 				{
 					"pocketType": `LumpSum`,
-					"coverage": 658000.0,
-					"premium": 248.26
+					"coverage": 100000.0,
+					"premium": 20.0
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 57600.0,
-					"premium": 21.73
+					"coverage": 100000.0,
+					"premium": 20.0
 				},
 				{
 					"pocketType": `Education`,
-					"coverage": 600000.0,
-					"premium": 175.46
+					"coverage": 150000.0,
+					"premium": 20.0
+				}
+			],
+			"arrears": [
+				{
+					"arrearsID": `AR0000000411`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `91.0000000000`,
+					"arrearsPaymentDueDate": `2024-04-10T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
+				},
+				{
+					"arrearsID": `AR0000000412`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `91.0000000000`,
+					"arrearsPaymentDueDate": `2024-05-10T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
+				},
+				{
+					"arrearsID": `AR0000000413`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `91.0000000000`,
+					"arrearsPaymentDueDate": `2024-06-10T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
 				}
 			],
 			"beneficiaries": [
 				{
-					"title": `Mr`,
-					"firstName": `Children`,
-					"lastName": `Ben`,
+					"title": `Miss`,
+					"firstName": `LuthoChild`,
+					"lastName": `Parkar`,
 					"rolePlayer": `Primary Beneficiary`,
 					"onceOffPayoutBenefitAmount": 0.0,
-					"educationBenefitAmount": 200000.0,
+					"educationBenefitAmount": 150000.0,
 					"monthlyPayoutBenefitAmount": 0.0,
 					"bankDetails": {
 						"accountType": `Bond`
 					},
-					"relationship": `Others`,
-					"gender": `Male`,
-					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
+					"relationship": `MainLife`,
+					"gender": `Female`,
+					"dateOfBirth": `2009-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
 					"clientType": `Child`,
-					"guardianId": `GD01`,
-					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
-				},
-				{
-					"title": `Mr`,
-					"firstName": `Children 2`,
-					"lastName": `Ben`,
-					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 0.0,
-					"educationBenefitAmount": 200000.0,
-					"monthlyPayoutBenefitAmount": 0.0,
-					"bankDetails": {
-						"accountType": `Bond`
-					},
-					"relationship": `Child`,
-					"gender": `Male`,
-					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
-					"clientType": `Child`,
-					"guardianId": `GD01`,
-					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
-				},
-				{
-					"title": `Mr`,
-					"firstName": `Children 3`,
-					"lastName": `Benificiary`,
-					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 0.0,
-					"educationBenefitAmount": 200000.0,
-					"monthlyPayoutBenefitAmount": 0.0,
-					"bankDetails": {
-						"accountType": `Bond`
-					},
-					"relationship": `Child`,
-					"gender": `Male`,
-					"dateOfBirth": `2024-06-04T00:00:00+00:00`,
-					"clientType": `Child`,
-					"guardianId": `GD02`,
-					"clientId": `EA6ECF25-3B38-4EBB-808C-7EE3180A91BD`
-				},
-				{
-					"title": `Mr`,
-					"firstName": `Monthly`,
-					"lastName": `Ben`,
-					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 329000.0,
-					"educationBenefitAmount": 0.0,
-					"monthlyPayoutBenefitAmount": 57600.0,
-					"bankDetails": {
-						"accountType": `Bond`
-					},
-					"relationship": `Others`,
-					"gender": `Male`,
-					"dateOfBirth": `1997-06-04T00:00:00+00:00`,
-					"contactNumber": `0842572454`,
-					"clientType": `Adult`,
-					"clientId": `63AA50E9-BEAB-49E1-8563-26088547E99D`
+					"guardianId": `GID001`,
+					"clientId": `B4DB4EF1-DB56-49C9-BC05-F21E78D641C4`
 				},
 				{
 					"title": `Miss`,
-					"firstName": `Lump`,
-					"lastName": `Ben`,
+					"firstName": `Lisa`,
+					"lastName": `Parkar`,
 					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 329000.0,
+					"onceOffPayoutBenefitAmount": 100000.0,
 					"educationBenefitAmount": 0.0,
-					"monthlyPayoutBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 100000.0,
 					"bankDetails": {
-						"accountType": `Bond`
+						"branchCode": `LEF00021`,
+						"accountNumber": `63456765`,
+						"bank": `Life Essence Financial`,
+						"accountType": `Current`
 					},
-					"relationship": `Others`,
+					"relationship": `MainLife`,
 					"gender": `Female`,
-					"dateOfBirth": `1990-06-04T00:00:00+00:00`,
-					"contactNumber": `0614891717`,
+					"dateOfBirth": `2000-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
 					"clientType": `Adult`,
-					"clientId": `B3E69DA4-91B7-4C10-8382-7A2BACF07B5C`
+					"clientId": `D40C1A9B-162C-4304-B8C7-BDB31A4C62C4`
 				}
 			],
 			"guardians": [
 				{
-					"title": `Mr`,
-					"firstName": `Test`,
-					"lastName": `Test`,
+					"title": `Miss`,
+					"firstName": `LomieGuadian`,
+					"lastName": `Parkar`,
 					"rolePlayer": `Guardian`,
 					"bankDetails": {
 						"accountType": `Bond`
 					},
-					"relationship": `Others`,
-					"gender": `Male`,
-					"dateOfBirth": `1991-06-04T00:00:00+00:00`,
-					"contactNumber": `0845725454`,
+					"relationship": `MainLife`,
+					"gender": `Female`,
+					"dateOfBirth": `1995-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
 					"clientType": `Guardian`,
-					"guardianId": `GD01`,
-					"clientId": `780D47ED-2786-4886-8F8B-6322E5D4F3BA`
-				},
-				{
-					"title": `Mr`,
-					"firstName": `Test 2`,
-					"lastName": `Test 2`,
-					"rolePlayer": `Guardian`,
-					"bankDetails": {
-						"accountType": `Bond`
-					},
-					"relationship": `Others`,
-					"gender": `Male`,
-					"dateOfBirth": `1991-06-04T00:00:00+00:00`,
-					"contactNumber": `0845725454`,
-					"clientType": `Guardian`,
-					"guardianId": `GD02`,
-					"clientId": `780D47ED-2786-4886-8F8B-6322E5D4F3BA`
+					"guardianId": `GID001`,
+					"clientId": `FA6EDB85-95F8-40DA-B366-B56A9404F19E`
 				}
 			],
-			"totalPolicySumAssured": 915600.0,
+			"totalPolicySumAssured": 350000.0,
+			"policyLapseDate": `2024-06-25T00:00:00+00:00`,
+			"arrearsMissedPremiumCount": 3,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
-			"canReIssue": false,
-			"mandates": [
-				{
-					"accountName": `Mr SURNAME DEV`,
-					"branchCode": `470010`,
-					"accountNumber": `1302232795`,
-					"bank": `CAPITEC BANK`,
-					"accountType": `Bond`,
-					"mandateType": `Debicheck`,
-					"initialInstalmentAmount": 373.35,
-					"firstCollectionDate": `2024-07-01T00:00:00+00:00`,
-					"numberOfDebitInstalments": 9999,
-					"statusReason": `ACCEPTED`,
-					"mandateStatus": `Active`,
-					"mandateInitiationDate": `2024-06-04T00:00:00+00:00`,
-					"mandateId": 16047,
-					"instalmentAmount": 373.35,
-					"contractReference": `LP00008099`,
-					"collectionDay": 1,
-					"cifNumber": 161961533,
-					"idNumber": `9002196146085`,
-					"instalmentOccurrence": `RCUR`,
-					"authRequired": false,
-					"mandateReferenceNumber": `001020240604AF2D149D9C`,
-					"contactNumber": ``,
-					"voiceRecordingNumber": ``,
-					"mandateRequestTransactionIdentifier": `00102024-06-04000000005`
-				}
-			],
-			"channelFee": 27.9
+			"canReIssue": true,
+			"canIncreaseCover": true,
+			"mandates": [],
+			"channelFee": 31.0
 		},
 		{
 			"contractReference": `LP00001813`,
