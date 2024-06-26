@@ -715,7 +715,8 @@ class LifeUpdateChildDialog extends Component {
 			this.dispatchEvent(new CustomEvent(`update-child`, {
 				detail: {
 					child: this.updatingChild,
-					guardian: guardian
+					guardian: guardian,
+					pocketBeneficiaries: this.pocketBeneficiaries
 				}
 			}));
 		}

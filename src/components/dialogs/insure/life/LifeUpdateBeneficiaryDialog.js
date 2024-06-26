@@ -448,14 +448,11 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 */
 	_cancelClick() {
 		this.pocketBeneficiaries = this.originalPocketBeneficiaries;
-
-		
 		for (let i = 0; i < this.pocketBeneficiaries.length; i++) {
 			if (this.pocketBeneficiaries[i].metaData?.coverErrorMsg === VALIDATION_ERRORS.BENEFICIARY_MINIMUM) {
 				this.pocketBeneficiaries[i].metaData.coverErrorMsg = ``;
 			}
 		}
-		
 		this.updatingBeneficiary = this.originalBeneficiary;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { beneficiary: this.updatingBeneficiary } }));
 	}
@@ -465,14 +462,12 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_updateClick() {
-
-		this.policy.beneficiaries = this.pocketBeneficiaries;
-
 		const allocationValid = this._validateAllocateCover();
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`update-beneficiary`, {
 				detail: {
-					beneficiary: this.updatingBeneficiary
+					beneficiary: this.updatingBeneficiary,
+					pocketBeneficiaries: this.pocketBeneficiaries
 				}
 			}));
 		}

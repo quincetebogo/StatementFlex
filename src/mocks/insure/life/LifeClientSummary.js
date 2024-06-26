@@ -257,26 +257,27 @@ export const insureLifeClientSummary = {
 			"channelFee": 25
 		},
 		{
-			"contractReference": `LP00001692`,
-			"policyStatus": `Not Taken Up`,
-			"policyStatusEnum": `NotTakenUp`,
-			"displayPolicyStatus": `Not Taken Up`,
-			"policyStartDate": `2024-02-26T00:00:00+00:00`,
-			"actualCancellationDate": `2024-02-26T00:00:00+00:00`,
-			"effectiveCancellationDate": `2024-02-27T00:00:00+00:00`,
-			"cancellationReason": `Confidential`,
-			"cancellationReasonEnum": `Confidential`,
+			"contractReference": `LP00008137`,
+			"policyStatus": `Lapsed`,
+			"policyStatusEnum": `Lapsed`,
+			"displayPolicyStatus": `Lapsed`,
+			"policyStartDate": `2024-01-01T00:00:00+00:00`,
+			"actualCancellationDate": `2024-05-26T00:00:00+00:00`,
+			"cancellationReason": ``,
+			"cancellationReasonEnum": `Unknown`,
 			"totalPremium": 0.0,
-			"nextCollectionDate": `2024-03-25T00:00:00+00:00`,
-			"nextCollectionAmount": 50.43,
+			"lastCollectionDate": `2024-02-07T00:00:00+00:00`,
+			"lastCollectionAmount": 489.5,
+			"nextCollectionDate": `2024-06-07T00:00:00+00:00`,
+			"nextCollectionAmount": 489.5,
 			"bankDetails": {
-				"accountName": `Justin Brennand`,
+				"accountName": `Faith Holdings`,
 				"branchCode": `470010`,
-				"accountNumber": `2010184188`,
+				"accountNumber": `1378701583`,
 				"bank": `CAPITEC`,
-				"accountType": `Savings`,
-				"collectionDay": 25,
-				"mandateReference": `cef6236a-8c7f-4f25-9359-983c724f619`
+				"accountType": `Current`,
+				"collectionDay": 7,
+				"mandateReference": `MD2001`
 			},
 			"pockets": [
 				{
@@ -286,8 +287,8 @@ export const insureLifeClientSummary = {
 				},
 				{
 					"pocketType": `MonthlyPayout`,
-					"coverage": 150000.0,
-					"premium": 29.43
+					"coverage": 0.0,
+					"premium": 0.0
 				},
 				{
 					"pocketType": `Education`,
@@ -295,35 +296,102 @@ export const insureLifeClientSummary = {
 					"premium": 0.0
 				}
 			],
-			"beneficiaries": [
+			"arrears": [
 				{
-					"title": `Mr`,
-					"firstName": `Justin`,
-					"lastName": `Brennand`,
-					"rolePlayer": `Primary Beneficiary`,
-					"onceOffPayoutBenefitAmount": 0.0,
-					"educationBenefitAmount": 0.0,
-					"monthlyPayoutBenefitAmount": 150000.0,
-					"bankDetails": {
-						"branchCode": `470010`,
-						"accountNumber": `2010184188`,
-						"bank": `CAPITEC`,
-						"accountType": `Savings`
-					},
-					"relationship": `Others`,
-					"gender": `Male`,
-					"dateOfBirth": `1986-01-09T00:00:00+00:00`,
-					"contactNumber": `0823214321`,
-					"contactEmail": `justin@youwish.org`,
-					"clientType": `Adult`,
-					"clientId": `255AB036-E900-44C4-933D-8CA2D64D3F36`
+					"arrearsID": `AR0000000356`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `489.5000000000`,
+					"arrearsPaymentDueDate": `2024-03-07T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
+				},
+				{
+					"arrearsID": `AR0000000357`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `489.5000000000`,
+					"arrearsPaymentDueDate": `2024-04-07T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
+				},
+				{
+					"arrearsID": `AR0000000358`,
+					"arrearsPaymentStatus": `PENDING`,
+					"arrearsPaymentDueAmount": `489.5000000000`,
+					"arrearsPaymentDueDate": `2024-05-07T00:00:00+00:00`,
+					"arrearsPaymentReceivedAmount": `0.0000000000`
 				}
 			],
-			"totalPolicySumAssured": 150000.0,
+			"beneficiaries": [
+				{
+					"title": `Miss`,
+					"firstName": `LuthoChild`,
+					"lastName": `Parkar`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 0.0,
+					"educationBenefitAmount": 200000.0,
+					"monthlyPayoutBenefitAmount": 0.0,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `MainLife`,
+					"gender": `Female`,
+					"dateOfBirth": `2009-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
+					"clientType": `Child`,
+					"guardianId": `GID001`,
+					"clientId": `68B7CED3-7FC6-4313-BCB8-70D5945E1E5E`
+				},
+				{
+					"title": `Miss`,
+					"firstName": `Lisa`,
+					"lastName": `Parkar`,
+					"rolePlayer": `Primary Beneficiary`,
+					"onceOffPayoutBenefitAmount": 200000.0,
+					"educationBenefitAmount": 0.0,
+					"monthlyPayoutBenefitAmount": 100000.0,
+					"bankDetails": {
+						"branchCode": `LEF00021`,
+						"accountNumber": `63456765`,
+						"bank": `Life Essence Financial`,
+						"accountType": `Current`
+					},
+					"relationship": `MainLife`,
+					"gender": `Female`,
+					"dateOfBirth": `2000-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
+					"clientType": `Adult`,
+					"clientId": `6C9CF7FD-F498-44A9-A9E1-A000F477C9E8`
+				}
+			],
+			"guardians": [
+				{
+					"title": `Miss`,
+					"firstName": `LomieGuadian`,
+					"lastName": `Parkar`,
+					"rolePlayer": `Guardian`,
+					"bankDetails": {
+						"accountType": `Bond`
+					},
+					"relationship": `MainLife`,
+					"gender": `Female`,
+					"dateOfBirth": `1995-05-02T00:00:00+00:00`,
+					"contactNumber": `1234567890`,
+					"contactEmail": `lisaparkar05@xyz.com`,
+					"clientType": `Guardian`,
+					"guardianId": `GID001`,
+					"clientId": `74A4312E-F63D-4882-B779-47BEB708F8A7`
+				}
+			],
+			"totalPolicySumAssured": 500000.0,
+			"policyLapseDate": `2024-05-26T00:00:00+00:00`,
+			"arrearsMissedPremiumCount": 3,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
 			"voluntaryPremiumPauseAvailable": false,
-			"canReIssue": false
+			"canReIssue": true,
+			"canIncreaseCover": true,
+			"mandates": [],
+			"channelFee": 31.0
 		},
 		{
 			"contractReference": `LP00001681`,

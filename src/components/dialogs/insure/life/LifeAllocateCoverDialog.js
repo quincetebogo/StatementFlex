@@ -748,22 +748,17 @@ class LifeAllocateCoverDialog extends Component {
 	}
 
 	_updateBeneficiary(e) {
-
 		this.updatedPolicy.beneficiaries.forEach(bene => {
-			if (bene.metaData.uniqueId === e.detail.beneficiary.metaData.uniqueId) {
-				bene.firstName = e.detail.beneficiary?.firstName;
-				bene.lastName = e.detail.beneficiary?.lastName;
-				bene.dateOfBirth = e.detail.beneficiary?.dateOfBirth;
-				bene.contactNumber = e.detail.beneficiary?.contactNumber;
-				bene.title = e.detail.beneficiary?.title;
-				bene.relationship = e.detail.beneficiary?.relationship;
-				bene.gender = e.detail.beneficiary?.gender;
-				bene.email = e.detail.beneficiary?.email;
-				bene.idNumber = e.detail.beneficiary?.idNumber;
+			const foundBeneficiary = e.detail.pocketBeneficiaries.find(pocketBeneficiary => pocketBeneficiary.metaData.uniqueId === bene.metaData.uniqueId);
+			if (foundBeneficiary) {
+				bene.monthlyPayoutBenefitAmount = foundBeneficiary.monthlyPayoutBenefitAmount;
+				bene.onceOffPayoutBenefitAmount = foundBeneficiary.onceOffPayoutBenefitAmount;
 			}
 		});
-
 		this.showEditBeneficiaryDialog = false;
+		this.requestUpdate();
+
+
 	}
 
 	_updateChild(event) {
@@ -771,6 +766,14 @@ class LifeAllocateCoverDialog extends Component {
 		if (guardian !== null) {
 			this.updatedPolicy.guardians.push(guardian);
 		}
+
+		this.updatedPolicy.beneficiaries.forEach(bene => {
+			const foundBeneficiary = event.detail.pocketBeneficiaries.find(pocketBeneficiary => pocketBeneficiary.metaData.uniqueId === bene.metaData.uniqueId);
+			if (foundBeneficiary) {
+				bene.educationBenefitAmount = foundBeneficiary.educationBenefitAmount;
+			}
+		});
+
 		this.showEditChildDialog = false;
 	}
 
