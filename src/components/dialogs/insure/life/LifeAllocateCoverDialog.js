@@ -1065,24 +1065,16 @@ class LifeAllocateCoverDialog extends Component {
 			];
 			this.updatedPolicy.pockets = policyPockets;
 
-			// remove allocations from beneficiaries in pockets with zero cover
-
-			console.log('Original Benficiaries :>> ', this.currentPolicy);
-			console.log('What we have currently :>> ', this.updatedPolicy);
-
 			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					if (this.monthlyCoverValue === 0) {
 						bene.monthlyPayoutBenefitAmount = 0;
-						// bene.metaData.monthlyBenefitAdded = false;
 					}
 					if (this.onceOffCoverValue === 0) {
 						bene.onceOffPayoutBenefitAmount = 0;
-						// bene.metaData.onceOffBenefitAdded = false;
 					}
 					if (this.educationCoverValue === 0) {
 						bene.educationBenefitAmount = 0;
-						// bene.metaData.educationBenefitAdded = false;
 					}
 				});
 			}
