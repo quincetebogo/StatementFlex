@@ -1068,40 +1068,34 @@ class LifeAllocateCoverDialog extends Component {
 			];
 			this.updatedPolicy.pockets = policyPockets;
 
-			// remove allocations from beneficiaries in pockets with zero cover
-			this.updatedPolicy.beneficiaries.forEach(bene => {
-				if (this.monthlyCoverValue === 0) {
-					bene.monthlyPayoutBenefitAmount = 0;
-					bene.metaData.monthlyBenefitAdded = false;
-				}
-				if (this.onceOffCoverValue === 0) {
-					bene.onceOffPayoutBenefitAmount = 0;
-					bene.metaData.onceOffBenefitAdded = false;
-				}
-				if (this.educationCoverValue === 0) {
-					bene.educationBenefitAmount = 0;
-					bene.metaData.educationBenefitAdded = false;
-				}
-			});
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+				this.updatedPolicy.beneficiaries.forEach(bene => {
+					if (this.monthlyCoverValue === 0) {
+						bene.monthlyPayoutBenefitAmount = 0;
+					}
+					if (this.onceOffCoverValue === 0) {
+						bene.onceOffPayoutBenefitAmount = 0;
+					}
+					if (this.educationCoverValue === 0) {
+						bene.educationBenefitAmount = 0;
+					}
+				});
+			}
 
 			// remove allocations from beneficiaries in pockets with cover (for Increase cover)
 			if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					if (this.monthlyCoverValue > 0) {
 						bene.monthlyPayoutBenefitAmount = 0;
-						// bene.metaData.monthlyBenefitAdded = false;
 					}
 					if (this.onceOffCoverValue > 0) {
 						bene.onceOffPayoutBenefitAmount = 0;
-						// bene.metaData.onceOffBenefitAdded = false;
 					}
 					if (this.educationCoverValue > 0) {
 						bene.educationBenefitAmount = 0;
-						// bene.metaData.educationBenefitAdded = false;
 					}
 				});
 			}
-
 		}
 
 		// Beneficiaries
@@ -1350,7 +1344,6 @@ class LifeAllocateCoverDialog extends Component {
 				this.increaseCoverResult = await this.executeLifeIncreaseCover(increaseCoverRequest);
 
 				// call agreement
-
 				const updateAgreementReq = {
 					"saveDocument": false,
 					"documentOptions": {
@@ -1951,7 +1944,7 @@ class LifeAllocateCoverDialog extends Component {
 						<!-- Beneficiary List -->
 						<div class="beneficiary-list">
 							${this.updatedPolicy.beneficiaries.map(bene => html`
-								${bene.metaData.monthlyBenefitAdded === true ? html`
+								${bene.metaData.monthlyBenefitAdded === true && this.monthlyCoverValue > 0 ? html`
 								<div class="beneficiary-card">
 									<div style="display: flex; gap:20px;">
 										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
@@ -2045,7 +2038,7 @@ class LifeAllocateCoverDialog extends Component {
 					
 						<div class="beneficiary-list">
 							${this.updatedPolicy.beneficiaries.map(bene => html`
-								${bene.metaData.onceOffBenefitAdded === true ? html`
+								${bene.metaData.onceOffBenefitAdded === true && this.onceOffCoverValue > 0 ? html`
 								<div class="beneficiary-card">
 									<div style="display: flex; gap:20px;">
 										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
@@ -2134,7 +2127,7 @@ class LifeAllocateCoverDialog extends Component {
 						</div>
 						<div class="beneficiary-list">
 							${this.updatedPolicy.beneficiaries.map(bene => html`
-								${bene.metaData.educationBenefitAdded === true ? html`
+								${bene.metaData.educationBenefitAdded === true && this.educationCoverValue > 0 ? html`
 								<div class="beneficiary-card">
 									<div style="display: flex; gap:20px;">
 										<capitec-avatar value="${bene.firstName.charAt(0) + bene.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
