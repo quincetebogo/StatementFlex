@@ -299,7 +299,7 @@ export class ViewBase extends View {
 		const verificationStatus = this.callerInformation.verificationStatus;
 
 		return verificationStatus === `verified`
-				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS.includes(need)
+				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS[this.roleManager.orgUnit]?.includes(need)
 				: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
@@ -345,7 +345,7 @@ export class ViewBase extends View {
 	}
 	
 	_getTooltipMessage(need) {
-		const isHighRiskTransaction = HIGH_RISK_TRANSACTIONS.includes(need);
+		const isHighRiskTransaction = HIGH_RISK_TRANSACTIONS[this.roleManager.orgUnit]?.includes(need);
 		const byRole = {
 			'Capitec Connect': TOOLTIP_CAPITEC_CONNECT
 			
