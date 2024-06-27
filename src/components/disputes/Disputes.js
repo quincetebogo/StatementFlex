@@ -289,7 +289,7 @@ export class Disputes extends Component {
 		if (!firstElem) {
 			return html``;
 		}
-		console.log(question);
+		
 		switch (firstElem.clientAnswerWording || firstElem.agentAnswerWording) {
 			case `input currency`:
 			case `input text`:
@@ -306,7 +306,7 @@ export class Disputes extends Component {
 				break;
 		}
 		this.displayToast = true;
-		window.setTimeout(() => this.displayToast = false, 3000);
+		window.setTimeout(() => this.displayToast = false, 300000);
 		
 	}
 
