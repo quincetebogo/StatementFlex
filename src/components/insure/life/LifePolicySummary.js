@@ -23,6 +23,7 @@ class LifePolicySummary extends Component {
 	constructor() {
 		super();
 		this.selectedLifePolicy = {};
+		this.lifePolicyMandates = [];
 	}
 
 	// #endregion INITIALISATION
@@ -30,14 +31,16 @@ class LifePolicySummary extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @property {Object} policyDetails Selected policy being viewed
+	 * @property {Object} selectedLifePolicy Selected policy being viewed
+	 * @property {Object} lifePolicyMandates Selected policy mandate details
 	 * 
 	 * @readonly
 	 * @static
 	 */
 	static get properties() {
 		return {
-			selectedLifePolicy: { type: Object, state: true }
+			selectedLifePolicy: { type: Object, state: true },
+			lifePolicyMandates: { type: Object, state: true }
 		};
 	}
 
@@ -89,11 +92,11 @@ class LifePolicySummary extends Component {
 	_displayPocketTypeLabel(pocketType) {
 
 		if (pocketType === LIFE_POCKET_TYPES.MONTHLY) {
-			return `Monthly Payout`;
+			return `Monthly Income`;
 		} else if (pocketType === LIFE_POCKET_TYPES.EDUCATION) {
-			return `Education Fund`;
+			return `Children's Needs`;
 		} else if (pocketType === LIFE_POCKET_TYPES.ONCEOFF) {
-			return `Once Off Payout`;
+			return `Lump Sum`;
 		}
 	}
 
@@ -378,6 +381,7 @@ class LifePolicySummary extends Component {
 			${this._renderMainLifeSection()}
 			${this._renderPocketsSection()}
 			${this._renderBankDetailsSection()}
+			${this._renderMandatesDetailsSection()}
 		`;
 	}
 
@@ -414,7 +418,7 @@ class LifePolicySummary extends Component {
 						value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getPolicyCoverAmount(this.selectedLifePolicy.pockets)))}">
 					</horizon-label>
 					<horizon-label label="Premium"
-						value="${formatCurrency(this.selectedLifePolicy?.totalPremium)}">
+						value="${this.selectedLifePolicy?.policyStatus === `Cancelled` ? formatCurrency(this.selectedLifePolicy?.nextCollectionAmount) : formatCurrency(this.selectedLifePolicy?.totalPremium)}">
 					</horizon-label>
 					${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED ? html`
 						<horizon-label
@@ -478,7 +482,7 @@ class LifePolicySummary extends Component {
 				</horizon-label>
 				${this.selectedLifePolicy?.policyStatus === LIFE_POLICY_STATUSES.CANCELLED ? html`
 					<horizon-label label="Cancellation date"
-						value="${isNullorEmpty(this.selectedLifePolicy?.actualCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.actualCancellationDate, `dd mmm yyyy`)}">
+						value="${isNullorEmpty(this.selectedLifePolicy?.effectiveCancellationDate) ? `-` : formatDate(this.selectedLifePolicy?.effectiveCancellationDate, `dd mmm yyyy`)}">
 					</horizon-label>
 					<horizon-label label="Reason"
 						value="${this.selectedLifePolicy?.cancellationReason}">
@@ -692,6 +696,116 @@ class LifePolicySummary extends Component {
 				</capitec-group>
 			</horizon-expander>
 		</capitec-content-box>`;
+	}
+
+	_renderMandatesDetailsSection() {
+		const mandateDetails = this.lifePolicyMandates ?? [];
+
+		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
+			const date = new Date(e.mandateInitiationDate);
+			return date;
+		})));
+		return html`
+			<capitec-title-bar type="default" label="Mandate details">
+			</capitec-title-bar>
+			${mandateDetails.length === 0 ? this._renderNoResults() 
+			: html`
+			${mandateDetails.map((mandate) => html`
+			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
+				<capitec-content-box  class="accounts-box">
+					<horizon-expander
+					expandButtonAlignment="right"
+					.expanded = "${false}">
+						<capitec-group 
+							class="expander-header"
+							slot="custom-header"
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<horizon-label
+									class="column-width-200"
+									label="Mandate type"
+									value="${isNullorEmpty(mandate.mandateType) ? `-` : mandate.mandateType}">
+								</horizon-label>
+								<div class="vertical-line"></div>
+								<horizon-label
+									label="Instalment amount"
+									value="${isNullorEmpty(mandate.instalmentAmount) ? `-` : formatCurrency(mandate.instalmentAmount)}">
+								</horizon-label>
+								<horizon-label 
+									label="Instalment Occurrence"
+									value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}"
+									class="column-width-200">
+								</horizon-label>
+								<horizon-label
+									label="Mandate status"
+									value="${mandate.mandateStatus}"
+									class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
+								</horizon-label>
+						</capitec-group>
+						<div slot="content">
+							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+								${this._renderMandateOptions(mandate)}
+							</capitec-group>
+						</div>
+					</horizon-expander>
+				</capitec-content-box>
+			` : html``}
+			`)}
+			`}
+		`;
+	}
+
+	_renderMandateOptions(mandate) {
+		return html`
+		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Voice recording number"
+					value="${isNullorEmpty(mandate.voiceRecordingNumber) ? `-` : mandate.voiceRecordingNumber}">
+				</horizon-label>
+				<horizon-label label="Tracking indicator"
+					value="${isNullorEmpty(mandate.mandateRequestTransactionIdentifier) ? `-` : mandate.mandateRequestTransactionIdentifier}">
+				</horizon-label>
+				<horizon-label label="Initial amount"
+					value="${isNullorEmpty(mandate.initialInstalmentAmount) ? formatCurrency(0) : formatCurrency(mandate.initialInstalmentAmount)}">
+				</horizon-label>
+				<horizon-label label="Number of debit instalments"
+					value="${isNullorEmpty(mandate.numberOfDebitInstalments) ? `-` : mandate.numberOfDebitInstalments}">
+				</horizon-label>
+			</capitec-group>
+			
+			<capitec-group class="options-group" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Mandate initiation date"
+					value="${isNullorEmpty(mandate.mandateInitiationDate) ? `-` : formatDate(mandate.mandateInitiationDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="First collection day"
+					value="${isNullorEmpty(mandate.firstCollectionDate) ? `-` : formatDate(mandate.firstCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+				<horizon-label label="Last collection date"
+					value="${isNullorEmpty(mandate.lastCollectionDate) ? `-` : formatDate(mandate.lastCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+			</capitec-group>
+		`;
+	}
+
+		/**
+	 * Render message when no results found
+	 * @returns {html} The html content of No results
+	 */
+	_renderNoResults() {
+		return html`
+			<capitec-content-box class="accounts-box">
+				<horizon-expander expandButtonAlignment="" .expanded="${false}" ?disabled=${true}>
+					<capitec-group class="no-result-group" slot="custom-header" layout="horizontal" gap="clear" halign="left"
+						valign="center">
+						<horizon-label data-automation-id="policy-summary-no-results" class="no-results" label="No results found"
+							type="strong">
+						</horizon-label>
+					</capitec-group>
+				</horizon-expander>
+			</capitec-content-box>
+		`;
 	}
 
 	// #endregion

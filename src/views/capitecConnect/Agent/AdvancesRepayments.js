@@ -151,10 +151,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		} catch (error) {
 			this.showTable = false;
 
-			console.error(error);
-
-			if (this.clientCif) {
-				alert("Error: " + `The provided MSISDN is not owned by this client [cif ${this.clientCif}]`);
+			if (
+				this.activeFilters.searchType.value === `msisdn` &&
+				this.activeFilters.searchValue.trim() !== `` &&
+				this.clientCif
+			) {
+				alert("Error: " + `The provided MSISDN [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif}]`);
 			}
 
 			return {
@@ -258,6 +260,14 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 
 		var { result } = await this.getAdvanceBalances(filters);
 		this.advanceBalances = result.content;
+
+		if (
+			filters.searchType.value === `msisdn` &&
+			filters.searchValue.trim() !== `` &&
+			this.clientCif
+		) {
+			this.advanceBalances = this.advanceBalances.filter(e => e.msisdn === filters.searchValue);
+		}
 
 		this.advanceBalancePopupOpen = true;
 	}
@@ -392,11 +402,11 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let status = `---`;
 		let transactionCode = item.transactionReference || `-`;
 		let typeOfRecharge = item.type;
-		let advanceAmountPaid = `R0.00`;
 		let transactionDate = `-`;
 		let account = `-`;
-		let airtimeSurplus = `-`;
 		let journalReference = `-`;
+		let advanceAmountPaid = `R0.00`;
+		let airtimeSurplus = `R0.00`;
 
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
@@ -404,20 +414,20 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			status = item.transactions[0].status || status;
 			status = toTitleCase(status);
 
-			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
 			journalReference = item.transactions[0].journalReference || journalReference;
+			
+			advanceAmountPaid = typeof item.transactions[0].advanceAmountPaid === "number" ? `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` : advanceAmountPaid;
+			airtimeSurplus = typeof item.transactions[0].advanceSurplus === "number" ? `R${parseFloat(item.transactions[0].advanceSurplus).toFixed(2)}` : airtimeSurplus;
 
-			advanceAmountPaid = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
+			typeOfRecharge = typeof item.transactions[0].type === "string" ? item.transactions[0].type : typeOfRecharge;
 		}
 
 		let postingDate = item.friendlyDate;
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
-			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = typeof item.recharges[0].quantity === "number" ? `R${parseFloat(item.recharges[0].quantity).toFixed(2)}` : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 		}
-
-		airtimeSurplus = "R" + airtimeSurplus;
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge.replace("_", " "));
@@ -506,23 +516,29 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		if (item.transactions.length > 0) {
 			product = product ? product : item.transactions[0].bundleType;
 			account = item.transactions[0].accountNumber;
-			advanceRepayment = `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}`;
-			airtimeSurplus = parseFloat(item.transactions[0].advanceSurplus).toFixed(2);
+
+			advanceRepayment = typeof item.transactions[0].advanceAmountPaid === "number" ? `R${parseFloat(item.transactions[0].advanceAmountPaid).toFixed(2)}` : advanceRepayment;
+			airtimeSurplus = typeof item.transactions[0].advanceSurplus === "number" ? `R${parseFloat(item.transactions[0].advanceSurplus).toFixed(2)}` : airtimeSurplus;
+
+			type = typeof item.transactions[0].type === "string" ? item.transactions[0].type : type;
 		}
 
 		if (item.recharges.length > 0) {
 			product = product ? product : item.recharges[0].bundleType;
 			productId = item.recharges[0].productId ? item.recharges[0].productId : productId;
 
-			airtimeSurplus = item.recharges[0].quantity ? parseFloat(item.recharges[0].quantity).toFixed(2) : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
+			airtimeSurplus = typeof item.recharges[0].quantity === "number" ? `R${parseFloat(item.recharges[0].quantity).toFixed(2)}` : airtimeSurplus; // the recharge that occurred is the surplus of airtime.
 
 			rechargeStatus = item.recharges[0]?.status || rechargeStatus;
 			rechargeStatusReason = item.recharges[0]?.statusReason || rechargeStatusReason;
 		} else {
-			rechargeStatusReason = "No recharge occurred."
-		}
+			rechargeStatusReason = "No recharge occurred.";
 
-		airtimeSurplus = "R" + airtimeSurplus;
+			// if there was a transaction, chances are that this was a transaction that didn't have a surplus
+			if (item.transactions.length > 0) {
+				rechargeStatus = item.transactions[0].status;
+			}
+		}
 
 		product = toTitleCase(product);
 
@@ -592,6 +608,9 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_renderAdvanceBalanceModal() {
+		var today = new Date();
+		today = today.toISOString().split('T')[0];
+
 		return html`
 		<capitec-modal type="text" header="Advance Balance">
 			${!this.advanceBalances.length ? html`
@@ -624,7 +643,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 						<capitec-label label="R${parseFloat(ab.totalOutstandingAdvanceBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingFeeBalance).toFixed(2)}"></capitec-label>
 						<capitec-label label="R${parseFloat(ab.totalOutstandingBalance).toFixed(2)}" type="strong"></capitec-label>
-						<capitec-label label="${ab.repayDays > 0 ? 'YES' : '--'}"></capitec-label>
+						<capitec-label label="${ab.nextPaymentDate && compareDates(ab.nextPaymentDate, today) < 1 ? 'YES' : '--'}"></capitec-label>
 						<capitec-label label="${ab.status || '--'}"></capitec-label>
 						${ab.nextPaymentDate && html`
 							<capitec-label label="${ab.nextPaymentDate}"></capitec-label>

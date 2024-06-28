@@ -223,7 +223,20 @@ export const PolicySummary = {
 			"relationship": `MainLife`,
 			"coverAmount": 50000,
 			"premium": 48.5,
-			"rowID": 0
+			"rowID": 0,
+			"coverDetails": {
+				"isExtendedFamily": false,
+				"defaultCover": 0,
+				"maxCoverAmount": `100000`,
+				"minCoverAmount": `5000`,
+				"minAge": 18, "maxAge": 64,
+				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
+				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
+				"ageMessage": ``,
+				"coverMessage": ``,
+				"disableDoB": true,
+				"canSubmit": true 
+			}
 		},
 		{
 			"title": `Mrs`,
@@ -247,7 +260,20 @@ export const PolicySummary = {
 			"relationship": `Spouse`,
 			"coverAmount": 25000,
 			"premium": 25,
-			"rowID": 1
+			"rowID": 1,
+			"coverDetails": {
+				"isExtendedFamily": false,
+				"defaultCover": 0,
+				"maxCoverAmount": `100000`,
+				"minCoverAmount": `5000`,
+				"minAge": 18, "maxAge": 64,
+				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
+				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
+				"ageMessage": ``,
+				"coverMessage": ``,
+				"disableDoB": true,
+				"canSubmit": true 
+			}
 		},
 		{
 			"title": `Mr`,
@@ -271,7 +297,20 @@ export const PolicySummary = {
 			"relationship": `Child`,
 			"coverAmount": 25000,
 			"premium": 22,
-			"rowID": 2
+			"rowID": 2,
+			"coverDetails": {
+				"isExtendedFamily": false,
+				"defaultCover": 0,
+				"maxCoverAmount": `100000`,
+				"minCoverAmount": `5000`,
+				"minAge": 18, "maxAge": 64,
+				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
+				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
+				"ageMessage": ``,
+				"coverMessage": ``,
+				"disableDoB": true,
+				"canSubmit": true 
+			}
 		},
 		{
 			"title": `Mr`,
@@ -295,7 +334,20 @@ export const PolicySummary = {
 			"relationship": `Child`,
 			"coverAmount": 25000,
 			"premium": 22,
-			"rowID": 3
+			"rowID": 3,
+			"coverDetails": {
+				"isExtendedFamily": false,
+				"defaultCover": 0,
+				"maxCoverAmount": `100000`,
+				"minCoverAmount": `5000`,
+				"minAge": 18, "maxAge": 64,
+				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
+				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
+				"ageMessage": ``,
+				"coverMessage": ``,
+				"disableDoB": true,
+				"canSubmit": true 
+			}
 		}
 	]
 };
