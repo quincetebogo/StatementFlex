@@ -739,6 +739,7 @@ class LifeAllocateCoverDialog extends Component {
 		if (newGuardianType === `NEW`) {
 			guardianId = v4();
 			guardian.guardianId = guardianId;
+			guardian.role = `Guardian`;
 			this.updatedPolicy.guardians.push(guardian);
 		}
 
@@ -1044,6 +1045,9 @@ class LifeAllocateCoverDialog extends Component {
 	async _nextStep() {
 		let stepValid = true;
 
+		console.log(`this.updatedPolicy: this.currentDialogStep`, this.currentDialogStep);
+		console.log(this.updatedPolicy);
+
 		// Allocate
 		if (this.currentDialogStep === 0) {
 			stepValid = this._validateAllocatePocketsStep();
@@ -1150,6 +1154,7 @@ class LifeAllocateCoverDialog extends Component {
 					requestBeneficiaries.push(newBene);
 				});
 
+				// Strip the beneficiaries with no cover
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 
 				const updatePolicyReq = {
@@ -1255,6 +1260,16 @@ class LifeAllocateCoverDialog extends Component {
 
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 
+				// Add Guardians?
+				this.updatedPolicy.guardians.forEach(guardian => {
+					const validGuardian = guardian;
+					validGuardian.onceOffPayoutBenefitAmount = 0;
+					validGuardian.monthlyPayoutBenefitAmount = 0;
+					validGuardian.educationBenefitAmount = 0;
+
+					requestBeneficiaries.push(validGuardian);
+				});
+
 				const reIssueRequest = {
 					"policyIssueDate": new Date(),
 					"previousPolicyNumber": this.updatedPolicy.contractReference,
@@ -1279,6 +1294,7 @@ class LifeAllocateCoverDialog extends Component {
 					"answers": this.newOfferAnswers
 				};
 
+				console.log(reIssueRequest);
 				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
 
 				// Execute Agreement Call

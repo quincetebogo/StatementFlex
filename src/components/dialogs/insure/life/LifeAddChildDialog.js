@@ -226,7 +226,9 @@ class LifeAddChildDialog extends Component {
 	 */
 	_continueWithNewGuardian() {
 		this.newGuardianType = NEW_BENEFICIARY_TYPES.NEW;
-		this.newGuardian = {};
+		this.newGuardian = {
+			role: `Guardian`
+		};
 		this.newOrExistingErrorMessage = ``;
 		this.newGuardianErrors = {};
 	}
