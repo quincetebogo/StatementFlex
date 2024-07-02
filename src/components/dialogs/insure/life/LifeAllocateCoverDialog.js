@@ -1260,12 +1260,30 @@ class LifeAllocateCoverDialog extends Component {
 
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 
-				// Add Guardians?
+				// Add Guardians back?
 				this.updatedPolicy.guardians.forEach(guardian => {
 					const validGuardian = guardian;
 					validGuardian.onceOffPayoutBenefitAmount = 0;
 					validGuardian.monthlyPayoutBenefitAmount = 0;
 					validGuardian.educationBenefitAmount = 0;
+					validGuardian.bankDetails = null;
+					validGuardian.recordId = null;
+					validGuardian.cifNumber = null;
+					validGuardian.benefits = [
+						{
+							"benefitType": `LumpSum`,
+							"pocketAmount": 0.0
+						},
+						{
+							"benefitType": `MonthlyPayout`,
+							"pocketAmount": 0.0
+						},
+						{
+							"benefitType": `Education`,
+							"pocketAmount": 0.0
+						}
+					];
+					validGuardian.clientId = null;
 
 					requestBeneficiaries.push(validGuardian);
 				});
