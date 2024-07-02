@@ -1264,7 +1264,7 @@ class LifeAllocateCoverDialog extends Component {
 				this.updatedPolicy.guardians.forEach(guardian => {
 
 					// Is guardian still linked
-					const linkedChild = this.requestBeneficiaries.find(guardian.guardianId === requestBeneficiaries.guardianId);
+					const linkedChild = requestBeneficiaries.find(guardian.guardianId === requestBeneficiaries.guardianId);
 					if (!linkedChild) {
 						return;
 					}
