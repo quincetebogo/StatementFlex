@@ -1264,7 +1264,7 @@ class LifeAllocateCoverDialog extends Component {
 				this.updatedPolicy.guardians.forEach(guardian => {
 
 					// Is guardian still linked
-					const linkedChild = false;
+					let linkedChild = false;
 					requestBeneficiaries.forEach(reqBene => {
 						if (reqBene.guardianId === guardian.guardianId) {
 							linkedChild = true;
@@ -1275,7 +1275,7 @@ class LifeAllocateCoverDialog extends Component {
 						return;
 					}
 
-					const validGuardian = guardian;
+					let validGuardian = guardian;
 					validGuardian.onceOffPayoutBenefitAmount = 0;
 					validGuardian.monthlyPayoutBenefitAmount = 0;
 					validGuardian.educationBenefitAmount = 0;
