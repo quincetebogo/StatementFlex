@@ -1288,8 +1288,8 @@ class LifeAllocateCoverDialog extends Component {
 						}
 					];
 					validGuardian.contactDetails = {
-						cellphone: contactDetails.contactNumber,
-						email: contactDetails.contactEmail,
+						cellphone: validGuardian.contactNumber,
+						email: validGuardian.contactEmail,
 						homephone: ``,
 						workphone: ``
 					};
