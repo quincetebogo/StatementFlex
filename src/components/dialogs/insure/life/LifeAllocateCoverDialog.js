@@ -1239,7 +1239,7 @@ class LifeAllocateCoverDialog extends Component {
 						newBene.role = `Beneficiary`;
 					}
 					if (newBene.educationBenefitAmount) {
-						newBene.role = `Child`;
+						newBene.role = `Beneficiary`;
 					}
 
 					newBene.benefits = [
@@ -1275,7 +1275,7 @@ class LifeAllocateCoverDialog extends Component {
 						return;
 					}
 
-					let validGuardian = guardian;
+					const validGuardian = guardian;
 					validGuardian.onceOffPayoutBenefitAmount = 0;
 					validGuardian.monthlyPayoutBenefitAmount = 0;
 					validGuardian.educationBenefitAmount = 0;
@@ -1296,7 +1296,12 @@ class LifeAllocateCoverDialog extends Component {
 							"pocketAmount": 0.0
 						}
 					];
-					validGuardian.clientId = null;
+					validGuardian.contactDetails = {
+						cellphone: contactDetails.contactNumber,
+						email: contactDetails.contactEmail,
+						homephone: ``,
+						workphone: ``
+					};
 
 					requestBeneficiaries.push(validGuardian);
 				});
