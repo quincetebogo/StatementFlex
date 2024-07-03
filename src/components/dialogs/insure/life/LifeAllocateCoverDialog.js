@@ -1231,7 +1231,7 @@ class LifeAllocateCoverDialog extends Component {
 			} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				let requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
-					const newBene = JSON.parse(JSON.stringify(this.bene));
+					const newBene = JSON.parse(JSON.stringify(bene));
 					newBene.role = `Beneficiary`;
 					newBene.benefits = [
 						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
