@@ -1231,17 +1231,8 @@ class LifeAllocateCoverDialog extends Component {
 			} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				let requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
-					const newBene = bene;
-					if (newBene.onceOffPayoutBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-
+					const newBene = JSON.parse(JSON.stringify(this.bene));
+					newBene.role = `Beneficiary`;
 					newBene.benefits = [
 						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
@@ -1332,7 +1323,9 @@ class LifeAllocateCoverDialog extends Component {
 
 				console.log(reIssueRequest);
 				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
-
+				if (!this.reIssueResult.policyNumber) {
+					return;
+				}
 				// Execute Agreement Call
 				const agreementRequest = {
 					"saveDocument": false,
