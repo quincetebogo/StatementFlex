@@ -406,6 +406,95 @@ export const insureLifeClientSummary = {
             "canReIssue": false,
             "canIncreaseCover": true,
             "channelFee": 31.0
+        },
+		{
+            "contractReference": `LP00008313`,
+            "policyStatus": `Cancelled`,
+            "policyStatusEnum": `Cancelled`,
+            "displayPolicyStatus": `Cancelled`,
+            "policyStartDate": `2024-03-10T00:00:00+00:00`,
+            "actualCancellationDate": `2024-07-02T00:00:00+00:00`,
+            "effectiveCancellationDate": `2024-07-02T00:00:00+00:00`,
+            "cancellationReason": `Change In Family Circumstances`,
+            "cancellationReasonEnum": `ChangeInFamilyCircumstances`,
+            "totalPremium": 58.0039256879,
+            "lastCollectionDate": `2024-04-10T00:00:00+00:00`,
+            "lastCollectionAmount": 58.0039256879,
+            "nextCollectionDate": `2024-06-10T00:00:00+00:00`,
+            "nextCollectionAmount": 58.0039256879,
+            "bankDetails": {
+                "accountName": `Testing`,
+                "branchCode": `470010`,
+                "accountNumber": `1592099082`,
+                "bank": `Capitec`,
+                "accountType": `Savings`,
+                "collectionDay": 10,
+                "mandateReference": `00102024070132F9F0D3B2`
+            },
+            "pockets": [
+                {
+                    "pocketType": `LumpSum`,
+                    "coverage": 153260.0,
+                    "premium": 30.1
+                },
+                {
+                    "pocketType": `MonthlyPayout`,
+                    "coverage": 0.0,
+                    "premium": 0.0
+                },
+                {
+                    "pocketType": `Education`,
+                    "coverage": 0.0,
+                    "premium": 0.0
+                }
+            ],
+            "beneficiaries": [
+                {
+                    "title": `Mr`,
+                    "firstName": `Justin`,
+                    "lastName": `Brennand`,
+                    "rolePlayer": `Primary Beneficiary`,
+                    "onceOffPayoutBenefitAmount": 76630.0,
+                    "educationBenefitAmount": 0.0,
+                    "monthlyPayoutBenefitAmount": 0.0,
+                    "bankDetails": {
+                        "accountType": `Bond`
+                    },
+                    "relationship": `Spouse`,
+                    "gender": `Female`,
+                    "dateOfBirth": `1978-03-04T00:00:00+00:00`,
+                    "contactNumber": `0823214321`,
+                    "contactEmail": `justin@youwish.org`,
+                    "clientType": `Adult`,
+                    "clientId": `2796E6C7-D977-460F-8866-7B0B65043F28`
+                },
+                {
+                    "title": `Mr`,
+                    "firstName": `Justin`,
+                    "lastName": `Brennand`,
+                    "rolePlayer": `Primary Beneficiary`,
+                    "onceOffPayoutBenefitAmount": 76630.0,
+                    "educationBenefitAmount": 0.0,
+                    "monthlyPayoutBenefitAmount": 0.0,
+                    "bankDetails": {
+                        "accountType": `Bond`
+                    },
+                    "relationship": `Spouse`,
+                    "gender": `Female`,
+                    "dateOfBirth": `1988-03-04T00:00:00+00:00`,
+                    "contactNumber": `0823214321`,
+                    "contactEmail": `justin@youwish.org`,
+                    "clientType": `Adult`,
+                    "clientId": `E166A400-CF14-474A-9926-1B1DB9FC5D88`
+                }
+            ],
+            "totalPolicySumAssured": 153260.0,
+            "policyReinstatementCount": 0,
+            "newBornPremiumWaiverAvailable": false,
+            "voluntaryPremiumPauseAvailable": false,
+            "canReIssue": true,
+            "canIncreaseCover": true,
+            "channelFee": 27.9
         }
     ]
 };
