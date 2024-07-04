@@ -9,32 +9,30 @@
 export const insureLifeClientSummary = {
     "policies": [
         {
-            "contractReference": `LP00008308`,
-            "policyStatus": `Cool-Off`,
-            "policyStatusEnum": `CoolOff`,
-            "displayPolicyStatus": `Not Taken Up`,
-            "policyStartDate": `2024-07-01T00:00:00+00:00`,
-            "actualCancellationDate": `2024-07-01T00:00:00+00:00`,
-            "effectiveCancellationDate": `2024-07-01T00:00:00+00:00`,
-            "cancellationReason": `Policy with other service provider`,
-            "cancellationReasonEnum": `BetterOffAtAnotherProvider`,
-            "totalPremium": 58.0039256879,
+            "contractReference": `LP00008360`,
+            "policyStatus": `Pending In Force`,
+            "policyStatusEnum": `PendingInForce`,
+            "displayPolicyStatus": `Active - Pending Payment`,
+            "policyStartDate": `2024-07-03T00:00:00+00:00`,
+            "cancellationReason": ``,
+            "cancellationReasonEnum": `Unknown`,
+            "totalPremium": 73.62,
             "nextCollectionDate": `2024-08-10T00:00:00+00:00`,
-            "nextCollectionAmount": 58.0039256879,
+            "nextCollectionAmount": 73.62,
             "bankDetails": {
-                "accountName": `Testing`,
+                "accountName": `DEVXOL SURNAMESIM`,
                 "branchCode": `470010`,
-                "accountNumber": `1724555233`,
+                "accountNumber": `1633180644`,
                 "bank": `Capitec`,
                 "accountType": `Savings`,
                 "collectionDay": 10,
-                "mandateReference": `001020240701BEAF01F8E1`
+                "mandateReference": `00102024070397F1A01952`
             },
             "pockets": [
                 {
                     "pocketType": `LumpSum`,
-                    "coverage": 153260.0,
-                    "premium": 30.1
+                    "coverage": 0.0,
+                    "premium": 0.0
                 },
                 {
                     "pocketType": `MonthlyPayout`,
@@ -43,57 +41,63 @@ export const insureLifeClientSummary = {
                 },
                 {
                     "pocketType": `Education`,
-                    "coverage": 0.0,
-                    "premium": 0.0
+                    "coverage": 100000.0,
+                    "premium": 42.62
                 }
             ],
             "beneficiaries": [
                 {
                     "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
+                    "firstName": `Lisa`,
+                    "lastName": `khanya`,
                     "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
+                    "onceOffPayoutBenefitAmount": 0.0,
+                    "educationBenefitAmount": 100000.0,
                     "monthlyPayoutBenefitAmount": 0.0,
                     "bankDetails": {
                         "accountType": `Bond`
                     },
-                    "relationship": `Spouse`,
+                    "relationship": `Child`,
                     "gender": `Female`,
-                    "dateOfBirth": `1978-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `B99BBF1E-DC9E-49E8-8F1B-412E4B9D7017`
-                },
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1988-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `1C227DB5-525A-4679-8032-0826FBA71FBB`
+                    "dateOfBirth": `2024-07-01T00:00:00+00:00`,
+                    "clientType": `Child`,
+                    "guardianId": `11cf9f95-33ca-4b71-a442-a88002f77b6f`,
+                    "clientId": `F4F41DCB-DA4D-440E-BDC4-1910C2904299`
                 }
             ],
-            "totalPolicySumAssured": 153260.0,
-            "policyReinstatementCount": 0,
-            "newBornPremiumWaiverAvailable": false,
-            "voluntaryPremiumPauseAvailable": false,
+            "totalPolicySumAssured": 100000.0,
+            "policyReinstatementCount": 1,
             "canReIssue": false,
             "canIncreaseCover": true,
-            "channelFee": 27.9
+            "mandates": [
+                {
+                    "accountName": `Mr DEVXOL SURNAMESIM`,
+                    "branchCode": `470010`,
+                    "accountNumber": `1633180644`,
+                    "bank": `CAPITEC BANK`,
+                    "accountType": `Bond`,
+                    "mandateType": `Debicheck`,
+                    "initialInstalmentAmount": 73.62,
+                    "firstCollectionDate": `2024-08-10T00:00:00+00:00`,
+                    "numberOfDebitInstalments": 9999,
+                    "statusReason": `ACCEPTED`,
+                    "mandateStatus": `Active`,
+                    "mandateInitiationDate": `2024-07-03T00:00:00+00:00`,
+                    "mandateId": 16329,
+                    "instalmentAmount": 73.62,
+                    "contractReference": `LP00008360`,
+                    "collectionDay": 10,
+                    "cifNumber": 283348968,
+                    "idNumber": `8603266349086`,
+                    "instalmentOccurrence": `RCUR`,
+                    "authRequired": false,
+                    "mandateReferenceNumber": `00102024070397F1A01952`,
+                    "contactNumber": ``,
+                    "voiceRecordingNumber": ``,
+                    "mandateRequestTransactionIdentifier": `00102024-07-03000000014`
+                }
+            ],
+            "channelFee": 31.0
         },
         {
             "contractReference": `LP00008310`,
