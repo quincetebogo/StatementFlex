@@ -39,6 +39,10 @@ import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
 import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
+const FUN_BENEFIT_OPTIONS = {
+	NEW_BORN: `NewBorn`,
+	POLICY_PAUSE: `PolicyPause`
+};
 
 /**
  * Client Summary component showing all the claims, funeral and life cover policies a client currently has on their account
@@ -996,6 +1000,11 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
+		const newBornBenefit = policyItem.benefits.find(benefit => benefit.type === FUN_BENEFIT_OPTIONS.NEW_BORN);
+		if (newBornBenefit.available) {
+			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
+		}
+
 	}
 
 	/**
@@ -1066,6 +1075,13 @@ class ClientSummary extends Component {
 				label="SMS History" 
 				icon="system/send-action"
 				@click="${() => this._goToFuneralSMSHistory(policyItem)}">
+			</horizon-option-button>`;
+			case POLICY_OPTIONS.NEW_BORN_WAIVER:
+				return html`<horizon-option-button 
+				class="button-margin" 
+				label="Newborn premium waiver" 
+				icon="system/send-action"
+				@click="${() => this._goToFuneralNewbornWaiver(policyItem)}">
 			</horizon-option-button>`;
 			default:
 				return html``;
