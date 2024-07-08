@@ -513,10 +513,6 @@
 			"positiveCase": true
 		},
 		"insureLifeIncreaseCover": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"insureLifeCalcIncreaseCoverPremium": {
 			"enabled": true,
 			"positiveCase": true
 		}

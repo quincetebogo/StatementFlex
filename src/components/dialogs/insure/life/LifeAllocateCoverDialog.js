@@ -150,7 +150,8 @@ class LifeAllocateCoverDialog extends Component {
 			executeLifeUpdateDocument: { type: Object, state: true },
 			executeLifeUpdatePocket: { type: Object, state: true },
 			executeLifeIncreaseCover: { type: Object, state: true },
-			getIncreaseCoverPremium: { type: Object, state: true }
+			segments: { type: Array, state: true }
+			
 		};
 	}
 
@@ -189,6 +190,7 @@ class LifeAllocateCoverDialog extends Component {
 		this.originalAccountType = this.currentPolicy.bankDetails.accountType;
 
 		this.updatedPolicy = { ...this.currentPolicy };
+		console.log(`this.updatedPolicy :>> `, this.updatedPolicy);
 		if (!isNullorEmpty(this.newOffer)) {
 			this.isNewOffer = true;
 		}
@@ -258,10 +260,11 @@ class LifeAllocateCoverDialog extends Component {
 			});
 		} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 
+			this.segments = this.newOffer.segments;
 			this.riskRate = this.newOffer.riskRate;
 			this.channelFee = this.newOffer.channelFee;
 			this.totalLoadingApplied = this.newOffer.totalLoadingApplied;
-			this.remainingSumAssuredAvailable = this.newOffer.remainingSumAssuredAvailable;
+			this.remainingCoverToAllocate = this.newOffer.remainingSumAssuredAvailable;
 			this.totalCoverAllocatedAllPockets = this.newOffer.currentPolicySumAssured;
 
 			this.updatedPolicy.beneficiaries.forEach(bene => {
@@ -452,7 +455,7 @@ class LifeAllocateCoverDialog extends Component {
 	 * Recalculate premium based on cover values
 	 * @returns {void}
 	 */
-	async _recalculatePremium() {
+	 _recalculatePremium() {
 		if (isNullorEmpty(this.onceOffCoverValue) || isNaN(this.onceOffCoverValue)) {
 			this.onceOffCoverValue = 0;
 		}
@@ -496,17 +499,17 @@ class LifeAllocateCoverDialog extends Component {
 		}
 
 		if (this.updateMode === LIFE_UPDATE_MODE.INCREASE && this.totalCoverAllocatedAllPockets >= 100000) {
+			this.calculatedPremium = 0;
 
-			const calcIncreasedPremiumRequest = {
-			"riskRate": this.newOffer.riskRate,
-  			"loading": this.newOffer.totalLoadingApplied,
-			"channelFee": this.newOffer.channelFee,
-			"totalCover": this.totalCoverAllocatedAllPockets,
-			"currentCover": this.currentPolicy.totalPolicySumAssured,
-			"currentPremium": this.currentPolicy.totalPremium
-			};
-			const newIncreasePremium = await this.getIncreaseCoverPremium(calcIncreasedPremiumRequest);
-			this.calculatedPremium = newIncreasePremium.newPremium;
+			if (this.updatedPolicy?.totalPolicySumAssured < this.totalCoverAllocatedAllPockets) {
+				this.totalCoverAllocatedAllPockets -= this.updatedPolicy?.totalPolicySumAssured;
+
+				const basePremium = (this.totalCoverAllocatedAllPockets / 1000) * this.riskRate; 
+				const loadedPremium = this.totalLoadingApplied * basePremium;
+				this.calculatedPremium = basePremium + loadedPremium + this.channelFee;
+				console.log(`this.calculatedPremium :>> `, this.calculatedPremium);
+
+			}
 
 		}
 

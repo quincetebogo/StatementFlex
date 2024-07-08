@@ -1116,7 +1116,7 @@ export class ExistingClient extends InsureViewBase {
 	// #region EVENT HANDLERS 
 
 
-	/*
+	/**
 	* Navigate so specific subview
 	* @param {String} newMode New render mode string to change renderMode to
 	* @returns {void} void
@@ -1332,6 +1332,7 @@ export class ExistingClient extends InsureViewBase {
 		coverAvailableRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		coverAvailableRequest.cifNumber = this.callerInformation.cifNumber;
 		const resp = await this.insureLifeService.lifeCoverAvailable(coverAvailableRequest);
+		console.log(`resp.result :>> `, resp.result);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -1347,7 +1348,7 @@ export class ExistingClient extends InsureViewBase {
 		increaseCoverRequest.answers = this.coverAvailableAnswers;
 
 		const resp = await this.insureLifeService.lifeIncreaseCover(increaseCoverRequest);
-
+		console.log(`resp.result :>> `, resp.result);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception); 
 			return;
@@ -1355,16 +1356,6 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	async _getIncreaseCoverPremium(increaseCoverPremiumRequest) {
-		
-		const resp = await this.insureLifeService.lifeClacIncreaseCoverPremium(increaseCoverPremiumRequest);
-		if (!resp.succeeded) {
-			this.handleToastError(resp.exception);
-			return;
-		}
-		return resp.result;
-
-	}
 
 	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
 		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
@@ -2200,7 +2191,6 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
-				.getIncreaseCoverPremium = "${(increaseCoverPremiumRequest) => this._getIncreaseCoverPremium(increaseCoverPremiumRequest)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"

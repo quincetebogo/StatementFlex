@@ -236,7 +236,6 @@ class ClientSummary extends Component {
 			getDefaultSavingsAccountNumber: { type: Object, state: true },
 			showLifeIncreaseUnavailableDialog: { type: Boolean, state: true },
 			lifeIncreaseCoverUnavailableMessage: { type: String, state: true },
-			getIncreaseCoverPremium: { type: Object, state: true },
 
 			executeLifePayArrearsGenerateAgreementDocument: { type: Object, state: true },
 			executeLifePayArrears: { type: Object, state: true },
@@ -2672,7 +2671,6 @@ class ClientSummary extends Component {
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
 				.executeLifeIncreaseCover = "${(increaseCoverRequest) => this.executeLifeIncreaseCover(increaseCoverRequest)}"
-				.getIncreaseCoverPremium = "${(increaseCoverPremimRequest) => this.getIncreaseCoverPremium(increaseCoverPremimRequest)}"
 				@life-reissue-completed="${(e) => this._lifeReIssueCompleted(e)}"
 				@life-update-completed="${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed="${(e) => this._lifeIncreaseCoverCompleted(e)}"

@@ -83,7 +83,6 @@ export default class InsureChannelServiceMocks {
 		this.lifeUpdatePocketMocks = await this._loadMockModule(this.lifeUpdatePocketMocks, `insureLifeUpdatePocket`, () => import(`../mocks/insure/life/LifeUpdatePocket`).catch(err => logError(err)));
 		this.lifeCoverAvailableMocks = await this._loadMockModule(this.lifeCoverAvailableMocks, `insureLifeCoverAvailable`, () => import(`../mocks/insure/life/LifeCoverAvailable`).catch(err => logError(err)));
 		this.lifeIncreaseCoverMocks = await this._loadMockModule(this.lifeIncreaseCoverMocks, `insureLifeIncreaseCover`, () => import(`../mocks/insure/life/LifeIncreaseCover`).catch(err => logError(err)));
-		this.lifeCalcIncreaseCoverPremiumMocks = await this._loadMockModule(this.lifeCalcIncreaseCoverPremiumMocks, `insureLifeCalcIncreaseCoverPremium`, () => import(`../mocks/insure/life/LifeCalcIncreaseCoverPremium`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -515,16 +514,6 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
-	/**
-	 * life calc increase cover premium mock check
-	 * @returns {Object} Mock response data
-	 */
-	insureLifeCalcIncreaseCoverPremium() {
-		if (this._mockSettings.insureLifeCalcIncreaseCoverPremium.positiveCase) {
-			return this.lifeCalcIncreaseCoverPremiumMocks.insureLifeCalcIncreaseCoverPremium;
-		}
-		return null;
-	}
 
 	// #endregion LIFE
 	
