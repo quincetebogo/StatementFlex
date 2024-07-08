@@ -1045,9 +1045,6 @@ class LifeAllocateCoverDialog extends Component {
 	async _nextStep() {
 		let stepValid = true;
 
-		console.log(`this.updatedPolicy: this.currentDialogStep`, this.currentDialogStep);
-		console.log(this.updatedPolicy);
-
 		// Allocate
 		if (this.currentDialogStep === 0) {
 			stepValid = this._validateAllocatePocketsStep();
@@ -1369,7 +1366,6 @@ class LifeAllocateCoverDialog extends Component {
 					"answers": this.newOfferAnswers
 				};
 
-				console.log(reIssueRequest);
 				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
 				if (!this.reIssueResult.policyNumber) {
 					return;
