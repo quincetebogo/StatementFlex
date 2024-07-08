@@ -1,7 +1,7 @@
 import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -616,11 +616,10 @@ class FuneralUpdatePlan extends Component {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].idNumber = event.detail.new;
 
-					if (this.policyDetails.roleplayers[index].idNumber.length === 13) {
+					if (isValidRSAIdNumber(this.policyDetails.roleplayers[index].idNumber)) {
 						const birthYear = rolePlayer.idNumber.substring(0, 2);
 						const fullCurrentYear = new Date().getFullYear();
 						const currentYear = fullCurrentYear.toString().substring(2);
-
 
 						// validations
 						if (rolePlayer.beneficiary === true) {
@@ -633,7 +632,7 @@ class FuneralUpdatePlan extends Component {
 							}
 						}
 
-						const dateOfBirth = this._setDOB(this.policyDetails.roleplayers[index].idNumber);
+						const dateOfBirth = getDobFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
 							this.policyDetails.roleplayers[index].coverDetails.ageMessage = ``;
@@ -993,7 +992,7 @@ class FuneralUpdatePlan extends Component {
 	 * @param {event} e e
 	 * @return {void} 
 	 */
-	async _tabChange(e) {
+	_tabChange(e) {
 		this.selectedTabIndex = e.detail.selectedIndex;
 		if (this.canReinstate === false) {
 			if (this.selectedTabIndex === 0) {
@@ -1264,7 +1263,7 @@ class FuneralUpdatePlan extends Component {
 	 * Set maxAllowed cover to include the current policy being looked at
 	 * @return {void} 
 	 */
-	async _initialise() {
+	_initialise() {
 
 		this.canReinstate = this.policyDetails.canReinstate;
 		if (this.canReinstate === false) {
@@ -1514,28 +1513,6 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	/**
-	 * Get date of birth from ID number
-	 * 
-	 * @param {String} idNumber idNumber
-	 * @returns {String} string
-	 */
-	_setDOB(idNumber) {
-		return getDobFromIDNumber(idNumber);
-		
-		// const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
-
-		// if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
-		// 	birthdate.setFullYear(birthdate.getFullYear() + 100);
-		// }
-
-		// const month = birthdate.getMonth() + 1;
-		// const day = birthdate.getDate();
-		// const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
-
-		// return birthDateString;
-	}
-
-	/**
 	 * Check Policy rules to see if field may be edited or not
 	 * 
 	 * @param {String} field field
@@ -1553,13 +1530,10 @@ class FuneralUpdatePlan extends Component {
 	 * @returns {boolean} boolean
 	 */
 	_checkBeneficiaryDobRule(roleplayer) {
-
 		if (roleplayer.lifeAssured === false) {
 			return true;
 		}
 		return this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship);
-
-
 	}
 
 	/**
@@ -2514,10 +2488,8 @@ class FuneralUpdatePlan extends Component {
 				error="${roleplayer?.coverDetails?.surnameErrorMessage === undefined ? `` : roleplayer?.coverDetails.surnameErrorMessage}"
 				@value-changed= "${(e) => this._lifeSurnameValueChanged(e, roleplayer.rowID)}">
 			</capitec-text-field>
-	
 		</div>
 		<div class="expander-options">
-			
 			${!this._checkBeneficiaryDobRule(roleplayer)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled

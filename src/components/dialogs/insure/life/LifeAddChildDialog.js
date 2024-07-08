@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -21,7 +21,7 @@ const VALIDATION_ERRORS = {
 };
 
 const STEPS = {
-	SETP_1: 1,
+	STEP_1: 1,
 	STEP_2: 2,
 	STEP_3: 3,
 	STEP_4: 4
@@ -47,7 +47,7 @@ class LifeAddChildDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = STEPS.SETP_1;
+		this.currentStep = STEPS.STEP_1;
 		this.policy = {};
 		this.selectedPocket = {};
 
@@ -265,7 +265,7 @@ class LifeAddChildDialog extends Component {
 	_nextClick() {
 		let isValid = false;
 
-		if (this.currentStep === STEPS.SETP_1) {
+		if (this.currentStep === STEPS.STEP_1) {
 			isValid = this._validateChildStep();
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
@@ -276,8 +276,7 @@ class LifeAddChildDialog extends Component {
 			}
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_3) {
 			isValid = this._validateGuardianStep();
-		}
-		else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
+		} else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			isValid = this._validateGuardianStep();
 		}
 
@@ -370,7 +369,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.newChild.idNumber)) {
-			if (this.newChild.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.newChild.idNumber)) {
 				this.newChildErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
@@ -457,7 +456,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.newGuardian.idNumber)) {
-			if (this.newGuardian.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.newGuardian.idNumber)) {
 				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
@@ -725,17 +724,33 @@ class LifeAddChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.newChild.idNumber = e.detail.new;
-				if (this.newChild.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.newChild.idNumber)) {
 					this.newChild.dateOfBirth = getDobFromIDNumber(this.newChild.idNumber);
-					this.newChildErrors.dateOfBirth = ``;
 					this.newChildErrors.idNumber = ``;
+
+					// Age check
+					if (getAgeFromDob(this.newChild?.dateOfBirth) > 18) {
+						this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					} else {
+						this.newChildErrors.dateOfBirth = ``;
+					}
+				} else {
+					this.newChildErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			} else {
 				this.newGuardian.idNumber = e.detail.new;
-				if (this.newGuardian.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.newGuardian.idNumber)) {
 					this.newGuardian.dateOfBirth = getDobFromIDNumber(this.newGuardian.idNumber);
-					this.newGuardianErrors.dateOfBirth = ``;
 					this.newGuardianErrors.idNumber = ``;
+
+					// Age check
+					if (getAgeFromDob(this.newGuardian?.dateOfBirth) < 18) {
+						this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+					} else {
+						this.newGuardianErrors.dateOfBirth = ``;
+					}
+				} else {
+					this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			}
 		}
@@ -981,7 +996,7 @@ class LifeAddChildDialog extends Component {
 					active-step-number="${this.currentStep}">
 				</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
 			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
@@ -1000,7 +1015,7 @@ class LifeAddChildDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
 			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
@@ -1371,7 +1386,7 @@ class LifeAddChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.SETP_1 ? html`
+				${this.currentStep === STEPS.STEP_1 ? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 					</capitec-button>
 				` : html`
