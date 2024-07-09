@@ -853,9 +853,9 @@ class LifePolicySummary extends Component {
 	}
 
 	/**
- * Render message when no results found
- * @returns {html} The html content of No results
- */
+	 * Render message when no results found
+	 * @returns {html} The html content of No results
+	 */
 	_renderNoResults() {
 		return html`
 			<capitec-content-box class="accounts-box">

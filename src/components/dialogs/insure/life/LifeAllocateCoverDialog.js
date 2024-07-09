@@ -739,6 +739,7 @@ class LifeAllocateCoverDialog extends Component {
 		if (newGuardianType === `NEW`) {
 			guardianId = v4();
 			guardian.guardianId = guardianId;
+			guardian.role = `Guardian`;
 			this.updatedPolicy.guardians.push(guardian);
 		}
 
@@ -1150,7 +1151,53 @@ class LifeAllocateCoverDialog extends Component {
 					requestBeneficiaries.push(newBene);
 				});
 
+				// Strip the beneficiaries with no cover
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
+
+				// Add Guardians back
+				if (!isNullorEmpty(this.updatedPolicy.guardians)) {
+					this.updatedPolicy.guardians.forEach(guardian => {
+						let linkedChild = false;
+						requestBeneficiaries.forEach(reqBene => {
+							if (reqBene.guardianId === guardian.guardianId) {
+								linkedChild = true;
+							}
+						});
+	
+						if (!linkedChild) {
+							return;
+						}
+	
+						const validGuardian = guardian;
+						validGuardian.onceOffPayoutBenefitAmount = 0;
+						validGuardian.monthlyPayoutBenefitAmount = 0;
+						validGuardian.educationBenefitAmount = 0;
+						validGuardian.bankDetails = {};
+						validGuardian.recordId = null;
+						validGuardian.cifNumber = null;
+						validGuardian.benefits = [
+							{
+								"benefitType": `LumpSum`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `MonthlyPayout`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `Education`,
+								"pocketAmount": 0.0
+							}
+						];
+						validGuardian.contactDetails = {
+							cellphone: validGuardian.contactNumber,
+							email: validGuardian.contactEmail,
+							homephone: ``,
+							workphone: ``
+						};
+						requestBeneficiaries.push(validGuardian);
+					});
+				}
 
 				const updatePolicyReq = {
 					"effectiveDate": new Date(),
@@ -1226,17 +1273,8 @@ class LifeAllocateCoverDialog extends Component {
 			} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
 				let requestBeneficiaries = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
-					const newBene = bene;
-					if (newBene.onceOffPayoutBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Beneficiary`;
-					}
-					if (newBene.educationBenefitAmount) {
-						newBene.role = `Child`;
-					}
-
+					const newBene = JSON.parse(JSON.stringify(bene));
+					newBene.role = `Beneficiary`;
 					newBene.benefits = [
 						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
@@ -1254,6 +1292,55 @@ class LifeAllocateCoverDialog extends Component {
 				});
 
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
+
+				// Add Guardians back
+				if (!isNullorEmpty(this.updatedPolicy.guardians)) {
+
+					this.updatedPolicy.guardians.forEach(guardian => {
+	
+						// Is guardian still linked
+						let linkedChild = false;
+						requestBeneficiaries.forEach(reqBene => {
+							if (reqBene.guardianId === guardian.guardianId) {
+								linkedChild = true;
+							}
+						});
+	
+						if (!linkedChild) {
+							return;
+						}
+	
+						const validGuardian = guardian;
+						validGuardian.onceOffPayoutBenefitAmount = 0;
+						validGuardian.monthlyPayoutBenefitAmount = 0;
+						validGuardian.educationBenefitAmount = 0;
+						validGuardian.bankDetails = {};
+						validGuardian.recordId = null;
+						validGuardian.cifNumber = null;
+						validGuardian.benefits = [
+							{
+								"benefitType": `LumpSum`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `MonthlyPayout`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `Education`,
+								"pocketAmount": 0.0
+							}
+						];
+						validGuardian.contactDetails = {
+							cellphone: validGuardian.contactNumber,
+							email: validGuardian.contactEmail,
+							homephone: ``,
+							workphone: ``
+						};
+	
+						requestBeneficiaries.push(validGuardian);
+					});
+				}
 
 				const reIssueRequest = {
 					"policyIssueDate": new Date(),
@@ -1280,7 +1367,9 @@ class LifeAllocateCoverDialog extends Component {
 				};
 
 				this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
-
+				if (!this.reIssueResult.policyNumber) {
+					return;
+				}
 				// Execute Agreement Call
 				const agreementRequest = {
 					"saveDocument": false,
