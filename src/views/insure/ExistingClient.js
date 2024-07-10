@@ -1111,12 +1111,54 @@ export class ExistingClient extends InsureViewBase {
 		return resinstatePolicyResponse;
 	}
 
+	async _getFuneralNewbornBenefitAgreement() {
+		const newbornBenefitAgreementRequest = {
+
+		};
+
+		const newbornBenefitAgreementResponse = await this.insureFuneralService.benefitAgreement(newbornBenefitAgreementRequest);
+
+		return newbornBenefitAgreementResponse;
+	}
+
+	async executeFuneralActivateBenefit(activationReason, benefitType, policy) {
+		const activateBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"policyPauseReason": activationReason,
+			"benefitType": benefitType,
+			"benefitPeriod": 0,
+			"claimIncidentDate": new Date(),
+			"productCode": policy.productCode
+		};
+
+		const activateBenefitResponse = await this.insureFuneralService.activateBenefit(activateBenefitRequest);
+
+		return activateBenefitResponse;
+	
+	}
+
+	async executeFuneralCancelBenefit(benefitType, policy) {
+		const cancelBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"benefitType": benefitType,
+			"cifNumber": this.callerInformation.cifNumber,
+			"productCode": policy.productCode
+		};
+
+		const cancelBenefitResponse = await this.insureFuneralService.cancelBenefit(cancelBenefitRequest);
+
+		return cancelBenefitResponse;
+	
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
 
 
-	/*
+	/**
 	* Navigate so specific subview
 	* @param {String} newMode New render mode string to change renderMode to
 	* @returns {void} void
@@ -2194,6 +2236,9 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
+				.getNewbornBenefitAgreement="${(activationReason, policy) => this._getFuneralNewbornBenefitAgreement(activationReason, policy)}"
+				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
+				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"

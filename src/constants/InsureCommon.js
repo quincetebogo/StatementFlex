@@ -457,3 +457,14 @@ export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
 ]);
+
+
+/**
+ * Reasons for Activating Funeral benefits
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_REASONS
+ */
+export const FUN_BENEFIT_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Pregnancy`, text: `Pregnancy` }
+]);

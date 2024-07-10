@@ -37,6 +37,7 @@ import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
 import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
+import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 const FUN_BENEFIT_OPTIONS = {
@@ -97,6 +98,7 @@ class ClientSummary extends Component {
 		this.showRequestCallbackDialog = false;
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
+		this.showNewbornPremiumWaiverDialog = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
 		this.showLifeCancelPolicyDialog = false;
@@ -204,6 +206,10 @@ class ClientSummary extends Component {
 			showRequestCallbackDialog: { type: Boolean, state: true },
 			showEarlyCollectionDialog: { type: Boolean, state: true },
 			showLifeHonestyPledgeDialog: { type: Boolean, state: true },
+			showNewbornPremiumWaiverDialog: { type: Boolean, state: true },
+			getNewbornBenefitAgreement: { type: Object, state: true },
+			executeActivateBenefit: { type: Object, state: true },
+			executeCancelBenefit: { type: Object, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -829,6 +835,12 @@ class ClientSummary extends Component {
 		return false;
 	}
 
+	_openNewBornPremiumWaiverDialog(policyItem) {
+		this.selectedPolicyItem = policyItem;
+
+		this.showNewbornPremiumWaiverDialog = true;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -1076,13 +1088,6 @@ class ClientSummary extends Component {
 				icon="system/send-action"
 				@click="${() => this._goToFuneralSMSHistory(policyItem)}">
 			</horizon-option-button>`;
-			case POLICY_OPTIONS.NEW_BORN_WAIVER:
-				return html`<horizon-option-button 
-				class="button-margin" 
-				label="Newborn premium waiver" 
-				icon="system/send-action"
-				@click="${() => this._goToFuneralNewbornWaiver(policyItem)}">
-			</horizon-option-button>`;
 			default:
 				return html``;
 		}
@@ -1130,6 +1135,13 @@ class ClientSummary extends Component {
 					@click="${() => this._openEarlyCollectionOPTInDialog(policyItem)}"
 					icon="system/send-action" 
 					label="Early December collection"
+					.disabled="${this.isInsureAgent}">
+				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.NEW_BORN_WAIVER:
+				return html`<capitec-overflow-menu-item
+					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
+					icon="system/profile-action" 
+					label="Newborn Premium Waiver"
 					.disabled="${this.isInsureAgent}">
 				</capitec-overflow-menu-item>`;
 			default:
@@ -1662,6 +1674,7 @@ class ClientSummary extends Component {
 			${this._renderLifeEmailDialog()}
 			${this._renderLifeHonestyPledgeDialog()}
 			${this._renderLifeIncreaseCoverUnavailable()}
+			${this._renderFuneralNewbornPremiumWaiverDialog()}
 
 		`;
 	}
@@ -2783,6 +2796,23 @@ class ClientSummary extends Component {
 					.unavailableMessage = "${this.lifeIncreaseCoverUnavailableMessage}"
 					@close-modal="${() => this._closeLifeIncreaseCoverUnavailableDialog()}">
 				</horizon-insure-life-increase-cover-unavailable-dialog>
+			`;
+	}
+
+	/**
+	 * Render dialog for Life email
+	 * @returns {void}
+	 */
+	_renderFuneralNewbornPremiumWaiverDialog() {
+		return this.showNewbornPremiumWaiverDialog === false ? html``
+			: html`
+				<horizon-insure-funeral-newborn-premium-waiver-dialog 
+					.policy="${this.selectedPolicyItem}"
+					.getNewbornBenefitAgreement="${(activationReason, policy) => this.getNewbornBenefitAgreement(activationReason, policy)}"
+					.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeActivateBenefit(activationReason, benefitType, policy)}"
+					.executeCancelBenefit="${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
+					@close-modal="${() => this.showNewbornPremiumWaiverDialog = false}">
+				</horizon-insure-funeral-newborn-premium-waiver-dialog>
 			`;
 	}
 
