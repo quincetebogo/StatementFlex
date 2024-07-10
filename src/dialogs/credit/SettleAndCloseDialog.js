@@ -329,8 +329,8 @@ export class SettleAndCloseDialog extends Component {
 	}
 
 	_renderFields() {
-		// Creates similar constant to this.settleAndCloseDetails without 'header'.
-		const { header: _, ...accDetails } = this.settleAndCloseDetails;
+		// Creates similar constant to this.settleAndCloseDetails without 'header', 'Action' & 'Settlement Amount'.
+		const { header: _, settlementAmount, action, ...accDetails } = this.settleAndCloseDetails;
 		
 		return Object.entries(accDetails).map(item => {
 			const [label, value] = item;
