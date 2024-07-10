@@ -489,6 +489,84 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * Provides a summary breakdown of all claims for a given client
+	 *
+	 * @param {activateBenefitRequest} [activateBenefitRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async activateBenefit(activateBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureActivateBenefit`)) {
+			return this.mock(`insureActivateBenefit`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/activate`,
+			activateBenefitRequest,
+			this._setInsureHeaders(),
+			`activateBenefit`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Provides a summary breakdown of all claims for a given client
+	 *
+	 * @param {cancelBenefitRequest} [cancelBenefitRequest]  Request data
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async cancelBenefit(cancelBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCancelBenefit`)) {
+			return this.mock(`insureCancelBenefit`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/cancel`,
+			activateBenefitRequest,
+			this._setInsureHeaders(),
+			`cancelBenefit`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the 904 / 3104 Estimate printout document
+	 *
+	 * @param {benefitAgreementRequest} [benefitAgreementRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async benefitAgreement(benefitAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBenefitAgreement`)) {
+			return this.mock(`insureBenefitAgreement`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/document/generate/benefitAgreement`,
+			benefitAgreementRequest,
+			this._setInsureHeaders(),
+			`benefitAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents
@@ -700,6 +778,8 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 
 	}
+
+	
 
 	// #endregion Documents
 

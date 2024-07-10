@@ -515,6 +515,20 @@
 		"insureLifeIncreaseCover": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureBenefitAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureActivateBenefit": {
+			"enabled": true,
+			"positiveCase": true
 		}
+
+
 	}
 }
