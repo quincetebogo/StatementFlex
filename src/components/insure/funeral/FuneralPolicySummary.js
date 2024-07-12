@@ -41,7 +41,8 @@ class FuneralPolicySummary extends Component {
 	 */
 	static get properties() {
 		return {
-			policyDetails: { type: Object, state: true }
+			policyDetails: { type: Object, state: true },
+			benefitInfo: { type: Object, state: true }
 		};
 	}
 
@@ -113,6 +114,16 @@ class FuneralPolicySummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	async _initialise() {
+	}
+
+	_determineBenefit() {
+		if (this.policyDetails?.policyRule === `Standard`) {
+			return `Newborn Premium Waiver`;
+		} else if (this.policyDetails?.policyRule === `MaternityWaiver`) {
+			return `Newborn Premium Waiver`;
+		} else if (this.policyDetails?.policyRule === `PolicyPause`) {
+			return `Policy Pause`;
+		}
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -291,6 +302,7 @@ class FuneralPolicySummary extends Component {
 			${this._renderBeneficiariesSection()}
 			${this._renderBankDetailsSection()}
 			${this._renderMandatesDetailsSection()}
+			${this._renderBenefitDetailsSection()}
 		`;
 	}
 
@@ -701,6 +713,71 @@ class FuneralPolicySummary extends Component {
 				</horizon-label>
 				<horizon-label label="Last collection date"
 					value="${isNullorEmpty(mandate.lastCollectionDate) ? `-` : formatDate(mandate.lastCollectionDate, `dd mmm yyyy`)}">
+				</horizon-label>
+			</capitec-group>
+		`;
+	}
+
+	_renderBenefitDetailsSection() {
+		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
+			const date = new Date(e.mandateInitiationDate);
+			return date;
+		})));
+		return html`
+			<capitec-title-bar type="default" label="Premium Waivers">
+			</capitec-title-bar>
+			${mandateDetails.length === 0 ? this._renderNoResults() 
+			: html`
+			${mandateDetails.map((mandate) => html`
+			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
+				<capitec-content-box  class="accounts-box">
+					<horizon-expander
+					expandButtonAlignment="right"
+					.expanded = "${false}">
+						<capitec-group 
+							class="expander-header"
+							slot="custom-header"
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<horizon-label
+									class="column-width-200"
+									label="Benefit type"
+									value="${this._determineBenefit()}">
+								</horizon-label>
+								<div class="vertical-line"></div>
+								<horizon-label
+									label="Status"
+									value="${`Active`}"
+									class="column-width-200 ${`active-status`}">
+								</horizon-label>
+						</capitec-group>
+						<div slot="content">
+							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+								${this._renderBenefitOptions(mandate)}
+							</capitec-group>
+						</div>
+					</horizon-expander>
+				</capitec-content-box>
+			` : html``}
+			`)}
+			`}
+		`;
+	}
+
+	_renderBenefitOptions(mandate) {
+		return html`
+		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Start date"
+					value="${isNullorEmpty(this.benefitInfo.benefitStartDate) ? `-` : formatDate(this.benefitInfo.benefitStartDate, `dd/mm/yyyy`)}">
+				</horizon-label>
+				<horizon-label label="End date"
+					value="${isNullorEmpty(this.benefitInfo.benefitEndDate) ? `-` : formatDate(this.benefitInfo.benefitEndDate, `dd/mm/yyyy`)}">
+				</horizon-label>
+				<horizon-label label="Next Collection Date"
+					value="${isNullorEmpty(this.benefitInfo.nextCollectionDate) ? `-` : formatDate(this.benefitInfo.nextCollectionDate, `dd/mm/yyyy`)}">
 				</horizon-label>
 			</capitec-group>
 		`;

@@ -527,6 +527,10 @@
 		"insureActivateBenefit": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureBenefitInfo": {
+			"enabled": true,
+			"positiveCase": true
 		}
 
 

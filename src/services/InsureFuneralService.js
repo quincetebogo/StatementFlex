@@ -567,6 +567,32 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 *  Generates the 904 / 3104 Estimate printout document
+	 *
+	 * @param {benefitInfoRequest} [benefitInfoRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyBenefitInfo(benefitInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBenefitInfo`)) {
+			return this.mock(`insureBenefitInfo`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/pause/info`,
+			benefitInfoRequest,
+			this._setInsureHeaders(),
+			`benefitInfo`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents

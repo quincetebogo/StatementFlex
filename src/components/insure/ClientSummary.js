@@ -99,6 +99,7 @@ class ClientSummary extends Component {
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
 		this.showNewbornPremiumWaiverDialog = false;
+		this.showBenefitSuccessToast = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
 		this.showLifeCancelPolicyDialog = false;
@@ -207,9 +208,11 @@ class ClientSummary extends Component {
 			showEarlyCollectionDialog: { type: Boolean, state: true },
 			showLifeHonestyPledgeDialog: { type: Boolean, state: true },
 			showNewbornPremiumWaiverDialog: { type: Boolean, state: true },
-			getNewbornBenefitAgreement: { type: Object, state: true },
 			executeActivateBenefit: { type: Object, state: true },
 			executeCancelBenefit: { type: Object, state: true },
+			showBenefitSuccessToast: { type: Boolean, state: true },
+			benefitSuccessMessage: { type: String, state: true },
+			fetchBenefitDetails: { type: Object, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -835,10 +838,35 @@ class ClientSummary extends Component {
 		return false;
 	}
 
+	/**
+	 * Newborn open dialog event handler
+	 * @param {Object} policyItem policyItem
+	 * @returns {void}
+	 */
 	_openNewBornPremiumWaiverDialog(policyItem) {
 		this.selectedPolicyItem = policyItem;
 
 		this.showNewbornPremiumWaiverDialog = true;
+	}
+
+	/**
+	 * Newborn dialog close event handler
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_closeNewbornPremiumWaiverDialog(e) {
+		if (isNullorEmpty(e.detail.successMessage)) {
+			this.showNewbornPremiumWaiverDialog = false;
+		} else {
+			this.benefitSuccessMessage = e.detail.successMessage;
+			this.showBenefitSuccessToast = true;
+			this.showNewbornPremiumWaiverDialog = false;
+		}
+
+	}
+
+	_startBenefitToastTimer() {
+		window.setTimeout(() => this.showEmailEstimateSuccessToast = false, 3000);
 	}
 
 	// #endregion EVENT HANDLERS
@@ -1141,8 +1169,8 @@ class ClientSummary extends Component {
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
-					label="Newborn Premium Waiver"
-					.disabled="${this.isInsureAgent}">
+					label="${policyItem.policyRule === `MaternityWaiver` ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
+					.disabled="${!this.isInsureAgent && policyItem.policyRule !== `MaternityWaiver`}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
@@ -1751,6 +1779,7 @@ class ClientSummary extends Component {
 		return html`
 			<div class="notification">
 				${this._renderSuccessAlert()}
+				${this._renderBenefitSuccessAlert()}
 				${this._renderRequestCallbackAlert()}
 			</div>
 
@@ -2722,6 +2751,25 @@ class ClientSummary extends Component {
 	`;
 	}
 
+	/**
+	 * Renders the Benefit alert
+	 * @returns {html} html content
+	 */
+	_renderBenefitSuccessAlert() {
+		return this.showBenefitSuccessToast === false ? html``
+			: html`
+				<capitec-toast
+					class="toast"
+					type="success"
+					Header="Successful"
+					layout = "vertical"
+					detail = "${this.benefitSuccessMessage}"
+					@click = "${() => this.showBenefitSuccessToast = false}">
+				</capitec-toast>
+				${this._startBenefitToastTimer()}
+	`;
+	}
+
 	_startTimer() {
 		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 	}
@@ -2808,10 +2856,10 @@ class ClientSummary extends Component {
 			: html`
 				<horizon-insure-funeral-newborn-premium-waiver-dialog 
 					.policy="${this.selectedPolicyItem}"
-					.getNewbornBenefitAgreement="${(activationReason, policy) => this.getNewbornBenefitAgreement(activationReason, policy)}"
 					.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeActivateBenefit(activationReason, benefitType, policy)}"
 					.executeCancelBenefit="${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
-					@close-modal="${() => this.showNewbornPremiumWaiverDialog = false}">
+					.fetchBenefitDetails = "${(contractRef, productCode) => this.fetchBenefitDetails(contractRef, productCode)}"
+					@close-modal="${(e) => this._closeNewbornPremiumWaiverDialog(e)}">
 				</horizon-insure-funeral-newborn-premium-waiver-dialog>
 			`;
 	}

@@ -1,5 +1,5 @@
 /**
- * Insure Email Document mock response
+ * Insure generic mock response
  *
  * @export
  * @constant InsureGenericResponse

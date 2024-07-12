@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { FUN_BENEFIT_REASONS } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -36,7 +37,6 @@ class NewbornPremiumWaiverDialog extends Component {
 	// #region PROPERTIES
 
 	/**
-	 * @param {Object} getNewbornBenefitAgreement callback function to get newborn benefit agreement
 	 * @param {Object} newbornWaiverAgreementDetails newborn waiver agreement details
 	 * @param {Object} policy policy details
 	 * @param {Object} executeActivateBenefit callback function to execute activate benefit
@@ -47,7 +47,6 @@ class NewbornPremiumWaiverDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			getNewbornBenefitAgreement: { type: Object, state: true },
 			newbornWaiverAgreementDetails: { type: Object, state: true },
 			policy: { type: Object, state: true },
 			executeActivateBenefit: { type: Object, state: true },
@@ -55,7 +54,9 @@ class NewbornPremiumWaiverDialog extends Component {
 			newbornWaiverAgreementDetails: { type: Object, state: true },
 			showAgreement: { type: Boolean, state: true },
 			docsValidated: { type: Boolean, state: true },
-			checkConfirmed: { type: Boolean, state: true }
+			checkConfirmed: { type: Boolean, state: true },
+			fetchBenefitDetails: { type: Object, state: true },
+			benefitDetails: { type: Object, state: true }
 			
 		};
 	}
@@ -82,9 +83,10 @@ class NewbornPremiumWaiverDialog extends Component {
 	 * Resets last selected relationship
 	 * @returns {void}
 	 */
-	_initialise() {
+	async _initialise() {
 		if (this.policy.policyRule === `MaternityWaiver`) {
 			this.cancelBenefit = true;
+			this.benefitDetails = await this.fetchBenefitDetails(this.policy.contractReference, this.policy.productCode);
 		}
 	}
 	// #endregion PRIVATE METHODS
@@ -96,7 +98,7 @@ class NewbornPremiumWaiverDialog extends Component {
 	 * @returns {void} 
 	 */
 	 _cancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}
 
 	/**
@@ -106,22 +108,25 @@ class NewbornPremiumWaiverDialog extends Component {
 	async _confirmClick() {
 		let response = {};
 		if (this.cancelBenefit === false) {
-			response = await this.executeActivateBenefit(this.activationReason, `NewBornPremiumWaiver`, this.policy);
+			response = await this.executeActivateBenefit(`Affordability`, `NewBornPremiumWaiver`, this.policy);
 		} else {
 			response = await this.executeCancelBenefit(`NewBornPremiumWaiver`, this.policy);
 		}
-		console.log(`response :>> `, response);
-		if (response.result.successful) {
-			this.dispatchEvent(new CustomEvent(`close-modal`, {}));
+		if (response.successful) {
+			let benefitSuccessMessage = ``;
+			if (this.cancelBenefit === false) {
+				benefitSuccessMessage = `Newborn Premium Waiver has been successfully activated.`;
+			} else {
+				benefitSuccessMessage = `Newborn Premium Waiver has been successfully cancelled.`;
+			}
+
+			this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: benefitSuccessMessage } }));
 		}
 	}
 
 
 	 _valueSelected(e) {
 		this.activationReason = e.detail.new;
-		
-		// this.newbornWaiverAgreementDetails = await this.getNewbornBenefitAgreement(this.activationReason, this.policy);
-		// console.log('this.newbornWaiverAgreementDetails :>> ', this.newbornWaiverAgreementDetails);
 		this.requestUpdate();
 	
 	}
@@ -220,7 +225,7 @@ class NewbornPremiumWaiverDialog extends Component {
 	 _webTemplate() {
 		return html`
 			<capitec-modal type="alert" header="${this.cancelBenefit ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 485px;">
-				<div slot="body" class="${this.docsValidated ? `body-box-confirm` : `body-box-validate`}">
+				<div slot="body" class="${this.docsValidated || this.cancelBenefit ? `body-box-confirm` : `body-box-validate`}">
 					${this._renderDialogBody()}
 				</div>
 				<div slot="footer">
@@ -238,10 +243,10 @@ class NewbornPremiumWaiverDialog extends Component {
 	 _renderDialogBody() {
 		return html`
 			
-		${this.docsValidated === false ? html`
+		${this.docsValidated === false && this.cancelBenefit === false ? html`
 			
 			<div>
-				<capitec-label label="Please ensure that atleast one of the following documents have been recieved and validated:" type="subtitle"></capitec-label>
+				<capitec-label label="Please ensure that at least one of the following documents have been received and validated:" type="subtitle"></capitec-label>
 			</div>
 
 			<ul>
@@ -251,7 +256,7 @@ class NewbornPremiumWaiverDialog extends Component {
 			</ul>
 
 			<capitec-check-group>
-				<capitec-check label="I Confirm that one of the above documents have been recieved and validated"
+				<capitec-check label="I Confirm that one of the above documents have been received and validated"
 					@value-change="${(e) => this._checkChange(e)}">
 				</capitec-check>
 			</capitec-check-group>
@@ -263,20 +268,11 @@ class NewbornPremiumWaiverDialog extends Component {
 					<capitec-label label="Are you sure you would like to activate this Benefit?" type="subtitle"></capitec-label>
 				</div>
 
-				<!-- <div class="select-box">
-					<capitec-select 
-						label="Benefit Reason"
-						.items="${this.benefitReasons}"
-						display-field="text"
-						id-field="code"
-						@value-change= "${(e) => this._valueSelected(e)}">
-					</capitec-select>
-				</div> -->
 				
 			` : html`
 				<!-- //body for when canceling benefit -->
 				<div>
-					<capitec-label label="Your Newborn Premium Waiver benefit will be cancelled and your next collection date will be on dd mmm ccyy" type="strong"></capitec-label>
+					<capitec-label label="Your Newborn Premium Waiver benefit will be cancelled and your next collection date will be on ${formatDate(this.benefitDetails.nextCollectionDate, `dd mmm yyyy`)}" type="strong"></capitec-label>
 				</div>
 			
 			`}
@@ -298,7 +294,7 @@ class NewbornPremiumWaiverDialog extends Component {
 				<capitec-button slot="footer" type="secondary" label="Cancel" class="capitec-button-small"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>
-				${this.docsValidated === false ? html`
+				${this.docsValidated === false && this.cancelBenefit === false ? html`
 					<capitec-button slot="footer" type="primary" label="Continue" class="capitec-button-small" .disabled="${!this.checkConfirmed}"
 						@click="${() => this.docsValidated = true}">
 					</capitec-button>
