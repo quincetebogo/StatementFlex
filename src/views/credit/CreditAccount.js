@@ -1024,12 +1024,19 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
+			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount),
+			settlementAmount: this.settleAndCloseQuote.settlementAmount,
+			action: this.settleAndCloseDetails.type === PRODUCTS.CREDIT_CARD && this.settleAndCloseQuote.settlementAmount < 0 ? `Transfer To Account` : `Settle from account`
 		};
 
 		if (this.settleAndCloseCreditOption === `CreditCard`) {
 			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
 			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+
+			// As per CSCEH-10637, when settlement amount is negative then Primary savings acc is defaulted
+			if (this.settleAndCloseQuote.settlementAmount < 0) {
+				this.clientProducts = this.clientProducts.filter(p => p.accountType === ACCOUNT_TYPE_CODE.PRIMARY_SAVINGS);
+			}
 		}
 
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
