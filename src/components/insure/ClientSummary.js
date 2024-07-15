@@ -1082,7 +1082,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				.disabled="${this.isInsureAgent}"
+				.disabled="${this.isInsureAgent || this.isInsureAdministrator}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -1152,7 +1152,7 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" .disabled="${this.isInsureAgent}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureAdministrator}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1184,7 +1184,7 @@ class ClientSummary extends Component {
 					@click="${() => this._openEarlyCollectionOPTInDialog(policyItem)}"
 					icon="system/send-action" 
 					label="Early December collection"
-					.disabled="${this.isInsureAgent || this.isInsureAdministrator}">
+					.disabled="${this.isInsureAgent}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.VOLUNTARY_PAUSE:
 				return html`<capitec-overflow-menu-item
@@ -2124,10 +2124,10 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
+					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
-			}
+			} -->
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
