@@ -1681,44 +1681,46 @@ export class ExistingClient extends InsureViewBase {
 		this.handleToastError(resp.exception);
 		return null;
 	}
+	
 
-	async _activatePolicyPause(reason, contractRef) {
-			const activatePolicyPauseRequest = {
-				contractReference: contractRef,
-				cifNumber: this.callerInformation.cifNumber,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				policyPauseReason: reason,
-				policyBenefitType: `VoluntaryPolicyPause`,
-				benefitPeriod: 6,
-				claimIncidentDate: `2023-11-24T15:49:02.862Z`,
-				productCode: `Capitec`
-			};
+	// async _activatePolicyPause(reason, contractRef) {
+	// 		const activatePolicyPauseRequest = {
+	// 			contractReference: contractRef,
+	// 			cifNumber: this.callerInformation.cifNumber,
+	// 			idNumber: this.callerInformation.southAfricanIDNumber,
+	// 			policyPauseReason: reason,
+	// 			policyBenefitType: `VoluntaryPolicyPause`,
+	// 			benefitPeriod: 6,
+	// 			claimIncidentDate: `2023-11-24T15:49:02.862Z`,
+	// 			productCode: `Capitec`
+	// 		};
 
-			const returnValue = await this.insureFuneralService.activatePolicyPause(activatePolicyPauseRequest);
+	// 		const returnValue = await this.insureFuneralService.activatePolicyPause(activatePolicyPauseRequest);
 
-			if (returnValue.succeeded) {
-				this.funeralPolicyPauseSuccess = true;
-				this.policyPauseSuccessMessage = `Policy successfully paused`;
-			}
+	// 		if (returnValue.succeeded) {
+	// 			this.funeralPolicyPauseSuccess = true;
+	// 			this.policyPauseSuccessMessage = `Policy successfully paused`;
+	// 		}
 
-	}
+	// }
 
-	async _cancelPolicyPause(contractRef) {
-		const cancelPolicyPauseRequest = {
-			contractReference: contractRef,
-			benefitType: `NewBornPremiumWaiver`,
-			cifNumber: this.callerInformation.cifNumber,
-			productCode: `Capitec`
-		};
+	// async _cancelPolicyPause(contractRef) {
+	// 	const cancelPolicyPauseRequest = {
+	// 		contractReference: contractRef,
+	// 		benefitType: `NewBornPremiumWaiver`,
+	// 		cifNumber: this.callerInformation.cifNumber,
+	// 		productCode: `Capitec`
+	// 	};
 
-		const returnValue = await this.insureFuneralService.cancelPolicyPause(cancelPolicyPauseRequest);
+	// 	const returnValue = await this.insureFuneralService.cancelPolicyPause(cancelPolicyPauseRequest);
 
-		if (returnValue.succeeded && returnValue.result) {
-			this.funeralPolicyPauseSuccess = true;
-			this.policyPauseSuccessMessage = `Policy pause cancelled successfully`;
-		}
+	// 	if (returnValue.succeeded && returnValue.result) {
+	// 		this.funeralPolicyPauseSuccess = true;
+	// 		this.policyPauseSuccessMessage = `Policy pause cancelled successfully`;
+	// 	}
 
-	}
+	// }
+
 	
 	// #endregion PRIVATE METHODS
 
