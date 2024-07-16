@@ -1120,18 +1120,18 @@ export class ExistingClient extends InsureViewBase {
 		return resinstatePolicyResponse;
 	}
 
-	async _getFuneralPolicyPauseInfo() {
-		const request = {
+	// async _getFuneralPolicyPauseInfo() {
+	// 	const request = {
 			
-		};
+	// 	};
 
-		const resp = await this.insureFuneralService.policyPauseInfo(request);
-		if (!resp.succeeded) {
-			this.handleToastError(resp.exception);
-			return;
-		}
-		return resp.result;
-	}
+	// 	const resp = await this.insureFuneralService.policyPauseInfo(request);
+	// 	if (!resp.succeeded) {
+	// 		this.handleToastError(resp.exception);
+	// 		return;
+	// 	}
+	// 	return resp.result;
+	// }
 
 	// #endregion PRIVATE METHODS
 
@@ -1681,7 +1681,7 @@ export class ExistingClient extends InsureViewBase {
 		this.handleToastError(resp.exception);
 		return null;
 	}
-	
+
 
 	// async _activatePolicyPause(reason, contractRef) {
 	// 		const activatePolicyPauseRequest = {
