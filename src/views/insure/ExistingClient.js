@@ -106,6 +106,8 @@ export class ExistingClient extends InsureViewBase {
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
+
+		this.benefitDetails = {};
 	}
 
 	// #endregion INITIALISATION
@@ -181,12 +183,14 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+			
 			funeralPolicyPauseSuccess: { type: Boolean, state: true },
 			policyPauseSuccessMessage: { type: String, state: true },
 
 			isLifeQualifyingClient: { type: Boolean, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
-			coverAvailableAnswers: { type: Array, state: true }
+			coverAvailableAnswers: { type: Array, state: true },
+			benefitDetails: { type: Object, state: true }
 		};
 	}
 
@@ -1120,18 +1124,67 @@ export class ExistingClient extends InsureViewBase {
 		return resinstatePolicyResponse;
 	}
 
-	// async _getFuneralPolicyPauseInfo() {
-	// 	const request = {
-			
-	// 	};
+	async executeFuneralActivateBenefit(activationReason, benefitType, policy) {
+		const activateBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"policyPauseReason": activationReason,
+			"benefitType": benefitType,
+			"benefitPeriod": 0,
+			"claimIncidentDate": new Date(),
+			"productCode": policy.productCode
+		};
 
-	// 	const resp = await this.insureFuneralService.policyPauseInfo(request);
-	// 	if (!resp.succeeded) {
-	// 		this.handleToastError(resp.exception);
-	// 		return;
-	// 	}
-	// 	return resp.result;
-	// }
+		const activateBenefitResponse = await this.insureFuneralService.activateBenefit(activateBenefitRequest);
+
+		if (!activateBenefitResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(activateBenefitResponse.exception);
+			return;
+		}
+
+		return activateBenefitResponse.result;
+	
+	}
+
+	async executeFuneralCancelBenefit(benefitType, policy) {
+		const cancelBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"benefitType": benefitType,
+			"cifNumber": this.callerInformation.cifNumber,
+			"productCode": policy.productCode
+		};
+
+		const cancelBenefitResponse = await this.insureFuneralService.cancelBenefit(cancelBenefitRequest);
+
+		if (!cancelBenefitResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(cancelBenefitResponse.exception);
+			return;
+		}
+
+		return cancelBenefitResponse.result;
+	
+	}
+
+	async _retrievePolicyBenefitInfo(contractRef, productCode) {
+		const benefitInfoRequest = {
+			"contractReference": contractRef,
+  			"productCode": productCode
+		};
+
+		const benefitInfoResponse = await this.insureFuneralService.policyBenefitInfo(benefitInfoRequest);
+
+		if (!benefitInfoResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(benefitInfoResponse.exception);
+			return;
+		}
+
+		return benefitInfoResponse.result;
+
+	}
 
 	// #endregion PRIVATE METHODS
 
@@ -1139,9 +1192,9 @@ export class ExistingClient extends InsureViewBase {
 
 
 	/**
-	 * Navigate so specific subview
-	 * @param {String} newMode New render mode string to change renderMode to
-	 * @returns {void} void
+	* Navigate so specific subview
+	* @param {String} newMode New render mode string to change renderMode to
+	* @returns {void} void
 	 */
 	_navigateToSubView(newMode) {
 		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
@@ -1843,6 +1896,7 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToFuneralPolicySummary(e) {
 		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
+		this.benefitDetails = await this._retrievePolicyBenefitInfo(e.detail.policyContractReference, e.detail.productCode);
 		const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
@@ -2261,7 +2315,9 @@ export class ExistingClient extends InsureViewBase {
 				.mainLifeIdNumber = "${this.callerInformation.southAfricanIDNumber}"
 				.executeLifeIncreaseCover ="${(increaseCoverRequest) => this._lifeIncreaseCover(increaseCoverRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
-				.executeFuneralPolicyPauseInfo = "${() => this._getFuneralPolicyPauseInfo()}"
+				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
+				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
+				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"
@@ -2335,6 +2391,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-funeral-policy-summary 
 				.policyDetails="${this.selectedFuneralPolicyDetails}"
+				.benefitInfo = "${this.benefitDetails}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-funeral-policy-summary>`;

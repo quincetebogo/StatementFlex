@@ -524,9 +524,23 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insurePolicyPauseInfo": {
+		"insureBenefitAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureActivateBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureBenefitInfo": {
 			"enabled": true,
 			"positiveCase": true
 		}
+
+
 	}
 }

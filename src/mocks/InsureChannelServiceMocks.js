@@ -64,7 +64,10 @@ export default class InsureChannelServiceMocks {
 		this.activatePolicyPauseMocks = await this._loadMockModule(this.activatePolicyPauseMocks, `insureActivatePolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.cancelPolicyPauseMocks = await this._loadMockModule(this.cancelPolicyPauseMocks, `insureCancelPolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.estimateMocks = await this._loadMockModule(this.estimateMocks, `insureCalculateEstimate`, () => import(`../mocks/insure/funeral/InsureCalculateEstimate`).catch(err => logError(err)));
-		this.policyPauseInfoMocks = await this._loadMockModule(this.policyPauseInfoMocks, `insurePolicyPauseInfo`, () => import(`./insure/funeral/insurePolicyPauseInfo`).catch(err => logError(err)));
+		this.generateBenefitAgreementMocks = await this._loadMockModule(this.generateBenefitAgreementMocks, `insureBenefitAgreement`, () => import(`../mocks/insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
+		this.activateBenefitMocks = await this._loadMockModule(this.activateBenefitMocks, `insureActivateBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.cancelBenefitMocks = await this._loadMockModule(this.cancelBenefitMocks, `insureCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.benefitInfoMocks = await this._loadMockModule(this.benefitInfoMocks, `insureBenefitInfo`, () => import(`./insure/funeral/InsureBenefitInfo`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
@@ -317,11 +320,36 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
-	insurePolicyPauseInfo() {
-		if (this._mockSettings.insurePolicyPauseInfo.positiveCase) {
-			return this.policyPauseInfoMocks.insurePolicyPauseInfo;
+	insureBenefitAgreement() {
+		if (this._mockSettings.insureBenefitAgreement.positiveCase) {
+			return this.generateBenefitAgreementMocks.GenericDocumentResponse;
 		}
 		return null;
+	
+	}
+
+	insureActivateBenefit() {
+		if (this._mockSettings.insureActivateBenefit.positiveCase) {
+			return this.activateBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
+	}
+
+	insureCancelBenefit() {
+		if (this._mockSettings.insureCancelBenefit.positiveCase) {
+			return this.cancelBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
+	}
+
+	insureBenefitInfo() {
+		if (this._mockSettings.insureBenefitInfo.positiveCase) {
+			return this.benefitInfoMocks.InsureBenefitInfoResponse;
+		}
+		return null;
+	
 	}
 
 	// #endregion FUNERAL

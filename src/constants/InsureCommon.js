@@ -327,7 +327,8 @@ export const POLICY_OPTIONS = Object.freeze({
 	TRANSACTION_HISTORY: `TransactionHistory`,
 	SMS_HISTORY: `SMSHistory`,
 	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
-	VOLUNTARY_PAUSE: `VoluntaryPause`
+	VOLUNTARY_PAUSE: `VoluntaryPause`,
+	NEW_BORN_WAIVER: `NewBornWaiver`
 });
 
 
@@ -467,4 +468,15 @@ export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `Child`, text: `Child` },
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
+]);
+
+
+/**
+ * Reasons for Activating Funeral benefits
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_REASONS
+ */
+export const FUN_BENEFIT_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Pregnancy`, text: `Pregnancy` }
 ]);

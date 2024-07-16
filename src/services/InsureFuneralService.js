@@ -490,82 +490,108 @@ export class InsureFuneralService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Provides a summary breakdown of all claims for a given client
+	 * Activates benefit on policy
 	 *
-	 * @param {activatePolicyPauseRequest} [activatePolicyPauseRequest]  Request data
+	 * @param {activateBenefitRequest} [activateBenefitRequest]  Request data
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	// async activatePolicyPause(activatePolicyPauseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-	// 	if (await this.isMockEnabled(`insureActivatePolicyPause`)) {
-	// 		return this.mock(`insureActivatePolicyPause`);
-	// 	}
-	// 	return this.post(
-	// 		`/horizon-insurance/funeral/api/policy/activatePolicyPause`,
-	// 		activatePolicyPauseRequest,
-	// 		this._setInsureHeaders(),
-	// 		`activatePolicyPause`,
-	// 		null,
-	// 		null,
-	// 		900,
-	// 		null,
-	// 		errorHandler,
-	// 		autoRetries
-	// 	);
-	// }
+	async activateBenefit(activateBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureActivateBenefit`)) {
+			return this.mock(`insureActivateBenefit`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/activate`,
+			activateBenefitRequest,
+			this._setInsureHeaders(),
+			`activateBenefit`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	/**
-	 * Provides a summary breakdown of all claims for a given client
+	 * Cancels benefit on policy
 	 *
-	 * @param {cancelPolicyPauseRequest} [cancelPolicyPauseRequest]  Request data
+	 * @param {cancelBenefitRequest} [cancelBenefitRequest]  Request data
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	// async cancelPolicyPause(cancelPolicyPauseRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-	// 	if (await this.isMockEnabled(`insureRequestCallback`)) {
-	// 		return this.mock(`insureRequestCallback`);
-	// 	}
-	// 	return this.post(
-	// 		`/horizon-insurance/funeral/api/policy/cancelPolicyPause`,
-	// 		cancelPolicyPauseRequest,
-	// 		this._setInsureHeaders(),
-	// 		`cancelPolicyPause`,
-	// 		null,
-	// 		null,
-	// 		900,
-	// 		null,
-	// 		errorHandler,
-	// 		autoRetries
-	// 	);
-	// }
+	async cancelBenefit(cancelBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCancelBenefit`)) {
+			return this.mock(`insureCancelBenefit`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/cancel`,
+			activateBenefitRequest,
+			this._setInsureHeaders(),
+			`cancelBenefit`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	/**
-	 * Provides Policy Pause Info such as start and end dates
+	 *  Generates the 904 / 3104 Estimate printout document
 	 *
-	 * @param {policyPauseInfoRequest} [policyPauseInfoRequest]  Request data
+	 * @param {benefitAgreementRequest} [benefitAgreementRequest] Request data for service call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	// async policyPauseInfo(policyPauseInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-	// 	if (await this.isMockEnabled(`insurePolicyPauseInfo`)) {
-	// 		return this.mock(`insurePolicyPauseInfo`);
-	// 	}
-	// 	return this.post(
-	// 		`/horizon-insurance/funeral/api/policy/policyPauseInfo`,
-	// 		policyPauseInfoRequest,
-	// 		this._setInsureHeaders(),
-	// 		`policyPauseInfo`,
-	// 		null,
-	// 		null,
-	// 		900,
-	// 		null,
-	// 		errorHandler,
-	// 		autoRetries
-	// 	);
-	// }
+	async benefitAgreement(benefitAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBenefitAgreement`)) {
+			return this.mock(`insureBenefitAgreement`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/document/generate/benefitAgreement`,
+			benefitAgreementRequest,
+			this._setInsureHeaders(),
+			`benefitAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the 904 / 3104 Estimate printout document
+	 *
+	 * @param {benefitInfoRequest} [benefitInfoRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyBenefitInfo(benefitInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBenefitInfo`)) {
+			return this.mock(`insureBenefitInfo`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/policy/benefit/pause/info`,
+			benefitInfoRequest,
+			this._setInsureHeaders(),
+			`benefitInfo`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 
 	// #endregion
 
@@ -778,6 +804,8 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 
 	}
+
+	
 
 	// #endregion Documents
 
