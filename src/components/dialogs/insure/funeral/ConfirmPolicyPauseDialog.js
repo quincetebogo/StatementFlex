@@ -1,6 +1,7 @@
 
 import { Component, css, html } from 'platform/elements';
 import { formatDateToInsure } from 'app/utils/insureUtils';
+import { FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 
 /**
  * Dialog that will display VPP confirmation
@@ -51,16 +52,20 @@ export class ConfirmPolicyPauseDialog extends Component {
 	 * Accept terms and close dialog 
 	 * @returns {void} 
 	 */
-	_confirmAndClose() {
-		this.dispatchEvent(new CustomEvent(`confirm`, { detail: { accepted: true } }));
-	}
+	async _confirmAndClose() {
+			const resp = await this.activatePause(FUN_BENEFIT_TYPES.POLICY_PAUSE, this.policy)
+
+			if (resp.successful) {
+				this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `Your Policy Pause benefit has been successfully Activated` } }));
+			}
+		}
 
 	/**
 	 * Cancel and close modal 
 	 * @returns {void} 
 	*/
 	_cancelDialog() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}
 
 	// #endregion EVENT HANDLERS
@@ -93,7 +98,7 @@ export class ConfirmPolicyPauseDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Voluntary Policy Pause" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Activate Voluntary Policy Pause" style="--theme-modal-header-color: black;">
 			<div slot="body">
 				<!-- <capitec-content-box class="body-box"> -->
 					${this._renderDialogBody()}
@@ -112,19 +117,12 @@ export class ConfirmPolicyPauseDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-			${this.policy.policyRule !== `PolicyPause` 
-			? html`
+			
 			<ul>
-				<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>${formatDateToInsure(this.policyPauseInfo.pauseStartDate)}</b> and will expire on <b>${formatDateToInsure(this.policyPauseInfo.pauseEndDate)}</b>.</li>
+				<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>${formatDateToInsure(this.policyPauseInfo.benefitStartDate)}</b> and will expire on <b>${formatDateToInsure(this.policyPauseInfo.benefitEndDate)}</b>.</li>
 				<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo.nextCollectionDate)}</b>.</li>
 			</ul>
-			` 
-			: html`
-			<ul>
-				<li>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date wil be on the <b>${formatDateToInsure(this.policyPauseInfo.nextCollectionDate)}</b>.</li>
-			</ul>
-			`}
-		`;
+			`;
 	}
 
 	/**

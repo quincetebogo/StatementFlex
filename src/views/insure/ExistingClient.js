@@ -93,6 +93,7 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralShowEstimateSuccessToast = false;
 		this.funeralPolicyPauseSuccess = false;
 		this.policyPauseSuccessMessage = ``;
+		this.funeralBenefitAgreementDocument = {}
 
 		this.selectedLifePocketType = ``;
 		this.selectedLifePolicy = ``;
@@ -190,7 +191,9 @@ export class ExistingClient extends InsureViewBase {
 			isLifeQualifyingClient: { type: Boolean, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			coverAvailableAnswers: { type: Array, state: true },
-			benefitDetails: { type: Object, state: true }
+			benefitDetails: { type: Object, state: true },
+			funeralBenefitAgreementDocument: { type: Object, state: true },
+
 		};
 	}
 
@@ -782,6 +785,17 @@ export class ExistingClient extends InsureViewBase {
 					}
 				}
 			];
+		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
+			emailDocumentRequestPayload.documentInfo = [
+				{
+					"documentType": DOCUMENT_TYPE.BENEFIT_NOTE,
+					"documentGuid": ``,
+					"content": {
+						"type": `PDF`,
+						"value": this.funeralBenefitAgreementDocument.documentContent.value
+					}
+				}
+			];
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			emailDocumentRequestPayload.documentInfo = [];
 		} else {
@@ -1125,13 +1139,14 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async executeFuneralActivateBenefit(activationReason, benefitType, policy) {
+		this.selectedFuneralPolicyContractReference = policy.contractReference
 		const activateBenefitRequest = {
 			"contractReference": policy.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"policyPauseReason": activationReason,
 			"benefitType": benefitType,
-			"benefitPeriod": 0,
+			"benefitPeriod": 6,
 			"claimIncidentDate": new Date(),
 			"productCode": policy.productCode
 		};
@@ -1149,6 +1164,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async executeFuneralCancelBenefit(benefitType, policy) {
+		this.selectedFuneralPolicyContractReference = policy.contractReference
 		const cancelBenefitRequest = {
 			"contractReference": policy.contractReference,
 			"benefitType": benefitType,
@@ -1183,6 +1199,24 @@ export class ExistingClient extends InsureViewBase {
 		}
 
 		return benefitInfoResponse.result;
+
+	}
+
+	async _fetchBenefitAgreement() {
+		const benefitAgreementRequest = {
+			//insert request here
+		}
+
+		const benefitAgreementResponse = await this.insureFuneralService.benefitAgreement(benefitAgreementRequest);
+
+		if (!benefitAgreementResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(benefitAgreementResponse.exception);
+			return;
+		}
+		this.funeralBenefitAgreementDocument = benefitAgreementResponse.result;
+		return benefitAgreementResponse.result;
+
 
 	}
 
@@ -1979,6 +2013,8 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
+		}else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
+			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_VPP
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
@@ -1992,7 +2028,7 @@ export class ExistingClient extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.cellphone = this.callerInformation?.verifiedTelephoneNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.email = e.detail.emailId.detail.emailAddress;
 
-		this._getAgreementEmailAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
+		this._getAgreementEmailAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail?.docContent);
 		const emailResponse = await this.insureFuneralService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
@@ -2002,7 +2038,7 @@ export class ExistingClient extends InsureViewBase {
 		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
-		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY || this.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.funeralShowEstimateSuccessToast = true;
@@ -2318,6 +2354,8 @@ export class ExistingClient extends InsureViewBase {
 				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
 				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
+				.fetchPolicyPauseAgreementDetails = "${() => this._fetchBenefitAgreement()}"
+				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				@life-increase-cover-completed = "${(e) => this._lifeIncreaseCoverCompleted(e)}"

@@ -1,8 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { FUN_BENEFIT_REASONS } from 'app/constants/InsureCommon';
+import { FUN_BENEFIT_REASONS, FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
 import 'app/components/dialogs/insure/AgreementDialog';
 
 
@@ -108,9 +107,9 @@ class NewbornPremiumWaiverDialog extends Component {
 	async _confirmClick() {
 		let response = {};
 		if (this.cancelBenefit === false) {
-			response = await this.executeActivateBenefit(`Affordability`, `NewBornPremiumWaiver`, this.policy);
+			response = await this.executeActivateBenefit(`Affordability`, FUN_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
 		} else {
-			response = await this.executeCancelBenefit(`NewBornPremiumWaiver`, this.policy);
+			response = await this.executeCancelBenefit(FUN_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
 		}
 		if (response.successful) {
 			let benefitSuccessMessage = ``;

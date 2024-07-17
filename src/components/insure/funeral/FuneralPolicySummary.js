@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { FUN_POLICY_RULES, POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -117,11 +117,9 @@ class FuneralPolicySummary extends Component {
 	}
 
 	_determineBenefit() {
-		if (this.policyDetails?.policyRule === `Standard`) {
+		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
 			return `Newborn Premium Waiver`;
-		} else if (this.policyDetails?.policyRule === `MaternityWaiver`) {
-			return `Newborn Premium Waiver`;
-		} else if (this.policyDetails?.policyRule === `PolicyPause`) {
+		} else if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
 			return `Policy Pause`;
 		}
 	}
@@ -719,54 +717,45 @@ class FuneralPolicySummary extends Component {
 	}
 
 	_renderBenefitDetailsSection() {
-		const latestDate = new Date(Math.max.apply(null, mandateDetails.map((e) => {
-			const date = new Date(e.mandateInitiationDate);
-			return date;
-		})));
-		return html`
-			<capitec-title-bar type="default" label="Premium Waivers">
-			</capitec-title-bar>
-			${mandateDetails.length === 0 ? this._renderNoResults() 
-			: html`
-			${mandateDetails.map((mandate) => html`
-			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
-				<capitec-content-box  class="accounts-box">
-					<horizon-expander
-					expandButtonAlignment="right"
-					.expanded = "${false}">
-						<capitec-group 
-							class="expander-header"
-							slot="custom-header"
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<horizon-label
-									class="column-width-200"
-									label="Benefit type"
-									value="${this._determineBenefit()}">
-								</horizon-label>
-								<div class="vertical-line"></div>
-								<horizon-label
-									label="Status"
-									value="${`Active`}"
-									class="column-width-200 ${`active-status`}">
-								</horizon-label>
+	return html`
+		<capitec-title-bar type="default" label="Premium Waivers">
+		</capitec-title-bar>
+		${this.policyDetails.policyRule === FUN_POLICY_RULES.STANDARD ? this._renderNoResults() 
+		: html`
+			<capitec-content-box class="accounts-box">
+				<horizon-expander
+				expandButtonAlignment="right"
+				.expanded = "${false}">
+					<capitec-group 
+						class="expander-header"
+						slot="custom-header"
+						layout="horizontal"
+						gap="clear"
+						halign="left"
+						valign="center">
+							<horizon-label
+								class="column-width-200"
+								label="Benefit type"
+								value="${this._determineBenefit()}">
+							</horizon-label>
+							<div class="vertical-line"></div>
+							<horizon-label
+								label="Status"
+								value="${`Active`}"
+								class="column-width-200 ${`active-status`}">
+							</horizon-label>
+					</capitec-group>
+					<div slot="content">
+						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+							${this._renderBenefitOptions()}
 						</capitec-group>
-						<div slot="content">
-							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-								${this._renderBenefitOptions(mandate)}
-							</capitec-group>
-						</div>
-					</horizon-expander>
-				</capitec-content-box>
-			` : html``}
-			`)}
-			`}
-		`;
-	}
+					</div>
+				</horizon-expander>
+			</capitec-content-box>
+		`}
+	`}
 
-	_renderBenefitOptions(mandate) {
+	_renderBenefitOptions() {
 		return html`
 		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">

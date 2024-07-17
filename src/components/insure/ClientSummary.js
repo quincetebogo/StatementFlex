@@ -9,6 +9,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { FUN_POLICY_RULES, FUN_BENEFIT_DOT_TYPES } from 'app/constants/InsureCommon';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -42,10 +43,6 @@ import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
-const FUN_BENEFIT_OPTIONS = {
-	NEW_BORN: `NewBorn`,
-	POLICY_PAUSE: `PolicyPause`
-};
 
 /**
  * Client Summary component showing all the claims, funeral and life cover policies a client currently has on their account
@@ -114,8 +111,9 @@ class ClientSummary extends Component {
 		this.funeralPolicyPauseSuccess = false;
 		this.policyPauseSuccessMessage = ``;
 		this.showLifeHonestyPledgeDialog = false;
-		this.confirmPolicyPauseDialog = false;
+		this.showConfirmPolicyPauseDialog = false;
 		this.policyPauseReason = ``;
+		this.showBenefitEmailDialog = false;
 		
  
 		this.showLifeIncreaseUnavailableDialog = false;
@@ -228,16 +226,17 @@ class ClientSummary extends Component {
 			showLifeHonestyPledgeDialog: { type: Boolean, state: true },
 
 			// Double check these
-			confirmPolicyPauseDialog: { type: Boolean, state: true },
+			showConfirmPolicyPauseDialog: { type: Boolean, state: true },
 			policyPauseReason: { type: String, state: true },
 			funeralPolicyPauseInfo: { type: Object, state: true },
-			executeFuneralPolicyPauseInfo: { type: Object, state: true },
 			showNewbornPremiumWaiverDialog: { type: Boolean, state: true },
 			executeActivateBenefit: { type: Object, state: true },
 			executeCancelBenefit: { type: Object, state: true },
 			showBenefitSuccessToast: { type: Boolean, state: true },
 			benefitSuccessMessage: { type: String, state: true },
 			fetchBenefitDetails: { type: Object, state: true },
+			fetchPolicyPauseAgreementDetails: { type: Object, state: true },
+			showBenefitEmailDialog: { type: String, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -531,7 +530,6 @@ class ClientSummary extends Component {
 	}
 
 	_openVoluntaryPolicyPauseDialog(policyItem) {
-		console.log(`in open vpp`);
 		this.selectedPolicyItem = policyItem;
 		this.showPolicyPauseDialog = true;
 	}
@@ -869,14 +867,14 @@ class ClientSummary extends Component {
 
 	_activateOrCancelPolicyPause() {
 		let result = ``;
-		if (this.selectedPolicyItem.policyRule === `PolicyPause`) {
+		if (this.selectedPolicyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
 			result = this.cancelPolicyPause(this.selectedPolicyItem.contractReference);
 		} else {
 			result = this.activatePolicyPause(this.policyPauseReason, this.selectedPolicyItem.contractReference);
 		}
 
 		if (result) {
-			this.confirmPolicyPauseDialog = false;
+			this.showConfirmPolicyPauseDialog = false;
 		}
 	}
 
@@ -884,9 +882,9 @@ class ClientSummary extends Component {
 		if (!isNullorEmpty(reason)) {
 			this.policyPauseReason = reason;
 		}
-		this.funeralPolicyPauseInfo = await this.executeFuneralPolicyPauseInfo();
+		this.funeralPolicyPauseInfo = await this.fetchBenefitDetails(this.selectedPolicyItem.contractReference, this.selectedPolicyItem.productCode);
 		this.showPolicyPauseDialog = false;
-		this.confirmPolicyPauseDialog = true;
+		this.showConfirmPolicyPauseDialog = true;
 			
 	}
 
@@ -931,7 +929,38 @@ class ClientSummary extends Component {
 	}
 
 	_startBenefitToastTimer() {
-		window.setTimeout(() => this.showEmailEstimateSuccessToast = false, 3000);
+		window.setTimeout(() => this.showBenefitSuccessToast = false, 3000);
+	}
+
+	_closePolicyPauseDialog (e) {
+		if (isNullorEmpty(e.detail.successMessage)) {
+			this.showPolicyPauseDialog = false;
+		} else {
+			this.showPolicyPauseDialog = false;
+			this.benefitSuccessMessage = e.detail.successMessage
+			this.showBenefitSuccessToast = true;
+			//email 
+
+			this.showBenefitEmailDialog = true;
+		}
+	}
+
+	_closePolicyPauseConfirmDialog (e) {
+		if (isNullorEmpty(e.detail.successMessage)) {
+			this.showConfirmPolicyPauseDialog = false;
+		} else {
+			this.showConfirmPolicyPauseDialog = false;
+			this.benefitSuccessMessage = e.detail.successMessage
+			this.showBenefitSuccessToast = true;
+
+			//email
+			this.showBenefitEmailDialog = true
+		}
+	}
+
+	_sendFuneralBenefitEmail(emailAddress) {
+		this.dispatchEvent(new CustomEvent(`send-benefit-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_VPP, contractRef: this.selectedPolicyItem.contractReference, productCode: this.selectedPolicyItem.productCode } }));
+		this.showBenefitEmailDialog = false;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -939,6 +968,7 @@ class ClientSummary extends Component {
 	// #region PRIVATE FUNCTIONS
 
 	_initialise() {
+
 	}
 
 	/**
@@ -1105,15 +1135,12 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
 		// if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
-		const policyVPP = policyItem.benefits.find(benefits => benefits.type === `PolicyPause`);
-		console.log(`policyVPP :>> `, policyVPP);
-
-		if (policyVPP?.available === true) {
+		const policyPauseBenefit = policyItem.benefits.find(benefits => benefits.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		if (policyPauseBenefit?.available) {
 			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
-		console.log(`policyItem.showOptions :>> `, policyItem.showOptions);
-		const newBornBenefit = policyItem.benefits.find(benefit => benefit.type === FUN_BENEFIT_OPTIONS.NEW_BORN);
-		if (newBornBenefit.available) {
+		const newBornBenefit = policyItem.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+		if (newBornBenefit?.available) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
 
@@ -1241,7 +1268,7 @@ class ClientSummary extends Component {
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
 					icon="system/profile-action" 
-					label="Voluntary Policy pause">`
+					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}">`
 			case POLICY_OPTIONS.NEW_BORN_WAIVER:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
@@ -1790,6 +1817,7 @@ class ClientSummary extends Component {
 			${this._renderConfirmPolicyPauseDialog()}
 			${this._renderLifeIncreaseCoverUnavailable()}
 			${this._renderFuneralNewbornPremiumWaiverDialog()}
+			${this._renderEmailBenefitDialog()}
 
 		`;
 	}
@@ -2949,9 +2977,10 @@ class ClientSummary extends Component {
 			: html`
 				<horizon-insure-funeral-policy-pause-dialog
 					.policy="${this.selectedPolicyItem}"
-					.cancelPolicyPause = "${() => this._openConfirmPolicyPauseDialog()}"
-					.activatePolicyPause = "${(reason) => this._openConfirmPolicyPauseDialog(reason)}"
-					@cancel-click = "${() => this.showPolicyPauseDialog = false}">
+					.cancelPolicyPause = "${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
+					.fetchPolicyPauseAgreementDetails = "${() => this.fetchPolicyPauseAgreementDetails()}"
+					@go-to-confirm = "${(reason) => this._openConfirmPolicyPauseDialog(reason)}"
+					@close-modal = "${(e) => this._closePolicyPauseDialog(e)}">
 				</horizon-insure-funeral-policy-pause-dialog>
 			`;
 	}
@@ -2961,13 +2990,13 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_renderConfirmPolicyPauseDialog() {
-		return this.confirmPolicyPauseDialog === false ? html``
+		return this.showConfirmPolicyPauseDialog === false ? html``
 			: html`
 				<horizon-insure-confirm-policy-pause-dialog
 					.policy="${this.selectedPolicyItem}"
 					.policyPauseInfo = "${this.funeralPolicyPauseInfo}"
-					@confirm = "${() => this._activateOrCancelPolicyPause()}"
-					@close-modal = "${() => this.showPolicyPauseDialog = false}">
+					.activatePause = "${(benefitType, policy) => this.executeActivateBenefit(this.policyPauseReason, benefitType, policy)}"
+					@close-modal = "${(e) => this._closePolicyPauseConfirmDialog(e)}">
 				</horizon-insure-confirm-policy-pause-dialog>
 			`;
 	}
@@ -3001,6 +3030,17 @@ class ClientSummary extends Component {
 					@close-modal="${(e) => this._closeNewbornPremiumWaiverDialog(e)}">
 				</horizon-insure-funeral-newborn-premium-waiver-dialog>
 			`;
+	}
+
+	_renderEmailBenefitDialog() {
+		return this.showBenefitEmailDialog === false ? html`` 
+			: html`
+				<horizon-insure-email-dialog 
+					.titleMessage = "${`Email Benefit Note`}"
+					@close-modal="${() => this.showBenefitEmailDialog = false}"
+					@send-email = "${(emailAddress) => this._sendFuneralBenefitEmail(emailAddress)}">
+				</horizon-insure-email-dialog>
+			`
 	}
 
 	// #endregion RENDERING

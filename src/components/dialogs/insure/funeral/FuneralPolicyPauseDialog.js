@@ -1,14 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
+import { FUN_POLICY_RULES, FUN_BENEFIT_TYPES, POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import {formatDateToInsure} from "app/utils/insureUtils"
 import 'app/components/dialogs/insure/AgreementDialog';
 
-
-const BENEFIT_TYPES = {
-	NEWBORN: `NewBorn`,
-	POLICYPAUSE: `PolicyPause`
-};
 
 /**
  * 
@@ -35,6 +31,7 @@ class FuneralPolicyPauseDialog extends Component {
 		this.policyPauseDocumentDetails = {};
 		this.errorMessage = ``;
 		this.policyEligible = true;
+		this.policyPauseInfo = {}
 	}
 
 	// #endregion INITIALIZE
@@ -62,7 +59,9 @@ class FuneralPolicyPauseDialog extends Component {
 			errorMessage: { type: String, state: true },
 			showPolicyPauseAgreement: { type: Boolean, state: true },
 			policyEligible: { type: Boolean, state: true },
-			policyPauseDocumentDetails: { type: Object, state: true }
+			policyPauseDocumentDetails: { type: Object, state: true },
+			policyPauseInfo: { type: Object, state: true },
+			fetchPolicyPauseAgreementDetails: { type: Object, state: true }
 		};
 	}
 
@@ -76,6 +75,8 @@ class FuneralPolicyPauseDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -87,6 +88,11 @@ class FuneralPolicyPauseDialog extends Component {
 
 	// #region PRIVATE METHODS
 
+	async _initialise() {
+		if (this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
+			this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails();			
+		}
+	}
 
 	// #endregion PRIVATE METHODS
 
@@ -97,15 +103,20 @@ class FuneralPolicyPauseDialog extends Component {
 	 * @returns {void}
 	 */
 	async _confirmPolicyPauseClick() {
-		if (this.policy.policyRule === `PolicyPause`) {
-			await this.cancelPolicyPause();
-		} else {
+		if (this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) { //for Cancel pause 
+			const resp = await this.cancelPolicyPause(FUN_BENEFIT_TYPES.POLICY_PAUSE, this.policy);
+
+			if (resp.successful) {
+				this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `Your Policy Pause benefit has been successfully cancelled` }}));
+			}
+
+		} else { // for activate pause
 			if (isNullorEmpty(this.selectedReason)) {
 				this.errorMessage = `A reason needs to be selected`;
 				return;
 			}
 			this.errorMessage = ``;
-			await this.activatePolicyPause(this.selectedReason);
+			this.dispatchEvent(new CustomEvent(`go-to-confirm`, {}))
 		}
 
 		
@@ -116,18 +127,18 @@ class FuneralPolicyPauseDialog extends Component {
 	 * @returns {void}
 	 */
 	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`cancel-click`, {}));
+		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: ``} }));
 	}
 
-	_reasonSelected(e) {
+	async _reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this.errorMessage = ``;
+		this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails();
+
 	}
 
 	 _showAgreement() {
-		// await this._getPolicyPauseAgreement();
 		this.showPolicyPauseAgreement = true;
-		console.log(`this.showPolicyPauseAgreement after click:>> `, this.showPolicyPauseAgreement);
 		
 	}
 
@@ -193,11 +204,9 @@ class FuneralPolicyPauseDialog extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal header = "Voluntary Policy Pause" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
+			<capitec-modal header= "${this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy Pause` : `Activate Voluntary Policy Pause`}" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
 				<div slot="body" style="padding-bottom: 0px" >
-				<!-- <capitec-content-box style="padding: 0px"> -->
 					${this._renderDialogBody()}
-				<!-- </capitec-content-box> -->
 				</div>
 				<div slot="footer" >
 					${this._renderDialogFooter()}
@@ -212,7 +221,6 @@ class FuneralPolicyPauseDialog extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	 _renderDialogBody() {
-		console.log(`this.policy :>> `, this.policy);
 		return html` 
 			${this.policyEligible === false ? html`
 				<div style="padding-bottom: 10px; height: 50px;">
@@ -220,10 +228,10 @@ class FuneralPolicyPauseDialog extends Component {
 				</div>
 			` 
 			: html`
-				${this.policy.policyRule === `PolicyPause` 
+				${this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE 
 				? html`
 					<div style="padding-bottom: 10px; height: 200px;">
-						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>dd/mm/yyyy</b>?</p>
+						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>${formatDateToInsure(new Date())}</b>.</p>
 						<div>
 							<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Funeral plan" detail="" icon="" @click="${() => this._showAgreement()}">
 								<capitec-label slot="detail" type="strong" label="View Document" >
@@ -279,8 +287,8 @@ class FuneralPolicyPauseDialog extends Component {
 			${this.policyEligible ? html`
 			<capitec-button slot="footer" type="primary" label="Confirm" class="capitec-button-small"
 				@click="${() => this._confirmPolicyPauseClick()}">
-			</capitec-button>
-			` : html``}
+			</capitec-button>`
+			: html``}
 			
 			
 		`;
@@ -293,9 +301,8 @@ class FuneralPolicyPauseDialog extends Component {
 	_renderAgreementDialog() {
 		return this.showPolicyPauseAgreement === false ? html``
 			: html`
-			${console.log(`rendering a agrement dialog`)}
 			<horizon-insure-agreement-dialog
-			.agreementContent="${null}"
+			.agreementContent="${this.policyPauseDocumentDetails.documentContent.value}"
 			@back-click="${() => this.showPolicyPauseAgreement = false}">
 			</horizon-insure-agreement-dialog>
 		`;
