@@ -819,7 +819,6 @@ class ClientSummary extends Component {
 	}
 
 	_lifeUpdateCompleted(e) {
-		console.log(`_lifeUpdateCompleted - client summary`); ;
 		this.showLifeAllocateCoverDialog = false;
 		this.dispatchEvent(new CustomEvent(`life-update-completed`, {
 			detail: {
