@@ -13,7 +13,7 @@ import 'app/components/dialogs/insure/AgreementDialog';
  * close-modal
  *  
  * @export
- * @class PayPremiumAgreementDialog
+ * @class NewbornPremiumWaiverDialog
  * @extends {Component}
  */
 class NewbornPremiumWaiverDialog extends Component {

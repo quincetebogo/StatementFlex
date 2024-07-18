@@ -11,7 +11,8 @@ import 'app/components/dialogs/insure/AgreementDialog';
  * 
  * Events Raised 
  * -------------
- * confirmation-click
+ * close-modal
+ * go-to-confirm
  *  
  * @export
  * @class RequestCallback
@@ -318,13 +319,3 @@ class FuneralPolicyPauseDialog extends Component {
 }
 
 window.customElements.define(`horizon-insure-funeral-policy-pause-dialog`, FuneralPolicyPauseDialog);
-
- /**
- * Send Confirmation dialog event to consuming component when 'Confirm' is clicked
- *
- * @example
- * <horizon-insure-update-validation-dialog ... @confirmation-click="${this._confirmationClick}"></horizon-insure-update-validation-dialog>
- *
- * @event InsureUpdateValidationDialog#confirm
- * @type {Object} - N/A
- */

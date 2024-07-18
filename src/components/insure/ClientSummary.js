@@ -2967,7 +2967,7 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 *  Render dialog for Voluntary policy pause
+	 *  Render dialog for Confirm Voluntary policy pause
 	 * @returns {void}
 	 */
 	_renderConfirmPolicyPauseDialog() {
@@ -2983,7 +2983,7 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 *  Render dialog for Life email
+	 *  Render dialog for increase cover unavailable
 	 * @returns {void}
 	 */
 	_renderLifeIncreaseCoverUnavailable() {
@@ -2997,7 +2997,7 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Render dialog for Life email
+	 * Render dialog for Funeral Newborn premium waiver
 	 * @returns {void}
 	 */
 	_renderFuneralNewbornPremiumWaiverDialog() {

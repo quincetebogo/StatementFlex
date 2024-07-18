@@ -8,11 +8,11 @@ import { FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
  * 
  * Events Raised 
  * -------------
- * agreementAccepted
  * close-modal
+ * 
  *  
  * @export
- * @class PCAAgreementDialog
+ * @class ConfirmPolicyPauseDialog
  * @extends {Component}
  */
 export class ConfirmPolicyPauseDialog extends Component {
