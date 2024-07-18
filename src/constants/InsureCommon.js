@@ -267,7 +267,7 @@ export const DOCUMENT_TYPE = Object.freeze({
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
 	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`,
 	ESTIMATE_AGREEMENT: `EstimatePrintout`,
-	BENEFIT_NOTE: `BenefitNote`
+	VPP_AGREEMENT: `VoluntaryPolicyPauseAgreement`
 });
 
 /**
@@ -516,3 +516,15 @@ export const FUN_POLICY_RULES = Object.freeze({
 	MATERNITY_WAIVER: `MaternityWaiver`,
 	STANDARD: `Standard`
 });
+
+/**
+ * FUN_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_POLICY_TYPES
+ */
+export const FUN_BENEFIT_PERIOD = Object.freeze({
+	PERIOD: 6
+	
+});
+

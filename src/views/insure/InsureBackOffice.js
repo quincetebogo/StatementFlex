@@ -29,7 +29,7 @@ import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, FUN_BENEFIT_PERIOD, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -326,7 +326,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"policyPauseReason": activationReason,
 			"benefitType": benefitType,
-			"benefitPeriod": 0,
+			"benefitPeriod": FUN_BENEFIT_PERIOD.PERIOD,
 			"claimIncidentDate": new Date(),
 			"productCode": policy.productCode
 		};

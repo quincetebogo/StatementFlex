@@ -273,7 +273,6 @@ class ClientSummary extends Component {
 			executeLifeArrearsSendEmail: { type: Object, state: true },
 			executeGetLifeQuestionnaire: { type: Object, state: true },
 			executeLifeRefreshPolicies: { type: Object, state: true },
-			emailEstimateSuccess: { type: Boolean, state: true },
 			requestCallbackSuccess: { type: Boolean, state: true },
 			requestCallback: { type: Object, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
@@ -300,7 +299,6 @@ class ClientSummary extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = ClientPoliciesEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CLIENT_POLICIES, {});
-		this._initialise();
 	}
 
 	async disconnectedCallback() {
@@ -878,9 +876,9 @@ class ClientSummary extends Component {
 	}
 
 	async _openConfirmPolicyPauseDialog(reason) {
-		if (!isNullorEmpty(reason)) {
-			this.policyPauseReason = reason;
-		}
+		
+		this.policyPauseReason = reason;
+		
 		this.funeralPolicyPauseInfo = await this.fetchBenefitDetails(this.selectedPolicyItem.contractReference, this.selectedPolicyItem.productCode);
 		this.showPolicyPauseDialog = false;
 		this.showConfirmPolicyPauseDialog = true;
@@ -917,13 +915,12 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_closeNewbornPremiumWaiverDialog(e) {
-		if (isNullorEmpty(e.detail.successMessage)) {
-			this.showNewbornPremiumWaiverDialog = false;
-		} else {
+		if (!isNullorEmpty(e.detail.successMessage)) {
 			this.benefitSuccessMessage = e.detail.successMessage;
 			this.showBenefitSuccessToast = true;
-			this.showNewbornPremiumWaiverDialog = false;
 		}
+		this.showNewbornPremiumWaiverDialog = false;
+		
 
 	}
 
@@ -932,29 +929,24 @@ class ClientSummary extends Component {
 	}
 
 	_closePolicyPauseDialog (e) {
-		if (isNullorEmpty(e.detail.successMessage)) {
-			this.showPolicyPauseDialog = false;
-		} else {
-			this.showPolicyPauseDialog = false;
+		if (!isNullorEmpty(e.detail.successMessage)) {
 			this.benefitSuccessMessage = e.detail.successMessage
 			this.showBenefitSuccessToast = true;
-			//email 
-
 			this.showBenefitEmailDialog = true;
 		}
+		this.showPolicyPauseDialog = false;
+
 	}
 
 	_closePolicyPauseConfirmDialog (e) {
-		if (isNullorEmpty(e.detail.successMessage)) {
-			this.showConfirmPolicyPauseDialog = false;
-		} else {
-			this.showConfirmPolicyPauseDialog = false;
+		if (!isNullorEmpty(e.detail.successMessage)) {
 			this.benefitSuccessMessage = e.detail.successMessage
 			this.showBenefitSuccessToast = true;
-
-			//email
 			this.showBenefitEmailDialog = true
-		}
+		} 
+		this.showConfirmPolicyPauseDialog = false;
+			
+		
 	}
 
 	_sendFuneralBenefitEmail(emailAddress) {
@@ -965,10 +957,6 @@ class ClientSummary extends Component {
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
-
-	_initialise() {
-
-	}
 
 	/**
 	 * Open Pay Premium dialog 
@@ -2900,10 +2888,6 @@ class ClientSummary extends Component {
 			</capitec-toast>
 			${this._startBenefitToastTimer()}
 	`;
-	}
-
-	_startTimer() {
-		window.setTimeout(() => this.emailEstimateSuccess = false, 3000);
 	}
 
 	_renderRequestCallbackDialog() {
