@@ -1134,10 +1134,8 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
 		// if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
-		const policyPauseBenefit = policyItem.benefits.find(benefits => benefits.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
-		if (policyPauseBenefit?.available) {
-			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
-		}
+		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
+
 		const newBornBenefit = policyItem.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
 		if (newBornBenefit?.available) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);

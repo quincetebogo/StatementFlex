@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { FUN_POLICY_RULES, FUN_BENEFIT_TYPES, POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
+import { FUN_POLICY_RULES, FUN_BENEFIT_TYPES, FUN_BENEFIT_DOT_TYPES, POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import {formatDateToInsure} from "app/utils/insureUtils"
 import 'app/components/dialogs/insure/AgreementDialog';
@@ -30,7 +30,7 @@ class FuneralPolicyPauseDialog extends Component {
 		this.showPolicyPauseAgreement = false;
 		this.policyPauseDocumentDetails = {};
 		this.errorMessage = ``;
-		this.policyEligible = true;
+		this.policyEligible = false;
 		this.policyPauseInfo = {}
 	}
 
@@ -91,6 +91,11 @@ class FuneralPolicyPauseDialog extends Component {
 	async _initialise() {
 		if (this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
 			this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails();			
+		}
+
+		const policyPauseBenefit = this.policy.benefits.find(benefits => benefits.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		if (policyPauseBenefit?.available) {
+			this.policyEligible = true;
 		}
 	}
 
