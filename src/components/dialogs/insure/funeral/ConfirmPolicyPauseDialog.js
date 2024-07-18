@@ -151,12 +151,3 @@ window.customElements.define(`horizon-insure-confirm-policy-pause-dialog`, Confi
  * @type {Object} - N/A
  */
 
-/**
- * send confirm event to the consuming componant when confirm is clicked
- *
- * @example
- * <horizon-insure-confirm-policy-pause-dialog ... @agreementAccepted="${this._handler}"></horizon-insure-confirm-policy-pause-dialog>
- *
- * @event ConfirmPolicyPauseDialog#agreementAccepted
- * @type {Object} - N/A
- */
