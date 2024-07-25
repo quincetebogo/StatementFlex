@@ -297,11 +297,11 @@
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
@@ -313,7 +313,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -321,7 +321,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
@@ -341,7 +341,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {

@@ -217,7 +217,7 @@ export default class InsureChannelServiceMocks {
 	 * Generate agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
-	generateAgreement() {
+	insureGenerateAgreement() {
 		if (this._mockSettings.insureGenerateAgreement.positiveCase) {
 			return this.generateAgreementMocks.InsureAgreement;
 		}
@@ -228,9 +228,9 @@ export default class InsureChannelServiceMocks {
 	 * Generate Issue agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
-	generateIssueAgreement() {
+	insureGenerateIssueAgreement() {
 		if (this._mockSettings.insureGenerateIssueAgreement.positiveCase) {
-			return this.generateIssueAgreementMocks.InsureAgreement;
+			return this.generateIssueAgreementMocks.GenericDocumentResponse;
 		}
 		return null;
 	}
