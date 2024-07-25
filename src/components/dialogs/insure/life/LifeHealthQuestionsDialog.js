@@ -87,6 +87,17 @@ class LifeHealthQuestionsDialog extends Component {
 
 	// #region PRIVATE METHODS
 
+	/**
+	 * determines the monthly premium of the Additional cover client qualifies for
+	 */
+	_determineAdditionalCoverPremium() {
+		
+		const premPerRand = this.coverAvailableResults.maximumPremium/this.coverAvailableResults?.maximumAllowedCover
+		const premium = premPerRand*this.coverAvailableResults?.remainingSumAssuredAvailable
+
+		return premium;
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
@@ -257,6 +268,16 @@ class LifeHealthQuestionsDialog extends Component {
 					font-size: 20px;
 				}
 
+				.new-offer-details-value{
+					font-weight: bold;
+					font-size: 20px;
+					color: #009DE0
+				}
+
+				.new-offer-text{
+					font-weight: 600;
+				}
+
 				.body-box {
 					height: 90px;
 					--theme-container-padding-top: 16px;
@@ -333,15 +354,27 @@ class LifeHealthQuestionsDialog extends Component {
 					` 
 					: html`
 						<div style="min-width: 350px; min-height: 140px;">
+							<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px; border-bottom: 1px solid #009DE0;">
+								<div class="offer-details-cell">
+									<div>Current Offer</div>
+									<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.policy?.totalPolicySumAssured))}</div>
+								</div>
+
+								<div class="offer-details-cell">
+									<div>Current Monthly Premium</div>
+									<div class="offer-details-value">${formatCurrency(this.policy?.totalPremium)}</div>
+								</div>
+							</div>
+						
+						</div>
+						<div style="min-width: 350px; min-height: 140px;">
 							<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px;">
 								<div class="offer-details-cell">
-									<div>Get up to</div>
-									<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.coverAvailableResults?.maximumAllowedCover))}</div>
-								</div>
-						
-								<div class="offer-details-cell">
-									<div>Monthly Premium</div>
-									<div class="offer-details-value">${formatCurrency(this.coverAvailableResults?.maximumPremium)}</div>
+									<div class="new-offer-text">You qualify for an additional</div>
+									<div class="new-offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.coverAvailableResults?.remainingSumAssuredAvailable))}</div>
+									<div class="new-offer-text">cover at</div>
+									<div class="new-offer-details-value">${formatCurrency(this._determineAdditionalCoverPremium())}</div>
+									<div class="new-offer-text">per month</div>
 								</div>
 							</div>
 							<p>You can choose a lower cover amount for a lower premium, to fit your budget</p>

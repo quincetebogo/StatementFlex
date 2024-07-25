@@ -17,6 +17,7 @@ export const LIFE_COVER_ERROR_MESSAGES = {
 	EDUCATION_MAX_BENEFICIARIES: `Maximum of 10 beneficiaries allowed for education fund`,
 	MAIN_LIFE_ID_MATCH: `Main life and beneficiary cannot be the same person`,
 	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`,
+	INCREASE_COVER_LESS_CURRENT_COVER: `Your new cover can not be less than your original cover of {0}`
 };
 
 /**

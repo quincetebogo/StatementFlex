@@ -144,6 +144,8 @@ class LifeAllocateCoverDialog extends Component {
 			emailAlertBannerMessage: { type: String, state: true },
 			showAgreementDocumentDialog: { type: Boolean, state: true },
 			getDefaultSavingsAccountNumber: { type: Object, state: true },
+			currentPremium: { type: Number, state: true },
+			currentCover: { type: Number, state: true },
 
 			// Manage/Allocate service calls
 			executeLifeUpdatePolicy: { type: Object, state: true },
@@ -189,8 +191,9 @@ class LifeAllocateCoverDialog extends Component {
 		this.originalBranchCode = this.currentPolicy.bankDetails.branchCode;
 		this.originalAccountType = this.currentPolicy.bankDetails.accountType;
 
+		this.currentPremium = this.currentPolicy.totalPremium
+
 		this.updatedPolicy = { ...this.currentPolicy };
-		console.log(`this.updatedPolicy :>> `, this.updatedPolicy);
 		if (!isNullorEmpty(this.newOffer)) {
 			this.isNewOffer = true;
 		}
@@ -266,6 +269,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.totalLoadingApplied = this.newOffer.totalLoadingApplied;
 			this.remainingCoverToAllocate = this.newOffer.remainingSumAssuredAvailable;
 			this.totalCoverAllocatedAllPockets = this.newOffer.currentPolicySumAssured;
+			this.currentCover = this.newOffer.currentPolicySumAssured;
 
 			this.updatedPolicy.beneficiaries.forEach(bene => {
 				if (bene.monthlyPayoutBenefitAmount > 0) {
@@ -500,14 +504,14 @@ class LifeAllocateCoverDialog extends Component {
 
 		if (this.updateMode === LIFE_UPDATE_MODE.INCREASE && this.totalCoverAllocatedAllPockets >= 100000) {
 			this.calculatedPremium = 0;
+			
+			if (this.currentCover < this.totalCoverAllocatedAllPockets) {
+				const coverDiff = this.totalCoverAllocatedAllPockets - this.currentCover;
 
-			if (this.updatedPolicy?.totalPolicySumAssured < this.totalCoverAllocatedAllPockets) {
-				this.totalCoverAllocatedAllPockets -= this.updatedPolicy?.totalPolicySumAssured;
-
-				const basePremium = (this.totalCoverAllocatedAllPockets / 1000) * this.riskRate; 
+				const basePremium = (coverDiff / 1000) * this.riskRate; 
 				const loadedPremium = this.totalLoadingApplied * basePremium;
-				this.calculatedPremium = basePremium + loadedPremium + this.channelFee;
-				console.log(`this.calculatedPremium :>> `, this.calculatedPremium);
+				const coverDiffPremium = basePremium + loadedPremium + this.channelFee;
+				this.calculatedPremium = coverDiffPremium + this.currentPremium
 
 			}
 
@@ -565,6 +569,10 @@ class LifeAllocateCoverDialog extends Component {
 		} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 			if (totalCoverage > this.newOffer.maximumAllowedCover) {
 				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.COVER_MAXIMUM;
+				isValid = false;
+			}
+			if (totalCoverage < this.currentCover) {
+				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.INCREASE_COVER_LESS_CURRENT_COVER.replace("{0}", formatCurrency(this.currentCover));
 				isValid = false;
 			}
 		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
