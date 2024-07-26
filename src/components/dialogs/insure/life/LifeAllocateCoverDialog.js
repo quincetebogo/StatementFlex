@@ -1206,6 +1206,7 @@ class LifeAllocateCoverDialog extends Component {
 					"beneficiaries": requestBeneficiaries,
 					"pockets": this.updatedPolicy.pockets
 				};
+					console.log("🚀 ~ LifeAllocateCoverDialog ~ _nextStep ~ this.updatedPolicy:", this.updatedPolicy)
 
 				this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
 
@@ -1344,7 +1345,7 @@ class LifeAllocateCoverDialog extends Component {
 				});
 
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
-
+				
 				const increaseCoverRequest = {
 					"effectiveDate": new Date(),
 					"idNumber": ``,
@@ -1401,7 +1402,7 @@ class LifeAllocateCoverDialog extends Component {
 					"metadata": {},
 					"nonPrimarySignatoryDetails": {},
 					"userDetails": {},
-					"policyNumber": this.increaseCoverResult.policyNumber,
+					"policyNumber": this.updatedPolicy.policyNumber,
 					"updatePolicy": true,
 					"totalPremium": this.increaseCoverResult.newPremium,
 					"totalCoverAmount": this.increaseCoverResult.newCoverAmount,
@@ -1418,7 +1419,7 @@ class LifeAllocateCoverDialog extends Component {
 				this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
 
 			}
-		}
+				console.log("🚀 ~ LifeAllocateCoverDialog ~ _nextStep ~ this.updatedPolicy:", this.updatedPolicy)}
 
 		// All good move on
 		if (stepValid === true) {
@@ -1497,6 +1498,7 @@ class LifeAllocateCoverDialog extends Component {
 			}
 		}
 
+		// Increase
 		if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 			const updatePocketReq = {
 				"emailAddress": this.agreementEmail,
