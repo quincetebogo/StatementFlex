@@ -1432,6 +1432,54 @@ class LifeAllocateCoverDialog extends Component {
 
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 				
+				if (!isNullorEmpty(this.updatedPolicy.guardians)) {
+
+					this.updatedPolicy.guardians.forEach(guardian => {
+	
+						// Is guardian still linked
+						let linkedChild = false;
+						requestBeneficiaries.forEach(reqBene => {
+							if (reqBene.guardianId === guardian.guardianId) {
+								linkedChild = true;
+							}
+						});
+	
+						if (!linkedChild) {
+							return;
+						}
+	
+						const validGuardian = guardian;
+						validGuardian.onceOffPayoutBenefitAmount = 0;
+						validGuardian.monthlyPayoutBenefitAmount = 0;
+						validGuardian.educationBenefitAmount = 0;
+						validGuardian.bankDetails = {};
+						validGuardian.recordId = null;
+						validGuardian.cifNumber = null;
+						validGuardian.benefits = [
+							{
+								"benefitType": `LumpSum`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `MonthlyPayout`,
+								"pocketAmount": 0.0
+							},
+							{
+								"benefitType": `Education`,
+								"pocketAmount": 0.0
+							}
+						];
+						validGuardian.contactDetails = {
+							cellphone: validGuardian.contactNumber,
+							email: validGuardian.contactEmail,
+							homephone: ``,
+							workphone: ``
+						};
+	
+						requestBeneficiaries.push(validGuardian);
+					});
+				}
+
 				const increaseCoverRequest = {
 					"effectiveDate": new Date(),
 					"idNumber": ``,
@@ -1451,7 +1499,7 @@ class LifeAllocateCoverDialog extends Component {
 					"underwriting": this.newOffer.underwriting,
 					"channel": `Horizon`,
 					"riskRate": this.newOffer.riskRate,
-					"channelFee": this.newOffer.channelFee,
+					"channelFee": this.updatedPolicy.channelFee,
 					"maxCoverApplicable": this.newOffer.maximumAllowedCover,
 					"discountPercent": 0,
 					"beneficiaries": requestBeneficiaries,
@@ -1487,7 +1535,7 @@ class LifeAllocateCoverDialog extends Component {
 					"metadata": {},
 					"nonPrimarySignatoryDetails": {},
 					"userDetails": {},
-					"policyNumber": this.updatedPolicy.policyNumber,
+					"policyNumber": this.increaseCoverResult.policyNumber,
 					"updatePolicy": true,
 					"totalPremium": this.increaseCoverResult.newPremium,
 					"totalCoverAmount": this.increaseCoverResult.newCoverAmount,
