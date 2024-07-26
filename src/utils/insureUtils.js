@@ -550,3 +550,41 @@ export function getDobFromIDNumber(idNumber) {
 
 		return birthDateString;
 }
+
+/**
+ * Validate and return true if idNumber is valid
+ * @param {string} idNumber idNumber to validate  
+ * @returns {boolean} boolean
+ */
+export function isValidRSAIdNumber(idNumber) {
+	let isValid = true;
+	if (idNumber.length !== 13 || !isNaN(parseFloat(number)) || !isFinite(number)) {
+        isValid = false;
+    }
+
+	const tempDate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+	const idDate = tempDate.getDate();
+    const idMonth = tempDate.getMonth();
+
+    if (!((tempDate.getYear().toString() === idNumber.substring(0, 2).toString() || `0${tempDate.getYear().toString()}` === idNumber.substring(0, 2).toString()) && 
+		idMonth.toString() === (idNumber.substring(2, 4) - 1).toString() &&
+		(idDate.toString() === idNumber.substring(4, 6).toString() || `0${idDate.toString()}` === idNumber.substring(4, 6).toString()))) {
+        isValid = false;
+    }
+
+    let tempTotal = 0;
+    let checkSum = 0;
+    let multiplier = 1;
+    for (let i = 0; i < 13; ++i) {
+        tempTotal = parseInt(idNumber.charAt(i), 10) * multiplier;
+        if (tempTotal > 9) {
+            tempTotal = parseInt(tempTotal.toString().charAt(0), 10) + parseInt(tempTotal.toString().charAt(1), 10);
+        }
+        checkSum += tempTotal;
+        multiplier = multiplier % 2 === 0 ? 1 : 2;
+    }
+    if (checkSum % 10 !== 0) {
+        isValid = false;
+    };
+    return isValid;
+}

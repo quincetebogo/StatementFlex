@@ -129,7 +129,6 @@ class LifePayArrearsDialog extends Component {
 			});
 		}
 		this.payableAccounts = this.lifePolicyArrears.payableAccounts;
-
 	}
 
 	/**

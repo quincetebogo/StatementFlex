@@ -84,7 +84,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.contractReference = ``;
 		this.defaultSavingsAccountNumber = ``;
 
-		this.isLifeQualifyingClient = false;
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_BACKOFFICE;
@@ -139,7 +138,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 			contractReference: { type: String, state: true },
 			claims: { type: Object, state: true },
-			isLifeQualifyingClient: { type: Boolean, state: true },
 			lifePolicyMandates: { type: Object, state: true },
 
 			defaultSavingsAccountNumber: { type: String, state: true },
@@ -175,7 +173,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
-		await this._clientQualifiesLife();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
@@ -1117,23 +1114,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	}
 
 	/**
-	 * Check if client qualifies for Life product
-	 * @returns {Object} Client Life policies 
-	 */
-	async _clientQualifiesLife() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber
-		};
-
-		const resp = await this.insureLifeService.lifeClientQualify(request);
-		if (!resp.succeeded) {
-			this.isLifeQualifyingClient = false;
-		} else {
-			this.isLifeQualifyingClient = resp.result.qualify;
-		}
-	}
-
-	/**
 	 * Navigate back from any view to Summary
 	 * @returns {null} null
 	 */
@@ -1518,7 +1498,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
-				.isLifeQualifyingClient = "${this.isLifeQualifyingClient}"
 				@navigate-to-estimate="${(e) => this._goToFuneralPolicyEstimate(e)}"
 				@navigate-to-update-plan="${(e) => this._goToFuneralUpdatePlan(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToFuneralPolicySummary(e)}"
