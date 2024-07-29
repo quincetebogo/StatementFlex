@@ -679,7 +679,7 @@ class ClientSummary extends Component {
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
 
-		if (this.isInsureAgent === true) {
+		if (this.isInsureAgent === true || this.isInsureAdministrator === true) {
 			return;
 		}
 
