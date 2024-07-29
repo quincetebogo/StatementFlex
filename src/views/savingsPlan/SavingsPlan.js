@@ -326,7 +326,7 @@ export class SavingsPlan extends ViewBase {
 			return item;
 		});
 
-		const noticeDepositDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS && item.accountStatus !== `CLOSED`).map(item => {
+		const noticeDepositDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT && item.accountStatus !== `CLOSED`).map(item => {
 			item.currentBalance = formatCurrency(item.currentBalance);
 			item.availableBalance = formatCurrency(item.availableBalance);
 			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);

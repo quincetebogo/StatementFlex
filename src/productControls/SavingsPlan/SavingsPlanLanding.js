@@ -21,7 +21,7 @@ import 'app/components/common/HorizonExpander';
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
 	FIXED_TERM: `fixed-term-save-plan`,
-	NOTICE_DEPOSITS: `notice-deposits`
+	NOTICE_DEPOSIT: `notice-deposits`
 };
 
 export class SavingsPlanLanding extends Component {
@@ -400,7 +400,7 @@ export class SavingsPlanLanding extends Component {
 				<capitec-tab
 					data-automation-id="savings-plan-notice-deposits-tab"
 					label="Notice Deposits">
-						${this._renderNoticeDepositTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS))}
+						${this._renderNoticeDepositTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT))}
 				</capitec-tab>
 			</capitec-tab-group>`
 		: html``;
@@ -428,7 +428,7 @@ export class SavingsPlanLanding extends Component {
 			
 			${this._renderFooter()}`
 		: html`
-			${this._renderNoticeDepositNotAvailable(ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS)}
+			${this._renderNoticeDepositNotAvailable()}
 		`;
 	}
 
@@ -511,9 +511,10 @@ export class SavingsPlanLanding extends Component {
 
 		return noticeDepositDetails.map((item, index) => html`
 				<horizon-expander
+					class="fixed-term-exp"
 					expandButtonAlignment="right"
 					.expanded="${index === 0}">
-						<capitec-group 
+						<capitec-group
 							class="expander-header"
 							slot="custom-header"
 							layout="horizontal"
@@ -521,47 +522,51 @@ export class SavingsPlanLanding extends Component {
 							halign="left"
 							valign="center">
 								<capitec-icon
-									data-automation-id="notice-deposit-info"
 									icon="system/info-action"
-									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSITS, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSIT, item.accountNumber)}">
 								</capitec-icon>
 								<horizon-label
-									class="label-account-number notice-deposit-label"
-									data-automation-id="notice-deposit-account-number"
+									class="label-account-number fixed-label"
 									label="${item.planName}"
 									textOverflow="ellipsis"
 									value="${item.accountNumber}"
-									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSITS, item.accountNumber)}">
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSIT, item.accountNumber)}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
-									data-automation-id="notice-deposit-balance"
 									label="Balance"
 									value="${item.currentBalance}">
 								</horizon-label>
 								<horizon-label
-									data-automation-id="notice-deposit-available-balance"
-									label="Available balance"
-									value="${item.availableBalance}">
+									label="Term (months)"
+									value="${item.term}">
 								</horizon-label>
 								<horizon-label
-									data-automation-id="notice-deposit-interest-rate"
-									label="Interest rate"
-									value="${item.interestRate}%">
+									label="Nominal interest rate"
+									value="${item.nominalInterestRate}%">
 								</horizon-label>
 								<horizon-label
-									data-automation-id="notice-deposit-status"
+									label="Effective interest rate"
+									value="${item.effectiveInterestRate}%">
+								</horizon-label>
+								<horizon-label
 									label="Status"
 									value="${item.accountStatus}">
 								</horizon-label>
 						</capitec-group>
+
 						<div slot="content">
 							<capitec-group 
-								class="expander-content" 
+								class="expander-content"
 								layout="vertical"
 								gap="none"
 								halign="left"
 								valign="center">
+								<capitec-title-bar
+									class="account-deposit-type"
+									type="default"
+									label="${item.depositeType}">
+								</capitec-title-bar>
 									${this._renderOptionsGroup(item)}
 							</capitec-group>
 						</div>
@@ -674,7 +679,7 @@ export class SavingsPlanLanding extends Component {
 						.tooltipMessage="${this.getTooltipMessage(`tax-certificate`)}"
 						?disabled="${this.shouldDisableByRole(`tax-certificate`)}"
 						@click="${() => this._click(`tax-certificate`, item)}"
-						?hidden=${item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS}
+						?hidden=${item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT}
 						>
 				</horizon-option-button>
 				<horizon-option-button 
@@ -733,6 +738,33 @@ export class SavingsPlanLanding extends Component {
 					</capitec-label>
 					<capitec-label
 						label="Get info about ${headerText} plan on the app or visit capitecbank.co.za"
+						type="strong">
+					</capitec-label>
+					<capitec-button
+						data-automation-id="credit-account-view-info"
+							class="info-button"
+							type="primary"
+							label="View Info"
+							@click="${() => this._viewInfo()}">
+					</capitec-button>
+			</capitec-group>`;
+	}
+
+	_renderNoticeDepositNotAvailable() {
+		return html`
+			<capitec-group
+				class="not-available"
+				layout="vertical"
+				halign="center"
+				gap="none">
+					<img src="platform/illustrations/history.svg"/>
+					<capitec-label
+						class="no-results"
+						label="No notice deposit accounts currently"
+						type="strong">
+					</capitec-label>
+					<capitec-label
+						label="Get info about notice deposits on the app or visit capitecbank.co.za"
 						type="strong">
 					</capitec-label>
 					<capitec-button
