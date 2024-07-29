@@ -1332,7 +1332,6 @@ export class ExistingClient extends InsureViewBase {
 		coverAvailableRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		coverAvailableRequest.cifNumber = this.callerInformation.cifNumber;
 		const resp = await this.insureLifeService.lifeCoverAvailable(coverAvailableRequest);
-		console.log(`resp.result :>> `, resp.result);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);
 			return;
@@ -1342,14 +1341,12 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeIncreaseCover(increaseCoverRequest) {
-	console.log("🚀 ~ ExistingClient ~ _lifeIncreaseCover ~ increaseCoverRequest:", increaseCoverRequest)
 
 		increaseCoverRequest.idNumber = this.callerInformation.southAfricanIDNumber;
 		increaseCoverRequest.cifNumber = this.callerInformation.cifNumber;
 		increaseCoverRequest.answers = this.coverAvailableAnswers;
 
 		const resp = await this.insureLifeService.lifeIncreaseCover(increaseCoverRequest);
-		console.log("🚀 ~ ExistingClient ~ _lifeIncreaseCover ~ Increase Cover resp:", resp)
 		
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception); 
@@ -1448,7 +1445,6 @@ export class ExistingClient extends InsureViewBase {
 		updatePocketReq.cifNumber = this.callerInformation.cifNumber;
 
 		const updatePocketResp = await this.insureLifeService.lifeUpdatePocket(updatePocketRequest, () => true);
-		console.log("🚀 ~ ExistingClient ~ _lifeUpdatePocket ~ updatePocketResp:", updatePocketResp)
 		if (!updatePocketResp.succeeded) {
 			this.handleToastError(updatePocketResp.exception);
 			return null;
