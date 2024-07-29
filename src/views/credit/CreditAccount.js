@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -61,6 +61,7 @@ const BUDGET_FACILITY = {
 };
 
 const DEFAULT_CCS_MESSAGE = `Unable to perform this transaction as there is a CCS status on this account.`;
+const TOOLTIP_CLOSED_CC_STATUS = `Credit card account is marked for closure, a {0} cannot be issued`;
 
 /** Credit Account View
  * 
@@ -1283,6 +1284,33 @@ export class CreditAccount extends ViewBase {
 		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
 	}
 
+	_disableActionBtn(need, productType) {
+		const disableByRole = this._shouldDisableByRole(need);
+		return !productType
+				? disableByRole
+				: disableByRole || this._disableByCCStatus();
+	}
+
+	_disableByCCStatus(need, productType) {
+		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
+				productType === PRODUCTS.CREDIT_CARD &&
+				this.ccDetails.accountStatusDescription === `Marked for Closure`;
+	}
+
+	_getTooltipMsg(need, productType) {
+		return this._getTooltipMessage(need) || this._getTooltipMessageByCCStatus(need, productType);
+	}
+
+	_getTooltipMessageByCCStatus(need, productType) {
+		const actions = {
+			'settle-close': `settle and close`,
+			'settlement-quote': `settlement quote`
+		};
+		const msg = TOOLTIP_CLOSED_CC_STATUS.replace(`{0}`, actions[need]);
+
+		return this._disableByCCStatus(need, productType) ? msg : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1385,10 +1413,10 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.shouldDisableByRole="${(need, productType = null) => this._disableActionBtn(need, productType)}"
 					.showTooltip="${need => this._showTooltip(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
+					.getTooltipMessage="${(need, productType = null) => this._getTooltipMsg(need, productType)}"
 					?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"
