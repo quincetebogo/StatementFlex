@@ -1751,7 +1751,7 @@ export class ExistingClient extends InsureViewBase {
 
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
-			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, this.selectedFuneralPolicyProductCode);
 			super.setInsureIncident(`funeral-plan-reissue`);
 			if (calcResponse !== null) {
 				this.selectedFuneralPolicyDetails = calcResponse;
@@ -1766,7 +1766,7 @@ export class ExistingClient extends InsureViewBase {
 				return;
 			}
 		} else {
-			this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber);
+			this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, this.selectedFuneralPolicyProductCode);
 			super.setInsureIncident(`funeral-plan-update-lives`);
 			const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 			const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
