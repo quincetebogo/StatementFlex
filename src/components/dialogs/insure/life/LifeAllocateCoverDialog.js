@@ -1250,7 +1250,6 @@ class LifeAllocateCoverDialog extends Component {
 					"beneficiaries": requestBeneficiaries,
 					"pockets": this.updatedPolicy.pockets
 				};
-					console.log("🚀 ~ LifeAllocateCoverDialog ~ _nextStep ~ this.updatedPolicy:", this.updatedPolicy)
 
 				this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
 
@@ -1552,7 +1551,7 @@ class LifeAllocateCoverDialog extends Component {
 				this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
 
 			}
-				console.log("🚀 ~ LifeAllocateCoverDialog ~ _nextStep ~ this.updatedPolicy:", this.updatedPolicy)}
+		}
 
 		// All good move on
 		if (stepValid === true) {
