@@ -951,7 +951,8 @@ class ClientSummary extends Component {
 			detail: {
 				policyContractReference: contractReference,
 				canReinstate: canReinstate,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
