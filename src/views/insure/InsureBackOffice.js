@@ -625,6 +625,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"cifNumber": this.callerInformation.cifNumber,
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
@@ -799,6 +800,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		{
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.policyResponse.policyResponse.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
@@ -825,9 +827,11 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _cancelFuneralPolicy(e) {
 		this.funeralCancellationReason = e.detail.cancellationReason;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		const cancelPolicyDetails = {
 			"contractReference": e.detail.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"cancellationReason": this.funeralCancellationReason,

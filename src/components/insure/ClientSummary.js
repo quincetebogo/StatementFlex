@@ -679,6 +679,12 @@ class ClientSummary extends Component {
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
 
+		if (policyItem === null) {
+			this.selectedProductCode = INSURE_PRODUCT_CODE.SANLAM;
+		} else {
+			this.selectedProductCode = policyItem.productCode;
+		}
+
 		if (this.isInsureAgent === true || this.isInsureAdministrator === true) {
 			return;
 		}
@@ -688,13 +694,6 @@ class ClientSummary extends Component {
 
 		this.selectedContractRef = policyItem?.contractReference;
 		this.selectedPolicyItem = policyItem;
-
-		if (policyItem === null) {
-			this.selectedProductCode = INSURE_PRODUCT_CODE.SANLAM;
-		} else {
-			this.selectedProductCode = policyItem.productCode;
-		}
-
 
 		if (this._horizonInsureStore.getCFPStatus() === false || this._horizonInsureStore.getCFPStatus() === null) {
 			this.showCFPAgreementDialog = true;
