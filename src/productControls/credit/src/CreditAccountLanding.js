@@ -602,8 +602,8 @@ export class CreditAccountLanding extends Component {
 					icon="system/documents-action"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
 					?showTooltip="${this.showTooltip(`settlement-quote`)}"
-					.tooltipMessage="${this.getTooltipMessage(`settlement-quote`)}"
-					?disabled="${this.shouldDisableByRole(`settlement-quote`)}">
+					.tooltipMessage="${this.getTooltipMessage(`settlement-quote`, PRODUCTS.CREDIT_CARD)}"
+					?disabled="${this.shouldDisableByRole(`settlement-quote`, PRODUCTS.CREDIT_CARD)}">
 			</horizon-option-button>
 			<horizon-option-button 
 					data-automation-id="credit-account-paid-up-letter"
@@ -621,8 +621,8 @@ export class CreditAccountLanding extends Component {
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
 					?showTooltip="${this.showTooltip(`settle-close`)}"
-					.tooltipMessage="${this.getTooltipMessage(`settle-close`)}"
-					?disabled="${this.shouldDisableByRole(`settle-close`)}">
+					.tooltipMessage="${this.getTooltipMessage(`settle-close`, PRODUCTS.CREDIT_CARD)}"
+					?disabled="${this.shouldDisableByRole(`settle-close`, PRODUCTS.CREDIT_CARD)}">
 			</horizon-option-button>
 			<horizon-option-button
 					data-automation-id="credit-account-budget-facility"
