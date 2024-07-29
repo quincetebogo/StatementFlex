@@ -20,7 +20,8 @@ import 'app/components/common/HorizonExpander';
 
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
-	FIXED_TERM: `fixed-term-save-plan`
+	FIXED_TERM: `fixed-term-save-plan`,
+	NOTICE_DEPOSITS: `notice-deposits`
 };
 
 export class SavingsPlanLanding extends Component {
@@ -396,6 +397,11 @@ export class SavingsPlanLanding extends Component {
 					label="Fixed-term Savings">
 						${this._renderFixedTermSavingsPlanTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN))}
 				</capitec-tab>
+				<capitec-tab
+					data-automation-id="savings-plan-notice-deposits-tab"
+					label="Notice Deposits">
+						${this._renderNoticeDepositTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS))}
+				</capitec-tab>
 			</capitec-tab-group>`
 		: html``;
 	}
@@ -410,6 +416,19 @@ export class SavingsPlanLanding extends Component {
 			${this._renderFooter()}`
 		: html`
 			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN)}
+		`;
+	}
+
+	_renderNoticeDepositTab(noticeDepositDetails) {
+		return noticeDepositDetails.length > 0 
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderNoticeDepositAccounts(noticeDepositDetails)}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html`
+			${this._renderNoticeDepositNotAvailable(ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS)}
 		`;
 	}
 
@@ -471,6 +490,67 @@ export class SavingsPlanLanding extends Component {
 								</horizon-label>
 								<horizon-label
 									data-automation-id="savings-plan-status"
+									label="Status"
+									value="${item.accountStatus}">
+								</horizon-label>
+						</capitec-group>
+						<div slot="content">
+							<capitec-group 
+								class="expander-content" 
+								layout="vertical"
+								gap="none"
+								halign="left"
+								valign="center">
+									${this._renderOptionsGroup(item)}
+							</capitec-group>
+						</div>
+				</horizon-expander>`);
+	}
+
+	_renderNoticeDepositAccounts(noticeDepositDetails) {
+
+		return noticeDepositDetails.map((item, index) => html`
+				<horizon-expander
+					expandButtonAlignment="right"
+					.expanded="${index === 0}">
+						<capitec-group 
+							class="expander-header"
+							slot="custom-header"
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<capitec-icon
+									data-automation-id="notice-deposit-info"
+									icon="system/info-action"
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSITS, item.accountNumber)}">
+								</capitec-icon>
+								<horizon-label
+									class="label-account-number notice-deposit-label"
+									data-automation-id="notice-deposit-account-number"
+									label="${item.planName}"
+									textOverflow="ellipsis"
+									value="${item.accountNumber}"
+									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSITS, item.accountNumber)}">
+								</horizon-label>
+								<div class="vertical-line"></div>
+								<horizon-label
+									data-automation-id="notice-deposit-balance"
+									label="Balance"
+									value="${item.currentBalance}">
+								</horizon-label>
+								<horizon-label
+									data-automation-id="notice-deposit-available-balance"
+									label="Available balance"
+									value="${item.availableBalance}">
+								</horizon-label>
+								<horizon-label
+									data-automation-id="notice-deposit-interest-rate"
+									label="Interest rate"
+									value="${item.interestRate}%">
+								</horizon-label>
+								<horizon-label
+									data-automation-id="notice-deposit-status"
 									label="Status"
 									value="${item.accountStatus}">
 								</horizon-label>
@@ -593,7 +673,9 @@ export class SavingsPlanLanding extends Component {
 						?showTooltip="${this.showTooltip(`tax-certificate`)}"
 						.tooltipMessage="${this.getTooltipMessage(`tax-certificate`)}"
 						?disabled="${this.shouldDisableByRole(`tax-certificate`)}"
-						@click="${() => this._click(`tax-certificate`, item)}">
+						@click="${() => this._click(`tax-certificate`, item)}"
+						?hidden=${item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSITS}
+						>
 				</horizon-option-button>
 				<horizon-option-button 
 						data-automation-id="savings-plan-unlock-ftsp"
