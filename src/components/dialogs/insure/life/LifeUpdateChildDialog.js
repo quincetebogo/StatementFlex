@@ -444,6 +444,29 @@ class LifeUpdateChildDialog extends Component {
 		this.requestUpdate();
 	}
 
+	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
+	 * @returns {void}
+	 */
+	_emailChange(e, beneficiary) {
+		if (e.detail.old !== e.detail.new) {
+			if (beneficiary) {
+				this.updatingChild.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.updatingChild.contactEmail)) {
+					this.childErrors.contactEmail = ``;
+				}
+			} else {
+				this.updatingGuardian.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.updatingGuardian.contactEmail)) {
+					this.updatingGuardianErrors.contactEmail = ``;
+				}
+			}
+		}
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS

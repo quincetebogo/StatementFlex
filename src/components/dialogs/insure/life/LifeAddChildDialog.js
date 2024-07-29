@@ -838,9 +838,9 @@ class LifeAddChildDialog extends Component {
 	_emailChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				this.newGuardian.contactEmail = e.detail.new;
-				if (!isNullorEmpty(this.newGuardian.contactEmail)) {
-					this.newGuardianErrors.contactEmail = ``;
+				this.newChild.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.newChild.contactEmail)) {
+					this.newChildErrors.contactEmail = ``;
 				}
 			} else {
 				this.newGuardian.contactEmail = e.detail.new;
