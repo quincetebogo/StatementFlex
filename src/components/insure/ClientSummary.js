@@ -400,7 +400,7 @@ class ClientSummary extends Component {
 	}
 
 	_goToIncreaseCover(lifePolicy) {
-		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65) {
+		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65 && lifePolicy.canIncreaseCover === true) {
 			this.showLifeHonestyPledgeDialog = true;
 			this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.INCREASE;
 			this.selectedLifePolicy = lifePolicy;
@@ -2037,10 +2037,10 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
+			${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`

@@ -504,7 +504,7 @@ export default class InsureChannelServiceMocks {
 	}
 
 	/**
-	 * life update pocket mock check
+	 * life increase cover mock check
 	 * @returns {Object} Mock response data
 	 */
 	insureLifeIncreaseCover() {
@@ -513,6 +513,7 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
+
 
 	// #endregion LIFE
 	

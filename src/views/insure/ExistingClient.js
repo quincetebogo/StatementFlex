@@ -1116,7 +1116,7 @@ export class ExistingClient extends InsureViewBase {
 	// #region EVENT HANDLERS 
 
 
-	/*
+	/**
 	* Navigate so specific subview
 	* @param {String} newMode New render mode string to change renderMode to
 	* @returns {void} void
@@ -1347,7 +1347,7 @@ export class ExistingClient extends InsureViewBase {
 		increaseCoverRequest.answers = this.coverAvailableAnswers;
 
 		const resp = await this.insureLifeService.lifeIncreaseCover(increaseCoverRequest);
-
+		
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception); 
 			return;
@@ -1355,7 +1355,6 @@ export class ExistingClient extends InsureViewBase {
 		return resp.result;
 	}
 
-	//
 
 	async _lifeGenerateIssueAgreement(generateIssueAgreementRequest) {
 		generateIssueAgreementRequest.cifNumber = this.callerInformation.cifNumber;
