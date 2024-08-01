@@ -627,6 +627,7 @@ export class CreditAccount extends ViewBase {
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
 			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+			item.isClosed = () => item.accountStatusDescription.toLowerCase() === `marked closure`;
 
 			return item;
 		});
@@ -1288,13 +1289,13 @@ export class CreditAccount extends ViewBase {
 		const disableByRole = this._shouldDisableByRole(need);
 		return !productType
 				? disableByRole
-				: disableByRole || this._disableByCCStatus();
+				: disableByRole || this._disableByCCStatus(need, productType);
 	}
 
 	_disableByCCStatus(need, productType) {
 		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
 				productType === PRODUCTS.CREDIT_CARD &&
-				this.ccDetails.accountStatusDescription === `Marked for Closure`;
+				this.ccDetails.isClosed();
 	}
 
 	_getTooltipMsg(need, productType) {
