@@ -601,7 +601,7 @@ export class CreditAccountLanding extends Component {
 					label="Settlement Quote"
 					icon="system/documents-action"
 					@click="${() => this._click(`settlement-quote`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
-					?showTooltip="${this.showTooltip(`settlement-quote`)}"
+					?showTooltip="${this.showTooltip(`settlement-quote`) || selectedAccountDetails.isClosed()}"
 					.tooltipMessage="${this.getTooltipMessage(`settlement-quote`, PRODUCTS.CREDIT_CARD)}"
 					?disabled="${this.shouldDisableByRole(`settlement-quote`, PRODUCTS.CREDIT_CARD)}">
 			</horizon-option-button>
@@ -620,7 +620,7 @@ export class CreditAccountLanding extends Component {
 					label="Settle & Close"
 					icon="system/close-circle-action"
 					@click="${() => this._click(`settle-close`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, selectedAccountDetails)}"
-					?showTooltip="${this.showTooltip(`settle-close`)}"
+					?showTooltip="${this.showTooltip(`settle-close`) || selectedAccountDetails.isClosed()}"
 					.tooltipMessage="${this.getTooltipMessage(`settle-close`, PRODUCTS.CREDIT_CARD)}"
 					?disabled="${this.shouldDisableByRole(`settle-close`, PRODUCTS.CREDIT_CARD)}">
 			</horizon-option-button>
