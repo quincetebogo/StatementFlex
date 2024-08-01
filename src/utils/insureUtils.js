@@ -558,7 +558,8 @@ export function getDobFromIDNumber(idNumber) {
  */
 export function isValidRSAIdNumber(idNumber) {
 	let isValid = true;
-	if (idNumber.length !== 13 || !isNaN(parseFloat(number)) || !isFinite(number)) {
+
+	if (idNumber.length !== 13 || !isFinite(idNumber)) {
         isValid = false;
     }
 
