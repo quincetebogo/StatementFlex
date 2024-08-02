@@ -626,6 +626,7 @@ export class Favourites extends SavingsAccountBase {
 					item.currentBalance = formatCurrency(item.currentBalance);
 					item.settlementAmount = formatCurrency(item.currentSettlementAmount);
 					item.maxSettlementAmount = item.maxSettlementAmount ? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
+					item.isClosed = () => item.accountStatusDescription?.toLowerCase() === `marked closure`;
 					return item;
 				});
 
