@@ -83,6 +83,8 @@ export default class InsureChannelServiceMocks {
 		this.lifeUpdatePocketMocks = await this._loadMockModule(this.lifeUpdatePocketMocks, `insureLifeUpdatePocket`, () => import(`../mocks/insure/life/LifeUpdatePocket`).catch(err => logError(err)));
 		this.lifeCoverAvailableMocks = await this._loadMockModule(this.lifeCoverAvailableMocks, `insureLifeCoverAvailable`, () => import(`../mocks/insure/life/LifeCoverAvailable`).catch(err => logError(err)));
 		this.lifeIncreaseCoverMocks = await this._loadMockModule(this.lifeIncreaseCoverMocks, `insureLifeIncreaseCover`, () => import(`../mocks/insure/life/LifeIncreaseCover`).catch(err => logError(err)));
+		
+		this.lifeUpdateBankingDetailsMocks = await this._loadMockModule(this.lifeUpdateBankingDetailsMocks, `insureLifeUpdateBankingDetails`, () => import(`../mocks/insure/life/LifeUpdateBankingDetails`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -510,6 +512,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeIncreaseCover() {
 		if (this._mockSettings.insureLifeIncreaseCover.positiveCase) {
 			return this.lifeIncreaseCoverMocks.insureLifeIncreaseCover;
+		}
+		return null;
+	}
+
+	/**
+	 * 	life update banking details mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeUpdateBankingDetails() {
+		if (this._mockSettings.insureLifeUpdateBankingDetails.positiveCase) {
+			return this.lifeUpdateBankingDetailsMocks.insureLifeUpdateBankingDetails;
 		}
 		return null;
 	}
