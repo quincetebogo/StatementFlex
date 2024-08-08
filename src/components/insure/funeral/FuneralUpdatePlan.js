@@ -907,6 +907,8 @@ class FuneralUpdatePlan extends Component {
 		} else {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
 			this.showUpdateValidationDialog = true;
+			this.requestUpdate();
+			return;
 		}
 		this.requestUpdate();
 	}
