@@ -417,7 +417,7 @@
 			"positiveCase": true
 		},
 		"insureLifeClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeCancelPolicy": {
@@ -513,6 +513,10 @@
 			"positiveCase": true
 		},
 		"insureLifeIncreaseCover": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureLifeUpdateBankingDetails": {
 			"enabled": false,
 			"positiveCase": true
 		}
