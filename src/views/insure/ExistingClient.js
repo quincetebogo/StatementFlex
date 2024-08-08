@@ -1652,10 +1652,12 @@ export class ExistingClient extends InsureViewBase {
 		const smsHistoryDetails = {
 			"policyNumber": this.selectedLifePolicy.contractReference
 		};
-
+	
 		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
+			// Sort the smsHistory array by sentAt date in descending order
+			resp.result.smsHistory.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
 			return resp.result;
 		}
 		this.handleToastError(resp.exception);
