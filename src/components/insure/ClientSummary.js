@@ -435,7 +435,7 @@ class ClientSummary extends Component {
 	}
 
 	_goToIncreaseCover(lifePolicy) {
-		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65) {
+		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65 && lifePolicy.canIncreaseCover === true) {
 			this.showLifeHonestyPledgeDialog = true;
 			this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.INCREASE;
 			this.selectedLifePolicy = lifePolicy;
@@ -719,7 +719,13 @@ class ClientSummary extends Component {
 	 */
 	_displayCFPDisclosure(flow, policyItem = null) {
 
-		if (this.isInsureAgent === true) {
+		if (policyItem === null) {
+			this.selectedProductCode = INSURE_PRODUCT_CODE.SANLAM;
+		} else {
+			this.selectedProductCode = policyItem.productCode;
+		}
+
+		if (this.isInsureAgent === true || this.isInsureAdministrator === true) {
 			return;
 		}
 
@@ -728,13 +734,6 @@ class ClientSummary extends Component {
 
 		this.selectedContractRef = policyItem?.contractReference;
 		this.selectedPolicyItem = policyItem;
-
-		if (policyItem === null) {
-			this.selectedProductCode = INSURE_PRODUCT_CODE.SANLAM;
-		} else {
-			this.selectedProductCode = policyItem.productCode;
-		}
-
 
 		if (this._horizonInsureStore.getCFPStatus() === false || this._horizonInsureStore.getCFPStatus() === null) {
 			this.showCFPAgreementDialog = true;
@@ -1078,7 +1077,8 @@ class ClientSummary extends Component {
 			detail: {
 				policyContractReference: contractReference,
 				canReinstate: canReinstate,
-				selectedInsureTabIndex: this.selectedInsureTabIndex
+				selectedInsureTabIndex: this.selectedInsureTabIndex,
+				productCode: this.selectedProductCode
 			}
 		}));
 	}
@@ -2196,10 +2196,10 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					<!-- ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
+			${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
-			} -->
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`

@@ -710,8 +710,8 @@ export class InsureFuneralService extends ChannelServiceBase {
 	* @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	*/
 	async cancelPolicyAgreement(GenerateCancelAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateIssueAgreement`)) {
-			return this.mock(`insureGenerateIssueAgreement`);
+		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
+			return this.mock(`insureGenerateAgreement`);
 		}
 		return this.post(
 			`/horizon-insurance/funeral/api/document/generate/CancelPolicyAgreement`,

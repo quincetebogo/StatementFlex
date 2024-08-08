@@ -377,8 +377,21 @@ export class InsureBackOfficeView extends InsureViewBase {
 			return;
 		}
 
-		return benefitInfoResponse.result;
+		return benefitInfoResponse.result
+	}
 
+	/**
+	 * update main life details with caller information (latest client details on Bancs)
+	 * @param {*} mainLife main life roleplayer
+	 * @returns {*}*
+	 */
+	_updateMainLifeFromCallerInfo(mainLife)
+	{
+		mainLife.surname = this.callerInformation.lastName;
+		mainLife.firstName = this.callerInformation.firstName;
+		mainLife.middleName = this.callerInformation.middleName1;
+		mainLife.idNumber = this.callerInformation.southAfricanIDNumber;
+		mainLife.dateOfBirth = this.callerInformation.birthdate;
 	}
 
 	// #endregion PRIVATE METHODS
@@ -710,6 +723,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"cifNumber": this.callerInformation.cifNumber,
 			"totalPremium": policyToCalc.totalPremium,
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
@@ -884,6 +898,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		{
 			"cifNumber": this.callerInformation.cifNumber,
 			"contractReference": event.detail.policyResponse.policyResponse.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"documents": documents,
 			"mandates": event.detail.policyResponse.policyResponse.mandates
 		};
@@ -910,9 +925,11 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _cancelFuneralPolicy(e) {
 		this.funeralCancellationReason = e.detail.cancellationReason;
+		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		const cancelPolicyDetails = {
 			"contractReference": e.detail.contractReference,
+			"productCode": this.selectedFuneralPolicyProductCode,
 			"cifNumber": this.callerInformation.cifNumber,
 			"idNumber": this.callerInformation.southAfricanIDNumber,
 			"cancellationReason": this.funeralCancellationReason,
@@ -1299,10 +1316,16 @@ export class InsureBackOfficeView extends InsureViewBase {
 		} else {
 			this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
 			super.setInsureIncident(`funeral-plan-update-lives`);
+		}
+
+		if(this.selectedFuneralPolicyDetails !== null && this.selectedFuneralPolicyDetails.roleplayers !== null)
+		{ 
 			const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 			const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
+			this._updateMainLifeFromCallerInfo(mainLifeElement);
 			this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
 		}
+
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
 	}

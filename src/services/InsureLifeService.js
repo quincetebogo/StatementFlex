@@ -418,7 +418,10 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	lifeUpdateBankingDetails(updateBankingDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async lifeUpdateBankingDetails(updateBankingDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeUpdateBankingDetails`)) {
+			return this.mock(`insureLifeUpdateBankingDetails`, {});
+		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/policy/update-banking-details`,
 			updateBankingDetailsRequest,

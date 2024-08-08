@@ -622,16 +622,11 @@ class FuneralUpdatePlan extends Component {
 						const currentYear = fullCurrentYear.toString().substring(2);
 
 						// validations
-						if (rolePlayer.beneficiary === true) {
-							if (!isNullorEmpty(rolePlayer.idNumber)) {
-								rolePlayer.coverDetails.idNumberErrorMessage = ``;
-							}
-						} else if (rolePlayer.lifeAssured === true) {
-							if (!isNullorEmpty(rolePlayer.idNumber)) {
-								rolePlayer.coverDetails.idErrorMessageLA = ``;
-							}
+					
+						if (!isNullorEmpty(rolePlayer.idNumber)) {
+							rolePlayer.coverDetails.idNumberErrorMessage = ``;
 						}
-
+						
 						const dateOfBirth = getDobFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
@@ -677,7 +672,6 @@ class FuneralUpdatePlan extends Component {
 			});
 		}
 		this.requestUpdate();
-
 	}
 
 
@@ -913,6 +907,8 @@ class FuneralUpdatePlan extends Component {
 		} else {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
 			this.showUpdateValidationDialog = true;
+			this.requestUpdate();
+			return;
 		}
 		this.requestUpdate();
 	}
@@ -961,7 +957,7 @@ class FuneralUpdatePlan extends Component {
 				// ID and Date of Birth
 				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canSubmit = false;
-					ele.coverDetails.idErrorMessageLA = `ID number is a required field`;
+					ele.coverDetails.idNumberErrorMessage = `ID number is a required field`;
 				}
 
 				// Gender
@@ -2434,7 +2430,7 @@ class FuneralUpdatePlan extends Component {
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
 					?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`}"
-					error="${roleplayer?.coverDetails?.idErrorMessageLA === undefined ? `` : roleplayer?.coverDetails.idErrorMessageLA}"
+					error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.idNumberErrorMessage}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
 			</div>
