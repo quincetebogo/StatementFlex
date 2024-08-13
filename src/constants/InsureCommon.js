@@ -184,11 +184,20 @@ export const CANCELATION_REASONS_FUNERAL_BACKOFFICE = Object.freeze([
  * @readonly
  * @enum {Object} CANCELATION_REASONS
  */
-export const LIFE_CANCELATION_REASONS = Object.freeze([
+export const LIFE_CANCELATION_REASONS_CLIENTCARE = Object.freeze([
 	{ code: `CannotAffordPolicy`, text: `Affordability` },
 	{ code: `BetterOffAtAnotherProvider`, text: `Policy with other service provider` },
 	{ code: `CoveredByAnotherFamilyMember`, text: `Already covered` },
-	{ code: `Confidential`, text: `Confidential` },
+	{ code: `Confidential`, text: `Confidential` }
+]);
+
+/**
+ * List of cancel reasons for life - backoffice
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS_LIFE_BACKOFFICE
+ */
+export const LIFE_CANCELATION_REASONS_BACKOFFICE = Object.freeze([
 	{ code: `ChangeInFamilyCircumstances`, text: `Change in family circumstances` },
 	{ code: `InsurerCancelledPolicy`, text: `Insurer cancelled policy` },
 	{ code: `publicAuditCompliance`, text: `Internal Audit Compliance` },
