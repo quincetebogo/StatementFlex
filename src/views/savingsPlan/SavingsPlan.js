@@ -326,7 +326,25 @@ export class SavingsPlan extends ViewBase {
 			return item;
 		});
 
-		this.savingsPlanDetails = [...flexibleSavingsPlanDetails, ...fixedSavingsPlanDetails];
+		const noticeDepositDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT && item.accountStatus !== `CLOSED`).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableBalance = formatCurrency(item.availableBalance);
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
+
+			item.maturityDate = `-`;
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
+
+			item.planName = formatStringAsPascalCase(item.planName);
+			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
+
+			return item;
+		});
+		this.savingsPlanDetails = [...flexibleSavingsPlanDetails, ...fixedSavingsPlanDetails, ...noticeDepositDetails];
 	}
 
 	_backFromAccountDetails() {

@@ -126,6 +126,15 @@ export const PERIOD_TYPE = Object.freeze({
 		icon: `product/credit`,
 		order: 8,
 		choosePeriod: RANGE_SELECTOR.MONTH
+	},
+	205: {
+		name: `Notice deposits`,
+		type: `NOTICE_DEPOSIT`,
+		category: `save`,
+		subCategory: ``,
+		icon: `product/save`,
+		order: 2,
+		choosePeriod: RANGE_SELECTOR.DATE
 	}
 });
 
