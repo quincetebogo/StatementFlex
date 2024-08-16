@@ -1308,13 +1308,22 @@ class LifeAllocateCoverDialog extends Component {
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
 					];
-					newBene.bankDetails = {};
+					newBene.bankDetails = null;
+					newBene.cifNumber = null;
+					newBene.clientId = null;
 					newBene.contactDetails = {
 						cellphone: bene.contactNumber,
 						email: bene.contactEmail,
 						homephone: ``,
 						workphone: ``
 					};
+
+					if (newBene.idNumber === ``) {
+						newBene.idNumber = null;
+					}
+					
+					delete newBene.contactEmail;
+					delete newBene.contactNumber;
 
 					requestBeneficiaries.push(newBene);
 				});
