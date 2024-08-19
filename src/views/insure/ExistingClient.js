@@ -1,4 +1,4 @@
-import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_BENEFIT_DOT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -45,6 +45,11 @@ const POLICY_TRANSACTION_HISTORY = {
 	PAGE_INDEX: 0,
 	MAX_RESULTS: MAX_RESULTS
 };
+
+const ACTION_TYPE = {
+	ACTIVATE: 'ACTIVATE',
+	CANCEL: 'CANCEL'
+}
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -108,7 +113,6 @@ export class ExistingClient extends InsureViewBase {
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
 
-		this.benefitDetails = {};
 	}
 
 	// #endregion INITIALISATION
@@ -191,7 +195,6 @@ export class ExistingClient extends InsureViewBase {
 			isLifeQualifyingClient: { type: Boolean, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			coverAvailableAnswers: { type: Array, state: true },
-			benefitDetails: { type: Object, state: true },
 			funeralBenefitAgreementDocument: { type: Object, state: true },
 
 		};
@@ -1153,6 +1156,10 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
+		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.ACTIVATE);
+		}
+
 		return activateBenefitResponse.result;
 	
 	}
@@ -1172,6 +1179,10 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(cancelBenefitResponse.exception);
 			return;
 		}
+		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.CANCEL);
+		}
+		
 
 		return cancelBenefitResponse.result;
 	
@@ -1194,12 +1205,57 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
-	async _fetchBenefitAgreement() {
+	async _fetchBenefitAgreement(saveDocument, policy, action) {
+
+		let benefitInfo = {}
+		
+		if ( action === ACTION_TYPE.ACTIVATE) {
+			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
+		} else {
+
+			this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+
+			benefitInfo = {
+				"benefitStartDate": this.vppBenefit.benefitStartDate ,
+				"benefitEndDate": this.vppBenefit.benefitEndDate,
+				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
+			}
+		}
+		
+		
 		const benefitAgreementRequest = {
-			
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": saveDocument,
+			"voiceRecordingNumber": "",
+			"markDocumentsAsAccepted": saveDocument,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": true,
+			"wetsignBarcode": false,
+			"clientDetails": {
+			  "cifNumber": this.callerInformation.cifNumber,
+			  "primarySavingsAccountNumber": policy.deductionDetails.bankDetails.accountNumber,
+			  "policyContractReference": policy.contractReference,
+			  "productCode": policy.productCode,
+			  "firstName": this.callerInformation.firstName,
+			  "surname": this.callerInformation.surname,
+			  "idNumber": this.callerInformation.southAfricanIDNumber,
+			  "dateOfBirth": this.callerInformation.birthdate
+			},
+			"benefitDetails": benefitInfo,
+			"emailDetails": {
+			  "email": ""
+			},
+			"contractReference": policy.contractReference,
+			"productCode": policy.productCode
 		}
 
-		const benefitAgreementResponse = await this.insureFuneralService.benefitAgreement(benefitAgreementRequest);
+		let benefitAgreementResponse = {};
+
+		if (action === ACTION_TYPE.ACTIVATE) {
+			benefitAgreementResponse = await this.insureFuneralService.issueBenefitAgreement(benefitAgreementRequest);
+		} else {
+			benefitAgreementResponse = await this.insureFuneralService.cancelBenefitAgreement(benefitAgreementRequest);
+		}
 
 		if (!benefitAgreementResponse.succeeded) {
 			this.handleToastError(benefitAgreementResponse.exception);
@@ -1898,7 +1954,6 @@ export class ExistingClient extends InsureViewBase {
 	 */
 	async _goToFuneralPolicySummary(e) {
 		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
-		this.benefitDetails = await this._retrievePolicyBenefitInfo(e.detail.policyContractReference, e.detail.productCode);
 		const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
@@ -1981,7 +2036,7 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
-		}else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
+		}else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) { 
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_VPP
 		}
 
@@ -2324,7 +2379,7 @@ export class ExistingClient extends InsureViewBase {
 				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
 				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
-				.fetchPolicyPauseAgreementDetails = "${() => this._fetchBenefitAgreement()}"
+				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
@@ -2399,7 +2454,6 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-funeral-policy-summary 
 				.policyDetails="${this.selectedFuneralPolicyDetails}"
-				.benefitInfo = "${this.benefitDetails}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				@unloading="${() => this._unloadClientPolicies()}">
 			</horizon-insure-funeral-policy-summary>`;

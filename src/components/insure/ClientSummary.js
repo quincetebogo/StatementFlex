@@ -852,27 +852,6 @@ class ClientSummary extends Component {
 		this.selectedLifePolicy = policy;
 	}
 
-	// _cancelPolicyPause() {
-	// 	const result = this.cancelPolicyPause(this.selectedPolicyItem.contractReference);
-
-	// 	if (result) {
-	// 		this.showPolicyPauseDialog = false;
-	// 	}
-
-	// }
-
-	_activateOrCancelPolicyPause() {
-		let result = ``;
-		if (this.selectedPolicyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
-			result = this.cancelPolicyPause(this.selectedPolicyItem.contractReference);
-		} else {
-			result = this.activatePolicyPause(this.policyPauseReason, this.selectedPolicyItem.contractReference);
-		}
-
-		if (result) {
-			this.showConfirmPolicyPauseDialog = false;
-		}
-	}
 
 	async _openConfirmPolicyPauseDialog(reason) {
 		
@@ -949,7 +928,7 @@ class ClientSummary extends Component {
 	}
 
 	_sendFuneralBenefitEmail(emailAddress) {
-		this.dispatchEvent(new CustomEvent(`send-benefit-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_VPP, contractRef: this.selectedPolicyItem.contractReference, productCode: this.selectedPolicyItem.productCode } }));
+		this.dispatchEvent(new CustomEvent(`send-benefit-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_VPP, contractRef: this.selectedPolicyItem.contractReference, productCode: this.selectedPolicyItem.productCode, policy: this.selectedPolicyItem } }));
 		this.showBenefitEmailDialog = false;
 	}
 
@@ -1258,8 +1237,8 @@ class ClientSummary extends Component {
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
-					label="${policyItem.policyRule === `MaternityWaiver` ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
-					.disabled="${!this.isInsureAgent && policyItem.policyRule !== `MaternityWaiver`}">
+					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
+					.disabled="${!this.isInsureAgent && policyItem.policyRule !== FUN_POLICY_RULES.MATERNITY_WAIVER}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
@@ -2959,7 +2938,7 @@ class ClientSummary extends Component {
 				<horizon-insure-funeral-policy-pause-dialog
 					.policy="${this.selectedPolicyItem}"
 					.cancelPolicyPause = "${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
-					.fetchPolicyPauseAgreementDetails = "${() => this.fetchPolicyPauseAgreementDetails()}"
+					.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this.fetchPolicyPauseAgreementDetails(saveDocument, policy, action)}"
 					@go-to-confirm = "${(reason) => this._openConfirmPolicyPauseDialog(reason)}"
 					@close-modal = "${(e) => this._closePolicyPauseDialog(e)}">
 				</horizon-insure-funeral-policy-pause-dialog>

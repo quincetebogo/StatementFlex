@@ -542,22 +542,48 @@ export class InsureFuneralService extends ChannelServiceBase {
 	}
 
 	/**
-	 *  Generates the 904 / 3104 Estimate printout document
+	 *  Generates the activate benefit document
 	 *
-	 * @param {benefitAgreementRequest} [benefitAgreementRequest] Request data for service call
+	 * @param {IssueBenefitAgreementRequest} [IssueBenefitAgreementRequest] Request data for service call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async benefitAgreement(benefitAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async issueBenefitAgreement(IssueBenefitAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureBenefitAgreement`)) {
 			return this.mock(`insureBenefitAgreement`);
 		}
 		return this.post(
-			`/horizon-insurance/funeral/api/document/generate/benefitAgreement`,
-			benefitAgreementRequest,
+			`/horizon-insurance/funeral/api/document/generate/IssueBenefitAgreement`,
+			IssueBenefitAgreementRequest,
 			this._setInsureHeaders(),
-			`benefitAgreement`,
+			`issueBenefitAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 *  Generates the cancel benefit document
+	 *
+	 * @param {CancelBenefitAgreementRequest} [CancelBenefitAgreementRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async cancelBenefitAgreement(CancelBenefitAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBenefitAgreement`)) {
+			return this.mock(`insureBenefitAgreement`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/document/generate/CancelBenefitAgreement`,
+			CancelBenefitAgreementRequest,
+			this._setInsureHeaders(),
+			`cancelBenefitAgreement`,
 			null,
 			null,
 			900,

@@ -18,6 +18,11 @@ import 'app/components/dialogs/insure/AgreementDialog';
  * @class RequestCallback
  * @extends {Component}
  */
+
+const ACTION_TYPE = {
+	ACTIVATE: 'ACTIVATE',
+	CANCEL: 'CANCEL'
+}
 class FuneralPolicyPauseDialog extends Component {
 
 	// #region INITIALIZE
@@ -46,6 +51,7 @@ class FuneralPolicyPauseDialog extends Component {
 	 * @property {Function} cancelPolicyPause - callback function to cancel policy pause
 	 * @property {String} selectedReason - selected reason for activating policy pause
 	 * @property {Boolean} showPolicyPauseAgreement - show policy pause agreement dialog
+	 * @property {Object} vppBenefit - contains vpp benefit object from the summary response
 	 * 
 	 * @readonly
 	 * @static
@@ -62,7 +68,8 @@ class FuneralPolicyPauseDialog extends Component {
 			policyEligible: { type: Boolean, state: true },
 			policyPauseDocumentDetails: { type: Object, state: true },
 			policyPauseInfo: { type: Object, state: true },
-			fetchPolicyPauseAgreementDetails: { type: Object, state: true }
+			fetchPolicyPauseAgreementDetails: { type: Object, state: true },
+			vppBenefit: { type: Object, state: true }
 		};
 	}
 
@@ -90,13 +97,15 @@ class FuneralPolicyPauseDialog extends Component {
 	// #region PRIVATE METHODS
 
 	async _initialise() {
-		if (this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
-			this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails();			
-		}
 
-		const policyPauseBenefit = this.policy.benefits.find(benefits => benefits.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
-		if (policyPauseBenefit?.available) {
+		this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+
+		if (this.vppBenefit?.available) {
 			this.policyEligible = true;
+
+			if (this.vppBenefit.isBenefitActive) {
+				this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.CANCEL);
+			}
 		}
 	}
 
@@ -109,7 +118,7 @@ class FuneralPolicyPauseDialog extends Component {
 	 * @returns {void}
 	 */
 	async _confirmPolicyPauseClick() {
-		if (this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) { //for Cancel pause 
+		if (this.vppBenefit.isBenefitActive) { //for Cancel pause 
 			const resp = await this.cancelPolicyPause(FUN_BENEFIT_TYPES.POLICY_PAUSE, this.policy);
 
 			if (resp.successful) {
@@ -139,7 +148,7 @@ class FuneralPolicyPauseDialog extends Component {
 	async _reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this.errorMessage = ``;
-		this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails();
+		this.policyPauseDocumentDetails = await this.fetchPolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE);
 
 	}
 
@@ -210,7 +219,7 @@ class FuneralPolicyPauseDialog extends Component {
 	 _webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
-			<capitec-modal header= "${this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy Pause` : `Activate Voluntary Policy Pause`}" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
+			<capitec-modal header= "${this.vppBenefit.isBenefitActive ? `Cancel Voluntary Policy Pause` : `Activate Voluntary Policy Pause`}" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
 				<div slot="body" style="padding-bottom: 0px" >
 					${this._renderDialogBody()}
 				</div>
@@ -234,7 +243,7 @@ class FuneralPolicyPauseDialog extends Component {
 				</div>
 			` 
 			: html`
-				${this.policy.policyRule === FUN_POLICY_RULES.POLICY_PAUSE 
+				${this.vppBenefit.isBenefitActive 
 				? html`
 					<div style="padding-bottom: 10px; height: 200px;">
 						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>${formatDateToInsure(new Date())}</b>.</p>

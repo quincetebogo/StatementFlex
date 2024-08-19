@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -245,7 +245,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -525,7 +525,7 @@
 			"positiveCase": true
 		},
 		"insureBenefitAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelBenefit": {
@@ -533,7 +533,7 @@
 			"positiveCase": true
 		},
 		"insureActivateBenefit": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureBenefitInfo": {

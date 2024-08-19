@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { FUN_BENEFIT_REASONS, FUN_POLICY_RULES, FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
+import { FUN_BENEFIT_REASONS, FUN_POLICY_RULES, FUN_BENEFIT_DOT_TYPES, FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import 'app/components/dialogs/insure/AgreementDialog';
 
@@ -55,7 +55,8 @@ class NewbornPremiumWaiverDialog extends Component {
 			docsValidated: { type: Boolean, state: true },
 			checkConfirmed: { type: Boolean, state: true },
 			fetchBenefitDetails: { type: Object, state: true },
-			benefitDetails: { type: Object, state: true }
+			benefitDetails: { type: Object, state: true },
+			nbpwBenefit: { type: Object, state: true }
 			
 		};
 	}
@@ -83,7 +84,10 @@ class NewbornPremiumWaiverDialog extends Component {
 	 * @returns {void}
 	 */
 	async _initialise() {
-		if (this.policy.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
+
+		this.nbpwBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+
+		if (this.nbpwBenefit.isBenefitActive) {
 			this.cancelBenefit = true;
 			this.benefitDetails = await this.fetchBenefitDetails(this.policy.contractReference, this.policy.productCode);
 		}
@@ -262,14 +266,11 @@ class NewbornPremiumWaiverDialog extends Component {
 
 		` : html`
 			${this.cancelBenefit === false ? html`
-				<!-- //body for when Activating Benefit -->
 				<div>
 					<capitec-label label="Are you sure you would like to activate this Benefit?" type="subtitle"></capitec-label>
 				</div>
-
 				
 			` : html`
-				<!-- //body for when canceling benefit -->
 				<div>
 					<capitec-label label="Your Newborn Premium Waiver benefit will be cancelled and your next collection date will be on ${formatDate(this.benefitDetails.nextCollectionDate, `dd mmm yyyy`)}" type="strong"></capitec-label>
 				</div>
