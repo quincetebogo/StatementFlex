@@ -143,3 +143,5 @@ export const CCS_DECLINE_MESSAGE = Object.freeze({
 		'ClientUnderAdministration': `Client is under administration. Settle and Close cannot be actioned. Please transfer this call to recoveries and collections at ext 212230.`
 	}
 });
+
+export const CC_CLOSED_STATUS_DISABLE_NEEDS = Object.freeze([`settlement-quote`, `settle-close`]);

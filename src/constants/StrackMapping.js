@@ -24,6 +24,8 @@
 	"send-cash": `SEND_CASH_ENQUIRY`,
 	"send-cash-place-hold": `SEND_CASH_PLACE_HOLD`,
 	"card-history": `VIEW_STOPPED_CARD_HISTORY`,
+	"card-settings": `CARD_SETTINGS_ENQUIRY`,
+	"update-card-settings": `UPDATE_CARD_SETTINGS`,
 
 	// Savings account
 	// "transaction-history": `TRANSACTION_HISTORY`,

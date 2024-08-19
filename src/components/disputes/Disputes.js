@@ -55,6 +55,7 @@ export class Disputes extends Component {
 		this.input = ``; // Text or currency number
 		this.currencyCode = ``;
 		this.currFocussed = false;
+		this.displayToast = false;
 
 		this.logger = Logger.getInstance();
 	}
@@ -81,7 +82,8 @@ export class Disputes extends Component {
 			systemError: { state: true },
 			qusNo: { state: true },
 			selectedAnswer: { state: true },
-			currFocussed: { state: true }
+			currFocussed: { state: true },
+			displayToast: { state: true }
 		};
 	}
 
@@ -279,6 +281,35 @@ export class Disputes extends Component {
 		return true;
 	}
 
+	_copyContent() {
+		const firstElem = this.disputeQuestion.answers?.find(Boolean);
+		const question = this.disputeQuestion.clientQuestionWording || this.disputeQuestion.agentQuestionWording;
+		let options = ``;
+
+		if (!firstElem) {
+			return html``;
+		}
+
+		switch (firstElem.clientAnswerWording || firstElem.agentAnswerWording) {
+			case `input currency`:
+			case `input text`:
+			case `input string`:
+			case `input date`:
+				navigator.clipboard.writeText(question);
+				break;
+			default:
+				this.disputeQuestion.answers.forEach(answer => {
+					const option = answer.clientAnswerWording || answer.agentAnswerWording;
+					options += `\n${option}`;
+				});
+				navigator.clipboard.writeText(`${question}\n${options}`);
+				break;
+		}
+		this.displayToast = true;
+		window.setTimeout(() => this.displayToast = false, 3000);
+		
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -445,6 +476,10 @@ export class Disputes extends Component {
 				}
 				.calendarQusBox {
 					position: absolute;
+				}
+				capitec-toast {
+					position: absolute;
+					left: 450px;
 				}`
 		];
 	}
@@ -483,6 +518,8 @@ export class Disputes extends Component {
 
 	_renderModalContent() {
 		return html`
+		
+			${this._renderCopyToast()}
 			${this._renderDisputeTranInfo()}
 
 			<capitec-content-box layout="vertical" gap="clear" class="content">
@@ -490,6 +527,19 @@ export class Disputes extends Component {
 				${this._renderDeclarationContent()}
 			</capitec-content-box>
 		`;
+	}
+
+	_renderCopyToast() {
+		return this.displayToast 
+		? html`
+			<capitec-toast 
+				type="success"
+				header="Successful"
+				detail="Successfully copied question content." 
+				closable
+				@click="${() => this.displayToast = false}">
+			</capitec-toast>`
+		: html``;
 	}
 
 	_renderDisputeTranInfo() {
@@ -718,6 +768,11 @@ export class Disputes extends Component {
 					@click="${() => this._cancel()}">
 				</capitec-button>
 				<capitec-spacer></capitec-spacer>
+				
+				<capitec-tooltip message="Copy Question" position="left">
+					<capitec-icon size="medium" icon="system/notes-action" @click="${() => this._copyContent()}"></capitec-icon>
+				</capitec-tooltip>
+
 				<capitec-button
 					data-automation-id="dispute-restart-qus"
 					label="Restart Questions"
