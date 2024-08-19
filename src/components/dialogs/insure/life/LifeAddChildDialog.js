@@ -35,6 +35,8 @@ const NEW_BENEFICIARY_TYPES = {
 
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
+const BENEFICIARY_MINIMUM_COVER = 50000;
+
 /**
  * @export
  * @class LifeAddBeneficiaryDialog
@@ -495,7 +497,7 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000) {
+			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -503,7 +505,7 @@ class LifeAddChildDialog extends Component {
 
 		// Validate in flight child
 		this.newChild.metaData.coverErrorMsg = ``;
-		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < 1000) {
+		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
 			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 			beneficiariesValid = false;
 		}

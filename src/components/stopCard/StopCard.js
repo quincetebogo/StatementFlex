@@ -240,7 +240,7 @@ export class StopCard extends Component {
 			item.cardStopReason = ``;
 			item.cardHoldName = item.cardholderName;
 			item.primaryAccountId = item.primarySavingsAccountId || item.primaryCreditAccountId;
-
+			item.cardDisplayName = item.cardArt.split(`_`).includes(`DEBIT`) ? `Debit Card` : `Credit Card`;
 			return item;
 		});
 
@@ -301,9 +301,14 @@ export class StopCard extends Component {
 				}
 				horizon-card-art {
 					--horizon-card-art-width: 328px;
-					--horizon-card-art-height: 304px;
+					--horizon-card-art-height: 316px;
 					width: var(--horizon-card-art-width);
 					height: var(--horizon-card-art-height);
+					margin-bottom: 32px;
+					--horizon-card-art-info-group-height: auto;
+				}
+				.virtual-card-art {
+					--horizon-card-art-height: 362px;
 				}
 				capitec-content-box[slot="cardAction"] {
 					width: 326px;
@@ -330,11 +335,13 @@ export class StopCard extends Component {
 					--theme-check-label-spacing: 10px;
 				}
 				.cardArtBox {
-					--theme-layout-gap-spacing: 24px;
-					height: 305px;
+					height: auto
 				}
 				.overflow {
 					height: 328px;
+				}
+				.hide {
+					display: none
 				}
 			`
 		];
@@ -398,7 +405,7 @@ export class StopCard extends Component {
 		return this.primaryCards.length > 0
 			? html`
 			<capitec-label type="strong" label="Primary card(s)"></capitec-label>
-			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
+			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding wrap>
 				${this.primaryCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
 			: html``;
@@ -408,7 +415,7 @@ export class StopCard extends Component {
 		return this.supplementaryCards.length > 0
 			? html`
 			<capitec-label type="strong" label="Supplementary card(s)"></capitec-label>
-			<capitec-content-box class="cardArtBox ${this.supplementaryCards.length > 3 ? `overflow` : ``}" layout="horizontal" noPadding>
+			<capitec-content-box class="cardArtBox ${this.supplementaryCards.length > 3 ? `overflow` : ``}" layout="horizontal" noPadding wrap>
 				${this.supplementaryCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
 			: html``;
@@ -418,7 +425,7 @@ export class StopCard extends Component {
 		return this.virtualCards.length > 0
 			? html`
 			<capitec-label type="strong" label="Virtual card"></capitec-label>
-			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding>
+			<capitec-content-box class="cardArtBox" layout="horizontal" noPadding wrap>
 				${this.virtualCards.map(card => html`${this._renderCardArt(card)}`)}
 			</capitec-content-box>`
 			: html``;
@@ -427,13 +434,31 @@ export class StopCard extends Component {
 	_renderCardArt(card) {
 		return html`
 			<horizon-card-art
+				class="${card.cardDisplayType === `Virtual_Card` ? `virtual-card-art` : ``}"
 				.card="${card}"
 				?disable-hover="${true}"
 				context="stop-card"
 				?selected="${card.selected}"
 				@value-change="${(evt) => this._cardSelected(evt, card)}">
 					${this._renderCardArtAction(card)}
+					${this._renderInfoGroup(card)}
 			</horizon-card-art>`;
+	}
+
+	_renderInfoGroup(card) {
+		return html`
+			<capitec-content-box slot="cardInfo" halign="left" valign="top" gap="clear">
+				<horizon-label
+					label="${card.cardDisplayName}"
+					value="${card.maskedCardNumber}">
+				</horizon-label>
+				<horizon-label
+					class="${card.cardDisplayType !== `Virtual_Card` ? `hide` : ``}"
+					label="Friendly name"
+					value="${card.cardFriendlyName || `-`}">
+				</horizon-label>
+			</capitec-content-box>
+		`;
 	}
 
 	_renderCardArtAction(card) {
