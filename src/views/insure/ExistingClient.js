@@ -1643,7 +1643,6 @@ export class ExistingClient extends InsureViewBase {
 		await this._getSavingsAccountDetails();
 		this.lifePolicyArrears = resp.result;
 
-		// Trim account numbers (I hate this..)
 		const removeLeadingZerosRegex = accountNumber => accountNumber.replace(/^0+(?=\d)/, ``);
 		const formattedAccounts = resp.result.payableAccounts.map(account => ({ ...account, accountNumber: removeLeadingZerosRegex(account.accountNumber) }));
 		this.lifePolicyArrears.payableAccounts = formattedAccounts;
@@ -1818,10 +1817,11 @@ export class ExistingClient extends InsureViewBase {
 		const smsHistoryDetails = {
 			"policyNumber": this.selectedLifePolicy.contractReference
 		};
-
+	
 		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
+			resp.result.smsHistory.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
 			return resp.result;
 		}
 		this.handleToastError(resp.exception);

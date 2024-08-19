@@ -25,11 +25,22 @@ export class DisputesSuccess extends ViewBase {
 		super();
 		
 		this.endCallContext = `QuickTransactionSuccess`;
+		this.displayToast = false;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	/**
+	 * @property {Boolean} displayToast Show or hide toast
+	 * 
+	 */
+	static get properties() {
+		return {
+			displayToast: { state: true }
+		};
+	}
 
 	get description() {
 		return `parent incident closed, secondary incident handed off to Chargeback Operations to investigate`;
@@ -95,6 +106,13 @@ export class DisputesSuccess extends ViewBase {
 		await this.horizonIncidentManager.closeIncident(options, () => this._toggleBusyFlag());
 	}
 
+	_copyContent() {
+		navigator.clipboard.writeText(`${this.clientAnswerWording}`);
+		
+		this.displayToast = true;
+		window.setTimeout(() => this.displayToast = false, 3000);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -124,6 +142,14 @@ export class DisputesSuccess extends ViewBase {
 					border: 2px solid #DAF2F4;
 					border-radius: 4px;
 				}
+				
+				.copy-toast {
+					width: 406px;
+					position: absolute;
+					top : 56px;
+					margin-left: 382px;
+				}
+
 				.content {
 					order: 3;
 					height: auto;
@@ -144,6 +170,9 @@ export class DisputesSuccess extends ViewBase {
 					--theme-label-subtitle-font-size: 15px;
 					--theme-label-subtitle-font-weight: 400;
 					text-align: center;
+				}
+				.copy-icon {
+					margin: 8px;
 				}
 				#id-button-group {
 					order: 4;
@@ -175,6 +204,7 @@ export class DisputesSuccess extends ViewBase {
 	_renderDisputeOutcome() {
 		return html`
 			<capitec-card class="middle" valign="center">
+				${this._renderCopyToast()}
 				<capitec-content-box layout="vertical" halign="center" valign="center">
 					<capitec-image src="platform/illustrations/beneficiaries.svg"></capitec-image>
 
@@ -195,6 +225,10 @@ export class DisputesSuccess extends ViewBase {
 					</capitec-group>
 
 					<capitec-group id="id-button-group" layout="horizontal" halign="center">
+						<capitec-tooltip message="Copy client notification content" position="left">
+							<capitec-icon class="copy-icon" size="medium" icon="system/notes-action" @click="${() => this._copyContent()}"></capitec-icon>
+						</capitec-tooltip>
+
 						<capitec-button
 							class="center-button"
 							label="Dispute Another Transaction"
@@ -218,6 +252,20 @@ export class DisputesSuccess extends ViewBase {
 				context="Success">
 			</horizon-related-options>
 		`;
+	}
+
+	_renderCopyToast() {
+		return this.displayToast 
+		? html`
+			<capitec-toast 
+				class="copy-toast"
+				type="success"
+				header="Successful"
+				detail="Successfully copied client notification content." 
+				closable
+				@click="${() => this.displayToast = false}">
+			</capitec-toast>`
+		: html``;
 	}
 }
 

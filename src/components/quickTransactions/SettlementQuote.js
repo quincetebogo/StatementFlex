@@ -458,7 +458,8 @@ export class SettlementQuote extends Component {
 				<capitec-check 
 					data="${item}"
 					@value-changed=${(e) => this._checkBox(e, item)}
-					?checked="${item.selected}">
+					?checked="${item.selected}"
+					?disabled="${item.isClosed()}">
 				</capitec-check>
 				<capitec-group
 					layout="horizontal"

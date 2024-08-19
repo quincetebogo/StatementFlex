@@ -305,7 +305,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
@@ -485,7 +485,7 @@
 			"positiveCase": true
 		},
 		"insureCalculateEstimate": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
@@ -517,11 +517,11 @@
 			"positiveCase": true
 		},
 		"insureLifeCoverAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureLifeIncreaseCover": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureBenefitAgreement": {
@@ -541,7 +541,7 @@
 			"positiveCase": true
 		},
 		"insureLifeUpdateBankingDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		}
 

@@ -1,26 +1,4 @@
 /**
- * Transactions that require digital authentication to perform
- * 
- * @readonly
- * @enum {Object} HIGH_RISK_TRANSACTIONS
- * 
- */
-export const HIGH_RISK_TRANSACTIONS = [
-		`debi-check`,
-		`settle-close`, 
-		`pay-budget`, 
-		`full-unlock`, 
-		`partial-unlock`, 
-		`open-budget`, 
-		`update-card-limits`,
-		`statements`, 
-		`tap-to-pay`, 
-		`tax-certificate`, 
-		`proof-of-account`,
-		`send-cash-place-hold`
-	];
-
-/**
  * Transactions that doesn't even require authentication to perform
  * 
  * @readonly
@@ -182,4 +160,41 @@ export const ROLES_TO_ORG_UNITS = {
  */
 export const AVAILABLE_FEATURES_BY_ROLE = {
 	[ORG_UNITS.CAPITEC_CONNECT]: [`stop-card`, `search-other-need`, `transaction-history`]
+};
+
+/**
+ * Transactions that require digital authentication to perform
+ * 
+ * @readonly
+ * @enum {Object} HIGH_RISK_TRANSACTIONS
+ * 
+ */
+let CC_HIGH_RISK = [];
+export const HIGH_RISK_TRANSACTIONS = {
+	[ORG_UNITS.CLIENT_CARE]: CC_HIGH_RISK = [
+		`debi-check`,
+		`settle-close`, 
+		`pay-budget`, 
+		`full-unlock`, 
+		`partial-unlock`, 
+		`open-budget`, 
+		`update-card-limits`,
+		`statements`, 
+		`tap-to-pay`, 
+		`tax-certificate`, 
+		`proof-of-account`,
+		`send-cash-place-hold`
+	],
+	[ORG_UNITS.HELPDESK]: [
+		`debi-check`,
+		`settle-close`, 
+		`pay-budget`, 
+		`full-unlock`, 
+		`partial-unlock`, 
+		`open-budget`, 
+		`update-card-limits`,
+		`tap-to-pay`, 
+		`send-cash-place-hold`
+	],
+	[ORG_UNITS.CAPITEC_CONNECT]: CC_HIGH_RISK
 };
