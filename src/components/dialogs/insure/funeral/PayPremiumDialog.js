@@ -221,8 +221,6 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_checkedChange(outstanding, selectedIndex, e) {
-
-		// adds selected arrear or removes deselcted arrear
 		this._addSelected(outstanding, selectedIndex, e);
 
 		if (e.detail.new === true) {
@@ -235,12 +233,7 @@ class PayPremiumDialog extends Component {
 			this.amount -= outstanding.amount;
 			this.checked -= 1;
 		}
-
-		console.log(this.amount);
-		console.log(this.checked);
-
 		this.requestUpdate();
-
 	}
 
 	/**
