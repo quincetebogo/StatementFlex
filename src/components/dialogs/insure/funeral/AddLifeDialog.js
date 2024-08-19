@@ -306,7 +306,7 @@ class AddLifeDialog extends Component {
 		<capitec-radio-group>
 		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
 			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
-			${this.currentLifesAssured.filter((life) => life.lifeAssured === false).length === 0 ? html`
+			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary == false).length === 0 ? html`
 				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
