@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -61,6 +61,7 @@ const BUDGET_FACILITY = {
 };
 
 const DEFAULT_CCS_MESSAGE = `Unable to perform this transaction as there is a CCS status on this account.`;
+const TOOLTIP_CLOSED_CC_STATUS = `Credit card account is marked for closure, a {0} cannot be issued`;
 
 /** Credit Account View
  * 
@@ -626,6 +627,7 @@ export class CreditAccount extends ViewBase {
 			item.creditLimit = formatCurrency(item.creditLimit);
 			item.nextRepayment = formatCurrency(item.nextRepayment);
 			item.accountStatusDescription = item.arrearIndicator ? `In arrears` : formatStringAsPascalCase(item.accountStatusDescription);
+			item.isClosed = () => item.accountStatusDescription.toLowerCase() === `marked closure`;
 
 			return item;
 		});
@@ -1024,12 +1026,19 @@ export class CreditAccount extends ViewBase {
 			[this.settleAndCloseDetails.productTypeDescription]: this.settleAndCloseDetails.accountNumber,
 			[balanceField]: balanceFieldValue,
 			'Outstanding balance': this.settleAndCloseDetails.currentBalance,
-			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount)
+			'Settlement amount': formatCurrency(this.settleAndCloseQuote.settlementAmount),
+			settlementAmount: this.settleAndCloseQuote.settlementAmount,
+			action: this.settleAndCloseDetails.type === PRODUCTS.CREDIT_CARD && this.settleAndCloseQuote.settlementAmount < 0 ? `Transfer To Account` : `Settle from account`
 		};
 
 		if (this.settleAndCloseCreditOption === `CreditCard`) {
 			this.settleAndCloseDetails[`Interest not capitalised`] = formatCurrency(this.settleAndCloseQuote.interestNotCapatalised);
 			this.settleAndCloseDetails[`Expected interest and fees`] = formatCurrency(this.settleAndCloseQuote.expectedInterestFees);
+
+			// As per CSCEH-10637, when settlement amount is negative then Primary savings acc is defaulted
+			if (this.settleAndCloseQuote.settlementAmount < 0) {
+				this.clientProducts = this.clientProducts.filter(p => p.accountType === ACCOUNT_TYPE_CODE.PRIMARY_SAVINGS);
+			}
 		}
 
 		this.renderMode = RENDER_MODE.SETTLE_AND_CLOSE;
@@ -1276,6 +1285,33 @@ export class CreditAccount extends ViewBase {
 		this._optionClick(`card-disputes`, CREDIT_TYPE.FLEXIBLE, PRODUCTS.CREDIT_CARD, this.ccDetails);
 	}
 
+	_disableActionBtn(need, productType) {
+		const disableByRole = this._shouldDisableByRole(need);
+		return !productType
+				? disableByRole
+				: disableByRole || this._disableByCCStatus(need, productType);
+	}
+
+	_disableByCCStatus(need, productType) {
+		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
+				productType === PRODUCTS.CREDIT_CARD &&
+				this.ccDetails.isClosed();
+	}
+
+	_getTooltipMsg(need, productType) {
+		return this._getTooltipMessage(need) || this._getTooltipMessageByCCStatus(need, productType);
+	}
+
+	_getTooltipMessageByCCStatus(need, productType) {
+		const actions = {
+			'settle-close': `settle and close`,
+			'settlement-quote': `settlement quote`
+		};
+		const msg = TOOLTIP_CLOSED_CC_STATUS.replace(`{0}`, actions[need]);
+
+		return this._disableByCCStatus(need, productType) ? msg : ``;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -1378,10 +1414,10 @@ export class CreditAccount extends ViewBase {
 					.flexibleCreditAccounts="${this.flexibleCreditAccounts}"
 					.fixedTermCreditAccounts="${this.fixedTermCreditAccounts}"
 					.budgetAccountsSummary="${this.budgetAccountsSummary}"
-					.shouldDisableByRole="${need => this._shouldDisableByRole(need)}"
+					.shouldDisableByRole="${(need, productType = null) => this._disableActionBtn(need, productType)}"
 					.showTooltip="${need => this._showTooltip(need)}"
 					.renderAlertBanner="${() => this.renderAlertBanner()}"
-					.getTooltipMessage="${(need) => this._getTooltipMessage(need)}"
+					.getTooltipMessage="${(need, productType = null) => this._getTooltipMsg(need, productType)}"
 					?isCapitecConnectAgent="${this.roleManager.isCapitecConnectAgent}"
 					selectedTab="${this.selectedTab}"
 					@option-click="${(e) => this._optionClick(e.detail.option, e.detail.creditType, e.detail.productType, e.detail.selectedAccountDetails)}"

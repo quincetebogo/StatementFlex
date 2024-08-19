@@ -84,7 +84,8 @@ const HORIZON_ROUTES = Object.freeze({
 	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
 	VIEW_PROFILE: `/view-profile`,
 	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`,
-	ACCESS_CHANNELS_OUTCOME: `/access-channels/outcome`
+	ACCESS_CHANNELS_OUTCOME: `/access-channels/outcome`,
+	UPDATE_CARD_SETTINGS_OUTCOME: `/outcome/update-card-settings`
 });
 
 
@@ -549,6 +550,7 @@ export class HorizonRouter {
 	navigateToOpenBudgetFailure() {
 		this.router.navigateByPath(HORIZON_ROUTES.OPEN_BUDGET_FAILURE);
 	}
+
 	navigateToViewProfileDetails() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.VIEW_PROFILE}`);
 	}
@@ -559,6 +561,10 @@ export class HorizonRouter {
 
 	navigateToAccessChannelsOutcome(context) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/${context}`);
+	}
+
+	navigateToCardSettingsOutcome() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.UPDATE_CARD_SETTINGS_OUTCOME}`);
 	}
 
 	/**
@@ -1308,6 +1314,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: `${HORIZON_ROUTES.ACCESS_CHANNELS_OUTCOME}/:context`,
 		load: () => import(`../views/stopCard/AccessChannelsOutcome`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-update-card-settings-outcome`,
+		title: `CardSettingsOutcome`,
+		icon: null,
+		path: `${HORIZON_ROUTES.UPDATE_CARD_SETTINGS_OUTCOME}`,
+		load: () => import(`../views/quickTransactions/CardSettingsOutcome`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];

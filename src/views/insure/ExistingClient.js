@@ -1491,7 +1491,6 @@ export class ExistingClient extends InsureViewBase {
 		await this._getSavingsAccountDetails();
 		this.lifePolicyArrears = resp.result;
 
-		// Trim account numbers (I hate this..)
 		const removeLeadingZerosRegex = accountNumber => accountNumber.replace(/^0+(?=\d)/, ``);
 		const formattedAccounts = resp.result.payableAccounts.map(account => ({ ...account, accountNumber: removeLeadingZerosRegex(account.accountNumber) }));
 		this.lifePolicyArrears.payableAccounts = formattedAccounts;
