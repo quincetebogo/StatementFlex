@@ -214,7 +214,7 @@ export class NoticeDepositsPlanDetails extends Component {
 				</horizon-label>`;
 		});
 	}
-}
+}s
 
 customElements.define(`capitec-notice-deposits-plan-details`, NoticeDepositsPlanDetails);
 
