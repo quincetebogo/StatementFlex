@@ -40,7 +40,8 @@ export class NoticeDepositsPlanDetails extends Component {
 		this.noticeAccountDetails = {
 			'Current balance': this.noticeAccountDetails.currentBalance,
 			'Available balance': this.noticeAccountDetails.availableBalance,
-			'Interest rate': this.noticeAccountDetails.effectiveInterestRate,
+			'Nominal interest rate': this.noticeAccountDetails.nominalInterestRate,
+			'Effective interest rate': this.noticeAccountDetails.effectiveInterestRate,
 			[`Accrued interest ${this._getCurrentMonth()}`]: this.noticeAccountDetails.accruedInterestCurrentMonth,
 			[`Interest earned ${this._getPreviousMonth()}`]: this.noticeAccountDetails.accruedInterestLastMonth,
 			'Interest earned for tax year': this.noticeAccountDetails.interestEarned,
@@ -181,7 +182,7 @@ export class NoticeDepositsPlanDetails extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="notice deposits Plan" value="${this.detailsHeader}"></horizon-label>
+							<horizon-label class="main-title" label="Notice Deposit" value="${this.detailsHeader}"></horizon-label>
 					</capitec-title-bar>
 					 
 					${this._renderNoticeDepositsPlan()}
@@ -214,7 +215,7 @@ export class NoticeDepositsPlanDetails extends Component {
 				</horizon-label>`;
 		});
 	}
-}s
+}
 
 customElements.define(`capitec-notice-deposits-plan-details`, NoticeDepositsPlanDetails);
 

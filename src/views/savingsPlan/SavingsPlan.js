@@ -26,6 +26,7 @@ import 'app/components/common/HorizonPDFViewer';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
+import 'app/views/savingsPlan/NoticeDepositsPlan';
 
 import 'app/views/savingsPlan/SavingsPlanServiceError';
 import 'app/views/savingsPlan/SavingsPlanUnverifiedPage';
@@ -336,6 +337,7 @@ export class SavingsPlan extends ViewBase {
 			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
 			item.interestEarned = formatCurrency(item.interestEarned);
 			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
+			item.interestRate = item.effectiveInterestRate;
 
 			item.maturityDate = `-`;
 			item.dateOpened = this._formatDate(item.dateOpened);
