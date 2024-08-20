@@ -21,7 +21,7 @@ import 'app/components/common/HorizonExpander';
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
 	FIXED_TERM: `fixed-term-save-plan`,
-	NOTICE_DEPOSIT: `notice-deposits`
+	NOTICE_DEPOSIT: `notice-deposit`
 };
 
 export class SavingsPlanLanding extends Component {
@@ -398,7 +398,7 @@ export class SavingsPlanLanding extends Component {
 						${this._renderFixedTermSavingsPlanTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN))}
 				</capitec-tab>
 				<capitec-tab
-					data-automation-id="savings-plan-notice-deposits-tab"
+					data-automation-id="savings-plan-notice-deposit-tab"
 					label="Notice Deposits">
 						${this._renderNoticeDepositTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT))}
 				</capitec-tab>
@@ -419,19 +419,6 @@ export class SavingsPlanLanding extends Component {
 		`;
 	}
 
-	_renderNoticeDepositTab(noticeDepositDetails) {
-		return noticeDepositDetails.length > 0 
-		? html`
-			<capitec-content-box class="accounts-box">
-				${this._renderNoticeDepositAccounts(noticeDepositDetails)}
-			</capitec-content-box>
-			
-			${this._renderFooter()}`
-		: html`
-			${this._renderNoticeDepositNotAvailable()}
-		`;
-	}
-
 	_renderFixedTermSavingsPlanTab(fixedSavingsPlanDetails) {
 		return fixedSavingsPlanDetails.length > 0 
 		? html`
@@ -443,6 +430,19 @@ export class SavingsPlanLanding extends Component {
 			${this._renderFooter()}`
 		: html`
 			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)}
+		`;
+	}
+
+	_renderNoticeDepositTab(noticeDepositsPlanDetails) {
+		return noticeDepositsPlanDetails.length > 0 
+		? html`
+			<capitec-content-box class="accounts-box">
+				${this._renderNoticeDepositAccounts(noticeDepositsPlanDetails)}
+			</capitec-content-box>
+			
+			${this._renderFooter()}`
+		: html`
+			${this._renderNoticeDepositNotAvailable()}
 		`;
 	}
 
@@ -507,14 +507,13 @@ export class SavingsPlanLanding extends Component {
 				</horizon-expander>`);
 	}
 
-	_renderNoticeDepositAccounts(noticeDepositDetails) {
+	_renderNoticeDepositAccounts(noticeDepositsPlanDetails) {
 
-		return noticeDepositDetails.map((item, index) => html`
+		return noticeDepositsPlanDetails.map((item, index) => html`
 				<horizon-expander
-					class="fixed-term-exp"
 					expandButtonAlignment="right"
 					.expanded="${index === 0}">
-						<capitec-group
+						<capitec-group 
 							class="expander-header"
 							slot="custom-header"
 							layout="horizontal"
@@ -522,11 +521,13 @@ export class SavingsPlanLanding extends Component {
 							halign="left"
 							valign="center">
 								<capitec-icon
+									data-automation-id="notice-deposit-info"
 									icon="system/info-action"
 									@click="${() => this._accountDetails(SAVE_PLAN_TYPE.NOTICE_DEPOSIT, item.accountNumber)}">
 								</capitec-icon>
 								<horizon-label
-									class="label-account-number fixed-label"
+									class="label-account-number flexible-label"
+									data-automation-id="notice-deposit-account-number"
 									label="${item.planName}"
 									textOverflow="ellipsis"
 									value="${item.accountNumber}"
@@ -534,39 +535,33 @@ export class SavingsPlanLanding extends Component {
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
+									data-automation-id="notice-deposit-balance"
 									label="Balance"
 									value="${item.currentBalance}">
 								</horizon-label>
 								<horizon-label
-									label="Term (months)"
-									value="${item.term}">
+									data-automation-id="notice-deposit-available-balance"
+									label="Available balance"
+									value="${item.availableBalance}">
 								</horizon-label>
 								<horizon-label
-									label="Nominal interest rate"
-									value="${item.nominalInterestRate}%">
-								</horizon-label>
-								<horizon-label
+									data-automation-id="notice-deposit-effective-interest-rate"
 									label="Effective interest rate"
 									value="${item.effectiveInterestRate}%">
 								</horizon-label>
 								<horizon-label
+									data-automation-id="notice-deposit-status"
 									label="Status"
 									value="${item.accountStatus}">
 								</horizon-label>
 						</capitec-group>
-
 						<div slot="content">
 							<capitec-group 
-								class="expander-content"
+								class="expander-content" 
 								layout="vertical"
 								gap="none"
 								halign="left"
 								valign="center">
-								<capitec-title-bar
-									class="account-deposit-type"
-									type="default"
-									label="${item.depositeType}">
-								</capitec-title-bar>
 									${this._renderOptionsGroup(item)}
 							</capitec-group>
 						</div>
