@@ -541,12 +541,17 @@ export class SavingsPlanLanding extends Component {
 								</horizon-label>
 								<horizon-label
 									data-automation-id="notice-deposit-available-balance"
-									label="Available balance"
-									value="${item.availableBalance}">
+									label="Term (days)"
+									value="${item.term}">
 								</horizon-label>
 								<horizon-label
 									data-automation-id="notice-deposit-effective-interest-rate"
-									label="Effective interest rate"
+									label="Nominal interest"
+									value="${item.nominalInterestRate}%">
+								</horizon-label>
+								<horizon-label
+									data-automation-id="notice-deposit-effective-interest-rate"
+									label="Effective interest"
 									value="${item.effectiveInterestRate}%">
 								</horizon-label>
 								<horizon-label
