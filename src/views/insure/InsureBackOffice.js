@@ -566,6 +566,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 					}
 				}
 			];
+		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG) {
+			emailDocumentRequestPayload.documentInfo = [
+				{
+					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
+					"documentGuid": this.funeralUpdatePlanAgreementDocument?.documentDetails?.guid,
+					"content": {
+						"type": `PDF`,
+						"value": this.funeralUpdatePlanAgreementDocument?.documentContent.value
+					}
+				}
+			];
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			emailDocumentRequestPayload.documentInfo = [];
 		} else {
@@ -1141,6 +1152,32 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
 	}
 
+	
+	async _executeFuneralUpdateIdDoB(policy, updatedLife) {
+		const UpdateIdDobRequest = {
+			"contractReference": policy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"productCode": policy.productCode,
+			"idNumber": updatedLife.idNumber,
+			"dateOfBirth": updatedLife.dateOfBirth,
+			"recordID": updatedLife.recordID
+		};
+
+		const resp = await this.insureFuneralService.updateIdDob(UpdateIdDobRequest);
+
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return false;
+		}
+
+		this.selectedFuneralPolicyContractReference = policy.contractReference;
+		this.selectedFuneralPolicyProductCode = policy.productCode;
+
+		this.funeralUpdatePlanAgreementDocument = resp.result;
+		return resp.result;
+		
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region NAVIGATION METHODS
@@ -1338,6 +1375,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
+		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG) {
+			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
@@ -1351,7 +1390,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.cellphone = this.callerInformation?.verifiedTelephoneNumber;
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.contactDetails.email = e.detail.emailId.detail.emailAddress;
 
-		this._getAgreementEmailAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail.docContent);
+		this._getAgreementEmailAttachments(this.callerPage, EMAIL_DOCUMENT_REQUEST_PAYLOAD, e.detail?.docContent);
 		const emailResponse = await this.insureFuneralService.emailFuneralDocuments(EMAIL_DOCUMENT_REQUEST_PAYLOAD);
 		if (!emailResponse.succeeded) {
 			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
@@ -1361,7 +1400,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
-		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY) {
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY || this.callerPage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.funeralShowEstimateSuccessToast = true;
@@ -1522,6 +1561,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
 				.lifeCancelationReasons="${this.lifeCancelationReasons}"
+				.executeFuneralUpdateIdDoB="${(policy, updatedLife) => this._executeFuneralUpdateIdDoB(policy, updatedLife)}"
+				.sendFuneralUpdateIdDobEmail="${(e) => this._sendEmail(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"
