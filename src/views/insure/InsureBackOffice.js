@@ -1154,7 +1154,25 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 	
 	async _executeFuneralUpdateIdDoB(policy, updatedLife) {
+		let dob = new Date(this.callerInformation.birthdate)
+
 		const UpdateIdDobRequest = {
+			"documentFormat": "PDF",
+			"saveDocumentToDocumentum": true,
+			"voiceRecordingNumber": "",
+			"markDocumentsAsAccepted": true,
+			"returnDocumentContent": true,
+			"emailDocumentToClient": false,
+			"wetsignBarcode": true,
+			"clientDetails": {
+			  "cifNumber": this.callerInformation.cifNumber,
+			  "policyContractReference": policy.contractReference,
+			  "productCode": policy.productCode,
+			  "firstName": this.callerInformation.firstName,
+			  "surname": this.callerInformation.lastName,
+			  "idNumber": this.callerInformation.southAfricanIDNumber,
+			  "dateOfBirth": dob.toISOString()
+			},
 			"contractReference": policy.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"productCode": policy.productCode,
