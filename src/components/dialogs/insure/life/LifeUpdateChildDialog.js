@@ -1116,6 +1116,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					maxlength="13" 
 					type="numeric"
+					value="${this.updatingChild?.idNumber}"
 					error="${this.childErrors?.idNumber === undefined ? `` : this.childErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
