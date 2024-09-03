@@ -1381,7 +1381,7 @@ class ClientSummary extends Component {
 	 */
 	_determineLapseDate(date) {
 		const lastMissedPaymentDate = new Date(date);
-		lastMissedPaymentDate.setDate(lastMissedPaymentDate.getDate() + 15);
+		lastMissedPaymentDate.setDate(lastMissedPaymentDate.getDate() + 19);
 		return lastMissedPaymentDate.toISOString();
 	}
 
