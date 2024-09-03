@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -245,7 +245,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -476,6 +476,14 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureActivatePolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureCalculateEstimate": {
 			"enabled": true,
 			"positiveCase": true
@@ -516,9 +524,27 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureBenefitAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureActivateBenefit": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureBenefitInfo": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureLifeUpdateBankingDetails": {
 			"enabled": true,
 			"positiveCase": true
 		}
+
+
 	}
 }
