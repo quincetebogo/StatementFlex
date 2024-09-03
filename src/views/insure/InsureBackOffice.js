@@ -388,11 +388,13 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_updateMainLifeFromCallerInfo(mainLife)
 	{
+		let dob = new Date(this.callerInformation.birthdate);
+		
 		mainLife.surname = this.callerInformation.lastName;
 		mainLife.firstName = this.callerInformation.firstName;
 		mainLife.middleName = this.callerInformation.middleName1;
 		mainLife.idNumber = this.callerInformation.southAfricanIDNumber;
-		mainLife.dateOfBirth = this.callerInformation.birthdate;
+		mainLife.dateOfBirth = dob.toISOString();;
 	}
 
 	// #endregion PRIVATE METHODS
