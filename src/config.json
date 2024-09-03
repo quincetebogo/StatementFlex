@@ -543,6 +543,10 @@
 		"insureLifeUpdateBankingDetails": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureUpdateIdDob": {
+			"enabled": true,
+			"positiveCase": true
 		}
 
 

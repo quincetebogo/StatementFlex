@@ -260,7 +260,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	LIFE_UPDATE_POLICY_DIALOG: 8,
 	LIFE_REISSUE_DIALOG: 9,
 	LIFE_INCREASE_COVER_DIALOG: 10,
-	FUNERAL_VPP: 11
+	FUNERAL_UPDATE_ID_DOB_DIALOG: 11,
+	FUNERAL_VPP: 12
 });
 
 /**
@@ -339,6 +340,7 @@ export const POLICY_OPTIONS = Object.freeze({
 	TRANSACTION_HISTORY: `TransactionHistory`,
 	SMS_HISTORY: `SMSHistory`,
 	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
+	UPDATE_ID_DOB: `UpdateIdDob`,
 	VOLUNTARY_PAUSE: `VoluntaryPause`,
 	NEW_BORN_WAIVER: `NewBornWaiver`
 });

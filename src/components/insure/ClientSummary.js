@@ -40,6 +40,7 @@ import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
 import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
+import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog'
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
@@ -97,6 +98,7 @@ class ClientSummary extends Component {
 		this.showRequestCallbackDialog = false;
 		this.showRequestFMSCallbackSuccessToast = false;
 		this.selectedInsureTabIndex = 0;
+		this.showUpdateIdDobDialog = false;
 		this.showNewbornPremiumWaiverDialog = false;
 		this.showBenefitSuccessToast = false;
 
@@ -204,6 +206,8 @@ class ClientSummary extends Component {
 			funeralArrearsPaymentDocumentDetails: { type: Object },
 			funeralGetPolicyArrears: { type: Object, state: true },
 			funeralCancelationReasons: { type: Object, state: true },
+			executeFuneralUpdateIdDoB: { type: Object, state: true },
+			sendFuneralUpdateIdDobEmail: { type: Object, state: true },
 
 			contractReferenceToCancel: { type: String, state: true },
 			generateDocumentsFuneralCancel: { type: Object, state: true },
@@ -218,6 +222,7 @@ class ClientSummary extends Component {
 			showCFPAgreementDialog: { type: Boolean, state: true },
 			showRequestCallbackDialog: { type: Boolean, state: true },
 			showEarlyCollectionDialog: { type: Boolean, state: true },
+			showUpdateIdDobDialog: { type: Boolean, state: true },
 			showPolicyPauseDialog: { type: Boolean, state: true },
 			activatePolicyPause: { type: Object, state: true },
 			cancelPolicyPause: { type: Object, state: true },
@@ -875,6 +880,14 @@ class ClientSummary extends Component {
 		}
 		return false;
 	}
+ /**
+  * opens the Update ID/DoB dialog
+  * @param {Object} policyItem 
+  */
+	_openUpdateIdDobDialog(policyItem) {
+		this.showUpdateIdDobDialog = true;
+		this.selectedPolicyItem = policyItem;
+	}
 
 	/**
 	 * Newborn open dialog event handler
@@ -1094,12 +1107,14 @@ class ClientSummary extends Component {
 					policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
 				}
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
+				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);			
 			}
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
+		
+		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
 		// if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
 		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 
@@ -1228,11 +1243,19 @@ class ClientSummary extends Component {
 					label="Early December collection"
 					.disabled="${this.isInsureAgent}">
 				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.UPDATE_ID_DOB:
+				return html`<capitec-overflow-menu-item
+					@click="${() => this._openUpdateIdDobDialog(policyItem)}"
+					icon="system/send-action" 
+					label="Update ID/DoB"
+					.disabled="${!this.isInsureAgent || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
+					</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.VOLUNTARY_PAUSE:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
 					icon="system/profile-action" 
-					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}">`
+					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}">
+					</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.NEW_BORN_WAIVER:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
@@ -1768,6 +1791,7 @@ class ClientSummary extends Component {
 			${this._renderFuneralPayPremiumConfirmationDialog()}
 			${this._renderFuneralPayPremiumAgreementDialog()}
 			${this._renderFuneralCancelPolicyDialog()}
+			${this._renderFuneralUpdateIdDobDialog()}
 			${this._renderLifeUpdateBankDetailsDialog()}
 			${this._renderLifeCancelPolicyDialog()}
 			${this._renderLifePayArrearsDialog()}
@@ -1780,6 +1804,7 @@ class ClientSummary extends Component {
 			${this._renderLifeHonestyPledgeDialog()}
 			${this._renderConfirmPolicyPauseDialog()}
 			${this._renderLifeIncreaseCoverUnavailable()}
+			
 			${this._renderFuneralNewbornPremiumWaiverDialog()}
 			${this._renderEmailBenefitDialog()}
 
@@ -2976,6 +3001,22 @@ class ClientSummary extends Component {
 	}
 
 	/**
+	 * Render dialog for Funeral Update ID/DoB email
+	 * @returns {void}
+	 */
+	_renderFuneralUpdateIdDobDialog() {
+		return this.showUpdateIdDobDialog === false ? html``
+		: html`
+			<horizon-insure-update-id-dob-dialog
+				.policy="${this.selectedPolicyItem}"
+				.executeUpdateIdDoB="${(policy, updatedLife) => this.executeFuneralUpdateIdDoB(policy, updatedLife)}" 
+				.sendUpdateIdDobEmail="${(e) => this.sendFuneralUpdateIdDobEmail(e)}"
+				@close-modal= "${() => this.showUpdateIdDobDialog = false}">
+			</horizon-insure-update-id-dob-dialog>
+		`;
+	}
+
+	/**
 	 * Render dialog for Funeral Newborn premium waiver
 	 * @returns {void}
 	 */
@@ -2992,6 +3033,10 @@ class ClientSummary extends Component {
 			`;
 	}
 
+	/**
+	 * Render dialog for emailing the funeral benefit document
+	 * @returns {void}
+	 */
 	_renderEmailBenefitDialog() {
 		return this.showBenefitEmailDialog === false ? html`` 
 			: html`

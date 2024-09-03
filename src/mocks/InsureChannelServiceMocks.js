@@ -64,6 +64,7 @@ export default class InsureChannelServiceMocks {
 		this.activatePolicyPauseMocks = await this._loadMockModule(this.activatePolicyPauseMocks, `insureActivatePolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.cancelPolicyPauseMocks = await this._loadMockModule(this.cancelPolicyPauseMocks, `insureCancelPolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.estimateMocks = await this._loadMockModule(this.estimateMocks, `insureCalculateEstimate`, () => import(`../mocks/insure/funeral/InsureCalculateEstimate`).catch(err => logError(err)));
+		this.updateIdDobMocks = await this._loadMockModule(this.updateIdDobMocks, `insureUpdateIdDob`, () => import(`../mocks/insure/funeral/InsureAgreement`).catch(err => logError(err)));
 		this.generateBenefitAgreementMocks = await this._loadMockModule(this.generateBenefitAgreementMocks, `insureBenefitAgreement`, () => import(`../mocks/insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
 		this.activateBenefitMocks = await this._loadMockModule(this.activateBenefitMocks, `insureActivateBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
 		this.cancelBenefitMocks = await this._loadMockModule(this.cancelBenefitMocks, `insureCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
@@ -322,6 +323,13 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
+	insureUpdateIdDob() {
+		if (this._mockSettings.insureUpdateIdDob.positiveCase) {
+			return this.updateIdDobMocks.InsureAgreement;
+		}
+		return null;
+	}
+	
 	insureBenefitAgreement() {
 		if (this._mockSettings.insureBenefitAgreement.positiveCase) {
 			return this.generateBenefitAgreementMocks.GenericDocumentResponse;
