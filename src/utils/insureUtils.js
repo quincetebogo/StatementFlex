@@ -281,7 +281,7 @@ export function policyAllowsEditing(ruleType, productParams, field, relationship
  * @param {date} date Date to be formatted 
  * @return {string} formatted date
  */
-function _formatDateToDDMMYYYY(date) {
+ function _formatDateToDDMMYYYY(date) {
 	const newdate = new Date(Date.parse(date));
 	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 }

@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, FUN_POLICY_RULES, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
@@ -392,7 +392,7 @@ class FuneralUpdatePlan extends Component {
 	 */
 	_openRemoveLifeAssuredDialog(roleplayer, index) {
 
-		if (this.policyDetails?.policyRule === `MaternityWaiver`) {
+		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
 			this.showPolicyRulesWarningDialog = true;
 			this.policyRulesDialogContent = {
 				header: `Action not allowed`,
@@ -401,7 +401,7 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		if (this.policyDetails?.policyRule === `PolicyPause`) {
+		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
 			this.showPolicyRulesWarningDialog = true;
 			this.policyRulesDialogContent = {
 				header: `Action not allowed`,
@@ -1074,7 +1074,7 @@ class FuneralUpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_openAddLifeDialog() {
-		if (this.policyDetails?.policyRule === `MaternityWaiver`) {
+		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
 			this.showPolicyRulesWarningDialog = true;
 			this.policyRulesDialogContent = {
 				header: `Action not allowed`,
@@ -1083,7 +1083,7 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		if (this.policyDetails?.policyRule === `PolicyPause`) {
+		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
 			this.showPolicyRulesWarningDialog = true;
 			this.policyRulesDialogContent = {
 				header: `Action not allowed`,

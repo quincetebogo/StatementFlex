@@ -29,7 +29,7 @@ import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE, LIFE_CANCELATION_REASONS_BACKOFFICE } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, FUN_BENEFIT_PERIOD, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE, LIFE_CANCELATION_REASONS_BACKOFFICE } from 'app/constants/InsureCommon';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -87,6 +87,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_BACKOFFICE;
+
+		this.benefitDetails = {};
+
 		this.lifeCancelationReasons = LIFE_CANCELATION_REASONS_BACKOFFICE;
 	}
 
@@ -142,7 +145,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 			lifePolicyMandates: { type: Object, state: true },
 
 			defaultSavingsAccountNumber: { type: String, state: true },
-			showInsureSuccessToast: { type: Boolean, state: true }
+			showInsureSuccessToast: { type: Boolean, state: true },
+			benefitDetails: { type: Object, state: true }
+
 		};
 	}
 
@@ -297,6 +302,85 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.lifePolicyMandates = resp.result;
 	}
 
+	async _retrievePolicyBenefitInfo(contractRef, productCode) {
+		const benefitInfoRequest = {
+			"contractReference": contractRef,
+  			"productCode": productCode
+		};
+
+		const benefitInfoResponse = await this.insureFuneralService.policyBenefitInfo(benefitInfoRequest);
+
+		if (!benefitInfoResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(benefitInfoResponse.exception);
+			return;
+		}
+
+		return benefitInfoResponse.result;
+
+	}
+
+	async executeFuneralActivateBenefit(activationReason, benefitType, policy) {
+		const activateBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber,
+			"idNumber": this.callerInformation.southAfricanIDNumber,
+			"policyPauseReason": activationReason,
+			"benefitType": benefitType,
+			"benefitPeriod": FUN_BENEFIT_PERIOD.PERIOD,
+			"claimIncidentDate": new Date(),
+			"productCode": policy.productCode
+		};
+
+		const activateBenefitResponse = await this.insureFuneralService.activateBenefit(activateBenefitRequest);
+
+		if (!activateBenefitResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(activateBenefitResponse.exception);
+			return;
+		}
+
+		return activateBenefitResponse.result;
+	
+	}
+
+	async executeFuneralCancelBenefit(benefitType, policy) {
+		const cancelBenefitRequest = {
+			"contractReference": policy.contractReference,
+			"benefitType": benefitType,
+			"cifNumber": this.callerInformation.cifNumber,
+			"productCode": policy.productCode
+		};
+
+		const cancelBenefitResponse = await this.insureFuneralService.cancelBenefit(cancelBenefitRequest);
+
+		if (!cancelBenefitResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(cancelBenefitResponse.exception);
+			return;
+		}
+
+		return cancelBenefitResponse.result;
+	
+	}
+
+	async _retrievePolicyBenefitInfo(contractRef, productCode) {
+		const benefitInfoRequest = {
+			"contractReference": contractRef,
+  			"productCode": productCode
+		};
+
+		const benefitInfoResponse = await this.insureFuneralService.policyBenefitInfo(benefitInfoRequest);
+
+		if (!benefitInfoResponse.succeeded) {
+			// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.handleToastError(benefitInfoResponse.exception);
+			return;
+		}
+
+		return benefitInfoResponse.result
+	}
+
 	/**
 	 * update main life details with caller information (latest client details on Bancs)
 	 * @param {*} mainLife main life roleplayer
@@ -304,11 +388,13 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	_updateMainLifeFromCallerInfo(mainLife)
 	{
+		let dob = new Date(this.callerInformation.birthdate);
+		
 		mainLife.surname = this.callerInformation.lastName;
 		mainLife.firstName = this.callerInformation.firstName;
 		mainLife.middleName = this.callerInformation.middleName1;
 		mainLife.idNumber = this.callerInformation.southAfricanIDNumber;
-		mainLife.dateOfBirth = this.callerInformation.birthdate;
+		mainLife.dateOfBirth = dob.toISOString();;
 	}
 
 	// #endregion PRIVATE METHODS
@@ -1310,6 +1396,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _goToFuneralPolicySummary(e) {
 		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
+		this.benefitDetails = await this._retrievePolicyBenefitInfo(e.detail.policyContractReference, e.detail.productCode);
 		const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);
@@ -1578,6 +1665,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.selectedInsureTabIndex = "${this.selectedInsureTabIndex}"
 				.updateEarlyCollectionPreferences="${(electRequest) => this._updateElectOptions(electRequest)}"
 				.funeralCancelationReasons="${this.funeralCancelationReasons}"
+				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
+				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
+				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
 				.lifeCancelationReasons="${this.lifeCancelationReasons}"
 				.executeFuneralUpdateIdDoB="${(policy, updatedLife) => this._executeFuneralUpdateIdDoB(policy, updatedLife)}"
 				.sendFuneralUpdateIdDobEmail="${(e) => this._sendEmail(e)}"

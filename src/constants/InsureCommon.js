@@ -261,6 +261,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	LIFE_REISSUE_DIALOG: 9,
 	LIFE_INCREASE_COVER_DIALOG: 10,
 	FUNERAL_UPDATE_ID_DOB_DIALOG: 11,
+	FUNERAL_VPP: 12
 });
 
 /**
@@ -275,7 +276,9 @@ export const DOCUMENT_TYPE = Object.freeze({
 	CANCEL_POLICY_AGREEMENT: `CancelPolicyAgreement`,
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
 	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`,
-	ESTIMATE_AGREEMENT: `EstimatePrintout`
+	ESTIMATE_AGREEMENT: `EstimatePrintout`,
+	ISSUE_BENEFIT_AGREEMENT: `IssueBenefitAgreement`,
+	CANCEL_BENEFIT_AGREEMENT: `CancelBenefitAgreement`,
 });
 
 /**
@@ -338,7 +341,8 @@ export const POLICY_OPTIONS = Object.freeze({
 	SMS_HISTORY: `SMSHistory`,
 	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
 	UPDATE_ID_DOB: `UpdateIdDob`,
-	
+	VOLUNTARY_PAUSE: `VoluntaryPause`,
+	NEW_BORN_WAIVER: `NewBornWaiver`
 });
 
 
@@ -391,10 +395,21 @@ export const INSURE_TABS = Object.freeze({
 });
 
 /**
- * Tabs for Insure product
+ * Policy pause reasons
+ * 
+ * @readonly
+ * @enum {Object} POLICY_PAUSE_REASONS
+ */
+export const POLICY_PAUSE_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Other `, text: `Other ` }
+]);
+
+/**
+ * Global one generic details
  *
  * @readonly
- * @enum {Object} INSURE_TABS
+ * @enum {Object} GLOBAL_ONE_GENERIC_DETAILS
  */
 export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
 	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
@@ -468,3 +483,60 @@ export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
 ]);
+
+
+/**
+ * Reasons for Activating Funeral benefits
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_REASONS
+ */
+export const FUN_BENEFIT_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Pregnancy`, text: `Pregnancy` }
+]);
+
+/**
+ * FUN_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_TYPES
+ */
+export const FUN_BENEFIT_TYPES = Object.freeze({
+	POLICY_PAUSE: `VoluntaryPolicyPause`,
+	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
+});
+
+/**
+ * FUN_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_TYPES
+ */
+export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
+	POLICY_PAUSE: `PolicyPause`,
+	NEW_BORN: `NewBorn`
+});
+
+/**
+ * FUN_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_POLICY_TYPES
+ */
+export const FUN_POLICY_RULES = Object.freeze({
+	POLICY_PAUSE: `PolicyPause`,
+	MATERNITY_WAIVER: `MaternityWaiver`,
+	STANDARD: `Standard`
+});
+
+/**
+ * FUN_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_POLICY_TYPES
+ */
+export const FUN_BENEFIT_PERIOD = Object.freeze({
+	PERIOD: 6
+	
+});
+
