@@ -1118,7 +1118,7 @@ class ClientSummary extends Component {
 		// if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
 		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 
-		const newBornBenefit = policyItem.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
 		if (newBornBenefit?.available) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
