@@ -1223,6 +1223,7 @@ class LifeAllocateCoverDialog extends Component {
 							homephone: ``,
 							workphone: ``
 						};
+						validGuardian.role = `Guardian`;
 						requestBeneficiaries.push(validGuardian);
 					});
 				}
