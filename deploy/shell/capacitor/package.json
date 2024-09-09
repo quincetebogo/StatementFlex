@@ -1,0 +1,19 @@
+{
+	"name": "app-name",
+	"version": "1.0.0",
+	"description": "Capacitor JS mobile app shell for Android and iOS",
+	"main": "index.js",
+	"scripts": {
+		"browser": "platform web run --platform=browser",
+		"android": "platform web run --platform=android",
+		"ios": "platform web run --platform=ios"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@capacitor/cli": "3.3.1",
+		"@capacitor/core": "3.3.1",
+		"@capacitor/android": "3.3.1",
+		"@capacitor/ios": "3.3.1"
+	}
+}

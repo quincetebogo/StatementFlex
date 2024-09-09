@@ -1,19 +1,18 @@
 {
-	// See https://go.microsoft.com/fwlink/?LinkId=733558 
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
 	// for the documentation about the tasks.json format
 	"version": "2.0.0",
 	"tasks": [
 		{
 			"type": "shell",
 			"label": "run",
-			"command": "ocwp/1.17.0/ocwp",
+			"command": "./ocwp-legacy",
 			"args": [
-				"ocwp/1.17.0",
 				"run",
 				"--port",
-				"62000"
+				"8080"
 			],
-			"promptOnClose": false,
+			"promptOnClose": true,
 			"isBackground": true,
 			"problemMatcher": {
 				"owner": "webpack",
@@ -40,16 +39,80 @@
 		},
 		{
 			"type": "shell",
-			"label": "restore",
-			"command": "ocwp/1.17.0/ocwp",
+			// "label": "restore",
+			"command": "./ocwp-legacy",
 			"args": [
-				"ocwp/1.17.0",
 				"restore"
 			],
 			"isBackground": true,
 			"runOptions": {
 				"runOn": "folderOpen"
 			}
+		},
+		{
+			"label": "Generate docs",
+			"type": "shell",
+			"command": "npm run docs",
+			"osx": {
+				"command": "./npm run docs",
+			},
+			"presentation": {
+				"reveal": "always",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Restore packages",
+			"type": "shell",
+			"command": "npm run restore",
+			"osx": {
+				"command": "./npm run restore"
+			},
+			"presentation": {
+				"reveal": "always",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Restore packages (CI)",
+			"type": "shell",
+			"command": "npm run restore_ci",
+			"osx": {
+				"command": "./npm run restore_ci"
+			},
+			"presentation": {
+				"reveal": "always",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Run tests",
+			"type": "shell",
+			"command": "npm run test",
+			"osx": {
+				"command": "./npm run test",
+			},
+			"presentation": {
+				"reveal": "always",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Test",
+			"type": "shell",
+			"command": "npm run test",
+			"osx": {
+				"command": "./npm run test",
+			},
+			"presentation": {
+				"reveal": "always",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
 		}
 	]
 }

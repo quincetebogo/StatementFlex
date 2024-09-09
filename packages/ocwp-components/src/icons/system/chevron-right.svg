@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ic/chevron/right</title>
+    <g id="ic/chevron/right" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M13.9393398,12 L9.46966991,16.4696699 C9.1767767,16.7625631 9.1767767,17.2374369 9.46966991,17.5303301 C9.76256313,17.8232233 10.2374369,17.8232233 10.5303301,17.5303301 L15.5303301,12.5303301 C15.8232233,12.2374369 15.8232233,11.7625631 15.5303301,11.4696699 L10.5303301,6.46966991 C10.2374369,6.1767767 9.76256313,6.1767767 9.46966991,6.46966991 C9.1767767,6.76256313 9.1767767,7.23743687 9.46966991,7.53033009 L13.9393398,12 Z" id="fill" fill="#7C7C7C" fill-rule="nonzero"></path>
+    </g>
+</svg>

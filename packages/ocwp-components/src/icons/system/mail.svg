@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ic/mail</title>
+    <g id="ic/mail" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="mail-(5)" transform="translate(1.250000, 3.250000)" fill="#7C7C7C" fill-rule="nonzero">
+            <path d="M20.75,0 C21.1642136,0 21.5,0.335786438 21.5,0.75 L21.5,0.75 L21.5,16.75 C21.5,17.1642136 21.1642136,17.5 20.75,17.5 L20.75,17.5 L0.75,17.5 C0.335786438,17.5 0,17.1642136 0,16.75 L0,16.75 L0,0.75 C0,0.335786438 0.335786438,0 0.75,0 L0.75,0 Z M20,3.19 L11.1800968,9.36442394 C10.9541367,9.52259601 10.6627362,9.54236752 10.420416,9.42373847 L10.3199032,9.36442394 L1.5,3.191 L1.5,16 L20,16 L20,3.19 Z M19.798,1.5 L1.701,1.5 L10.75,7.834 L19.798,1.5 Z" id="Combined-Shape"></path>
+        </g>
+    </g>
+</svg>

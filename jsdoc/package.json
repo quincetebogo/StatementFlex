@@ -1,0 +1,5 @@
+{
+	"name": "ocwp-docs",
+	"type": "commonjs",
+	"description": "Note: this file is needed as a workaround needed until jsdoc adds support for ESM modules for custom jsdoc templates. This line in their library forces us to run the docs command using commonjs as the publish.js file is injected automatically, thus not giving us the option to specifify it ourselves as a publish.cjs file instead. -> https://github.com/jsdoc/jsdoc/blob/be09c49f91d8f462ae5d2be607dbc3c98ecb2cfc/packages/jsdoc/cli.js#L365"
+}

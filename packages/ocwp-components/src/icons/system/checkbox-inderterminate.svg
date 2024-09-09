@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Combined Shape</title>
+    <g id="🕹-[Symbols]:-Check-box" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Checkbox-/-Selected" transform="translate(-2.000000, -2.000000)" fill="#7C7C7C">
+            <path d="M21,2 C21.5522847,2 22,2.44771525 22,3 L22,21 C22,21.5522847 21.5522847,22 21,22 L3,22 C2.44771525,22 2,21.5522847 2,21 L2,3 C2,2.44771525 2.44771525,2 3,2 L21,2 Z M17.25,11.8 L6.75,11.8 L6.64822944,11.8068466 C6.28215388,11.856509 6,12.1703042 6,12.55 C6,12.9642136 6.33578644,13.3 6.75,13.3 L6.75,13.3 L17.25,13.3 L17.3517706,13.2931534 C17.7178461,13.243491 18,12.9296958 18,12.55 C18,12.1357864 17.6642136,11.8 17.25,11.8 L17.25,11.8 Z" id="Combined-Shape"></path>
+        </g>
+    </g>
+</svg>

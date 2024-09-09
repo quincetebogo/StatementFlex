@@ -1,58 +1,26 @@
 {
-	// Format a file on save. A formatter must be available, the file must not be auto-saved, and editor must not be shutting down.
-	"editor.formatOnSave": false,
-	// Insert spaces when pressing Tab. This setting is overridden based on the file contents when `editor.detectIndentation` is on.
+	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
-	// When opening a file, `editor.tabSize` and `editor.insertSpaces` will be detected based on the file contents.
 	"editor.detectIndentation": false,
-	// Controls how the editor should render whitespace characters, possibilities are 'none', 'boundary', and 'all'. The 'boundary' option does not render single spaces between words.
 	"editor.renderWhitespace": "boundary",
-	// Number of editors shown in the Open Editors pane.
-	"explorer.openEditors.visible": 10,
-	// List of tags, comma separated, that should have an extra newline before them. 'null' defaults to "head, body, /html".
+	"editor.tabSize": 4,
+	"explorer.openEditors.visible": 0,
 	"html.format.extraLiners": "html, body",
-	// Indent <head> and <body> sections.
 	"html.format.indentInnerHtml": true,
-	// Ignores the warning when there are too many changes in a repository.
 	"git.ignoreLimitWarning": true,
-	// Controls whether the fold controls on the gutter are automatically hidden.
 	"editor.showFoldingControls": "always",
-	// Enable/disable navigation breadcrumbs
 	"breadcrumbs.enabled": true,
-	// Defines space handling after function keyword for anonymous functions.
 	"javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
-	// Disable formating of lit-html code.
-	"lit-html.format.enabled": false,
-	// Exclude platform-specific files from the user's project.
-	"files.exclude": {
-		"jsconfig.json": true,
-		"ocwp": true,
-		"tsconfig.json": true,
-		"npm.cmd": true,
-		"node.cmd": true,
-		"npm": true,
-		"node": true,
-		".npmrc": true,
-		"npx.cmd": true,
-		"npx": true
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#04ff0086",
+		"activityBar.foreground": "#FFFFFF",
+		"activityBar.inactiveForeground": "#ffffffbe",
+		"titleBar.activeBackground": "#04ff0086",
+		"titleBar.activeForeground": "#FFFFFF"
 	},
-	"eslint.nodePath": "./ocwp/1.17.0/node_modules",
-	"eslint.runtime": "./ocwp/1.17.0/node_bin/node",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},
-	"eslint.alwaysShowStatus": true,
-	"cSpell.words": [
-		"Agentup",
-		"Auditer",
-		"PABX",
-		"UNLD",
-		"desktopagent",
-		"recognised",
-		"repos",
-		"ucid"
-	],
 	"eslint.enable": true,
-	"eslint.format.enable": true,
-	"eslint.debug": true
+	"eslint.alwaysShowStatus": true
 }

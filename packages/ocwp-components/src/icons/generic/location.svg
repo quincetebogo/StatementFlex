@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/LiveBetter/Location</title>
+    <defs>
+        <path d="M4.246,8.253 C4.246,9.601 4.568,10.903 5.176,12.062 L5.176,12.062 L5.592,12.759 L10.407,20.599 C11.321,22.126 12.915,22.118 13.819,20.576 L13.819,20.576 L18.404,12.754 L18.828,12.029 C19.434,10.846 19.745,9.571 19.745,8.253 L19.745,8.253 C19.745,3.832 16.282,0.239 11.996,0.239 L11.996,0.239 C7.709,0.239 4.246,3.832 4.246,8.253 L4.246,8.253 Z M8.246,7.988 C8.246,5.917 9.925,4.238 11.996,4.238 L11.996,4.238 C14.066,4.238 15.746,5.917 15.746,7.988 L15.746,7.988 C15.746,10.059 14.066,11.738 11.996,11.738 L11.996,11.738 C9.925,11.738 8.246,10.059 8.246,7.988 L8.246,7.988 Z" id="path-1"></path>
+    </defs>
+    <g id="icon/LiveBetter/Location" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Clip-91" fill="#7C7C7C" xlink:href="#path-1"></use>
+    </g>
+</svg>

@@ -1,0 +1,13 @@
+{
+	"events": [
+		{
+			"eventName": "example-string-from-widget",
+			"inputType": "string"
+		},
+		{
+			"eventName": "example-object-from-widget",
+			"inputType": "object",
+			"responseType": "object"
+		}
+	]
+}

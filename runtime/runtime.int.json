@@ -1,0 +1,25 @@
+{
+	"environment": "INT",
+	"idp": {
+		"default": "keycloak",
+		"keycloak": {
+			"realm": "UI-INT",
+			"auth-server-url": "https://idp-non-prod.int.capinet/auth",
+			"ssl-required": "external",
+			"public-client": true,
+			"confidential-port": 0
+		},
+		"azure": {
+			"auth-server-url": "https://login.microsoftonline.com/a428b46f-c29b-4a6c-85f1-8e05c10b6671"
+		}
+	},
+	"permissions": [
+		{
+			"name": "application-busy-indicator",
+			"grantLevel": "app",
+			"requestMessage": "Approval required for use of busy indicator in user session",
+			"declineMessage": "User did not approve use of busy indicator on application",
+			"responseType": "void"
+		}
+	]
+}
