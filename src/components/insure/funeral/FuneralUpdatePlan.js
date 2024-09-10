@@ -1292,8 +1292,8 @@ class FuneralUpdatePlan extends Component {
 			}
 		}
 
-		let theChosenOnes = this.policyDetails.roleplayers.filter(rolePlayer => rolePlayer.beneficiary === true || rolePlayer.lifeAssured === true);
-		this.policyDetails.roleplayers = theChosenOnes;
+		let validRoleplayers = this.policyDetails.roleplayers.filter(rolePlayer => rolePlayer.beneficiary === true || rolePlayer.lifeAssured === true);
+		this.policyDetails.roleplayers = validRoleplayers;
 
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
