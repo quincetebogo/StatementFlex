@@ -89,7 +89,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: build-artifact # Name of the artifact
-          path: ./dist/** # Path to the build directory and its contents
+          path: ${{ env.BUILD_LOCATION }} # Path to the build directory and its contents
     #   - uses: actions/upload-artifact@v2
     #     with:
     #       name: build-artifact # Name of the artifact
@@ -216,7 +216,7 @@ jobs:
 
       - name: Deploy via Argo to DEV
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v2
+        uses: capitec-odin/action-deploy@v4
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -257,7 +257,7 @@ jobs:
 
       - name: Deploy via Argo to INT
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v2
+        uses: capitec-odin/action-deploy@v4
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -342,7 +342,7 @@ jobs:
 
       - name: Deploy via Argo to QA
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v2
+        uses: capitec-odin/action-deploy@v4
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -388,7 +388,7 @@ jobs:
 
       - name: Deploy via Argo to Prod
         id: deploy
-        uses: capitec-odin/action-deploy@v2
+        uses: capitec-odin/action-deploy@v4
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
