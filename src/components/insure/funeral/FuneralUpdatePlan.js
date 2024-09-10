@@ -1286,12 +1286,15 @@ class FuneralUpdatePlan extends Component {
 					isExtendedFamily,
 					false
 				);
-			}
+			}			
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
-
 		}
+
+		let theChosenOnes = this.policyDetails.roleplayers.filter(rolePlayer => rolePlayer.beneficiary === true || rolePlayer.lifeAssured === true);
+		this.policyDetails.roleplayers = theChosenOnes;
+
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
 		this.canReinstate = this.policyDetails.canReinstate;
 		this.policyDetails.roleplayers.forEach((rolePlayer) => {
