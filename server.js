@@ -3,7 +3,7 @@ import commandLineArgs from 'command-line-args';
 import compression from 'compression';
 import fse from 'fs-extra';
 
-const { port } = commandLineArgs([{ name: `port`, type: Number, defaultValue: 6001 }]);
+const { port } = commandLineArgs([{ name: `port`, type: Number, defaultValue: 8080 }]);
 
 let env = (process.env.ENV ?? ``).trim().toLowerCase();
 if (env === `prd`) {
