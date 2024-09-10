@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import commandLineArgs from 'command-line-args';
 import compression from 'compression';
+import cors from 'cors';
 import fse from 'fs-extra';
 
 const { port } = commandLineArgs([{ name: `port`, type: Number, defaultValue: 8080 }]);
