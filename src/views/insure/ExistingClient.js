@@ -1208,6 +1208,7 @@ export class ExistingClient extends InsureViewBase {
 			}
 		}
 		
+		let dob = new Date(this.callerInformation.birthdate);
 		
 		const benefitAgreementRequest = {
 			"documentFormat": "PDF",
@@ -1225,7 +1226,7 @@ export class ExistingClient extends InsureViewBase {
 			  "firstName": this.callerInformation.firstName,
 			  "surname": this.callerInformation.surname,
 			  "idNumber": this.callerInformation.southAfricanIDNumber,
-			  "dateOfBirth": this.callerInformation.birthdate
+			  "dateOfBirth": dob.toISOString(),
 			},
 			"benefitDetails": benefitInfo,
 			"emailDetails": {
@@ -1453,8 +1454,9 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _healthQuestionnaire() {
+		let dob = new Date(this.callerInformation.birthdate);
 		const req = {
-			"dateOfBirth": this.callerInformation.birthdate,
+			"dateOfBirth": dob.toISOString(),
 			"forceRefresh": true,
 			"cifNumber": this.callerInformation.cifNumber
 		};
@@ -1468,7 +1470,9 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	async _lifeAllowedCover(allowedCoverRequest) {
-		allowedCoverRequest.clientDateOfBirth = new Date(this.callerInformation.birthdate);
+		let dob = new Date(this.callerInformation.birthdate)
+
+		allowedCoverRequest.clientDateOfBirth = dob.toISOString() ;
 		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
