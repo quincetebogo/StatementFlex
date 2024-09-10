@@ -1,7 +1,6 @@
 # Global ignores.
 node_modules
 coverage
-docs
 debug
 test-report.json
 .DS_Store
