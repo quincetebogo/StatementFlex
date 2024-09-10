@@ -12,6 +12,9 @@ if (env === `prd`) {
 console.log(`Running environment: ${env}`);
 
 const app = express();
+
+app.use(cors());
+
 const host = `0.0.0.0`;
 
 
