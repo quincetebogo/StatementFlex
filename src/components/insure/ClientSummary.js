@@ -1117,12 +1117,12 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
 
 		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
-		if (vppBenefit?.available || vppBenefit?.isBenefitActive) {
+		if ((vppBenefit?.available || vppBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
 
 		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
-		if (newBornBenefit?.available || newBornBenefit?.isBenefitActive) {
+		if ((newBornBenefit?.available || newBornBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
 
