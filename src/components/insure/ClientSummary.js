@@ -1115,11 +1115,14 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
 		
 		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
-		// if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
+
+		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		if ((vppBenefit?.available || vppBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
+		}
 
 		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
-		if (newBornBenefit?.available) {
+		if ((newBornBenefit?.available || newBornBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
 
@@ -2965,6 +2968,7 @@ class ClientSummary extends Component {
 					.policy="${this.selectedPolicyItem}"
 					.cancelPolicyPause = "${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
 					.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this.fetchPolicyPauseAgreementDetails(saveDocument, policy, action)}"
+					.fetchBenefitDetails = "${(contractRef, productCode) => this.fetchBenefitDetails(contractRef, productCode)}"
 					@go-to-confirm = "${(reason) => this._openConfirmPolicyPauseDialog(reason)}"
 					@close-modal = "${(e) => this._closePolicyPauseDialog(e)}">
 				</horizon-insure-funeral-policy-pause-dialog>

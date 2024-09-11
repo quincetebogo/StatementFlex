@@ -246,12 +246,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-          {
-            type: `NewBorn`,
-            available: true,
-            availableDate: `2022-03-24T13:22:51.820Z`,
-          },
-        ],
+			{
+				type: "NewBorn",
+				available: true,
+				availableDate: "2023-08-21T02:00:00Z",
+				isBenefitActive: false
+			},
+			{
+				type: "PolicyPause",
+				available: true,
+				availableDate: "2025-02-21T02:00:00Z",
+				isBenefitActive: false
+			}
+		],
         mandates: [
           {
             mandateType: `EFT`,
@@ -644,12 +651,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-          {
-            type: `NewBorn`,
-            available: true,
-            availableDate: `2022-03-24T13:22:51.820Z`,
-          },
-        ],
+			{
+				type: "NewBorn",
+				available: true,
+				availableDate: "2023-08-21T02:00:00Z",
+				isBenefitActive: false
+			},
+			{
+				type: "PolicyPause",
+				available: true,
+				availableDate: "2025-02-21T02:00:00Z",
+				isBenefitActive: false
+			}
+		],
         mandates: [
           {
             mandateType: `EFT`,
@@ -1041,13 +1055,20 @@ export const ClientSummary = {
           nextPaymentDate: `2022-05-04T22:00:00.0000000+00:00`,
           nextPaymentAmount: 120.8,
         },
-        benefits: [
-          {
-            type: `NewBorn`,
-            available: true,
-            availableDate: `2022-03-24T13:22:51.820Z`,
-          },
-        ],
+		benefits: [
+			{
+				type: "NewBorn",
+				available: true,
+				availableDate: "2023-08-21T02:00:00Z",
+				isBenefitActive: false
+			},
+			{
+				type: "PolicyPause",
+				available: true,
+				availableDate: "2025-02-21T02:00:00Z",
+				isBenefitActive: false
+			}
+		],
         mandates: [
           {
             mandateType: `EFT`,
@@ -1305,12 +1326,19 @@ export const ClientSummary = {
           nextPaymentAmount: 255.2,
         },
         benefits: [
-          {
-            type: `NewBorn`,
-            available: true,
-            availableDate: `2022-03-24T13:22:51.820Z`,
-          },
-        ],
+			{
+				type: "NewBorn",
+				available: false,
+				availableDate: "2023-08-21T02:00:00Z",
+				isBenefitActive: false
+			},
+			{
+				type: "PolicyPause",
+				available: false,
+				availableDate: "2025-02-21T02:00:00Z",
+				isBenefitActive: false
+			}
+		],
         mandates: [
           {
             mandateType: `EFT`,
@@ -1703,12 +1731,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-          {
-            type: `NewBorn`,
-            available: true,
-            availableDate: `2022-03-24T13:22:51.820Z`,
-          },
-        ],
+			{
+				type: "NewBorn",
+				available: false,
+				availableDate: "2023-08-21T02:00:00Z",
+				isBenefitActive: false
+			},
+			{
+				type: "PolicyPause",
+				available: false,
+				availableDate: "2025-02-21T02:00:00Z",
+				isBenefitActive: false
+			}
+		],
         mandates: [
           {
             mandateType: `EFT`,
