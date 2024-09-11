@@ -907,10 +907,9 @@ class FuneralUpdatePlan extends Component {
 		} else {
 			this.onUpdateValidationMessage = this._generateOnUpdateValidationMessage(onUpdateValidations);
 			this.showUpdateValidationDialog = true;
-			this.requestUpdate();
-			return;
 		}
 		this.requestUpdate();
+		return onUpdateValidations.validated;
 	}
 
 	/**
@@ -1154,16 +1153,19 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		await this._calculatePremium();
-		this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
-		if (this.prepareUpdateResponse === undefined) {
-			return;
+		const isValid =  await this._calculatePremium();
+
+		if (isValid) {
+			this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
+			if (this.prepareUpdateResponse === undefined) {
+				return;
+			}
+			if (isNullorEmpty(this.prepareUpdateResponse.planAgreement)) {
+				return;
+			}
+			this.showUpdatePlanAgreementDialog = true;
+			this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
 		}
-		if (isNullorEmpty(this.prepareUpdateResponse.planAgreement)) {
-			return;
-		}
-		this.showUpdatePlanAgreementDialog = true;
-		this.planAgreementContent = this.prepareUpdateResponse.planAgreement.documentContent.value;
 	}
 
 	/**
