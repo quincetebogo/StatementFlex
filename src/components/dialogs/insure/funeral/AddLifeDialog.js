@@ -306,11 +306,11 @@ class AddLifeDialog extends Component {
 		<capitec-radio-group>
 		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
 			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
-			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary == false).length === 0 ? html`
+			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary === true).length === 0 ? html`
 				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
-				${life.lifeAssured === true ? html``
+				${life.lifeAssured === true || (life.lifeAssured === false && life.beneficiary === false)? html``
 				: html`
 					<capitec-card class="relationship-card">
 						<capitec-radio label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}: ${life.firstName} ${life.surname}"
