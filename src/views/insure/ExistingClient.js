@@ -1216,7 +1216,7 @@ export class ExistingClient extends InsureViewBase {
 			"voiceRecordingNumber": "",
 			"markDocumentsAsAccepted": saveDocument,
 			"returnDocumentContent": true,
-			"emailDocumentToClient": true,
+			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
 			"clientDetails": {
 			  "cifNumber": this.callerInformation.cifNumber,
