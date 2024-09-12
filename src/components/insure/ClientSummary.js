@@ -1251,21 +1251,21 @@ class ClientSummary extends Component {
 					@click="${() => this._openUpdateIdDobDialog(policyItem)}"
 					icon="system/send-action" 
 					label="Update ID/DoB"
-					.disabled="${!this.isInsureAgent || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
+					.disabled="${!this.isInsureAdministrator || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
 					</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.VOLUNTARY_PAUSE:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}"
-					.disabled="${this.isInsureAgent || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER}">
+					.disabled="${this.isInsureAgent || this.isInsureAdministrator || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER}">
 					</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.NEW_BORN_WAIVER:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
-					.disabled="${(!this.isInsureAgent && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE}">
+					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
