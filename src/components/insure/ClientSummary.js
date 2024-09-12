@@ -730,7 +730,7 @@ class ClientSummary extends Component {
 			this.selectedProductCode = policyItem.productCode;
 		}
 
-		if (this.isInsureAgent === true || this.isInsureAdministrator === true) {
+		if (this.isInsureAgent === true) {
 			return;
 		}
 
@@ -740,7 +740,7 @@ class ClientSummary extends Component {
 		this.selectedContractRef = policyItem?.contractReference;
 		this.selectedPolicyItem = policyItem;
 
-		if (this._horizonInsureStore.getCFPStatus() === false || this._horizonInsureStore.getCFPStatus() === null) {
+		if ((this._horizonInsureStore.getCFPStatus() === false || this._horizonInsureStore.getCFPStatus() === null) && !this.isInsureAdministrator) {
 			this.showCFPAgreementDialog = true;
 		} else {
 			this._navigateAfterCFP();
