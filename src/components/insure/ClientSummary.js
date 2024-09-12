@@ -1251,7 +1251,7 @@ class ClientSummary extends Component {
 					@click="${() => this._openUpdateIdDobDialog(policyItem)}"
 					icon="system/send-action" 
 					label="Update ID/DoB"
-					.disabled="${!this.isInsureAgent || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
+					.disabled="${!this.isInsureAdministrator || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
 					</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.VOLUNTARY_PAUSE:
 				return html`<capitec-overflow-menu-item
