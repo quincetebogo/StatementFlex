@@ -4,11 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - main
-      - develop
-      - release
+      - feature/*
+      - release/*
     types:
-      - closed
       - opened
     paths:
       - "src/**"
@@ -39,7 +37,7 @@ jobs:
     name: Build Application
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && (github.event.action == 'opened' && github.base_ref == 'develop'  || (github.event.action == 'closed' && (github.base_ref == 'develop' || github.base_ref == 'release') && github.event.pull_request.merged == true))) }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'opened' && (startsWith(github.event.pull_request.base.ref, 'refs/heads/feature/*') || startsWith(github.event.pull_request.base.ref, 'refs/heads/release/*'))) }}
     outputs:
       PROJECT_VERSION: ${{ steps.variables.outputs.PROJECT_VERSION }}
     container:
@@ -133,7 +131,7 @@ jobs:
     needs: [build]
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && (github.event.action == 'closed' && (github.base_ref == 'develop' || github.base_ref == 'release') && github.event.pull_request.merged == true)) }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     env:
       PROJECT_VERSION: ${{ needs.build.outputs.PROJECT_VERSION }}
     outputs:
@@ -203,7 +201,7 @@ jobs:
       - container
     runs-on:
       - ubuntu-22.04
-    if: ${{ (github.event_name == 'workflow_dispatch') || (github.event.pull_request.merged == true && github.base_ref == ('develop')) }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'develop' }}
     environment: dev
     steps:
       - name: Print Docker Image URI
@@ -244,7 +242,7 @@ jobs:
       - container
     runs-on:
       - ubuntu-22.04
-    if: ${{ (github.event_name == 'workflow_dispatch') || (github.event.pull_request.merged == true && github.base_ref == ('develop')) }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
     environment: int
     steps:
       - name: Print Docker Image URI
@@ -283,7 +281,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: release
-    if: ${{ github.event.pull_request.merged == true && github.ref_name == 'release' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
     needs:
       - build
       - container
@@ -330,7 +328,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: qa
-    if: ${{ github.event.pull_request.merged == true && github.ref_name == 'release' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
     steps:
       - name: Print Docker Image URI
         id: docker-image-uri
@@ -375,7 +373,7 @@ jobs:
       - deploy-qa
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true && github.ref_name == 'release' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
     environment: prod
     steps:
       - name: Print Docker Image URI
