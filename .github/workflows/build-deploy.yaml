@@ -37,7 +37,11 @@ jobs:
     name: Build Application
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'opened' && (startsWith(github.event.pull_request.base.ref, 'refs/heads/feature/*') || startsWith(github.event.pull_request.base.ref, 'refs/heads/release/*'))) }}
+    if: (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' &&
+      github.event.action == 'opened' &&
+      (startsWith(github.event.pull_request.base.ref, 'release/') ||
+      startsWith(github.event.pull_request.base.ref, 'feature/')))
     outputs:
       PROJECT_VERSION: ${{ steps.variables.outputs.PROJECT_VERSION }}
     container:
@@ -242,7 +246,7 @@ jobs:
       - container
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
     environment: int
     steps:
       - name: Print Docker Image URI
@@ -281,7 +285,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: release
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
     needs:
       - build
       - container
@@ -328,7 +332,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: qa
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
     steps:
       - name: Print Docker Image URI
         id: docker-image-uri
@@ -373,7 +377,7 @@ jobs:
       - deploy-qa
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/*') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
     environment: prod
     steps:
       - name: Print Docker Image URI
