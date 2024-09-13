@@ -8,6 +8,7 @@ on:
       - release/*
     types:
       - opened
+      - synchronize
     paths:
       - "src/**"
       - "Dockerfile"
@@ -39,7 +40,7 @@ jobs:
       - ubuntu-22.04
     if: (github.event_name == 'workflow_dispatch') ||
       (github.event_name == 'pull_request' &&
-      github.event.action == 'opened' &&
+      (github.event.action == 'opened' || github.event.action == 'synchronize') &&
       (startsWith(github.event.pull_request.base.ref, 'release/') ||
       startsWith(github.event.pull_request.base.ref, 'feature/')))
     outputs:
@@ -88,7 +89,7 @@ jobs:
         run: ./ocwp-legacy build
 
       # Step to upload the artifact
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@3
         with:
           name: build-artifact # Name of the artifact
           path: ${{ env.BUILD_LOCATION }} # Path to the build directory and its contents
@@ -157,7 +158,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: build-artifact
           path: ${{ env.BUILD_LOCATION }}
