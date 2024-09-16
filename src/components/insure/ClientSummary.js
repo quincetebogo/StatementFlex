@@ -858,9 +858,9 @@ class ClientSummary extends Component {
 	}
 
 
-	async _openConfirmPolicyPauseDialog(reason) {
+	async _openConfirmPolicyPauseDialog(e) {
 		
-		this.policyPauseReason = reason;
+		this.policyPauseReason = e.detail.reason;
 		
 		this.funeralPolicyPauseInfo = await this.fetchBenefitDetails(this.selectedPolicyItem.contractReference, this.selectedPolicyItem.productCode);
 		this.showPolicyPauseDialog = false;
@@ -1265,7 +1265,7 @@ class ClientSummary extends Component {
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
-					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE}">
+					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER)}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
@@ -2969,7 +2969,7 @@ class ClientSummary extends Component {
 					.cancelPolicyPause = "${(benefitType, policy) => this.executeCancelBenefit(benefitType, policy)}"
 					.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this.fetchPolicyPauseAgreementDetails(saveDocument, policy, action)}"
 					.fetchBenefitDetails = "${(contractRef, productCode) => this.fetchBenefitDetails(contractRef, productCode)}"
-					@go-to-confirm = "${(reason) => this._openConfirmPolicyPauseDialog(reason)}"
+					@go-to-confirm = "${(e) => this._openConfirmPolicyPauseDialog(e)}"
 					@close-modal = "${(e) => this._closePolicyPauseDialog(e)}">
 				</horizon-insure-funeral-policy-pause-dialog>
 			`;
