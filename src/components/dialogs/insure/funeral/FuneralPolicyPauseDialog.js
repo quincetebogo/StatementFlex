@@ -129,7 +129,7 @@ class FuneralPolicyPauseDialog extends Component {
 				return;
 			}
 			this.errorMessage = ``;
-			this.dispatchEvent(new CustomEvent(`go-to-confirm`, {}))
+			this.dispatchEvent(new CustomEvent(`go-to-confirm`, {detail: {reason: this.selectedReason}}));
 		}
 
 		
