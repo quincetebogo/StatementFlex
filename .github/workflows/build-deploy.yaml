@@ -206,7 +206,7 @@ jobs:
       - container
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' && github.ref_name == 'develop' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     environment: dev
     steps:
       - name: Print Docker Image URI
