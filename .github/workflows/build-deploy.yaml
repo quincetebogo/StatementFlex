@@ -247,7 +247,7 @@ jobs:
       - container
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
     environment: int
     steps:
       - name: Print Docker Image URI
@@ -286,7 +286,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: release
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
     needs:
       - build
       - container
@@ -333,7 +333,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     environment: qa
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
     steps:
       - name: Print Docker Image URI
         id: docker-image-uri
@@ -378,7 +378,7 @@ jobs:
       - deploy-qa
     runs-on:
       - ubuntu-22.04
-    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') }}
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
     environment: prod
     steps:
       - name: Print Docker Image URI
