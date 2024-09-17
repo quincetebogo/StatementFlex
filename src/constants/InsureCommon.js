@@ -342,7 +342,9 @@ export const POLICY_OPTIONS = Object.freeze({
 	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
 	UPDATE_ID_DOB: `UpdateIdDob`,
 	VOLUNTARY_PAUSE: `VoluntaryPause`,
-	NEW_BORN_WAIVER: `NewBornWaiver`
+	NEW_BORN_WAIVER: `NewBornWaiver`,
+	GENERATE_AGREEMENT: `GenerateAgreement`,
+	GENERATE_MANDATE: `GenerateMandate`,
 });
 
 

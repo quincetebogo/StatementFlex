@@ -1126,6 +1126,11 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
 
+		if (this.isInsureAdministrator) {
+			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
+			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
+		}
+
 	}
 
 	/**
@@ -1249,7 +1254,7 @@ class ClientSummary extends Component {
 			case POLICY_OPTIONS.UPDATE_ID_DOB:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openUpdateIdDobDialog(policyItem)}"
-					icon="system/send-action" 
+					icon="system/profile-action" 
 					label="Update ID/DoB"
 					.disabled="${!this.isInsureAdministrator || policyItem.productCode === INSURE_PRODUCT_CODE.SANLAM}">
 					</capitec-overflow-menu-item>`
@@ -1266,6 +1271,14 @@ class ClientSummary extends Component {
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
 					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER)}">
+				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.GENERATE_AGREEMENT:
+				return html`<capitec-overflow-menu-item icon="system/documents-action" 
+					label="Generate Agreement" @click="${() => this._OpenGenerateNewDocsDialog(policyItem)}">
+				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.GENERATE_MANDATE:
+				return html`<capitec-overflow-menu-item icon="system/documents-action" 
+					label="Generate Mandate" @click="${() => this._OpenGenerateNewDocsDialog(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
