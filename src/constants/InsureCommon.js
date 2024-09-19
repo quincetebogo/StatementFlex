@@ -261,7 +261,8 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	LIFE_REISSUE_DIALOG: 9,
 	LIFE_INCREASE_COVER_DIALOG: 10,
 	FUNERAL_UPDATE_ID_DOB_DIALOG: 11,
-	FUNERAL_VPP: 12
+	FUNERAL_VPP: 12,
+	FUNERAL_NEW_AGREEMENT_GENERATION: 13,
 });
 
 /**
@@ -279,6 +280,7 @@ export const DOCUMENT_TYPE = Object.freeze({
 	ESTIMATE_AGREEMENT: `EstimatePrintout`,
 	ISSUE_BENEFIT_AGREEMENT: `IssueBenefitAgreement`,
 	CANCEL_BENEFIT_AGREEMENT: `CancelBenefitAgreement`,
+	POLICY_RESCHEDULE_AGREEMENT: `PolicyRescheduleAgreement`,
 });
 
 /**

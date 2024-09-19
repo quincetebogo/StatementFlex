@@ -139,6 +139,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			funeralShowEstimateSuccessToast: { type: Boolean, state: true },
 			funeralPolicyArrears: { type: Object, state: true },
 			selectedInsureTabIndex: { type: Number, state: true },
+			funeralPolicyRescheduleAgreement: { type: Object, state: true },
 
 			contractReference: { type: String, state: true },
 			claims: { type: Object, state: true },
@@ -660,6 +661,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 					"content": {
 						"type": `PDF`,
 						"value": this.funeralUpdatePlanAgreementDocument?.documentContent.value
+					}
+				}
+			];
+		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION) {
+			emailDocumentRequestPayload.documentInfo = [
+				{
+					"documentType": DOCUMENT_TYPE.POLICY_RESCHEDULE_AGREEMENT,
+					"documentGuid": this.funeralPolicyRescheduleAgreement?.documentDetails?.guid,
+					"content": {
+						"type": `PDF`,
+						"value": this.funeralPolicyRescheduleAgreement?.documentContent.value
 					}
 				}
 			];
@@ -1282,6 +1294,54 @@ export class InsureBackOfficeView extends InsureViewBase {
 		
 	}
 
+	async _executeFuneralCreateMandate(request) {
+		request.idNumber = this.callerInformation.southAfricanIDNumber;
+		const resp = await this.insureFuneralService.createMandate(request);
+
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return false;
+		}
+
+		return true;
+}
+
+	async _generatePolicyRescheduleDocument(policy, saveDocument) {
+		let dob = new Date(this.callerInformation.birthdate);
+		let request = {
+				"documentFormat": "PDF",
+				"saveDocumentToDocumentum": saveDocument,
+				"voiceRecordingNumber": "",
+				"markDocumentsAsAccepted": saveDocument,
+				"returnDocumentContent": true,
+				"emailDocumentToClient": false,
+				"wetsignBarcode": true,
+				"clientDetails": {
+				  "cifNumber": this.callerInformation.cifNumber,
+				  "primarySavingsAccountNumber": policy.deductionDetails.bankDetails.accountNumber,
+				  "policyContractReference": policy.contractReference,
+				  "productCode": policy.productCode,
+				  "firstName": this.callerInformation.firstName,
+				  "surname": this.callerInformation.lastName,
+				  "idNumber": this.callerInformation.southAfricanIDNumber,
+				  "dateOfBirth": dob.toISOString
+				},
+				"emailDetails": {
+				  "email": "",
+				}
+		}
+
+		const resp = await this.insureFuneralService.generatePolicyRescheduleDocument(request);
+		
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return false;
+		}
+		this.funeralPolicyRescheduleAgreement = resp.result;
+		return resp.result
+
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region NAVIGATION METHODS
@@ -1482,6 +1542,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG
+		}else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION) {
+			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION
 		}
 
 		EMAIL_DOCUMENT_REQUEST_PAYLOAD.email = e.detail.emailId.detail.emailAddress;
@@ -1505,7 +1567,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		super.isOnlyProductEnquiry = false;
 		window.showToastTimed(`success`, `top`, `Success`, `Email document was sent`, 3000, true);
 
-		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY || this.callerPage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG) {
+		if (this.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY || this.callerPage === INSURE_CALLER_PAGE.PAY_PREMIUM || this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN || this.callerPage === INSURE_CALLER_PAGE.REINSTATE_POLICY || this.callerPage === INSURE_CALLER_PAGE.FUNERAL_UPDATE_ID_DOB_DIALOG || this.callerPage === INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION) {
 			this._navigateToSubView(INSURE_RENDER_MODE.EMAIL_SUCCESS);
 		} else {
 			this.funeralShowEstimateSuccessToast = true;
@@ -1671,6 +1733,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.lifeCancelationReasons="${this.lifeCancelationReasons}"
 				.executeFuneralUpdateIdDoB="${(policy, updatedLife) => this._executeFuneralUpdateIdDoB(policy, updatedLife)}"
 				.sendFuneralUpdateIdDobEmail="${(e) => this._sendEmail(e)}"
+				.executeFuneralCreateMandate="${(request) => this._executeFuneralCreateMandate(request)}"
+				.executeSendFuneralEmail="${(e) => this._sendEmail(e)}"
+				.fetchPolicyRescheduleDocumentDetails="${(policy, saveDocument) => this._generatePolicyRescheduleDocument(policy, saveDocument) }"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
 				@cancel-policy="${(e) => this._cancelFuneralPolicy(e)}"

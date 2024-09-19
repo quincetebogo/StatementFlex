@@ -69,6 +69,8 @@ export default class InsureChannelServiceMocks {
 		this.activateBenefitMocks = await this._loadMockModule(this.activateBenefitMocks, `insureActivateBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
 		this.cancelBenefitMocks = await this._loadMockModule(this.cancelBenefitMocks, `insureCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
 		this.benefitInfoMocks = await this._loadMockModule(this.benefitInfoMocks, `insureBenefitInfo`, () => import(`./insure/funeral/InsureBenefitInfo`).catch(err => logError(err)));
+		this.createMandateMocks = await this._loadMockModule(this.createMandateMocks, `insureCreateMandate`, () => import(`./insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.policyReschedulePlanAgreementMocks = await this._loadMockModule(this.policyReschedulePlanAgreementMocks, `insurePolicyReschedulePlanAgreement`, () => import(`./insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
@@ -360,6 +362,20 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	
+	}
+
+	insureCreateMandate() {
+		if (this._mockSettings.insureCreateMandate.positiveCase) {
+			return this.createMandateMocks.InsureGenericResponse;
+		}
+		return null;
+	}
+
+	insurePolicyReschedulePlanAgreement() {
+		if (this._mockSettings.insurePolicyReschedulePlanAgreement.positiveCase) {
+			return this.policyReschedulePlanAgreementMocks.GenericDocumentResponse;
+		}
+		return null;
 	}
 
 	// #endregion FUNERAL
