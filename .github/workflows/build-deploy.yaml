@@ -303,7 +303,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $PROJECT_VERSION --target release --prerelease --generate-notes
+          gh release create $PROJECT_VERSION --target "${{ github.sha }}" --prerelease --generate-notes
           BODY=$(gh release view $PROJECT_VERSION --json body --jq '.body')
           echo "$BODY" >> release-notes.md
           echo "" >> release-notes.md
@@ -415,13 +415,13 @@ jobs:
         id: promote
         run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status PROD
 
-      # - name: GitHub Auto Approve PR to Main
-      #   id: pull-request-create
-      #   env:
-      #       GH_TOKEN: ${{ github.token }}
-      #   run: |
-      #       PR_URL=$(gh pr create --base main --head release --title "Automatic release - version $RUN" --body "Image Deployed - ${{ needs.container.outputs.IMAGE }}")
-      #       PR_NUMBER=$(echo "$PR_URL" | awk -F '/' '{print $NF}')
-      #       echo "PR URL: $PR_URL"
-      #       echo "PR NUMBER: $PR_NUMBER"
-      #       gh pr merge --auto --merge $PR_NUMBER
+      - name: GitHub Auto Approve PR to Main
+        id: pull-request-create
+        env:
+            GH_TOKEN: ${{ github.token }}
+        run: |
+            PR_URL=$(gh pr create --base main --head "${{ github.ref_name }}" --title "Automatic release - version $RUN" --body "Image Deployed - ${{ needs.container.outputs.IMAGE }}")
+            PR_NUMBER=$(echo "$PR_URL" | awk -F '/' '{print $NF}')
+            echo "PR URL: $PR_URL"
+            echo "PR NUMBER: $PR_NUMBER"
+            gh pr merge --auto --merge $PR_NUMBER
