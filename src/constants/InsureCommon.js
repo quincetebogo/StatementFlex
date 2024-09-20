@@ -513,8 +513,8 @@ export const FUN_BENEFIT_TYPES = Object.freeze({
  * @enum {Object} FUN_BENEFIT_TYPES
  */
 export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
-	POLICY_PAUSE: `PolicyPause`,
-	NEW_BORN: `NewBorn`
+	POLICY_PAUSE: `VoluntaryPolicyPause`,
+	NEW_BORN: `NewBornPremiumWaiver`
 });
 
 /**
