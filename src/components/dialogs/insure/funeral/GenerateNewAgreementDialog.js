@@ -279,7 +279,7 @@ class GenerateNewAgreementDialog extends Component {
 
 					${this._renderAlertBanner()}
 					<!-- success and email -->
-					The Agreement has been Successfully saved to CDS. Would you like to email a copy to the client?
+					<p>The Agreement has been successfully saved to CDS.</p> <p>Please enter and confirm clients email address if you would like to email a copy of the agreement.</p>
 
 					<horizon-email-input
 						labelOne="Enter email address"
