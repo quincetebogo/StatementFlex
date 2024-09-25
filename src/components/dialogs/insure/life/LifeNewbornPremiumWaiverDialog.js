@@ -149,7 +149,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css`6
+			css`
 				${INSURE_CSS}
 
 				capitec-modal {

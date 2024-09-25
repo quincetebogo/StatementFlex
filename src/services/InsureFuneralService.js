@@ -645,6 +645,58 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * creates debicheck mandate
+	 *
+	 * @param {createMandateRequest} [createMandateRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async createMandate(createMandateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCreateMandate`)) {
+			return this.mock(`insureCreateMandate`);
+		}
+		return this.post(
+			`/funeral/api/mandate/debicheckmandatecreate`,
+			createMandateRequest,
+			this._setInsureHeaders(),
+			`debicheckmandatecreate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * generates Policy Reschedule Document
+	 *
+	 * @param {generatePolicyRescheduleDocumentRequest} [generatePolicyRescheduleDocumentRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async generatePolicyRescheduleDocument(generatePolicyRescheduleDocumentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyReschedulePlanAgreement`)) {
+			return this.mock(`insurePolicyReschedulePlanAgreement`);
+		}
+		return this.post(
+			`/funeral/api/document/generate/PolicyReschedulePlanAgreement`,
+			generatePolicyRescheduleDocumentRequest,
+			this._setInsureHeaders(),
+			`policyReschedulePlanAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents
