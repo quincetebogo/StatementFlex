@@ -97,8 +97,8 @@ export default class InsureChannelServiceMocks {
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 		
-		this.activateLifeBenefitMocks = await this._loadMockModule(this.activateLifeBenefitMocks, `insureLifeActivateBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
-		this.cancelLifeBenefitMocks = await this._loadMockModule(this.cancelLifeBenefitMocks, `insureLifeCancelBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
+		this.activateLifeBenefitMocks = await this._loadMockModule(this.activateLifeBenefitMocks, `insureLifeActivateBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.cancelLifeBenefitMocks = await this._loadMockModule(this.cancelLifeBenefitMocks, `insureLifeCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
 	}
 
 	// #region FUNERAL
