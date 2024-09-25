@@ -96,6 +96,9 @@ export default class InsureChannelServiceMocks {
 		this.lifeUpdateBankingDetailsMocks = await this._loadMockModule(this.lifeUpdateBankingDetailsMocks, `insureLifeUpdateBankingDetails`, () => import(`../mocks/insure/life/LifeUpdateBankingDetails`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
+		
+		this.activateLifeBenefitMocks = await this._loadMockModule(this.activateLifeBenefitMocks, `insureLifeActivateBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
+		this.cancelLifeBenefitMocks = await this._loadMockModule(this.cancelLifeBenefitMocks, `insureLifeCancelBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
 	}
 
 	// #region FUNERAL
@@ -611,5 +614,21 @@ export default class InsureChannelServiceMocks {
 			return this.electOptionsMocks.InsureElectOption;
 		}
 		return null;
+	}
+
+	insureLifeActivateBenefit() {
+		if (this._mockSettings.insureLifeActivateBenefit.positiveCase) {
+			return this.activateLifeBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
+	}
+
+	insureLifeCancelBenefit() {
+		if (this._mockSettings.insureLifeCancelBenefit.positiveCase) {
+			return this.cancelLifeBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
 	}
 }

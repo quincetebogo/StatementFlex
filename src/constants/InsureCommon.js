@@ -500,6 +500,16 @@ export const FUN_BENEFIT_REASONS = Object.freeze([
 ]);
 
 /**
+ * Reasons for Activating Life benefits
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_REASONS
+ */
+export const LIFE_BENEFIT_REASONS = Object.freeze([
+	{ code: `Birth`, text: `Birth` },
+	{ code: `Adoption`, text: `Adoption` }
+]);
+
+/**
  * FUN_BENEFIT_TYPES
  *
  * @readonly
@@ -507,6 +517,16 @@ export const FUN_BENEFIT_REASONS = Object.freeze([
  */
 export const FUN_BENEFIT_TYPES = Object.freeze({
 	POLICY_PAUSE: `VoluntaryPolicyPause`,
+	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
+});
+
+/**
+ * LIFE_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_TYPES
+ */
+export const LIFE_BENEFIT_TYPES = Object.freeze({
 	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
 });
 
@@ -519,6 +539,17 @@ export const FUN_BENEFIT_TYPES = Object.freeze({
 export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
 	POLICY_PAUSE: `VoluntaryPolicyPause`,
 	NEW_BORN: `NewBornPremiumWaiver`
+});
+
+/**
+ * LIFE_BENEFIT_DOT_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_TYPES
+ */
+export const LIFE_BENEFIT_DOT_TYPES = Object.freeze({
+	ACTIVE: `Active`,
+	INACTIVE: `Inactive`
 });
 
 /**
@@ -544,3 +575,24 @@ export const FUN_BENEFIT_PERIOD = Object.freeze({
 	
 });
 
+/**
+ * LIFE_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_TYPES
+ */
+export const LIFE_BENEFIT_PERIOD = Object.freeze({
+	PERIOD: 6
+	
+});
+
+/**
+ * LIFE_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_TYPES
+ */
+export const LIFE_POLICY_RULES = Object.freeze({
+	MATERNITY_WAIVER: `MaternityWaiver`,
+	STANDARD: `Standard`
+});

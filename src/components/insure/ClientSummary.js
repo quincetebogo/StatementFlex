@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_BENEFIT_DOT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, getAgeFromIDNumber, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
@@ -43,6 +43,7 @@ import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
 import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog'
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/funeral/GenerateNewAgreementDialog';
+import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -101,6 +102,7 @@ class ClientSummary extends Component {
 		this.selectedInsureTabIndex = 0;
 		this.showUpdateIdDobDialog = false;
 		this.showNewbornPremiumWaiverDialog = false;
+		this.showLifeNewbornPremiumWaiverDialog = false;
 		this.showBenefitSuccessToast = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
@@ -251,6 +253,14 @@ class ClientSummary extends Component {
 			fetchBenefitDetails: { type: Object, state: true },
 			fetchPolicyPauseAgreementDetails: { type: Object, state: true },
 			showBenefitEmailDialog: { type: String, state: true },
+
+			// Life NBW
+			showLifeNewbornPremiumWaiverDialog: { type: Boolean, state: true },
+			executeLifeActivateBenefit: { type: Object, state: true },
+			executeLifeCancelBenefit: { type: Object, state: true },
+			showLifeBenefitSuccessToast: { type: Boolean, state: true },
+			lifeBenefitSuccessMessage: { type: String, state: true },
+			fetchLifeBenefitDetails: { type: Object, state: true },
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -890,10 +900,12 @@ class ClientSummary extends Component {
 		}
 		return false;
 	}
- /**
-  * opens the Update ID/DoB dialog
-  * @param {Object} policyItem 
-  */
+
+/**
+ * opens the Update ID/DoB dialog
+ * @param {Object} policyItem The policy item.
+ * @returns {void}
+ */
 	_openUpdateIdDobDialog(policyItem) {
 		this.showUpdateIdDobDialog = true;
 		this.selectedPolicyItem = policyItem;
@@ -910,6 +922,16 @@ class ClientSummary extends Component {
 		this.showNewbornPremiumWaiverDialog = true;
 	}
 
+		/**
+	 * Life Newborn open dialog event handler for life cover
+	 * @param {Object} policyItem policyItem
+	 * @returns {void}
+	 */
+		_openLifeNewBornPremiumWaiverDialog(policyItem) {
+			this.selectedPolicyItem = policyItem;
+			this.showLifeNewbornPremiumWaiverDialog = true;
+		}
+
 	/**
 	 * Newborn dialog close event handler
 	 * @param {event} e e
@@ -923,6 +945,19 @@ class ClientSummary extends Component {
 		this.showNewbornPremiumWaiverDialog = false;
 		
 
+	}
+
+	/**
+	 * Newborn dialog close event handler for Life
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_closeLifeNewbornPremiumWaiverDialog(e) {
+		if (!isNullorEmpty(e.detail.successMessage)) {
+			this.benefitSuccessMessage = e.detail.successMessage;
+			this.showBenefitSuccessToast = true;
+		}
+		this.showLifeNewbornPremiumWaiverDialog = false;
 	}
 
 	_startBenefitToastTimer() {
@@ -1866,6 +1901,7 @@ class ClientSummary extends Component {
 			${this._renderConfirmPolicyPauseDialog()}
 			${this._renderLifeIncreaseCoverUnavailable()}
 			${this._renderFuneralNewbornPremiumWaiverDialog()}
+			${this._renderLifeNewbornPremiumWaiverDialog()}
 			${this._renderEmailBenefitDialog()}
 			${this._renderGenerateNewAgreementDialog()}
 
@@ -2200,6 +2236,7 @@ class ClientSummary extends Component {
 	/**
 	 * render life policy 
 	 * @param {Object} activeLifePolicy active life policy
+	 * @param {object} policyItem - policy object
 	 * @returns {html} html content for the life policy
 	 */
 	_renderActiveLifePolicy(activeLifePolicy) {
@@ -2283,6 +2320,11 @@ class ClientSummary extends Component {
 			}
 						<capitec-overflow-menu-item icon="system/pay-to-cell-action" label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+						
+					${this.isInsureAdministrator && activeLifePolicy.newBornPremiumWaiverAvailable
+        				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy.benefit.benefitStatus === LIFE_BENEFIT_DOT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewBornPremiumWaiverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+						: html``
+					}
 					</capitec-overflow-menu>
 				</div>
 			</capitec-card>
@@ -3096,6 +3138,23 @@ class ClientSummary extends Component {
 			`;
 	}
 
+	/**
+	 * Render dialog for Life Newborn premium waiver
+	 * @returns {void}
+	 */
+	_renderLifeNewbornPremiumWaiverDialog() {
+		return this.showLifeNewbornPremiumWaiverDialog === false ? html``
+			: html`
+				<horizon-insure-life-newborn-premium-waiver-dialog
+					.policy="${this.selectedPolicyItem}"
+					.executeLifeActivateBenefit="${(activationReason, benefitType, policy) => this.executeLifeActivateBenefit(activationReason, benefitType, policy)}"
+					.executeLifeCancelBenefit="${(policy) => this.executeLifeCancelBenefit(policy)}"
+					.fetchLifeBenefitDetails="${(contractRef) => this.fetchLifeBenefitDetails(contractRef)}"
+					@close-modal="${(e) => this._closeLifeNewbornPremiumWaiverDialog(e)}">
+				</horizon-insure-life-newborn-premium-waiver-dialog>
+			`;
+	}
+	
 	/**
 	 * Render dialog for emailing the funeral benefit document
 	 * @returns {void}

@@ -670,5 +670,56 @@ export class InsureLifeService extends ChannelServiceBase {
 		);
 	}
 	
+		/**
+	 * 
+	 * 
+	 * @param {activateBenefitRequest} activateBenefitRequest - The request object containing details needed to activate the benefit.
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+		async activateBenefit(activateBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+			if (await this.isMockEnabled(`insureLifeActivateBenefit`)) {
+				return this.mock(`insureLifeActivateBenefit`);
+			}
+			return this.post(
+				`/horizon-insurance/life-cover/api/v1/policy/newborn-waiver`,
+				activateBenefitRequest,
+				this._setInsureHeaders(),
+				`activateBenefit`,
+				null,
+				null,
+				900,
+				null,
+				errorHandler,
+				autoRetries
+			);
+		}
+
+		/**
+	 * 
+	 * 
+	 * @param {cancelBenefitRequest} cancelBenefitRequest - The request object containing details needed to activate the benefit.
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+		async cancelBenefit(cancelBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+			if (await this.isMockEnabled(`insureLifeCancelBenefit`)) {
+				return this.mock(`insureLifeCancelBenefit`);
+			}
+			return this.post(
+				`/horizon-insurance/life-cover/api/v1/policy/newborn-waiver-stop`, 
+				cancelBenefitRequest,
+				this._setInsureHeaders(),
+				`cancelBenefit`,
+				null,
+				null,
+				900,
+				null,
+				errorHandler,
+				autoRetries
+			);
+		}
 	// #endregion PUBLIC METHODS
 }
