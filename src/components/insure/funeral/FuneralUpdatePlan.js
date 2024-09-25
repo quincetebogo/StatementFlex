@@ -1627,7 +1627,7 @@ class FuneralUpdatePlan extends Component {
 	 * @returns {html} dob html 
 	 */
 	_dateOfBirthRenderer(roleplayer) {
-		if (!this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship)) {
+		if(!this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`) {
 			return html`
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
 				value="${formatDateToInsure(roleplayer?.dateOfBirth)}" error="${roleplayer?.coverDetails?.ageMessage}">
@@ -2491,7 +2491,7 @@ class FuneralUpdatePlan extends Component {
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
-			${!this._checkBeneficiaryDobRule(roleplayer)
+			${!this._checkBeneficiaryDobRule(roleplayer) || this.policyDetails.policyRule !== `Standard`
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDateToInsure(roleplayer?.dateOfBirth)}">

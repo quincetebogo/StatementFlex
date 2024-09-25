@@ -88,7 +88,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_BACKOFFICE;
 
-		this.benefitDetails = {};
 
 		this.lifeCancelationReasons = LIFE_CANCELATION_REASONS_BACKOFFICE;
 	}
@@ -147,7 +146,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 			defaultSavingsAccountNumber: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
-			benefitDetails: { type: Object, state: true }
 
 		};
 	}
@@ -1524,7 +1522,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _goToFuneralPolicySummary(e) {
 		this.selectedFuneralPolicyDetails = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
-		this.benefitDetails = await this._retrievePolicyBenefitInfo(e.detail.policyContractReference, e.detail.productCode);
 		const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 		const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 		this.selectedFuneralPolicyDetails.roleplayers.unshift(mainLifeElement);

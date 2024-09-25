@@ -118,10 +118,10 @@ class FuneralPolicySummary extends Component {
 
 	_determineBenefit() {
 		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
-			this.benefitDetails = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
 			return `Newborn Premium Waiver`;
 		} else if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
-			this.benefitDetails = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
 			return `Policy Pause`;
 		}
 	}
@@ -743,7 +743,7 @@ class FuneralPolicySummary extends Component {
 							<div class="vertical-line"></div>
 							<horizon-label
 								label="Status"
-								value="${`Active`}"
+								value="${this.benefitDetails?.isBenefitActive ? `Active` : `Inactive`}"
 								class="column-width-200 ${`active-status`}">
 							</horizon-label>
 					</capitec-group>
@@ -768,7 +768,7 @@ class FuneralPolicySummary extends Component {
 					value="${isNullorEmpty(this.benefitDetails?.benefitEndDate) ? `-` : formatDate(this.benefitDetails?.benefitEndDate, `dd/mm/yyyy`)}">
 				</horizon-label>
 				<horizon-label label="Next Collection Date"
-					value="${isNullorEmpty(this.policy?.paymentSchedule?.nextPaymentDate) ? `-` : formatDate(this.policy?.paymentSchedule?.nextPaymentDate, `dd/mm/yyyy`)}">
+					value="${isNullorEmpty(this.policyDetails?.paymentSchedule?.nextPaymentDate) ? `-` : formatDate(this.policyDetails?.paymentSchedule?.nextPaymentDate, `dd/mm/yyyy`)}">
 				</horizon-label>
 			</capitec-group>
 		`;
