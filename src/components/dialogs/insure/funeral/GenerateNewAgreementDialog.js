@@ -95,9 +95,7 @@ class GenerateNewAgreementDialog extends Component {
 	// #region PRIVATE METHODS
 
 	async _initialise() {
-		console.log(this.policy)
 		this.documentDetails = await this.fetchPolicyRescheduleDocumentDetails(this.policy, false);
-		console.log(this.documentDetails)
 	
 	}
 
@@ -126,7 +124,6 @@ class GenerateNewAgreementDialog extends Component {
 	 * @returns {void}
 	 */
 	_cancelClick() {
-		console.log(`in close`)
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
