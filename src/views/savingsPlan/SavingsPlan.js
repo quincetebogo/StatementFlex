@@ -26,13 +26,15 @@ import 'app/components/common/HorizonPDFViewer';
 
 import 'app/views/savingsPlan/FlexibleSavingsPlan';
 import 'app/views/savingsPlan/FixedTermSavingsPlan';
+import 'app/views/savingsPlan/NoticeDepositsPlan';
 
 import 'app/views/savingsPlan/SavingsPlanServiceError';
 import 'app/views/savingsPlan/SavingsPlanUnverifiedPage';
 
 const SAVE_PLAN_TYPE = {
 	FLEXIBLE: `flexible-save-plan`,
-	FIXED_TERM: `fixed-term-save-plan`
+	FIXED_TERM: `fixed-term-save-plan`,
+	NOTICE_DEPOSIT: `notice-deposit`
 };
 
 const TAX_TYPE = {
@@ -185,10 +187,12 @@ export class SavingsPlan extends ViewBase {
 
 		const flexibleSavePlan = () => this._getFlexibleSavePlan(accNumber);
 		const fixedTermSavePlan = () => this._getFixedTermSavePlan(accNumber);
+		const noticeDeposit = () => this._getNoticeDeposit(accNumber);
 
 		const saveProducts = {
 			'flexible-save-plan': flexibleSavePlan,
-			'fixed-term-save-plan': fixedTermSavePlan
+			'fixed-term-save-plan': fixedTermSavePlan,
+			'notice-deposit': noticeDeposit
 		};
 
 		if (saveProducts[this.accountViewType]) {
@@ -326,7 +330,26 @@ export class SavingsPlan extends ViewBase {
 			return item;
 		});
 
-		this.savingsPlanDetails = [...flexibleSavingsPlanDetails, ...fixedSavingsPlanDetails];
+		const noticeDepositsPlanDetails = this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT && item.accountStatus !== `CLOSED`).map(item => {
+			item.currentBalance = formatCurrency(item.currentBalance);
+			item.availableBalance = formatCurrency(item.availableBalance);
+			item.accruedInterestCurrentMonth = formatCurrency(item.accruedInterestCurrentMonth);
+			item.accruedInterestLastMonth = formatCurrency(item.accruedInterestLastMonth);
+			item.interestEarned = formatCurrency(item.interestEarned);
+			item.feesLastMonth = item.feesLastMonth ? formatCurrency(item.feesLastMonth) : `-`;
+			item.interestRate = item.effectiveInterestRate;
+
+			item.maturityDate = `-`;
+			item.dateOpened = this._formatDate(item.dateOpened);
+			item.lastUpdate = this._formatDate(item.lastUpdate);
+
+			item.planName = formatStringAsPascalCase(item.planName);
+			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
+			item.postingRestrictions = `${item.postingRestrictions === `N` ? `No` : `Yes`}`;
+
+			return item;
+		});
+		this.savingsPlanDetails = [...flexibleSavingsPlanDetails, ...fixedSavingsPlanDetails, ...noticeDepositsPlanDetails];
 	}
 
 	_backFromAccountDetails() {
@@ -489,6 +512,12 @@ export class SavingsPlan extends ViewBase {
 	_getFixedTermSavePlan(accNumber) {
 		// TO DO: "fixedTermAccountDetails" details to be pulled and formated from services
 		this.fixedTermAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
+		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
+	}
+
+	_getNoticeDeposit(accNumber) {
+		// TO DO: "noticeAccountDetails" details to be pulled and formated from services
+		this.noticeAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
 		this.renderMode = RENDER_MODE.ACCOUNT_DETAIL_VIEW;
 	}
 
@@ -822,6 +851,7 @@ export class SavingsPlan extends ViewBase {
 			${this._renderSavingsPlanServiceError()}
 			${this._renderFlexibleDetailsView()}
 			${this._renderFixedTermDetailsView()}
+			${this._renderNoticeDetailsView()}
 			${this._renderStatements()}
 			${this._renderTaxCertificate()}
 			${this._renderTaxCertificateNotAvailable()}
@@ -919,6 +949,19 @@ export class SavingsPlan extends ViewBase {
 
 					@back="${() => this._setIncidentDone()}">
 				</capitec-fixed-term-savings-plan-details>`
+			: html``;
+	}
+
+	_renderNoticeDetailsView() {
+		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
+				this.accountViewType === SAVE_PLAN_TYPE.NOTICE_DEPOSIT
+			? html`
+				<capitec-notice-deposits-plan-details
+					.noticeAccountDetails="${this.noticeAccountDetails}"
+
+					@back="${() => this._setIncidentDone()}">
+				</capitec-notice-deposits-plan-details>
+			`
 			: html``;
 	}
 
