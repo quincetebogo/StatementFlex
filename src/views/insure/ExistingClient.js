@@ -47,9 +47,9 @@ const POLICY_TRANSACTION_HISTORY = {
 };
 
 const ACTION_TYPE = {
-	ACTIVATE: 'ACTIVATE',
-	CANCEL: 'CANCEL'
-}
+	ACTIVATE: `ACTIVATE`,
+	CANCEL: `CANCEL`
+};
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
