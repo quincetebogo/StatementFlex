@@ -14,7 +14,7 @@
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
 		"incidentManagementService": "https://cs-incident.bussup.prd-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet",
-		"capitecConnectServiceUrl": "https://api-connect-prd.int.capinet/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway.conect.prd-plrcon.asgard.capi/horizon-bff"
 	},
 	"signalRUrl": "https://cs-client-auth.bussup.prd-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth.bussup.prd-plrbsc.asgard.capi",
