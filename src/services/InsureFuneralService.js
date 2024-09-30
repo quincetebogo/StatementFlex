@@ -502,7 +502,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 			return this.mock(`insureUpdateIdDob`);
 		}
 		return this.post(
-			`/horizon-insurance/funeral/api/updateIdDob`,
+			`/horizon-insurance/funeral/api/update-id-dob`,
 			updateIdDobRequest,
 			this._setInsureHeaders(),
 			`updateIdDob`,
