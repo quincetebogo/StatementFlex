@@ -979,9 +979,9 @@ class ClientSummary extends Component {
 			this.benefitSuccessMessage = e.detail.successMessage
 			this.showBenefitSuccessToast = true;
 			this.showBenefitEmailDialog = true
+			this.dispatchEvent(new CustomEvent(`refresh-funeral-policies`, { detail: {} }));
 		} 
 		this.showConfirmPolicyPauseDialog = false;
-			
 		
 	}
 
