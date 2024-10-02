@@ -1142,7 +1142,7 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+		if (benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.ACTIVATE);
 		}
 
@@ -1199,11 +1199,11 @@ export class ExistingClient extends InsureViewBase {
 			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 		} else {
 
-			this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
 
 			benefitInfo = {
-				"benefitStartDate": this.vppBenefit.benefitStartDate ,
-				"benefitEndDate": this.vppBenefit.benefitEndDate,
+				"benefitStartDate": vppBenefit.benefitStartDate ,
+				"benefitEndDate": vppBenefit.benefitEndDate,
 				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
 			}
 		}
@@ -2394,6 +2394,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
+				@refresh-funeral-policies = "${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
 			</horizon-insure-client-summary>`;
 	}
