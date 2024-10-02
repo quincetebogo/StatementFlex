@@ -1199,11 +1199,11 @@ export class ExistingClient extends InsureViewBase {
 			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 		} else {
 
-			this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
 
 			benefitInfo = {
-				"benefitStartDate": this.vppBenefit.benefitStartDate ,
-				"benefitEndDate": this.vppBenefit.benefitEndDate,
+				"benefitStartDate": vppBenefit.benefitStartDate ,
+				"benefitEndDate": vppBenefit.benefitEndDate,
 				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
 			}
 		}
