@@ -247,13 +247,13 @@ export const ClientSummary = {
         },
         benefits: [
 			{
-				type: "NewBorn",
+				type: "NewBornPremiumWaiver",
 				available: true,
 				availableDate: "2023-08-21T02:00:00Z",
 				isBenefitActive: false
 			},
 			{
-				type: "PolicyPause",
+				type: "VoluntaryPolicyPause",
 				available: true,
 				availableDate: "2025-02-21T02:00:00Z",
 				isBenefitActive: false
@@ -652,13 +652,13 @@ export const ClientSummary = {
         },
         benefits: [
 			{
-				type: "NewBorn",
+				type: "NewBornPremiumWaiver",
 				available: true,
 				availableDate: "2023-08-21T02:00:00Z",
 				isBenefitActive: false
 			},
 			{
-				type: "PolicyPause",
+				type: "VoluntaryPolicyPause",
 				available: true,
 				availableDate: "2025-02-21T02:00:00Z",
 				isBenefitActive: false
@@ -1057,13 +1057,13 @@ export const ClientSummary = {
         },
 		benefits: [
 			{
-				type: "NewBorn",
+				type: "NewBornPremiumWaiver",
 				available: true,
 				availableDate: "2023-08-21T02:00:00Z",
 				isBenefitActive: false
 			},
 			{
-				type: "PolicyPause",
+				type: "VoluntaryPolicyPause",
 				available: true,
 				availableDate: "2025-02-21T02:00:00Z",
 				isBenefitActive: false
@@ -1327,13 +1327,13 @@ export const ClientSummary = {
         },
         benefits: [
 			{
-				type: "NewBorn",
+				type: "NewBornPremiumWaiver",
 				available: false,
 				availableDate: "2023-08-21T02:00:00Z",
 				isBenefitActive: false
 			},
 			{
-				type: "PolicyPause",
+				type: "VoluntaryPolicyPause",
 				available: false,
 				availableDate: "2025-02-21T02:00:00Z",
 				isBenefitActive: false
@@ -1732,13 +1732,13 @@ export const ClientSummary = {
         },
         benefits: [
 			{
-				type: "NewBorn",
+				type: "NewBornPremiumWaiver",
 				available: false,
 				availableDate: "2023-08-21T02:00:00Z",
 				isBenefitActive: false
 			},
 			{
-				type: "PolicyPause",
+				type: "VoluntaryPolicyPause",
 				available: false,
 				availableDate: "2025-02-21T02:00:00Z",
 				isBenefitActive: false

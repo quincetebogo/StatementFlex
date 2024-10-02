@@ -697,6 +697,58 @@ export class InsureFuneralService extends ChannelServiceBase {
 		);
 	}
 
+	/**
+	 * policy History
+	 *
+	 * @param {policyHistoryRequest} [policyHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyHistory(policyHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyHistory`)) {
+			return this.mock(`insurePolicyHistory`);
+		}
+		return this.post(
+			`/funeral/api/policy/audit-transaction-history`,
+			policyHistoryRequest,
+			this._setInsureHeaders(),
+			`policyHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Policy History Details
+	 *
+	 * @param {policyHistoryDetailsRequest} [policyHistoryDetailsRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyHistoryDetails(policyHistoryDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyHistoryDetails`)) {
+			return this.mock(`insurePolicyHistoryDetails`);
+		}
+		return this.post(
+			`/funeral/api/policy/audit-transaction-details`,
+			policyHistoryDetailsRequest,
+			this._setInsureHeaders(),
+			`policyHistoryDetails`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
 	// #endregion
 
 	// #region Documents

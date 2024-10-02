@@ -1024,6 +1024,15 @@ class ClientSummary extends Component {
 		
 	}
 
+	_goToPolicyHistory(policy) {
+		this.dispatchEvent(new CustomEvent(`navigate-to-funeral-policy-history`, {
+			detail: {
+				policy: policy,
+				selectedInsureTabIndex: this.selectedInsureTabIndex
+			}
+		}));
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -1210,6 +1219,7 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
 		}
 
+		policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 	}
 
 	/**
@@ -1358,6 +1368,10 @@ class ClientSummary extends Component {
 			case POLICY_OPTIONS.GENERATE_MANDATE:
 				return html`<capitec-overflow-menu-item icon="system/documents-action" 
 					label="Generate Mandate" @click="${() => this._createMandate(policyItem)}">
+				</capitec-overflow-menu-item>`;
+			case POLICY_OPTIONS.POLICY_HISTORY:
+				return html`<capitec-overflow-menu-item icon="system/history-action" 
+					label="Policy History" @click="${() => this._goToPolicyHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			default:
 				return html``;
