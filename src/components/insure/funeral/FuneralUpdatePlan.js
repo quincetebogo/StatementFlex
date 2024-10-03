@@ -373,6 +373,7 @@ class FuneralUpdatePlan extends Component {
 				this.beneOnlyRowId = 0;
 			}
 			this.policyDetails.roleplayers[this.lifeAssuredToRemove].lifeAssured = false;
+			this.policyDetails.roleplayers[this.lifeAssuredToRemove].coverAmount = 0;
 		} else {
 			this.policyDetails.roleplayers.splice(this.lifeAssuredToRemove, 1);
 			// Reshuffle
