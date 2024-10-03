@@ -2018,7 +2018,7 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 		this.clientConfirmedEmail = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = e.detail.productCode;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
