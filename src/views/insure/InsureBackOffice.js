@@ -839,6 +839,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		policyToCalc.roleplayers.forEach((life) => {
 			if (life.lifeAssured === false && life.beneficiary === true) {
+				adjustedRoleplayers.coverAmount = 0;
 				adjustedRoleplayers.push(life);
 			}
 		});
