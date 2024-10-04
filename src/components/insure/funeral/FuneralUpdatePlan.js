@@ -1198,8 +1198,6 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		await this._calculatePremium();
-
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 		if (isNullorEmpty(this.createPolicyResponse.issuePlanAgreement)) {
 			return;
