@@ -117,6 +117,19 @@ class LifePolicySummary extends Component {
 		return pocketBeneficiaries;
 	}
 
+	//  Break down children by guardian
+	_groupChildrenByGuardian() {
+		const groupedGuardians = [];
+		if (!isNullorEmpty(this.selectedLifePolicy.guardians)) {
+			this.selectedLifePolicy.guardians.forEach(guardian => {
+				const chainedWithChildren = this.selectedLifePolicy.beneficiaries.filter(bene => bene.educationBenefitAmount > 0 && bene.guardianId === guardian.guardianId);
+				guardian.children = chainedWithChildren;
+				groupedGuardians.push(guardian);
+			});
+		}
+		return groupedGuardians;
+	}
+
 	// Get total cover amount for policy
 	_getPolicyCoverAmount(pockets) {
 		let totalCover = 0;
@@ -161,7 +174,7 @@ class LifePolicySummary extends Component {
 		if (policy.arrears) {
 			policy.arrears.forEach(arrears => {
 				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
-				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount);
+					totalArrears += parseFloat(arrears.arrearsPaymentDueAmount);
 				}
 			});
 		}
@@ -249,6 +262,11 @@ class LifePolicySummary extends Component {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 15px;
 					word-break: break-word;
+				}
+
+				.horizon-label-long{
+					width: 195px;
+					padding-left: 16px;
 				}
 				.details-box {
 					height: auto;
@@ -426,8 +444,8 @@ class LifePolicySummary extends Component {
 							value="${isNullorEmpty(this.selectedLifePolicy?.policyLapseDate) ? `-` : formatDate(this.selectedLifePolicy?.policyLapseDate, `dd mmm yyyy`)}">
 						</horizon-label>
 					` : html`
-						${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html`` 
-						: html`
+						${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP ? html``
+					: html`
 							<horizon-label
 								label="Arrears amount"
 								class="${this._calculateArrearsAmount(this.selectedLifePolicy) > 0 ? `arrears` : ``}"
@@ -508,6 +526,8 @@ class LifePolicySummary extends Component {
 		const monthlyBeneficiaries = this._getPocketBeneficiaries(LIFE_POCKET_TYPES.MONTHLY);
 		const educationBeneficiaries = this._getPocketBeneficiaries(LIFE_POCKET_TYPES.EDUCATION);
 
+		const groupedGuardians = this._groupChildrenByGuardian();
+
 		return html`
 		<capitec-title-bar type="default" label="Pockets">
 		</capitec-title-bar>
@@ -538,7 +558,7 @@ class LifePolicySummary extends Component {
 					</capitec-group>
 					<div slot="content">
 						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-							${this._renderPocketExpanded(LIFE_POCKET_TYPES.ONCEOFF, onceOffBeneficiaries)}
+							${this._renderPocketExpanded(LIFE_POCKET_TYPES.ONCEOFF, onceOffBeneficiaries, null)}
 						</capitec-group>
 					</div>
 				</horizon-expander>
@@ -571,7 +591,7 @@ class LifePolicySummary extends Component {
 					</capitec-group>
 					<div slot="content">
 						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-							${this._renderPocketExpanded(LIFE_POCKET_TYPES.MONTHLY, monthlyBeneficiaries)}
+							${this._renderPocketExpanded(LIFE_POCKET_TYPES.MONTHLY, monthlyBeneficiaries, null)}
 						</capitec-group>
 					</div>
 				</horizon-expander>
@@ -604,7 +624,7 @@ class LifePolicySummary extends Component {
 					</capitec-group>
 					<div slot="content">
 						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-							${this._renderPocketExpanded(LIFE_POCKET_TYPES.EDUCATION, educationBeneficiaries)}
+							${this._renderPocketExpanded(LIFE_POCKET_TYPES.EDUCATION, educationBeneficiaries, groupedGuardians)}
 						</capitec-group>
 					</div>
 				</horizon-expander>
@@ -613,8 +633,11 @@ class LifePolicySummary extends Component {
 	}
 
 	// Expanded setting for main life expander
-	_renderPocketExpanded(pocketType, beneficiaries) {
-		return html`
+	_renderPocketExpanded(pocketType, beneficiaries, groupedByGuardian) {
+
+		// Lump & Monthly
+		if (groupedByGuardian === null) {
+			return html`
 			<capitec-group class="options-group" layout="vertical" gap="none" H-Align="left">
 				${beneficiaries?.map((beneficiary, index) => html`
 					<div class="beneficiary-card">
@@ -641,6 +664,46 @@ class LifePolicySummary extends Component {
 				`)}
 			</capitec-group>
 		`;
+		}
+
+		// Education
+		return html`
+			<capitec-group class="options-group" style="margin: 0px;" layout="vertical" gap="none" H-Align="left">
+				${groupedByGuardian?.map((guardian, index) => html`
+					<div style="display: flex; margin-bottom: 10px; background: rgb(244, 244, 244); padding: 10px 5px;">
+						<horizon-label
+							class="horizon-label-long"
+							label="Caregiver"
+							value="${guardian.firstName} ${guardian.lastName}">
+						</horizon-label>
+
+						<horizon-label
+							class="horizon-label-long"
+							label="Caregiver relationship"
+							value="${guardian.relationship}">
+						</horizon-label>
+					</div>
+					${guardian?.children?.map((beneficiary) => html`
+						<div class="beneficiary-card">
+							<div style="display: flex; gap:20px;">
+								<capitec-avatar value="${beneficiary.firstName.charAt(0) + beneficiary.lastName.charAt(0)}" size="large" color="#AAAAAA"></capitec-avatar>
+								<horizon-label
+									label="${beneficiary.firstName}"
+									value="${beneficiary.lastName}">
+								</horizon-label>
+							</div>
+							<div style="display: flex; gap: 20px;">
+								<horizon-label
+									label="Cover Amount"
+									value="${formatCurrencyInsureCoverAmount(formatCurrency(this._getBeneficiaryCoverAmount(pocketType, beneficiary)))}">
+								</horizon-label>
+							</div>
+						</div>
+					`)}
+				`)}
+			</capitec-group>
+		`;
+
 	}
 
 	/**
@@ -708,8 +771,8 @@ class LifePolicySummary extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
-			${mandateDetails.length === 0 ? this._renderNoResults() 
-			: html`
+			${mandateDetails.length === 0 ? this._renderNoResults()
+				: html`
 			${mandateDetails.map((mandate) => html`
 			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
 				<capitec-content-box  class="accounts-box">
@@ -789,7 +852,7 @@ class LifePolicySummary extends Component {
 		`;
 	}
 
-		/**
+	/**
 	 * Render message when no results found
 	 * @returns {html} The html content of No results
 	 */

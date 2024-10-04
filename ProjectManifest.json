@@ -2,9 +2,9 @@
   "name": "cec-ui-horizon",
   "product": "horizon",
   "group": "G_CKS_CEC_HORIZON_ADMIN",
-  "version": "2.55.1",
+  "version": "2.56.5",
   "alias": "cec-horizon",
-  "release": "240702",
+  "release": "240904",
   "contractVersion": "v1",
   "serviceType": "Channel",
   "port": 6001,
@@ -15,7 +15,7 @@
     "flow": "password",
     "extraScopes": "",
     "roles": null
-  },
+  },													
   "secrets": [
     "telemetrydatabussecret",
     "axoncs_t_ch_password",

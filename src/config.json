@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -245,7 +245,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -297,15 +297,15 @@
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
@@ -313,7 +313,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -321,7 +321,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
@@ -341,7 +341,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {
@@ -441,7 +441,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -476,8 +476,16 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"insureActivatePolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCancelPolicyPause": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"insureCalculateEstimate": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
@@ -507,6 +515,40 @@
 		"insureLifeUpdatePocket": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureLifeCoverAvailable": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIncreaseCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureBenefitAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureActivateBenefit": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureBenefitInfo": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdateBankingDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureUpdateIdDob": {
+			"enabled": true,
+			"positiveCase": true
 		}
+
+
 	}
 }

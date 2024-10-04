@@ -61,7 +61,14 @@ export default class InsureChannelServiceMocks {
 		this.claimsMocks = await this._loadMockModule(this.claimsMocks, `insureClaims`, () => import(`./insure/ClientClaims`).catch(err => logError(err)));
 		this.requestCallbackMocks = await this._loadMockModule(this.requestCallbackMocks, `insureRequestCallback`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.arrearsMocks = await this._loadMockModule(this.arrearsMocks, `insureArrears`, () => import(`../mocks/insure/funeral/InsureArrears`).catch(err => logError(err)));
+		this.activatePolicyPauseMocks = await this._loadMockModule(this.activatePolicyPauseMocks, `insureActivatePolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
+		this.cancelPolicyPauseMocks = await this._loadMockModule(this.cancelPolicyPauseMocks, `insureCancelPolicyPause`, () => import(`../mocks/insure/InsureSuccessResponse`).catch(err => logError(err)));
 		this.estimateMocks = await this._loadMockModule(this.estimateMocks, `insureCalculateEstimate`, () => import(`../mocks/insure/funeral/InsureCalculateEstimate`).catch(err => logError(err)));
+		this.updateIdDobMocks = await this._loadMockModule(this.updateIdDobMocks, `insureUpdateIdDob`, () => import(`../mocks/insure/funeral/InsureAgreement`).catch(err => logError(err)));
+		this.generateBenefitAgreementMocks = await this._loadMockModule(this.generateBenefitAgreementMocks, `insureBenefitAgreement`, () => import(`../mocks/insure/funeral/GenericDocumentResponse`).catch(err => logError(err)));
+		this.activateBenefitMocks = await this._loadMockModule(this.activateBenefitMocks, `insureActivateBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.cancelBenefitMocks = await this._loadMockModule(this.cancelBenefitMocks, `insureCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.benefitInfoMocks = await this._loadMockModule(this.benefitInfoMocks, `insureBenefitInfo`, () => import(`./insure/funeral/InsureBenefitInfo`).catch(err => logError(err)));
 
 		// Life
 		this.lifeClientSummaryMocks = await this._loadMockModule(this.lifeClientSummaryMocks, `insureLifeClientSummary`, () => import(`../mocks/insure/life/LifeClientSummary`).catch(err => logError(err)));
@@ -81,6 +88,10 @@ export default class InsureChannelServiceMocks {
 		this.lifeAcceptPolicyMocks = await this._loadMockModule(this.lifeAcceptPolicyMocks, `insureLifeAcceptPolicy`, () => import(`../mocks/insure/life/LifeAcceptPolicy`).catch(err => logError(err)));
 		this.lifeUpdatePolicyMocks = await this._loadMockModule(this.lifeUpdatePolicyMocks, `insureLifeUpdatePolicy`, () => import(`../mocks/insure/life/LifeUpdatePolicy`).catch(err => logError(err)));
 		this.lifeUpdatePocketMocks = await this._loadMockModule(this.lifeUpdatePocketMocks, `insureLifeUpdatePocket`, () => import(`../mocks/insure/life/LifeUpdatePocket`).catch(err => logError(err)));
+		this.lifeCoverAvailableMocks = await this._loadMockModule(this.lifeCoverAvailableMocks, `insureLifeCoverAvailable`, () => import(`../mocks/insure/life/LifeCoverAvailable`).catch(err => logError(err)));
+		this.lifeIncreaseCoverMocks = await this._loadMockModule(this.lifeIncreaseCoverMocks, `insureLifeIncreaseCover`, () => import(`../mocks/insure/life/LifeIncreaseCover`).catch(err => logError(err)));
+		
+		this.lifeUpdateBankingDetailsMocks = await this._loadMockModule(this.lifeUpdateBankingDetailsMocks, `insureLifeUpdateBankingDetails`, () => import(`../mocks/insure/life/LifeUpdateBankingDetails`).catch(err => logError(err)));
 
 		this.electOptionMocks = await this._loadMockModule(this.electOptionMocks, `insureElectOption`, () => import(`../mocks/insure/InsureElectOption`).catch(err => logError(err)));
 	}
@@ -215,7 +226,7 @@ export default class InsureChannelServiceMocks {
 	 * Generate agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
-	generateAgreement() {
+	insureGenerateAgreement() {
 		if (this._mockSettings.insureGenerateAgreement.positiveCase) {
 			return this.generateAgreementMocks.InsureAgreement;
 		}
@@ -226,9 +237,9 @@ export default class InsureChannelServiceMocks {
 	 * Generate Issue agreement / Sample content, not specific to a Agreement
 	 * @returns {Object} Mock response data
 	 */
-	generateIssueAgreement() {
+	insureGenerateIssueAgreement() {
 		if (this._mockSettings.insureGenerateIssueAgreement.positiveCase) {
-			return this.generateIssueAgreementMocks.InsureAgreement;
+			return this.generateIssueAgreementMocks.GenericDocumentResponse;
 		}
 		return null;
 	}
@@ -291,11 +302,64 @@ export default class InsureChannelServiceMocks {
 		return null;
 	}
 
+	insureActivatePolicyPause() {
+		if (this._mockSettings.insureActivatePolicyPause.positiveCase) {
+			return this.activatePolicyPauseMocks.insureActivatePolicyPause;
+		}
+		return null;
+	}
+
+	insureCancelPolicyPause() {
+		if (this._mockSettings.insureCancelPolicyPause.positiveCase) {
+			return this.cancelPolicyPauseMocks.insureCancelPolicyPause;
+		}
+		return null;
+	}
+	
 	insureCalculateEstimate() {
 		if (this._mockSettings.insureCalculateEstimate.positiveCase) {
 			return this.estimateMocks.InsureCalculateEstimate;
 		}
 		return null;
+	}
+
+	insureUpdateIdDob() {
+		if (this._mockSettings.insureUpdateIdDob.positiveCase) {
+			return this.updateIdDobMocks.InsureAgreement;
+		}
+		return null;
+	}
+	
+	insureBenefitAgreement() {
+		if (this._mockSettings.insureBenefitAgreement.positiveCase) {
+			return this.generateBenefitAgreementMocks.GenericDocumentResponse;
+		}
+		return null;
+	
+	}
+
+	insureActivateBenefit() {
+		if (this._mockSettings.insureActivateBenefit.positiveCase) {
+			return this.activateBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
+	}
+
+	insureCancelBenefit() {
+		if (this._mockSettings.insureCancelBenefit.positiveCase) {
+			return this.cancelBenefitMocks.InsureGenericResponse;
+		}
+		return null;
+	
+	}
+
+	insureBenefitInfo() {
+		if (this._mockSettings.insureBenefitInfo.positiveCase) {
+			return this.benefitInfoMocks.InsureBenefitInfoResponse;
+		}
+		return null;
+	
 	}
 
 	// #endregion FUNERAL
@@ -489,7 +553,40 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 	}
-		
+	
+	/**
+	 * life update pocket mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeCoverAvailable() {
+		if (this._mockSettings.insureLifeCoverAvailable.positiveCase) {
+			return this.lifeCoverAvailableMocks.insureLifeCoverAvailable;
+		}
+		return null;
+	}
+
+	/**
+	 * life increase cover mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeIncreaseCover() {
+		if (this._mockSettings.insureLifeIncreaseCover.positiveCase) {
+			return this.lifeIncreaseCoverMocks.insureLifeIncreaseCover;
+		}
+		return null;
+	}
+
+	/**
+	 * 	life update banking details mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureLifeUpdateBankingDetails() {
+		if (this._mockSettings.insureLifeUpdateBankingDetails.positiveCase) {
+			return this.lifeUpdateBankingDetailsMocks.insureLifeUpdateBankingDetails;
+		}
+		return null;
+	}
+
 
 	// #endregion LIFE
 	

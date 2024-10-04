@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -92,7 +92,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 
 	initialise() {
 		this.originalBeneficiary = JSON.parse(JSON.stringify(this.updatingBeneficiary));
-		for (const bene of this.policy.beneficiaries) {
+		const policyCopy = JSON.parse(JSON.stringify(this.policy));
+		for (const bene of policyCopy.beneficiaries) {
 			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && bene.metaData.monthlyBenefitAdded === true) {
 				this.pocketBeneficiaries.push(bene);
 			}
@@ -102,6 +103,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			}
 		}
 		this._calculateCoverBreakdown();
+
+		this.originalPocketBeneficiaries = JSON.parse(JSON.stringify(this.pocketBeneficiaries));
 	}
 
 	/**
@@ -265,12 +268,20 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_idChange(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatingBeneficiary.idNumber = e.detail.new;
-			//this._validateBeneficiaryDetails();
 		}
 
-		if (this.updatingBeneficiary.idNumber.length === 13) {
+		if (isValidRSAIdNumber(this.updatingBeneficiary.idNumber)) {
 			this.updatingBeneficiary.dateOfBirth = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
 			this.beneficiaryErrors.idNumber = ``;
+
+			// Age check
+			if (getAgeFromDob(this.updatingBeneficiary?.dateOfBirth) < 18) {
+				this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			} else {
+				this.beneficiaryErrors.dateOfBirth = ``;
+			}
+		} else {
+			this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 		}
 		this.requestUpdate();
 	}
@@ -399,10 +410,12 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber)) {
-			if (this.updatingBeneficiary?.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.updatingBeneficiary.idNumber)) {
 				this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			}
+		} else {
+			this.beneficiaryErrors.idNumber = ``;
 		}
 
 		if (!isNullorEmpty(this.updatingBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingBeneficiary?.contactEmail)) {
@@ -444,6 +457,12 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		this.pocketBeneficiaries = this.originalPocketBeneficiaries;
+		for (let i = 0; i < this.pocketBeneficiaries.length; i++) {
+			if (this.pocketBeneficiaries[i].metaData?.coverErrorMsg === VALIDATION_ERRORS.BENEFICIARY_MINIMUM) {
+				this.pocketBeneficiaries[i].metaData.coverErrorMsg = ``;
+			}
+		}
 		this.updatingBeneficiary = this.originalBeneficiary;
 		this.dispatchEvent(new CustomEvent(`close-dialog`, { detail: { beneficiary: this.updatingBeneficiary } }));
 	}
@@ -457,7 +476,8 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		if (allocationValid === true) {
 			this.dispatchEvent(new CustomEvent(`update-beneficiary`, {
 				detail: {
-					beneficiary: this.updatingBeneficiary
+					beneficiary: this.updatingBeneficiary,
+					pocketBeneficiaries: this.pocketBeneficiaries
 				}
 			}));
 		}
