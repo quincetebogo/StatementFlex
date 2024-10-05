@@ -2117,5 +2117,72 @@ export const ClientSummary = {
       },
     ],
   },
+  featureResponse: {
+    features: [
+      {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "Estimate",
+        feature: "Estimate"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "UpdatePolicy",
+        feature: "UpdatePolicy"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "CancelPolicy",
+        feature: "CancelPolicy"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "ReissuePolicy",
+        feature: "ReissuePolicy"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "AdhocPayment",
+        feature: "AdhocPayment"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "WaiverWaitingPeriod",
+        feature: "WaiverWaitingPeriod"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "ActivatePolicyPause",
+        feature: "ActivatePolicyPause"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "Emailing",
+        feature: "Emailing"
+      },
+	  {
+        enabled: false,
+        visible: true,
+        message: "string",
+        featureName: "WaiverWaitingPeriod",
+        feature: "WaiverWaitingPeriod"
+      }
+    ]
+  },
   success: true,
 };
