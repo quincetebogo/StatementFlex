@@ -788,7 +788,7 @@ export class ExistingClient extends InsureViewBase {
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentType": DOCUMENT_TYPE.BENEFIT_NOTE,
+					"documentType": DOCUMENT_TYPE.ISSUE_BENEFIT_AGREEMENT,
 					"documentGuid": ``,
 					"content": {
 						"type": `PDF`,
@@ -1114,6 +1114,7 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedFuneralPolicyContractReference = createPolicyResponse.result.contractReference;
 		super.isOnlyProductEnquiry = false;
 		this.contractReference = createPolicyResponse.result.contractReference;
+		this.selectedFuneralPolicyProductCode = createPolicyResponse.result.productCode;
 
 		await this._generateDocumentsFuneralReissue(false);
 		const resinstatePolicyResponse = {
@@ -2018,7 +2019,7 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 		this.clientConfirmedEmail = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = e.detail.productCode;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
