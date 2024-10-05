@@ -2120,63 +2120,63 @@ export const ClientSummary = {
   featureResponse: {
     features: [
       {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "Estimate",
         feature: "Estimate"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "UpdatePolicy",
         feature: "UpdatePolicy"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "CancelPolicy",
         feature: "CancelPolicy"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "ReissuePolicy",
         feature: "ReissuePolicy"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "AdhocPayment",
         feature: "AdhocPayment"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "WaiverWaitingPeriod",
         feature: "WaiverWaitingPeriod"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "ActivatePolicyPause",
         feature: "ActivatePolicyPause"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "Emailing",
         feature: "Emailing"
       },
 	  {
-        enabled: false,
+        enabled: true,
         visible: true,
         message: "string",
         featureName: "WaiverWaitingPeriod",
