@@ -1222,7 +1222,7 @@ class ClientSummary extends Component {
 			return true;
 		}
 		
-		const featureDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature === featureToCheck);
+		const featureDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === featureToCheck.toUpperCase());
 		if(featureDetails === undefined) {
 			return false;
 		}
