@@ -555,7 +555,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 		}
 		return this.post(
 			`/horizon-insurance/funeral/api/policy/benefit/cancel`,
-			activateBenefitRequest,
+			cancelBenefitRequest,
 			this._setInsureHeaders(),
 			`cancelBenefit`,
 			null,

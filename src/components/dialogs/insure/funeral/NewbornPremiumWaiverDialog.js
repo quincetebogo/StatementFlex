@@ -276,12 +276,7 @@ class NewbornPremiumWaiverDialog extends Component {
 				</div>
 			
 			`}
-		`}
-
-			
-			
-
-		`;
+		`}`;
 	}
 
 	/**
