@@ -112,7 +112,7 @@ export class ExistingClient extends InsureViewBase {
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
-
+		this.VPPEmailActionActivate = false;
 	}
 
 	// #endregion INITIALISATION
@@ -788,7 +788,7 @@ export class ExistingClient extends InsureViewBase {
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentType": DOCUMENT_TYPE.ISSUE_BENEFIT_AGREEMENT,
+					"documentType": this.VPPEmailActionActivate === true ? DOCUMENT_TYPE.ISSUE_BENEFIT_AGREEMENT : DOCUMENT_TYPE.CANCEL_BENEFIT_AGREEMENT,
 					"documentGuid": ``,
 					"content": {
 						"type": `PDF`,
@@ -1148,12 +1148,12 @@ export class ExistingClient extends InsureViewBase {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.ACTIVATE);
 		}
 
+		this.VPPEmailActionActivate = true;
 		return activateBenefitResponse.result;
-	
 	}
 
 	async executeFuneralCancelBenefit(benefitType, policy) {
-		this.selectedFuneralPolicyContractReference = policy.contractReference
+		this.selectedFuneralPolicyContractReference = policy.contractReference;
 		const cancelBenefitRequest = {
 			"contractReference": policy.contractReference,
 			"benefitType": benefitType,
@@ -1170,7 +1170,7 @@ export class ExistingClient extends InsureViewBase {
 		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.CANCEL);
 		}
-		
+		this.VPPEmailActionActivate = false;
 
 		return cancelBenefitResponse.result;
 	

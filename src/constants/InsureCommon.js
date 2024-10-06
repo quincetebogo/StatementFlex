@@ -269,7 +269,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * List of document types
  * 
  * @readonly
- * @enum {Object} INSURE_CALLER_PAGE
+ * @enum {Object} DOCUMENT_TYPE
  */
 export const DOCUMENT_TYPE = Object.freeze({
 	ISSUE_POLICY_AGREEMENT: `IssuePolicyAgreement`,
