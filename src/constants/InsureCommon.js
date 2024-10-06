@@ -596,3 +596,25 @@ export const LIFE_POLICY_RULES = Object.freeze({
 	MATERNITY_WAIVER: `MaternityWaiver`,
 	STANDARD: `Standard`
 });
+
+/**
+ * FEATURE_TOGGLES
+ *
+ * @readonly
+ * @enum {Object} FEATURE_TOGGLES
+ */
+export const FEATURE_TOGGLES = Object.freeze({
+	Estimate: `Estimate`,
+	UpdatePolicy: `UpdatePolicy`,
+	CancelPolicy: `CancelPolicy`,
+	Claim: `Claim`,
+	AdhocPayment: `AdhocPayment`,
+	WaiverWaitingPeriod: `WaiverWaitingPeriod`,
+	Emailing: `Emailing`,
+	ActivatePolicyPause: `ActivatePolicyPause`,
+	ActivateNewBorn: `ActivateNewBorn`,
+	CancelPolicyPause: `CancelPolicyPause`,
+	CancelNewBorn: `CancelNewBorn`,
+	IssuePolicy: `IssuePolicy`,
+	ReissuePolicy: `ReissuePolicy`
+});
