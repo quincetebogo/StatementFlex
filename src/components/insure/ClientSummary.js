@@ -1247,7 +1247,8 @@ class ClientSummary extends Component {
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
-				return html`<horizon-option-button 
+				return html`
+				<horizon-option-button 
 				data-automation-id="insure-policy-options-email-plan"
 				class="button-margin" 
 				label="Email Plan" 
