@@ -347,6 +347,7 @@ export const POLICY_OPTIONS = Object.freeze({
 	NEW_BORN_WAIVER: `NewBornWaiver`,
 	GENERATE_AGREEMENT: `GenerateAgreement`,
 	GENERATE_MANDATE: `GenerateMandate`,
+	POLICY_HISTORY: `PolicyHistory`,
 });
 
 

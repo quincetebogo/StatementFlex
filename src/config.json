@@ -555,6 +555,14 @@
 		"insurePolicyReschedulePlanAgreement": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insurePolicyHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyHistoryDetails": {
+			"enabled": true,
+			"positiveCase": true
 		}
 
 

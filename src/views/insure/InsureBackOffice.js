@@ -22,6 +22,7 @@ import 'app/components/insure/funeral/FuneralSMSHistory';
 import '../../components/insure/funeral/FuneralPolicySummary';
 import '../../components/insure/funeral/FuneralPolicyTransactionHistory';
 import '../../components/insure/ClaimSummary';
+import 'app/components/insure/funeral/FuneralPolicyHistory';
 
 import 'app/components/insure/life/LifePolicySummary';
 import 'app/components/insure/life/LifePremiumHistory';
@@ -1409,6 +1410,52 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 	}
 
+	_goToFuneralPolicyHistory(e) {
+		this.selectedFuneralPolicyDetails = e.detail.policy
+		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
+		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_POLICY_HISTORY);
+	}
+
+	async _fetchPolicyHistory(startDate, endDate, policy) {
+		
+		const request = {
+			contractReference: policy.contractReference,
+			productCode: policy.productCode,
+			fromDate: startDate || POLICY_TRANSACTION_HISTORY.START_DATE,
+			toDate: endDate || POLICY_TRANSACTION_HISTORY.END_DATE,
+			pagniation: {
+				pageIndex: POLICY_TRANSACTION_HISTORY.PAGE_INDEX,
+				totalPerPage: POLICY_TRANSACTION_HISTORY.MAX_RESULTS
+			}
+		}
+
+		let response = await this.insureFuneralService.policyHistory(request);
+
+		if (!response.succeeded) {
+			this.handleToastError(response.exception);
+			return;
+		}
+
+		return response.result.transactions;
+	}
+
+	async _fetchPolicyHistoryDetails(activityID, policy) {
+		const request = {
+			contractReference: policy.contractReference,
+			activityId: activityID,
+			productCode: policy.productCode
+		}
+
+		const response = await this.insureFuneralService.policyHistoryDetails(request);
+
+		if (!response.succeeded) {
+			this.handleToastError(response.exception);
+			return;
+		}
+
+		return response.result.auditDetails;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region NAVIGATION METHODS
@@ -1766,6 +1813,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SMS_HISTORY:
 				return html`${this._renderLifeSMSHistoryPage()}`;
+			case INSURE_RENDER_MODE.FUNERAL_POLICY_HISTORY:
+				return html`${this._renderFuneralPolicyHistoryPage()}`;
 			default:
 				return html``;
 		}
@@ -1818,6 +1867,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@navigate-to-life-policy-premium-history="${(e) => this._goToLifePolicyPremiumHistory(e)}"
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
+				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
 			</horizon-insure-client-summary>`;
 	}
@@ -2053,6 +2103,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@click = "${() => this.showInsureSuccessToast = false}">
 			</capitec-toast>
 		`;
+	}
+
+	_renderFuneralPolicyHistoryPage() {
+		return html`
+		<horizon-insure-funeral-policy-history
+			.policy="${this.selectedFuneralPolicyDetails}"
+			.fetchPolicyHistory="${(startDate, endDate, policy) => this._fetchPolicyHistory(startDate, endDate, policy)}"
+			.fetchPolicyHistoryDetails= "${(activityID, policy) => this._fetchPolicyHistoryDetails(activityID, policy)}"
+			@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-insure-funeral-policy-history>
+		`
 	}
 
 	// #endregion RENDERING
