@@ -112,7 +112,7 @@ export class ExistingClient extends InsureViewBase {
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
-
+		this.VPPEmailActionActivate = false;
 	}
 
 	// #endregion INITIALISATION
@@ -788,7 +788,7 @@ export class ExistingClient extends InsureViewBase {
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentType": DOCUMENT_TYPE.BENEFIT_NOTE,
+					"documentType": this.VPPEmailActionActivate === true ? DOCUMENT_TYPE.ISSUE_BENEFIT_AGREEMENT : DOCUMENT_TYPE.CANCEL_BENEFIT_AGREEMENT,
 					"documentGuid": ``,
 					"content": {
 						"type": `PDF`,
@@ -1002,6 +1002,7 @@ export class ExistingClient extends InsureViewBase {
 
 		policyToCalc.roleplayers.forEach((life) => {
 			if (life.lifeAssured === false && life.beneficiary === true) {
+				adjustedRoleplayers.coverAmount = 0;
 				adjustedRoleplayers.push(life);
 			}
 		});
@@ -1113,6 +1114,7 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedFuneralPolicyContractReference = createPolicyResponse.result.contractReference;
 		super.isOnlyProductEnquiry = false;
 		this.contractReference = createPolicyResponse.result.contractReference;
+		this.selectedFuneralPolicyProductCode = createPolicyResponse.result.productCode;
 
 		await this._generateDocumentsFuneralReissue(false);
 		const resinstatePolicyResponse = {
@@ -1142,16 +1144,16 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+		if (benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.ACTIVATE);
 		}
 
+		this.VPPEmailActionActivate = true;
 		return activateBenefitResponse.result;
-	
 	}
 
 	async executeFuneralCancelBenefit(benefitType, policy) {
-		this.selectedFuneralPolicyContractReference = policy.contractReference
+		this.selectedFuneralPolicyContractReference = policy.contractReference;
 		const cancelBenefitRequest = {
 			"contractReference": policy.contractReference,
 			"benefitType": benefitType,
@@ -1168,7 +1170,7 @@ export class ExistingClient extends InsureViewBase {
 		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.CANCEL);
 		}
-		
+		this.VPPEmailActionActivate = false;
 
 		return cancelBenefitResponse.result;
 	
@@ -1199,11 +1201,11 @@ export class ExistingClient extends InsureViewBase {
 			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 		} else {
 
-			this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
 
 			benefitInfo = {
-				"benefitStartDate": this.vppBenefit.benefitStartDate ,
-				"benefitEndDate": this.vppBenefit.benefitEndDate,
+				"benefitStartDate": vppBenefit.benefitStartDate ,
+				"benefitEndDate": vppBenefit.benefitEndDate,
 				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
 			}
 		}
@@ -2017,7 +2019,7 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 		this.clientConfirmedEmail = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = e.detail.productCode;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
@@ -2394,6 +2396,7 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
+				@refresh-funeral-policies = "${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
 			</horizon-insure-client-summary>`;
 	}

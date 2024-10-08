@@ -373,6 +373,7 @@ class FuneralUpdatePlan extends Component {
 				this.beneOnlyRowId = 0;
 			}
 			this.policyDetails.roleplayers[this.lifeAssuredToRemove].lifeAssured = false;
+			this.policyDetails.roleplayers[this.lifeAssuredToRemove].coverAmount = 0;
 		} else {
 			this.policyDetails.roleplayers.splice(this.lifeAssuredToRemove, 1);
 			// Reshuffle
@@ -1196,8 +1197,6 @@ class FuneralUpdatePlan extends Component {
 			this.showUpdateValidationDialog = true;
 			return;
 		}
-
-		await this._calculatePremium();
 
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 		if (isNullorEmpty(this.createPolicyResponse.issuePlanAgreement)) {
@@ -2434,7 +2433,7 @@ class FuneralUpdatePlan extends Component {
 				
 				<capitec-text-field label="ID" type="numeric" maxlength="13" style="width: 50%" 
 					value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" 
-					?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`}"
+					?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || this.policyDetails.policyRule !== `Standard`}"
 					error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails.idNumberErrorMessage}"
 					@value-changed="${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}">
 				</capitec-text-field>
@@ -2491,7 +2490,7 @@ class FuneralUpdatePlan extends Component {
 			</capitec-text-field>
 		</div>
 		<div class="expander-options">
-			${!this._checkBeneficiaryDobRule(roleplayer) || this.policyDetails.policyRule !== `Standard`
+			${!this._checkBeneficiaryDobRule(roleplayer) || (roleplayer.lifeAssured == true && this.policyDetails.policyRule !== `Standard`)
 				? html`
 					<capitec-text-field label="Date of birth" style="width: 50%" disabled
 						value="${formatDateToInsure(roleplayer?.dateOfBirth)}">
@@ -2508,7 +2507,7 @@ class FuneralUpdatePlan extends Component {
 			
 			<capitec-text-field label="ID" style="width: 50%" 
 				value="${isNullorEmpty(roleplayer?.idNumber) ? `` : roleplayer?.idNumber}" type="numeric" maxlength="13"
-				?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship)}"
+				?disabled="${!this._policyRuleAllowsChange(`editIDNumber`, roleplayer.relationship) || roleplayer.lifeAssured == true && this.policyDetails.policyRule !== `Standard`}"
 				error="${roleplayer?.coverDetails?.idNumberErrorMessage === undefined ? `` : roleplayer?.coverDetails?.idNumberErrorMessage}"
 				@value-changed = "${(e) => this._lifeIDValueChanged(e, roleplayer.rowID)}" >
 			</capitec-text-field>

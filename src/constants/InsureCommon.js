@@ -269,7 +269,7 @@ export const INSURE_CALLER_PAGE = Object.freeze({
  * List of document types
  * 
  * @readonly
- * @enum {Object} INSURE_CALLER_PAGE
+ * @enum {Object} DOCUMENT_TYPE
  */
 export const DOCUMENT_TYPE = Object.freeze({
 	ISSUE_POLICY_AGREEMENT: `IssuePolicyAgreement`,
@@ -596,4 +596,26 @@ export const LIFE_BENEFIT_PERIOD = Object.freeze({
 export const LIFE_POLICY_RULES = Object.freeze({
 	MATERNITY_WAIVER: `MaternityWaiver`,
 	STANDARD: `Standard`
+});
+
+/**
+ * FEATURE_TOGGLES
+ *
+ * @readonly
+ * @enum {Object} FEATURE_TOGGLES
+ */
+export const FEATURE_TOGGLES = Object.freeze({
+	Estimate: `Estimate`,
+	UpdatePolicy: `UpdatePolicy`,
+	CancelPolicy: `CancelPolicy`,
+	Claim: `Claim`,
+	AdhocPayment: `AdhocPayment`,
+	WaiverWaitingPeriod: `WaiverWaitingPeriod`,
+	Emailing: `Emailing`,
+	ActivatePolicyPause: `ActivatePolicyPause`,
+	ActivateNewBorn: `ActivateNewBorn`,
+	CancelPolicyPause: `CancelPolicyPause`,
+	CancelNewBorn: `CancelNewBorn`,
+	IssuePolicy: `IssuePolicy`,
+	ReissuePolicy: `ReissuePolicy`
 });

@@ -502,7 +502,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 			return this.mock(`insureUpdateIdDob`);
 		}
 		return this.post(
-			`/horizon-insurance/funeral/api/updateIdDob`,
+			`/horizon-insurance/funeral/api/update-id-dob`,
 			updateIdDobRequest,
 			this._setInsureHeaders(),
 			`updateIdDob`,
@@ -555,7 +555,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 		}
 		return this.post(
 			`/horizon-insurance/funeral/api/policy/benefit/cancel`,
-			activateBenefitRequest,
+			cancelBenefitRequest,
 			this._setInsureHeaders(),
 			`cancelBenefit`,
 			null,
