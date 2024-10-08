@@ -159,6 +159,15 @@ class PolicyHistoryDetailsDialog extends Component {
 				gap: 10px;
 			}
 
+			.details-content-box{
+				max-height: 450px;
+				height: fit-content;
+			}
+
+			.details-label{
+				width: 50%;
+			}
+
 			`
 		];
 	}
@@ -171,7 +180,7 @@ class PolicyHistoryDetailsDialog extends Component {
 		return html`
 			<capitec-modal type="form" class="modal-body-label" header="Activity Details" header-align="left" style="--theme-modal-header-color: black; --theme-modal-form-m-l-xl-width: 900px;">
 				<div slot="body" class="modal-body">
-					<capitec-content-box style="max-height: 450px; height: fit-content;" layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-content-box class="details-content-box" layout="vertical" halign="stretch" valign="top" gap="clear">
 						${this._renderDialogBody()}
 					</capitec-content-box>
 				</div>
@@ -193,14 +202,14 @@ class PolicyHistoryDetailsDialog extends Component {
 				${this.policyHistoryDetails?.map((item) => html`
 						<capitec-card class="policy-transaction-card" halign="center" valign="center" layout="vertical">
 							<div class="transaction-container">
-								<div style="width: 50%;">
+								<div class="details-label">
 									<horizon-label
 										label="Field"
 										textOverflow="ellipsis"
 										value="${item.fieldName.replace(/([a-z])([A-Z])/g, '$1 $2')}">
 									</horizon-label>
 								</div>
-								<div style="width: 50%;">
+								<div class="details-label">
 									<horizon-label 
 										label="Value"
 										textOverflow="ellipsis"
