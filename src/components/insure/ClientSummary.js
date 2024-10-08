@@ -2283,7 +2283,6 @@ class ClientSummary extends Component {
 	 * @returns {html} html content for the life policy
 	 */
 	_renderActiveLifePolicy(activeLifePolicy) {
-		console.log(activeLifePolicy);
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
 				<div class="life-policy-container">
