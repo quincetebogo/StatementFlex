@@ -1273,7 +1273,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
+				.disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -1336,7 +1336,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" .disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -2283,6 +2283,7 @@ class ClientSummary extends Component {
 	 * @returns {html} html content for the life policy
 	 */
 	_renderActiveLifePolicy(activeLifePolicy) {
+		console.log(activeLifePolicy);
 		return html`
 			<capitec-card class="life-policy" halign="center" valign="center" layout="vertical">
 				<div class="life-policy-container">
@@ -2353,7 +2354,7 @@ class ClientSummary extends Component {
 			}
 
 					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy.benefit.benefitStatus === LIFE_BENEFIT_DOT_TYPES.ACTIVE}"@click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
