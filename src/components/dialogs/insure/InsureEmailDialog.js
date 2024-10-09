@@ -257,7 +257,7 @@ class InsureEmailDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal data-automation-id="insure-email-modal" type="form" style="font-weight: bold;" 
+		<capitec-modal data-automation-id="insure-email-modal" type="form" style="font-weight: bold; z-index: 4000;" 
 			header="${this.titleMessage}" header-align="left">
 			<div slot="body" class="insure-email-modal-body">
 				${this._renderBody()}

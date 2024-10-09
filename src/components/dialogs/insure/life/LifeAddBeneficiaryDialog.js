@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -85,7 +85,7 @@ class LifeAddBeneficiaryDialog extends Component {
 			allocateMoneyErrorMessage: { type: String, state: true },
 
 			newBeneficiary: { type: Object, state: true },
-			newBeneficiaryErrors: { type: Object, state: true },
+			newBeneficiaryErrors: { type: Array, state: true },
 
 			totalPocketCover: { type: Number, state: true },
 			pocketRemainingCover: { type: Number, state: true }
@@ -362,7 +362,6 @@ class LifeAddBeneficiaryDialog extends Component {
 			} else {
 				this.newBeneficiary.dateOfBirth = e.detail.new.date;
 			}
-
 			this._validateBeneficiaryDetails();
 		}
 		if (!isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
@@ -385,7 +384,6 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (!isNullorEmpty(this.newBeneficiary.contactEmail)) {
 			this.newBeneficiaryErrors.contactEmail = ``;
 		}
-
 	}
 
 	/**
@@ -414,11 +412,20 @@ class LifeAddBeneficiaryDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			this.newBeneficiary.idNumber = e.detail.new;
 		}
-		if (this.newBeneficiary.idNumber.length === 13) {
+		if (isValidRSAIdNumber(this.newBeneficiary.idNumber)) {
 			this.newBeneficiary.dateOfBirth = getDobFromIDNumber(this.newBeneficiary.idNumber);
 			this.newBeneficiaryErrors.idNumber = ``;
-			this.requestUpdate();
+
+			// Age check
+			if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) < 18) {
+				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			} else {
+				this.newBeneficiaryErrors.dateOfBirth = ``;
+			}
+		} else {
+			this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 		}
+		this.requestUpdate();
 	}
 
 	/**
@@ -484,10 +491,12 @@ class LifeAddBeneficiaryDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.newBeneficiary.idNumber)) {
-			if (this.newBeneficiary.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.newBeneficiary.idNumber)) {
 				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			}
+		} else {
+			this.newBeneficiaryErrors.idNumber = ``;
 		}
 
 		if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
@@ -502,7 +511,6 @@ class LifeAddBeneficiaryDialog extends Component {
 		} else {
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
-
 		return stepValid;
 	}
 
@@ -962,7 +970,7 @@ class LifeAddBeneficiaryDialog extends Component {
 					maxlength="13" 
 					type="numeric"
 					value="${this.newBeneficiary?.idNumber}"
-					error="${this.newBeneficiaryErrors?.idNumber === undefined ? `` : this.newBeneficiaryErrors.idNumber}"
+					error="${this.newBeneficiaryErrors?.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
 
