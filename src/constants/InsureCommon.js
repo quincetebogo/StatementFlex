@@ -153,35 +153,52 @@ export const DEBIT_ORDER_DAY_OPTIONS = Object.freeze([
 ]);
 
 /**
- * List of genders Insure supports
+ * List of cancel reasons for funeral - client care
  * 
  * @readonly
- * @enum {Object} CANCELATION_REASONS
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_CLIENTCARE
  */
-export const CANCELATION_REASONS = Object.freeze([
-
+export const CANCELATION_REASONS_FUNERAL_CLIENTCARE = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
 	{ code: `Other_Provider`, text: `Policy with other service provider` },
 	{ code: `Already_Covered`, text: `Already covered` },
 	{ code: `Confidential`, text: `Confidential` }
-	// { code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
-	// { code: `Audit`, text: `Internal audit compliance` },
-	// { code: `Invalid`, text: `Invalid policy` },
-	// { code: ``, text: `Global One savings account is closed` }
 ]);
 
 /**
- * List of cancelation reasons Life supports
+ * List of cancel reasons for funeral - backoffice
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS_FUNERAL_BACKOFFICE
+ */
+export const CANCELATION_REASONS_FUNERAL_BACKOFFICE = Object.freeze([
+	{ code: `Insurer_Cancelled`, text: `Insurer cancelled policy` },
+	{ code: `Audit`, text: `Internal audit compliance` },
+	{ code: `Invalid`, text: `Invalid policy` }
+]);
+
+
+/**
+ * List of cancelation reasons Life supports - client care
  * 
  * @readonly
  * @enum {Object} CANCELATION_REASONS
  */
-export const LIFE_CANCELATION_REASONS = Object.freeze([
-	{ code: `BetterOffAtAnotherProvider`, text: `Better off at another provider` },
-	{ code: `CannotAffordPolicy`, text: `Cannot Afford Policy` },
+export const LIFE_CANCELATION_REASONS_CLIENTCARE = Object.freeze([
+	{ code: `CannotAffordPolicy`, text: `Affordability` },
+	{ code: `BetterOffAtAnotherProvider`, text: `Policy with other service provider` },
+	{ code: `CoveredByAnotherFamilyMember`, text: `Already covered` },
+	{ code: `Confidential`, text: `Confidential` }
+]);
+
+/**
+ * List of cancel reasons for life - backoffice
+ * 
+ * @readonly
+ * @enum {Object} CANCELATION_REASONS_LIFE_BACKOFFICE
+ */
+export const LIFE_CANCELATION_REASONS_BACKOFFICE = Object.freeze([
 	{ code: `ChangeInFamilyCircumstances`, text: `Change in family circumstances` },
-	{ code: `Confidential`, text: `Confidential` },
-	{ code: `CoveredByAnotherFamilyMember`, text: `Covered by another family member` },
 	{ code: `InsurerCancelledPolicy`, text: `Insurer cancelled policy` },
 	{ code: `publicAuditCompliance`, text: `Internal Audit Compliance` },
 	{ code: `InvalidPolicy`, text: `Invalid Policy` },
@@ -241,7 +258,10 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	FUNERAL_CLIENT_POLICIES: 6,
 	LIFE_CANCEL_POLICY_DIALOG: 7,
 	LIFE_UPDATE_POLICY_DIALOG: 8,
-	LIFE_REISSUE_DIALOG: 9
+	LIFE_REISSUE_DIALOG: 9,
+	LIFE_INCREASE_COVER_DIALOG: 10,
+	FUNERAL_UPDATE_ID_DOB_DIALOG: 11,
+	FUNERAL_VPP: 12
 });
 
 /**
@@ -256,7 +276,9 @@ export const DOCUMENT_TYPE = Object.freeze({
 	CANCEL_POLICY_AGREEMENT: `CancelPolicyAgreement`,
 	PAYMENT_MANDATE_AGREEMENT: `PaymentMandateAgreement`,
 	PAY_ARREARS_AGREEMENT: `PayArrearsAgreement`,
-	ESTIMATE_AGREEMENT: `EstimatePrintout`
+	ESTIMATE_AGREEMENT: `EstimatePrintout`,
+	ISSUE_BENEFIT_AGREEMENT: `IssueBenefitAgreement`,
+	CANCEL_BENEFIT_AGREEMENT: `CancelBenefitAgreement`,
 });
 
 /**
@@ -317,7 +339,10 @@ export const POLICY_OPTIONS = Object.freeze({
 	CANCEL_PLAN: `CancelPlan`,
 	TRANSACTION_HISTORY: `TransactionHistory`,
 	SMS_HISTORY: `SMSHistory`,
-	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`
+	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
+	UPDATE_ID_DOB: `UpdateIdDob`,
+	VOLUNTARY_PAUSE: `VoluntaryPause`,
+	NEW_BORN_WAIVER: `NewBornWaiver`
 });
 
 
@@ -370,10 +395,21 @@ export const INSURE_TABS = Object.freeze({
 });
 
 /**
- * Tabs for Insure product
+ * Policy pause reasons
+ * 
+ * @readonly
+ * @enum {Object} POLICY_PAUSE_REASONS
+ */
+export const POLICY_PAUSE_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Other `, text: `Other ` }
+]);
+
+/**
+ * Global one generic details
  *
  * @readonly
- * @enum {Object} INSURE_TABS
+ * @enum {Object} GLOBAL_ONE_GENERIC_DETAILS
  */
 export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
 	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
@@ -397,7 +433,8 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	LAPSED: `Lapsed`,
 	NOT_TAKEN_UP: `NotTakenUp`,
 	CANCELLED: `Cancelled`,
-	OUT_OF_FORCE: `OutOfForce `
+	OUT_OF_FORCE: `OutOfForce`,
+	COOL_OFF: `CoolOff`
 });
 
 /**
@@ -446,3 +483,60 @@ export const LIFE_CHILD_RELATIONSHIP_TYPES = Object.freeze([
 	{ code: `ExtendedFamily`, text: `Extended Family` },
 	{ code: `Others`, text: `Other` }
 ]);
+
+
+/**
+ * Reasons for Activating Funeral benefits
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_REASONS
+ */
+export const FUN_BENEFIT_REASONS = Object.freeze([
+	{ code: `Affordability`, text: `Affordability` },
+	{ code: `Pregnancy`, text: `Pregnancy` }
+]);
+
+/**
+ * FUN_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_TYPES
+ */
+export const FUN_BENEFIT_TYPES = Object.freeze({
+	POLICY_PAUSE: `VoluntaryPolicyPause`,
+	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
+});
+
+/**
+ * FUN_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_BENEFIT_TYPES
+ */
+export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
+	POLICY_PAUSE: `PolicyPause`,
+	NEW_BORN: `NewBorn`
+});
+
+/**
+ * FUN_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_POLICY_TYPES
+ */
+export const FUN_POLICY_RULES = Object.freeze({
+	POLICY_PAUSE: `PolicyPause`,
+	MATERNITY_WAIVER: `MaternityWaiver`,
+	STANDARD: `Standard`
+});
+
+/**
+ * FUN_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} FUN_POLICY_TYPES
+ */
+export const FUN_BENEFIT_PERIOD = Object.freeze({
+	PERIOD: 6
+	
+});
+

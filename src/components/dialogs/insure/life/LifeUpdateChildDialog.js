@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -15,7 +15,7 @@ const VALIDATION_ERRORS = {
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	INVALID_EMAIL: `Enter a valid email address`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`
 };
 
@@ -150,7 +150,7 @@ class LifeUpdateChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 
-		steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+		steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 
 		return steps;
 	}
@@ -369,8 +369,6 @@ class LifeUpdateChildDialog extends Component {
 					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 				}
 			}
-
-			// this._validateBeneficiaryDetails();
 		}
 		this.requestUpdate();
 	}
@@ -417,34 +415,56 @@ class LifeUpdateChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.updatingChild.idNumber = e.detail.new;
-				if (this.updatingChild.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.updatingChild.idNumber)) {
 					this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
 					this.childErrors.idNumber = ``;
 					if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
 						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 					} else {
 						this.childErrors.dateOfBirth = ``;
-					}
-
-					;
+					};
+				} else {
+					this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			} else {
 				this.updatingGuardian.idNumber = e.detail.new;
-				if (this.updatingGuardian.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.updatingGuardian.idNumber)) {
 					this.updatingGuardian.dateOfBirth = getDobFromIDNumber(this.updatingGuardian.idNumber);
 					this.updatingGuardianErrors.idNumber = ``;
-					if (getAgeFromDob(this.updatingChild.dateOfBirth) < 18) {
+					if (getAgeFromDob(this.updatingGuardian.dateOfBirth) < 18) {
 						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 					} else {
 						this.updatingGuardianErrors.dateOfBirth = ``;
 					}
-					
+				} else {
+					this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			}
-			
-
 		}
 		this.requestUpdate();
+	}
+
+	/**
+	 * Event fired when a beneficiary EMAIL value changes
+	 * 
+	 * @param {event} e e
+	 * @param {beneficiary} beneficiary determines whether beneficiary or guardian
+	 * @returns {void}
+	 */
+	_emailChange(e, beneficiary) {
+		if (e.detail.old !== e.detail.new) {
+			if (beneficiary) {
+				this.updatingChild.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.updatingChild.contactEmail)) {
+					this.childErrors.contactEmail = ``;
+				}
+			} else {
+				this.updatingGuardian.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.updatingGuardian.contactEmail)) {
+					this.updatingGuardianErrors.contactEmail = ``;
+				}
+			}
+		}
 	}
 
 	// #endregion PRIVATE METHODS
@@ -558,7 +578,7 @@ class LifeUpdateChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.updatingChild?.idNumber)) {
-			if (this.updatingChild?.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.updatingChild?.idNumber)) {
 				this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			}
@@ -643,7 +663,7 @@ class LifeUpdateChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.updatingGuardian.idNumber)) {
-			if (this.updatingGuardian.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.updatingGuardian.idNumber)) {
 				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
@@ -715,7 +735,8 @@ class LifeUpdateChildDialog extends Component {
 			this.dispatchEvent(new CustomEvent(`update-child`, {
 				detail: {
 					child: this.updatingChild,
-					guardian: guardian
+					guardian: guardian,
+					pocketBeneficiaries: this.pocketBeneficiaries
 				}
 			}));
 		}
@@ -1095,6 +1116,7 @@ class LifeUpdateChildDialog extends Component {
 					style="width: 50%" 
 					maxlength="13" 
 					type="numeric"
+					value="${this.updatingChild?.idNumber}"
 					error="${this.childErrors?.idNumber === undefined ? `` : this.childErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, true)}">
 				</capitec-text-field>
