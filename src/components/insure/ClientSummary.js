@@ -1217,7 +1217,7 @@ class ClientSummary extends Component {
 		if (this.isInsureAdministrator) {
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
-			policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
+			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		}
 
 		
