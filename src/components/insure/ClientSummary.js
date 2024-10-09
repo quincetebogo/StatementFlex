@@ -129,6 +129,8 @@ class ClientSummary extends Component {
 
 		this.telemetryEvents = {};
 		this.isOnlyProductEnquiry = true;
+		this.showFeatureBanner = false;
+		this.featureBannerMessage = ``;
 
 		this.showLifeEmailDialog = false;
 		this.lifeUpdateMode = ``;
@@ -305,10 +307,12 @@ class ClientSummary extends Component {
 			setInsureIncident: { type: Object, state: true },
 			newOffer: { type: Object, state: true },
 			newOfferAnswers: { type: Array, state: true },
-
 			mainLifeIdNumber: { type: String, state: true },
 
-			lifeUpdateMode: { type: String, state: true }
+			lifeUpdateMode: { type: String, state: true },
+			
+			showFeatureBanner: { type: Boolean, state: true },
+			featureBannerMessage: { type: String, state: true },
 		};
 	}
 
@@ -1551,6 +1555,7 @@ class ClientSummary extends Component {
 			this._openHealthQuestionsDialog(this.selectedLifePolicy, LIFE_UPDATE_MODE.INCREASE);
 		}
 	}
+
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -2047,7 +2052,16 @@ class ClientSummary extends Component {
 							</capitec-overflow-menu>
 						`}
 				</capitec-title-bar>
+				${this.showFeatureBanner === true ? html`
+					<div style="padding: 10px;">
+						<horizon-alert-banner
+							label="${this.featureBannerMessage}"
+							type="warning">
+						</horizon-alert-banner>
+					</div>	
+				` : html``}
 				${this._renderInsureTabs()}
+				
 		</capitec-card>`;
 	}
 

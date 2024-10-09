@@ -131,19 +131,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-			{
-				type: "NewBornPremiumWaiver",
-				available: true,
-				availableDate: "2023-08-21T02:00:00Z",
-				isBenefitActive: false
-			},
-			{
-				type: "VoluntaryPolicyPause",
-				available: true,
-				availableDate: "2025-02-21T02:00:00Z",
-				isBenefitActive: false
-			}
-		],
+          {
+            type: "NewBornPremiumWaiver",
+            available: true,
+            availableDate: "2023-08-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+          {
+            type: "VoluntaryPolicyPause",
+            available: true,
+            availableDate: "2025-02-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+        ],
         mandates: [
           {
             mandateType: `EFT`,
@@ -536,19 +536,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-			{
-				type: "NewBornPremiumWaiver",
-				available: true,
-				availableDate: "2023-08-21T02:00:00Z",
-				isBenefitActive: false
-			},
-			{
-				type: "VoluntaryPolicyPause",
-				available: true,
-				availableDate: "2025-02-21T02:00:00Z",
-				isBenefitActive: false
-			}
-		],
+          {
+            type: "NewBornPremiumWaiver",
+            available: true,
+            availableDate: "2023-08-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+          {
+            type: "VoluntaryPolicyPause",
+            available: true,
+            availableDate: "2025-02-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+        ],
         mandates: [
           {
             mandateType: `EFT`,
@@ -940,20 +940,20 @@ export const ClientSummary = {
           nextPaymentDate: `2022-05-04T22:00:00.0000000+00:00`,
           nextPaymentAmount: 120.8,
         },
-		benefits: [
-			{
-				type: "NewBornPremiumWaiver",
-				available: true,
-				availableDate: "2023-08-21T02:00:00Z",
-				isBenefitActive: false
-			},
-			{
-				type: "VoluntaryPolicyPause",
-				available: true,
-				availableDate: "2025-02-21T02:00:00Z",
-				isBenefitActive: false
-			}
-		],
+        benefits: [
+          {
+            type: "NewBornPremiumWaiver",
+            available: true,
+            availableDate: "2023-08-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+          {
+            type: "VoluntaryPolicyPause",
+            available: true,
+            availableDate: "2025-02-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+        ],
         mandates: [
           {
             mandateType: `EFT`,
@@ -1211,19 +1211,19 @@ export const ClientSummary = {
           nextPaymentAmount: 255.2,
         },
         benefits: [
-			{
-				type: "NewBornPremiumWaiver",
-				available: false,
-				availableDate: "2023-08-21T02:00:00Z",
-				isBenefitActive: false
-			},
-			{
-				type: "VoluntaryPolicyPause",
-				available: false,
-				availableDate: "2025-02-21T02:00:00Z",
-				isBenefitActive: false
-			}
-		],
+          {
+            type: "NewBornPremiumWaiver",
+            available: false,
+            availableDate: "2023-08-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+          {
+            type: "VoluntaryPolicyPause",
+            available: false,
+            availableDate: "2025-02-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+        ],
         mandates: [
           {
             mandateType: `EFT`,
@@ -1616,19 +1616,19 @@ export const ClientSummary = {
           nextPaymentAmount: 120.8,
         },
         benefits: [
-			{
-				type: "NewBornPremiumWaiver",
-				available: false,
-				availableDate: "2023-08-21T02:00:00Z",
-				isBenefitActive: false
-			},
-			{
-				type: "VoluntaryPolicyPause",
-				available: false,
-				availableDate: "2025-02-21T02:00:00Z",
-				isBenefitActive: false
-			}
-		],
+          {
+            type: "NewBornPremiumWaiver",
+            available: false,
+            availableDate: "2023-08-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+          {
+            type: "VoluntaryPolicyPause",
+            available: false,
+            availableDate: "2025-02-21T02:00:00Z",
+            isBenefitActive: false,
+          },
+        ],
         mandates: [
           {
             mandateType: `EFT`,
@@ -3543,67 +3543,88 @@ export const ClientSummary = {
       {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "Estimate",
-        feature: "Estimate"
+        message: "",
+        feature: "ActivateNewBorn",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "UpdatePolicy",
-        feature: "UpdatePolicy"
+        message: "",
+        feature: "ActivatePolicyPause",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "CancelPolicy",
-        feature: "CancelPolicy"
+        message: "",
+        feature: "AdhocPayment",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "ReissuePolicy",
-        feature: "ReissuePolicy"
+        message: "Heads up: We're in mock mode! Please don't ask these policies for directions—they're just here for a good time!",
+        feature: "Banner",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "AdhocPayment",
-        feature: "AdhocPayment"
+        message: "",
+        feature: "CancelNewBorn",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "WaiverWaitingPeriod",
-        feature: "WaiverWaitingPeriod"
+        message: "",
+        feature: "CancelPolicy",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "ActivatePolicyPause",
-        feature: "ActivatePolicyPause"
+        message: "",
+        feature: "CancelPolicyPause",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "Emailing",
-        feature: "Emailing"
+        message: "",
+        feature: "Claim",
       },
-	  {
+      {
         enabled: true,
         visible: true,
-        message: "string",
-        featureName: "WaiverWaitingPeriod",
-        feature: "WaiverWaitingPeriod"
-      }
-    ]
+        message: "",
+        feature: "Emailing",
+      },
+      {
+        enabled: true,
+        visible: true,
+        message: "",
+        feature: "Estimate",
+      },
+      {
+        enabled: true,
+        visible: true,
+        message: "",
+        feature: "IssuePolicy",
+      },
+      {
+        enabled: true,
+        visible: true,
+        message: "",
+        feature: "ReissuePolicy",
+      },
+      {
+        enabled: false,
+        visible: true,
+        message: "",
+        feature: "UpdatePolicy",
+      },
+      {
+        enabled: true,
+        visible: true,
+        message: "",
+        feature: "WaiverWaitingPeriod",
+      },
+    ],
   },
   success: true,
 };
