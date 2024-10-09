@@ -537,18 +537,18 @@ export const LIFE_BENEFIT_TYPES = Object.freeze({
  * @readonly
  * @enum {Object} FUN_BENEFIT_TYPES
  */
-export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
+export const FUN_CLIENT_SUMMARY_BENEFIT_TYPES = Object.freeze({
 	POLICY_PAUSE: `VoluntaryPolicyPause`,
 	NEW_BORN: `NewBornPremiumWaiver`
 });
 
 /**
- * LIFE_BENEFIT_DOT_TYPES
+ * LIFE_CLIENT_SUMMARY_BENEFIT_TYPES
  *
  * @readonly
  * @enum {Object} LIFE_BENEFIT_TYPES
  */
-export const LIFE_BENEFIT_DOT_TYPES = Object.freeze({
+export const LIFE_CLIENT_SUMMARY_BENEFIT_TYPES = Object.freeze({
 	ACTIVE: `Active`,
 	INACTIVE: `Inactive`
 });

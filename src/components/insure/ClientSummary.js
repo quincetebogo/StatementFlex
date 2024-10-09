@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_BENEFIT_DOT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, getAgeFromIDNumber, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
@@ -9,7 +9,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
-import { FUN_POLICY_RULES, FUN_BENEFIT_DOT_TYPES } from 'app/constants/InsureCommon';
+import { FUN_POLICY_RULES, FUN_CLIENT_SUMMARY_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonExpander';
@@ -1204,12 +1204,12 @@ class ClientSummary extends Component {
 		
 		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
 
-		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 		if ((vppBenefit?.available || vppBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
 
-		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
 		if ((newBornBenefit?.available || newBornBenefit?.isBenefitActive) && policyItem.status === `Active`) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
@@ -1217,7 +1217,7 @@ class ClientSummary extends Component {
 		if (this.isInsureAdministrator) {
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
-			policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
+			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		}
 
 		
@@ -1273,7 +1273,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
+				.disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -1336,7 +1336,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" .disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${(this.isInsureAgent || this.isInsureAdministrator) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -2353,7 +2353,7 @@ class ClientSummary extends Component {
 			}
 
 					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy.benefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE}"@click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -2365,7 +2365,7 @@ class ClientSummary extends Component {
 						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 						
 					${this.isInsureAdministrator && activeLifePolicy.newBornPremiumWaiverAvailable
-        				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy.benefit.benefitStatus === LIFE_BENEFIT_DOT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewBornPremiumWaiverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+        				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy.benefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewBornPremiumWaiverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 						: html``
 					}
 					</capitec-overflow-menu>

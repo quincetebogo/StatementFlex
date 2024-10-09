@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { FUN_BENEFIT_DOT_TYPES, FUN_POLICY_RULES, POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_POLICY_RULES, POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -118,10 +118,10 @@ class FuneralPolicySummary extends Component {
 
 	_determineBenefit() {
 		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
-			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
 			return `Newborn Premium Waiver`;
 		} else if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
-			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 			return `Policy Pause`;
 		}
 	}

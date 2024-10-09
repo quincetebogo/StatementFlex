@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { FUN_BENEFIT_REASONS, FUN_POLICY_RULES, FUN_BENEFIT_DOT_TYPES, FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
+import { FUN_BENEFIT_REASONS, FUN_POLICY_RULES, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import 'app/components/dialogs/insure/AgreementDialog';
 
@@ -85,7 +85,7 @@ class NewbornPremiumWaiverDialog extends Component {
 	 */
 	async _initialise() {
 
-		this.nbpwBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+		this.nbpwBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
 
 		if (this.nbpwBenefit.isBenefitActive) {
 			this.cancelBenefit = true;

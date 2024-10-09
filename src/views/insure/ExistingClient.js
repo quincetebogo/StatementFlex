@@ -1,4 +1,4 @@
-import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_BENEFIT_DOT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -1201,7 +1201,7 @@ export class ExistingClient extends InsureViewBase {
 			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 		} else {
 
-			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 
 			benefitInfo = {
 				"benefitStartDate": vppBenefit.benefitStartDate ,
