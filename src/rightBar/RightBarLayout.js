@@ -97,8 +97,9 @@ export class RightBarLayout extends Component {
 	}
 
 	_renderInfoGraphic() {
-		return this.callerInformation?.verificationStatus === `unverified` && this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES
-			&& !this.roleManager.isInsureAgent
+		return this.callerInformation?.verificationStatus === `unverified` && 
+			this.horizonViewManager.getCurrentView() !== HORIZON_VIEW_SET.LANDING_PAGES && 
+			!this.roleManager.isInsureAgent && !this.roleManager.isInsureAdministrator
 		 ? html`
 			<section>
 				<horizon-info-graphic-short></horizon-info-graphic-short>

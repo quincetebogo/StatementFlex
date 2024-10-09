@@ -17,6 +17,7 @@ export const LIFE_COVER_ERROR_MESSAGES = {
 	EDUCATION_MAX_BENEFICIARIES: `Maximum of 10 beneficiaries allowed for education fund`,
 	MAIN_LIFE_ID_MATCH: `Main life and beneficiary cannot be the same person`,
 	MAIN_LIFE_CELL_MATCH: `Main life and beneficiary cellphone number cannot be the same`,
+	INCREASE_COVER_LESS_CURRENT_COVER: `Your new cover can not be less than your original cover of {0}`
 };
 
 /**
@@ -280,7 +281,7 @@ export function policyAllowsEditing(ruleType, productParams, field, relationship
  * @param {date} date Date to be formatted 
  * @return {string} formatted date
  */
-function _formatDateToDDMMYYYY(date) {
+ function _formatDateToDDMMYYYY(date) {
 	const newdate = new Date(Date.parse(date));
 	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 }
@@ -528,7 +529,7 @@ export function determineInactiveLifePolicies(lifePolicies) {
 	if (isNullorEmpty(lifePolicies)) {
 		return null;
 	}
-	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE);
+	return lifePolicies.filter(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.CANCELLED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSED || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NOT_TAKEN_UP || policy.policyStatusEnum === LIFE_POLICY_STATUSES.OUT_OF_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.COOL_OFF);
 }
 
 /**
@@ -548,4 +549,43 @@ export function getDobFromIDNumber(idNumber) {
 		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
 
 		return birthDateString;
+}
+
+/**
+ * Validate and return true if idNumber is valid
+ * @param {string} idNumber idNumber to validate  
+ * @returns {boolean} boolean
+ */
+export function isValidRSAIdNumber(idNumber) {
+	let isValid = true;
+
+	if (idNumber.length !== 13 || !isFinite(idNumber)) {
+        isValid = false;
+    }
+
+	const tempDate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+	const idDate = tempDate.getDate();
+    const idMonth = tempDate.getMonth();
+
+    if (!((tempDate.getYear().toString() === idNumber.substring(0, 2).toString() || `0${tempDate.getYear().toString()}` === idNumber.substring(0, 2).toString()) && 
+		idMonth.toString() === (idNumber.substring(2, 4) - 1).toString() &&
+		(idDate.toString() === idNumber.substring(4, 6).toString() || `0${idDate.toString()}` === idNumber.substring(4, 6).toString()))) {
+        isValid = false;
+    }
+
+    let tempTotal = 0;
+    let checkSum = 0;
+    let multiplier = 1;
+    for (let i = 0; i < 13; ++i) {
+        tempTotal = parseInt(idNumber.charAt(i), 10) * multiplier;
+        if (tempTotal > 9) {
+            tempTotal = parseInt(tempTotal.toString().charAt(0), 10) + parseInt(tempTotal.toString().charAt(1), 10);
+        }
+        checkSum += tempTotal;
+        multiplier = multiplier % 2 === 0 ? 1 : 2;
+    }
+    if (checkSum % 10 !== 0) {
+        isValid = false;
+    };
+    return isValid;
 }
