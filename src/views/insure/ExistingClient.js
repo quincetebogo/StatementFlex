@@ -1,4 +1,4 @@
-import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -196,7 +196,6 @@ export class ExistingClient extends InsureViewBase {
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			coverAvailableAnswers: { type: Array, state: true },
 			funeralBenefitAgreementDocument: { type: Object, state: true },
-
 		};
 	}
 
@@ -229,7 +228,31 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.initFeaturesBanner();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
+	}
+
+	/**
+	 * Set feature flags banner
+	 * @returns {void}
+	 */
+	initFeaturesBanner() {
+		if(this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
+			this.showFeatureBanner = false;
+			this.featureBannerMessage = ``;
+			return;
+		}
+
+		const featureBannerDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === FEATURE_TOGGLES.Banner.toUpperCase());
+		if(featureBannerDetails !== undefined) {
+			if(featureBannerDetails.enabled === true) {
+				this.showFeatureBanner = true;
+				this.featureBannerMessage = featureBannerDetails.message;
+			} else {
+				this.showFeatureBanner = false;
+				this.featureBannerMessage = ``;
+			}
+		}
 	}
 
 	// --- Document Generation
@@ -2397,7 +2420,9 @@ export class ExistingClient extends InsureViewBase {
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
 				@refresh-funeral-policies = "${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
+				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
+				.showFeatureBanner="${this.showFeatureBanner}"
+				.featureBannerMessage="${this.featureBannerMessage}">
 			</horizon-insure-client-summary>`;
 	}
 

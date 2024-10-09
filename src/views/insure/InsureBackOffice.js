@@ -30,7 +30,7 @@ import 'app/components/insure/life/LifeSMSHistory';
 
 import { formatCurrency } from 'app/productControls/utilities/Currency';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, FUN_BENEFIT_PERIOD, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE, LIFE_CANCELATION_REASONS_BACKOFFICE } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_BACKOFFICE, DOCUMENT_TYPE, FUN_BENEFIT_PERIOD, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, INSURE_CALLER_PAGE, LIFE_CANCELATION_REASONS_BACKOFFICE, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 
 const INSURE_PRODUCT_START_DATE = `2001/01/01`;
 
@@ -179,7 +179,31 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
+		this.initFeaturesBanner();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
+	}
+
+	/**
+	 * Set feature flags banner
+	 * @returns {void}
+	 */
+	initFeaturesBanner() {
+		if(this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
+			this.showFeatureBanner = false;
+			this.featureBannerMessage = ``;
+			return;
+		}
+
+		const featureBannerDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === FEATURE_TOGGLES.Banner.toUpperCase());
+		if(featureBannerDetails !== undefined) {
+			if(featureBannerDetails.enabled === true) {
+				this.showFeatureBanner = true;
+				this.featureBannerMessage = featureBannerDetails.message;
+			} else {
+				this.showFeatureBanner = false;
+				this.featureBannerMessage = ``;
+			}
+		}
 	}
 
 	/**
@@ -1868,7 +1892,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
-				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
+				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
+				.showFeatureBanner="${this.showFeatureBanner}"
+				.featureBannerMessage="${this.featureBannerMessage}">
 			</horizon-insure-client-summary>`;
 	}
 

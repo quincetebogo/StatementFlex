@@ -617,5 +617,6 @@ export const FEATURE_TOGGLES = Object.freeze({
 	CancelPolicyPause: `CancelPolicyPause`,
 	CancelNewBorn: `CancelNewBorn`,
 	IssuePolicy: `IssuePolicy`,
-	ReissuePolicy: `ReissuePolicy`
+	ReissuePolicy: `ReissuePolicy`,
+	Banner: `Banner`
 });
