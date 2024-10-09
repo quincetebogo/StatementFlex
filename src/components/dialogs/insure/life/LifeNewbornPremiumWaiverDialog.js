@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { LIFE_BENEFIT_DOT_TYPES, LIFE_BENEFIT_REASONS, LIFE_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
+import { LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_BENEFIT_REASONS, LIFE_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import 'app/components/dialogs/insure/AgreementDialog';
 
@@ -87,7 +87,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	async _initialise() {
 
 		this.nbpwBenefit = this.policy.benefit;
-		if (this.nbpwBenefit.benefitStatus === LIFE_BENEFIT_DOT_TYPES.ACTIVE) {
+		if (this.nbpwBenefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE) {
 			this.cancelBenefit = true;
 			this.lifeBenefitDetails = await this.fetchLifeBenefitDetails(this.policy.contractReference);
 
