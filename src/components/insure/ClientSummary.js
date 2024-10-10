@@ -1,4 +1,4 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, css, html, unsafeHTML } from 'platform/elements';
 import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, getAgeFromIDNumber, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -2053,15 +2053,11 @@ class ClientSummary extends Component {
 						`}
 				</capitec-title-bar>
 				${this.showFeatureBanner === true ? html`
-					<div style="padding: 10px;">
-						<horizon-alert-banner
-							label="${this.featureBannerMessage}"
-							type="warning">
-						</horizon-alert-banner>
-					</div>	
+					<div style="background-color: #f9ebdd; padding: 0px 10px; margin: 10px; border-radius: 10px">
+						${unsafeHTML(this.featureBannerMessage)}
+					</div>
 				` : html``}
 				${this._renderInsureTabs()}
-				
 		</capitec-card>`;
 	}
 
