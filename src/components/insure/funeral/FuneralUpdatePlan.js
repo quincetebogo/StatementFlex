@@ -783,9 +783,10 @@ class FuneralUpdatePlan extends Component {
 	 */
 	_getBank() {
 		let bank = this.bankOptions.find(banks => banks.branchCode === this.policyDetails.deductionDetails?.bankDetails?.branchCode.toUpperCase().trim());
-        if (isNullorEmpty(bank?.text)) {
-            bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
-        }
+		if (isNullorEmpty(bank?.text)) {
+			bank = this.bankOptions.find(banks => banks.code === this.policyDetails.deductionDetails?.bankDetails?.bank.toUpperCase().trim());
+		}
+		return bank?.text;
 	}
 
 	/**
