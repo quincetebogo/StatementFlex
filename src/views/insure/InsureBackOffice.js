@@ -1469,7 +1469,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 			activityId: activityID,
 			productCode: policy.productCode
 		}
-
 		const response = await this.insureFuneralService.policyHistoryDetails(request);
 
 		if (!response.succeeded) {
@@ -1502,7 +1501,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {void} 
 	 */
 	_goToClaimSummary(e) {
-		this.claimSummary = e.detail;
+		this.claimSummary = e.detail.claim;
 		this.selectedInsureTabIndex = e.detail.selectedInsureTabIndex;
 		this._navigateToSubView(INSURE_RENDER_MODE.CLAIM_SUMMARY);
 	}

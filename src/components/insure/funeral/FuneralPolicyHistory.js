@@ -32,9 +32,7 @@ class FuneralPolicyHistory extends Component {
 		super();
 
 		this.filteredData = [];
-		this.hideLoadMore = true;
 		this.showHistoryDetailsDialog = false
-
 	}
 
 	// #endregion
@@ -51,11 +49,11 @@ class FuneralPolicyHistory extends Component {
 			endDate: { type: String, state: true },
 			filteredData: { type: Array, state: true },
 			policyHistory: { type: Array, state: true },
-			hideLoadMore: { type: Boolean, state: true },
 			showHistoryDetailsDialog: { type: Boolean, state: true },
 			policy: { type: Object, state: true },
 			fetchPolicyHistory: { type: Function, state: true },
-			fetchPolicyHistoryDetails: { type: Function, state: true }
+			fetchPolicyHistoryDetails: { type: Function, state: true },
+			transactionName: { type: String, state: true },
 		};
 	}
 
@@ -86,8 +84,6 @@ class FuneralPolicyHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
 
 		this.policyHistory = await this.fetchPolicyHistory(this.startDate, this.endDate, this.policy)
-
-
 
 		this.filteredData = [];
 		if (!isNullorEmpty(this.policyHistory)) {
@@ -226,10 +222,10 @@ class FuneralPolicyHistory extends Component {
 	 * @param {event} e e
 	 * @return {void} 
 	 */
-		_scrollToTop() {
-			const element = this.shadowRoot.getElementById(`policy-transactions-table`);
-			element.scrollTop = 0;
-		}
+	_scrollToTop() {
+		const element = this.shadowRoot.getElementById(`policy-transactions-table`);
+		element.scrollTop = 0;
+	}
 
 
 	/**
@@ -237,18 +233,13 @@ class FuneralPolicyHistory extends Component {
 	 * @returns {void}
 	 */
 	_navigateToSummary() {
-		this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {
-			detail: {
-			}
-		}));
+		this.dispatchEvent(new CustomEvent(`navigate-to-summary`, {detail: {}}));
 	}
 
 	async _openTransactionDetailsDialog(item) {
 		this.policyHistoryDetails = await this.fetchPolicyHistoryDetails(item.activityGuid, this.policy);
-
-		if (this.policyHistoryDetails?.length !== 0) {
-			this.showHistoryDetailsDialog = true;
-		}
+		this.transactionName = item.transactionName;
+		this.showHistoryDetailsDialog = true;		
 	}
 
 	// #endregion EVENT HANDLERS
@@ -351,6 +342,7 @@ class FuneralPolicyHistory extends Component {
 				--theme-layout-gap-line-color: 0px;
 				height: 661px;
 				width: 100%;
+				margin-bottom: 30px;
 			}
 			
 			.transaction-container{
@@ -359,7 +351,7 @@ class FuneralPolicyHistory extends Component {
 
 			.view-transaction-details-label{
 				position: relative;
-				left: 180px;
+				padding-left: 180px;
 				top: 10px;
 				cursor: pointer;
 
@@ -417,7 +409,7 @@ class FuneralPolicyHistory extends Component {
 				<capitec-content-box class="history-view" id="policy-transactions-table">
 					${this._renderPolicyHistory()}
 				</capitec-content-box>
-				${this._renderFooter()}
+				
 			</capitec-group>
 		</capitec-card>
 		`;
@@ -525,31 +517,6 @@ class FuneralPolicyHistory extends Component {
 			: html``;
 	}
 
-	/**
-	 * Show load more feature in the footer
-	 * @returns {html} - content of footer
-	 */
-	_renderFooter() {
-		return html`
-			<capitec-action-bar class="load-more-bar" ?hidden="${this.hideLoadMore || this.filteredData?.length === 0}">
-				<capitec-spacer></capitec-spacer>
-				<capitec-button
-					type="clear"
-					label="Load More"
-					@click = ${() => this._loadMoreTransactions()}
-					data-automation-id="policy-transaction-history-load-more">
-				</capitec-button>
-				<capitec-spacer></capitec-spacer>
-				<capitec-icon
-					class='scroll-top'
-					size="medium"
-					icon="system/arrow-up-action"
-					@click = ${() => this._scrollToTop()}
-					data-automation-id="policy-transaction-history-scroll-top">
-				</capitec-icon>
-			</capitec-action-bar>`;
-	}
-
 	_renderPolicyHistory() {
 		return this.filteredData?.Length !== 0 ? html`
 
@@ -581,7 +548,7 @@ class FuneralPolicyHistory extends Component {
 					</div>
 					<div style="width: 30%">
 						<capitec-label class="view-transaction-details-label" type="strong" label="View Details"
-							@click="${(item) => this._openTransactionDetailsDialog(item)}">
+							@click="${() => this._openTransactionDetailsDialog(item)}">
 						</capitec-label>
 					</div>
 				</div>	
@@ -637,6 +604,7 @@ class FuneralPolicyHistory extends Component {
 		: html`
 			<horizon-insure-policy-history-details-dialog
 				.policyHistoryDetails="${this.policyHistoryDetails}"
+				.transactionName="${this.transactionName}"
 				@close-modal="${() => this.showHistoryDetailsDialog = false}">
 			</horizon-insure-policy-history-details-dialog>
 		`;
