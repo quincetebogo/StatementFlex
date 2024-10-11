@@ -1222,9 +1222,9 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
 			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
+		}else if(this.isInsureAgent){
+			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		}
-
-		
 	}
 
 	/**
@@ -2649,7 +2649,7 @@ class ClientSummary extends Component {
 								<div>•Help with obtaining a death certificate for your loved one</div>
 								<div>•Help with the arrangement of a burial or cremation (all funeral costs are for your account and not Capitec's)</div>
 								<div>
-									•This service allows the transport of your or a loved one’s body from the place of death within South Africa and neighbouring countries to the funeral home of choice closest to the place of burial in South Africa. The place of death must be at least 50km from the place of burial
+									•This service allows the transport of your or a loved one’s body from the place of death within South Africa and neighbouring countries to the funeral home of choice closest to the place of burial in South Africa.
 								</div>
 								<div>
 									•If you need help to transport the deceased, you can contact our Funeral Support directly on 0860 77 75 54 or request a call back on our app or WhatsApp us on 067 418 9565.
