@@ -88,10 +88,16 @@ export class BeneAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
+		<strong>You/Your Beneficiary:</strong>
 		<ul>
-			<li>Your Beneficiary will be paid amount allocated to them when you pass away after 6 months or double the amount allocated if your death is accidental</li>
-			<li>Please make sure that they’re aware of this policy and claims process </li>
-			<li>Your beneficiary will not be paid if you die due to participation in illegal acts, active participation in war. Civil commotion illegal trikes and other reasons as set out in your policy</li>
+			<li>Your Beneficiary will be paid the amount allocated to them when you pass away of natural death after the 6-month waiting period where applicable</li>
+			<li>Your Beneficiary will be paid double the amount allocated to them if your death is accidental​</li>
+			<li>Please make sure that your nominated Beneficiary is aware of this policy as well as the Claims process​</li>
+			<li>Your Beneficiary will not be paid if you die due to participating in illegal acts, active participation in war, civil commotion, illegal strikes etc and other reasons set out in your Policy. The full list of exclusions is listed in the funeral plan agreement​​</li>
+		</ul>
+		<strong>Premiums:</strong>
+		<ul>
+			<li>Note any premiums in arrears will be deducted from the cover amount payable</li>
 		</ul>
 		`;
 		
