@@ -2303,7 +2303,7 @@ class FuneralUpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`DO`)}"
 			type="${this._getAlertBannerType(this.agreementDOAccepted)}" header="Disclosure:"
-			label="I agree to Debit Order agreement disclosure">
+			label="I agree to the Debit Order stipulated in this Agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -2315,7 +2315,7 @@ class FuneralUpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`PCA`)}"
 			type="${this._getAlertBannerType(this.agreementPCAAccepted)}" header="Disclosure:"
-			label="I agree to Premium and Cover Amount agreement disclosure">
+			label="I agree to the Premium and Cover Amount stipulated in this Agreement disclosure">
 		</capitec-alert-banner>`;
 	}
 
@@ -2327,7 +2327,7 @@ class FuneralUpdatePlan extends Component {
 		return html`
 		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`Bene`)}"
 			type="${this._getAlertBannerType(this.agreementBeneAccepted)}" header="Disclosure:"
-			label="I agree to Beneficiaries agreement disclosure">
+			label="I agree to the Beneficiaries Agreement stipulated in this disclosure">
 		</capitec-alert-banner>`;
 	}
 
