@@ -359,8 +359,8 @@ export const POLICY_OPTIONS = Object.freeze({
  */
 export const POLICY_RULES = Object.freeze({
 	STANDARD: `Standard`,
-	POLICYPAUSE: `Policy Pause`,
-	MATERNITYWAIVER: `New Born Waiver`
+	POLICYPAUSE: `Voluntary Policy Pause`,
+	MATERNITYWAIVER: `Newborn Premium Waiver`
 });
 
 /**
