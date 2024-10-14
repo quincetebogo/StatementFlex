@@ -1219,20 +1219,9 @@ export class ExistingClient extends InsureViewBase {
 	async _fetchBenefitAgreement(saveDocument, policy, action) {
 
 		let benefitInfo = {}
-		
-		if ( action === ACTION_TYPE.ACTIVATE) {
-			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
-		} else {
 
-			let vppBenefit = policy.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
+		benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 
-			benefitInfo = {
-				"benefitStartDate": vppBenefit.benefitStartDate ,
-				"benefitEndDate": vppBenefit.benefitEndDate,
-				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
-			}
-		}
-		
 		let dob = new Date(this.callerInformation.birthdate);
 		
 		const benefitAgreementRequest = {
