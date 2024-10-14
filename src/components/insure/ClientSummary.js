@@ -1692,7 +1692,7 @@ class ClientSummary extends Component {
 				border-top: 0px;
 			}
 			.expander-header > horizon-label[label="Status"] {
-				width: 200px;
+				width: 203px;
 				text-overflow: ellipsis;
 			}
 			#life-policy-status > horizon-label[label="Status"] {
