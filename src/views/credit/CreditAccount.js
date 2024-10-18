@@ -223,7 +223,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	get cardClassificationType() {
-		return [`CARD_AUTH_SETTLED`, `CARD_AUTH_FINANCIAL`, `FINANCIAL`];
+		return [`CARD_AUTH_SETTLED`, `CARD_AUTH_FINANCIAL`, `FINANCIAL`, `CARD_AUTHORISATION`];
 	}
 
 	get cardSpendGroupToDispute() {
