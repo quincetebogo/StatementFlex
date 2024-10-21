@@ -221,7 +221,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -245,7 +245,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -549,6 +549,22 @@
 			"positiveCase": true
 		},
 		"insureUpdateIdDob": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCreateMandate": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyReschedulePlanAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyHistoryDetails": {
 			"enabled": true,
 			"positiveCase": true
 		}

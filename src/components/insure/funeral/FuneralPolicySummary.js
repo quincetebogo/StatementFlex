@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { FUN_BENEFIT_DOT_TYPES, FUN_POLICY_RULES, POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_POLICY_RULES, POLICY_RULES, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatDate, formatPhoneNumber, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -118,10 +118,10 @@ class FuneralPolicySummary extends Component {
 
 	_determineBenefit() {
 		if (this.policyDetails?.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) {
-			this.benefitDetails = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.NEW_BORN);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
 			return `Newborn Premium Waiver`;
 		} else if (this.policyDetails?.policyRule === FUN_POLICY_RULES.POLICY_PAUSE) {
-			this.benefitDetails = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+			this.benefitDetails = this.policyDetails.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 			return `Policy Pause`;
 		}
 	}
@@ -699,7 +699,7 @@ class FuneralPolicySummary extends Component {
 				<horizon-label label="Initial amount"
 					value="${isNullorEmpty(mandate.initialInstalmentAmount) ? formatCurrency(0) : formatCurrency(mandate.initialInstalmentAmount)}">
 				</horizon-label>
-				<horizon-label label="Number of debit instalments"
+				<horizon-label label="Number of debit installments"
 					value="${isNullorEmpty(mandate.numberOfDebitInstalments) ? `-` : mandate.numberOfDebitInstalments}">
 				</horizon-label>
 			</capitec-group>
@@ -743,7 +743,7 @@ class FuneralPolicySummary extends Component {
 							<div class="vertical-line"></div>
 							<horizon-label
 								label="Status"
-								value="${`Active`}"
+								value="${this.benefitDetails?.isBenefitActive ? `Active` : `Inactive`}"
 								class="column-width-200 ${`active-status`}">
 							</horizon-label>
 					</capitec-group>
@@ -762,13 +762,13 @@ class FuneralPolicySummary extends Component {
 		<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
 			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label label="Start date"
-					value="${isNullorEmpty(this.benefitDetails?.benefitStartDate) ? `-` : formatDate(this.benefitDetails?.benefitStartDate, `dd/mm/yyyy`)}">
+					value="${isNullorEmpty(this.benefitDetails?.benefitStartDate) ? `-` : formatDate(this.benefitDetails?.benefitStartDate, `dd mmm yyyy`)}">
 				</horizon-label>
 				<horizon-label label="End date"
-					value="${isNullorEmpty(this.benefitDetails?.benefitEndDate) ? `-` : formatDate(this.benefitDetails?.benefitEndDate, `dd/mm/yyyy`)}">
+					value="${isNullorEmpty(this.benefitDetails?.benefitEndDate) ? `-` : formatDate(this.benefitDetails?.benefitEndDate, `dd mmm yyyy`)}">
 				</horizon-label>
 				<horizon-label label="Next Collection Date"
-					value="${isNullorEmpty(this.policy?.paymentSchedule?.nextPaymentDate) ? `-` : formatDate(this.policy?.paymentSchedule?.nextPaymentDate, `dd/mm/yyyy`)}">
+					value="${isNullorEmpty(this.policyDetails?.paymentSchedule?.nextPaymentDate) ? `-` : formatDate(this.policyDetails?.paymentSchedule?.nextPaymentDate, `dd mmm yyyy`)}">
 				</horizon-label>
 			</capitec-group>
 		`;

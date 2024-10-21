@@ -88,13 +88,21 @@ export class PCAAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
+		<strong>Cover Amount</strong>
 		<ul>
-			<li>Lives are immediately covered for accidental death</li>
-			<li>Please remember that there is a 6 month waiting period for natural death & suicide </li>
-			<li>The details you provided must be correct. Incorrect information could have negative impact on  your claim and policy </li>
-			<li>You confirm that you’ve listed family members living in SA permanently and related as detailed in schedule </li>
-			<li>There is a limitation on cover on children that restricts payout to a certain amount across all polices </li>
-		</ul>`;
+			<li>All lives assured are covered immediately for accidental death​</li>
+			<li>Please remember that there is a 6-month waiting period for natural death and suicide​</li>
+			<li>The details you have provided to us must always be correct. Any incorrect information could have a negative impact on your claim and policy in future​</li>
+			<li>You confirm that all your family members including yourself live in South Africa permanently​</li>
+			<li>Please note Legal limits apply to the total cover paid for children across our Funeral Plans​</li>
+		</ul>
+		<strong>Premiums</strong>
+		<ul>
+			<li>Must be made in full every month</li>
+			<li>The amount may change if you make updates to your policy; or a live assured dies​</li>
+			<li>We will give you 31 days' notice before we make changes to terms, including changes to your premiums​</li>
+		</ul>
+		`;
 	}
 
 	/**
