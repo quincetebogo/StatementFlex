@@ -109,37 +109,42 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		if (this.productCode === INSURE_PRODUCT_CODE.CAPITEC) {
-			return html`<strong>Capitec:</strong>
+			return html`
+				<p>This product is provided by Capitec Life, a licenced life insurer (FSP54090)</p>
+				<strong>Capitec Bank:</strong>
 				<ul class="no-margin">
-					<li>is a licensed financial services provider;</li>
-					<li>earns a commission of 3.25% from the Insurer;</li>
+					<li>Is a licenced financial services provider​</li>
+					<li>Earns a commission of 1.5% and a binder fee of 0.6%</li>
 				</ul>
-				<p>This plan is underwritten by Capitec Life Insurance Company Limited.</p>
-				<p><strong>I:</strong></p>
-
+				<strong>I:</strong>
 				<ul class="no-margin">
-					<li>work for Capitec who is liable for this service;</li>
-					<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+					<li>Am a representative of Capitec Bank who is responsible for this service;</li>
+					<li>Cannot give you advice but will give you information about the Capitec Funeral Plan.​</li>
 				</ul>
 				<p><strong>You:</strong></p>
 				<ul class="no-margin">
-					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
-					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
+					<li>Must have an active Capitec savings account to have a Funeral Plan;​</li>
+					<li>Cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
 		} else if (this.productCode === INSURE_PRODUCT_CODE.CENTRIQ || this.productCode === INSURE_PRODUCT_CODE.SANLAM) {
-			return html` <strong>Capitec:</strong>
+			return html` 
+				<strong>Product and parties:</strong>
 				<ul class="no-margin">
-					<li>is a licensed financial services provider;</li>
+					<li>Policy provided by Centriq Limited, a licenced insurer (FSP7370)</li>
+					<li>Administered by Capitec Bank Limited (FSP46669)</li>
+					<li>Claims are assessed by Capitec Life (FSP54090)</li>
+				</ul>
+				<strong>Capitec Bank:</strong>
+				<ul class="no-margin">
 					<li>earns a commission of 3.25% from the Insurer;</li>
 					<li>holds preference shares in Centriq and may receive a dividend</li>
 				</ul>
-				<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorised Financial Services Provider</p>
-				<p>I:</p>
+				<strong>I:</strong>
 				<ul class="no-margin">
-					<li>work for Capitec who is liable for this service;</li>
-					<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+					<li>Am a representative of Capitec Bank who is responsible for this service;​</li>
+					<li>Cannot give you advice but will give you information about the Capitec Funeral Plan.</li>
 				</ul>
-				<p>You:</p>
+				<strong>You:</strong>
 				<ul class="no-margin">
 					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
