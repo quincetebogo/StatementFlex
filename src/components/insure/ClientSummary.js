@@ -1286,7 +1286,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Update Plan" 
 				icon="system/profile-action"
-				.disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.UpdatePolicy)}"
+				.disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.UpdatePolicy) || this._disableUpdateIfBenefitActive(policyItem)}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
@@ -1386,7 +1386,7 @@ class ClientSummary extends Component {
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
-					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) || !this._featureEnabled(FEATURE_TOGGLES.ActivateNewBorn)}">
+					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) || !this._featureEnabled(FEATURE_TOGGLES.ActivateNewBorn) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.GENERATE_AGREEMENT:
 				return html`<capitec-overflow-menu-item icon="system/documents-action"
@@ -1466,7 +1466,7 @@ class ClientSummary extends Component {
 	 */
 	_getFuneralPolicyDisplayStatus(policyItem) {
 		let displayStatus = policyItem?.displayStatus;
-		if (policyItem?.policyRule !== `Standard`) {
+		if (policyItem?.policyRule !== FUN_POLICY_RULES.STANDARD) {
 			displayStatus = POLICY_RULES[policyItem?.policyRule.toUpperCase()];
 		}
 		return displayStatus;
@@ -1554,6 +1554,19 @@ class ClientSummary extends Component {
 		} else if (this.selectedLifeUpdateMode === LIFE_UPDATE_MODE.INCREASE) {
 			this._openHealthQuestionsDialog(this.selectedLifePolicy, LIFE_UPDATE_MODE.INCREASE);
 		}
+	}
+
+	_disableUpdateIfBenefitActive(policy) {
+
+		const benefitsActive = false;
+
+		for (let i = 0; i < policy.benefits.length; i++) {
+			if (policy.benefits[i].isBenefitActive) {
+				benefitsActive = true;
+			}
+		}
+
+		return benefitsActive;
 	}
 
 	// #endregion PRIVATE FUNCTIONS
