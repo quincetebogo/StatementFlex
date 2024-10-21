@@ -1558,7 +1558,7 @@ class ClientSummary extends Component {
 
 	_disableUpdateIfBenefitActive(policy) {
 
-		const benefitsActive = false;
+		let benefitsActive = false;
 
 		for (let i = 0; i < policy.benefits.length; i++) {
 			if (policy.benefits[i].isBenefitActive) {
