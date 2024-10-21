@@ -68,6 +68,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 
 		this.securityContext = SecurityContext.getInstance();
+		this.isDisputableWithdrawal = true;
     }
 
     // -------------------
@@ -120,8 +121,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         };
     }
 
-	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`, `CSH_CASH_WITHDRWL`];
+	get cardClassificationType() {
+		return [`CARD_AUTH_SETTLED`, `CARD_AUTH_FINANCIAL`, `FINANCIAL`, `CARD_AUTHORISATION`];
+	}
+
+	get cardSpendGroupToDispute() {
+		return [`CASH_WITHDRAWAL`, `CARD_TRANSACTION`, `CARD_SUBSCRIPTION`, `CARD_SUBSCRIPTION_FOR_EXCLUDED_MERCHANTS`, `CARD_AUTHORISATION_TRANSACTION`];
 	}
 
     // --------------
@@ -234,24 +239,23 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
         if (returnValue.succeeded && returnValue.result) {
             const formattedTrans = returnValue.result.transactions
-                .map((item) => {
-                    const date = new Date(Date.parse(item.transactionDate));
-					const today = new Date();
-					const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
-
-					item.description = item.statementDescription;
-                    item.tranDate = date;
-                    item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-                    item.formatedAmount = formatCurrency(item.amount);
-                    item.formatedBalance = formatCurrency(item.balance);
-					item.isDomesticWithdrawl = () => item.transactionCode === `4060` && isNullorEmpty(item.currency);
-					item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
-					item.hideDisputeBtn = item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540();
-					item.checked = false;
-					item.disableCheck = item.hideDisputeBtn;
-
-                    return item;
-                });
+			.map((item) => {
+				const date = new Date(Date.parse(item.transactionDate));
+				const today = new Date();
+				const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
+				const isDisputable = this.cardClassificationType.includes(item.transactionStatus) && this.cardSpendGroupToDispute.includes(item.spendGroup); // To replace 4060 transCode check
+				item.description = item.statementDescription;
+				item.tranDate = date;
+				item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+				item.formatedAmount = formatCurrency(item.amount);
+				item.formatedBalance = formatCurrency(item.balance);
+				item.isDomesticWithdrawl = () => item.spendGroup === `CASH_WITHDRAWAL` && isNullorEmpty(item.currency);
+				item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
+				item.hideDisputeBtn = item.disputeFlag || !isDisputable || item.isTranDateOlderThan540() || item.isDomesticWithdrawl();
+				item.checked = false;
+				item.disableCheck = item.hideDisputeBtn;
+				return item;
+			});
             this.transactionHistory.push(...formattedTrans);
             this.accountDetails = {
                 "Account number": this.landingPageInfo.accountNumber,
@@ -389,6 +393,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 							})),
 			"incident": this.cueSheetIncident,
 			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": this.landingPageInfo.accountNumber,
 			"agentId": `${this.securityContext.username}`
 		};
 		const returnValue = await this.savingsService.getFirstQuestion(request);

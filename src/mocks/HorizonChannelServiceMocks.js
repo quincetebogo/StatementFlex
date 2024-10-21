@@ -64,6 +64,7 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await loadMockModule(this.creditMocks, `settlementQuoteLanding`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
@@ -507,6 +508,22 @@ export default class HorizonChannelServiceMocks {
 	settleAndCloseQuote() {
 		if (this._mockSettings.settleAndCloseQuote.positiveCase) {
 			return this.creditMocks.settleAndCloseQuote;
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+
+			throw httpError;
+		});
+
+		return errPromise;
+
+	}
+	settlementQuoteLanding() {
+		if (this._mockSettings.settlementQuoteLanding.positiveCase) {
+			return this.creditMocks.settlementQuoteLanding;
 		}
 
 		const errPromise = new Promise(() => {
