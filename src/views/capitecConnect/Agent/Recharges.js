@@ -132,9 +132,19 @@ export class CapitecConnectAgentRecharges extends ViewBase {
     this.showTable = true;
   }
 
+	_handleVoucherInfoConfirm() {
+		if (this.serialNumber === "") {
+			return;
+		}
+		this.showVoucherInfomationModal = false;
+		this.voucherInfoLoading = true;
+		this._getVoucherInformation(this.serialNumber);
+		this._getVoucherHistory(this.serialNumber);
+	}
+	
+
   async _getVoucherInformation(voucherSerialNumber) {
     try {
-      this.voucherInfoLoading = true;
       const response = await this.capitecConnectService.getVoucherInformation(
         voucherSerialNumber
       );
@@ -164,7 +174,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
   async _getVoucherHistory(voucherSerialNumber) {
     try {
-      this.voucherHistoryLoading = true;
       const response = await this.capitecConnectService.getVoucherHistory(
         voucherSerialNumber
       );
@@ -792,10 +801,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
             style="margin-right: 16px;
 						margin-top: 10px"
             label="Voucher Information"
-            @click="${() => {
-              this._getVoucherInformation(this.serialNumber);
-              this._getVoucherHistory(this.serialNumber);
-            }}"
+						?disabled = "${this.serialNumber === ''}"
+            @click="${() => this._handleVoucherInfoConfirm()}"
           >
           </capitec-hyperlink>
           <capitec-hyperlink
@@ -918,11 +925,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
                   ></capitec-table-column>
                   <capitec-table-column
                     label="Timestamp"
-                    .renderer="${(item) => formatDateAndTime(new Date())}"
+                    .renderer="${(item) => formatDateAndTime(item.statusDate)}"
                   ></capitec-table-column>
                   <capitec-table-column
                     label="Success/Fail"
-                    .renderer="${(item) => formatDateAndTime(new Date())}"
+                    .renderer="${(item) => formatDateAndTime(item.statusDate)}"
                   ></capitec-table-column>
                 </capitec-table>
               </div>`
@@ -1323,11 +1330,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
               slot="footer"
               type="primary"
               label="Confirm"
-              @click="${() => {
-                this.showVoucherInfomationModal = false;
-                this._getVoucherInformation(this.serialNumber);
-                this._getVoucherHistory(this.serialNumber);
-              }}"
+              @click="${() => this._handleVoucherInfoConfirm()}"
             ></capitec-button>`
           : html`<capitec-button
               slot="footer"
