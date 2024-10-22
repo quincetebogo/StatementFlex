@@ -168,7 +168,7 @@ export class CreditAccount extends ViewBase {
 
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(clientNeed, () => this._toggleBusyFlag());
 
 				const { permissionResult, declineReasons, declineMessage } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -277,7 +277,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
@@ -598,7 +598,7 @@ export class CreditAccount extends ViewBase {
 				this.horizonStore.clearScreenDetails();
 				this.horizonStore.clearReturnScreen();
 			} else {
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs

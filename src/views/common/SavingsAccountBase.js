@@ -164,7 +164,7 @@ export class SavingsAccountBase extends ViewBase {
 		const action = `debi-check-${debiCheckAction}`;
 
 		if (mandateActions[action]) {
-			await super._inicidentManager_(action, () => this._toggleBusyFlag());
+			await super.handleMultipleNeed(action, () => this._toggleBusyFlag());
 
 			this.debiCheckDetails = await this._getMandateDetails();
 			return mandateActions[action](screenDetails);
@@ -244,7 +244,7 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
-		await super._inicidentManager_(`debi-check-viewInfo`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`debi-check-viewInfo`, () => this._toggleBusyFlag());
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -435,7 +435,7 @@ export class SavingsAccountBase extends ViewBase {
 	async _statementsAccConfirmed(event) {
 		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 	}
 
 	// ---------

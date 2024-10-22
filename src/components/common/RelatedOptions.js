@@ -160,7 +160,7 @@ export class RelatedOptions extends Component {
 		};
 
 			if (actions[item]) {
-				await super._inicidentManager_(item, () => this._toggleBusyFlag());
+			await super.handleMultipleNeed(item, () => this._toggleBusyFlag());
 				return actions[item](item);
 			}
 
@@ -191,7 +191,7 @@ export class RelatedOptions extends Component {
 	async _statementsAccConfirmed(event) {
 		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 	}
 
 	// ---------------

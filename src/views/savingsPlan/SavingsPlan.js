@@ -136,7 +136,7 @@ export class SavingsPlan extends ViewBase {
 			};
 
 			if (actions[option]) {
-				await super._inicidentManager_(`${option}-save`, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(`${option}-save`, () => this._toggleBusyFlag());
 				return actions[option]();
 			}
 		};
@@ -196,7 +196,7 @@ export class SavingsPlan extends ViewBase {
 		};
 
 		if (saveProducts[this.accountViewType]) {
-			await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+			await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
 			
 			await super.createAndClassifySubIncident(null, false);
 			
@@ -247,7 +247,7 @@ export class SavingsPlan extends ViewBase {
 					return;
 				}
 
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
@@ -450,7 +450,7 @@ export class SavingsPlan extends ViewBase {
 
 		// Updating current need to be specific to Save Type ie; Flexible or fixed term to classify an incident based on type.
 		const need = savePlanDetails.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible-save-transaction-history` : `fixed-save-transaction-history`;
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 		this.savePlanDetails = savePlanDetails;
 
 		await super.createAndClassifySubIncident(null, false);
@@ -732,7 +732,7 @@ export class SavingsPlan extends ViewBase {
 
 		// Updating current need to be specific to unlock Type ie; Full or Partial unlock to classify an incident based on type.
 		const need = UNLOCK_TYPE[event.detail.unlockType] === `Full` ? `full-ftsp-unlock` : `partial-ftsp-unlock`;
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 			
 		const screenDetails = this.horizonStore.getScreenDetails();
 

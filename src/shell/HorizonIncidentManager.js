@@ -286,18 +286,18 @@ export class HorizonIncidentManager {
 		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
-		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		Component.prototype.handleMultipleNeed = (clientNeed, toggleBusyFlag) => this.handleMultipleNeed(clientNeed, toggleBusyFlag);
 		Component.prototype.createAndClassifySubIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubIncident(toggleBusyFlag, incidentCategorization, classify);
 		Component.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
 		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
 
-		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		View.prototype.handleMultipleNeed = (clientNeed, toggleBusyFlag) => this.handleMultipleNeed(clientNeed, toggleBusyFlag);
 		View.prototype.createAndClassifySubIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubIncident(toggleBusyFlag, incidentCategorization, classify);
 		View.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
 		View.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
 	}
 
-	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
+	async handleMultipleNeed(clientNeed, toggleBusyFlag) {
 		const horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 		const currentNeed = horizonIncidentManager.getCurrentNeed();

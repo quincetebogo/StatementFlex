@@ -164,7 +164,7 @@ export class Favourites extends SavingsAccountBase {
 			};
 
 			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(option, () => this._toggleBusyFlag());
 				return actions[option]();
 			}
 
@@ -418,7 +418,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.proofOfPaymentDetails = event.detail;
 
-		await super._inicidentManager_(`payshap-pop`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`payshap-pop`, () => this._toggleBusyFlag());
 
 		this.renderMode = RENDER_MODE.PAYSHAP_POP;
 
@@ -1020,7 +1020,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _setCapitecBankAsDefault() {
-		await super._inicidentManager_(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
 		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
@@ -1046,7 +1046,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _removeCapitecBankAsDefault() {
-		await super._inicidentManager_(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
 		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
@@ -1136,7 +1136,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _cancelPOPModal() {
-		await super._inicidentManager_(`payshap`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`payshap`, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
@@ -1159,7 +1159,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _deactivateCardTransactions(event) {
-		await super._inicidentManager_(`update-card-settings`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`update-card-settings`, () => this._toggleBusyFlag());
 
 		// service call to deactivate online purchases and International transactions
 		const requestDetails = event.detail.cardsListToDeactivate?.map(card => {

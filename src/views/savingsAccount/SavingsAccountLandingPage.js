@@ -97,7 +97,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             };
 
             if (actions[option]) {
-                await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(option, () => this._toggleBusyFlag());
                 return actions[option]();
             }
         };
@@ -180,7 +180,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				// Do not create subs inc on performing return to screen
 				if (!this.horizonStore.getReturnToScreen()) {
-					await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+					await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
 					await super.createAndClassifySubIncident(null, false);
 
 					// setting inc status to not started for landing page needs
@@ -329,7 +329,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
         });
 
-		await super._inicidentManager_(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
 
 		await super.createAndClassifySubIncident(null, false);
 

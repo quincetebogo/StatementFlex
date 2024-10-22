@@ -115,7 +115,7 @@ export class AccessChannels extends Component {
 			};
 
 			if (actions[need]) {
-				await super._inicidentManager_(need, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 				return actions[need]();
 			}
 			return true;
@@ -627,7 +627,7 @@ export class AccessChannels extends Component {
 	}
 
 	async _confirmSuspend(request, need) {
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
 		});

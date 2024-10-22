@@ -107,7 +107,7 @@ export class LiveBetter extends SavingsAccountBase {
 			};
 	
 			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(option, () => this._toggleBusyFlag());
 				return actions[option]();
 			}
 		};
@@ -372,7 +372,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
 
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
+				await super.handleMultipleNeed(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
 				
 				// setting inc status to not started for landing page needs

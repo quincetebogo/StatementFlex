@@ -54,7 +54,7 @@ export class StopCardLandingPage extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+		super.handleMultipleNeed(`stop-card`, () => this._toggleBusyFlag());
 
 		const state = this.horizonStore.recoverState();
 		this.landingPageInfo = state.landingPageInfo;
@@ -124,7 +124,7 @@ export class StopCardLandingPage extends ViewBase {
 			"next-screen": TelemetryScreen.CARD_HISTORY_PAGE
 		});
 
-		await super._inicidentManager_(`card-history`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`card-history`, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident();
 
 		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.horizonIncidentManager.getIncidentDetails());

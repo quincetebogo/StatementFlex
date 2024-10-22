@@ -191,7 +191,7 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	async _confirmSuspend(request, need) {
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
 		});

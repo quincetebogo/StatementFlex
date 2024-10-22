@@ -361,7 +361,7 @@ export class ConfirmCallerDetails extends Component {
 			return;
 		}
 		
-		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(`update-language-preference`, () => this._toggleBusyFlag());
 		this.languagePreference = e.detail.new.key;
 
 		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);

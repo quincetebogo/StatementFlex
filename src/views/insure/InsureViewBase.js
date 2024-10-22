@@ -83,7 +83,7 @@ export class InsureViewBase extends ViewBase {
 	}
 
 	async setInsureIncident(need) {
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident(null, false);
 	}
 
