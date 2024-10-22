@@ -527,7 +527,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
               @click="${() => this._filterClick(item)}"
             ></capitec-chip>`;
           })}
-
+		  <capitec-spacer></capitec-spacer>
           <capitec-button
             align="right"
             type="primary"
