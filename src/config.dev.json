@@ -14,7 +14,7 @@
 		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
-		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-pircon.asgard.capi"
 	},
 	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
 	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
