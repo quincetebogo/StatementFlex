@@ -79,9 +79,6 @@ const HORIZON_ROUTES = Object.freeze({
 	OPEN_BUDGET_SUCCESS: `/success/open-budget`,
 	OPEN_BUDGET_FAILURE: `/error/open-budget`,
 	CREATE_INCIDENT_ERROR: `/error/create-incident`,
-	WIDGET_HOST: `/widget`,
-	WIDGET_HOST_UNAVAILABLE: `/widget/unavailable`,
-	WIDGET_HOST_NOTFOUND: `/widget/notfound`,
 	VIEW_PROFILE: `/view-profile`,
 	VIEW_AVAILABLE_FOR_ROLE: `/error/unavailable-for-role`,
 	ACCESS_CHANNELS_OUTCOME: `/access-channels/outcome`,
@@ -502,22 +499,6 @@ export class HorizonRouter {
 
 	navigateToSendCashFailure() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SEND_CASH_FAILURE}`);
-	}
-
-	navigateToWidget(widgetName) {
-		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetName}`);
-	}
-
-	navigateToWidgetUnavailable() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`);
-	}
-
-	navigateToWidgetNotFound() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST_NOTFOUND}`);
-	}
-
-	navigateToWidget(widgetId) {
-		this.router.navigateByPath(`${HORIZON_ROUTES.WIDGET_HOST}/${widgetId}`);
 	}
 
 	/**
@@ -1227,30 +1208,6 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CREATE_INCIDENT_ERROR,
 		load: () => import(`../views/waitingForCall/CreateIncidentError`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
-	},
-	{
-		name: `horizon-widget-host`,
-		title: `HorizonWidgetHost`,
-		icon: null,
-		path: `${HORIZON_ROUTES.WIDGET_HOST}/:widgetId`,
-		load: () => import(`../views/common/HorizonWidgetHost`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-widget-service-unavailable`,
-		title: `WidgetServiceUnavailable`,
-		icon: null,
-		path: `${HORIZON_ROUTES.WIDGET_HOST_UNAVAILABLE}`,
-		load: () => import(`../views/common/WidgetServiceUnavailable`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	},
-	{
-		name: `horizon-widget-not-found`,
-		title: `WidgetNotFoundPage`,
-		icon: null,
-		path: HORIZON_ROUTES.WIDGET_HOST_NOTFOUND,
-		load: () => import(`../views/common/WidgetNotFound`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-view-profile-details`,

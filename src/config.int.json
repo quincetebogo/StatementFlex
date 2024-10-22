@@ -11,7 +11,6 @@
 		"savingsPlanChannelServiceUrl": "https://cs-save-int.bussup.npr-plrbsc.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash-int.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-int.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
 		"incidentManagementService": "https://cs-incident-int.bussup.npr-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-int.int.capinet",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway-int.conect.npr-plrcon.asgard.capi/horizon-bff"

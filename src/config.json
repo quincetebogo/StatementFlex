@@ -12,7 +12,6 @@
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
 	},
@@ -221,7 +220,7 @@
 			"positiveCase": true
 		},
 		"insureClientSummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureProductParams": {
@@ -245,7 +244,7 @@
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
@@ -297,15 +296,15 @@
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
@@ -313,7 +312,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -321,7 +320,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
@@ -341,7 +340,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {
@@ -441,7 +440,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -476,16 +475,8 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"insureActivatePolicyPause": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureCancelPolicyPause": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"insureCalculateEstimate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureAllowedCover": {
@@ -515,40 +506,6 @@
 		"insureLifeUpdatePocket": {
 			"enabled": true,
 			"positiveCase": true
-		},
-		"insureLifeCoverAvailable": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureLifeIncreaseCover": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureBenefitAgreement": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"insureCancelBenefit": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureActivateBenefit": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"insureBenefitInfo": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureLifeUpdateBankingDetails": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureUpdateIdDob": {
-			"enabled": true,
-			"positiveCase": true
 		}
-
-
 	}
 }

@@ -55,7 +55,7 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err))); 
+		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -687,22 +687,6 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	getWidgetById() {
-		if (this._mockSettings.getWidgetById.positiveCase) {
-			return this.widgetRegistryMocks.widgetDetails;
-		}
-
-		const errPromise = new Promise(() => {
-			const httpError = new HttpStatusError();
-			httpError.status = 418;
-			httpError.message = `Short and stout!`;
-
-			throw httpError;
-		});
-
-		return errPromise;
-	}
-
 	payShapDetails() {
 		if (this._mockSettings.payShapDetails.positiveCase) {
 			return this.payShapMocks.payShapDetails;
@@ -780,14 +764,14 @@ export default class HorizonChannelServiceMocks {
 	getClientDetails() {
 		if (this._mockSettings.getClientDetails.positiveCase) {
 			return this.clientDetails.clientDetails;
-		} 
+		}
 		return null;
 	}
 
 	getEmployer(searchValue) {
 		if (this._mockSettings.getEmployer.positiveCase) {
 			return { "employerList": this.clientDetails.employerList.employerList.filter(item => item.employerName.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1) };
-		} 
+		}
 		return null;
 	}
 }

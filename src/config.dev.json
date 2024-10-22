@@ -12,7 +12,6 @@
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
 	},

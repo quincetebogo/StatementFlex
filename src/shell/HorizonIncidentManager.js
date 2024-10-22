@@ -395,19 +395,88 @@ export class HorizonIncidentManager {
 		this.checkIncidentStatus = true;
 
 		if (!this._validIncident(this.currentIncident)) {
-			const subsequentIncident = await this._createSubIncident();
-			if (!subsequentIncident) {
+			const callerInfo = this.horizonStore.getCallerInformation();
+			const callDetails = this.horizonStore.getIncomingCallDetails();
+			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const createIncidentRequest = {
+				incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+				VDN: incomingCallDetails.VDN,
+				voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+				primaryNeedIncident: this.primaryIncident
+			};
+			const returnValue = await this.incidentService.createIncident(createIncidentRequest);
+			if (!returnValue.succeeded || !returnValue.result) {
+				const ex = returnValue.exception;
+				if (ex && ex instanceof HttpStatusError) {
+					this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
+				}
+				this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubIncident`, returnValue.correlationId);
+				incidentDetails.incCreated = returnValue.succeeded;
+				this.horizonStore.setIncidentDetails(incidentDetails);
 				return;
 			}
 
 			// We have created a new incident, no need to check its state
 			this.checkIncidentStatus = false;
+			this.currentIncident = returnValue.result?.incident;
+			await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
+				"parent-incident-reference": this.primaryIncident.toString(),
+				"child-incident-reference": this.currentIncident.toString(),
+				"child-incident-rec-id": this.currentIncident.incidentId
+			}, true);
+			if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+				await this._updateSubsequentNeedClientDetails(callDetails, callerInfo);
+			} else {
+				await this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
 		} 
+		}
 
 			// We don't have a valid current incident
 
 		if (classify) {
-			await this.classifyIncident(toggleBusyFlag, incidentCategorization);
+			const incidentDetails = this.getIncidentDetails();
+			let canClassify = !this.checkIncidentStatus;
+			this.incidentService._toggleBusyFlag = toggleBusyFlag;
+			if (this.checkIncidentStatus) {
+				const incidentInfo = await this._incidentStatus(this.currentIncident);
+				canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
+			}
+			const needAction = STRACK_MAPPING[this.getCurrentNeed()];
+			if (canClassify && (!isNullorEmpty(needAction) || !isNullorEmpty(incidentCategorization))) {
+				const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
+				if (!returnValue.succeeded) {
+					this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+					return;
+				}
+			}
+			this.checkIncidentStatus = true;
+			this.incidentService._toggleBusyFlag = toggleBusyFlag;
+			incidentCategorization = incidentCategorization || {};
+			let endCallReason = {};
+			const incidentInfo = await this._incidentStatus(this.currentIncident);
+			if (this._isReassigned(incidentInfo)) {
+				this.logger.log(`warning`, `Incident manager: ${this.currentIncident.toString()} is reassigned, skipping close incident`, `closeIncident`, null);
+				return true;
+			}
+			if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
+				this.checkIncidentStatus = false;
+			}
+			const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.incidentState] : endCallReason.key;
+			const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, null, incidentCategorization);
+			const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], incidentCategorization);
+			const returnValue = await this.incidentService.closeIncident(
+				this.currentIncident,
+				reason,
+				resolution,
+				causeCode,
+				this.incidentDetails.description,
+				errorHandler
+			);
+			if (returnValue.succeeded) {
+				this._updateIncidentState(null);
+				return;
+			}
+			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
 		}
 	}
 
