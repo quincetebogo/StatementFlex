@@ -616,7 +616,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_formatCreditOverviewResponse() {
-		// TODO: Improve the formatting
+		// Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
@@ -1549,7 +1549,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleAndCloseEmailConfirmation() {
-		// TODO: Remove mock once CS integration is complete
+		// TODO Remove mock once CS integration is complete
 		const mockDocuments = [
 			{
 				title: `Credit Card`,

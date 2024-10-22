@@ -28,7 +28,7 @@ export const HORIZON_NEED_STATUS = {
 
 /**
  * End call reasons.
- * TODO: Refactor to get from actual end call reasons 
+ * Refactor to get from actual end call reasons 
  * 
  * @readonly
  * @enum {object} CLOSE_REASONS

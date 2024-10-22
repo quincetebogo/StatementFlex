@@ -267,7 +267,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
     }
 
     _more() {
-        // TODO: Functionality to option 'more' comes here
+		// Functionality to option 'more' comes here
     }
 
     async _productEnquiry(event, type) {

@@ -39,7 +39,7 @@ const ERROR_CODE = Object.freeze({
 	2404: `CAPABILITY_LEVELS` 
 });
 
-// ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: html`<b>System error:&ensp;</b>Please try again later`,

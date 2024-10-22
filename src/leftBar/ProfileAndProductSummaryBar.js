@@ -282,7 +282,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				/* 
 				* NOTE: This is a work around as the favourites landing does not return credit information. 
 				* NOTE: This implementation will not include credit information in the favourites landing call fails.
-				* TODO: Develop better solution (CSCEH-7747)
+				* Develop better solution (CSCEH-7747)
 				*/
 				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
 					if (this.callerInformation.verificationStatus === `verified`) {

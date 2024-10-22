@@ -116,9 +116,9 @@ export class LandingPage extends ViewBase {
 
 	disconnectedCallback() {
 		// Telemetry
-		// TODO: This should probably move since this point will also mark the end of the caller verification.
+		// This should probably move since this point will also mark the end of the caller verification.
 		this.telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
-		// TODO: Fulfill need span should start here
+		// Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();

@@ -229,7 +229,7 @@ export class AccessChannels extends Component {
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_OUTCOME
 		});
 
-		// TODO: Channel service call to Un-suspend App should come here
+		// Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
 
 		this.landingInfo.app.status = `Active`;

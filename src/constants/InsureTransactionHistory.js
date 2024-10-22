@@ -16,7 +16,7 @@ export const DATE_TYPE_LIST = Object.freeze([
  * @enum {Object} AUDIT_DATE_TYPE_LIST
  */
 export const AUDIT_DATE_TYPE_LIST = Object.freeze([
-	{ code: `TransactionDate`, text: `Change Actioned Date` }, // TODO: Endpoint doesn't include it in request payload. code: `ActionedDate`
+	{ code: `TransactionDate`, text: `Change Actioned Date` }, // Endpoint doesn't include it in request payload. code: `ActionedDate`
 	{ code: `TransactionDate`, text: `Effective Date` } // code: `EffectiveDate`
 ]);
 

@@ -39,8 +39,8 @@ export const OutcomeScreen = {
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
-	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
-	
+	// add logic to close all child spans when parent span gets closed. Log a warning if this happens.
+
 	// #region INITIALISATION
 	// --------------
 	// INITIALISATION
@@ -107,7 +107,7 @@ export class HorizonTelemetry extends Telemetry {
 	// --------------
 
 	/** Starts a new trace.
-	 * @todo If graceful shutdown of traces are required, traceId can be saved in state and logic be added to close any stale traces
+	 * If graceful shutdown of traces are required, traceId can be saved in state and logic be added to close any stale traces
 	 * 
 	 * @param {String} traceId Optional trace ID if this is a continuation of a trace started elsewhere.
 	 * @returns {String} a GUID string
@@ -220,7 +220,7 @@ export class HorizonTelemetry extends Telemetry {
 		// 		this.endSpan(events.join(`.`));
 		// 	}
 		// } else {
-		// 	// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
+		// 	// Log that there was a telemetry failure (missing trace ID or span ID)
 		// }
 	}
 

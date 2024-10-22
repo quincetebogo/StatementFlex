@@ -590,7 +590,7 @@ export default class HorizonChannelServiceMocks {
 
 	sendSettlementQuoteEmail() {
 		if (this._mockSettings.sendSettlementQuoteEmail.positiveCase) {
-			// TODO: Add postive case data
+			// Add postive case data
 			return [];
 		}
 

@@ -16,10 +16,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	constructor() {
 		super();
 
-		// TODO: Remove the hardcoded values when wiring up the navigation.
-		this.amount = formatCurrency(`7500`);
 		this.partialUnlock = true;
-		this.accountName = `My dream car`;
 
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}

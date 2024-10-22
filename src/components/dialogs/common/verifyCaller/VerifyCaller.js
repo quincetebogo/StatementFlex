@@ -432,7 +432,7 @@ export class VerifyCaller extends Component {
 	_skipClick() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": null // TODO: Determine by need and failed verification counts
+			"next-screen": null
 		});
 
 		this._updateApplicationState(`unverified`, `unverified`);
@@ -445,7 +445,7 @@ export class VerifyCaller extends Component {
 	_cancelClick() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_CANCEL_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": null // TODO: Determine by need and failed verification counts
+			"next-screen": null
 		});
 
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
@@ -520,7 +520,7 @@ export class VerifyCaller extends Component {
 	_tryAgain() {
 		this.telemetry.logEvent(VerifyCallerEvents.ITA_TRY_AGAIN, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
-			"next-screen": TelemetryScreen.VERIFY_CALLER // TODO: The next screen could be the ITA failure screen
+			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
 
 		this._itaClose();
@@ -542,8 +542,6 @@ export class VerifyCaller extends Component {
 				"next-screen": TelemetryScreen.END_CALL
 			});
 		}
-
-		// TODO: XDS end call event and what do we do if no channels available.... verify dialog end call
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}

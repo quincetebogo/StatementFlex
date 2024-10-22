@@ -51,7 +51,7 @@ import 'app/components/common/RelatedOptions';
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		// TODO: Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
+		// Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
 		this._telemetry.endSpan(QuickTransactionEvents.LIVE_BETTER_BENEFITS, {
 			"screen": TelemetryScreen.LIVE_BETTER_BENEFITS_UNAVAILABLE
 		}); 

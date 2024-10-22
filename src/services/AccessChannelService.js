@@ -184,7 +184,6 @@ export class AccessChannelService extends ChannelServiceBase {
 
 	// Notification 
 	updateNotificationType(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		// TODO: add url 
 		const url = `/clientcare-accesschannels-${this._version}/`;
 
 		return this.put(

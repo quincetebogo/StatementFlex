@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
-// TODO: Review styling (fonts, sizes etc. on page) against Invision
+// Review styling (fonts, sizes etc. on page) against Invision
 
 export class SavingsAccountProductDetails extends Component {
 
