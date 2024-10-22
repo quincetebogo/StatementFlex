@@ -909,7 +909,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
             ? html` <div row="4" colspan="4" column="1">
                 <capitec-table .items="${voucherHistory}">
                   <capitec-table-column
-                    label="MSIDN"
+                    label="MSISDN"
                     field="msisdn"
                   ></capitec-table-column>
                   <capitec-table-column
