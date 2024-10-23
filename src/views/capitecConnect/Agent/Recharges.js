@@ -138,6 +138,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		}
 		this.showVoucherInfomationModal = false;
 		this.voucherInfoLoading = true;
+		this.voucherHistoryLoading = true;
 		this._getVoucherInformation(this.serialNumber);
 		this._getVoucherHistory(this.serialNumber);
 	}
@@ -149,18 +150,19 @@ export class CapitecConnectAgentRecharges extends ViewBase {
         voucherSerialNumber
       );
       if (response.succeeded) {
-        this.voucherInformationData = response.result;
+				this.voucherInformationData = response.result;
         this.voucherInfoLoading = false;
         this.requestUpdate();
 				this.showVoucherModal = true;
       } else {
+        this.voucherInfoLoading = false;
         console.error("Failed to get voucher information");
 				this.showErrorModal = true;
 				this.errorMessage ="Failed to get voucher information";
 				this.requestUpdate();
-        this.voucherInfoLoading = false;
       }
     } catch (error) {
+			this.voucherInfoLoading = false;
       console.error(
         "Error fetching voucher information (bluelabel api down):",
         error
@@ -168,7 +170,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			this.showErrorModal = true;
 			this.errorMessage ="Unable to retrieve the voucher information. Please try again later.";
 			this.requestUpdate();
-      this.voucherInfoLoading = false;
     }
   }
 
@@ -183,23 +184,21 @@ export class CapitecConnectAgentRecharges extends ViewBase {
         this.requestUpdate();
 				this.showVoucherModal = true;
       } else {
+				this.voucherHistoryLoading = false;
         console.error("Failed to get voucher history");
-        // alert("Failed to get voucher history");
 				this.showErrorModal = true;
 			this.errorMessage = "Failed to get voucher history";
 			this.requestUpdate();
-        this.voucherHistoryLoading = false;
       }
     } catch (error) {
+			this.voucherHistoryLoading = false;
       console.error(
         "Error fetching voucher history (bluelabel api down):",
         error
       );
-      // alert("Unable to retrieve the voucher history. Please try again later.");
 			this.showErrorModal = true;
 			this.errorMessage = "Unable to retrieve the voucher history. Please try again later.";
 			this.requestUpdate();
-      this.voucherHistoryLoading = false;
     }
   }
 
@@ -842,7 +841,10 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer"
 					type="primary"
 					label="OK"
-					@click="${() => this.showErrorModal = false}"
+					@click="${() => {
+						this.showVoucherModal = false
+						this.showErrorModal = false
+						}}"
 				></capitec-button>
 			</capitec-modal>
 		`;
@@ -852,15 +854,15 @@ export class CapitecConnectAgentRecharges extends ViewBase {
   _renderVoucherInformationModal() {
     let voucherInfo = this.voucherInformationData;
     let voucherHistory = this.voucherHistoryData;
-    let loading = this.voucherHistoryLoading || this.voucherInformationLoading;
+    let loading = this.voucherHistoryLoading || this.voucherInfoLoading;
 
     return html` <!-- Voucher Information  -->
       <capitec-modal type="text" header="Voucher Information">
         <capitec-group slot="body" layout="grid" gap="clear">
-          ${loading &&
+          ${loading ?
           html`<capitec-loading-indicator
             data-automation-id="app-shell-loading-indicator"
-          ></capitec-loading-indicator>`}
+          ></capitec-loading-indicator>`: null}
           <div row="1" column="1">
             <capitec-label type="strong" label="Serial Number:"></capitec-label>
             <capitec-label type="strong" label="Issue date"></capitec-label>
