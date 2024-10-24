@@ -130,14 +130,14 @@ export class CFPAgreementDialog extends Component {
 			return html` 
 				<strong>Product and parties:</strong>
 				<ul class="no-margin">
-					<li>Policy provided by Centriq Limited, a licenced insurer (FSP7370)</li>
+					<li>Policy provided by Centriq Life Insurance Company Limited, a licensed life insurer (I078)​</li>
 					<li>Administered by Capitec Bank Limited (FSP46669)</li>
 					<li>Claims are assessed by Capitec Life (FSP54090)</li>
 				</ul>
 				<strong>Capitec Bank:</strong>
 				<ul class="no-margin">
 					<li>earns a commission of 3.25% from the Insurer;</li>
-					<li>holds preference shares in Centriq and may receive a dividend</li>
+					<li>Capitec Ins holds preference shares in Centriq Life and may receive a dividend</li>
 				</ul>
 				<strong>I:</strong>
 				<ul class="no-margin">
