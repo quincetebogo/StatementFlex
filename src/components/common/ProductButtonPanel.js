@@ -38,16 +38,17 @@ export class ProductButtonPanel extends Component {
 			savingsAccount: ``,
 			liveBetterSavings: ``,
 			savingsPlan: ``,
-			insure: ``, 
+			insure: ``,
 			credit: ``,
 			capitecConnect: ``
 		};
 
 		this.detail = {
+			accountName: ``,
 			savingsAccount: ``,
 			liveBetterSavings: ``,
 			savingsPlan: ``,
-			insure: ``, 
+			insure: ``,
 			credit: ``,
 			capitecConnect: ``
 		};
@@ -70,7 +71,7 @@ export class ProductButtonPanel extends Component {
 			selectedButton: { type: String },
 			subtitle: { type: Object },
 			detail: { type: Object },
-			connectReversalCount: {type : Number}
+			connectReversalCount: { type: Number }
 		};
 	}
 
@@ -92,6 +93,13 @@ export class ProductButtonPanel extends Component {
 
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
+	}
+
+	_toPascalCase(str) {
+		return str
+			.split(` `)
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+			.join(` `);
 	}
 
 	_getProductDetailValue(amount, type) {
@@ -140,7 +148,7 @@ export class ProductButtonPanel extends Component {
 			<horizon-product-tile 
 				class="product-button"
 				type="transact"
-				label="Savings Account"
+				label="${this.detail.accountName ? this._toPascalCase(this.detail.accountName) : `Main Account`}"
 				subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : DEFAULT_SUBTITLE.SAVINGS_ACCOUNT}"
 				detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
 				?showToolTip = "${this.roleManager.isInsureAgent}"

@@ -31,7 +31,7 @@ export class CFPAgreementDialog extends Component {
 	 * @property {String} productCode - insurance product code capitec/sanlam.
 	 * @static
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			productCode: { type: String }
 		};
@@ -72,7 +72,7 @@ export class CFPAgreementDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the view.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -123,7 +123,7 @@ export class CFPAgreementDialog extends Component {
 				</ul>
 				<p><strong>You:</strong></p>
 				<ul class="no-margin">
-					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+					<li>must have an active Capitec main account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
 		} else if (this.productCode === INSURE_PRODUCT_CODE.CENTRIQ || this.productCode === INSURE_PRODUCT_CODE.SANLAM) {
@@ -141,11 +141,11 @@ export class CFPAgreementDialog extends Component {
 				</ul>
 				<p>You:</p>
 				<ul class="no-margin">
-					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+					<li>must have an active Capitec main account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
-		} 
-		
+		}
+
 		return html``;
 	}
 

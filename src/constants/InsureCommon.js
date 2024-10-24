@@ -98,7 +98,7 @@ export const CHILD_TITLE_OPTIONS = Object.freeze([
 	{ code: `Mrs`, text: `Mrs` },
 	{ code: `Ms`, text: `Ms` },
 	{ code: `Miss`, text: `Miss` }
-	
+
 ]);
 
 /**
@@ -376,7 +376,7 @@ export const INSURE_TABS = Object.freeze({
  * @enum {Object} INSURE_TABS
  */
 export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
-	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
+	ACCOUNT_NAME: `MAIN ACCOUNT`,
 	BRANCH_CODE: `470010`,
 	BANK: `Capitec Bank`,
 	ACCOUNT_TYPE: `Savings`

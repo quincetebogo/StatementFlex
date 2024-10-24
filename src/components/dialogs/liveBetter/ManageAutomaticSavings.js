@@ -81,7 +81,7 @@ export class ManageAutomaticSavings extends Component {
 			return false;
 		}
 
-		this.dispatchEvent(new CustomEvent(`update`, { 
+		this.dispatchEvent(new CustomEvent(`update`, {
 			detail: {
 				updatedDetails: this.updatedDetails
 			}
@@ -97,7 +97,7 @@ export class ManageAutomaticSavings extends Component {
 
 	_toggleInterestSweep() {
 		this.isInterestSweepActive = !this.isInterestSweepActive;
-		
+
 		this.dispatchEvent(new CustomEvent(`interest-sweep`, {}));
 	}
 
@@ -109,10 +109,10 @@ export class ManageAutomaticSavings extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	_selectRoundUpAmount(e, value) {
 		if (e.detail.new) {
-			this.roundUpValue = value; 
+			this.roundUpValue = value;
 			this.errorMessage = ``;
 		}
 	}
@@ -124,7 +124,7 @@ export class ManageAutomaticSavings extends Component {
 		} else {
 			const index = this.roundUpAccounts.findIndex(item => item === account.accountNumber);
 			const parIndex = this.automaticSavingsDetails.activatedRoundUpAccounts.findIndex(item => item.accountNumber === account.accountNumber);
-			
+
 			this.roundUpAccounts.splice(index, 1);
 			this.automaticSavingsDetails.activatedRoundUpAccounts.splice(parIndex, 1);
 		}
@@ -150,11 +150,11 @@ export class ManageAutomaticSavings extends Component {
 
 		if (this.roundUpAccounts.length !== this.automaticSavingsDetails.activatedRoundUpAccountNums.length ||
 			!this.roundUpAccounts.every(item => this.automaticSavingsDetails.activatedRoundUpAccountNums.includes(item))) {
-				this.updatedDetails.activatedRoundUpAccountNums = this.roundUpAccounts;
-				this.updatedDetails.activatedRoundUpAccounts = this.automaticSavingsDetails.activatedRoundUpAccounts;
+			this.updatedDetails.activatedRoundUpAccountNums = this.roundUpAccounts;
+			this.updatedDetails.activatedRoundUpAccounts = this.automaticSavingsDetails.activatedRoundUpAccounts;
 		}
 		return Object.keys(this.updatedDetails).length > 0;
-		}
+	}
 
 	_isValid() {
 		if (!this.isRoundUpActive) {
@@ -174,7 +174,7 @@ export class ManageAutomaticSavings extends Component {
 
 		return !this.errorMessage;
 	}
-	
+
 	_formatAccountName(accountName) {
 		const name = accountName.toLowerCase();
 		return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
@@ -380,7 +380,7 @@ export class ManageAutomaticSavings extends Component {
 					data-automation-id="manage-automatic-savings-info-banner"
 					type="info"
 					header="Notify client: "
-					label="Your Round-up and Interest Sweep values will always be transferred from your main savings account">
+					label="Your Round-up and Interest Sweep values will always be transferred from your main account">
 				</horizon-alert-banner>`
 			: html`
 				<horizon-alert-banner
@@ -427,7 +427,7 @@ export class ManageAutomaticSavings extends Component {
 						</capitec-title-bar>
 
 						${!this.roundUpValue && this.errorMessage
-							? html`
+					? html`
 								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
@@ -435,7 +435,7 @@ export class ManageAutomaticSavings extends Component {
 									header="Notify client: "
 									label="${ERROR_MESSAGES.ALERT_ROUNDUP_VALUE}">
 								</horizon-alert-banner>`
-							: html``}
+					: html``}
 
 						<capitec-radio-group 
 							data-automation-id="manage-automatic-savings-radio-amount" 
@@ -467,7 +467,7 @@ export class ManageAutomaticSavings extends Component {
 							class="other-options">
 						</capitec-title-bar>
 						${!this.roundUpAccounts.length && this.errorMessage
-							? html`
+					? html`
 								<horizon-alert-banner
 									data-automation-id="manage-automatic-savings-error-banner"
 									class="section-alert-banner"
@@ -475,7 +475,7 @@ export class ManageAutomaticSavings extends Component {
 									header="Notify client: "
 									label="${ERROR_MESSAGES.ALERT_ROUNDUP_ACC}">
 								</horizon-alert-banner>`
-							: html``}
+					: html``}
 
 						${this.automaticSavingsDetails.roundUpAccounts.map(account => html`
 							<capitec-check 

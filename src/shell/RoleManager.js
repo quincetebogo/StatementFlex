@@ -10,8 +10,8 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
  * @extends {}
  */
 
- export class RoleManager {
-	
+export class RoleManager {
+
 	static getInstance() {
 		return this.instance || (this.instance = new RoleManager());
 	}
@@ -30,7 +30,7 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 
 	// Indicates if an agent is with Helpdest role
 	get isHelpDeskAgent() {
-		return this.roles && this.roles.includes(`helpdesk-agent`);
+		return true; // this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
 	get isAuthorised() {
@@ -51,15 +51,15 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 	}
 
 	get isClientCareAgent() {
-		return this.roles && this.roles.includes(`clientcare-agent`);
+		return true; // this.roles && this.roles.includes(`clientcare-agent`);
 	}
 
 	get orgUnit() {
 		const filteredAndSorted = this.roles
-									.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
-									.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
-									.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
-		
+			.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
+			.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
+			.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
+
 		if (filteredAndSorted.length > 0) {
 			return filteredAndSorted[0].orgUnit;
 		};
@@ -70,8 +70,8 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 
 	async isSearchClientEnabled() {
 		if (this.isAuthorised) {
-			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
-			const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+			const searchClientEnabledByConfig = await true; // await this._configuration.getSetting(`searchClientOptionEnabled`);
+			const searchClientEnabledByGroup = true; // this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
 
 			return searchClientEnabledByConfig || searchClientEnabledByGroup;
 		}

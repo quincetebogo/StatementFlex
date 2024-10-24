@@ -71,7 +71,7 @@ class PayPremiumDialog extends Component {
 			insufficient: { type: Boolean, state: true },
 			checked: { type: Number, state: true },
 			displayAccountNotSelected: { type: Boolean, state: true },
-			
+
 			currentContractRef: { type: String, state: true },
 			errorMessage: { type: String, state: true }
 		};
@@ -138,7 +138,7 @@ class PayPremiumDialog extends Component {
 				return 1;
 			}
 			return 0;
-		}); 
+		});
 	}
 
 
@@ -188,29 +188,29 @@ class PayPremiumDialog extends Component {
 			"next-screen": TelemetryScreen.INSURE_PAY_POLICY_CONFIRM_DIALOG
 		});
 
-			if (this.accountType === `Savings Account`) {
-				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
-				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
-					this.optionSelected = false;
-					this.insufficient = true;
-				} else if (this.optionSelected === false) {
-					this.errorMessage = `Select an account to pay from`;
-				} else {
-					this._PayArrears();
-				}
+		if (this.accountType === `Main Account`) {
+			const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
+			if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
+				this.optionSelected = false;
+				this.insufficient = true;
+			} else if (this.optionSelected === false) {
+				this.errorMessage = `Select an account to pay from`;
 			} else {
-				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
-
-				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
-					this.optionSelected = false;
-					this.insufficient = true;
-				} else if (this.optionSelected === false) {
-					this.errorMessage = `Select an account to pay from`;
-				} else {
-					this._PayArrears();
-				}
-
+				this._PayArrears();
 			}
+		} else {
+			const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
+
+			if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
+				this.optionSelected = false;
+				this.insufficient = true;
+			} else if (this.optionSelected === false) {
+				this.errorMessage = `Select an account to pay from`;
+			} else {
+				this._PayArrears();
+			}
+
+		}
 	}
 
 	/**
@@ -230,7 +230,7 @@ class PayPremiumDialog extends Component {
 		if (e.detail.new === true) {
 			this.amount += outstanding.amount;
 			this.checked += 1;
-			
+
 			this.errorMessage = ``;
 		} else if (e.detail.new === false) {
 			this.insufficient = false;
@@ -287,7 +287,7 @@ class PayPremiumDialog extends Component {
 
 		if (this.optionSelected === false) {
 			this.errorMessage = `Select an account to pay from`;
-		} else if (this.checked === 0) { 
+		} else if (this.checked === 0) {
 			this.errorMessage = `Select arrears amount to pay`;
 		} else {
 			this._payClick();
@@ -422,15 +422,15 @@ class PayPremiumDialog extends Component {
 	}
 
 	_renderInsufficientFunds() {
-		return this.insufficient === false ? html`` 
-		: html`
+		return this.insufficient === false ? html``
+			: html`
 			<capitec-toast class="error" type="error" header="Insufficient funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderErrorMessage() {
 		return !this.errorMessage ? html``
-		: html`
+			: html`
 			<capitec-toast class="error" type="error" header=${this.errorMessage} layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
