@@ -1190,7 +1190,7 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(cancelBenefitResponse.exception);
 			return;
 		}
-		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+		if (benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.CANCEL);
 		}
 		this.VPPEmailActionActivate = false;
