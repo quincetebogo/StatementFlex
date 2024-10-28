@@ -150,7 +150,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-			const cardDisputes = () => this._cardDisputeTransaction();
+			const cardDisputes = () => this._cardDisputeTransaction(selectedAccountDetails);
 			const openBudget = () => this._openBudgetDialog();
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
@@ -1207,7 +1207,7 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
-	async _cardDisputeTransaction(item) {
+	async _cardDisputeTransaction(selectedAccountDetails) {
 		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
 
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
@@ -1216,7 +1216,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
-		const returnValue = await this._getFirstQusToDispute();
+		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -1227,14 +1227,14 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute() {
+	async _getFirstQusToDispute(selectedAccountDetails) {
 		const request = {
 			"transactions": this.tranToDispute.map((item) => ({
 				transactionID: item.transactionId,
 				transactionPostingDate: item.postingDate
 			})),
 			"incident": this.cueSheetIncident,
-			"accountNumber": this.landingPageInfo.accountNumber,
+			"accountNumber": selectedAccountDetails.accountNumber,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
 		};
