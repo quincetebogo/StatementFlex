@@ -126,7 +126,7 @@ export class CFPAgreementDialog extends Component {
 					<li>Must have an active Capitec savings account to have a Funeral Plan;​</li>
 					<li>Cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
-		} else if (this.productCode === INSURE_PRODUCT_CODE.CENTRIQ || this.productCode === INSURE_PRODUCT_CODE.SANLAM) {
+		} else if (this.productCode === INSURE_PRODUCT_CODE.CENTRIQ) {
 			return html` 
 				<strong>Product and parties:</strong>
 				<ul class="no-margin">
@@ -149,7 +149,28 @@ export class CFPAgreementDialog extends Component {
 					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
-		} 
+		}else if(this.productCode === INSURE_PRODUCT_CODE.SANLAM){
+			return html`
+				<strong>Capitec:</strong>
+				<ul class="no-margin">
+					<li>is a licensed financial services provider;​</li>
+					<li>earns a commission of 3.25% from the Insurer;</li>
+					<li>holds preference shares in Centriq and may receive a dividend</li>
+				</ul>
+
+				<p>This plan is underwritten by Centriq Life Insurance Company Limited, a licensed insurer and an Authorized Services Provider</p>
+				<strong>I:</strong>
+				<ul class="no-margin">
+					<li>work for Capitec who is liable for this service;​</li>
+					<li>will tell you about the Capitec Funeral Plan and your options and I cannot give you advice.</li>
+				</ul>
+				<strong>You:</strong>
+				<ul class="no-margin">
+					<li>must have an active Capitec savings account to have a Funeral Plan;</li>
+					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
+				</ul>
+			`
+		}
 		
 		return html``;
 	}
