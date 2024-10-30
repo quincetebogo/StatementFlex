@@ -159,7 +159,7 @@ export class ApproveDebiCheckMandate extends Component {
 		});
 	}
 
-	_getFullDate(shortDate) {        
+	_getFullDate(shortDate) {
 		if (shortDate) {
 			const day = shortDate.toString().substr(8, 3);
 			const monthNum = parseInt(shortDate.toString().substr(5, 2), 10);
@@ -180,6 +180,10 @@ export class ApproveDebiCheckMandate extends Component {
 		return [
 			super.styles,
 			css`
+					/* Allow text selection for agreement and declaration content */
+					.agreement-content, .declaration-content {
+					user-select: text; /* Allow text selection */
+				}
 				capitec-modal {
 					width: 808px;
 					height: 882px;
@@ -191,8 +195,9 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
 					--theme-modal-footer-padding: 8px 16px 8px 0px;
+				
 				}
-
+				
 				.main-cb {
 					height: 754px;
 					border-bottom: 1px solid rgb(225, 225, 225);
@@ -403,27 +408,30 @@ export class ApproveDebiCheckMandate extends Component {
 		declare.appendChild(secondExpander);
 
 	}
-	
+
 
 	_renderAgreementOriginal() {
 		return html`
 			<capitec-expander-group modeset="single">
 				<capitec-expander
-				expandbuttonalignment="left"
-				label="Agreement"
-				.expanded=${this._collapseExpander()}>
+					expandbuttonalignment="left"
+					label="Agreement"
+					.expanded=${this._collapseExpander()}>
 					<capitec-content-box 
-					data-automation-id="debi-check-agreement-terms-and-conditions"
-					class="agreement-content"
-					id="agree">
+						data-automation-id="debi-check-agreement-terms-and-conditions"
+						class="agreement-content"
+						id="agree">
+						<div>
+							${this.agreementText}
+						</div>
 					</capitec-content-box>
 				</capitec-expander>
-
+	
 				<capitec-expander
-				expandbuttonalignment="left"
-				label="Declaration"
-				.expanded=${!this._collapseExpander()}>
-				${this._renderDeclarationContent()}
+					expandbuttonalignment="left"
+					label="Declaration"
+					.expanded=${!this._collapseExpander()}>
+					${this._renderDeclarationContent()}
 				</capitec-expander>
 			</capitec-expander-group>
 		`;
@@ -433,9 +441,11 @@ export class ApproveDebiCheckMandate extends Component {
 	_renderDeclarationContent() {
 		return html`
 			<capitec-content-box  
-			data-automation-id="debi-check-agreement-declaration"
-			class="declaration-content">
-			<div id="declare"></div>
+				data-automation-id="debi-check-agreement-declaration"
+				class="declaration-content">
+				<div id="declare">
+					${this.declarationText}
+				</div>
 				<capitec-card>
 					<capitec-check
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
@@ -445,7 +455,7 @@ export class ApproveDebiCheckMandate extends Component {
 			</capitec-content-box>
 		`;
 	}
-   
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
