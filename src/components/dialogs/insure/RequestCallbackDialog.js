@@ -209,7 +209,7 @@ class RequestCallbackDialog extends Component {
 				<strong>Funeral support (incl. transportation of the deceased)</strong>
 				
 				<p>You can request funeral support, for transportation of the deceased, by calling 0860 77 75 54, or we can log a request for the service provider to contact you.</p>
-				<p>The place of death must be at least 50 kilometres from the place of burial. <br>
+				<br>
 				To log a request for the service provider to contact you, please provide the following information:</p>
 
 			</div>

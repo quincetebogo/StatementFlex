@@ -1,4 +1,4 @@
-import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_BENEFIT_DOT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS } from 'app/constants/InsureCommon';
+import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENERIC_DETAILS, FUN_BENEFIT_PERIOD, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, FUN_BENEFIT_TYPES, INSURE_CALLER_PAGE, INSURE_TABS, LIFE_ARREARS_STATUSES, TRANSACTION_STATUS, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
@@ -47,9 +47,9 @@ const POLICY_TRANSACTION_HISTORY = {
 };
 
 const ACTION_TYPE = {
-	ACTIVATE: 'ACTIVATE',
-	CANCEL: 'CANCEL'
-}
+	ACTIVATE: `ACTIVATE`,
+	CANCEL: `CANCEL`
+};
 
 /**
  * Implements the view for Insure verified and unverified existing clients (i.e. the client has products)
@@ -112,7 +112,7 @@ export class ExistingClient extends InsureViewBase {
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
-
+		this.VPPEmailActionActivate = false;
 	}
 
 	// #endregion INITIALISATION
@@ -196,7 +196,6 @@ export class ExistingClient extends InsureViewBase {
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			coverAvailableAnswers: { type: Array, state: true },
 			funeralBenefitAgreementDocument: { type: Object, state: true },
-
 		};
 	}
 
@@ -229,7 +228,31 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.initFeaturesBanner();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
+	}
+
+	/**
+	 * Set feature flags banner
+	 * @returns {void}
+	 */
+	initFeaturesBanner() {
+		if(this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
+			this.showFeatureBanner = false;
+			this.featureBannerMessage = ``;
+			return;
+		}
+
+		const featureBannerDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === FEATURE_TOGGLES.Banner.toUpperCase());
+		if(featureBannerDetails !== undefined) {
+			if(featureBannerDetails.enabled === true) {
+				this.showFeatureBanner = true;
+				this.featureBannerMessage = featureBannerDetails.message;
+			} else {
+				this.showFeatureBanner = false;
+				this.featureBannerMessage = ``;
+			}
+		}
 	}
 
 	// --- Document Generation
@@ -788,7 +811,7 @@ export class ExistingClient extends InsureViewBase {
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentType": DOCUMENT_TYPE.BENEFIT_NOTE,
+					"documentType": this.VPPEmailActionActivate === true ? DOCUMENT_TYPE.ISSUE_BENEFIT_AGREEMENT : DOCUMENT_TYPE.CANCEL_BENEFIT_AGREEMENT,
 					"documentGuid": ``,
 					"content": {
 						"type": `PDF`,
@@ -1002,6 +1025,7 @@ export class ExistingClient extends InsureViewBase {
 
 		policyToCalc.roleplayers.forEach((life) => {
 			if (life.lifeAssured === false && life.beneficiary === true) {
+				adjustedRoleplayers.coverAmount = 0;
 				adjustedRoleplayers.push(life);
 			}
 		});
@@ -1113,6 +1137,7 @@ export class ExistingClient extends InsureViewBase {
 		this.selectedFuneralPolicyContractReference = createPolicyResponse.result.contractReference;
 		super.isOnlyProductEnquiry = false;
 		this.contractReference = createPolicyResponse.result.contractReference;
+		this.selectedFuneralPolicyProductCode = createPolicyResponse.result.productCode;
 
 		await this._generateDocumentsFuneralReissue(false);
 		const resinstatePolicyResponse = {
@@ -1142,16 +1167,16 @@ export class ExistingClient extends InsureViewBase {
 			return;
 		}
 
-		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+		if (benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.ACTIVATE);
 		}
 
+		this.VPPEmailActionActivate = true;
 		return activateBenefitResponse.result;
-	
 	}
 
 	async executeFuneralCancelBenefit(benefitType, policy) {
-		this.selectedFuneralPolicyContractReference = policy.contractReference
+		this.selectedFuneralPolicyContractReference = policy.contractReference;
 		const cancelBenefitRequest = {
 			"contractReference": policy.contractReference,
 			"benefitType": benefitType,
@@ -1165,10 +1190,10 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(cancelBenefitResponse.exception);
 			return;
 		}
-		if (this.benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
+		if (benefitType === FUN_BENEFIT_TYPES.POLICY_PAUSE) {
 			await this._fetchBenefitAgreement(true, policy, ACTION_TYPE.CANCEL);
 		}
-		
+		this.VPPEmailActionActivate = false;
 
 		return cancelBenefitResponse.result;
 	
@@ -1194,20 +1219,9 @@ export class ExistingClient extends InsureViewBase {
 	async _fetchBenefitAgreement(saveDocument, policy, action) {
 
 		let benefitInfo = {}
-		
-		if ( action === ACTION_TYPE.ACTIVATE) {
-			benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
-		} else {
 
-			this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 
-			benefitInfo = {
-				"benefitStartDate": this.vppBenefit.benefitStartDate ,
-				"benefitEndDate": this.vppBenefit.benefitEndDate,
-				"nextCollectionDate": policy?.paymentSchedule?.nextPaymentDate
-			}
-		}
-		
 		let dob = new Date(this.callerInformation.birthdate);
 		
 		const benefitAgreementRequest = {
@@ -2017,7 +2031,7 @@ export class ExistingClient extends InsureViewBase {
 	  */
 	async _sendEmail(e) {
 		this.clientConfirmedEmail = e.detail.emailId.detail.emailAddress;
-		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = e.detail.productCode;
+		EMAIL_DOCUMENT_REQUEST_PAYLOAD.productCode = this.selectedFuneralPolicyProductCode = e.detail.productCode;
 
 		if (e.detail.callerPage === INSURE_CALLER_PAGE.CANCEL_POLICY) {
 			this.callerPage = INSURE_CALLER_PAGE.CANCEL_POLICY;
@@ -2394,7 +2408,10 @@ export class ExistingClient extends InsureViewBase {
 				@navigate-to-life-sms-history="${(e) => this._goToLifeSMSHistory(e)}"
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@verify-now = ${() => this._verifyClick()}
-				.setInsureIncident = "${(need) => super.setInsureIncident(need)}">
+				@refresh-funeral-policies = "${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
+				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
+				.showFeatureBanner="${this.showFeatureBanner}"
+				.featureBannerMessage="${this.featureBannerMessage}">
 			</horizon-insure-client-summary>`;
 	}
 
@@ -2598,6 +2615,8 @@ export class ExistingClient extends InsureViewBase {
 			</horizon-insure-email-plan-success>
 		`;
 	}
+
+
 
 	/**
 	 * Render Generic Success page for Update Plan / ReIssue
