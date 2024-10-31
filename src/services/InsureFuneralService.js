@@ -502,7 +502,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 			return this.mock(`insureUpdateIdDob`);
 		}
 		return this.post(
-			`/horizon-insurance/funeral/api/updateIdDob`,
+			`/horizon-insurance/funeral/api/update-id-dob`,
 			updateIdDobRequest,
 			this._setInsureHeaders(),
 			`updateIdDob`,
@@ -555,7 +555,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 		}
 		return this.post(
 			`/horizon-insurance/funeral/api/policy/benefit/cancel`,
-			activateBenefitRequest,
+			cancelBenefitRequest,
 			this._setInsureHeaders(),
 			`cancelBenefit`,
 			null,
@@ -636,6 +636,111 @@ export class InsureFuneralService extends ChannelServiceBase {
 			benefitInfoRequest,
 			this._setInsureHeaders(),
 			`benefitInfo`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * creates debicheck mandate
+	 *
+	 * @param {createMandateRequest} [createMandateRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async createMandate(createMandateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureCreateMandate`)) {
+			return this.mock(`insureCreateMandate`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/mandate/debicheckmandatecreate`,
+			createMandateRequest,
+			this._setInsureHeaders(),
+			`debicheckmandatecreate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * generates Policy Reschedule Document
+	 *
+	 * @param {generatePolicyRescheduleDocumentRequest} [generatePolicyRescheduleDocumentRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async generatePolicyRescheduleDocument(generatePolicyRescheduleDocumentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyReschedulePlanAgreement`)) {
+			return this.mock(`insurePolicyReschedulePlanAgreement`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/document/generate/PolicyReschedulePlanAgreement`,
+			generatePolicyRescheduleDocumentRequest,
+			this._setInsureHeaders(),
+			`policyReschedulePlanAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * policy History
+	 *
+	 * @param {policyHistoryRequest} [policyHistoryRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyHistory(policyHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyHistory`)) {
+			return this.mock(`insurePolicyHistory`);
+		}
+		
+		return this.post(
+			`/horizon-insurance/funeral/api/audit-transaction-history`,
+			policyHistoryRequest,
+			this._setInsureHeaders(),
+			`policyHistory`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Policy History Details
+	 *
+	 * @param {policyHistoryDetailsRequest} [policyHistoryDetailsRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async policyHistoryDetails(policyHistoryDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insurePolicyHistoryDetails`)) {
+			return this.mock(`insurePolicyHistoryDetails`);
+		}
+		return this.post(
+			`/horizon-insurance/funeral/api/audit-transaction-details`,
+			policyHistoryDetailsRequest,
+			this._setInsureHeaders(),
+			`policyHistoryDetails`,
 			null,
 			null,
 			900,

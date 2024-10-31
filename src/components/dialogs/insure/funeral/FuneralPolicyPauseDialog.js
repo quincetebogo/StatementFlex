@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
-import { FUN_POLICY_RULES, FUN_BENEFIT_TYPES, FUN_BENEFIT_DOT_TYPES, POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
+import { FUN_POLICY_RULES, FUN_BENEFIT_TYPES, FUN_CLIENT_SUMMARY_BENEFIT_TYPES, POLICY_PAUSE_REASONS } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import {formatDateToInsure} from "app/utils/insureUtils"
 import 'app/components/dialogs/insure/AgreementDialog';
@@ -98,7 +98,7 @@ class FuneralPolicyPauseDialog extends Component {
 
 	async _initialise() {
 
-		this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_BENEFIT_DOT_TYPES.POLICY_PAUSE);
+		this.vppBenefit = this.policy.benefits.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 
 		if (this.vppBenefit.isBenefitActive) {
 			this.policyPauseInfo = await this.fetchBenefitDetails(this.policy.contractReference, this.policy.productCode);
