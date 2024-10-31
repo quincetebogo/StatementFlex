@@ -182,7 +182,7 @@ export const settleAndCloseQuote = {
 	"currentBalance": 49018.14,
 	"interestNotCapatalised": 0,
 	"expectedInterestFees": 0,
-	"settlementAmount": 0.1,
+	"settlementAmount": 5000,
 	"savingAccountsList": [
 		{
 			"accountNumber": `1295723953`,
@@ -217,37 +217,47 @@ export const settleAndCloseQuote = {
 export const creditPermissions =
 {
 	"permissionsResultsList": [
-		{
-			"operationIdentifier": `Settle`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		},
-		{
-			"operationIdentifier": `SettleAndClose`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		},
-		{
-			"operationIdentifier": `SendViewTransactionHistory`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		},
-		{
-			"operationIdentifier": `SendViewStatements`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		},
-		{
-			"operationIdentifier": `SettlementQuote`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		},
-		{
-			"operationIdentifier": `PaidUp`,
-			"permissionResult": `Granted`,
-			"declineReasons": `None`
-		}
-	]
+        {
+            "operationIdentifier": "Settle",
+            "permissionResult": "Denied",
+            "declineReasons": "ClientOverIndebtedCapitecZeroBalance"
+        },
+        {
+            "operationIdentifier": "SettleAndClose",
+            "permissionResult": "Denied",
+            "declineReasons": "ClientOverIndebtedCapitecZeroBalance"
+        },
+        {
+            "operationIdentifier": "ProofOfAccount",
+            "permissionResult": "Granted",
+            "declineReasons": "None"
+        },
+        {
+            "operationIdentifier": "Open",
+            "permissionResult": "Denied",
+            "declineReasons": "FunctionalityNotAvailable"
+        },
+        {
+            "operationIdentifier": "SendViewTransactionHistory",
+            "permissionResult": "Granted",
+            "declineReasons": "None"
+        },
+        {
+            "operationIdentifier": "SendViewStatements",
+            "permissionResult": "Granted",
+            "declineReasons": "None"
+        },
+        {
+            "operationIdentifier": "SettlementQuote",
+            "permissionResult": "Denied",
+            "declineReasons": "ClientOverIndebtedCapitecZeroBalance"
+        },
+        {
+            "operationIdentifier": "PaidUp",
+            "permissionResult": "Granted",
+            "declineReasons": "None"
+        }
+    ]
 };
 
 export const settlementQuoteDetails = [
@@ -298,3 +308,20 @@ export const settleAndClose = {
 };
 
 export const emailPaidUpLetter = {};
+
+export const settlementQuoteLanding = {
+	"settlementInfoList": [
+        {
+            "productTypeDescription": "CREDIT CARD",
+            "accountNumber": "6003049811",
+            "creditLimit": "0",
+            "repayAmount": null,
+            "currentSettlementAmount": "-44447.07",
+            "maxSettlementAmount": null,
+            "productTypeCode": "101",
+            "nextRepayment": "0",
+            "currentBalance": 44443.49,
+            "accountStatusDescription": "ACTIVE"
+        }
+    ]
+};
