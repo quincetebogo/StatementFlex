@@ -1,7 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, CANCELATION_REASONS } from 'app/constants/InsureCommon';
-import { CancelPolicyEvents } from 'app/constants/telemetry/events/Insure';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { INSURE_CALLER_PAGE} from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDateToInsure, isValidRSAIdNumber, getDobFromIDNumber } from 'app/utils/insureUtils';

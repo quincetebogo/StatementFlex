@@ -183,8 +183,7 @@ export const HIGH_RISK_TRANSACTIONS = {
 		`statements`, 
 		`tap-to-pay`, 
 		`tax-certificate`, 
-		`proof-of-account`,
-		`send-cash-place-hold`
+		`proof-of-account`
 	],
 	[ORG_UNITS.HELPDESK]: [
 		`debi-check`,
@@ -194,8 +193,7 @@ export const HIGH_RISK_TRANSACTIONS = {
 		`partial-unlock`, 
 		`open-budget`, 
 		`update-card-limits`,
-		`tap-to-pay`, 
-		`send-cash-place-hold`
+		`tap-to-pay`
 	],
 	[ORG_UNITS.CAPITEC_CONNECT]: CC_HIGH_RISK
 };
