@@ -161,7 +161,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 async getVoucherInformation(voucherSerialNumber) {
-    const url = `/v1/api/horizon/bluelabel/API/voucher/information`;
+    const url = `/v1/api/horizon/voucher/information`;
     
     const request = {
         voucherSerialNumber: voucherSerialNumber
@@ -182,10 +182,11 @@ async getVoucherInformation(voucherSerialNumber) {
 }
 
 async getVoucherHistory(voucherSerialNumber) {
-	const url = `/v1/api/horizon/bluelabel/API/10/voucher/history`;
+	const url = `/v1/api/horizon/voucher/history`;
     
     const request = {
-        voucherSerialNumber: voucherSerialNumber
+        voucherSerialNumber: voucherSerialNumber,
+				maxRecords: "10"
     };
 
     return this.post(
