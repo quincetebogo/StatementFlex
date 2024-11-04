@@ -722,7 +722,7 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderSavingsPlanNotAvailable(savingsPlanType) {
-		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible savings` : `fixed-term savings`;
+		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `Access Anytime` : `fixed-term savings plam`;
 
 		return html`
 			<capitec-group
@@ -733,11 +733,11 @@ export class SavingsPlanLanding extends Component {
 					<img src="platform/illustrations/history.svg"/>
 					<capitec-label
 						class="no-results"
-						label="No ${headerText} plan accounts currently"
+						label="No ${headerText} accounts currently"
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="Get info about ${headerText} plan on the app or visit capitecbank.co.za"
+						label="Get info about ${headerText} on the app or visit capitecbank.co.za"
 						type="strong">
 					</capitec-label>
 					<capitec-button
