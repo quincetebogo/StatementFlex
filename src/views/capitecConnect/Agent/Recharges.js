@@ -126,7 +126,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
     ];
   }
 
-  _initialise() {
+	_initialise() {
     // this.clientCif = "281783047"; //TODO: comment out when done with dev
 
     this.showTable = true;
@@ -671,6 +671,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
   }
 
   _expandRenderer(item) {
+		let sourceOfFunds =
+      item.transactions?.[0]?.sourceOfFunds === "BANK_ACCOUNT"
+        ? "Account"
+        : "Voucher";
+		let voucherSerialNumber = item.transactions?.[0]?.voucherSerialNumber
     let accountNumber = `-`;
     const channel = toTitleCase(item.channel);
     let journalNumber = `-`;
@@ -784,6 +789,16 @@ export class CapitecConnectAgentRecharges extends ViewBase {
         <div row="4" column="1">
           <capitec-label label="Journal Number:"></capitec-label>
           <capitec-label type="strong" label="${journalNumber}"></capitec-label>
+        </div>
+
+        <div row="4" column="2">
+          <capitec-label label="Serial Number:"></capitec-label>
+          <capitec-label type="strong" label="${voucherSerialNumber  ?? "-"}"></capitec-label>
+        </div>
+
+        <div row="4" column="3">
+          <capitec-label label="Source of funds:"></capitec-label>
+          <capitec-label type="strong" label="${sourceOfFunds}"></capitec-label>
         </div>
 
         <div row="5" column="1" colspan="4">
