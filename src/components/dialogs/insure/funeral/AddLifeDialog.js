@@ -172,9 +172,10 @@ class AddLifeDialog extends Component {
 	}
 
 	_checkCurrentTotal(life) {
+		const currentLifeAssuredLength = this.currentLifesAssured.filter((life) => life.lifeAssured === true).length;
 
 		if (life.relationship === `Spouse`) {
-			if (this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+			if (this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY) {
 
 				let count = 0;
 				this.currentLifesAssured.forEach(lifes => {
@@ -187,15 +188,15 @@ class AddLifeDialog extends Component {
 				}
 			}
 		} else if (life.relationship === `Parent`) {
-			if (this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+			if (this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY) {
 				return true;
 			}
 		} else if (life.relationship === `Child`) {
-			if (this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+			if (this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY) {
 				return true;
 			}
 		} else if (life.relationship !== `Spouse` && life.relationship !== `Parent` && life.relationship !== `Child` && life.relationship !== `BeneficiaryOnly`) {
-			if (this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY) {
+			if (this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY) {
 				return true;
 			}
 		}
@@ -301,16 +302,18 @@ class AddLifeDialog extends Component {
 	 * @returns {html} The html content of the component.
 	 */
 	_renderDefaultList() {
+		const currentLifeAssuredLength = this.currentLifesAssured.filter((life) => life.lifeAssured === true).length;
+
 		return html`
 
 		<capitec-radio-group>
 		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
 			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
-			${this.currentLifesAssured.filter((life) => life.lifeAssured === false).length === 0 ? html`
+			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary === true).length === 0 ? html`
 				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
-				${life.lifeAssured === true ? html``
+				${life.lifeAssured === true || (life.lifeAssured === false && life.beneficiary === false)? html``
 				: html`
 					<capitec-card class="relationship-card">
 						<capitec-radio label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}: ${life.firstName} ${life.surname}"
@@ -327,27 +330,27 @@ class AddLifeDialog extends Component {
 		
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
 					hint="Only one allowed between the ages of 18 - 64 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Child" id="Child" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 25 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Parent" id="Parent" data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Extended Family" data-automation-id="horizon-insure-add-life-dialog-extended" id="ExtendedFamily"
-					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || this.currentLifesAssured.length === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._showExtendedFamilyList(e)}">
 				</capitec-radio>
@@ -482,7 +485,7 @@ class AddLifeDialog extends Component {
 				${this._renderCancelOrBackButton()}
 				<capitec-button id="id-confirm-button" type="primary" label="Add" data-automation-id="horizon-insure-add-life-dialog-add"
 					@click="${() => this._addClick()}"
-					.disabled="${this.currentLifesAssured.length >= MAX_LIVES_PER_POLICY || this.selectedRelationship === ``}">
+					.disabled="${this.currentLifesAssured.filter((life) => life.lifeAssured === true).length >= MAX_LIVES_PER_POLICY || this.selectedRelationship === ``}">
 				</capitec-button>
 			</capitec-group>`;
 	}

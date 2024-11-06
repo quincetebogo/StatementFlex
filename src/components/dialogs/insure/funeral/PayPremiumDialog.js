@@ -221,26 +221,19 @@ class PayPremiumDialog extends Component {
 	 * @returns {null} null
 	 */
 	_checkedChange(outstanding, selectedIndex, e) {
-
-		// adds selected arrear or removes deselcted arrear
 		this._addSelected(outstanding, selectedIndex, e);
 
-
-		// adds amount of arrear selected
 		if (e.detail.new === true) {
 			this.amount += outstanding.amount;
 			this.checked += 1;
-
+			
 			this.errorMessage = ``;
 		} else if (e.detail.new === false) {
 			this.insufficient = false;
-			this.optionSelected = true;
 			this.amount -= outstanding.amount;
 			this.checked -= 1;
 		}
-
 		this.requestUpdate();
-
 	}
 
 	/**
@@ -284,17 +277,17 @@ class PayPremiumDialog extends Component {
 	}
 
 	_validateCheck() {
-
 		if (this.optionSelected === false) {
 			this.errorMessage = `Select an account to pay from`;
-		} else if (this.checked === 0) {
+			this.requestUpdate();
+			return;
+		} if (this.checked === 0) { 
 			this.errorMessage = `Select arrears amount to pay`;
-		} else {
-			this._payClick();
-		}
-
+			this.requestUpdate();
+			return;
+		} 
+		this._payClick();
 		this.requestUpdate();
-
 	}
 
 
@@ -422,15 +415,15 @@ class PayPremiumDialog extends Component {
 	}
 
 	_renderInsufficientFunds() {
-		return this.insufficient === false ? html``
-			: html`
+		return this.insufficient === false ? html`` 
+		: html`
 			<capitec-toast class="error" type="error" header="Insufficient funds: Payment cannot exceed available balance" layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}
 
 	_renderErrorMessage() {
 		return !this.errorMessage ? html``
-			: html`
+		: html`
 			<capitec-toast class="error" type="error" header=${this.errorMessage} layout="horizontal" data-automation-id="horizon-insure-pay-premium-dialog-insufficient-funds"></capitec-toast>
 		`;
 	}

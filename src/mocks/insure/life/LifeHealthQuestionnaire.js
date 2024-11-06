@@ -16,23 +16,29 @@ export const insureLifeQuestionnaire = {
                 {
                     "answerId": `11`,
                     "questionGroupId": `1`,
-                    "detail": `Less than R15 000`,
+                    "detail": `Less than R7 500`,
                     "hasDescription": false
                 },
                 {
                     "answerId": `12`,
                     "questionGroupId": `1`,
-                    "detail": `R15 001 - R20 000`,
+                    "detail": `R7 501 to R15 000`,
                     "hasDescription": false
                 },
                 {
                     "answerId": `13`,
                     "questionGroupId": `1`,
-                    "detail": `R20 001 - R35 000`,
+                    "detail": `R15 001 to R25 000`,
                     "hasDescription": false
                 },
                 {
                     "answerId": `14`,
+                    "questionGroupId": `1`,
+                    "detail": `R25 001 to R35 000`,
+                    "hasDescription": false
+                },
+                {
+                    "answerId": `15`,
                     "questionGroupId": `1`,
                     "detail": `More than R35 000`,
                     "hasDescription": false

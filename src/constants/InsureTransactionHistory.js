@@ -32,7 +32,7 @@ export const DEFAULTS = {
 /**
  * Max no of Results
  */
-export const MAX_RESULTS = 50;
+export const MAX_RESULTS = 200;
 
 /**
  * date of last 90 days 

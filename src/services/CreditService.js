@@ -443,8 +443,11 @@ export class CreditService extends ChannelServiceBase {
 		);
 	}
 
-	settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async settlementQuoteLanding(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
+		if (await this.isMockEnabled(`settlementQuoteLanding`)) {
+			return this.mock(`settlementQuoteLanding`);
+		}
 		const url = `/clientcare-credit-v1/credit/settlement-quote/landing`;
 
 		return this.post(

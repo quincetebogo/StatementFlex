@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -10,7 +10,7 @@ const VALIDATION_ERRORS = {
 	REQUIRED_FIELD: `Required Field`,
 	BENE_OVER_18: `Beneficiary must be over 18`,
 	BENE_UNDER_18: `Beneficiary must be under 18`,
-	GUARDIAN_UNDER_18: `Guardian must be over 18`,
+	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
@@ -21,7 +21,7 @@ const VALIDATION_ERRORS = {
 };
 
 const STEPS = {
-	SETP_1: 1,
+	STEP_1: 1,
 	STEP_2: 2,
 	STEP_3: 3,
 	STEP_4: 4
@@ -35,6 +35,8 @@ const NEW_BENEFICIARY_TYPES = {
 
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
+const BENEFICIARY_MINIMUM_COVER = 50000;
+
 /**
  * @export
  * @class LifeAddBeneficiaryDialog
@@ -47,7 +49,7 @@ class LifeAddChildDialog extends Component {
 	constructor() {
 		super();
 
-		this.currentStep = STEPS.SETP_1;
+		this.currentStep = STEPS.STEP_1;
 		this.policy = {};
 		this.selectedPocket = {};
 
@@ -211,9 +213,9 @@ class LifeAddChildDialog extends Component {
 	_determineSteps() {
 		let steps = [];
 		if (this.guardianExists) {
-			steps = [{ title: `Child Details` }, { title: `New or existing Guardian` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `New or existing Caregiver` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		} else {
-			steps = [{ title: `Child Details` }, { title: `Guardian Details` }, { title: `Allocate cover` }];
+			steps = [{ title: `Child Details` }, { title: `Caregiver Details` }, { title: `Allocate cover` }];
 		}
 
 		return steps;
@@ -226,7 +228,9 @@ class LifeAddChildDialog extends Component {
 	 */
 	_continueWithNewGuardian() {
 		this.newGuardianType = NEW_BENEFICIARY_TYPES.NEW;
-		this.newGuardian = {};
+		this.newGuardian = {
+			role: `Guardian`
+		};
 		this.newOrExistingErrorMessage = ``;
 		this.newGuardianErrors = {};
 	}
@@ -263,19 +267,18 @@ class LifeAddChildDialog extends Component {
 	_nextClick() {
 		let isValid = false;
 
-		if (this.currentStep === STEPS.SETP_1) {
+		if (this.currentStep === STEPS.STEP_1) {
 			isValid = this._validateChildStep();
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			if (this.newGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
-				this.newOrExistingErrorMessage = `Please select an existing guardian or add a new one`;
+				this.newOrExistingErrorMessage = `Please select an existing caregiver or add a new one`;
 			} else {
 				this.newOrExistingErrorMessage = ``;
 				isValid = true;
 			}
 		} else if (this.guardianExists && this.currentStep === STEPS.STEP_3) {
 			isValid = this._validateGuardianStep();
-		}
-		else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
+		} else if (!this.guardianExists && this.currentStep === STEPS.STEP_2) {
 			isValid = this._validateGuardianStep();
 		}
 
@@ -368,7 +371,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.newChild.idNumber)) {
-			if (this.newChild.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.newChild.idNumber)) {
 				this.newChildErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
@@ -455,7 +458,7 @@ class LifeAddChildDialog extends Component {
 		}
 
 		if (!isNullorEmpty(this.newGuardian.idNumber)) {
-			if (this.newGuardian.idNumber.length !== 13) {
+			if (!isValidRSAIdNumber(this.newGuardian.idNumber)) {
 				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
@@ -494,7 +497,7 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < 1000) {
+			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -502,7 +505,7 @@ class LifeAddChildDialog extends Component {
 
 		// Validate in flight child
 		this.newChild.metaData.coverErrorMsg = ``;
-		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < 1000) {
+		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
 			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 			beneficiariesValid = false;
 		}
@@ -723,17 +726,33 @@ class LifeAddChildDialog extends Component {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
 				this.newChild.idNumber = e.detail.new;
-				if (this.newChild.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.newChild.idNumber)) {
 					this.newChild.dateOfBirth = getDobFromIDNumber(this.newChild.idNumber);
-					this.newChildErrors.dateOfBirth = ``;
 					this.newChildErrors.idNumber = ``;
+
+					// Age check
+					if (getAgeFromDob(this.newChild?.dateOfBirth) > 18) {
+						this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					} else {
+						this.newChildErrors.dateOfBirth = ``;
+					}
+				} else {
+					this.newChildErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			} else {
 				this.newGuardian.idNumber = e.detail.new;
-				if (this.newGuardian.idNumber.length === 13) {
+				if (isValidRSAIdNumber(this.newGuardian.idNumber)) {
 					this.newGuardian.dateOfBirth = getDobFromIDNumber(this.newGuardian.idNumber);
-					this.newGuardianErrors.dateOfBirth = ``;
 					this.newGuardianErrors.idNumber = ``;
+
+					// Age check
+					if (getAgeFromDob(this.newGuardian?.dateOfBirth) < 18) {
+						this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+					} else {
+						this.newGuardianErrors.dateOfBirth = ``;
+					}
+				} else {
+					this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			}
 		}
@@ -821,9 +840,9 @@ class LifeAddChildDialog extends Component {
 	_emailChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
-				this.newGuardian.contactEmail = e.detail.new;
-				if (!isNullorEmpty(this.newGuardian.contactEmail)) {
-					this.newGuardianErrors.contactEmail = ``;
+				this.newChild.contactEmail = e.detail.new;
+				if (!isNullorEmpty(this.newChild.contactEmail)) {
+					this.newChildErrors.contactEmail = ``;
 				}
 			} else {
 				this.newGuardian.contactEmail = e.detail.new;
@@ -979,7 +998,7 @@ class LifeAddChildDialog extends Component {
 					active-step-number="${this.currentStep}">
 				</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
 			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
@@ -998,7 +1017,7 @@ class LifeAddChildDialog extends Component {
 				active-step-number="${this.currentStep}">
 			</capitec-stepper>
 
-			<div style="${this.currentStep === STEPS.SETP_1 ? `display: block` : `display: none`}">
+			<div style="${this.currentStep === STEPS.STEP_1 ? `display: block` : `display: none`}">
 				${this._renderChildDetails()}
 			</div>
 			<div style="${this.currentStep === STEPS.STEP_2 ? `display: block` : `display: none`}">
@@ -1029,7 +1048,7 @@ class LifeAddChildDialog extends Component {
 				<horizon-product-tile
 					type="radio-button"
 					label="Add Guardian"
-					subtitle="Add a new guardian for this child"
+					subtitle="Add a new caregiver for this child"
 					?selected="${this.newGuardianType === NEW_BENEFICIARY_TYPES.NEW}"
 					@click="${() => this._continueWithNewGuardian()}">
 				</horizon-product-tile>
@@ -1369,7 +1388,7 @@ class LifeAddChildDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-				${this.currentStep === STEPS.SETP_1 ? html`
+				${this.currentStep === STEPS.STEP_1 ? html`
 					<capitec-button class="capitec-button-small" slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 					</capitec-button>
 				` : html`
