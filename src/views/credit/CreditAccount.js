@@ -498,9 +498,9 @@ export class CreditAccount extends ViewBase {
 
 	_getSavingsAccType(code) {
 		if (Number(code) === 300) {
-			return `Main Account`;
+			return `Primary`;
 		}
-		return `Access Anytime Plan`;
+		return `Flexible`;
 	}
 
 	_errorHandler() {

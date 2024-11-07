@@ -30,7 +30,7 @@ export class RoleManager {
 
 	// Indicates if an agent is with Helpdest role
 	get isHelpDeskAgent() {
-		return true; // this.roles && this.roles.includes(`helpdesk-agent`);
+		return this.roles && this.roles.includes(`helpdesk-agent`);
 	}
 
 	get isAuthorised() {
@@ -51,7 +51,7 @@ export class RoleManager {
 	}
 
 	get isClientCareAgent() {
-		return true; // this.roles && this.roles.includes(`clientcare-agent`);
+		return this.roles && this.roles.includes(`clientcare-agent`);
 	}
 
 	get orgUnit() {
@@ -70,8 +70,8 @@ export class RoleManager {
 
 	async isSearchClientEnabled() {
 		if (this.isAuthorised) {
-			const searchClientEnabledByConfig = await true; // await this._configuration.getSetting(`searchClientOptionEnabled`);
-			const searchClientEnabledByGroup = true; // this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+			const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
 
 			return searchClientEnabledByConfig || searchClientEnabledByGroup;
 		}

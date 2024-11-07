@@ -722,7 +722,7 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderSavingsPlanNotAvailable(savingsPlanType) {
-		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `Access Anytime` : `fixed-term savings plam`;
+		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `Access Anytime` : `fixed-term savings plan`;
 
 		return html`
 			<capitec-group
