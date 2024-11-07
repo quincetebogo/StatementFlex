@@ -421,9 +421,7 @@ export class ApproveDebiCheckMandate extends Component {
 						data-automation-id="debi-check-agreement-terms-and-conditions"
 						class="agreement-content"
 						id="agree">
-						<div>
 							${this.agreementText}
-						</div>
 					</capitec-content-box>
 				</capitec-expander>
 	
@@ -443,9 +441,7 @@ export class ApproveDebiCheckMandate extends Component {
 			<capitec-content-box  
 				data-automation-id="debi-check-agreement-declaration"
 				class="declaration-content">
-				<div id="declare">
 					${this.declarationText}
-				</div>
 				<capitec-card>
 					<capitec-check
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
