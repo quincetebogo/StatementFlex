@@ -326,16 +326,11 @@ export class ProfileAndProductSummaryBar extends Component {
 			credit: productTilesInfo.creditProductAmount
 		};
 
-		this.accountNameDetails = {
-			mainAccount: productTilesInfo.accountName
-		};
-
 		this.hasFavourites = true;
 
 		const updatedProductButtonInfo = {
 			subtitle: this.subtitle,
 			detail: this.detail,
-			accountNameDetails: this.accountNameDetails,
 			hasFavorutie: this.hasFavourites
 		};
 
