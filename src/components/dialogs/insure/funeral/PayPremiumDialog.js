@@ -71,7 +71,7 @@ class PayPremiumDialog extends Component {
 			insufficient: { type: Boolean, state: true },
 			checked: { type: Number, state: true },
 			displayAccountNotSelected: { type: Boolean, state: true },
-			
+
 			currentContractRef: { type: String, state: true },
 			errorMessage: { type: String, state: true }
 		};
@@ -138,7 +138,7 @@ class PayPremiumDialog extends Component {
 				return 1;
 			}
 			return 0;
-		}); 
+		});
 	}
 
 
@@ -188,29 +188,29 @@ class PayPremiumDialog extends Component {
 			"next-screen": TelemetryScreen.INSURE_PAY_POLICY_CONFIRM_DIALOG
 		});
 
-			if (this.accountType === `Savings Account`) {
-				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
-				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
-					this.optionSelected = false;
-					this.insufficient = true;
-				} else if (this.optionSelected === false) {
-					this.errorMessage = `Select an account to pay from`;
-				} else {
-					this._PayArrears();
-				}
+		if (this.accountType === `Main Account`) {
+			const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
+			if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
+				this.optionSelected = false;
+				this.insufficient = true;
+			} else if (this.optionSelected === false) {
+				this.errorMessage = `Select an account to pay from`;
 			} else {
-				const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
-
-				if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
-					this.optionSelected = false;
-					this.insufficient = true;
-				} else if (this.optionSelected === false) {
-					this.errorMessage = `Select an account to pay from`;
-				} else {
-					this._PayArrears();
-				}
-
+				this._PayArrears();
 			}
+		} else {
+			const index = this.clientArrears.payableAccounts.map(object => object.accountNumber).indexOf(this.accountNumber);
+
+			if (this.clientArrears.payableAccounts[index]?.availableBalance < this.amount) {
+				this.optionSelected = false;
+				this.insufficient = true;
+			} else if (this.optionSelected === false) {
+				this.errorMessage = `Select an account to pay from`;
+			} else {
+				this._PayArrears();
+			}
+
+		}
 	}
 
 	/**

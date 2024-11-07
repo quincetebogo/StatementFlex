@@ -29,7 +29,7 @@ export class ProcessReversalSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -102,10 +102,10 @@ export class ProcessReversalSuccess extends ViewBase {
 			</horizon-success-screen>`;
 	}
 
-	//add savings account
+	// add savings account
 	_renderDetails() {
 		return html`
-			<span>Transaction has been reversed to savings account <strong>${this._currentAccountNumber}</strong></span>`;
+			<span>Transaction has been reversed to main account <strong>${this._currentAccountNumber}</strong></span>`;
 	}
 
 	_renderRelatedOptions() {

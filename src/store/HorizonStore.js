@@ -98,7 +98,7 @@ export class HorizonStore extends Store {
 		if (this.state && Object.hasOwnProperty.call(this.state, `isReassigned`)) {
 			return this.state.isReassigned;
 		}
-		
+
 		return false;
 	}
 
@@ -203,7 +203,7 @@ export class HorizonStore extends Store {
 	 * 
 	 * @returns { undefined } An object containing the route and optional information to use when returning to a calling screen
 	 */
-	 clearReturnScreen() {
+	clearReturnScreen() {
 		return this.setState({ returnToScreen: null });
 	}
 
@@ -242,8 +242,9 @@ export class HorizonStore extends Store {
 		if (!newLandingPageInfo) {
 			return;
 		}
-		
+
 		const updatedLandingPageInfo = {
+			accountName: newLandingPageInfo.accountName ? newLandingPageInfo.accountName : this.state.landingPageInfo?.accountName,
 			savingsAccountProductDescription: newLandingPageInfo.savingsAccountProductDescription ? newLandingPageInfo.savingsAccountProductDescription : this.state.landingPageInfo?.savingsAccountProductDescription,
 			liveBetterBankingProductDescription: newLandingPageInfo.liveBetterBankingProductDescription ? newLandingPageInfo.liveBetterBankingProductDescription : this.state.landingPageInfo?.liveBetterBankingProductDescription,
 			savingsPlanProductDescription: newLandingPageInfo.savingsPlanProductDescription ? newLandingPageInfo.savingsPlanProductDescription : this.state.landingPageInfo?.savingsPlanProductDescription,
@@ -255,7 +256,7 @@ export class HorizonStore extends Store {
 			insureProductAmount: newLandingPageInfo.insureProductAmount ? newLandingPageInfo.insureProductAmount : this.state.landingPageInfo?.insureProductAmount,
 			creditProductAmount: newLandingPageInfo.creditProductAmount ? newLandingPageInfo.creditProductAmount : this.state.landingPageInfo?.creditProductAmount
 		};
-		
+
 		const subtitle = {
 			savingsAccount: updatedLandingPageInfo.savingsAccountProductDescription,
 			liveBetterSavings: updatedLandingPageInfo.liveBetterBankingProductDescription,
@@ -269,7 +270,8 @@ export class HorizonStore extends Store {
 			liveBetterSavings: updatedLandingPageInfo.liveBetterBankingProductAmount,
 			savingsPlan: updatedLandingPageInfo.savingsPlanProductAmount,
 			insure: updatedLandingPageInfo.insureProductAmount,
-			credit: updatedLandingPageInfo.creditProductAmount
+			credit: updatedLandingPageInfo.creditProductAmount,
+			accountName: updatedLandingPageInfo.accountName
 		};
 
 		const updatedLeftBarButtonConfig = {
@@ -287,12 +289,13 @@ export class HorizonStore extends Store {
 	 * @return {void}
 	 */
 	setLandingInfoPageState(newLandingPageInfo) {
-		
+
 		if (!newLandingPageInfo) {
 			return;
 		}
-		
+
 		const updatedLandingPageInfo = {
+			accountName: newLandingPageInfo.accountName ? newLandingPageInfo.accountName : this.state.landingPageInfo?.accountName,
 			savingsAccountProductDescription: newLandingPageInfo.savingsAccountProductDescription ? newLandingPageInfo.savingsAccountProductDescription : this.state.landingPageInfo?.savingsAccountProductDescription,
 			liveBetterBankingProductDescription: newLandingPageInfo.liveBetterBankingProductDescription ? newLandingPageInfo.liveBetterBankingProductDescription : this.state.landingPageInfo?.liveBetterBankingProductDescription,
 			savingsPlanProductDescription: newLandingPageInfo.savingsPlanProductDescription ? newLandingPageInfo.savingsPlanProductDescription : this.state.landingPageInfo?.savingsPlanProductDescription,

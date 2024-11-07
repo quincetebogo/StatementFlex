@@ -113,10 +113,10 @@ export class TaxFreeSavingsProduct extends View {
 							<capitec-label id="label" label="Benefits" type="strong"></capitec-label>
 						<hr>
 						<p id="benefits-text"> 
-							The benefits of our tax-free savings account:
+							The benefits of our tax-free main account:
 						</p>
 						<ul class="list-items">
-							<li>You can open one tax-free savings account at any of our branches</li>
+							<li>You can open one tax-free main account at any of our branches</li>
 							<li>Deposit any amount up to R33 000 per year (single or multiple deposits)</li>
 							<li>Choose an investment term from 12-24 months</li>
 							<li>Earn interest from R1</li>
@@ -126,13 +126,13 @@ export class TaxFreeSavingsProduct extends View {
 						<hr>
 						<ul class="list-items">
 							<li>Contribution limits</li>
-							<li>Your combined limit for the financial year (1 March-28 February) across all tax-free savings accounts,
+							<li>Your combined limit for the financial year (1 March-28 February) across all tax-free main accounts,
 							    including those at other financial services providers, is R33 000</li>
 							<li>Lifetime limit is R500 000</li>
 							<li>Interest will not be taxed</li>
 							<li>Money withdrawn cannot be replaced</li>
 							<li>Money may be transferred to and from a tax-free account at aonther financial services provider</li>
-							<li>Other savings plans may not be converted to a tax-free savings account</li>
+							<li>Other savings plans may not be converted to a tax-free main account</li>
 						</ul>
 					</capitec-content-box>
 			</capitec-group>

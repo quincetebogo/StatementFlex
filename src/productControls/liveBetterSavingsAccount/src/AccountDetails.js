@@ -4,7 +4,7 @@ import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/HorizonLabel';
 
 const ACCOUNT_TYPE = {
-	300: `Savings Account`,
+	300: `Main Account`,
 	200: `Savings Plan`,
 	201: `FixedTerm Plan`,
 	100: `Credit Card`,
@@ -24,8 +24,8 @@ const ACCOUNT_TYPE = {
  * @extends {Component}
  */
 
- export class AccountDetails extends Component {
-	
+export class AccountDetails extends Component {
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -39,7 +39,7 @@ const ACCOUNT_TYPE = {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 	}
@@ -96,7 +96,7 @@ const ACCOUNT_TYPE = {
 	// --------------
 
 	// N/A
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -468,16 +468,16 @@ const ACCOUNT_TYPE = {
 		</capitec-content-box>
 		`;
 	}
- }
+}
 
- customElements.define(`capitec-pc-live-better-account-details`, AccountDetails);
+customElements.define(`capitec-pc-live-better-account-details`, AccountDetails);
 
- /**
- * When left arrow on the title bar is clicked to go back
- *
- * @example
- * <capitec-pc-live-better-account-details ... @back="${this._handler}"></capitec-pc-live-better-account-details>
- *
- * @event AccountDetails#back
- * @type {Object} - N/A
- */
+/**
+* When left arrow on the title bar is clicked to go back
+*
+* @example
+* <capitec-pc-live-better-account-details ... @back="${this._handler}"></capitec-pc-live-better-account-details>
+*
+* @event AccountDetails#back
+* @type {Object} - N/A
+*/
