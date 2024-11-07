@@ -89,14 +89,14 @@ class InsureAccountSelect extends Component {
 		this.selectorAccounts.savingsPlan = [];
 
 		this.accountDetails.map((account) => {
-			if (account.accountName === `SAVINGS ACCOUNT`) {
+			if (account.accountName === `MAIN ACCOUNT`) {
 				this.selectorAccounts.savingsAccount.push({
 					accountNumber: account.accountNumber,
 					availableBalance: account.availableBalance
 					// accountStatus: this.accountDetails.savingsAccountData.accountStatus
 				});
 			}
-			if (account.accountName !== `SAVINGS ACCOUNT`) {
+			if (account.accountName !== `MAIN ACCOUNT`) {
 				this.selectorAccounts.savingsPlan.push({
 					accountType: account.accountType,
 					// accountStatus: this.accountDetails.savingsPlanData.savingsPlans[i].accountStatus,
@@ -148,7 +148,7 @@ class InsureAccountSelect extends Component {
 	_indexChange(selected, account) {
 
 
-		if (account === `Savings Account`) {
+		if (account === `Main Account`) {
 			this.selectedIndex = this.selectorAccounts.savingsAccount.map(accounts => accounts.accountNumber).indexOf(selected);
 			this.selectedAccount = selected;
 		} else {
@@ -336,7 +336,7 @@ class InsureAccountSelect extends Component {
 						</div>
 
 						<div style="display: flex; flex-direction: column;">
-							<capitec-label class="account-label" type="subtitle" label="SAVINGS ACCOUNT" style="font-weight: bold;" ></capitec-label>
+							<capitec-label class="account-label" type="subtitle" label="MAIN ACCOUNT" style="font-weight: bold;" ></capitec-label>
 							<capitec-label class="account-label" type="subtitle" label="Available balance" ></capitec-label>
 						</div>
 
@@ -365,12 +365,12 @@ class InsureAccountSelect extends Component {
 		${this.selectorAccounts.savingsAccount.map(item => html`
 				
 			<div class="select-options" style="width: ${this.selectBoxWidth}">
-				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Savings Account`)}" layout="horizontal" valign="center" noScroll>
+				<capitec-content-box @click="${() => this._indexChange(item.accountNumber, `Main Account`)}" layout="horizontal" valign="center" noScroll>
 					<div> 
 						<capitec-icon size="default" icon="product/transact"></capitec-icon>
 					</div>
 					<div >
-						<capitec-label class="option-label" type="subtitle" label="SAVINGS ACCOUNT | ${formatCurrency(item.availableBalance)}" ></capitec-label>
+						<capitec-label class="option-label" type="subtitle" label="MAIN ACCOUNT | ${formatCurrency(item.availableBalance)}" ></capitec-label>
 					</div>
 				</capitec-content-box>
 
