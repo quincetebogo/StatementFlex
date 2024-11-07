@@ -144,6 +144,8 @@ export class ProductButtonPanel extends Component {
 	}
 
 	render() {
+		const isInsureAgentOrAdmin = this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator;
+
 		return html`
 			<horizon-product-tile 
 				class="product-button"
@@ -151,13 +153,13 @@ export class ProductButtonPanel extends Component {
 				label="${this.detail.accountName ? this._toPascalCase(this.detail.accountName) : `Main Account`}"
 				subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : DEFAULT_SUBTITLE.SAVINGS_ACCOUNT}"
 				detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
-				?showToolTip = "${this.roleManager.isInsureAgent}"
+				?showToolTip = "${isInsureAgentOrAdmin}"
 				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				icon="product/transact-white"
 				@click="${() => this._productButtonClick(`SavingsAccount`)}"
 				?selected="${this.selectedButton === `SavingsAccount`}"
 				data-automation-id="product-button-panel-savings-account"
-				?disabled="${this.roleManager.isInsureAgent}">
+				?disabled="${isInsureAgentOrAdmin}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -165,13 +167,13 @@ export class ProductButtonPanel extends Component {
 				label="Savings Plan"
 				subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : DEFAULT_SUBTITLE.SAVINGS_PLAN}"
 				detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
-				?showToolTip = "${this.roleManager.isInsureAgent}"
+				?showToolTip = "${isInsureAgentOrAdmin}"
 				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				icon="product/save-white"
 				@click="${() => this._productButtonClick(`SavingsPlan`)}"
 				?selected="${this.selectedButton === `SavingsPlan`}"
 				data-automation-id="product-button-panel-savings-plan"
-				?disabled="${this.roleManager.isInsureAgent}">
+				?disabled="${isInsureAgentOrAdmin}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -181,12 +183,12 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.credit ? this.detail.credit : ``}"
 				icon="product/credit-white"
 				?detailIcon="${false}"
-				?showToolTip = "${this.roleManager.isInsureAgent}"
+				?showToolTip = "${isInsureAgentOrAdmin}"
 				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				@click="${() => this._productButtonClick(`Credit`)}"
 				?selected="${this.selectedButton === `Credit`}"
 				data-automation-id="product-button-panel-credit"
-				?disabled="${this.roleManager.isInsureAgent}">
+				?disabled="${isInsureAgentOrAdmin}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -210,11 +212,11 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.liveBetterSavings ? this._getProductDetailValue(this.detail.liveBetterSavings, `liveBetter`) : ``}"
 				icon="product/live-better"
 				@click="${() => this._productButtonClick(`LiveBetter`)}"
-				?showToolTip = "${this.roleManager.isCapitecConnectAgent || this.roleManager.isInsureAgent}"
+				?showToolTip = "${this.roleManager.isCapitecConnectAgent || isInsureAgentOrAdmin}"
 				.toolTipMessage = "${TOOLTIP_MESSAGE}"
 				?selected="${this.selectedButton === `LiveBetter`}"
 				data-automation-id="product-button-panel-live-better"
-				?disabled="${this.roleManager.isCapitecConnectAgent || this.roleManager.isInsureAgent}">
+				?disabled="${this.roleManager.isCapitecConnectAgent || isInsureAgentOrAdmin}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -226,8 +228,8 @@ export class ProductButtonPanel extends Component {
 				?selected="${this.selectedButton === `CapitecConnect`}"
 				data-automation-id="product-button-panel-capitec-connect"
 				.toolTipMessage = "${TOOLTIP_MESSAGE}"
-				?showToolTip = "${this.roleManager.isHelpDeskAgent || this.roleManager.isInsureAgent || this.roleManager.isClientCareAgent}"
-				?disabled="${this.roleManager.isHelpDeskAgent || this.roleManager.isInsureAgent || this.roleManager.isClientCareAgent}">
+				?showToolTip = "${this.roleManager.isHelpDeskAgent || isInsureAgentOrAdmin || this.roleManager.isClientCareAgent}"
+				?disabled="${this.roleManager.isHelpDeskAgent || isInsureAgentOrAdmin || this.roleManager.isClientCareAgent}">
 			</horizon-product-tile>
 		`;
 	}

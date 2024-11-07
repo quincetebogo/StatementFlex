@@ -73,32 +73,6 @@ export class InsureLifeService extends ChannelServiceBase {
 	// #region PUBLIC METHODS
 
 	/**
-	 * Check if client qualifies for Life Cover 
-	 *
-	 * @param {Object} [clientQualifyRequest] Request data for service call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	async lifeClientQualify(clientQualifyRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureLifeClientQualifies`)) {
-			return this.mock(`insureLifeClientQualifies`);
-		}
-		return this.post(
-			`/horizon-insurance/life-cover/api/v1/client/qualify`,
-			clientQualifyRequest,
-			this._setInsureHeaders(),
-			`lifeClientQualify`,
-			null,
-			null,
-			900,
-			null,
-			errorHandler,
-			autoRetries
-		);
-	}
-
-	/**
 	 * Returns the Summary of clients Life Cover policies
 	 *
 	 * @param {Object} [clientSummaryRequest] Request data for service call
@@ -444,7 +418,10 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	lifeUpdateBankingDetails(updateBankingDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async lifeUpdateBankingDetails(updateBankingDetailsRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeUpdateBankingDetails`)) {
+			return this.mock(`insureLifeUpdateBankingDetails`, {});
+		}
 		return this.post(
 			`/horizon-insurance/life-cover/api/v1/policy/update-banking-details`,
 			updateBankingDetailsRequest,
@@ -640,6 +617,109 @@ export class InsureLifeService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Cover Available 
+	 *
+	 * @param {Object} [coverAvailableRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeCoverAvailable(coverAvailableRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeCoverAvailable`)) {
+			return this.mock(`insureLifeCoverAvailable`, coverAvailableRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/cover-available`,
+			coverAvailableRequest,
+			this._setInsureHeaders(),
+			`lifeCoverAvailable`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Increase cover
+	 *
+	 * @param {Object} [increaseCoverRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async lifeIncreaseCover(increaseCoverRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureLifeIncreaseCover`)) {
+			return this.mock(`insureLifeIncreaseCover`, increaseCoverRequest);
+		}
+		return this.post(
+			`/horizon-insurance/life-cover/api/v1/policy/increase-cover`,
+			increaseCoverRequest,
+			this._setInsureHeaders(),
+			`lifeIncreaseCover`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 	
+		/**
+	 * 
+	 * 
+	 * @param {activateBenefitRequest} activateBenefitRequest - The request object containing details needed to activate the benefit.
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+		async activateBenefit(activateBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+			if (await this.isMockEnabled(`insureLifeActivateBenefit`)) {
+				return this.mock(`insureLifeActivateBenefit`);
+			}
+			return this.post(
+				`/horizon-insurance/life-cover/api/v1/policy/newborn-waiver`,
+				activateBenefitRequest,
+				this._setInsureHeaders(),
+				`activateBenefit`,
+				null,
+				null,
+				900,
+				null,
+				errorHandler,
+				autoRetries
+			);
+		}
+
+		/**
+	 * 
+	 * 
+	 * @param {cancelBenefitRequest} cancelBenefitRequest - The request object containing details needed to activate the benefit.
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+		async cancelBenefit(cancelBenefitRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+			if (await this.isMockEnabled(`insureLifeCancelBenefit`)) {
+				return this.mock(`insureLifeCancelBenefit`);
+			}
+			return this.post(
+				`/horizon-insurance/life-cover/api/v1/policy/newborn-waiver-stop`, 
+				cancelBenefitRequest,
+				this._setInsureHeaders(),
+				`cancelBenefit`,
+				null,
+				null,
+				900,
+				null,
+				errorHandler,
+				autoRetries
+			);
+		}
 	// #endregion PUBLIC METHODS
 }

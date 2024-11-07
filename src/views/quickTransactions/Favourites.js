@@ -39,6 +39,7 @@ import 'app/dialogs/taxCertificates/TaxCertificates';
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 const today = new Date();
+const DEFAULT_CCS_MESSAGE = `Unable to perform this transaction as there is a CCS status on this account.`;
 
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
@@ -85,6 +86,9 @@ export class Favourites extends SavingsAccountBase {
 		this.showCCSmodal = false;
 		this.settlementQuoteEvents = SETTLEMENT_QUOTE_EVENTS;
 		this.payShapDetails = {};
+
+		this.declineReason = ``;
+		this.declineMessage = ``;
 
 		this.navigationContext = NavigationContext.getInstance();
 
@@ -634,8 +638,10 @@ export class Favourites extends SavingsAccountBase {
 				});
 
 			if (this.settlementQuoteDetails.length > 0) {
-				const { ccsStatus } = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+				const { ccsStatus ,declineReasons, declineMessage} = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
 				this.ccsStatus = ccsStatus;
+				this.declineReason = declineReasons;
+				this.declineMessage = declineMessage || DEFAULT_CCS_MESSAGE;
 
 				if (this.ccsStatus) {
 					this.showCCSmodal = true;
@@ -1509,6 +1515,8 @@ export class Favourites extends SavingsAccountBase {
 			</horizon-update-card-settings>`
 		: html``;
 	}
+
+	
 }
 
 customElements.define(`horizon-favourites`, Favourites);
