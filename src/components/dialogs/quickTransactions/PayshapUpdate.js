@@ -71,7 +71,7 @@ export class PayShapUpdate extends Component {
 
 	_toggleValue() {
 		this.isCapitecBankDefault = !this.isCapitecBankDefault;
-		this.showAgreement = this.isCapitecBankDefault; 
+		this.showAgreement = this.isCapitecBankDefault;
 
 		this.agreementAccepted = false;
 		this.showWarningModal = !this.isCapitecBankDefault;
@@ -116,7 +116,7 @@ export class PayShapUpdate extends Component {
 
 	static get styles() {
 		return [
-			super.styles, 
+			super.styles,
 			css`
 
 				capitec-modal {
@@ -305,25 +305,25 @@ export class PayShapUpdate extends Component {
 
 	_renderUnknownDefaultProxyStatusAlertBanner() {
 		return this.payShapModalDetails.defaultInstitution === `Unknown`
-		? html`
+			? html`
 			<capitec-alert-banner 
 				type="warning" 
 				label="Unable to determine client's main bank. Please refresh Payshap page or instruct client to try using the app." 
 				layout="vertical">
 			</capitec-alert-banner>`
-		: html``;
+			: html``;
 	}
 
 	_renderAlertBanner() {
 		return !isNullorEmpty(this.payShapModalDetails.defaultInstitution) && !this.payShapModalDetails.isCapitecBankDefault && this.payShapModalDetails.defaultInstitution !== `Unknown`
-		? html`
+			? html`
 			<capitec-alert-banner 
 				type="warning" 
 				header="Notify client:" 
 				label="To set Capitec as your main bank, please first de-list with your current main bank." 
 				layout="vertical">
 			</capitec-alert-banner>`
-		: html``;
+			: html``;
 	}
 
 	_renderCellPhoneNumber() {
@@ -369,7 +369,7 @@ export class PayShapUpdate extends Component {
 
 	_renderDisclaimer() {
 		return this.showAgreement && !this.payShapModalDetails.isCapitecBankDefault
-		? html`
+			? html`
 			<capitec-card>
 				<capitec-title-bar type="clear" label="Disclaimer"></capitec-title-bar>
 				<capitec-content-box layout="vertical" noPadding class="agreement-box">
@@ -377,7 +377,7 @@ export class PayShapUpdate extends Component {
 						<li><capitec-label label="Capitec Bank will not charge you for setting Capitec Bank as the default bank for PayShap."></capitec-label></li>
 						<li><capitec-label label="Capitec Bank will only charge you the fees associated with the payment instruction sent through PayShap."></capitec-label></li>
 						<li><capitec-label label="Your ShapID will be your registered cell phone number @capitec."></capitec-label></li>
-						<li><capitec-label label="All payment instructions sent through PayShap will be credited to your global one savings account."></capitec-label></li>
+						<li><capitec-label label="All payment instructions sent through PayShap will be credited to your global one Main account."></capitec-label></li>
 					</ul>
 					<capitec-card class="agreement">
 						<capitec-check
@@ -388,12 +388,12 @@ export class PayShapUpdate extends Component {
 					</capitec-card>
 				</capitec-content-box>
 			</capitec-card>`
-		: html``;
+			: html``;
 	}
 
 	_renderWarningModal() {
 		return this.showWarningModal && this.payShapModalDetails.isCapitecBankDefault
-		? html`
+			? html`
 		<capitec-modal type="free" class="warning-modal" header-align="left">
 			<div slot="header" class="warning-header">
 				<span>
@@ -428,7 +428,7 @@ export class PayShapUpdate extends Component {
 				</capitec-group>
 			</div>
 		</capitec-modal>`
-		: html``;
+			: html``;
 	}
 
 	_renderFooter() {

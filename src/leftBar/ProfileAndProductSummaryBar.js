@@ -305,7 +305,8 @@ export class ProfileAndProductSummaryBar extends Component {
 				savingsPlanProductAmount: ``,
 				liveBetterBankingProductAmount: ``,
 				insureProductAmount: ``,
-				creditProductAmount: ``
+				creditProductAmount: ``,
+				accountName: ``
 			};
 		}
 
@@ -369,10 +370,10 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
-		
+
 		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState) &&
 			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
-				incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
 	}
 
