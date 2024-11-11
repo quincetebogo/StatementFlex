@@ -440,6 +440,7 @@ export class ApproveDebiCheckMandate extends Component {
 			<capitec-content-box  
 				data-automation-id="debi-check-agreement-declaration"
 				class="declaration-content">
+				<div id="declare"></div>
 				<capitec-card>
 					<capitec-check
 						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
