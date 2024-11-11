@@ -1,0 +1,427 @@
+name: Node Container Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - feature/*
+      - release/*
+    types:
+      - opened
+      - synchronize
+    paths:
+      - "src/**"
+      - "Dockerfile"
+      - ".github/workflows/*.yaml"
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  JF_URL: ${{ vars.JF_URL }}
+  JF_PROJECT_KEY: ${{ vars.JF_PROJECT_KEY }}
+  DOCKER_REPO: ${{ vars.DOCKER_REPO }}
+  JF_REPO: ${{ vars.JF_REPO }}
+  RUN: ${{ github.run_number }}
+  BUILD_LOCATION: "./dist"
+  BUILD_NAME: ${{ vars.SERVICE_NAME }}
+  JF_BASE_URL: ${{ vars.JF_BASE_URL }}
+
+jobs:
+  build:
+    name: Build Application
+    runs-on:
+      - ubuntu-22.04
+    if: (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' || github.event.action == 'synchronize') &&
+      (startsWith(github.event.pull_request.base.ref, 'release/') ||
+      startsWith(github.event.pull_request.base.ref, 'feature/')))
+    outputs:
+      PROJECT_VERSION: ${{ steps.variables.outputs.PROJECT_VERSION }}
+    container:
+      image:
+        capitecbank.jfrog.io/odin-docker-shared-local/node/amd64/node:latest
+        # capitecbank.jfrog.io/odin-docker-shared-local/node:21.6
+      credentials:
+        username: ${{ vars.JF_ACCESS_USER }}
+        password: ${{ secrets.JF_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Set Project Version
+        id: variables
+        run: |
+          echo "PROJECT_VERSION=$(grep -oP '"version": "\K[^"]+' package.json)" >> "${GITHUB_OUTPUT}"
+      - name: Install JFrog
+        id: install-jf
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: Run JFrog Build
+        run: |
+          jf rt ping
+          jf npm-config --repo-resolve=$JF_REPO --repo-deploy=$JF_REPO
+          jf npm ci --build-name $BUILD_NAME --build-number $RUN
+          jf npm publish --build-name $BUILD_NAME --build-number ${RUN}
+          jf rt build-collect-env $BUILD_NAME $RUN --project $JF_PROJECT_KEY
+          jf rt build-publish $BUILD_NAME $RUN --project $JF_PROJECT_KEY
+
+      - name: Change permissions for ocwp-legacy
+        run: chmod 777 ./ocwp-legacy
+
+      - name: Restore
+        run: ./ocwp-legacy restore
+
+      - name: Build
+        run: ./ocwp-legacy build
+
+      # Step to upload the artifact
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact # Name of the artifact
+          path: ${{ env.BUILD_LOCATION }} # Path to the build directory and its contents
+    #   - uses: actions/upload-artifact@v2
+    #     with:
+    #       name: build-artifact # Name of the artifact
+    #       path: |
+    #         .eslintignore
+    #         .eslintrc
+    #         .eslintrc.json
+    #         .gitignore
+    #         CapitecRootCA.pem
+    #         Dockerfile
+    #         aql/**
+    #         deploy/**
+    #         cli/**
+    #         docs/**
+    #         packages/**
+    #         runtime/**
+    #         jsconfig.json
+    #         index.js
+    #         ocwp-legacy
+    #         package.json
+    #         platform.json
+    #         ProjectManifest.json
+    #         server.js
+    #         src/**
+    #         tsconfig.json
+    # - name: List files in the current working directory
+    #   run: ls -la
+
+    # - uses: actions/upload-artifact@v2
+    #   with:
+    #     name:  # Name of the artifact
+    #     path: ./** # Path to the build directory and its contents
+
+    # - name: Set up Node.js
+    #   uses: actions/setup-node@v2
+    #   with:
+    #     node-version: '21' # Specify your Node.js version here
+
+  container:
+    name: Build Container
+    needs: [build]
+    runs-on:
+      - ubuntu-22.04
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    env:
+      PROJECT_VERSION: ${{ needs.build.outputs.PROJECT_VERSION }}
+    outputs:
+      IMAGE: ${{ steps.docker-build.outputs.IMAGE }}
+    steps:
+      - name: Install JFrog
+        id: install-jf
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        with:
+          version: latest
+          download-repository: odin-jfrog-cli-remote
+
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+          path: ${{ env.BUILD_LOCATION }}
+
+      - name: Install Prod Dependencies
+        run: |
+          pwd
+          ls -lah
+          jf npm-config --repo-resolve=$JF_REPO --repo-deploy=$JF_REPO
+          jf npm install --frozen-lockfile --build-name $BUILD_NAME --build-number $RUN
+      - name: Docker Build
+        id: docker-build
+        run: |
+          IMAGE=${JF_BASE_URL}/${DOCKER_REPO}/${BUILD_NAME}:${PROJECT_VERSION}-${GITHUB_SHA::8}
+          docker build -f Dockerfile --build-arg location=$BUILD_LOCATION --iidfile=image-sha.txt -t $IMAGE .
+          IMAGEFILE="${IMAGE}@$(cat image-sha.txt)"
+          touch image-file.txt
+          echo $IMAGEFILE >> image-file.txt
+          echo " "
+          echo "IMAGE=${IMAGE}" >> "${GITHUB_OUTPUT}"
+          echo "--------------------------------"
+          cat image-file.txt
+          echo "image: $IMAGE"
+          echo "--------------------------------"
+      - name: Login to JFrog Docker Registry
+        id: docker-login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.JF_URL }}
+          username: ${{ vars.JF_ACCESS_USER }}
+          password: ${{ secrets.JF_ACCESS_TOKEN }}
+
+      - name: JFrog Docker Push
+        id: docker-push
+        run: jf docker push ${JF_BASE_URL}/${DOCKER_REPO}/${BUILD_NAME}:${PROJECT_VERSION}-${GITHUB_SHA::8} --build-name ${BUILD_NAME} --project ${JF_PROJECT_KEY} --build-number $RUN
+
+      - name: JFrog Publish Docker Build Info
+        id: jf-docker-build-info
+        run: jf rt build-publish $BUILD_NAME $RUN --project $JF_PROJECT_KEY
+
+  deploy-dev:
+    name: Deploy to DEV
+    needs:
+      - build
+      - container
+    runs-on:
+      - ubuntu-22.04
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    environment: dev
+    steps:
+      - name: Print Docker Image URI
+        id: docker-image-uri
+        run: |
+          echo "image: ${{ needs.container.outputs.IMAGE }}"
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy via Argo to DEV
+        id: argo-deploy
+        uses: capitec-odin/action-deploy@v4
+        with:
+          repository: ${{ vars.GITOPS_REPO}}
+          access-token: ${{ secrets.GITOPS_TOKEN }}
+          component: ${{ vars.GITOPS_COMPONENT_NAME }}
+          image: "${{ needs.container.outputs.IMAGE }}"
+          org: ${{ vars.GITOPS_ORG }}
+          enviro: dev
+
+      - name: Install JFrog
+        id: install-jfrog
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: JFrog Promote Build to DEV
+        id: promote-docker
+        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status DEV
+
+  deploy-int:
+    name: Deploy to INT
+    needs:
+      - build
+      - container
+    runs-on:
+      - ubuntu-22.04
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
+    environment: int
+    steps:
+      - name: Print Docker Image URI
+        id: docker-image-uri
+        run: |
+          echo "image: ${{ needs.container.outputs.IMAGE }}"
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy via Argo to INT
+        id: argo-deploy
+        uses: capitec-odin/action-deploy@v4
+        with:
+          repository: ${{ vars.GITOPS_REPO}}
+          access-token: ${{ secrets.GITOPS_TOKEN }}
+          component: ${{ vars.GITOPS_COMPONENT_NAME }}
+          image: "${{ needs.container.outputs.IMAGE }}"
+          org: ${{ vars.GITOPS_ORG }}
+          enviro: int
+
+      - name: Install JFrog
+        id: install-jfrog
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: JFrog Promote to INT
+        id: promote
+        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status INT
+
+  create-release:
+    name: Create Release
+    runs-on:
+      - ubuntu-22.04
+    environment: release
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
+    needs:
+      - build
+      - container
+    env:
+      IMAGE: ${{ needs.container.outputs.IMAGE }}
+      PROJECT_VERSION: ${{ needs.build.outputs.PROJECT_VERSION }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Create GitHub Release
+        id: gh-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $PROJECT_VERSION --target "${{ github.sha }}" --prerelease --generate-notes
+          BODY=$(gh release view $PROJECT_VERSION --json body --jq '.body')
+          echo "$BODY" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "**Docker Image**:   ${IMAGE}" >> release-notes.md
+          gh release edit $PROJECT_VERSION --notes-file release-notes.md
+      # - name: Install JFrog
+      #   id: install-jfrog
+      #   uses: jfrog/setup-jfrog-cli@v3
+      #   env:
+      #       JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+      #   with:
+      #       version: latest
+      #       download-repository: odin-jfrog-cli-remote
+
+      # - name: Create Jfrog Release
+      #   id: release-bundle
+      #   run: |
+      #       jq --arg repo_value "$DOCKER_REPO" --arg path_value "${SERVICE_NAME}/${PROJECT_VERSION}-${GITHUB_SHA::8}" '.files[0].aql."items.find".repo = $repo_value | .files[0].aql."items.find".path = $path_value' aql/get-all-docker.json >> aql/get-all-docker.aql
+      #       jf ds release-bundle-create --spec=aql/get-all-docker.aql ${SERVICE_NAME}:${PROJECT_VERSION}-${GITHUB_SHA::8} ${PROJECT_VERSION}
+
+  deploy-qa:
+    name: Deploy to QA
+    needs:
+      - build
+      - container
+      - create-release
+    runs-on:
+      - ubuntu-22.04
+    environment: qa
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
+    steps:
+      - name: Print Docker Image URI
+        id: docker-image-uri
+        run: |
+          echo "image: ${{ needs.container.outputs.IMAGE }}"
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy via Argo to QA
+        id: argo-deploy
+        uses: capitec-odin/action-deploy@v4
+        with:
+          repository: ${{ vars.GITOPS_REPO}}
+          access-token: ${{ secrets.GITOPS_TOKEN }}
+          component: ${{ vars.GITOPS_COMPONENT_NAME }}
+          image: "${{ needs.container.outputs.IMAGE }}"
+          org: ${{ vars.GITOPS_ORG }}
+          enviro: qa
+
+      - name: Install JFrog
+        id: install-jfrog
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        # with:
+        #     version: latest
+        #     download-repository: odin-jfrog-cli-remote
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: JFrog Promote to QA
+        id: promote
+        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status QA
+
+  deploy-prod:
+    name: Deploy to PROD
+    needs:
+      - build
+      - container
+      - create-release
+      - deploy-qa
+    runs-on:
+      - ubuntu-22.04
+    if: ${{ (github.event_name == 'workflow_dispatch') && (startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')) }}
+    environment: prod
+    steps:
+      - name: Print Docker Image URI
+        id: docker-image-uri
+        run: |
+          echo "Image: ${{ needs.container.outputs.IMAGE }}"
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy via Argo to Prod
+        id: deploy
+        uses: capitec-odin/action-deploy@v4
+        with:
+          repository: ${{ vars.GITOPS_REPO}}
+          access-token: ${{ secrets.GITOPS_TOKEN }}
+          component: ${{ vars.GITOPS_COMPONENT_NAME }}
+          image: "${{ needs.container.outputs.IMAGE }}"
+          org: ${{ vars.GITOPS_ORG }}
+          enviro: prd
+
+      - name: Install JFrog
+        id: install-jfrog
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        #with:
+        # version: latest
+        # download-repository: odin-jfrog-cli-remote
+      - name: Ping JFrog
+        run: jf rt ping
+
+      - name: Promote JFrog Build to Prod
+        id: promote
+        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status PROD
+
+      - name: GitHub Auto Approve PR to Main
+        id: pull-request-create
+        env:
+            GH_TOKEN: ${{ github.token }}
+        run: |
+            PR_URL=$(gh pr create --base main --head "${{ github.ref_name }}" --title "Automatic release - version $RUN" --body "Image Deployed - ${{ needs.container.outputs.IMAGE }}")
+            PR_NUMBER=$(echo "$PR_URL" | awk -F '/' '{print $NF}')
+            echo "PR URL: $PR_URL"
+            echo "PR NUMBER: $PR_NUMBER"
+            gh pr merge --auto --merge $PR_NUMBER

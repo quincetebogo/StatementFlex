@@ -1,8 +1,10 @@
 {
 	"recommendations": [
-		"dbaeumer.vscode-eslint",
 		"eamodio.gitlens",
+		"dbaeumer.vscode-eslint",
 		"runem.lit-plugin",
-		"bashmish.es6-string-css"
+		"bashmish.es6-string-css",
+		"firefox-devtools.vscode-firefox-debug",
+		"ms-edgedevtools.vscode-edge-devtools"
 	]
 }

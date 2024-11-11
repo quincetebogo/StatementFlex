@@ -1,0 +1,29 @@
+import { Service } from 'platform/core';
+
+export class ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME extends Service {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+
+		// "baseUrlKey" is the path the config setting defined within the src/config.json file.
+		// "name" is the unique name of the service, typically the class name.
+		super({
+			baseUrlKey: `ELEMENT_TO_LOWER_TYPEELEMENT_PASCAL_CASE_NAMEUrl`,
+			name: `ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME`
+		});
+	}
+
+	// Mechanism to obtain new instance of the service - enforce the same pattern as per the platform non-UI components.
+	static getInstance() {
+		return new ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME();
+	}
+
+	// Checks if the service is running.
+	getIsAlive() {
+		return this.httpClient.get(`/platform/healthcheck/v1/alive`);
+	}
+
+}

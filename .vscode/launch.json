@@ -5,25 +5,318 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "msedge",
+			"type": "chrome",
 			"request": "launch",
-			"name": "Run: Edge",
-			"url": "http://localhost:62000",
+			"name": "Run",
+			"url": "http://localhost:8080",
 			"webRoot": "${workspaceFolder}",
 			"preLaunchTask": "run",
 			"sourceMaps": true,
-			"trace": true,
-			"env": {
-				"PATH": "${workspaceFolder}/ocwp/1.17.0/node;${env:PATH}"
-			}
+			"trace": true
 		},
 		{
 			"type": "firefox",
 			"request": "launch",
 			"name": "Run: Firefox",
-			"url": "http://localhost:62000",
+			"url": "http://localhost:8080",
 			"webRoot": "${workspaceFolder}/",
 			"preLaunchTask": "run"
+		},
+		{
+			"type": "msedge",
+			"request": "launch",
+			"name": "Run: Edge",
+			"url": "http://localhost:8080",
+			"webRoot": "${workspaceFolder}",
+			"preLaunchTask": "run",
+			"sourceMaps": true,
+			"trace": true
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: All",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Auditer",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Auditer.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Configuration",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Configuration.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: EventAggregator",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=EventAggregator.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: ExecutionContext",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=ExecutionContext.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: HttpClient",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=HttpClient.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Logger",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Logger.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: MetricProcessor",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=MetricProcessor.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: NavigationContext",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=NavigationContext.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Platform",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Platform.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Router",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Router.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Security",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Security.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: SecurityContext",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=SecurityContext.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Service",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Service.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Store",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Store.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Utilities",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Utilities.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Helpers",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Helpers.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Test: Telemetry",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder}/packages/ocwp-core",
+			"args": [
+				"--experimental-vm-modules",
+				"--unhandled-rejections=warn",
+				"${workspaceFolder}/packages/ocwp-core/node_modules/jest/bin/jest",
+				"--testPathPattern=Telemetry.test.js",
+				"--runInBand"
+			],
+			"disableOptimisticBPs": true,
+			"internalConsoleOptions": "openOnSessionStart"
 		}
 	]
 }

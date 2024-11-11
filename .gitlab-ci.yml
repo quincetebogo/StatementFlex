@@ -1,8 +1,0 @@
-variables:
-  Platform: "ocwp"
-  TeamName: "cec"
-  MODIFY_ALIAS: "false"
- 
-include:
-  - project: 'platform/pipeline-utils/deployment-scripts'
-    file: '.platform-ci.yml'

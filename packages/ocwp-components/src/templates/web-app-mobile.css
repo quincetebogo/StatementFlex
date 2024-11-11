@@ -1,0 +1,182 @@
+:root {
+	/* App Defaults */
+
+	/* Font */
+
+	/* Colors */
+
+	/* Status */
+
+	/* Types */
+
+	/* Container */
+
+	/* Stepper */
+	--theme-stepper-step-container-height: 56px;
+	--theme-stepper-step-content-container-padding-left: 24px;
+	--theme-stepper-step-content-container-padding-right: 12px;
+	--theme-stepper-step-title-padding-left: 16px;
+	--theme-stepper-step-title-max-width: 80%;
+	--theme-stepper-step-title-font-size: 15px;
+	--theme-stepper-step-number-border-radius: 50%;
+	--theme-stepper-step-number-width: 24px;
+	--theme-stepper-step-number-height: 24px;
+	--theme-stepper-step-number-font-size: 14px;
+	--theme-stepper-step-icon-width: 100%;
+	--theme-stepper-step-icon-height: 100%;
+	--theme-stepper-step-disabled-width: 100%;
+	--theme-stepper-step-disabled-height: 100%;
+	--theme-stepper-step-title-extra-small-max-width: 80%;
+	--theme-stepper-inner-step-container-height: 100%;
+	--theme-stepper-inner-step-container-width: 100%;
+	--theme-stepper-step-content-container-extra-small-padding-right: 12px;
+	--theme-stepper-step-content-container-extra-small-padding-left: 11px;
+	--theme-stepper-step-title-line-height: 24px;
+	--theme-stepper-step-number-line-height: 14px;
+	--theme-stepper-step-number-font-weight: 600;
+	--theme-stepper-step-title-font-weight: 600;
+	--theme-stepper-disabled-step-container-opacity: 0.6;
+	--theme-stepper-active-step-bar-horizontal-height: 2px;
+	--theme-stepper-active-step-bar-horizontal-width: 98%;
+	--theme-stepper-horizontal-indicator-border-radius: 60px 60px 0px 0px;
+	--theme-stepper-vertical-indicator-border-radius: 60px 0px 0px 60px;
+
+	--theme-stepper-step-title-font-color: #545D60;
+	--theme-stepper-background-color: #ffffff;
+	--theme-stepper-error-step-color: #C83B37;
+	--theme-stepper-step-text-font-color: #05829B;
+	--theme-stepper-disabled-step-color: #F7F7F7;
+	--theme-stepper-step-number-disabled-color: #969B9D;
+	--theme-stepper-active-step-indicator-color: #009DE0;
+
+	--theme-stepper-container-border: 1px solid #E3E3E3;
+	--theme-stepper-step-number-border: 2px solid #05829B;
+	--theme-stepper-step-number-background-color: #DAF2F4;
+	--theme-stepper-step-number-disabled-border: 1px solid #969B9D;
+
+	/* Scroll Bar */
+
+	/* ---------- CORE ---------- */
+
+	/* Label */
+
+	/* Icon */
+
+	/* ---------- BUTTONS ---------- */
+
+	/* Button */
+
+	/* Chip */
+
+	/* Product Tile */
+	/* ---------- INPUTS ---------- */
+
+	/* Input */
+	--theme-input-font-size: 14px;
+	--theme-input-label-padding-sides: 5px;
+	--theme-input-clear-icon-top: 13px;
+
+	/* Check */
+	--theme-check-label-spacing: 8px;
+
+	/* Calendar */
+	--theme-date-time-picker-container-icon-top: 0px;
+	--theme-date-time-picker-container-icon-right: 0px;
+	--theme-date-time-picker-container-icon-margin: 1px;
+	--theme-date-time-picker-container-icon-padding: 0px 16px;
+	--theme-date-time-picker-container-icon-height: 0px;
+	--theme-date-time-picker-container-focussed-icon-border-left: 2px solid #009de0;
+
+	/* Radio */
+	--theme-radio-width: 22px;
+	--theme-radio-height: 22px;
+
+	/* Toggle */
+
+	/* Select */
+
+	/* Multiple Select */
+
+	/* Keyboard Button */
+	--theme-keyboard-button-height:56px;
+	--theme-keyboard-button-margin:6px 7px;
+	--theme-keyboard-font-weight:600;
+	--theme-keyboard-button-border:1.5px solid #E1E1E1;
+
+	/* Keyboard */
+
+	/* File Upload */
+	--theme-file-upload-progress-file-extension-text-display: none;
+	--theme-file-upload-progress-right-gap: 26px;
+
+	/* Slider */
+
+	/* ---------- CONTAINERS ---------- */
+
+	/* Tab */
+	--theme-tab-tab-label-width: 100%;
+	--theme-tab-max-width: "unset";
+
+	/* Expander */
+
+	/* ---------- LAYERS ---------- */
+
+	/* Action Bar */
+
+	/* Button Bar */
+
+	/* Chip Bar */
+
+	/* Page Header */
+
+	/* Title Bar */
+
+	/* ---------- LAYOUTS ---------- */
+
+
+
+	/* ---------- DATA ---------- */
+
+	/* Data Table */
+
+
+	/* ---------- POPUPS ---------- */
+
+	/* Status Bar */
+
+	/* Modal */
+
+	/* Alert Banner */
+
+	/* Toast */
+
+	/* Popover */
+
+	/* Tooltip */
+
+	/* ---------- NAVIGATION ---------- */
+
+	/* Menu */
+	--theme-menu-item-selected-font-weight: 600;
+
+	/* Overflow Menu Item */
+
+	/* Menu Separator */
+
+	/* Hyperlink */
+
+	/* Overflow Menu */
+	--theme-overflow-menu-border-radius: 4px 4px 0px 0px;
+	--theme-overflow-menu-header-background-color: #009DE0;
+	--theme-overflow-menu-header-font-color: #FFFFFF;
+	--theme-overflow-menu-header-padding: 8px 0px 8px 8px;
+	--theme-overflow-menu-overlay-background-color: #21212175;
+
+	/* ---------- INDICATORS ---------- */
+
+	/* Tag */
+
+	/* Avatar */
+
+	/* Badge */
+}

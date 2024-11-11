@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+		<title>Unsupported Browser</title>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+
+		<base href="/">
+
+		<!-- Platform font -->
+		<link href="platform/fonts/HindVadodara/hindvadodara.css" rel="stylesheet">
+
+		<!-- Platform styles (per app type) -->
+		<link href="platform/templates/web-app-core.css" rel="stylesheet">
+		<link href="platform/templates/web-app-<%= htmlWebpackPlugin.options.typeSuffix %>.css" rel="stylesheet">
+		<style>
+			.centerBox {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				align-content: center;
+				justify-content: center;
+				flex-direction: column;
+				text-align: center;
+			}
+
+			.iconContainer {
+				margin: 0 auto;
+				text-align: center;
+			}
+
+			.icon {
+				width: 210px;
+				height: 152px;
+			}
+
+			.heading {
+				margin-top: 16px;
+				font-family: 'Hind Vadodara Bold', Arial, Helvetica, sans-serif;
+				line-height: 32px;
+				color: #3E4547;
+			}
+
+			.paragraph {
+				margin-top: 3px;
+				font-family: 'Hind Vadodara', Arial, Helvetica, sans-serif;
+				font-size: 16px;
+				color: #3E4547;
+				letter-spacing: 0;
+			}
+
+			.browsersContainer {
+				display: flex;
+				/*flex-wrap: nowrap;*/
+				align-content: center;
+				justify-content: center;
+				margin-top: 24px;
+			}
+
+			.browserTile {
+				width: 146px;
+				height: 136px;
+				margin-right: 8px;
+			}
+
+			.browserIcon {
+				width: 48px;
+				height: 48px;
+				margin: 24px 49px 0px;
+			}
+
+			.browserLabel {
+				margin-right: 16px;
+				margin-left: 16px;
+				margin-bottom: 20px;
+				font-size: 14px;
+				color: #009DE0;
+				white-space: nowrap;
+				font-family: 'Hind Vadodara', Arial, Helvetica, sans-serif;
+				font-weight: 500;
+				letter-spacing: 0;
+			}
+
+			.browserTile:hover {
+				background-color: rgba(0, 157, 224, 0.1);
+				border-radius: 8px;
+			}
+
+			.footerContainer {
+				display: flex;
+				flex-wrap: nowrap;
+				align-content: center;
+				justify-content: center;
+				margin-top: 42px;
+			}
+
+			.capitecLogo {
+				width: 130px;
+				height: 19px;
+			}
+
+			@media screen and (max-width: 360px) {
+
+				.browsersContainer {
+					width: 100vw;
+					align-content: center;
+					justify-content: flex-start;
+					flex-direction: column;
+					text-align: left;
+					flex-wrap: wrap;
+				}
+
+				.browserTile {
+					width: 240px;
+					height: 72px;
+					margin-right: 0px;
+
+				}
+
+				.browserTile:hover {
+					background-color: rgba(0, 157, 224, 0.15);
+					border-radius: 8px;
+				}
+
+				.browserIcon {
+					margin: 12px 16px 12px 24px;
+					float: left;
+				}
+
+				.browserLabel {
+					float: left;
+					margin-top: 22px;
+					margin-left: 0px;
+				}
+
+				a {
+					margin-bottom: 8px;
+				}
+
+				body {
+					background-color: white;
+				}
+
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="centerBox">
+			<div class="iconContainer">
+				<img class="icon" src="platform/icons/illustration/error.svg" />
+			</div>
+			<h2 class="heading">Unsupported Browser</h2>
+			<div class="paragraph">
+				You're using a web browser we don't support currently.<br>
+				For the best experience, please download and use any one of the following browsers
+			</div>
+			<div class="browsersContainer">
+				<a style="text-decoration: none;" href="https://www.google.com/chrome/">
+					<div class="browserTile">
+						<img class="browserIcon" src="platform/icons/browser/chrome.svg" alt="">
+						<p class="browserLabel">
+							Download Chrome
+						</p>
+					</div>
+				</a>
+				<a style="text-decoration: none;" href="https://www.mozilla.org/en-US/firefox/new/">
+					<div class="browserTile">
+						<img class="browserIcon" src="platform/icons/browser/firefox.svg" alt="">
+						<p class="browserLabel">
+							Download Firefox
+						</p>
+					</div>
+				</a>
+				<a style="text-decoration: none;" href="https://www.microsoft.com/en-us/edge">
+					<div class="browserTile">
+						<img class="browserIcon" src="platform/icons/browser/edge.svg" alt="">
+						<p class="browserLabel">
+							Download Edge
+						</p>
+					</div>
+				</a>
+				<a style="text-decoration: none;" href="http://www.opera.com/">
+					<div class="browserTile">
+						<img class="browserIcon" src="platform/icons/browser/opera.svg" alt="">
+						<p class="browserLabel">
+							Download Opera
+						</p>
+					</div>
+				</a>
+			</div>
+			<div class="footerContainer">
+				<img class="capitecLogo" src="platform/icons/capitec-logo.svg" alt="">
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,118 @@
+import { ELEMENT_TYPE, css, html } from 'platform/elements';
+
+/**
+ * Description for your ELEMENT_TYPE here.
+ *
+ * ```html
+ * <ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME>
+ * </ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME>
+ * ```
+ */
+export class ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME extends ELEMENT_TYPE {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	/**
+	 * Initialises the component.
+	 *
+	 * @hideconstructor
+	 */
+	constructor() {
+
+		super();
+
+		// Set the default property values.
+
+		// Set the default private property values.
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	/**
+	 * Registry of all properties defined by the component.
+	 */
+	static get properties() {
+
+		return {
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	// n/a
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// n/a
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	/**
+	 * Generates the component stylesheet.
+	 *
+	 * @ignore
+	 * @returns {css} The css content of the component.
+	 */
+	static get styles() {
+
+		return [
+			super.styles,
+			css`
+			`
+		];
+	}
+
+	/**
+	 * Generates the component template for mobile mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_mobileTemplate() {
+
+		return this._webTemplate();
+	}
+
+	/**
+	 * Generates the component template for web mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_webTemplate() {
+
+		return html`<capitec-label label="ELEMENT_NAME"></capitec-label>`;
+	}
+
+	/**
+	 * Generates the component template for kiosk mode.
+	 *
+	 * @returns {html} The html content of the component.
+	 */
+	_kioskTemplate() {
+
+		return this._webTemplate();
+	}
+}
+
+window.customElements.define(`ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME`, ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME);

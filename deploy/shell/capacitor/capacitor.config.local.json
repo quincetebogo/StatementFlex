@@ -1,0 +1,29 @@
+{
+	"appId": "za.co.capitecbank.MyAppName",
+	"appName": "MyAppName",
+	"bundledWebRuntime": false,
+	"npmClient": "npm",
+	"webDir": "www",
+	"backgroundColor": "#FFFFFF",
+	"server": {
+		"cleartext": true,
+		"allowNavigation": [
+			"web-server-ip",
+			"capitecbank.co.za",
+			"*.capitecbank.co.za"
+		],
+		"url": "web-app-url"
+	},
+	"android": {
+		"allowMixedContent": true,
+		"webContentsDebuggingEnabled": true
+	},
+	"ios": {
+		"contentInset": "always"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	}
+}

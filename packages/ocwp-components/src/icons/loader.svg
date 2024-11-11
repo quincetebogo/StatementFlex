@@ -1,0 +1,86 @@
+<svg width="68px" height="14px" viewBox="0 0 68 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <style>     
+            .Rectangle_Credit {
+                animation-delay: -0.3s;
+                transform-origin: 77.5% 50%;
+            }
+            
+            .Rectangle_Insure {
+                animation-delay: -0.6s;
+                transform-origin: 50% 50%;
+                
+            }
+            
+            .Rectangle_Save {
+                animation-delay: -0.9s;
+                transform-origin: 27.5% 50%;
+               
+            }
+            
+            .Rectangle_Transact {
+                animation-delay: -1.2s;
+                transform-origin: 0% 50%;
+            }
+            
+            rect {
+                animation-name: animate-square;
+                animation-duration: 1.2s;
+                animation-iteration-count: infinite;
+            }
+            
+            .offset_1, .offset_2 {
+            animation-duration: 1.2s;
+                animation-iteration-count: infinite;
+            }
+            
+            .offset_1 {
+                animation-name: offset_1_animation;
+            }
+            
+            .offset_2 {
+                animation-name: offset_2_animation;
+            }
+            
+            @-webkit-keyframes animate-square {
+                0%, 25%, 50%, 100% {
+                    //opacity: 0.2;
+                    transform: scale(0.7);
+                }
+                75% {
+                    //opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            
+            @-webkit-keyframes offset_1_animation {
+                0%, 25%, 50%, 100% {
+                    transform: translate(0px, 0px);
+                } 
+                75% {
+                    transform: translate(2px, 0px);
+                }
+            }
+            
+            @-webkit-keyframes offset_2_animation {
+                0%, 75%, 100% {
+                    transform: translate(2px, 0px);
+                }
+                25%, 50% {
+                    transform: translate(0px, 0px);
+                }
+            }
+            
+        </style>
+    </defs>
+    <g class="loader_svg">
+        <rect class="Rectangle_Credit" fill="#C83B37" x="54" y="0" width="14" height="14" rx="2"></rect>
+        <g class="offset_2">
+            <rect class="Rectangle_Insure" fill="#526065" x="36" y="0" width="14" height="14" rx="2"></rect>
+        </g>
+        <g class="offset_1">
+            <rect class="Rectangle_Save" fill="#00486D" x="18" y="0" width="14" height="14" rx="2"></rect>
+        </g>
+        <rect class="Rectangle_Transact" fill="#009DE0" x="0" y="0" width="14" height="14" rx="2"></rect>
+    </g>
+</svg>

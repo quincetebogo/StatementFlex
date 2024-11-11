@@ -1,0 +1,1098 @@
+html,
+body,
+app-shell {
+	height: 100%;
+}
+
+:root {
+	/* App Defaults */
+	--theme-app-background-color: #F4F4F4;
+	--theme-text-select: none;
+	--theme-floating-label-visibility: inherit;
+	--theme-divider: 1px solid #E1E1E1;
+
+	/* Font */
+	--theme-font-family: 'Hind Vadodara', Arial, Helvetica, sans-serif;
+	--theme-font-weight: 400;
+
+	/* Colors */
+	--theme-system-font-color: #3A3A3A;
+	--theme-system-hover-color: #E5F5FB;
+
+	/* Status */
+	--theme-status-success-font-color: #FFFFFF;
+	--theme-status-success-background: #70AF00;
+	--theme-status-unsuccessful-font-color: #FFFFFF;
+	--theme-status-unsuccessful-background: #5D737E;
+	--theme-status-error-font-color: #FFFFFF;
+	--theme-status-error-background: #C83B37;
+	--theme-status-warn-font-color: #FFFFFF;
+	--theme-status-warn-background: #D4781C;
+	--theme-status-info-font-color: #FFFFFF;
+	--theme-status-info-background: #009DE0;
+
+	/* Types */
+	--theme-type-default-font-color: var(--theme-system-font-color);
+	--theme-type-default-background: #FFFFFF;
+	--theme-type-clear-font-color: var(--theme-system-font-color);
+	--theme-type-clear-background: transparent;
+	--theme-type-primary-font-color: #FFFFFF;
+	--theme-type-primary-background: #009DE0;
+	--theme-type-transact-font-color: #FFFFFF;
+	--theme-type-transact-background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
+	--theme-type-save-font-color: #FFFFFF;
+	--theme-type-save-background: linear-gradient(135deg, #002A3F 0%, #00537D 52.97%, #024D73 100%);
+	--theme-type-credit-font-color: #FFFFFF;
+	--theme-type-credit-background: linear-gradient(90deg, #B62825 0%, #E61414 100%);
+	--theme-type-insure-font-color: #FFFFFF;
+	--theme-type-insure-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
+
+	/* Container */
+	--theme-container-padding-left: 16px;
+	--theme-container-padding-right: 16px;
+	--theme-container-padding-top: 16px;
+	--theme-container-padding-bottom: 16px;
+
+	/* Scroll Bar */
+	--theme-scrollbar-track-border-radius: 8px;
+	--theme-scrollbar-track-background-color: transparent;
+	--theme-scrollbar-track-padding-top: 4px;
+	--theme-scrollbar-track-padding-bottom: 4px;
+	--theme-scrollbar-track-padding-right: 4px;
+	--theme-scrollbar-track-padding-left: 4px;
+	--theme-scrollbar-thumb-width: 6px;
+	--theme-scrollbar-thumb-border-radius: 8px;
+	--theme-scrollbar-thumb-background-color: #d9d9d9;
+
+	/* ---------- CORE ---------- */
+
+	/* Label */
+	--theme-label-font-color: var(--theme-system-font-color);
+	--theme-label-font-family: var(--theme-font-family);
+	--theme-label-font-size: 14px;
+	--theme-label-font-weight: 400;
+	--theme-label-title-font-size: 22px;
+	--theme-label-title-font-weight: 500;
+	--theme-label-subtitle-font-size: 16px;
+	--theme-label-subtitle-font-weight: 500;
+	--theme-label-strong-font-size: 14px;
+	--theme-label-strong-font-weight: 500;
+	--theme-label-default-font-size: 14px;
+	--theme-label-default-font-weight: 400;
+	--theme-label-cursor: default;
+
+	/* Icon */
+	--theme-icon-size-large: 48px;
+	--theme-icon-size-medium: 32px;
+	--theme-icon-size-small: 16px;
+	--theme-icon-size-extra-small: 8.25px;
+	--theme-icon-size-default: 24px;
+
+	/* ---------- BUTTONS ---------- */
+
+	/* Button */
+	--theme-button-font-family: var(--theme-font-family);
+	--theme-button-font-size: 16px;
+	--theme-button-font-weight: 500;
+	--theme-button-padding-top: 13px;
+	--theme-button-padding-bottom: 13px;
+	--theme-button-padding-left: 24px;
+	--theme-button-padding-right: 24px;
+	--theme-button-line-height: 1.2;
+	--theme-button-border-radius: 4px;
+	--theme-button-icon-spacing: 8px;
+	--theme-button-default-background-color: #FFFFFF;
+	--theme-button-default-background-tapped-color: rgba(0, 131, 187, 0.1);
+	--theme-button-default-border-color: #009DE0;
+	--theme-button-default-border-width: 2px;
+	--theme-button-default-font-color: #009DE0;
+	--theme-button-primary-background-color: #009DE0;
+	--theme-button-primary-background-tapped-color: #0091CE;
+	--theme-button-primary-border-color: #009DE0;
+	--theme-button-primary-border-width: 2px;
+	--theme-button-primary-font-color: #FFFFFF;
+	--theme-button-clear-background-color: transparent;
+	--theme-button-clear-background-tapped-color: rgba(0, 131, 187, 0.1);
+	--theme-button-clear-border-color: transparent;
+	--theme-button-clear-border-width: 2px;
+	--theme-button-clear-font-color: #009DE0;
+	--theme-button-white-background-color: transparent;
+	--theme-button-white-border-color: #FFFFFF;
+	--theme-button-white-border-width: 2px;
+	--theme-button-white-font-color: #FFFFFF;
+
+	/* Chip */
+	--theme-chip-background-color: #F7F7F7;
+	--theme-chip-font-family: 'Hind Vadodara';
+	--theme-chip-font-size: 14px;
+	--theme-chip-font-weight: 400;
+	--theme-chip-label-padding-left: 8px;
+	--theme-chip-label-padding-right: 8px;
+	--theme-chip-label-color: var(--theme-system-font-color);
+	--theme-chip-icon-padding-left: 0px;
+	--theme-chip-icon-padding-top: 4px;
+	--theme-chip-border: 1px solid #E1E1E1;
+	--theme-chip-border-radius: 16px;
+	--theme-chip-hover-border: 1px solid #009DE0;
+	--theme-chip-hover-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+	--theme-chip-label-line-height: 20px;
+
+	/* Product Tile */
+	--theme-product-tile-height: 72px;
+	--theme-product-tile-border: 1px solid #E1E1E1;
+	--theme-product-tile-border-radius: 5.05px;
+	--theme-product-tile-hover-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-product-tile-focus-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.15);
+	--theme-product-tile-hover-transact-border: 1px solid #009DE0;
+	--theme-product-tile-focus-transact-border: 1px solid #009DE0;
+	--theme-product-tile-hover-save-border: 1px solid #00486D;
+	--theme-product-tile-focus-save-border: 2px solid #00486D;
+	--theme-product-tile-hover-credit-border: 1px solid #E61414;
+	--theme-product-tile-focus-credit-border: 2px solid #E61414;
+	--theme-product-tile-hover-insure-border: 1px solid #5D737E;
+	--theme-product-tile-focus-insure-border: 2px solid #5D737E;
+	--theme-product-tile-colour-display-width: 57px;
+	--theme-product-tile-colour-border-radius: 5.05px 0 0 5.05px;
+	--theme-product-tile-transact-colour: #009DE0;
+	--theme-product-tile-save-colour: #00486D;
+	--theme-product-tile-credit-colour: #E61414;
+	--theme-product-tile-insure-colour: #5D737E;
+	--theme-product-tile-heading-margin-left: 16px;
+	--theme-product-tile-heading-margin-top: 13px;
+	--theme-product-tile-title-height: 24px;
+	--theme-product-tile-title-font-size: 18px;
+	--theme-product-tile-title-font-weight: 500;
+	--theme-product-tile-subtitle-height: 20px;
+	--theme-product-tile-subtitle-color: var(--theme-system-font-color);
+	--theme-product-tile-subtitle-font-size: 15px;
+	--theme-product-tile-detail-right: 26px;
+	--theme-product-tile-detail-top: 25px;
+	--theme-product-tile-detail-height: 24px;
+	--theme-product-tile-detail-font-size: 18px;
+	--theme-product-tile-nav-right: 16px;
+	--theme-product-tile-nav-icon-margin-left: 16.25px;
+	--theme-product-tile-add-right: 16px;
+	/* ---------- INPUTS ---------- */
+
+	/* Input */
+	--theme-input-font-color: var(--theme-system-font-color);
+	--theme-input-font-family: var(--theme-font-family);
+	--theme-input-font-size: 16px;
+	--theme-input-font-weight: 400;
+	--theme-input-background-color: #FFFFFF;
+	--theme-input-border-radius: 4px;
+	--theme-input-border-width: 1px;
+	--theme-input-border-color: #E1E1E1;
+	--theme-input-padding-left: 16px;
+	--theme-input-padding-right: 38px;
+	--theme-input-padding-top: 8px;
+	--theme-input-padding-bottom: 14px;
+	--theme-input-label-font-color: var(--theme-system-font-color);
+	--theme-input-label-focussed-font-color: #009DE0;
+	--theme-input-label-font-family: var(--theme-font-family);
+	--theme-input-label-font-size: 14px;
+	--theme-input-label-font-weight: 400;
+	--theme-input-label-transform-y: -23px;
+	--theme-input-label-transform-x: -3px;
+	--theme-input-label-padding-top: 16px;
+	--theme-input-icon-top: 13px;
+	--theme-input-hint-font-color: #969B9D;
+	--theme-input-hint-font-family: var(--theme-font-family);
+	--theme-input-hint-font-size: 12px;
+	--theme-input-hint-font-weight: 300;
+	--theme-input-error-font-color: #C83B37;
+	--theme-input-error-font-family: var(--theme-font-family);
+	--theme-input-error-font-size: 12px;
+	--theme-input-error-font-weight: 300;
+	--theme-input-hover-border-color: #009DE0;
+	--theme-input-focussed-border-color: #009DE0;
+	--theme-input-disabled-font-color: #7C7C7C;
+	--theme-input-disabled-background-color: #DEDEDE;
+	--theme-input-error-border-color: #C83B37;
+	--theme-input-error-label-font-color: #E63934;
+	--theme-input-currency-symbol-margin-left: 16px;
+	--theme-input-currency-symbol-margin-top: 12px;
+	--theme-input-currency-symbol-color: var(--theme-system-font-color);
+	--theme-input-currency-symbol-size: 16px;
+	--theme-input-password-icon-right: 12.5px;
+	--theme-input-password-icon-top: 13px;
+	--theme-input-currency-label-idle-margin-left: 23px;
+	--theme-input-currency-label-idle-margin-top: 1px;
+	--theme-input-label-padding-sides: 4px;
+	--theme-input-currency-field-text-indent: 18px;
+	--theme-input-currency-field-font-size: 18px;
+	--theme-input-currency-field-line-height: 18px;
+	--theme-input-currency-field-font-weight: 400;
+	--theme-input-currency-field-placeholder-color: #B3B5B5;
+	--theme-input-search-icon-margin-left: 20px;
+	--theme-input-search-icon-margin-top: 12px;
+	--theme-input-clear-icon-right: 13px;
+	--theme-input-clear-icon-top: 14px;
+	--theme-input-clear-icon-width: 20px;
+	--theme-input-clear-icon-height: 20px;
+	--theme-input-search-label-idle-margin-left: 40px;
+	--theme-input-search-label-idle-margin-top: 0px;
+	--theme-input-search-field-text-indent: 40px;
+	--theme-input-search-field-font-size: 16px;
+	--theme-input-search-field-line-height: 18px;
+	--theme-input-search-field-font-weight: 400;
+	--theme-input-search-label-font-size: 16px;
+	--theme-input-search-label-focussed-font-size: 14px;
+	--theme-input-field-padding-right-icon: 44px;
+	--theme-input-numeric-input-plus-minus-sign-font-size: 22px;
+	--theme-input-numeric-input-plus-minus-sign-height: 48px;
+	--theme-input-numeric-input-plus-minus-sign-width: 48px;
+	--theme-input-numeric-input-plus-minus-sign-padding-top: 20px;
+	--theme-input-numeric-input-plus-line-height: 10px;
+	--theme-input-numeric-input-minus-line-height: 6px;
+	--theme-input-numeric-input-divider-height: 36px;
+	--theme-input-numeric-input-divider-margin-top: 6px;
+	--theme-input-numeric-input-divider-width: 1px;
+	--theme-input-numeric-input-plus-minus-focussed-color: #009DE0;
+	--theme-input-numeric-input-plus-minus-focussed-hover: rgba(0, 157, 224, 0.1);
+	--theme-input-numeric-input-plus-minus-error-icon-margin-right: 8px;
+
+	/* Check */
+	--theme-check-width: 22px;
+	--theme-check-height: 22px;
+	--theme-check-label-spacing: 15px;
+	--theme-check-background-color: #FFFFFF;
+	--theme-check-border-width: 2px;
+	--theme-check-border-color: #009DE0;
+	--theme-check-border-radius: 4px;
+	--theme-check-indictor-color: #FFFFFF;
+	--theme-check-indictor-border-width: 2px;
+	--theme-check-indictor-border-color: #009DE0;
+	--theme-check-checked-background-color: #009DE0;
+	--theme-check-indeterminate-background-color: #009DE0;
+	--theme-check-disabled-border-color: #DEDEDE;
+	--theme-check-disabled-background-color: #DEDEDE;
+	--theme-check-hover-background-color: #E6F7FF;
+	--theme-check-hover-box-shadow: 0 0 4px 4px #E6F7FF;
+
+	/* Calendar */
+	--theme-calendar-body-width: min-content;
+	--theme-calendar-calendar-width: fit-content;
+	--theme-calendar-calendar-border: 1px solid #e1e1e1;
+	--theme-calendar-calendar-border-radius: 5px;
+	--theme-calendar-days-grid-template-columns: 44px 44px 44px 44px 44px 44px 44px;
+	--theme-calendar-days-grid-auto-rows: 36px;
+	--theme-calendar-days-font-size: 14px;
+	--theme-calendar-days-text-align: center;
+	--theme-calendar-days-color: #003652;
+	--theme-calendar-days-font-weight: 500;
+	--theme-calendar-days-border-top: 1px solid #e1e1e1;
+	--theme-calendar-days-width: 345px;
+	--theme-calendar-days-padding: 18px;
+	--theme-calendar-days-line-height: 22px;
+	--theme-calendar-day-width: 100%;
+	--theme-calendar-day-height: 100%;
+	--theme-calendar-selectable-cursor: pointer;
+	--theme-calendar-selectable-color: #4e6066;
+	--theme-calendar-not-selectable-cursor: default;
+	--theme-calendar-not-selectable-color: #b3b5b5;
+	--theme-calendar-selected-width: 24px;
+	--theme-calendar-selected-background-color: #009de0;
+	--theme-calendar-selected-border-radius: 20%;
+	--theme-calendar-selected-color: #ffffff;
+	--theme-calendar-today-width: 24px;
+	--theme-calendar-today-background-color: #f5f5f5;
+	--theme-calendar-today-color: #4e6066;
+	--theme-calendar-range-width: 100%;
+	--theme-calendar-range-background-color: rgba(0, 131, 187, 0.1);
+	--theme-calendar-isolated-range-width: 24px;
+	--theme-calendar-start-of-line-width: 100%;
+	--theme-calendar-start-of-line-margin-left: 10px;
+	--theme-calendar-end-of-line-width: 100%;
+	--theme-calendar-end-of-line-padding-left: 10px;
+	--theme-calendar-end-of-line-margin-right: 10px;
+	--theme-calendar-select-month-width: 132px;
+	--theme-calendar-select-year-width: 90px;
+
+	/* DateTimePicker */
+	--theme-date-time-picker-container-calendar-icon-top: 0px;
+	--theme-date-time-picker-container-calendar-icon-right: 0px;
+	--theme-date-time-picker-container-calendar-icon-margin: 1px;
+	--theme-date-time-picker-container-calendar-icon-padding: 10px 10px;
+	--theme-date-time-picker-container-calendar-icon-height: 46px;
+	--theme-date-time-picker-container-focussed-calendar-icon-border-left: 2px solid #009de0;
+	--theme-date-time-picker-container-field-font-size: 16px;
+	--theme-date-time-picker-focussed-border-radius: 4px;
+	--theme-date-time-picker-focussed-field-color: #B3B5B5;
+	--theme-date-time-picker-focussed-font-size: 16px;
+	--theme-date-time-picker-value-selected-field-color: var(--theme-system-font-color);
+	--theme-input-currency-field-placeholder-color: #B3B5B5;
+	--theme-date-time-picker-basic-container-background-color: #FFFFFF;
+	--theme-date-time-picker-basic-container-padding-top: 16px;
+	--theme-date-time-picker-basic-container-padding-left: 16px;
+	--theme-date-time-picker-basic-container-padding-right: 16px;
+	--theme-date-time-picker-basic-container-padding-bottom: 16px;
+	--theme-date-time-picker-date-select-height: 48px;
+	--theme-date-time-picker-basic-picker-min-width: 320px;
+	--theme-date-time-picker-basic-picker-height: 48px;
+	--theme-date-time-picker-end-group-margin-top: 26px;
+	--theme-date-time-picker-date-group-margin-bottom: 16px;
+	--theme-date-time-picker-hr-border: 1px solid #EFEFEF;
+	--theme-date-time-picker-focussed-label-font-size: .75em;
+	--theme-date-time-picker-focussed-label-padding: 0px 2px;
+	--theme-date-time-picker-container-background-color: transparent;
+	--theme-date-time-picker-basic-container-border: 1px solid #e1e1e1;
+	--theme-date-time-picker-calendar-header-padding: 12px;
+	--theme-date-time-picker-calendar-header-background-color: #F7F7F7;
+	--theme-date-time-picker-range-calendar-border: 1px solid #e1e1e1;
+	--theme-date-time-picker-range-calendar-border-radius: 4px;
+	--theme-date-time-picker-long-select-min-width: 368px;
+	--theme-date-time-picker-medium-select-min-width: 250px;
+	--theme-date-time-picker-range-picker-background-color: #e1e1e1;
+	--theme-date-time-picker-range-calendar-background-color: #FFFFFF;
+	--theme-date-time-picker-range-calendar-min-width: max-content;
+	--theme-date-time-picker-host-min-width: 180px;
+	--theme-date-time-picker-host-max-width: 460px;
+	--theme-date-time-picker-calendar-picker-min-width: 200px;
+	--theme-date-time-picker-calendar-picker-height: 48px;
+
+	/* Toggle */
+
+	/* Select */
+	--theme-select-options-max-height: 240px;
+	--theme-select-options-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.11);
+	--theme-select-option-value-font-color: #009DE0;
+	--theme-select-container-background-color: #F7F7F7;
+	--theme-select-container-border-color: #E1E1E1;
+	--theme-select-container-hover-border-color: #009DE0;
+	--theme-select-container-hover-background-color: #F7F7F7;
+	--theme-select-container-hover-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-select-search-placeholder-color: #ABB3B6;
+	--theme-select-search-bottom-border-color: #E1E1E1;
+	--theme-select-clear-icon-width: 20px;
+	--theme-select-clear-icon-height: 20px;
+	--theme-select-filter-active-background-color: #F7F7F7;
+	--theme-select-filter-active-font-weight: 600;
+	--theme-select-filter-active-line-height: 16px;
+	--theme-select-focussed-input-field-border-radius: 4px;
+	--theme-select-foccussed-label-padding: 0px;
+	--theme-select-no-results-background-color: blue;
+	--theme-select-searchfield-border-width: 0px;
+	--theme-select-option-label-font-color: #ffffff;
+	--theme-select-option-label-background-color: #009DE0;
+
+	/* Multiple Select */
+	--theme-multiselect-popup-background-color: #ffffff;
+	--theme-multilselect-checked-checkmark-background-color: #2196F3;
+	--theme-multiselect-checkmark-background-color: #EEEEEE;
+
+	/* Keyboard Button */
+	--theme-keyboard-button-background-color: var(--theme-type-default-background, #FFFFFF);
+	--theme-keyboard-button-height: 80px;
+	--theme-keyboard-button-margin: 6px 7px;
+	--theme-keyboard-button-border: 1.5px solid #FFFFFF;
+	--theme-keyboard-button-text-align: center;
+	--theme-keyboard-font-weight: 600;
+
+	--theme-numeric-keyboard-button-width: 84px;
+	--theme-numeric-keyboard-button-height: 56px;
+	--theme-numeric-keyboard-button-background-color: #FFFFFF;
+	--theme-numeric-keyboard-button-line-height: 30px;
+	--theme-numeric-keyboard-button-font-size: 20px;
+	--theme-numeric-keyboard-button-border-radius: 8px;
+	--theme-numeric-keyboard-button-border: 1.5px solid #FFFFFF;
+
+	--theme-alpha-keyboard-button-background-color: #FFFFFF;
+	--theme-alpha-keyboard-button-width: 84px;
+	--theme-alpha-keyboard-button-height: 56px;
+	--theme-alpha-keyboard-button-line-height: 30px;
+	--theme-alpha-keyboard-button-font-size: 20px;
+	--theme-alpha-keyboard-button-border: 1.5px solid #FFFFFF;
+	--theme-alpha-keyboard-button-border-radius: 8px;
+	--theme-alpha-keyboard-button-color: #3A3A3A;
+
+
+	--theme-action-keyboard-button-background-color: #FFFFFF;
+	--theme-action-keyboard-button-width: 184px;
+	--theme-action-keyboard-button-height: 56px;
+	--theme-action-keyboard-button-line-height: 30px;
+	--theme-action-keyboard-button-font-size: 20px;
+	--theme-action-keyboard-button-border: 1.5px solid #FFFFFF;
+	--theme-action-keyboard-button-border-radius: 8px;
+
+	--theme-return-keyboard-button-width: 184px;
+	--theme-return-keyboard-button-height: 56px;
+	--theme-return-keyboard-button-background-color: #FFFFFF;
+	--theme-return-keyboard-button-line-height: 30px;
+	--theme-return-keyboard-button-font-size: 20px;
+	--theme-return-keyboard-button-border: 1.5px solid #FFFFFF;
+	--theme-return-keyboard-button-border-radius: 8px;
+
+	--theme-space-keyboard-button-height: 56px;
+	--theme-space-keyboard-button-width: 481px;
+	--theme-space-keyboard-button-background-color: #FFFFFF;
+	--theme-space-keyboard-button-line-height: 30px;
+	--theme-space-keyboard-button-font-size: 20px;
+	--theme-space-keyboard-button-color: #3A3A3A;
+	--theme-space-keyboard-button-font-weight: 600;
+	--theme-space-keyboard-button-border-radius: 8px;
+	--theme-space-keyboard-button-border: 1.5px solid #FFFFFF;
+
+	--theme-button-icon-max-height: 40px;
+	--theme-button-icon-max-width: 40px;
+
+	/* Keyboard */
+	--theme-keyboard-wrapper-padding: 10px 14px;
+	--theme-keyboard-key-row-margin: 6px 7px;
+	--theme-keyboard-closer-width: 68px;
+	--theme-keyboard-close-button-color: #009DE0;
+	--theme-keyboard-close-button-font-size: 18px;
+	--theme-keyboard-input-border-color: #E1E1E1;
+	--theme-keyboard-width: 1080px;
+	--theme-keyboard-top-bar-width: 1080px;
+	--theme-keyboard-top-bar-background-color: #F5F5F5;
+	--theme-keyboard-top-bar-height: 48px;
+	--theme-keyboard-top-bar-padding-left: 24px;
+	--theme-keyboard-top-bar-padding-right: 41px;
+	--theme-keyboard-button-font-color: #3A3A3A;
+	--theme-keyboard-cta-button-float: right;
+	--theme-keyboard-bottom-bar-width: 1080px;
+	--theme-keyboard-bottom-bar-padding: 0px 24px;
+	--theme-keyboard-bottom-bar-background-color: #F5F5F5;
+	--theme-keyboard-shadow-border-radius: 16px 16px 0px 0px;
+	--theme-keyboard-shadow-padding-bottom: -10px;
+	--theme-keyboard-top-bar-border-radius: 16px 16px 0px 0px;
+	--theme-keyboard-bottom-bar-height: 104px;
+	--theme-keyboard-bottom-bar-border-top: 3px solid #E1E1E1;
+	--theme-keyboard-cta-button-height: 56px;
+	--theme-keyboard-cta-button-width: 184px;
+	--theme-keyboard-cta-button-color: #FFFFFF;
+	--theme-keyboard-cta-button-background-color: #009DE0;
+	--theme-keyboard-cta-button-font-size: 20px;
+	--theme-keyboard-cta-button-font-weight: 600;
+	--theme-keyboard-cta-button-border-radius: 8px;
+	--theme-keyboard-cta-button-margin: 24px;
+	--theme-keyboard-close-button-font-weight: 600;
+	--theme-keyboard-closer-padding-right: 81px;
+	--theme-keyboard-wrapper-border-radius: 16px 16px;
+	--theme-keyboard-wrapper-width: 1080px;
+	--theme-keyboard-key-row-width: 1080px;
+
+
+	/* File Upload */
+	--theme-file-upload-common-text-align: center;
+	--theme-file-upload-common-align-items: center;
+	--theme-file-upload-common-justify-content: center;
+	--theme-file-upload-file-drag-row-gap: 24px;
+	--theme-file-upload-file-drag-padding: 1em 0;
+	--theme-file-upload-file-drag-margin: 1em 0;
+	--theme-file-upload-file-drag-color: #555;
+	--theme-file-upload-file-drag-border: 1px dashed #E1E1E1;
+	--theme-file-upload-file-drag-border-radius: 4px;
+	--theme-file-upload-file-drag-font-weight: bold;
+	--theme-file-upload-file-drag-hover-background-color: rgba(0, 157, 224, 0.1);
+	--theme-file-upload-file-drag-hover-border: 1px dashed #009DE0;
+	--theme-file-upload-file-drag-hover-border-radius: 4px;
+	--theme-file-upload-file-drag-hover-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-file-upload-center-text-color: #003652;
+	--theme-file-upload-center-text-font-weight: 500;
+	--theme-file-upload-center-text-font-size: 24px;
+	--theme-file-upload-center-text-line-height: 28px;
+	--theme-file-upload-footer-text-color: #969B9D;
+	--theme-file-upload-footer-text-font-weight: 500;
+	--theme-file-upload-footer-text-font-size: 14px;
+	--theme-file-upload-footer-text-line-height: 16px;
+	--theme-file-upload-single-label-padding: 0 16px;
+	--theme-file-upload-single-width: 200px;
+	--theme-file-upload-undocked-container-height: 81px;
+	--theme-file-upload-undocked-container-width: 261px;
+	--theme-file-upload-undocked-container-border: 1px solid #E1E1E1;
+	--theme-file-upload-undocked-container-border-radius: 2.51px;
+	--theme-file-upload-undocked-container-background-color: #F7F7F7;
+	--theme-file-upload-undocked-container-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-file-upload-undocked-container-min-width: 240px;
+	--theme-file-upload-undocked-container-max-width: 250px;
+	--theme-file-upload-undocked-header-height: 41.5px;
+	--theme-file-upload-undocked-header-vertical-align: middle;
+	--theme-file-upload-undocked-content-height: 41px;
+	--theme-file-upload-undocked-content-border: 1px solid #E1E1E1;
+	--theme-file-upload-undocked-content-border-radius: 0 0 4px 4px;
+	--theme-file-upload-undocked-content-background-color: #FFFFFF;
+	--theme-file-upload-undocked-info-margin-top: 13px;
+	--theme-file-upload-undocked-info-margin-left: 15px;
+	--theme-file-upload-undocked-info-margin-bottom: 11px;
+	--theme-file-upload-undocked-cancel-color: #009DE0;
+	--theme-file-upload-undocked-title-color: var(--theme-system-font-color);
+	--theme-file-upload-undocked-font-size: 14px;
+	--theme-file-upload-undocked-line-height: 16px;
+	--theme-file-upload-undocked-left: 15.5px;
+	--theme-file-upload-separator-height: 15px;
+	--theme-file-upload-separator-width: 1px;
+	--theme-file-upload-separator-border: 1px solid #E1E1E1;
+	--theme-file-upload-text-font-size: 14px;
+	--theme-file-upload-text-line-height: 16px;
+	--theme-file-upload-file-count-padding-right: 5px;
+	--theme-file-upload-uploading-padding-right: 28px;
+	--theme-file-upload-uploading-padding-left: 5px;
+	--theme-file-upload-uploading-max-width: 55%;
+	--theme-file-upload-message-text-color: #0083BB;
+	--theme-file-upload-message-text-success-color: #70AF00;
+	--theme-file-upload-message-text-error-color: #B71C1A;
+	--theme-file-upload-expander-min-right: 16.85px;
+	--theme-file-upload-multi-image-div-margin-top: 49px;
+	--theme-file-upload-multi-middle-text-font-weight: 500;
+	--theme-file-upload-row-gap-small-row-gap: 12px;
+	--theme-file-upload-browse-text-font-weight: 600;
+
+	--theme-file-upload-progress-container-min-height: 50px;
+	--theme-file-upload-progress-container-padding-right: 32px;
+	--theme-file-upload-progress-container-padding-left: 23px;
+	--theme-file-upload-progress-container-padding-top: 27px;
+	--theme-file-upload-progress-container-padding-bottom: 27px;
+	--theme-file-upload-progress-container-gap: 16px;
+	--theme-file-upload-progress-separator-border-bottom: 1px solid rgb(204, 204, 204);
+	--theme-file-upload-progress-file-extension-text-display: flex;
+	--theme-file-upload-progress-file-extension-text-color: #FFFFFF;
+	--theme-file-upload-progress-file-extension-text-font-size: 14px;
+	--theme-file-upload-progress-file-extension-text-line-height: 16px;
+	--theme-file-upload-progress-file-extension-text-width: 40px;
+	--theme-file-upload-progress-file-extension-text-border-radius: 2px;
+	--theme-file-upload-progress-file-extension-text-background-color: #5D737E;
+	--theme-file-upload-progress-file-extension-text-padding-left: 5px;
+	--theme-file-upload-progress-file-extension-text-padding-right: 5px;
+	--theme-file-upload-progress-document-info-color: var(--theme-system-font-color);
+	--theme-file-upload-progress-document-info-font-size: 16px;
+	--theme-file-upload-progress-document-info-font-weight: 500;
+	--theme-file-upload-progress-document-info-line-height: 24px;
+	--theme-file-upload-progress-document-info-min-width: fit-content;
+	--theme-file-upload-progress-document-info-ellipsis-color: var(--theme-system-font-color);
+	--theme-file-upload-progress-document-info-ellipsis-font-size: 16px;
+	--theme-file-upload-progress-document-info-ellipsis-line-height: 24px;
+	--theme-file-upload-progress-document-info-ellipsis-font-weight: 500;
+	--theme-file-upload-progress-document-info-ellipsis-width: 200px;
+	--theme-file-upload-progress-message-text-color: #0083BB;
+	--theme-file-upload-progress-message-text-font-size: 16px;
+	--theme-file-upload-progress-message-text-font-weight: 500;
+	--theme-file-upload-progress-message-text-line-height: 24px;
+	--theme-file-upload-progress-message-text-success-color: #70AF00;
+	--theme-file-upload-progress-message-text-error-color: #B71C1A;
+	--theme-file-upload-progress-rotate-animation: rotate 1.5s linear infinite;
+	--theme-file-upload-progress-icons-height: 20px;
+	--theme-file-upload-progress-close-info-height: 100%;
+	--theme-file-upload-progress-close-info-justify-content: flex-end;
+	--theme-file-upload-progress-retry-margin-right: 20px;
+	--theme-file-upload-progress-right-gap: 20px;
+	--theme-file-upload-progress-right-not-allowed-gap: 22px;
+	--theme-file-upload-progress-meta-gap: 4px;
+
+	/* Slider */
+	--theme-slider-error-border: 1px solid #C83B37;
+	--theme-slider-input-padding: 13px 0;
+	--theme-slider-input-height: 18px;
+	--theme-slider-border: 1px solid #009DE0;
+	--theme-slider-track-height: 3px;
+	--theme-slider-track-background: #E1E1E1;
+	--theme-slider-track-background-gradient: (#009DE0, #009DE0) 0/var(--sx) 100% no-repeat #E1E1E1;
+	--theme-slider-track-progress-color: #009DE0;
+	--theme-slider-thumb-margin-top: -7.5px;
+	--theme-slider-thumb-width: 18px;
+	--theme-slider-thumb-height: 18px;
+	--theme-slider-thumb-color: #FFFFFF;
+	--theme-slider-thumb-border: solid 1px #E1E1E1;
+	--theme-slider-thumb-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-slider-thumb-focus-border: solid 2px #009DE0;
+	--theme-slider-tool-tip-top: -45%;
+	--theme-slider-tool-tip-width: 44px;
+	--theme-slider-tool-tip-height: 30px;
+	--theme-slider-tool-tip-background-color: #FFFFFF;
+	--theme-slider-tool-tip-text-color: #3E4547;
+	--theme-slider-tool-tip-font-size: 12px;
+	--theme-slider-tool-tip-font-weight: 600;
+	--theme-slider-tool-tip-border-radius: 6px;
+	--theme-slider-tool-tip-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+	--theme-slider-tool-tip-border-top: 5px solid #FFFFFF;
+	--theme-slider-tool-tip-arrow-drop-shadow: drop-shadow(rgba(0, 0, 0, 0.25) 0px 2px 1px);
+	--theme-slider-tool-tip-border-left-right: 9px solid transparent;
+	--theme-slider-tool-tip-margin-left: -9px;
+	--theme-slider-tool-tip-margin-top: -1px;
+	--theme-slider-value-labels-margin-bottom: 4px;
+	--theme-slider-error-label-font-size: 14px;
+
+	/* ---------- CONTAINERS ---------- */
+
+	/* Stepper */
+	--theme-stepper-step-container-height: 56px;
+	--theme-stepper-step-content-container-padding-left: 24px;
+	--theme-stepper-step-content-container-padding-right: 12px;
+	--theme-stepper-step-title-padding-left: 16px;
+	--theme-stepper-step-title-max-width: 80%;
+	--theme-stepper-step-title-font-size: 15px;
+	--theme-stepper-step-number-border-radius: 50%;
+	--theme-stepper-step-number-width: 24px;
+	--theme-stepper-step-number-height: 24px;
+	--theme-stepper-step-number-font-size: 14px;
+	--theme-stepper-step-icon-width: 100%;
+	--theme-stepper-step-icon-height: 100%;
+	--theme-stepper-step-disabled-width: 100%;
+	--theme-stepper-step-disabled-height: 100%;
+	--theme-stepper-step-title-extra-small-max-width: 80%;
+	--theme-stepper-inner-step-container-height: 100%;
+	--theme-stepper-inner-step-container-width: 100%;
+	--theme-stepper-step-content-container-extra-small-padding-right: 12px;
+	--theme-stepper-step-content-container-extra-small-padding-left: 11px;
+	--theme-stepper-step-title-line-height: 24px;
+	--theme-stepper-step-number-line-height: 14px;
+	--theme-stepper-step-number-font-weight: 600;
+	--theme-stepper-step-title-font-weight: 600;
+	--theme-stepper-disabled-step-container-opacity: 0.6;
+	--theme-stepper-active-step-bar-horizontal-height: 2px;
+	--theme-stepper-active-step-bar-horizontal-width: 98%;
+	--theme-stepper-horizontal-indicator-border-radius: 60px 60px 0px 0px;
+	--theme-stepper-vertical-indicator-border-radius: 60px 0px 0px 60px;
+
+	--theme-stepper-step-title-font-color: #545D60;
+	--theme-stepper-background-color: #ffffff;
+	--theme-stepper-error-step-color: #C83B37;
+	--theme-stepper-step-text-font-color: #05829B;
+	--theme-stepper-disabled-step-color: #F7F7F7;
+	--theme-stepper-step-number-disabled-color: #969B9D;
+	--theme-stepper-active-step-indicator-color: #009DE0;
+
+	--theme-stepper-container-border: 1px solid #E3E3E3;
+	--theme-stepper-step-number-border: 2px solid #05829B;
+	--theme-stepper-step-number-background-color: #DAF2F4;
+	--theme-stepper-step-number-disabled-border: 1px solid #969B9D;
+
+	/* Tab */
+	--theme-tab-min-width: 100px;
+	--theme-tab-min-height: 300px;
+	--theme-tab-bar-height: 56px;
+	--theme-tab-font-color: #4E6066;
+	--theme-tab-font-size: 16px;
+	--theme-tab-font-weight: 600;
+
+	--theme-tab-indicator-color: rgba(151, 151, 151, 0.2);
+	--theme-tab-indicator-height: 4px;
+
+	--theme-tab-selected-font-color: #009DE0;
+	--theme-tab-selected-indicator-color: #009DE0;
+
+	--theme-tab-label-padding-left-right: 24px;
+	--theme-tab-min-width: 100px;
+	--theme-tab-max-width: 300px;
+	--theme-tab-indicator-border-radius: 100px 100px 0 0;
+	--theme-tab-border-bottom: 1px solid transparent;
+	--theme-tab-hover-background-color: rgba(0, 157, 224, 0.1);
+	--theme-tab-tab-bar-width: 100%;
+	--theme-tab-height: 100%;
+	--theme-tab-label-container-height: 100%;
+	--theme-tab-indicator-bar-width: 100%;
+	--theme-tab-tab-bar-background-color: transparent;
+
+	/* Expander */
+	--theme-expander-border: 1px solid #E1E1E1;
+	--theme-expander-border-radius: 4px;
+	--theme-expander-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.10);
+	--theme-expander-background-color: #FFFFFF;
+	--theme-expander-height: 300px;
+	--theme-expander-width: 100%;
+
+	--theme-expander-header-height: 54px;
+	--theme-expander-header-width: 100%;
+	--theme-expander-header-padding: 10px 16px;
+	--theme-expander-header-font-color: var(--theme-system-font-color);
+	--theme-expander-header-font-size: 14px;
+	--theme-expander-header-font-weight: 500;
+	--theme-expander-header-background-color: #FFFFFF;
+
+	--theme-expander-indicator-width: 20px;
+	--theme-expander-indicator-height: 20px;
+
+	--theme-expander-icon-width: 20px;
+	--theme-expander-icon-height: 20px;
+
+	--theme-expander-content-padding-top: 0px;
+	--theme-expander-content-padding-bottom: 0px;
+
+	--theme-expander-expanding-max-height: 100vh;
+
+	--theme-expander-group-container-min-width: 200px;
+	--theme-expander-group-container-min-height: 100px;
+	--theme-expander-group-item-gap: 10px;
+	--theme-expander-group-container-margin-bottom: 0px;
+
+	/* ---------- LAYERS ---------- */
+
+	/* Action Bar */
+	--theme-actionbar-background: #FFFFFF;
+	--theme-actionbar-border: none;
+	--theme-actionbar-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.06);
+	--theme-actionbar-padding: 8px 24px;
+	--theme-actionbar-item-gap: 10px;
+	--theme-actionbar-min-height: 64px;
+
+	/* Button Bar */
+	--theme-buttonbar-background: #FFFFFF;
+	--theme-buttonbar-border: 1px solid #E3E3E3;
+	--theme-buttonbar-shadow: none;
+	--theme-buttonbar-padding: 10px;
+	--theme-buttonbar-item-gap: 10px;
+	--theme-buttonbar-min-height: 64px;
+
+	/* Chip Bar */
+	--theme-chipbar-background: #FFFFFF;
+	--theme-chipbar-border: none;
+	--theme-chipbar-shadow: none;
+	--theme-chipbar-padding: 10px;
+	--theme-chipbar-item-gap: 10px;
+	--theme-chipbar-min-height: 64px;
+
+	/* Page Header */
+	--theme-pageheader-font-color: #00486D;
+	--theme-pageheader-background: #FFFFFF;
+	--theme-pageheader-border: 1px solid #E1E1E1;
+	--theme-pageheader-shadow: none;
+	--theme-pageheader-padding: 8px 24px;
+	--theme-pageheader-item-gap: 10px;
+	--theme-pageheader-min-height: 64px;
+
+	/* ---------- LAYOUTS ---------- */
+
+	--theme-layout-gap-line-color: #E1E1E1;
+	--theme-layout-gap-spacing: 10px;
+	--theme-layout-grid-gap-row: 10px;
+	--theme-layout-grid-gap-column: 10px;
+
+	/* ---------- DATA ---------- */
+
+	/* Data Table */
+	--theme-data-table-line-height: 1.5;
+	--theme-data-table-font-size: 14px;
+	--theme-data-table-padding-top: 13px;
+	--theme-data-table-padding-bottom: 13px;
+	--theme-data-table-padding-left: 24px;
+	--theme-data-table-padding-right: 24px;
+	--theme-data-table-font-color: var(--theme-system-font-color);
+	--theme-data-table-border: 1px solid #E1E1E1;
+	--theme-data-table-border-last-row: 1px solid #E1E1E1;
+	--theme-data-table-header-font-weight: 500;
+	--theme-data-table-header-background-color: #F5F5F5;
+	--theme-data-table-header-sorted-background-color: #FFFFFF;
+	--theme-data-table-header-z-index: 1000;
+	--theme-data-table-header-nested-z-index: 999;
+	--theme-data-table-body-font-weight: 400;
+	--theme-data-table-body-background-color: #FFFFFF;
+	--theme-data-table-body-row-selected-background-color: rgba(0, 72, 109, 0.11);
+	--theme-data-table-body-group-font-weight: 500;
+	--theme-data-table-body-group-background-color: #F5F5F5;
+	--theme-data-table-body-group-color: #00486D;
+	--theme-data-table-body-group-padding-top: 5px;
+	--theme-data-table-body-group-padding-bottom: 5px;
+	--theme-data-table-content-currency-font-weight: 500;
+	--theme-data-table-footer-border: var(--theme-data-table-border, 1px solid #E1E1E1);
+	--theme-data-table-footer-background-color: #FFFFFF;
+	--theme-data-table-footer-rows-selected-color: #009DE0;
+	--theme-data-table-header-sort-icon-height: 8px;
+	--theme-data-table-header-sort-icon-width: 8px;
+	--theme-data-table-expander-size: 24px;
+	--theme-data-table-paging-padding-top: var(--theme-data-table-padding-top, 13px);
+	--theme-data-table-paging-padding-bottom: var(--theme-data-table-padding-bottom, 13px);
+	--theme-data-table-paging-padding-left: var(--theme-data-table-padding-bottom, 24px);
+	--theme-data-table-position-header: sticky;
+	--theme-data-table-position-footer: sticky;
+	--theme-data-table-position-footer-webkit: -webkit-sticky;
+
+	/* ---------- POPUPS ---------- */
+
+	/* Status Bar */
+	--theme-statusbar-font-color: #FFFFFF;
+	--theme-statusbar-background: #383633;
+	--theme-statusbar-border: none;
+	--theme-statusbar-shadow: none;
+	--theme-statusbar-padding: 10px;
+	--theme-statusbar-item-gap: 10px;
+	--theme-statusbar-min-height: 64px;
+
+	/* Modal */
+	--theme-modal-screen-background-color: rgba(0, 0, 0, 0.6);
+	--theme-modal-border-radius: 4px;
+	--theme-modal-alert-m-l-xl-width: 480px;
+	--theme-modal-onboard-m-l-xl-width: 480px;
+	--theme-modal-alert-xs-s-width: calc(100vw - 32px);
+	--theme-modal-onboard-xs-s-width: calc(100vw - 32px);
+	--theme-modal-form-m-l-xl-width: 640px;
+	--theme-modal-form-xs-s-width: 100vw;
+	--theme-modal-result-m-l-xl-width: 396px;
+	--theme-modal-result-xs-s-width: 100vw;
+	--theme-modal-free-max-width: calc(100vw - 32px);
+	--theme-modal-free-max-height: calc(100vh - 32px);
+	--theme-modal-container-background-color: #FFFFFF;
+	--theme-modal-container-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2);
+	--theme-modal-slotted-button-margin: 0px 0px 0px 12px;
+	--theme-modal-header-color: var(--theme-system-font-color);
+	--theme-modal-header-background-color: #F7F7F7;
+	--theme-modal-header-font-size: 20px;
+	--theme-modal-header-font-weight: 500;
+	--theme-modal-header-text-align: left;
+	--theme-modal-header-line-height: 24px;
+	--theme-modal-header-padding-left: 24px;
+	--theme-modal-header-padding-top: 24px;
+	--theme-modal-header-padding-right: 24px;
+	--theme-modal-header-padding-bottom: 24px;
+	--theme-modal-header-border-radius: 4px 4px 0px 0px;
+	--theme-modal-body-color: var(--theme-system-font-color);
+	--theme-modal-body-padding: 24px 24px 40px 24px;
+	--theme-modal-body-font-size: 14px;
+	--theme-modal-body-border-radius: 4px 4px 0px 0px;
+	--theme-modal-body-box-shadow: 0 -2px 2px #EFEFEF;
+	--theme-modal-body-background-color: #ffffff;
+	--theme-modal-footer-text-align: right;
+	--theme-modal-footer-padding: 12px 12px 12px 0px;
+	--theme-modal-slot-header-right: 21.25px;
+
+	/* Alert Banner */
+	--theme-alert-banner-height: 56px;
+	--theme-alert-banner-unsuccessful-background-color: rgba(73, 91, 101, 0.1);
+	--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
+	--theme-alert-banner-font-size: 14px;
+	--theme-alert-banner-font-weight: 500;
+	--theme-alert-banner-line-height: 21px;
+	--theme-alert-banner-close-button-right: 28.86px;
+
+	/* Tooltip */
+	--theme-tooltip-background-color: #3E4547;
+	--theme-tooltip-margin-left: 16px;
+	--theme-tooltip-margin-right: 16px;
+	--theme-tooltip-margin-top: 8px;
+	--theme-tooltip-margin-bottom: 8px;
+	--theme-tooltip-border-radius: 5px;
+	--theme-tooltip-font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+	--theme-tooltip-font-color: #ffffff;
+	--theme-tooltip-font-size: 12px;
+	--theme-tooltip-font-weight: 400;
+	--theme-tooltip-letter-spacing: 0;
+	--theme-tooltip-line-height: 16px;
+
+	/* Popover */
+	--theme-popover-border-radius: 4px;
+	--theme-popover-border: 1px solid #E1E1E1;
+	--theme-popover-header-box-shadow: 0 3px 3px -3px rgba(0, 0, 0, 0.2);
+	--theme-popover-content-padding: 24px;
+	--theme-popover-heading-color: #003652;
+	--theme-popover-font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+	--theme-popover-heading-font-size: 16px;
+	--theme-popover-font-weight: 600;
+	--theme-popover-text-align: left;
+	--theme-popover-text-margin: 16px;
+	--theme-popover-text-color: #4e6066;
+	--theme-popover-font-size: 12px;
+	--theme-popover-footer-padding-bottom: 8px;
+	--theme-popover-footer-padding-horizontal: 12px;
+	--theme-popover-width: 320px;
+	--theme-popover-background-color: #FFFFFF;
+	--theme-popover-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.2);
+	--theme-popover-line-height: 18px;
+	--theme-popover-pagenumber-line-height: 14px;
+
+	/* ---------- NAVIGATION ---------- */
+
+	/* Menu */
+	--theme-menu-background: white;
+	--theme-menu-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+	--theme-menu-width: 256px;
+
+	--theme-menu-header-font-color: #5D737E;
+	--theme-menu-header-font-size: 15px;
+	--theme-menu-header-font-weight: 600;
+
+	--theme-menu-header-padding-left: 20px;
+	--theme-menu-header-padding-right: 8px;
+	--theme-menu-header-padding-top: 20px;
+	--theme-menu-header-padding-bottom: 10px;
+	--theme-menu-header-border-bottom: 1px solid #E1E1E11A;
+	--theme-menu-header-margin-left: 16px;
+
+	--theme-menu-sub-header-font-color: #5D737E;
+	--theme-menu-sub-header-font-size: 14px;
+	--theme-menu-sub-header-font-weight: var(--theme-font-weight, 400);
+
+	--theme-menu-footer-font-color: #5D737E;
+	--theme-menu-footer-border: 1px solid #E1E1E1;
+	--theme-menu-footer-padding: 12px 16px;
+
+	/* Menu Item */
+	--theme-menu-item-font-color: var(--theme-system-font-color, #4E6066);
+	--theme-menu-item-font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+	--theme-menu-item-font-size: 16px;
+	--theme-menu-item-font-weight: 400;
+	--theme-menu-item-font-color-selected: #009DE0;
+
+	--theme-menu-item-padding-left: 20px;
+	--theme-menu-item-min-height: 64px;
+
+	--theme-menu-item-child-offset: 50px;
+
+	--theme-menu-item-indicator-width: 20px;
+	--theme-menu-item-indicator-height: 20px;
+	--theme-menu-item-indicator-margin-left: auto;
+	--theme-menu-item-indicator-margin-right: 20px;
+
+	--theme-menu-item-icon-margin-left: 0px;
+	--theme-menu-item-icon-margin-right: 16px;
+
+	--theme-menu-item-selected-background-color: #009DE01A;
+	--theme-menu-item-hover-background-color: var(--theme-system-hover-color);
+
+	--theme-menu-item-selected-font-weight: 600;
+	--theme-menu-item-selected-indicator-height: 48px;
+	--theme-menu-item-selected-indicator-width: 5px;
+	--theme-menu-item-selected-indicator-background-color: #009DE0;
+	--theme-menu-item-selected-indicator-border-radius: 6px 0px 0px 6px;
+	--theme-menu-item-selected-indicator-margin: 0px 0px 0px auto;
+
+	/* Overflow Menu Item */
+	--theme-overflow-menu-item-font-color: var(--theme-system-font-color, #545D60);
+	--theme-overflow-menu-item-font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+	--theme-overflow-menu-item-font-size: 15px;
+	--theme-overflow-menu-item-font-weight: 400;
+
+	--theme-overflow-menu-item-padding-left: 16px;
+	--theme-overflow-menu-item-padding-right: 16px;
+	--theme-overflow-menu-item-padding-top: 14px;
+	--theme-overflow-menu-item-padding-bottom: 14px;
+
+	--theme-overflow-menu-item-child-offset: 50px;
+
+	--theme-overflow-menu-item-icon-width: 20px;
+	--theme-overflow-menu-item-icon-height: 20px;
+
+	--theme-overflow-menu-item-indicator-width: 20px;
+	--theme-overflow-menu-item-indicator-height: 20px;
+
+	--theme-overflow-menu-item-hover-background-color: var(--theme-system-hover-color);
+
+	--theme-overflow-menu-item-hover-disabled-background-color: #DEDEDE;
+	--theme-overflow-menu-item-disabled-font-color: #7C7C7C;
+
+	/* Menu Separator */
+	--theme-menu-item-separator-color: #E1E1E1;
+	--theme-menu-item-separator-padding-left: var(--theme-menu-item-padding-left, 20px);
+	--theme-menu-item-separator-padding-right: var(--theme-menu-item-padding-left, 20px);
+	--theme-menu-item-separator-padding-top: 16px;
+	--theme-menu-item-separator-padding-bottom: 16px;
+
+	/* Overflow Menu */
+	--theme-overflow-menu-width: 180px;
+	--theme-overflow-menu-border-color: #E1E1E1;
+	--theme-overflow-menu-background-color: #FFFFFF;
+	--theme-overflow-menu-border-radius: 4px;
+
+	/* ---------- INDICATORS ---------- */
+
+	/* Tag */
+	--theme-tag-border-radius: 16px;
+	--theme-tag-padding: 8px;
+	--theme-tag-default-background-color: var(--theme-system-font-color);
+	--theme-tag-height: 18px;
+	--theme-tag-font-color: #FFFFFF;
+	--theme-tag-font-size: 12px;
+	--theme-tag-label-line-height: 12px;
+	--theme-tag-label-height: 13px;
+	--theme-tag-label-margin: 16px;
+	--theme-tag-icon-padding: 4px;
+	--theme-tag-info-font-color: #08A6B5;
+	--theme-tag-info-background-color: #DAF2F4;
+	--theme-tag-success-font-color: #5A9600;
+	--theme-tag-success-background-color: #EAF3D9;
+	--theme-tag-warning-font-color: #D4781C;
+	--theme-tag-warning-background-color: #F9EBDD;
+	--theme-tag-error-font-color: #C83B37;
+	--theme-tag-error-background-color: #F7E2E1;
+
+	/* Avatar */
+	--theme-avatar-value-color: #FFFFFF;
+	--theme-avatar-size-extra-small: 24px;
+	--theme-avatar-size-small: 32px;
+	--theme-avatar-size-medium: 40px;
+	--theme-avatar-size-large: 48px;
+	--theme-avatar-size-extra-large: 56px;
+	--theme-avatar-size-extra-extra-large: 64px;
+	--theme-avatar-font-size-extra-small: 10.19px;
+	--theme-avatar-font-size-small: 13.59px;
+	--theme-avatar-font-size-medium: 16.99px;
+	--theme-avatar-font-size-large: 20.22px;
+	--theme-avatar-font-size-extra-large: 23.84px;
+	--theme-avatar-font-size-extra-extra-large: 27.36px;
+	--theme-avatar-font-line-height-extra-small: 11px;
+	--theme-avatar-font-line-height-small: 15px;
+	--theme-avatar-font-line-height-medium: 19px;
+	--theme-avatar-font-line-height-large: 23px;
+	--theme-avatar-font-line-height-extra-large: 27px;
+	--theme-avatar-font-line-height-extra-extra-large: 31px;
+
+	/* Badge */
+	--theme-badge-size: 24px;
+	--theme-badge-number-color: #FFFFFF;
+	--theme-badge-font-size: 14px;
+	--theme-badge-font-weight: 500;
+	--theme-badge-line-height: var(--theme-badge-size, 24px);
+
+	/* All Z-Index */
+	--theme-data-table-row-selector-z-index: 1;
+	--theme-tooltip-base-z-index: 1;
+	--theme-tooltip-message-z-index: 2;
+	--theme-data-table-header-nested-z-index: 999;
+	--theme-data-table-header-z-index: 1000;
+	--theme-widget-wrapper-overlay-z-index: 1100;
+	--theme-select-container-z-index: 1100;
+	--theme-calendar-calendar-z-index: 1100;
+	--theme-date-time-picker-container-z-index: 1101;
+	--theme-modal-container-z-index: 1102;
+	--theme-modal-container-header-z-index: 1103;
+	--theme-modal-container-footer-z-index: 1104;
+	--theme-modal-container-body-z-index: 1105;
+	--theme-file-upload-undocked-container-z-index: 1106;
+	--theme-date-time-picker-basic-box-z-index: 1107;
+	--theme-tooltip-container-z-index: 9999;
+	--theme-keyboard-z-index: 9999;
+	--theme-popover-container-z-index: 9999;
+	--theme-toast-container-z-index: 9999;
+	--theme-overflow-menu-overflow-z-index: 9999;
+	--theme-overflow-menu-overlay-z-index: 10000;
+	--theme-popover-trigger-z-index: 10000;
+	--theme-loading-indicator-z-index: 20000;
+
+}
+
+html::-webkit-scrollbar {
+	width: calc(var(--theme-scrollbar-thumb-width, 10px) + var(--theme-scrollbar-track-padding-left, 2px) + var(--theme-scrollbar-track-padding-right, 2px));
+}
+
+html::-webkit-scrollbar-track {
+	box-shadow: var(--theme-scrollbar-track-box-shadow, inset 0 0 6px rgba(0, 0, 0, 0.3));
+	border-radius: var(--theme-scrollbar-track-border-radius, 10px);
+	background-color: var(--theme-scrollbar-track-background-color, lightgrey);
+}
+
+html::-webkit-scrollbar-thumb {
+	box-shadow: var(--theme-scrollbar-thumb-box-shadow, inset 0 0 6px rgba(0, 0, 0, 0.3));
+	border-radius: var(--theme-scrollbar-thumb-border-radius, 10px);
+	background-color: var(--theme-scrollbar-thumb-background-color, darkgrey);
+
+	border-top: var(--theme-scrollbar-track-padding-top, 2px) solid transparent;
+	border-bottom: var(--theme-scrollbar-track-padding-bottom, 2px) solid transparent;
+	border-left: var(--theme-scrollbar-track-padding-left, 2px) solid transparent;
+	border-right: var(--theme-scrollbar-track-padding-right, 2px) solid transparent;
+
+	background-clip: padding-box;
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+
+	padding: 0px;
+	margin: 0px;
+
+	background-color: var(--theme-app-background-color, #F4F4F4);
+
+	font-family: var(--theme-font-family, Arial, Helvetica, sans-serif);
+	font-weight: var(--theme-font-weight, 300);
+
+	box-sizing: border-box;
+	user-select: var(--theme-text-select, none);
+}

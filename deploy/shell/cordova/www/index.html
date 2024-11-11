@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>app-name</title>
+
+		<script type="text/javascript" src="cordova.js"></script>
+		<script type="text/javascript" src="cordova_plugins.js"></script>
+
+		<script type="text/javascript" src="config.js"></script>
+
+		<style>
+			html,
+			body {
+				margin: 0px;
+				padding: 0px;
+
+				width: 100%;
+				height: 100%;
+			}
+
+			body {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 12px;
+				font-weight: normal;
+			}
+
+			.logo {
+				position: absolute;
+				top: 25%;
+			}
+
+			.logo {
+				position: absolute;
+				top: 25%;
+			}
+
+			#debug {
+				position: absolute;
+				bottom: 5%;
+				background-color: #696969;
+				color: #ffffff;
+				padding: 8px;
+				border-radius: 8px;
+				display: none;
+			}
+		</style>
+
+		<script>
+			// Load the hosted web app once the device is ready.
+			document.addEventListener('deviceready', function() {
+
+				// Print out the redirect debug message on screen if enabled.
+				if (config.debug) {
+
+					const debugElement = document.querySelector('#debug');
+					debugElement.innerHTML = `Redirecting to ${config.hostedAppURL}`;
+					debugElement.style.display = 'block';
+				}
+
+				// Load the web app.
+				window.location.replace(config.hostedAppURL);
+			});
+		</script>
+	</head>
+
+	<body>
+		<img class="logo" src="./assets/capitec-logo.svg">
+		<img class="loader" src="./assets/loader.svg">
+		<div id="debug"></div>
+	</body>
+</html>

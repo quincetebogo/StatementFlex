@@ -586,6 +586,11 @@ class LifeAddBeneficiaryDialog extends Component {
 	_beneficiaryCoverAmountChange(e, bene) {
 		if (e.detail.old !== e.detail.new) {
 			let value = e.detail.new;
+
+			if (typeof value === `string` && value.length > 1 && value.startsWith(`0`)) {
+				value = value.replace(/^0+/, ``);
+			}
+			
 			if (isNaN(value) || value === ``) {
 				value = 0;
 			}

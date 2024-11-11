@@ -1,19 +1,9 @@
-node_modules/
-dist
-jsconfig.json
-/src/types.d.ts
-ocwp
-**.log
-.vs
-**.orig
-package.json
-package-lock.json
-tsconfig.json
+# Global ignores.
 node_modules
-npm.cmd
-node.cmd
-npm
-node
-.npmrc
-npx.cmd
-npx
+coverage
+debug
+test-report.json
+.DS_Store
+
+/packages/ocwp-components/dist
+/dist

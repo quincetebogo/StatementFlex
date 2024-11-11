@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ic/table sort/ Stroke</title>
+    <g id="ic/table-sort/-Stroke" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="stroke" transform="translate(8.000000, 4.000000)" stroke="#979797" stroke-linejoin="round" stroke-width="1.5">
+            <polygon id="Path-32" transform="translate(4.000000, 3.000000) scale(1, -1) translate(-4.000000, -3.000000) " points="0 0 8 0 4 6"></polygon>
+            <polygon id="Path-32" points="0 9 8 9 4 15"></polygon>
+        </g>
+        <g id="fill" transform="translate(7.000000, 3.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <path d="M9,9.25 C9.59902154,9.25 9.95631509,9.9176091 9.62403772,10.4160251 L9.62403772,10.4160251 L5.62403772,16.4160251 C5.32717118,16.861325 4.67282882,16.861325 4.37596228,16.4160251 L4.37596228,16.4160251 L0.375962279,10.4160251 C0.0436849144,9.9176091 0.400978462,9.25 1,9.25 L1,9.25 Z M7.597,10.75 L2.402,10.75 L5,14.646 L7.597,10.75 Z M5.62403772,0.583974853 L9.62403772,6.58397485 C9.95631509,7.0823909 9.59902154,7.75 9,7.75 L1,7.75 C0.400978462,7.75 0.0436849144,7.0823909 0.375962279,6.58397485 L4.37596228,0.583974853 C4.67282882,0.138675049 5.32717118,0.138675049 5.62403772,0.583974853 Z M5,2.354 L2.401,6.25 L7.598,6.25 L5,2.354 Z"></path>
+        </g>
+    </g>
+</svg>

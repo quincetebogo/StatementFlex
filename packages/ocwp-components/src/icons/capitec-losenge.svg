@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="13px" viewBox="0 0 24 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 64 (101010) - https://sketch.com -->
+    <title>91236006-146A-46C0-9B57-A2479299765E@1,5x</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <polygon id="path-1" points="8.44884367e-21 6.37083819 8.44884367e-21 18.6813757 15.9474761 18.6813757 15.9474761 6.37083819 0 6.37083819"></polygon>
+    </defs>
+    <g id="Icons-&amp;-Illustrations" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icons---Web---Overview" transform="translate(-409.000000, -763.000000)">
+            <g id="Group" transform="translate(139.000000, 632.000000)">
+                <g id="ic/products/credit/" transform="translate(270.000000, 125.000000)">
+                    <rect id="bounds" x="0" y="0" width="24" height="24"></rect>
+                    <path d="M17.2629116,6.31170731 L8.7,6.31170731 L8.7,9.90413411 C8.7,11.186498 9.74951853,12.2279121 11.0321941,12.2279121 L15.5092463,12.2279121 C17.1126687,12.2279121 18.4243331,13.5398882 18.4243331,15.1436223 L18.4243331,18.5384267 C21.5304965,18.0250448 23.9088233,15.4949165 23.9088233,12.4729141 C23.9088233,9.08434387 20.9179916,6.31170731 17.2629116,6.31170731" id="Fill-4" fill="#E63934"></path>
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Clip-7"></g>
+                    <path d="M13.7156872,12.7309142 L9.25235015,12.7309142 C7.64892773,12.7309142 6.33726335,11.4388874 6.33726335,9.8360884 L6.33726335,6.37083819 C2.87076631,6.56814892 0.1,9.25818304 0.1,12.5195767 C0.1,15.9087703 3.09083168,18.6814068 6.74622335,18.6814068 L16.0475696,18.6814068 L16.0475696,15.0631083 C16.0475696,13.7804327 14.9983628,12.7309142 13.7156872,12.7309142" id="Fill-6" fill="#00466E" mask="url(#mask-2)"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

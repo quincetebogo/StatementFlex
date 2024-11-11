@@ -1,0 +1,38 @@
+{
+	"default-src": [
+		"'self'"
+	],
+	"script-src": [
+		"'self'",
+		"'unsafe-inline'"
+	],
+	"style-src": [
+		"'self'",
+		"'unsafe-inline'"
+	],
+	"font-src": [
+		"'self'",
+		"data:"
+	],
+	"img-src": [
+		"'self'",
+		"data:",
+		"*"
+	],
+	"connect-src": [
+		"'self'",
+		"*.int.capinet",
+		"*.capitecbank.co.za",
+		"https:",
+		"ws:"
+	],
+	"child-src": [
+		"'self'",
+		"*.int.capinet",
+		"*.capitecbank.co.za",
+		"https:"
+	],
+	"frame-ancestors": [
+		"'none'"
+	]
+}

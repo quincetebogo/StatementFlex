@@ -1,0 +1,37 @@
+{
+	"tags": {
+		"allowUnknownTags": true,
+		"dictionaries": [
+			"jsdoc"
+		]
+	},
+	"source": {
+		"include": [
+			"packages/ocwp-core/src",
+			"packages/ocwp-components/src",
+			"jsdoc/README.md"
+		],
+		"includePattern": ".js$",
+		"excludePattern": "(cli|deploy|runtime|test)"
+	},
+	"plugins": [
+		"plugins/markdown",
+		"plugins/underscore",
+		"jsdoc/plugin"
+	],
+	"opts": {
+		"encoding": "utf8",
+		"destination": "./docs",
+		"recurse": true,
+		"template": "./jsdoc/template"
+	},
+	"templates": {
+		"applicationName": "Omni-channel Web Platform",
+		"useLongnameInNav": true,
+		"meta": {
+			"title": "Omni-channel Web Platform",
+			"description": "Omni-channel Web Platform technical documentation",
+			"keyword": "documentation"
+		}
+	}
+}

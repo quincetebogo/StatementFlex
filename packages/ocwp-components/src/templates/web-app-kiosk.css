@@ -1,0 +1,167 @@
+:root {
+	/* App Defaults */
+
+	/* Font */
+	--theme-font-weight: 500;
+
+	/* Colors */
+
+	/* Status */
+
+	/* Types */
+
+	/* Container */
+
+	/* Scroll Bar */
+
+	/* ---------- CORE ---------- */
+
+	/* Label */
+	--theme-label-font-size: 24px;
+	--theme-label-title-font-size: 20px;
+
+	/* Icon */
+	--theme-icon-size-large: 72px;
+	--theme-icon-size-medium: 48px;
+	--theme-icon-size-small: 24px;
+	--theme-icon-size-extra-small:12.375px;
+	--theme-icon-size-default: 36px;
+
+	/* ---------- BUTTONS ---------- */
+
+	/* Button */
+	--theme-button-font-size: 20px;
+	--theme-button-padding-top: 14px;
+	--theme-button-padding-bottom: 14px;
+
+	/* Chip */
+
+	/* Product Tile */
+	/* ---------- INPUTS ---------- */
+
+	/* Input */
+	--theme-input-font-size: 24px;
+	--theme-input-font-weight: 500;
+
+	--theme-input-label-font-size: 16px;
+	--theme-input-label-transform-y: -29px;
+	--theme-input-label-padding-top: 22px;
+	--theme-input-icon-top: 19px;
+	--theme-input-hint-font-color: #354D54;
+	--theme-input-hint-font-size: 16px;
+	--theme-input-hint-font-weight: 400;
+	--theme-input-error-font-size: 16px;
+	--theme-input-error-font-weight: 400;
+	--theme-input-currency-symbol-size: 24px;
+	--theme-input-clear-icon-top: 13px;
+	--theme-input-search-field-text-indent: 48px;
+	--theme-input-search-label-focussed-font-size: 16px;
+
+	/* Check */
+	--theme-check-width: 28px;
+	--theme-check-height: 28px;
+
+	/* Calendar */
+
+	/* DateTimePicker */
+
+	/* Radio */
+	--theme-radio-width: 30px;
+	--theme-radio-height: 30px;
+	--theme-radio-label-spacing: 16px;
+
+	/* Toggle */
+
+	/* Select */
+
+	/* Multiple Select */
+
+	/* Keyboard Button */
+
+	/* Keyboard */
+
+	/* File Upload */
+
+	/* Slider */
+	--theme-slider-track-height:4px;
+	--theme-slider-thumb-margin-top:-8.5px;
+	--theme-slider-thumb-width:22.5px;
+	--theme-slider-thumb-height:22.5px;
+	--theme-slider-thumb-border:solid 1.25px #E1E1E1;
+	--theme-slider-thumb-box-shadow:0 1px 4px 0 rgba(0,0,0,0.25), 0 3px 5px 0 rgba(0,0,0,0.15);
+	--theme-slider-thumb-focus-border:solid 2.5px #009DE0;
+	--theme-slider-tool-tip-top:-60%;
+	--theme-slider-tool-tip-width:55px;
+	--theme-slider-tool-tip-height:38.5px;
+	--theme-slider-tool-tip-font-size:15px;
+	--theme-slider-value-labels-margin-bottom:8px;
+	--theme-slider-error-label-font-size:17.5px;
+		
+	/* ---------- CONTAINERS ---------- */
+
+	/* Card */
+
+	/* Stepper */
+
+	/* Tab */
+	--theme-tab-min-width: 400px;
+	--theme-tab-tab-label-width: 100%;
+	--theme-tab-max-width: "unset";
+
+	/* Expander */
+
+	/* ---------- LAYERS ---------- */
+
+	/* Action Bar */
+
+	/* Button Bar */
+
+	/* Chip Bar */
+
+	/* Page Header */
+
+	/* Title Bar */
+
+	/* ---------- LAYOUTS ---------- */
+
+
+	/* ---------- DATA ---------- */
+
+	/* Data Table */
+
+	/* ---------- POPUPS ---------- */
+
+	/* Status Bar */
+
+	/* Modal */
+	--theme-modal-header-font-size: 22px;
+
+	/* Alert Banner */
+
+	/* Toast */
+
+	/* Popover */
+
+	/* Tooltip */
+
+	/* ---------- NAVIGATION ---------- */
+
+	/* Menu */
+	--theme-menu-item-selected-font-weight: 600;
+
+	/* Overflow Menu Item */
+
+	/* Menu Separator */
+
+	/* Hyperlink */
+
+	/* Overflow Menu */
+
+	/* ---------- INDICATORS ---------- */
+
+	/* Tag */
+
+	/* Avatar */
+
+	/* Badge */
+}

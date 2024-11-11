@@ -47,7 +47,7 @@ export const creditMixin = {
 		let permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === ACTION_IDENTIFIER[option]);
 
 		// TODO : CSCEH-7995 : Once credit permission is update for marked closure status, we can remove the below condition.
-		if (option === `settlement-quote` || option === `pay-budget`) {
+		if (option === `pay-budget`) {
 			permission = returnValue.result.permissionsResultsList.find(item => item.operationIdentifier === `Settle`);
 		}
 

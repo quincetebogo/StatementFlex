@@ -87,10 +87,12 @@ export class DOAgreementDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
+		<strong>Premiums:</strong>
 		<ul>
-			<li>Your premium is paid monthly by debit order from your nominated bank account and partial payments are not allowed</li>
-			<li>We may review you premium annually and we’ll give 31 days written notice before making any changes</li>
-			<li>Any arrears premiums will be deducted from your cover amount</li>
+			<li>Your Premium is paid by a monthly debit order from your nominated bank account</li>
+			<li>Note partial payments are not allowed</li>
+			<li>We will give you 31 days' notice before we make changes to your Premium</li>
+			<li>Note any Premiums in arrears will be deducted from the cover amount payable</li>
 		</ul>
 		`;
 	}

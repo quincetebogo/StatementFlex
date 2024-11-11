@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head lang="en">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Component Usage example</title>
+
+		<!-- Polyfill for browsers not supporting Web Components, such as Edge -->
+		<script src="/webcomponentsjs/webcomponents-bundle.js"></script>
+
+		<!-- Bundle containing all UI components -->
+		<script src="/ocwp-components-<%= htmlWebpackPlugin.options.version %>.js" type="module"
+			charset="utf-8"></script>
+
+		<!-- Material Icons CSS -->
+		<link href="/platform/fonts/MaterialIcons/material-icons.css" rel="stylesheet">
+
+		<!-- HindVadodara CSS -->
+		<link href="/platform/fonts/HindVadodara/hindvadodara.css" rel="stylesheet">
+
+		<!-- Template CSS -->
+		<link href="/templates/web-app-core.css" rel="stylesheet">
+		<link href="/templates/web-app-desktop.css" rel="stylesheet">
+		
+		<!-- Specify required runtime config -->
+		<script>
+
+			window.config = {
+				platform: {
+					type: "desktop"
+				}
+			}
+
+		</script>
+
+	</head>
+
+	<body>
+		<capitec-button type="primary" label="Lorem Ipsum" onclick="alert('clicked');"></capitec-button>
+	</body>
+
+</html>
