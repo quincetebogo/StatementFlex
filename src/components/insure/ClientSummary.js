@@ -1181,51 +1181,70 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Determine which options to show
-	 * @param {object} policyItem - each policy item
-	 * @returns {void}
-	 */
+   * Determine which options to show
+   * @param {object} policyItem - each policy item
+   * @returns {void}
+   */
 	_calculateFuneralOverflowOptions(policyItem) {
 		policyItem.showOptions = [];
-
+		policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 		if (policyItem.canReinstate) {
-			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
-			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
+		  policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
+		} else if (
+		  policyItem.canReinstate == false &&
+		  (policyItem.status === "Cancelled" ||
+			policyItem.status === "Lapsed" ||
+			policyItem.status === "OutOfForce" ||
+			policyItem.status === "NotTakenUp") &&
+		  this.isInsureAdministrator
+		) {
+		  policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
 		} else {
-			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
-
-			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
-				if (policyItem.arrearDetails?.outstandingAmount > 0) {
-					policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
-				}
-				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);			
+		  if (
+			policyItem.status === `Active` ||
+			policyItem.status === `PendingInForce`
+		  ) {
+			if (policyItem.arrearDetails?.outstandingAmount > 0) {
+			  policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
 			}
+			policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
+			policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
+		  }
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
-		
 		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
-
-		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
-		if ((vppBenefit?.available || vppBenefit?.isBenefitActive) && policyItem.status === `Active`) {
-		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
+	
+		let vppBenefit = policyItem.benefits?.find(
+		  (benefit) =>
+			benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE
+		);
+		if (
+		  (vppBenefit?.available || vppBenefit?.isBenefitActive) &&
+		  policyItem.status === `Active`
+		) {
+		  policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
-
-		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
-		if ((newBornBenefit?.available || newBornBenefit?.isBenefitActive) && policyItem.status === `Active`) {
-			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
+	
+		let newBornBenefit = policyItem.benefits?.find(
+		  (benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN
+		);
+		if (
+		  (newBornBenefit?.available || newBornBenefit?.isBenefitActive) &&
+		  policyItem.status === `Active`
+		) {
+		  policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
-
+	
 		if (this.isInsureAdministrator) {
-			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
-			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
-			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
-		}else if(this.isInsureAgent){
-			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
+		  policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT);
+		  policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE);
+		  // policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
+		} else if (this.isInsureAgent) {
+		  // policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		}
-	}
+	  }
 
 	/**
 	 * Restrict availability of features based on feature toggles
