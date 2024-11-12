@@ -98,7 +98,7 @@ export const CHILD_TITLE_OPTIONS = Object.freeze([
 	{ code: `Mrs`, text: `Mrs` },
 	{ code: `Ms`, text: `Ms` },
 	{ code: `Miss`, text: `Miss` }
-	
+
 ]);
 
 /**
@@ -261,14 +261,15 @@ export const INSURE_CALLER_PAGE = Object.freeze({
 	LIFE_REISSUE_DIALOG: 9,
 	LIFE_INCREASE_COVER_DIALOG: 10,
 	FUNERAL_UPDATE_ID_DOB_DIALOG: 11,
-	FUNERAL_VPP: 12
+	FUNERAL_VPP: 12,
+	FUNERAL_NEW_AGREEMENT_GENERATION: 13,
 });
 
 /**
  * List of document types
  * 
  * @readonly
- * @enum {Object} INSURE_CALLER_PAGE
+ * @enum {Object} DOCUMENT_TYPE
  */
 export const DOCUMENT_TYPE = Object.freeze({
 	ISSUE_POLICY_AGREEMENT: `IssuePolicyAgreement`,
@@ -279,6 +280,7 @@ export const DOCUMENT_TYPE = Object.freeze({
 	ESTIMATE_AGREEMENT: `EstimatePrintout`,
 	ISSUE_BENEFIT_AGREEMENT: `IssueBenefitAgreement`,
 	CANCEL_BENEFIT_AGREEMENT: `CancelBenefitAgreement`,
+	POLICY_RESCHEDULE_AGREEMENT: `PolicyRescheduleAgreement`,
 });
 
 /**
@@ -342,7 +344,10 @@ export const POLICY_OPTIONS = Object.freeze({
 	EARLY_COLLECTION_OPT_IN: `EarlyCollectionOPTIn`,
 	UPDATE_ID_DOB: `UpdateIdDob`,
 	VOLUNTARY_PAUSE: `VoluntaryPause`,
-	NEW_BORN_WAIVER: `NewBornWaiver`
+	NEW_BORN_WAIVER: `NewBornWaiver`,
+	GENERATE_AGREEMENT: `GenerateAgreement`,
+	GENERATE_MANDATE: `GenerateMandate`,
+	POLICY_HISTORY: `PolicyHistory`,
 });
 
 
@@ -354,8 +359,8 @@ export const POLICY_OPTIONS = Object.freeze({
  */
 export const POLICY_RULES = Object.freeze({
 	STANDARD: `Standard`,
-	POLICYPAUSE: `Policy Pause`,
-	MATERNITYWAIVER: `New Born Waiver`
+	POLICYPAUSE: `Voluntary Policy Pause`,
+	MATERNITYWAIVER: `Newborn Premium Waiver`
 });
 
 /**
@@ -402,7 +407,7 @@ export const INSURE_TABS = Object.freeze({
  */
 export const POLICY_PAUSE_REASONS = Object.freeze([
 	{ code: `Affordability`, text: `Affordability` },
-	{ code: `Other `, text: `Other ` }
+	{ code: `Other`, text: `Other` }
 ]);
 
 /**
@@ -412,7 +417,7 @@ export const POLICY_PAUSE_REASONS = Object.freeze([
  * @enum {Object} GLOBAL_ONE_GENERIC_DETAILS
  */
 export const GLOBAL_ONE_GENERIC_DETAILS = Object.freeze({
-	ACCOUNT_NAME: `SAVINGS ACCOUNT`,
+	ACCOUNT_NAME: `MAIN ACCOUNT`,
 	BRANCH_CODE: `470010`,
 	BANK: `Capitec Bank`,
 	ACCOUNT_TYPE: `Savings`
@@ -496,6 +501,16 @@ export const FUN_BENEFIT_REASONS = Object.freeze([
 ]);
 
 /**
+ * Reasons for Activating Life benefits
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_REASONS
+ */
+export const LIFE_BENEFIT_REASONS = Object.freeze([
+	{ code: `Birth`, text: `Birth` },
+	{ code: `Adoption`, text: `Adoption` }
+]);
+
+/**
  * FUN_BENEFIT_TYPES
  *
  * @readonly
@@ -507,14 +522,35 @@ export const FUN_BENEFIT_TYPES = Object.freeze({
 });
 
 /**
+ * LIFE_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_TYPES
+ */
+export const LIFE_BENEFIT_TYPES = Object.freeze({
+	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
+});
+
+/**
  * FUN_BENEFIT_TYPES
  *
  * @readonly
  * @enum {Object} FUN_BENEFIT_TYPES
  */
-export const FUN_BENEFIT_DOT_TYPES = Object.freeze({
-	POLICY_PAUSE: `PolicyPause`,
-	NEW_BORN: `NewBorn`
+export const FUN_CLIENT_SUMMARY_BENEFIT_TYPES = Object.freeze({
+	POLICY_PAUSE: `VoluntaryPolicyPause`,
+	NEW_BORN: `NewBornPremiumWaiver`
+});
+
+/**
+ * LIFE_CLIENT_SUMMARY_BENEFIT_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_BENEFIT_TYPES
+ */
+export const LIFE_CLIENT_SUMMARY_BENEFIT_TYPES = Object.freeze({
+	ACTIVE: `Active`,
+	INACTIVE: `Inactive`
 });
 
 /**
@@ -540,3 +576,47 @@ export const FUN_BENEFIT_PERIOD = Object.freeze({
 	
 });
 
+/**
+ * LIFE_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_TYPES
+ */
+export const LIFE_BENEFIT_PERIOD = Object.freeze({
+	PERIOD: 6
+	
+});
+
+/**
+ * LIFE_POLICY_TYPES
+ *
+ * @readonly
+ * @enum {Object} LIFE_POLICY_TYPES
+ */
+export const LIFE_POLICY_RULES = Object.freeze({
+	MATERNITY_WAIVER: `MaternityWaiver`,
+	STANDARD: `Standard`
+});
+
+/**
+ * FEATURE_TOGGLES
+ *
+ * @readonly
+ * @enum {Object} FEATURE_TOGGLES
+ */
+export const FEATURE_TOGGLES = Object.freeze({
+	Estimate: `Estimate`,
+	UpdatePolicy: `UpdatePolicy`,
+	CancelPolicy: `CancelPolicy`,
+	Claim: `Claim`,
+	AdhocPayment: `AdhocPayment`,
+	WaiverWaitingPeriod: `WaiverWaitingPeriod`,
+	Emailing: `Emailing`,
+	ActivatePolicyPause: `ActivatePolicyPause`,
+	ActivateNewBorn: `ActivateNewBorn`,
+	CancelPolicyPause: `CancelPolicyPause`,
+	CancelNewBorn: `CancelNewBorn`,
+	IssuePolicy: `IssuePolicy`,
+	ReissuePolicy: `ReissuePolicy`,
+	Banner: `Banner`
+});

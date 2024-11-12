@@ -25,7 +25,7 @@ const SAVE_PLAN_TYPE = {
 };
 
 export class SavingsPlanLanding extends Component {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -39,7 +39,7 @@ export class SavingsPlanLanding extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 	}
@@ -50,9 +50,9 @@ export class SavingsPlanLanding extends Component {
 
 	async updated() {
 		await this.updateComplete;
-	
+
 		const tabGroup = this.shadowRoot.getElementById(`save-tab-group`);
-	
+
 		if (tabGroup && this.isCapitecConnectAgent) {
 			const fixedTermTab = tabGroup.shadowRoot.querySelectorAll(`.tab`)[1];
 			fixedTermTab.style.backgroundColor = `#C7C7C7`;
@@ -66,7 +66,7 @@ export class SavingsPlanLanding extends Component {
 
 	/**
 	 * @typedef {Object} SavingsPlanDetails
- 	 */
+	   */
 
 	/**
 	 * Registry of all properties defined by the component.
@@ -87,19 +87,19 @@ export class SavingsPlanLanding extends Component {
 			getTooltipMessage: { type: Object }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_click(selection, savePlanDetails) {
-			this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selection, planDetails: savePlanDetails } }));
 	}
 
 	_viewInfo() {
-		this.dispatchEvent(new CustomEvent(`view-info`, { detail: { } }));
+		this.dispatchEvent(new CustomEvent(`view-info`, { detail: {} }));
 	}
-	
+
 	_accountDetails(type, accNumber) {
 		this.dispatchEvent(new CustomEvent(`account-details`, { detail: { accountType: type, accountNumber: accNumber } }));
 	}
@@ -107,15 +107,15 @@ export class SavingsPlanLanding extends Component {
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// N/A
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	// NA
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -384,12 +384,12 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderSavingsPlanLandingContent() {
-		return this.savingsPlanDetails.length > 0 
-		? html`
+		return this.savingsPlanDetails.length > 0
+			? html`
 			<capitec-tab-group class="tabs" id="save-tab-group">
 				<capitec-tab
 					data-automation-id="savings-plan-flexible-tab"
-					label="Flexible Savings">
+					label="Access Anytime">
 						${this._renderFlexibleSavingsPlanTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN))}
 				</capitec-tab>
 				<capitec-tab
@@ -403,45 +403,45 @@ export class SavingsPlanLanding extends Component {
 						${this._renderNoticeDepositTab(this.savingsPlanDetails.filter(item => item.accountType === ACCOUNT_TYPE_CODE.NOTICE_DEPOSIT))}
 				</capitec-tab>
 			</capitec-tab-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderFlexibleSavingsPlanTab(flexibleSavingsPlanDetails) {
-		return flexibleSavingsPlanDetails.length > 0 
-		? html`
+		return flexibleSavingsPlanDetails.length > 0
+			? html`
 			<capitec-content-box class="accounts-box">
 				${this._renderFlexibleAccounts(flexibleSavingsPlanDetails)}
 			</capitec-content-box>
 			
 			${this._renderFooter()}`
-		: html`
+			: html`
 			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN)}
 		`;
 	}
 
 	_renderFixedTermSavingsPlanTab(fixedSavingsPlanDetails) {
-		return fixedSavingsPlanDetails.length > 0 
-		? html`
+		return fixedSavingsPlanDetails.length > 0
+			? html`
 			<capitec-content-box class="accounts-box">
 				${this.renderAlertBanner()}
 				${this._renderFixedTermAccounts(fixedSavingsPlanDetails)}
 			</capitec-content-box>
 			
 			${this._renderFooter()}`
-		: html`
+			: html`
 			${this._renderSavingsPlanNotAvailable(ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)}
 		`;
 	}
 
 	_renderNoticeDepositTab(noticeDepositsPlanDetails) {
-		return noticeDepositsPlanDetails.length > 0 
-		? html`
+		return noticeDepositsPlanDetails.length > 0
+			? html`
 			<capitec-content-box class="accounts-box">
 				${this._renderNoticeDepositAccounts(noticeDepositsPlanDetails)}
 			</capitec-content-box>
 			
 			${this._renderFooter()}`
-		: html`
+			: html`
 			${this._renderNoticeDepositNotAvailable()}
 		`;
 	}
@@ -695,7 +695,7 @@ export class SavingsPlanLanding extends Component {
 			</capitec-group>
 		`;
 	}
-	
+
 	_renderFooter() {
 		return html`
 			<capitec-group class="" layout="vertical" gap="none" halign="left" valign="center">
@@ -722,7 +722,7 @@ export class SavingsPlanLanding extends Component {
 	}
 
 	_renderSavingsPlanNotAvailable(savingsPlanType) {
-		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible savings` : `fixed-term savings`;
+		const headerText = savingsPlanType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `Access Anytime` : `fixed-term savings plan`;
 
 		return html`
 			<capitec-group
@@ -733,11 +733,11 @@ export class SavingsPlanLanding extends Component {
 					<img src="platform/illustrations/history.svg"/>
 					<capitec-label
 						class="no-results"
-						label="No ${headerText} plan accounts currently"
+						label="No ${headerText} accounts currently"
 						type="strong">
 					</capitec-label>
 					<capitec-label
-						label="Get info about ${headerText} plan on the app or visit capitecbank.co.za"
+						label="Get info about ${headerText} on the app or visit capitecbank.co.za"
 						type="strong">
 					</capitec-label>
 					<capitec-button

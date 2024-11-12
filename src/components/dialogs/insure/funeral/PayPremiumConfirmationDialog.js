@@ -58,7 +58,7 @@ class PayPremiumConfirmationDialog extends Component {
 	 * Cancel event from dialog footer button, closes modal & reset toggles 
 	 * @returns {void} 
 	 */
-	 _cancelClick() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -81,7 +81,7 @@ class PayPremiumConfirmationDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -201,7 +201,7 @@ class PayPremiumConfirmationDialog extends Component {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
@@ -229,11 +229,11 @@ class PayPremiumConfirmationDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogBody() {
+	_renderDialogBody() {
 		return html`
 			
 			<div>
-				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan ${this.contractReference} from savings account ${this.fromAccount}" type="subtitle"></capitec-label>
+				<capitec-label label="Pay ${formatCurrency(this.amountToPay)} to funeral plan ${this.contractReference} from Main Account ${this.fromAccount}" type="subtitle"></capitec-label>
 			</div>
 
 
@@ -259,7 +259,7 @@ class PayPremiumConfirmationDialog extends Component {
 	}
 
 	// #endregion RENDERING
- 
+
 
 }
 
@@ -275,12 +275,12 @@ window.customElements.define(`horizon-insure-pay-premium-confirmation-dialog`, P
  * @type {Object} - N/A
  */
 
- /**
- * Send Confirm Payment dialog event to consuming componant when 'Confirm' is clicked
- *
- * @example
- * <horizon-insure-pay-premium-confirmation-dialog ... @confirm-payment="${this._handler}"></horizon-insure-pay-premium-confirmation-dialog>
- *
- * @event PayPremiumConfirmationDialog#confirm-payment
- * @type {Object} - N/A
- */
+/**
+* Send Confirm Payment dialog event to consuming componant when 'Confirm' is clicked
+*
+* @example
+* <horizon-insure-pay-premium-confirmation-dialog ... @confirm-payment="${this._handler}"></horizon-insure-pay-premium-confirmation-dialog>
+*
+* @event PayPremiumConfirmationDialog#confirm-payment
+* @type {Object} - N/A
+*/

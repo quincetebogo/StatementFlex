@@ -119,11 +119,13 @@ export class CreditAccount extends ViewBase {
 		this.disputeQuestion = {};
 		this.cueSheetIncident = {};
 		this.declineMessage = ``;
+		this.isDisputableWithdrawal = true;
 
 		this.creditService = new CreditService(() => super._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.savingsService = new SavingsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._preformAction(e));
+		this.isDisputableWithdrawal = true;
 
 		Object.assign(CreditAccount.prototype, creditMixin);
 		Object.assign(CreditAccount.prototype, alertBannerMixin);
@@ -148,7 +150,7 @@ export class CreditAccount extends ViewBase {
 			const paidUpLetter = () => this._paidUpLetter(selectedAccountDetails);
 			const payBudget = () => this._payBudgetDialog(selectedAccountDetails);
 			const viewBudgets = () => this._viewBudgets(selectedAccountDetails);
-			const cardDisputes = () => this._cardDisputeTransaction();
+			const cardDisputes = () => this._cardDisputeTransaction(selectedAccountDetails);
 			const openBudget = () => this._openBudgetDialog();
 
 			const accConfig = ACCOUNT_INTCAT_ENUM[selectedAccountDetails.productTypeCode];
@@ -220,9 +222,14 @@ export class CreditAccount extends ViewBase {
 		return this.flexibleCreditAccounts.find(item => item.type === PRODUCTS.CREDIT_CARD);
 	}
 
-	get cardAuthTypesToDispute() {
-		return [`POS_POS_PURCHASE`, `CNP_MOTO_PURCHASE`, `ECO_ECOMMERCE_TXN`, `CSH_CASH_WITHDRWL`, `PCB_POS_PURCH_CASHBACK`, `REC_RECURRING_TXN`];
+	get cardClassificationType() {
+		return [`CARD_AUTH_SETTLED`, `CARD_AUTH_FINANCIAL`, `FINANCIAL`, `CARD_AUTHORISATION`];
 	}
+
+	get cardSpendGroupToDispute() {
+		return [`CASH_WITHDRAWAL`, `CARD_TRANSACTION`, `CARD_SUBSCRIPTION`, `CARD_SUBSCRIPTION_FOR_EXCLUDED_MERCHANTS`, `CARD_AUTHORISATION_TRANSACTION`];
+	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -734,18 +741,17 @@ export class CreditAccount extends ViewBase {
 			const date = new Date(Date.parse(item.processDate));
 			const today = new Date();
 			const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
-
+			const isDisputable = this.cardClassificationType.includes(item.transactionStatus) && this.cardSpendGroupToDispute.includes(item.spendGroup); // To replace 4060 transCode check
 			item.description = item.statementDescription;
 			item.tranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.formatedAmount = formatCurrency(item.amount);
 			item.formatedBalance = formatCurrency(item.balance);
-			item.isDomesticWithdrawl = () => item.transactionCode === `4060` && isNullorEmpty(item.currency);
+			item.isDomesticWithdrawl = () => item.spendGroup === `CASH_WITHDRAWAL` && isNullorEmpty(item.currency);
 			item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
-			item.hideDisputeBtn = item.disputeFlag || !this.cardAuthTypesToDispute.includes(item.cardAuthType) || item.isDomesticWithdrawl() || item.isTranDateOlderThan540();
+			item.hideDisputeBtn = item.disputeFlag || !isDisputable || item.isTranDateOlderThan540() || item.isDomesticWithdrawl();
 			item.checked = false;
 			item.disableCheck = item.hideDisputeBtn;
-
 			return item;
 		});
 	}
@@ -1201,7 +1207,7 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
-	async _cardDisputeTransaction(item) {
+	async _cardDisputeTransaction(selectedAccountDetails) {
 		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
 
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
@@ -1210,7 +1216,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
-		const returnValue = await this._getFirstQusToDispute();
+		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
@@ -1221,13 +1227,14 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute() {
+	async _getFirstQusToDispute(selectedAccountDetails) {
 		const request = {
 			"transactions": this.tranToDispute.map((item) => ({
 				transactionID: item.transactionId,
 				transactionPostingDate: item.postingDate
 			})),
 			"incident": this.cueSheetIncident,
+			"accountNumber": selectedAccountDetails.accountNumber,
 			"cifNumber": this.callerInformation.cifNumber,
 			"agentId": `${this.securityContext.username}`
 		};
@@ -1288,14 +1295,14 @@ export class CreditAccount extends ViewBase {
 	_disableActionBtn(need, productType) {
 		const disableByRole = this._shouldDisableByRole(need);
 		return !productType
-				? disableByRole
-				: disableByRole || this._disableByCCStatus(need, productType);
+			? disableByRole
+			: disableByRole || this._disableByCCStatus(need, productType);
 	}
 
 	_disableByCCStatus(need, productType) {
 		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
-				productType === PRODUCTS.CREDIT_CARD &&
-				this.ccDetails.isClosed();
+			productType === PRODUCTS.CREDIT_CARD &&
+			this.ccDetails.isClosed();
 	}
 
 	_getTooltipMsg(need, productType) {

@@ -67,7 +67,7 @@
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -240,7 +240,7 @@
 			"positiveCase": true
 		},
 		"creditBalance": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicySummary": {
@@ -276,11 +276,15 @@
 			"positiveCase": true
 		},
 		"settleAndCloseQuote": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"settlementQuoteLanding": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditPermissions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"emailPaidUpLetter": {
@@ -504,6 +508,54 @@
 			"positiveCase": true
 		},
 		"insureLifeUpdatePocket": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeCoverAvailable": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeIncreaseCover": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureBenefitAgreement": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureCancelBenefit": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureActivateBenefit": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureBenefitInfo": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeUpdateBankingDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureUpdateIdDob": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insureCreateMandate": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyReschedulePlanAgreement": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"insurePolicyHistoryDetails": {
 			"enabled": true,
 			"positiveCase": true
 		}

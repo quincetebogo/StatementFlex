@@ -61,22 +61,22 @@ export class SavingsAccountProductDetails extends Component {
 				font: 6px/15px  Hind Vadodara;
 			}
 			`
-];
+		];
 	}
 
 	render() {
 		return html`
 				<capitec-card class="savingsaccountproduct-info">
-				<capitec-title-bar type="transact" label="Saving Account"></capitec-title-bar>
+				<capitec-title-bar type="transact" label="Main Account"></capitec-title-bar>
 				<capitec-content-box class="content">
 					<p id="benefits-text"> 
-						The transaction and savings account is your main account (R25 minimum balance; R5 monthly admin fee) 
+						The transaction and main account is your main account (R25 minimum balance; R5 monthly admin fee) 
 						that gives you affordable banking and up to 4 free flexible,fixed or tax-free savings plans.
 					</p>
 					<hr>
 					<capitec-label id="label" label="Benefits" type="subtitle"></capitec-label>
 					<hr>
-					<p>Some of the benefits of using our main savings account:</p>
+					<p>Some of the benefits of using our main main account:</p>
 					<ul class="list-items">
 						<li>Access to Mastercard<sup>@</sup> Priceless<sup>@</sup> Cities worldwide</li>
 						<li>Easy transactions at lower, transparent bank costs</li>

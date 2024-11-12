@@ -57,7 +57,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 		this.horizonStore.clearScreenDetails();
 		this.horizonStore.clearReturnScreen();
-		
+
 		this.horizonRouter.navigateToSavingsPlan();
 	}
 
@@ -124,8 +124,8 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 				@right-click=${() => this._tryAgain()}>
 					<section id="id-error-msg" slot="detail">
 					${this.screenDetails.unlockType === `Partial`
-							? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main Savings Account was unsuccessful.`
-							: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
+				? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main account was unsuccessful.`
+				: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has not been unlocked.`}
 					</section>
 			</horizon-error-screen>
 		`;

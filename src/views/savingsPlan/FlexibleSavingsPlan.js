@@ -17,7 +17,7 @@ import 'app/components/common/HorizonExpander';
  * @extends {Component}
  */
 export class FlexibleSavingsPlanDetails extends Component {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -32,7 +32,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -70,7 +70,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 			flexibleAccountDetails: { type: Object }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -83,9 +83,9 @@ export class FlexibleSavingsPlanDetails extends Component {
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// N/A
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -99,7 +99,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 		const newdate = new Date();
 		return `${getMonthName(newdate.getMonth() - 1)}`;
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -181,7 +181,7 @@ export class FlexibleSavingsPlanDetails extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="Flexible Savings Plan" value="${this.detailsHeader}"></horizon-label>
+							<horizon-label class="main-title" label="Access Anytime Plan" value="${this.detailsHeader}"></horizon-label>
 					</capitec-title-bar>
 					 
 					${this._renderFlexibleSavingsPlan()}
@@ -218,12 +218,12 @@ export class FlexibleSavingsPlanDetails extends Component {
 
 customElements.define(`capitec-flexible-savings-plan-details`, FlexibleSavingsPlanDetails);
 
- /**
- * When left arrow on the title bar is clicked to go back
- *
- * @example
- * <capitec-flexible-savings-plan-details ... @back="${this._handler}"></capitec-flexible-savings-plan-details>
- *
- * @event FlexibleSavingsPlanDetails#back
- * @type {Object} - N/A
- */
+/**
+* When left arrow on the title bar is clicked to go back
+*
+* @example
+* <capitec-flexible-savings-plan-details ... @back="${this._handler}"></capitec-flexible-savings-plan-details>
+*
+* @event FlexibleSavingsPlanDetails#back
+* @type {Object} - N/A
+*/
