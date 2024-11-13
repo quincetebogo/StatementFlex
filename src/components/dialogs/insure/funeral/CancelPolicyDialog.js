@@ -81,11 +81,16 @@ class CancelPolicyDialog extends Component {
 		super.connectedCallback();
 		this.telemetryEvents = CancelPolicyEvents;
 		await this._telemetry.startSpan(this.telemetryEvents.CANCEL_POLICY, {});
+		this.initialise();
 	}
 
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 		await this._telemetry.endSpan(this.telemetryEvents.CANCEL_POLICY, {});
+	}
+
+	initialise() {
+		this.cancelPolicyDocumentDetails = {}
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
@@ -332,7 +337,7 @@ class CancelPolicyDialog extends Component {
 
 			<capitec-content-box>
 
-			${this.cancelPolicyDocumentDetails === undefined ? html``
+			${Object.keys(this.cancelPolicyDocumentDetails).length === 0 ? html``
 				: html`
 				<horizon-product-tile class="view-document" type="default" label="Cancellation Agreement" subtitle="Funeral Cover Plan" detail="" icon="" @click="${() => this._showAgreement()}">
 					<capitec-label slot="detail" type="strong" label="View Document" >
