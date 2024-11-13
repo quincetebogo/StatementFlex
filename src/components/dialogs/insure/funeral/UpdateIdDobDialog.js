@@ -330,7 +330,7 @@ class UpdateIdDobDialog extends Component {
 								</capitec-card>
 							`)}
 						` : html`
-							<capitec-label type="subtitle" label="No life assureds found to update">
+							<capitec-label type="subtitle" label="There are no lives assureds on this policy.">
 						`}
 						</capitec-radio-group>
 					</capitec-content-box>
