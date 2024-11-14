@@ -1,23 +1,23 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-horizon-cs-main.platform-dev.int.capinet",
-		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform-dev.int.capinet",
-		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform-dev.int.capinet",
-		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform-dev.int.capinet",
-		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform-dev.int.capinet",
-		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform-dev.int.capinet",
-		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform-dev.int.capinet",
-		"cardServiceUrl": "https://cec-horizon-cs-card.platform-dev.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform-dev.int.capinet",
+		"channelServiceUrl": "https://cs-main-dev.bussup.npr-plrbsc.asgard.capi",
+		"liveBetterServiceUrl": "https://cs-livebetter-dev.bussup.npr-plrbsc.asgard.capi",
+		"clientInsightsUrl": "https://cs-insights-dev.bussup.npr-plrbsc.asgard.capi",
+		"accessChannelServiceUrl": "https://cs-accesschannels-dev.bussup.npr-plrbsc.asgard.capi",
+		"creditChannelServiceUrl": "https://cs-credit-dev.bussup.npr-plrbsc.asgard.capi",
+		"clientProfileServiceUrl": "https://cs-clientprofile-dev.bussup.npr-plrbsc.asgard.capi",
+		"debiCheckServiceUrl": "https://cs-debicheck-dev.bussup.npr-plrbsc.asgard.capi",
+		"cardServiceUrl": "https://cs-cards-dev.bussup.npr-plrbsc.asgard.capi",
+		"savingsPlanChannelServiceUrl": "https://cs-save-dev.bussup.npr-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
-		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform-dev.int.capinet",
-		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform-dev.int.capinet",
+		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
+		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform-dev.int.capinet",
-		"capitecConnectServiceUrl": "https://api-connect-dev.int.capinet/horizon-bff"
+		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
 	},
-	"signalRUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
-	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform-dev.int.capinet",
+	"signalRUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
+	"KbaChannelServiceUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -33,13 +33,13 @@
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
 		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
-	"InstanaKey":"WIb0Hj5vRRySrlYnmTWwjw",
+	"InstanaKey": "WIb0Hj5vRRySrlYnmTWwjw",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
 		"KBA": 1
 	},
-	"LogRequestResponseModels" : true,
+	"LogRequestResponseModels": true,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
 	"CapitecConnectVDN": "7220",
@@ -57,7 +57,7 @@
 	"mock": {
 		"enabled": true,
 		"createIncident": {
-			"enabled" : false
+			"enabled": false
 		},
 		"acceptCall": {
 			"enabled": false,
@@ -358,35 +358,35 @@
 		},
 		"sendCashVouchers": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"getClientConsent": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"putClientConsent": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"canOpenBudget": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"budgetDetails": {
 			"enabled": true,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"calculateBudget": {
 			"enabled": true,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"creditStatement": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"settleAndClose": {
 			"enabled": false,
-			"positiveCase" : true
+			"positiveCase": true
 		},
 		"payShapDetails": {
 			"enabled": false,
@@ -452,7 +452,7 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"getEmployer" : {
+		"getEmployer": {
 			"enabled": true,
 			"positiveCase": true
 		},

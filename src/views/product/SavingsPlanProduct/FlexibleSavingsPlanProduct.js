@@ -107,7 +107,7 @@ export class FlexibleSavingsPlanProduct extends View {
 						<capitec-icon size="small" icon="system/arrow-left"
 									  @click="${() => this.horizonRouter.navigateToSavingsPlanProduct()}">
 						</capitec-icon>
-						<capitec-label label="Flexible Savings" type="Title"></capitec-label>
+						<capitec-label label="Access Anytime" type="Title"></capitec-label>
 					</capitec-title-bar>
 
 					<capitec-content-box class="content">
@@ -117,7 +117,7 @@ export class FlexibleSavingsPlanProduct extends View {
 							<capitec-label id="label" label="Benefits" type="strong"></capitec-label>
 						<hr>
 						<p id="benefits-text"> 
-							The benefits of our flexible savings plans:
+							The benefits of our access anytime plan:
 						</p>
 						<ul class="list-items">
 							<li>Choose your deposit amount and the frequency of your deposits</li>
@@ -125,15 +125,15 @@ export class FlexibleSavingsPlanProduct extends View {
 							<li>Access your plan any time through Remote Banking or our ATMs</li>
 							<li>No monthly admin fee or minimum balance</li>
 						</ul>
-						<span>Use our app to open a flexible savings plan</span>
+						<span>Use our app to open an acess anytime</span>
 						<p>
-							Create a flexible savings plan the easy way:
+							Create an access anytime plan the easy way:
 						</p>
 						<ul class="list-items">
 								<li>Open our app</li>
 								<li>Tap on Save</li>
 								<li>Enter your Remote PIN</li>
-								<li>Tap on Add Flexible Savings</li>
+								<li>Tap on Add Access Anytime Plan</li>
 							</ul>
 					</capitec-content-box>
 			</capitec-group>

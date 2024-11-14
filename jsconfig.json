@@ -1,0 +1,81 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			// Alias for "src" folder in project.
+			"app/*": [
+				"./src/*"
+			],
+			// Aliases for modules within "core", "elements" and "components".
+			"platform/core": [
+				"packages/ocwp-core/src/index"
+			],
+			"platform/elements": [
+				"packages/ocwp-components/src/elements/index"
+			],
+			"platform/components": [
+				"packages/ocwp-components/src/components/index"
+			],
+			"ocwp-core": [
+				"packages/ocwp-core//src"
+			],
+			// Aliases for modules paths (DEPRECATED).
+			"platform/Auditer": [
+				"packages/ocwp-core/src/Auditer"
+			],
+			"platform/Configuration": [
+				"packages/ocwp-core/src/Configuration"
+			],
+			"platform/EventAggregator": [
+				"packages/ocwp-core/src/EventAggregator"
+			],
+			"platform/ExecutionContext": [
+				"packages/ocwp-core/src/ExecutionContext"
+			],
+			"platform/HttpClient": [
+				"packages/ocwp-core/src/HttpClient"
+			],
+			"platform/Logger": [
+				"packages/ocwp-core/src/Logger"
+			],
+			"platform/NavigationContext": [
+				"packages/ocwp-core/src/NavigationContext"
+			],
+			"platform/Platform": [
+				"packages/ocwp-core/src/Platform"
+			],
+			"platform/Router": [
+				"packages/ocwp-core/src/Router"
+			],
+			"platform/Security": [
+				"packages/ocwp-core/src/Security"
+			],
+			"platform/SecurityContext": [
+				"packages/ocwp-core/src/SecurityContext"
+			],
+			"platform/Utilities": [
+				"packages/ocwp-core/src/Utilities"
+			],
+			// Exposed Libraries
+			"chart.js": [
+				"packages/ocwp-components/node_modules/chart.js"
+			],
+			"chartjs-plugin-datalabels": [
+				"packages/ocwp-components/node_modules/chartjs-plugin-datalabels"
+			],
+			"luxon": [
+				"packages/ocwp-core/node_modules/luxon"
+			],
+			"rxjs": [
+				"packages/ocwp-core/node_modules/rxjs"
+			],
+			"uuid": [
+				"packages/ocwp-core/node_modules/uuid"
+			]
+		}
+	},
+	"include": [
+		"src/**/*",
+		"./runtime/types.d.ts"
+	]
+}

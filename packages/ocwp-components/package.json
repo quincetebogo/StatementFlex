@@ -1,0 +1,41 @@
+{
+	"name": "ocwp-components",
+	"version": "1.17.0",
+	"description": "UI runtime components",
+	"private": true,
+	"type": "module",
+	"files": [
+		"src",
+		"build",
+		"index.d.ts",
+		"index.js"
+	],
+	"scripts": {
+		"build": "webpack --config webpack.config.js"
+	},
+	"dependencies": {
+		"@types/luxon": "3.0.1",
+		"@webcomponents/webcomponentsjs": "2.5.0",
+		"chart.js": "3.6.0",
+		"chartjs-adapter-luxon": "1.2.0",
+		"chartjs-plugin-datalabels": "2.0.0",
+		"lit": "2.1.1",
+		"luxon": "3.0.1",
+		"ocwp-core": "file:../ocwp-core",
+		"prismjs": "1.23.0",
+		"query-string": "7.0.0",
+		"rxjs": "6.6.6"
+	},
+	"devDependencies": {
+		"@babel/core": "7.15.0",
+		"@babel/preset-env": "7.15.0",
+		"babel-loader": "8.2.2",
+		"clean-webpack-plugin": "4.0.0-alpha.0",
+		"copy-webpack-plugin": "9.0.1",
+		"eslint": "7.4.0",
+		"html-webpack-plugin": "5.3.2",
+		"terser-webpack-plugin": "5.1.4",
+		"webpack": "5.49.0",
+		"webpack-cli": "4.7.2"
+	}
+}

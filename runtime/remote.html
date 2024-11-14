@@ -1,0 +1,17 @@
+<body>
+	<%= htmlWebpackPlugin.tags.headTags %>
+
+	<!-- Add any global styles for body, document, etc. -->
+	<link href="platform/fonts/MaterialIcons/material-icons.css" rel="stylesheet">
+	<link href="platform/fonts/HindVadodara/hindvadodara.css" rel="stylesheet">
+
+	<!-- Set application template -->
+	<link href="platform/templates/web-app-core.css" rel="stylesheet">
+	<link href="platform/templates/web-app-<%= htmlWebpackPlugin.options.typeSuffix %>.css" rel="stylesheet">
+
+	<!-- Render the application shell once ready. -->
+	<app-<%= htmlWebpackPlugin.options.app %>></app-<%= htmlWebpackPlugin.options.app %>>
+
+	<!-- Register the webcomponents loader -->
+	<script src="vendor/webcomponents-loader.js"></script>
+</body>

@@ -1,0 +1,25 @@
+{
+	"name": "com.company.AppName",
+	"displayName": "app-name",
+	"version": "1.0.0",
+	"description": "Cordova mobile app shell for Android and iOS",
+	"main": "index.js",
+	"scripts": {
+		"browser": "platform web run --platform=browser",
+		"android-device": "platform web run --platform=android --target=device",
+		"android-emulator": "platform web run --platform=android --target=emulator",
+		"android-build": "npx cordova build android",
+		"android-upgrade": "npx cordova platform update android --save",
+		"android-release": "npx cordova build android --release -- --packageType=bundle",
+		"ios-device": "platform web run --platform=ios --shell=device",
+		"ios-emulator": "platform web run --platform=ios --shell=emulator",
+		"ios-build": "npx cordova build ios",
+		"ios-upgrade": "npx cordova platform update ios --save",
+		"ios-release": "npx cordova build ios --release -- --packageType=bundle"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"cordova": "^10.0.0"
+	}
+}

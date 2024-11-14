@@ -1,0 +1,8 @@
+# Standalone CLI for OCWP Legacy
+
+SCRIPT=$(readlink "$0")
+
+# Absolute path of  this script
+SCRIPTPATH=$(dirname "$SCRIPT")
+
+node $SCRIPTPATH/index.js $@

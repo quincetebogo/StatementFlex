@@ -30,7 +30,7 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 		const balancePostUnlock = formatCurrency(this.screenDetails.balancePostUnlock);
 
 		return `Type: ${type} unlock\nFTSP account number: ${fromAccNumber}\nValue of FTSP:${unlockBalance}\nUnlock amount: ` +
-				`${unlockAmount}\nPenalty Fee: ${penaltyFee}\nBalance of FTSP:${balancePostUnlock}`;
+			`${unlockAmount}\nPenalty Fee: ${penaltyFee}\nBalance of FTSP:${balancePostUnlock}`;
 	}
 
 	// -------------------
@@ -43,7 +43,7 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
 		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_SUCCESS, {
-			"screen": TelemetryScreen.UNLOCK_FTSP_SUCCESS 
+			"screen": TelemetryScreen.UNLOCK_FTSP_SUCCESS
 		});
 
 		this._updateIncidentState();
@@ -67,14 +67,14 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 
 		this.horizonStore.clearScreenDetails();
 		this.horizonStore.clearReturnScreen();
-		
+
 		this.horizonRouter.navigateToSavingsPlan();
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -128,8 +128,8 @@ export class FixedTermSavingsPlanSuccess extends ViewBase {
 				@right-click=${() => this._doneClick()}>
 					<section id="id-success-msg" slot="detail">
 						${this.screenDetails.unlockType === `Partial`
-							? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to main Savings Account was successful.`
-							: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has been unlocked.`}
+				? `Partial unlock transfer of ${formatCurrency(this.screenDetails.unlockAmount)} from ${this.screenDetails.unlockAccountName} Fixed-term Savings Account to Main Account was successful.`
+				: `Fixed-term Savings Account for ${this.screenDetails.unlockAccountName} has been unlocked.`}
 					</section>
 			</horizon-success-screen>
 		`;

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/LiveBetter/Shapes</title>
+    <g id="icon/LiveBetter/Shapes" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-7" transform="translate(0.250000, 6.500000)" fill="#7C7C7C">
+            <path d="M23.421,5.4999 C23.421,8.5379 20.959,10.9999 17.921,10.9999 C14.883,10.9999 12.421,8.5379 12.421,5.4999 C12.421,2.4629 14.883,-0.0001 17.921,-0.0001 C20.959,-0.0001 23.421,2.4629 23.421,5.4999" id="Fill-1"></path>
+            <path d="M10.2999,10.9999 L0.6999,10.9999 C0.3139,10.9999 -0.0001,10.6869 -0.0001,10.2999 L-0.0001,0.6999 C-0.0001,0.3129 0.3139,-0.0001 0.6999,-0.0001 L10.2999,-0.0001 C10.6869,-0.0001 10.9999,0.3129 10.9999,0.6999 L10.9999,10.2999 C10.9999,10.6869 10.6869,10.9999 10.2999,10.9999" id="Fill-4"></path>
+        </g>
+    </g>
+</svg>

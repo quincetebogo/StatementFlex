@@ -1295,14 +1295,14 @@ export class CreditAccount extends ViewBase {
 	_disableActionBtn(need, productType) {
 		const disableByRole = this._shouldDisableByRole(need);
 		return !productType
-				? disableByRole
-				: disableByRole || this._disableByCCStatus(need, productType);
+			? disableByRole
+			: disableByRole || this._disableByCCStatus(need, productType);
 	}
 
 	_disableByCCStatus(need, productType) {
 		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
-				productType === PRODUCTS.CREDIT_CARD &&
-				this.ccDetails.isClosed();
+			productType === PRODUCTS.CREDIT_CARD &&
+			this.ccDetails.isClosed();
 	}
 
 	_getTooltipMsg(need, productType) {

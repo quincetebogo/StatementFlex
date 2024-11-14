@@ -13,7 +13,7 @@ import { getMonthName } from 'app/utils/channelServiceUtilities';
  * @extends {Component}
  */
 export class MainSavingsAccountDetails extends Component {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -27,11 +27,11 @@ export class MainSavingsAccountDetails extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 
-		
+
 	}
 
 	// --------------
@@ -49,7 +49,7 @@ export class MainSavingsAccountDetails extends Component {
 			savingsAccountDetails: { type: Object }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -62,14 +62,14 @@ export class MainSavingsAccountDetails extends Component {
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// N/A
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
-	
+
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -174,7 +174,7 @@ export class MainSavingsAccountDetails extends Component {
 							src="/images/liveBetter/left-arrow.svg"
 							@click="${() => this._back()}"
 							class="left-arrow"/>
-							<horizon-label class="main-title" label="Main Savings Account" value="${this.savingsAccountDetails.accountNumber}"></horizon-label>
+							<horizon-label class="main-title" label="Main Account" value="${this.savingsAccountDetails.accountNumber}"></horizon-label>
 					</capitec-title-bar>
 
 					${this._renderSavingsAccountDetails()}
@@ -194,9 +194,9 @@ export class MainSavingsAccountDetails extends Component {
 				wrap>
 				${this._renderFields()}
 			</capitec-group>`;
-	 }
+	}
 
- 	_renderFields() {
+	_renderFields() {
 		const { accountNumber: _, ...accDetails } = this.savingsAccountDetails;
 
 		return Object.entries(accDetails).map(item => {
@@ -209,18 +209,18 @@ export class MainSavingsAccountDetails extends Component {
 					value="${value}"
 					data-automation-id="savings-account-details-${key.toLowerCase().split(``).join(`-`)}">
 				</horizon-label>`;
-		}); 
+		});
 	}
 }
 
 customElements.define(`horizon-savings-account-details`, MainSavingsAccountDetails);
 
- /**
- * When left arrow on the title bar is clicked to go back
- *
- * @example
- * <horizon-savings-account-details ... @back="${this._handler}"></horizon-savings-account-details>
- *
- * @event MainSavingsAccountDetails#back
- * @type {Object} - N/A
- */
+/**
+* When left arrow on the title bar is clicked to go back
+*
+* @example
+* <horizon-savings-account-details ... @back="${this._handler}"></horizon-savings-account-details>
+*
+* @event MainSavingsAccountDetails#back
+* @type {Object} - N/A
+*/

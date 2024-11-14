@@ -1,0 +1,6 @@
+;!@Install@!UTF-8!
+Title="Omni-Channel Web Platform"
+BeginPrompt="Do you wish to install Omni-Channel Web Platform?"
+ExecuteFile="powershell"
+ExecuteParameters=" -ExecutionPolicy Bypass -File ./setup.ps1"
+;!@InstallEnd@!

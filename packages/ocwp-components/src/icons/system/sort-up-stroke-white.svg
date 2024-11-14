@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ic/table_ascend</title>
+    <g id="ic/table_ascend" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="stroke" transform="translate(8.000000, 9.000000)" stroke="#979797" stroke-linejoin="round" stroke-width="1.5">
+            <polygon id="Path-32" transform="translate(4.000000, 3.000000) scale(1, -1) translate(-4.000000, -3.000000) " points="0 0 8 0 4 6"></polygon>
+        </g>
+        <g id="fill" transform="translate(7.000000, 8.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <path d="M9,0.25 L1,0.25 C0.400978462,0.25 0.0436849144,0.9176091 0.375962279,1.41602515 L4.37596228,7.41602515 C4.67282882,7.86132495 5.32717118,7.86132495 5.62403772,7.41602515 L9.62403772,1.41602515 C9.95631509,0.9176091 9.59902154,0.25 9,0.25 Z M7.598,1.75 L5,5.646 L2.401,1.75 L7.598,1.75 Z" transform="translate(5.000000, 4.000000) scale(1, -1) translate(-5.000000, -4.000000) "></path>
+        </g>
+    </g>
+</svg>

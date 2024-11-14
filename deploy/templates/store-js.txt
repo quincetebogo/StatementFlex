@@ -1,0 +1,83 @@
+import { Store } from 'platform/core';
+
+export class ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME extends Store {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+
+		super({
+			name: `ELEMENT_TYPEELEMENT_PASCAL_CASE_NAME`,
+			logStateChanges: STORE_LOG,
+			persistence: `STORE_PERSISTANCE`
+		});
+
+		// Initial Store state
+		this._initialState = {
+			name: ``
+		};
+
+		// Assignes Initial Store State or adds new properties
+		if (!this.getState()) {
+			this.setState(this._initialState, `INITIAL_STATE`);
+		} else {
+			const state = this.getState();
+
+			Object.keys(this._initialState).forEach((propertyName) => {
+				if (!Object.prototype.hasOwnProperty.call(state, propertyName)) {
+					state[propertyName] = this._initialState[propertyName];
+				}
+			});
+			this.setState(state, `UPDATE_INITIAL_STATE`);
+		}
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	// n/a
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+    /**
+	 * @static
+     * @returns {ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME} Singleton
+     */
+	static getInstance() {
+		return this.instance || (this.instance = new ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME());
+	}
+
+	// ---------------
+	// PROPERTIES
+	// ---------------
+
+	set name(value) {
+		const _newState = { name: value };
+
+		this.setState(_newState, `SET_NAME`);
+	}
+
+	get name() {
+		return this.getStateProperty(`name`) || this._initialState.name;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// ---------------
+	// PUBLIC METHODS
+	// ---------------
+
+}

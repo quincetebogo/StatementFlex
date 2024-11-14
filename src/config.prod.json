@@ -1,23 +1,23 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://cec-horizon-cs-main.platform.int.capinet",
-		"liveBetterServiceUrl": "https://cec-horizon-cs-lbb.platform.int.capinet",
-		"clientInsightsUrl": "https://cec-horizon-cs-insights.platform.int.capinet",
-		"accessChannelServiceUrl": "https://cec-horizon-cs-accesschannels.platform.int.capinet",
-		"creditChannelServiceUrl": "https://cec-horizon-cs-credit.platform.int.capinet",
-		"clientProfileServiceUrl": "https://cec-horizon-cs-clientprofile.platform.int.capinet",
-		"debiCheckServiceUrl": "https://cec-horizon-cs-debicheck.platform.int.capinet",
-		"cardServiceUrl": "https://cec-horizon-cs-card.platform.int.capinet",
-		"savingsPlanChannelServiceUrl": "https://cec-horizon-cs-save.platform.int.capinet",
-		"sendCashServiceUrl": "https://cec-horizon-cs-sendcash.platform.int.capinet",
-		"payShapServiceUrl": "https://cec-horizon-cs-payshap.platform.int.capinet",
+		"channelServiceUrl": "https://cs-main.bussup.prd-plrbsc.asgard.capi",
+		"liveBetterServiceUrl": "https://cs-livebetter.bussup.prd-plrbsc.asgard.capi",
+		"clientInsightsUrl": "https://cs-insights.bussup.prd-plrbsc.asgard.capi",
+		"accessChannelServiceUrl": "https://cs-accesschannels.bussup.prd-plrbsc.asgard.capi",
+		"creditChannelServiceUrl": "https://cs-credit.bussup.prd-plrbsc.asgard.capi",
+		"clientProfileServiceUrl": "https://cs-clientprofile.bussup.prd-plrbsc.asgard.capi",
+		"debiCheckServiceUrl": "https://cs-debicheck.bussup.prd-plrbsc.asgard.capi",
+		"cardServiceUrl": "https://cs-cards.bussup.prd-plrbsc.asgard.capi",
+		"savingsPlanChannelServiceUrl": "https://cs-save.bussup.prd-plrbsc.asgard.capi",
+		"sendCashServiceUrl": "https://cs-sendcash.bussup.prd-plrbsc.asgard.capi",
+		"payShapServiceUrl": "https://cs-payshap.bussup.prd-plrbsc.asgard.capi",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
-		"incidentManagementService": "https://cec-horizon-cs-incident.platform.int.capinet",
+		"incidentManagementService": "https://cs-incident.bussup.prd-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet",
-		"capitecConnectServiceUrl": "https://api-connect-prd.int.capinet/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway.conect.prd-plrcon.asgard.capi/horizon-bff"
 	},
-	"signalRUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
-	"KbaChannelServiceUrl": "https://cec-horizon-cs-clientauth.platform.int.capinet",
+	"signalRUrl": "https://cs-client-auth.bussup.prd-plrbsc.asgard.capi",
+	"KbaChannelServiceUrl": "https://cs-client-auth.bussup.prd-plrbsc.asgard.capi",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -28,18 +28,18 @@
 		"strack": "https://strack.capitecbank.co.za/HEAT?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/",
 		"branch-locator": "https://www.capitecbank.co.za/branches",
-		"live-better": "https://www.capitecbank.co.za/live-better",	
+		"live-better": "https://www.capitecbank.co.za/live-better",
 		"CASPer": "https://casper-widget.platform.int.capinet/images/js/CASPerWidget.js",
 		"partner-benefits": "https://www.capitecbank.co.za/live-better/spend-better",
-		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"		
+		"fees": "https://www.capitecbank.co.za/personal/transact/transact-fees"
 	},
-	"InstanaKey":"TPKHFsMCQ1Ww75XLGiCoxA",
+	"InstanaKey": "TPKHFsMCQ1Ww75XLGiCoxA",
 	"AuthMethod": "KBA",
 	"AuthAttempts": {
 		"XDS": 2,
 		"KBA": 1
 	},
-	"LogRequestResponseModels" : false,
+	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
 	"CapitecConnectVDN": "7220",

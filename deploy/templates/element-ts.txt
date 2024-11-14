@@ -1,0 +1,119 @@
+import { ELEMENT_TYPE, css, html } from 'platform/elements';
+import { CSSResultOrNative, CSSResultArray, TemplateResult } from 'platform/elements/types';
+import { customElement, property } from 'platform/decorators';
+
+/**
+ * Description for your ELEMENT_TYPE here.
+ *
+ * ```html
+ * <ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME>
+ * </ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME>
+ * ```
+ */
+@customElement(`ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME`)
+export class ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME extends ELEMENT_TYPE {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	/**
+	 * Initialises the ELEMENT_TYPE.
+	 *
+	 * @hideconstructor
+	 */
+	constructor() {
+
+		super();
+
+		// Set the default property values.
+
+		// Set the default private property values.
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	/**
+	 * Registry of all properties defined by the component.
+	 */
+
+	// n/a
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	// n/a
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// n/a
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	/**
+	 * Generates the component stylesheet.
+	 *
+	 * @ignore
+	 * @returns The css content of the component.
+	 */
+	static styles: CSSResultOrNative | CSSResultArray = [
+		ELEMENT_TYPE.styles,
+		css`
+			`
+	];
+
+	/**
+	 * Generates the component template for mobile mode.
+	 *
+	 * @returns The html content of the component.
+	 */
+	override _mobileTemplate(): TemplateResult{
+
+		return this._webTemplate();
+	}
+
+	/**
+	 * Generates the component template for web mode.
+	 *
+	 * @returns The html content of the component.
+	 */
+	override _webTemplate(): TemplateResult {
+
+		return html`<capitec-label label="ELEMENT_NAME"></capitec-label>`;
+	}
+
+	/**
+	 * Generates the component template for kiosk mode.
+	 *
+	 * @returns The html content of the component.
+	 */
+	override _kioskTemplate(): TemplateResult{
+
+		return this._webTemplate();
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'ELEMENT_TO_LOWER_TYPE-ELEMENT_SNAKE_CASE_NAME': ELEMENT_TYPEELEMENT_CAMEL_CASE_NAME;
+	}
+}
