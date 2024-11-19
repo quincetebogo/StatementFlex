@@ -6,8 +6,8 @@
  * @readonly
  * @enum {Object} STRACK_MAPPING
  */
- export const STRACK_MAPPING = Object.freeze({
-	
+export const STRACK_MAPPING = Object.freeze({
+
 	// Quick transactions
 	"debi-check": `DEBI_CHECK`,
 	"debi-check-approve": `DEBI_CHECK_APPROVE`,
@@ -114,7 +114,9 @@
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
-	
+	"access-facility-account-enquiry": "AF_ACCOUNT_ENQUIRY",
+	"loan-account-enquiry": "LOAN_ACCOUNT_ENQUIRY",
+
 
 	// Update client language preference
 	"update-language-preference": `UPDATE_LANGUAGE_PREFERENCE`,
@@ -142,7 +144,7 @@
 	"funeral-plan-calculate-estimate": `FUNERAL_PLAN_CALCULATE_ESTIMATE`,
 	"funeral-plan-send-document": `FUNERAL_PLAN_SEND_DOCUMENT`,
 	"funeral-plan-reissue": `FUNERAL_PLAN_REISSUE`,
-	
+
 	"life-cover-summary": `LIFE_COVER_SUMMARY`,
 	"life-cover-sms-history": `LIFE_COVER_SMS_HISTORY`,
 	"life-cover-premium-history": `LIFE_COVER_PREMIUM_HISTORY`,

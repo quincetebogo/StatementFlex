@@ -6,9 +6,9 @@ export const DEFAULTS = Object.freeze({
 });
 
 export const CREDIT_TYPE_LIST = Object.freeze([
-`All`,
-`Fixed credit`,
-`Flexible credit`
+	`All`,
+	`Fixed credit`,
+	`Flexible credit`
 ]);
 
 export const PRODUCTS = {
@@ -26,18 +26,18 @@ export const FROM_ACCOUNTS_LIST = [
 	ACCOUNT_TYPE_CODE.PRIMARY_SAVINGS,
 	ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN
 ];
-	
+
 export const CREDIT_ACCOUNT_TYPE = {
-		101: CREDIT_TYPE.FLEXIBLE, // Credit card
-		6000: CREDIT_TYPE.FLEXIBLE, // Access facility
-		4010: CREDIT_TYPE.FIXED // Term loan
-	};
-	
+	101: CREDIT_TYPE.FLEXIBLE, // Credit card
+	6000: CREDIT_TYPE.FLEXIBLE, // Access facility
+	4010: CREDIT_TYPE.FIXED // Term loan
+};
+
 export const PRODUCT_TYPE = {
-		101: PRODUCTS.CREDIT_CARD,
-		6000: PRODUCTS.ACCESS_FACILITY,
-		4010: PRODUCTS.TERM_LOAN
-	};
+	101: PRODUCTS.CREDIT_CARD,
+	6000: PRODUCTS.ACCESS_FACILITY,
+	4010: PRODUCTS.TERM_LOAN
+};
 
 /**
  * Need actions and operation identifier mapping to check credit permissions
@@ -51,6 +51,18 @@ export const ACTION_IDENTIFIER = Object.freeze({
 	'settlement-quote': `SettlementQuote`,
 	'paid-up-letter': `PaidUp`,
 	'settle-close': `SettleAndClose`
+});
+
+/**
+ * Credit Products View Account Details Identifier
+ * 
+ * @readonly
+ * @enum {Object} Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER
+ */
+export const Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER = Object.freeze({
+	'CREDIT_CARD': `credit-account-feature/CSCEH-10409-CSCEH-11241-Credit-Products-Details-Incident-reclassificationenquiry`,
+	'TERM_LOAN': `loan-account-enquiry`,
+	'ACCESS_FACILITY': `access-facility-account-enquiry`
 });
 
 /**
@@ -74,7 +86,7 @@ export const ACCOUNT_STATUS = Object.freeze({
 	CLOSED: `Closed`,
 	PAID_UP: `Paidup`
 });
-	
+
 export const FROM_ACCOUNTS = {
 	'Primary': {
 		icon: `product/transact`,
@@ -92,7 +104,7 @@ export const FROM_ACCOUNTS = {
  * @readonly
  * @enum {Object} PERMISSION_DECLINE_REASONS
  */
- export const PERMISSION_DECLINE_REASONS = Object.freeze({
+export const PERMISSION_DECLINE_REASONS = Object.freeze({
 	ACC_NOT_ACTIVE: `AccountNotActive`,
 	ClientHandedOver: `Client is under CCS status`,
 	AccountInArrears: `Please settle arrears of $ArrearsPayable$ to continue adding budget`

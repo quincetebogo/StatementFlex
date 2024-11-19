@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE, Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -284,7 +284,8 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
+		await super._inicidentManager_(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[this.accountViewType], () => this._toggleBusyFlag());
+		//await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
@@ -1295,14 +1296,14 @@ export class CreditAccount extends ViewBase {
 	_disableActionBtn(need, productType) {
 		const disableByRole = this._shouldDisableByRole(need);
 		return !productType
-				? disableByRole
-				: disableByRole || this._disableByCCStatus(need, productType);
+			? disableByRole
+			: disableByRole || this._disableByCCStatus(need, productType);
 	}
 
 	_disableByCCStatus(need, productType) {
 		return CC_CLOSED_STATUS_DISABLE_NEEDS.includes(need) &&
-				productType === PRODUCTS.CREDIT_CARD &&
-				this.ccDetails.isClosed();
+			productType === PRODUCTS.CREDIT_CARD &&
+			this.ccDetails.isClosed();
 	}
 
 	_getTooltipMsg(need, productType) {
