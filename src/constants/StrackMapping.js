@@ -114,8 +114,8 @@ export const STRACK_MAPPING = Object.freeze({
 	"savings-plan-account-enquiry": `SAVINGS_PLAN_ACCOUNT_ENQUIRY`,
 	"credit-account-enquiry": `CREDIT_ACCOUNT_ENQUIRY`,
 	"lbb-account-enquiry": `ACCOUNT_INFORMATION_LBB`,
-	"access-facility-account-enquiry": "AF_ACCOUNT_ENQUIRY",
-	"loan-account-enquiry": "LOAN_ACCOUNT_ENQUIRY",
+	"access-facility-account-enquiry": "ACCESS_FACILITY_ACCOUNT_ENQUIRY",
+	"loan-account-enquiry": "LOANS_ACCOUNT_ENQUIRY",
 
 
 	// Update client language preference
