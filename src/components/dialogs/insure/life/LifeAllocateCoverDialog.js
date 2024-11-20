@@ -909,17 +909,17 @@ class LifeAllocateCoverDialog extends Component {
 			}
 		}
 
-		if (onceOffTotalAllocated !== this.onceOffCoverValue) {
+		if (this.onceOffCoverValue > 0 && onceOffTotalAllocated !== this.onceOffCoverValue) {
 			onceOffValid = false;
 			invalidPocketNames.push(`Lump Sum`);
 		}
 
-		if (parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
+		if (this.monthlyTotalCoverValue > 0 && parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
 			monthlyValid = false;
 			invalidPocketNames.push(`Monthly Income`);
 		}
 
-		if (parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
+		if (this.educationCoverValue > 0 && parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
 			educationValid = false;
 			invalidPocketNames.push(`Children's Needs`);
 		}
