@@ -284,7 +284,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super._inicidentManager_(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[this.accountViewType], () => this._toggleBusyFlag());
+		await super._inicidentManager_(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType], () => this._toggleBusyFlag());
 		//await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
 		await super.createAndClassifySubIncident(null, false);
 

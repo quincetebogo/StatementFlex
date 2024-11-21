@@ -60,9 +60,9 @@ export const ACTION_IDENTIFIER = Object.freeze({
  * @enum {Object} Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER
  */
 export const Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER = Object.freeze({
-	'CREDIT_CARD': `credit-account-feature/CSCEH-10409-CSCEH-11241-Credit-Products-Details-Incident-reclassificationenquiry`,
-	'TERM_LOAN': `loan-account-enquiry`,
-	'ACCESS_FACILITY': `access-facility-account-enquiry`
+	'Credit card': `credit-account-enquiry`,
+	'Term Loan': `loan-account-enquiry`,
+	'Access facility': `access-facility-account-enquiry`
 });
 
 /**
