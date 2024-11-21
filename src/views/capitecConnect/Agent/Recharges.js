@@ -141,8 +141,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
   }
 
   _initialise() {
-	  this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
-	  //   this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
+      this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
+      //   this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
     this.showTable = true;
   }
@@ -827,42 +827,44 @@ export class CapitecConnectAgentRecharges extends ViewBase {
           colspan="4"
           style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
         >
-          ${voucherSerialNumber
-			? html`<capitec-hyperlink
-                style="margin-right: 16px;
-						margin-top: 10px"
-                label="Voucher Information"
-                @click="${() =>
-				this._handleVoucherInfoConfirm(voucherSerialNumber)}"
-              >
-              </capitec-hyperlink>`
-			: null}
-          ${voucherSerialNumber
-			? null
-			: html`<capitec-hyperlink
-                style="margin-right: 16px;
-						margin-top: 10px"
-                label="${transactionType} Status"
-                @click="${() => {
-				this.selectedRechargeView = item;
-			}}"
-              >
-              </capitec-hyperlink>`}
-          ${voucherSerialNumber ? null : !item.reversible
-            ? html`<capitec-hyperlink
-                style="margin-top: 10px;"
-                label="Escalate For Reversal"
-                disabled
-              >
-              </capitec-hyperlink>`
-            : html`<capitec-hyperlink
-                style="margin-top: 10px;"
-                label="Escalate For Reversal"
-                @click="${() => {
-                  this.selectedReversal = item;
-                }}"
-              >
-              </capitec-hyperlink>`}
+        ${voucherSerialNumber
+        ? html`
+            <capitec-hyperlink
+               style="margin-right: 16px; margin-top: 10px;"
+               label="Voucher Information"
+               @click="${() => this._handleVoucherInfoConfirm(voucherSerialNumber)}"
+               >
+            </capitec-hyperlink>
+            `
+        : html`
+            <capitec-hyperlink
+               style="margin-right: 16px; margin-top: 10px;"
+               label="${transactionType} Status"
+               @click="${() => {
+                this.selectedRechargeView = item;
+            }}"
+               >
+            </capitec-hyperlink>
+            ${item.reversible
+                ? html`
+            <capitec-hyperlink
+               style="margin-top: 10px;"
+               label="Escalate For Reversal"
+               @click="${() => {
+                        this.selectedReversal = item;
+                    }}"
+               >
+            </capitec-hyperlink>
+            `
+                : html`
+            <capitec-hyperlink
+               style="margin-top: 10px;"
+               label="Escalate For Reversal"
+               disabled
+               >
+            </capitec-hyperlink>
+            `}
+            `}
         </div>
       </capitec-group>
     `;
