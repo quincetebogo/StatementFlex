@@ -57,7 +57,8 @@
 	"mock": {
 		"enabled": true,
 		"createIncident": {
-			"enabled": true
+			"enabled": true,
+			"positiveCase": true
 		},
 		"acceptCall": {
 			"enabled": true,
