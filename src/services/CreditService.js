@@ -108,6 +108,10 @@ export class CreditService extends ChannelServiceBase {
 	async creditCardDetails(accountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
 
+		if (await this.isMockEnabled(`creditCardDetails`)) {
+			return this.mock(`creditCardDetails`, errorHandler);
+		}
+
 		const creditCardDetailsRequest = {
 			"accountnumber": accountNumber
 		};
