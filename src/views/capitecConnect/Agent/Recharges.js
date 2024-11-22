@@ -778,7 +778,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
         <div row="3" column="1">
           <capitec-label label="Account:"></capitec-label>
-          <capitec-label type="strong" label="${accountNumber}"></capitec-label>
+          <capitec-label type="strong" label="${accountNumber === `0` ? `-` : accountNumber}"></capitec-label>
         </div>
         <div row="3" column="2">
           <capitec-label label="Transaction Date:"></capitec-label>
