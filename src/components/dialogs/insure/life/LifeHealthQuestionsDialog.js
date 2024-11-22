@@ -356,7 +356,7 @@ class LifeHealthQuestionsDialog extends Component {
 						<div style="min-width: 350px; min-height: 140px;">
 							<div style="display: flex; justify-content: space-around; padding-top: 20px; padding-bottom: 30px; border-bottom: 1px solid #009DE0;">
 								<div class="offer-details-cell">
-									<div>Current Offer</div>
+									<div>Cover Amount</div>
 									<div class="offer-details-value">${formatCurrencyInsureCoverAmount(formatCurrency(this.policy?.totalPolicySumAssured))}</div>
 								</div>
 
