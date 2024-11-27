@@ -13,7 +13,7 @@
 		"payShapServiceUrl": "https://cs-payshap.bussup.prd-plrbsc.asgard.capi",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform.int.capinet",
 		"incidentManagementService": "https://cs-incident.bussup.prd-plrbsc.asgard.capi",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform.int.capinet",
+		"insureChannelServiceUrl": "https://insure-hics-service.inspla.prd-plipla.asgard.capi",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway.conect.prd-plrcon.asgard.capi/horizon-bff"
 	},
 	"signalRUrl": "https://cs-client-auth.bussup.prd-plrbsc.asgard.capi",

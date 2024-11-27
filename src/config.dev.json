@@ -9,7 +9,7 @@
 		"debiCheckServiceUrl": "https://cs-debicheck-dev.bussup.npr-plrbsc.asgard.capi",
 		"cardServiceUrl": "https://cs-cards-dev.bussup.npr-plrbsc.asgard.capi",
 		"savingsPlanChannelServiceUrl": "https://cs-save-dev.bussup.npr-plrbsc.asgard.capi",
-		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
+		"insureChannelServiceUrl": "https://insure-hics-service-dev.inspla.npr-plipla.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
