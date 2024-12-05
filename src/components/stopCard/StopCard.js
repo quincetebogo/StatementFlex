@@ -446,10 +446,23 @@ export class StopCard extends Component {
 	}
 
 	_renderInfoGroup(card) {
+		// Helper function to determine the label
+		const getCardLabel = (cardType) => {
+			switch (cardType) {
+				case 'DEBIT_MASTERCARD_VIRTUAL':
+				case 'DEBIT_MASTERCARD':
+					return 'Debit Card';
+				case 'MASTERCARD_CREDIT':
+					return 'Credit Card';
+				default:
+					return 'Debit Card'; // Optional: fallback for unexpected card types
+			}
+		};
+
 		return html`
 			<capitec-content-box slot="cardInfo" halign="left" valign="top" gap="clear">
 				<horizon-label
-					label="${card.cardDisplayName}"
+					label="${getCardLabel(card.cardType)}"
 					value="${card.maskedCardNumber}">
 				</horizon-label>
 				<horizon-label
@@ -460,6 +473,7 @@ export class StopCard extends Component {
 			</capitec-content-box>
 		`;
 	}
+
 
 	_renderCardArtAction(card) {
 		return html`
@@ -476,7 +490,7 @@ export class StopCard extends Component {
 							@click="${(e) => this._onClickReason(item, card)}"
 							?checked="${item.key === card.cardStopReason.key}"
 							?hidden="${card.cardDisplayType !== CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD &&
-									   item.key === SUPPLEMENTARY_ACCESS_REVOKED}">
+			item.key === SUPPLEMENTARY_ACCESS_REVOKED}">
 						</capitec-radio>
 					`)}
 				</capitec-radio-group>

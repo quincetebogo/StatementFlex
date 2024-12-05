@@ -16,7 +16,7 @@ const CARD_TYPE_LIST = [
 const FILTER_BY = {
 	All: `All`,
 	DEBIT: `Debit Card`,
-	CREDIT: `Credit Card` 
+	CREDIT: `Credit Card`
 };
 
 export class UpdateCardSettings extends Component {
@@ -24,7 +24,7 @@ export class UpdateCardSettings extends Component {
 	// --------------
 	// INITIALISATION
 	// --------------
-	
+
 	constructor() {
 		super();
 
@@ -85,11 +85,11 @@ export class UpdateCardSettings extends Component {
 		this.cards.forEach(card => {
 			if (card.supplementaryCard) {
 				card.cardDisplayName = `Supplementary ${card.cardArt.split(`_`).includes(`DEBIT`) ? FILTER_BY.DEBIT : FILTER_BY.CREDIT}`;
-			} 
+			}
 			card.cardDisplayName = card.cardArt.split(`_`).includes(`DEBIT`) ? FILTER_BY.DEBIT : FILTER_BY.CREDIT;
 			card.cardHoldName = card.cardholderName;
 		});
-		
+
 		this._deepCopyCardDetails();
 	}
 
@@ -103,7 +103,7 @@ export class UpdateCardSettings extends Component {
 
 	_getUpdatedCardsList() {
 		const updatedCardsList = this.updatedCards.filter(updatedcard => {
-			const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber); 
+			const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber);
 			return updatedcard.ecommerce !== card.ecommerce || updatedcard.internationalTransactions !== card.internationalTransactions;
 		});
 
@@ -128,17 +128,17 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_toggleOnline(event, cardNumber) {
-		
+
 		this._updateSingleCardSettings(this.updatedCards, cardNumber, `ecommerce`, event.detail.new);
 		this._updateSingleCardSettings(this.filteredCards, cardNumber, `ecommerce`, event.detail.new);
-		
-	    this.requestUpdate();
+
+		this.requestUpdate();
 	}
 
 	_toggleInternational(event, cardNumber) {
 		this._updateSingleCardSettings(this.updatedCards, cardNumber, `internationalTransactions`, event.detail.new);
 		this._updateSingleCardSettings(this.filteredCards, cardNumber, `internationalTransactions`, event.detail.new);
-		
+
 		// const index = this.cards.findIndex(item => item.cardNumber === cardNumber);
 		// this.updatedCards[index].internationalTransactions = event.detail.new;
 		this.requestUpdate();
@@ -164,7 +164,7 @@ export class UpdateCardSettings extends Component {
 				cardToUpdate.ecommerce = card.ecommerce = this.cards.find(originalCard => originalCard.cardNumber === card.cardNumber).ecommerce;
 			}
 		});
-			
+
 		this.requestUpdate();
 	}
 
@@ -183,18 +183,18 @@ export class UpdateCardSettings extends Component {
 
 	_deactivateSelectedCards() {
 		this.ecommerceUpdated = this.updatedCards.filter(updatedcard => {
-															const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber); 
-															return updatedcard.ecommerce !== card.ecommerce;
-														})?.length > 0;
-	
+			const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber);
+			return updatedcard.ecommerce !== card.ecommerce;
+		})?.length > 0;
+
 		this.internationalUpdated = this.updatedCards.filter(updatedcard => {
-																const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber); 
-																return updatedcard.internationalTransactions !== card.internationalTransactions;
-															})?.length > 0;
+			const card = this.cards.find(item => item.cardNumber === updatedcard.cardNumber);
+			return updatedcard.internationalTransactions !== card.internationalTransactions;
+		})?.length > 0;
 
 		this.showDeactivateConfirmationModal = !this.showDeactivateConfirmationModal;
 	}
-	
+
 	_confirmDeactivation() {
 
 		this.dispatchEvent(new CustomEvent(`deactivate`, {
@@ -218,7 +218,7 @@ export class UpdateCardSettings extends Component {
 		this.shadowRoot.querySelectorAll(`#deactivation-check-box`).forEach(box => box.removeAttribute(`checked`));
 		this.requestUpdate();
 	}
-	
+
 	_filterCards(type) {
 		this.filterBy = type;
 		this._refineSearch();
@@ -227,7 +227,7 @@ export class UpdateCardSettings extends Component {
 	_filterCardsByType(event) {
 		this.filterByType = event.detail.new.key;
 		this._refineSearch();
-	} 
+	}
 
 	_refineSearch() {
 		this.filteredCards = Utilities.deepCopy(this.cards);
@@ -251,7 +251,7 @@ export class UpdateCardSettings extends Component {
 	// ---------
 	// RENDERING
 	// ---------
-	
+
 	static get styles() {
 		return [
 			super.styles,
@@ -526,11 +526,11 @@ export class UpdateCardSettings extends Component {
 
 	_renderContent() {
 		return this.filteredCards.length > 0
-		? html`
+			? html`
 			${this._renderPrimaryCards()}
 			${this._renderSupplementaryCards()}
 			${this._renderVirtualCards()}`
-		: html`
+			: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
 			<capitec-label type="title" class="no-cards-available" label="Client has no cards to display"></capitec-label>
 		`;
@@ -538,8 +538,8 @@ export class UpdateCardSettings extends Component {
 
 	_renderPrimaryCards() {
 		const primaryCards = this.filteredCards.filter(card => card.cardDisplayType === `Primary_Card`);
-		return primaryCards.length > 0 
-		? html`
+		return primaryCards.length > 0
+			? html`
 			<capitec-label
 				class="primary-card-label"
 				type="title"
@@ -556,7 +556,7 @@ export class UpdateCardSettings extends Component {
 				wrap>
 					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex, `primary-card-art`))}
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderPrimaryCardArt(card, index, automationId) {
@@ -578,8 +578,8 @@ export class UpdateCardSettings extends Component {
 
 	_renderSupplementaryCards() {
 		const supplementaryCards = this.filteredCards.filter(card => card.cardDisplayType === `Supplementary_Card`);
-		return supplementaryCards.length > 0 
-		? html`
+		return supplementaryCards.length > 0
+			? html`
 			<capitec-label
 				class="supplementary-card-label"
 				type="title"
@@ -596,7 +596,7 @@ export class UpdateCardSettings extends Component {
 				wrap>
 					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex, `supplementary-card-art`))}
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderSupplementaryCardArt(card, index, automationId) {
@@ -618,8 +618,8 @@ export class UpdateCardSettings extends Component {
 
 	_renderVirtualCards() {
 		const virtualCards = this.filteredCards.filter(card => card.cardDisplayType === `Virtual_Card`);
-		return virtualCards.length > 0 
-		? html`
+		return virtualCards.length > 0
+			? html`
 			<capitec-label
 				class="primary-card-label"
 				type="title"
@@ -636,7 +636,7 @@ export class UpdateCardSettings extends Component {
 				wrap>
 					${virtualCards.map((item, itemIndex) => this._renderVirtualCardArt(item, itemIndex, `virtual-card-art`))}
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderVirtualCardArt(card, index, automationId) {
@@ -657,10 +657,21 @@ export class UpdateCardSettings extends Component {
 	}
 
 	_renderInforGroup(card) {
+		// Helper function to determine the card label
+		const getCardLabel = (cardType) => {
+			if (cardType === 'DEBIT_MASTERCARD_VIRTUAL' || cardType === 'DEBIT_MASTERCARD') {
+				return 'Debit Card';
+			} else if (cardType === 'MASTERCARD_CREDIT' || cardType.includes("Credit")) {
+				return 'Credit Card';
+			} else {
+				return 'Debit Card'; // Fallback for unexpected card types
+			}
+		};
+
 		return html`
 			<capitec-content-box slot="cardInfo" halign="left" valign="top" gap="clear">
 				<horizon-label
-					label="${card.cardDisplayName}"
+					label="${getCardLabel(card.cardType)}"
 					value="${card.maskedCardNumber}">
 				</horizon-label>
 				<horizon-label
@@ -675,6 +686,7 @@ export class UpdateCardSettings extends Component {
 			</capitec-content-box>
 		`;
 	}
+
 
 	_renderOnlineToggleGroup(card) {
 		return html`
@@ -759,7 +771,7 @@ export class UpdateCardSettings extends Component {
 
 	_renderConfirmatioModal() {
 		return this.showDeactivateConfirmationModal
-		? html`
+			? html`
 		<horizon-confirm-card-settings-dialog
 			.deactivateCardsList = "${this._getUpdatedCardsList()}"
 			?ecommerceUpdated = "${this.ecommerceUpdated}"
@@ -768,7 +780,7 @@ export class UpdateCardSettings extends Component {
 			@on-confirm="${() => this._confirmDeactivation()}">
 		</horizon-confirm-card-settings-dialog>
 		`
-		: html``;
+			: html``;
 	}
 }
 

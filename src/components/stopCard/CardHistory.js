@@ -13,30 +13,30 @@ import { HorizonStore } from 'app/store/HorizonStore';
  * @class CardHistory
  * @extends {Component}
  */
-	const CARD_STOP_REASON = {
-				LOST: `Lost`,
-				STOLEN: `Stolen`,
-				DAMAGED: `Damaged`,
-				ACCOUNT_CLOSED: `Account closed`,
-				EXPIRED: `Expired`,
-				SUSPECTED_FRAUD: `Suspected fraud`,
-				RESTRICTED: `Restricted`,
-				SARB_INSTRUCTION: `Sarb instruction`,
-				FOREX_CONTRAVENTION: `Forex contravention`,
-				CARD_NOT_REQUIRED_BY_CLIENT: `Card not required by client`,
-				SUPPLEMENTARY_ACCESS_REVOKED: `Supplementary access revoked`
-	};
+const CARD_STOP_REASON = {
+	LOST: `Lost`,
+	STOLEN: `Stolen`,
+	DAMAGED: `Damaged`,
+	ACCOUNT_CLOSED: `Account closed`,
+	EXPIRED: `Expired`,
+	SUSPECTED_FRAUD: `Suspected fraud`,
+	RESTRICTED: `Restricted`,
+	SARB_INSTRUCTION: `Sarb instruction`,
+	FOREX_CONTRAVENTION: `Forex contravention`,
+	CARD_NOT_REQUIRED_BY_CLIENT: `Card not required by client`,
+	SUPPLEMENTARY_ACCESS_REVOKED: `Supplementary access revoked`
+};
 
-	const FILTERCARD_BY = {
-		CARD_TYPE: `CARD_TYPE`,
-		TEXT: `TEXT`
-	};
+const FILTERCARD_BY = {
+	CARD_TYPE: `CARD_TYPE`,
+	TEXT: `TEXT`
+};
 
-	const RENDERCARD_CHIPS = {
-		CARD_TYPE: `All`,
-		TEXT: ``
-	};
-	
+const RENDERCARD_CHIPS = {
+	CARD_TYPE: `All`,
+	TEXT: ``
+};
+
 
 export class CardHistory extends Component {
 
@@ -49,7 +49,7 @@ export class CardHistory extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.callerInformation = this.horizonStore.getCallerInformation(); // To get the client name
-		
+
 		this.cardHistoryDetails = null;
 		this.supCardLists = [];
 		this.primaryCardLists = [];
@@ -64,7 +64,7 @@ export class CardHistory extends Component {
 		this.searchTextlabel = `Search card number or date`;
 		this.searchFilterflag = false;
 	}
-	
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -78,7 +78,7 @@ export class CardHistory extends Component {
 		this.hasStopCardsAvailable = this.cardHistoryDetails.cards.length > 0;
 		this._collectionStopCards();
 	}
-	
+
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
@@ -159,9 +159,9 @@ export class CardHistory extends Component {
 
 		if (RENDERCARD_CHIPS[FILTERCARD_BY.TEXT]) {
 			const searchText = RENDERCARD_CHIPS[FILTERCARD_BY.TEXT];
-			
+
 			const searchTextResult = this.filterStopCards.filter(item => item.maskedCardNumber.toString().indexOf(searchText) !== -1 || item.cardStopDateTime.toLowerCase().includes(searchText.toLowerCase()));
-				
+
 			this.filterStopCards = Array.from(new Set([...searchTextResult.flat()]));
 			this.searchFilterflag = true;
 		}
@@ -175,7 +175,6 @@ export class CardHistory extends Component {
 	// --------------
 
 	_collectionStopCards() {
-
 		if (this.filterStopCards.length === 0 && this.searchFilterflag === false) {
 			this.filterStopCards = this.cardHistoryDetails.cards;
 		}
@@ -183,51 +182,51 @@ export class CardHistory extends Component {
 		this.primaryCardLists = [];
 		this.supCardLists = [];
 		this.virtualCardLists = [];
-		
+
 		for (let i = 0; i < this.filterStopCards.length; i++) {
-			const cardDisplayName = this.filterStopCards[i].cardDisplayName.toLowerCase();
-
-			const cardStopDate = new Date(this.filterStopCards[i].cardStopDate);
+			const card = this.filterStopCards[i];
+			const cardType = card.cardType;
+			const cardStopDate = new Date(card.cardStopDate);
 			const stopDate = `${formatDate(cardStopDate, `dd mmm yyy, hh:mm:ss`)}`;
-			Object.assign(this.filterStopCards[i], { [`cardStopDateTime`]: stopDate });
+			Object.assign(card, { [`cardStopDateTime`]: stopDate });
 
-			if (cardDisplayName.includes(`virtual`)) {
-				Object.assign(this.filterStopCards[i], { [`cardName`]: `Virtual Card` });
-				} else if (cardDisplayName.includes(`debit`)) {
-						Object.assign(this.filterStopCards[i], { [`cardName`]: `Debit Card` });
-					} else {
-						Object.assign(this.filterStopCards[i], { [`cardName`]: `Credit Card` });
-					}
-				
-				if (this.filterStopCards[i].supplementaryCard === true) {
-
-					this.supCardLists.push(this.filterStopCards[i]);
-				} else if (cardDisplayName.includes(`virtual`)) {
-
-					this.virtualCardLists.push(this.filterStopCards[i]);
+			// Categorize based on cardType
+			if (cardType === 'DEBIT_MASTERCARD_VIRTUAL') {
+				Object.assign(card, { [`cardName`]: `Virtual Card` });
+				this.virtualCardLists.push(card);
+			} else if (cardType === 'DEBIT_MASTERCARD') {
+				Object.assign(card, { [`cardName`]: `Debit Card` });
+				if (card.supplementaryCard === true) {
+					this.supCardLists.push(card);
 				} else {
-					this.primaryCardLists.push(this.filterStopCards[i]);
+					this.primaryCardLists.push(card);
 				}
+			} else if (cardType === 'MASTERCARD_CREDIT') {
+				Object.assign(card, { [`cardName`]: `Credit Card` });
+				if (card.supplementaryCard === true) {
+					this.supCardLists.push(card);
+				} else {
+					this.primaryCardLists.push(card);
+				}
+			}
 		}
-		
-	
-	this.labelAll = `All (${this.filterStopCards.length})`;
-	this.labelPrimary = `Primary (${this.primaryCardLists.length})`;
-	this.labelSuplmn = `Supplementary (${this.supCardLists.length})`;
-	this.labelVirtual = `Virtual (${this.virtualCardLists.length})`;
+
+		this.labelAll = `All (${this.filterStopCards.length})`;
+		this.labelPrimary = `Primary (${this.primaryCardLists.length})`;
+		this.labelSuplmn = `Supplementary (${this.supCardLists.length})`;
+		this.labelVirtual = `Virtual (${this.virtualCardLists.length})`;
+	}
 
 
-}
-	
-_displayStopCardDetails(cardType) {
+	_displayStopCardDetails(cardType) {
 
-	this.flag = false;
-	let cardsOfArray = [];
-	this.stopCardHistoryLists = [];
+		this.flag = false;
+		let cardsOfArray = [];
+		this.stopCardHistoryLists = [];
 
-	if (this.filterStopCards.length === 0) {
-		this.flag = true;
-	} else if (cardType === `All`) {
+		if (this.filterStopCards.length === 0) {
+			this.flag = true;
+		} else if (cardType === `All`) {
 
 			this.stopCardHistoryLists = [];
 			if (this.primaryCardLists.length !== 0) {
@@ -270,10 +269,10 @@ _displayStopCardDetails(cardType) {
 			} else {
 				this.flag = true;
 			}
-		} 
-	this.requestUpdate();
-	return this.stopCardHistoryLists;
-}
+		}
+		this.requestUpdate();
+		return this.stopCardHistoryLists;
+	}
 
 	// ---------------
 	// PRIVATE METHODS
@@ -284,7 +283,7 @@ _displayStopCardDetails(cardType) {
 	// RENDERING
 	// ---------
 
-	
+
 	static get styles() {
 		return [
 			super.styles,
@@ -523,11 +522,11 @@ _displayStopCardDetails(cardType) {
 
 	_renderStopCardHistoryContent() {
 		return this.hasStopCardsAvailable
-		? html`
+			? html`
 				${this._collectionStopCards()}
 				${this._displayStopCardDetails(RENDERCARD_CHIPS[FILTERCARD_BY.CARD_TYPE])}
 				${this._renderNoResults()}`
-		: html`
+			: html`
 			<capitec-image src="platform/illustrations/cards.svg"></capitec-image>
 			<capitec-label type="title" class="client-has-no-card" label="Client has no cards to fulfill this transaction"></capitec-label>`;
 	}
@@ -602,7 +601,7 @@ _displayStopCardDetails(cardType) {
 	}
 
 	_renderFilterBar() {
-		return RENDERCARD_CHIPS[FILTERCARD_BY.TEXT] !== `` 
+		return RENDERCARD_CHIPS[FILTERCARD_BY.TEXT] !== ``
 			? html`
 				<capitec-action-bar
 					id="active-filters"
@@ -611,7 +610,7 @@ _displayStopCardDetails(cardType) {
 						<capitec-label label = "Active filters:"></capitec-label>
 						${this._renderTextChip()}
 					</capitec-action-bar>`
-				: html``;
+			: html``;
 	}
 
 	_renderTextChip() {
@@ -628,7 +627,7 @@ _displayStopCardDetails(cardType) {
 
 	_renderNoResults() {
 		return this.flag === true
-		? html`
+			? html`
 			<capitec-group
 				class="no-Cardresult-group"
 				layout="vertical"
