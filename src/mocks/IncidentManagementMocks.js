@@ -16,12 +16,15 @@ export default class IncidentManagementMocks {
 	 */
 	async initialise(mockSettings, loadMockModule) {
 		this._mockSettings = mockSettings;
-		this.callMocks = await loadMockModule(this.incidentMocks, `createIncident`, () => {});
+		this.incidentMocks = await loadMockModule(this.incidentMocks, `createIncident`, () => import(`../mocks/IncidentMocks`));
 	}
 
 	// Mock function is async to ensure that it returns a promise
 	// eslint-disable-next-line require-await
-	async createIncident(incidentData) {
+	async createIncident() {
+		if (this._mockSettings.createIncident.positiveCase) {
+			return this.incidentMocks.createIncident;
+		}
 		const httpError = new HttpStatusError();
 
 		httpError.status = 400;
