@@ -397,6 +397,10 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"creditCardDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"payShapDetails": {
 			"enabled": false,
 			"positiveCase": true
@@ -569,7 +573,5 @@
 			"enabled": true,
 			"positiveCase": true
 		}
-
-
 	}
 }

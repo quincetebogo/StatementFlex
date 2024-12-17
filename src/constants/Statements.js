@@ -4,7 +4,7 @@
  * @readonly
  * @enum {Object} RENDER_MODE
  */
- export const RENDER_MODE = Object.freeze({
+export const RENDER_MODE = Object.freeze({
 	CHOOSE_ACCOUNT: 0,
 	CHOOSE_PERIOD: 1,
 	EMAIL: 2,
@@ -18,7 +18,7 @@
  * @readonly
  * @enum {Object} STATEMENTS_STEPS
  */
- export const STATEMENTS_STEPS = Object.freeze([
+export const STATEMENTS_STEPS = Object.freeze([
 	{
 		title: `Choose Account`,
 		renderMode: RENDER_MODE.CHOOSE_ACCOUNT
@@ -36,7 +36,7 @@
 /**
  * List the available type of selectors
  */
- export const RANGE_SELECTOR = Object.freeze({
+export const RANGE_SELECTOR = Object.freeze({
 	DATE: `date`,
 	MONTH: `month`
 });
@@ -52,9 +52,9 @@ export const PERIOD_TYPE = Object.freeze({
  * @readonly
  * @enum {Object} ACCOUNT_INTCAT_ENUM
  */
- export const ACCOUNT_INTCAT_ENUM = Object.freeze({
+export const ACCOUNT_INTCAT_ENUM = Object.freeze({
 	300: {
-		name: `Savings account`,
+		name: `Main account`,
 		type: `PRIMARY_SAVINGS`,
 		category: `transact`,
 		subCategory: ``,
@@ -63,7 +63,7 @@ export const PERIOD_TYPE = Object.freeze({
 		choosePeriod: RANGE_SELECTOR.DATE
 	},
 	200: {
-		name: `Flexible savings plan`,
+		name: `Access Anytime Plan`,
 		type: `FLEXIBLE_SAVINGS`,
 		category: `save`,
 		subCategory: ``,
@@ -177,7 +177,7 @@ export const NOTIFICATION_MESSAGE = Object.freeze({
 	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`,
-	FLEXIBLE_SAVINGS_FEE: ` A fee will be charged for flexible saving account statements.`
+	FLEXIBLE_SAVINGS_FEE: ` A fee will be charged for access anytime account statements.`
 });
 
 export const ERRORS = Object.freeze({
