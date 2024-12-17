@@ -115,7 +115,7 @@ export class SavingsPlan extends ViewBase {
 		
 		this._initialise();
 
-		this._optionClick = async (option, savePlanDetails, sendAnother = false) => {
+		this._optionClick = (option, savePlanDetails, sendAnother = false) => {
 
 			this.alertBannerMessage = ``;
 
@@ -136,7 +136,7 @@ export class SavingsPlan extends ViewBase {
 			};
 
 			if (actions[option]) {
-				await super.handleMultipleNeed(`${option}-save`, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(`${option}-save`);
 				return actions[option]();
 			}
 		};
@@ -196,7 +196,7 @@ export class SavingsPlan extends ViewBase {
 		};
 
 		if (saveProducts[this.accountViewType]) {
-			await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
 			
 			await super.createAndClassifySubIncident(null, false);
 			
@@ -247,7 +247,7 @@ export class SavingsPlan extends ViewBase {
 					return;
 				}
 
-				await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
 				await super.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
@@ -450,7 +450,7 @@ export class SavingsPlan extends ViewBase {
 
 		// Updating current need to be specific to Save Type ie; Flexible or fixed term to classify an incident based on type.
 		const need = savePlanDetails.accountType === ACCOUNT_TYPE_CODE.FLEXIBLE_SAVINGS_PLAN ? `flexible-save-transaction-history` : `fixed-save-transaction-history`;
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 		this.savePlanDetails = savePlanDetails;
 
 		await super.createAndClassifySubIncident(null, false);
@@ -732,7 +732,7 @@ export class SavingsPlan extends ViewBase {
 
 		// Updating current need to be specific to unlock Type ie; Full or Partial unlock to classify an incident based on type.
 		const need = UNLOCK_TYPE[event.detail.unlockType] === `Full` ? `full-ftsp-unlock` : `partial-ftsp-unlock`;
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 			
 		const screenDetails = this.horizonStore.getScreenDetails();
 

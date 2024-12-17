@@ -134,7 +134,7 @@ export class ProductInformation extends ViewBase {
 		this._navigationContextUpdate();
 
 		if (this._config) {
-			await super.handleMultipleNeed(this._config.product, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(this._config.product);
 			await super.createAndClassifySubIncident(null, false);
 		} else {
 			this._config = CONFIG.SavingsAccount;

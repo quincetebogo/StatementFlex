@@ -164,7 +164,7 @@ export class SavingsAccountBase extends ViewBase {
 		const action = `debi-check-${debiCheckAction}`;
 
 		if (mandateActions[action]) {
-			await super.handleMultipleNeed(action, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(action);
 
 			this.debiCheckDetails = await this._getMandateDetails();
 			return mandateActions[action](screenDetails);
@@ -239,12 +239,12 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _cancelMandateAction(eventName, currScreen) {
-		this._telemetry.logEvent(eventName, {
+		await this._telemetry.logEvent(eventName, {
 			"screen": currScreen,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
-		await super.handleMultipleNeed(`debi-check-viewInfo`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`debi-check-viewInfo`);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -432,10 +432,10 @@ export class SavingsAccountBase extends ViewBase {
 	 * @param {object} event - event raised by statements dialog
 	 * @returns {void}
 	 */
-	async _statementsAccConfirmed(event) {
+	_statementsAccConfirmed(event) {
 		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 	}
 
 	// ---------

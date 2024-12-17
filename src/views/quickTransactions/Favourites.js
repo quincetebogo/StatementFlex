@@ -63,7 +63,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.agreementResult = ``;
 		// private properites
-	
+
 
 		this.isLoading = true;
 
@@ -128,14 +128,14 @@ export class Favourites extends SavingsAccountBase {
 		super.connectedCallback();
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 		this.feedbackOptions = FEEDBACK_OPTIONS;
-		
+
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
 			"screen": TelemetryScreen.FAVOURITES
 		});
 
 		this._initialise();
-		this._performAction = async (option) => {
+		this._performAction = (option) => {
 
 			const stopCard = () => this._stopCard();
 			const debiCheck = () => this._debiCheck();
@@ -150,7 +150,7 @@ export class Favourites extends SavingsAccountBase {
 			const sendCash = () => this._sendCash();
 			const payShap = () => this._payShap();
 			const cardSettings = () => this._updateCardSettings();
-			
+
 			const actions = {
 				'stop-card': stopCard,
 				'debi-check-viewInfo': debiCheck,
@@ -168,7 +168,7 @@ export class Favourites extends SavingsAccountBase {
 			};
 
 			if (actions[option]) {
-				await super.handleMultipleNeed(option, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(option);
 				return actions[option]();
 			}
 
@@ -218,7 +218,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _showPayShapUpdateModal(e) {
 		this.payShapModalDetails = e.detail;
-		
+
 		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD);
 		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP);
 
@@ -253,7 +253,7 @@ export class Favourites extends SavingsAccountBase {
 		};
 
 		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag(), () => this._errorHandler());
-		
+
 		if (isSuccess) {
 			// Navigate to favourites landing page
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.CLOSED;
@@ -270,7 +270,7 @@ export class Favourites extends SavingsAccountBase {
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
-		
+
 		if (this.callerInformation.verificationStatus === `verified`) {
 			await this._initialise();
 		}
@@ -283,12 +283,12 @@ export class Favourites extends SavingsAccountBase {
 		if (e.detail.stopPropagation) {
 			this._unavailableOption();
 		} else {
-			await this._performAction(e.detail.option);
+			this._performAction(e.detail.option);
 		}
 	}
 
 	_searchOtherNeedDone() {
-	
+
 		if (this.updateStrackClick) {
 			this.postAction._refreshScreen();
 			this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
@@ -311,7 +311,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updatePermanentLimits(updateRequest) {
-	
+
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
 		const returnValue = await this.cardService.updatePermanentLimits(updateRequest, () => true);
@@ -340,7 +340,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updateTemporaryLimits(updateRequest) {
-		
+
 		updateRequest.cardLimits = this._limitsRandsToCents(updateRequest.cardLimits);
 
 		const returnValue = await this.cardService.updateTemporaryLimits(updateRequest, () => true);
@@ -359,7 +359,7 @@ export class Favourites extends SavingsAccountBase {
 		agreementRequest.cardDetails = this._limitsRandsToCents(agreementRequest.cardDetails);
 
 		const returnValue = await this.cardService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
-		
+
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
@@ -373,7 +373,7 @@ export class Favourites extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.limitDetails = eventData.detail.limitDetails;
 		this.horizonStore.setScreenDetails(screenDetails);
-		
+
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-limits`);
 
 		if (eventData.detail.success) {
@@ -389,9 +389,9 @@ export class Favourites extends SavingsAccountBase {
 		if (!currentIncident) {
 			await super.createAndClassifySubIncident();
 		}
-		
+
 		this._updateNeedToState(event.detail.category);
-		
+
 		await this.getSubCategories(event);
 	}
 
@@ -402,9 +402,9 @@ export class Favourites extends SavingsAccountBase {
 
 
 	async _getIssues(event) {
-		
+
 		this._updateNeedToState(event.detail.category, event.detail.need);
-		
+
 		await this.getIssues(event);
 	}
 
@@ -422,12 +422,12 @@ export class Favourites extends SavingsAccountBase {
 
 		this.proofOfPaymentDetails = event.detail;
 
-		await super.handleMultipleNeed(`payshap-pop`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`payshap-pop`);
 
 		this.renderMode = RENDER_MODE.PAYSHAP_POP;
 
 		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT);
-		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
+		await this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP);
 	}
 
 	// ---------------
@@ -453,7 +453,7 @@ export class Favourites extends SavingsAccountBase {
 				this.isLoading = false;
 
 				this.landingPageInfo = returnValues[0].value.result;
-				
+
 				/* 
 				 * NOTE: This is a work around as the favourites landing does not return credit information. 
 				 * NOTE: This implementation will not include credit information in the favourites landing call fails.
@@ -544,20 +544,20 @@ export class Favourites extends SavingsAccountBase {
 		const currentIncident = this.horizonIncidentManager.currentIncident;
 
 		const returnValue = await this.cardService.cardLimitsLanding(this.callerInformation.cifNumber, currentIncident);
-			
+
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
-			
+
 			// Filter cards that has limits listed
 			this.cards = this.cards.filter(card => !isNullorEmpty(card.cardLimits));
 
 			// Convert all vaules on card limits into Rands
 			this.cards.forEach(card => {
-					Object.keys(card.cardLimits).forEach(key => {
-						if (!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
-							card.cardLimits[key] /= 100;
-						}
-					});
+				Object.keys(card.cardLimits).forEach(key => {
+					if (!(isNullorEmpty(card.cardLimits[key]) || key === `tempLimitExpiryDate`)) {
+						card.cardLimits[key] /= 100;
+					}
+				});
 
 				if (card.linkedCardLimits) {
 					Object.keys(card.linkedCardLimits).forEach(key => {
@@ -607,7 +607,7 @@ export class Favourites extends SavingsAccountBase {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
-		
+
 		this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 	}
 
@@ -617,28 +617,28 @@ export class Favourites extends SavingsAccountBase {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.SETTLEMENT_QUOTE_VIEW
 		});
-		
+
 		const returnValue = await this.creditService.settlementQuoteLanding({ "cifNumber": this.callerInformation.cifNumber }, customErrHandler);
-			
-			if (returnValue.succeeded) {
-				this.settlementQuoteDetails = returnValue.result.settlementInfoList;
-	
-				this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
-					item.type = PRODUCT_TYPE[item.productTypeCode];
-					item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
-					item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
-					item.creditLimit = formatCurrency(item.creditLimit);
-					item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
-					item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
-					item.currentBalance = formatCurrency(item.currentBalance);
-					item.settlementAmount = formatCurrency(item.currentSettlementAmount);
-					item.maxSettlementAmount = item.maxSettlementAmount ? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
-					item.isClosed = () => item.accountStatusDescription?.toLowerCase() === `marked closure`;
-					return item;
-				});
+
+		if (returnValue.succeeded) {
+			this.settlementQuoteDetails = returnValue.result.settlementInfoList;
+
+			this.settlementQuoteDetails = this.settlementQuoteDetails.map(item => {
+				item.type = PRODUCT_TYPE[item.productTypeCode];
+				item.category = CREDIT_ACCOUNT_TYPE[item.productTypeCode];
+				item.productTypeDescription = `${item.productTypeDescription.toLowerCase().charAt(0).toUpperCase()}${item.productTypeDescription.toLowerCase().slice(1)}`;
+				item.creditLimit = formatCurrency(item.creditLimit);
+				item.repayAmount = item.repayAmount ? formatCurrency(item.repayAmount) : null;
+				item.nextRepayment = item.nextRepayment ? formatCurrency(item.nextRepayment) : null;
+				item.currentBalance = formatCurrency(item.currentBalance);
+				item.settlementAmount = formatCurrency(item.currentSettlementAmount);
+				item.maxSettlementAmount = item.maxSettlementAmount ? formatCurrency(item.maxSettlementAmount) : formatCurrency(item.settlementAmount);
+				item.isClosed = () => item.accountStatusDescription?.toLowerCase() === `marked closure`;
+				return item;
+			});
 
 			if (this.settlementQuoteDetails.length > 0) {
-				const { ccsStatus ,declineReasons, declineMessage} = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
+				const { ccsStatus, declineReasons, declineMessage } = await this._checkCreditPermisions(`settlement-quote`, this.callerInformation.cifNumber, this.settlementQuoteDetails[0].accountNumber, this.settlementQuoteDetails[0].type);
 				this.ccsStatus = ccsStatus;
 				this.declineReason = declineReasons;
 				this.declineMessage = declineMessage || DEFAULT_CCS_MESSAGE;
@@ -655,7 +655,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.logger.log(`error`, `Unable to load settlement quote accounts view`, `_settlementQuote`, returnValue.correlationId);
 	}
-	
+
 	_showSettlementQuoteDialog(selectedAccounts) {
 		this._telemetry.logEvent(QuickTransactionEvents.SETTLEMENT_QUOTE_SEND, {
 			"list-of-accounts": selectedAccounts,
@@ -672,23 +672,23 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER, {});
-		
+
 		const returnValue = await this.creditService.creditOverview(this.callerInformation.cifNumber, ACCOUNT_STATUS.PAID_UP);
-		
+
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to retrieve client overview from credit service.`, `_initialise`, returnValue.correlationId);
 			this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
 			return;
 		}
-		
+
 		if (returnValue.succeeded && returnValue.result) {
-			
+
 			this.creditAccountDetails = returnValue.result;
 			this._formatCreditOverviewResponse();
 			this.accountsInfo = [...this.creditAccountDetails.creditCardSummaryList, ...this.creditAccountDetails.accessFacilitySummaryList, ...this.creditAccountDetails.loanAccountSummaryList];
-		
+
 			if (this.accountsInfo.length > 0) {
-				
+
 				const { ccsStatus } = await this._checkCreditPermisions(`paid-up-letter`, this.callerInformation.cifNumber, this.accountsInfo[0].accountNumber, this.accountsInfo[0].type);
 				this.ccsStatus = ccsStatus;
 
@@ -717,7 +717,7 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.payShapDetails = await this._getPayShapDetails();
-		
+
 		await super.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
@@ -785,7 +785,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	
+
 	get30DaysBefore(date) {
 		const result = new Date(date);
 		result.setDate(result.getDate() - 30);
@@ -875,7 +875,7 @@ export class Favourites extends SavingsAccountBase {
 		// Determining if its already classified
 		const isClassified = !isNullorEmpty(incidentInfo.category) && !isNullorEmpty(incidentInfo.subCategory) && !isNullorEmpty(incidentInfo.issue);
 		const isClosed = incidentInfo.status === `Closed`;
-		
+
 		// Determining at least we know categorization to classify
 		const classificationEmpty = isNullorEmpty(screenDetails.category) && isNullorEmpty(screenDetails.subCategory) && isNullorEmpty(screenDetails.issue);
 
@@ -897,7 +897,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.updateStrackClick = true;
 		await this._classifyIncident(event);
-		
+
 		this.postAction = event.detail.postAction;
 		this.renderMode = RENDER_MODE.FEEDBACK;
 
@@ -914,23 +914,23 @@ export class Favourites extends SavingsAccountBase {
 		await this._classifyIncident(event);
 
 		const currentIncident = this.horizonIncidentManager.currentIncident;
-	
+
 		this.horizonRouter.navigateToStrack(currentIncident);
-		
+
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
 	async _onUpdateincidentConfirm(e) {
 		// should close the incident with captured details on Update incident modal
 		// Temporary switch : to close an incident on Confirm click from Update Incident modal
-	
+
 		await this._classifyIncident(e);
-		
+
 		this.renderMode = RENDER_MODE.UPDATE_INCIDENT_FEEDBACK;
 	}
 
 	async _classifyIncident(event) {
-		
+
 		const incidentCategorization = {
 			category: `${event.detail.category}`,
 			need: `${event.detail.need}`,
@@ -967,7 +967,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _onExitSendCash() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+
 		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -978,7 +978,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _onUnloadingSendCash() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+
 		this._setIncidentDone();
 	}
 
@@ -986,10 +986,10 @@ export class Favourites extends SavingsAccountBase {
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP, null, true, false, true);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-	
+
 
 	_limitsRandsToCents(cardDetails) {
- 
+
 		// Converting limits from rands to cents before updating
 		if (cardDetails.permanentCashAmountLimit) {
 			cardDetails.permanentCashAmountLimit *= 100;
@@ -1009,7 +1009,7 @@ export class Favourites extends SavingsAccountBase {
 		if (cardDetails.tempCnpAmountLimit) {
 			cardDetails.tempCnpAmountLimit *= 100;
 		}
-		
+
 		return cardDetails;
 	}
 
@@ -1026,7 +1026,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _setCapitecBankAsDefault() {
-		await super.handleMultipleNeed(`set-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`set-capitec-as-default-bank`);
 		const returnValue = await this.payShapService.enlistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
@@ -1039,20 +1039,20 @@ export class Favourites extends SavingsAccountBase {
 
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
 			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
-			"Default-institution": returnValue.succeeded ? `CAPITEC` : `Not Set`, 
+			"Default-institution": returnValue.succeeded ? `CAPITEC` : `Not Set`,
 			"next-screen": returnValue.succeeded ? `success` : `failed`
 		});
 
 		this.payshapDisplayToast();
 
 		this.payShapDetails = await this._getPayShapDetails();
-		
+
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
 
 	async _removeCapitecBankAsDefault() {
-		await super.handleMultipleNeed(`remove-capitec-as-default-bank`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`remove-capitec-as-default-bank`);
 		const returnValue = await this.payShapService.delistCapitec(this.callerInformation.verifiedTelephoneNumber, (exception) => true);
 
 		if (returnValue.succeeded) {
@@ -1065,15 +1065,15 @@ export class Favourites extends SavingsAccountBase {
 
 		this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_SAVE, {
 			"Cell-phone-number": this.callerInformation.verifiedTelephoneNumber,
-			"Default-institution": returnValue.succeeded ? `Not Set` : `CAPITEC`, 
+			"Default-institution": returnValue.succeeded ? `Not Set` : `CAPITEC`,
 			"next-screen": returnValue.succeeded ? `success` : `failed`
 		});
 
 		this.payshapDisplayToast();
-		
+
 
 		this.payShapDetails = await this._getPayShapDetails();
-		
+
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_UPDATE_ON_LOAD_POP, null, true, true);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 	}
@@ -1105,7 +1105,7 @@ export class Favourites extends SavingsAccountBase {
 			"notification-type": event.detail.notificationType,
 			"email-address": event.detail.emailAddress
 		});
-	
+
 		const clientInfo = {
 			"paymentUetr": this.proofOfPaymentDetails.uetr,
 			"cifNumber": this.callerInformation.cifNumber,
@@ -1122,19 +1122,19 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `payshap`);
-	
+
 		const screenDetails = { ...event.detail, ...this.proofOfPaymentDetails };
 		screenDetails.outcome = returnValue.result;
 		screenDetails.request = clientInfo;
 		this.horizonStore.setScreenDetails(screenDetails);
-		
+
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToPayshapProofOfPaymentOutcome();
 		} else {
 			this.horizonRouter.navigateToSystemError();
 		}
 	}
-	
+
 	async _cancelPayshapUpdateModal() {
 		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_UPDATE_DETAILS_CANCEL);
 		this.renderMode = RENDER_MODE.PAYSHAP;
@@ -1142,7 +1142,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _cancelPOPModal() {
-		await super.handleMultipleNeed(`payshap`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`payshap`);
 		await this._telemetry.logEvent(QuickTransactionEvents.PAY_SHAP_SEND_PROOF_OF_PAYMENT_CANCEL);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_ON_LOAD_POP, null, true, true);
@@ -1165,7 +1165,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _deactivateCardTransactions(event) {
-		await super.handleMultipleNeed(`update-card-settings`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`update-card-settings`);
 
 		// service call to deactivate online purchases and International transactions
 		const requestDetails = event.detail.cardsListToDeactivate?.map(card => {
@@ -1195,7 +1195,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _exitCardSettings() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+
 		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -1380,17 +1380,17 @@ export class Favourites extends SavingsAccountBase {
 
 	_renderUpdateIncidentModal() {
 		return this.renderMode === RENDER_MODE.UPDATE_INCIDENT
-		? html`
+			? html`
 			<horizon-update-incident-dialog
 				@on-cancel = "${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 				@on-update="${(e) => this._onUpdateincidentConfirm(e)}">
 			</horizon-update-incident-dialog>`
-		: html``;
+			: html``;
 	}
 
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
-		? html`
+			? html`
 			<horizon-tax-certificate
 				.taxCertificateDetails="${this.taxCertificateDetails}"
 				.cifNumber="${this.callerInformation.cifNumber}"
@@ -1398,39 +1398,39 @@ export class Favourites extends SavingsAccountBase {
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
-		: html``;
+			: html``;
 	}
 
 	_renderTaxCertificateNotAvailable() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
-		? html`
+			? html`
 			<horizon-tax-certificate-landing
 				@back="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate-landing>
 			`
-		: html``;
+			: html``;
 	}
-	
+
 	_renderSettlementQuote() {
 		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_VIEW ||
-				this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
-		? html`
+			this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
+			? html`
 			<horizon-settlement-quote
 				.settlementQuoteDetails="${this.settlementQuoteDetails}"
 				@back="${() => this._backToLandingPage()}"
 				@send-quote="${(e) => this._showSettlementQuoteDialog(e.detail.selectedAccounts)}">
 			</horizon-settlement-quote>`
-		: html``;
+			: html``;
 	}
 
-	_renderPaidUpAccounts () {
+	_renderPaidUpAccounts() {
 		return this.renderMode === RENDER_MODE.PAID_UP_ACCOUNTS
-		? html`
+			? html`
 		<horizon-paid-up-accounts
 			.accountsInfo="${this.accountsInfo}"
 			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 		</horizon-paid-up-accounts>`
-		: html``;
+			: html``;
 	}
 
 	_renderSendCash() {
@@ -1453,17 +1453,17 @@ export class Favourites extends SavingsAccountBase {
 
 	_renderConfirmPlaceHoldModal() {
 		return this.renderMode === RENDER_MODE.PLACE_HOLD_MODAL
-		? html`
+			? html`
 			<horizon-confirm-place-hold
 				@on-confirm="${(e) => this._onConfirmPlaceHold(e)}"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEND_CASH}">
 			</horizon-confirm-place-hold>`
-		: html``;
+			: html``;
 	}
 
 	_renderPayShap() {
 		return this.renderMode === RENDER_MODE.PAYSHAP || this.renderMode === RENDER_MODE.PAYSHAP_MODAL || this.renderMode === RENDER_MODE.PAYSHAP_POP
-		? html`
+			? html`
 			<horizon-payshap-landing
 				.payShapLandingDetails="${this.payShapDetails}"
 				.cifNumber="${this.callerInformation.cifNumber}"
@@ -1480,43 +1480,43 @@ export class Favourites extends SavingsAccountBase {
 				@back="${() => this._onExitPayShap()}"
 				@unloading="${() => this._unloadingPayshap()}">
 			</horizon-payshap-landing>`
-		: html``;
+			: html``;
 	}
 
 	_renderPayShapUpdateModal() {
 		return this.renderMode === RENDER_MODE.PAYSHAP_MODAL
-		? html`
+			? html`
 			<horizon-pay-shap-update
 						.payShapModalDetails="${this.payShapModalDetails}"
 						@set-capitec-as-defult="${() => this._setCapitecBankAsDefault()}"
 						@remove-capitec-as-default="${() => this._removeCapitecBankAsDefault()}"
 						@on-cancel="${() => this._cancelPayshapUpdateModal()}">
 			</horizon-pay-shap-update>`
-		: html``;
+			: html``;
 	}
 
 	_renderPayShapPOP() {
 		return this.renderMode === RENDER_MODE.PAYSHAP_POP
-		? html`
+			? html`
 		<horizon-payshap-proof-of-payment
 						@on-cancel="${() => this._cancelPOPModal()}"
 						@on-send="${(e) => this._sendPayshapPOP(e)}">
 		</horizon-payshap-proof-of-payment>`
-		: html``;
+			: html``;
 	}
 
 	_renderUpdateCardSettings() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_SETTINGS
-		? html`
+			? html`
 			<horizon-update-card-settings
 					.cards = ${this.cardsList}
 					@back="${() => this._exitCardSettings()}"
 					@deactivate="${(event) => this._deactivateCardTransactions(event)}">
 			</horizon-update-card-settings>`
-		: html``;
+			: html``;
 	}
 
-	
+
 }
 
 customElements.define(`horizon-favourites`, Favourites);

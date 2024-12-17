@@ -83,7 +83,7 @@ export class InsureViewBase extends ViewBase {
 	}
 
 	async setInsureIncident(need) {
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 		await super.createAndClassifySubIncident(null, false);
 	}
 

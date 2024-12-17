@@ -361,7 +361,7 @@ export class ConfirmCallerDetails extends Component {
 			return;
 		}
 		
-		await super.handleMultipleNeed(`update-language-preference`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 		this.languagePreference = e.detail.new.key;
 
 		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);

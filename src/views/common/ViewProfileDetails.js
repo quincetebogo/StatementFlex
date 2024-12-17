@@ -102,7 +102,7 @@ export class ViewProfileDetails extends ViewBase {
 
 		if (details.preferredlanguage && details.ficaDetails) {
 			// When trying to update Preferred language and FICA details
-			await super.handleMultipleNeed(`update-language-preference`, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 		
 			serviceCalls.push(this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber));
 			serviceCalls.push(this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber));
@@ -117,7 +117,7 @@ export class ViewProfileDetails extends ViewBase {
 
 		} else if (details.preferredlanguage) {
 			// When trying to update only Preferred language
-			await super.handleMultipleNeed(`update-language-preference`, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 			
 			const isLanguageUpdated = await this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber);
 			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
@@ -152,7 +152,7 @@ export class ViewProfileDetails extends ViewBase {
 	}
 
 	async _createClassifyAndUpdateIncident(need, succeeded) {
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentMAnager.setCurrentNeed(need);
 		await super.createAndClassifySubIncident(null);
 
 		this.horizonIncidentManager.incidentState = succeeded 
@@ -201,7 +201,7 @@ export class ViewProfileDetails extends ViewBase {
 			this.clientFICADetails = returnValue.result;
 			this._formatProfileData();
 
-			await super.handleMultipleNeed(`fica-details-enquiry`, () => this._toggleBusyFlag());
+			this.horizonIncidentManager.setCurrentNeed(`fica-details-enquiry`);
 			await super.createAndClassifySubIncident(null, false);
 		} else {
 			this.horizonRouter.navigateToSystemError();

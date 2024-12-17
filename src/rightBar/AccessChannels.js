@@ -88,7 +88,7 @@ export class AccessChannels extends Component {
 		this.isVerifiedClient = this.callerInformation?.verificationStatus === `verified`;
 		this.canPerformHighRiskActions = this.isVerifiedClient && this.callerInformation.verificationMethod !== `SQ`;
 
-		this._performAction = async (need, options) => {
+		this._performAction = (need, options) => {
 
 			const viewApp = () => { };
 			const suspendApp = () => this._suspendApp(options.reason, options.regNo);
@@ -115,9 +115,10 @@ export class AccessChannels extends Component {
 			};
 
 			if (actions[need]) {
-				await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(need);
 				return actions[need]();
 			}
+
 			return true;
 		};
 
@@ -147,7 +148,7 @@ export class AccessChannels extends Component {
 
 			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
-			await this._performAction(`view-${event.detail.tileClicked}`);
+			this._performAction(`view-${event.detail.tileClicked}`);
 		} else {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 

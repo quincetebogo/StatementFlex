@@ -81,7 +81,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
         this._telemetryStartSpan(SavingsAccLandingPage.SAVINGS_ACCOUNT, TelemetryScreen.SAVINGS_ACCOUNT);
         this._initialise();
 
-        this._optionClick = async (option, data) => {
+		this._optionClick = (option, data) => {
 
             const transactionHistory = () => this._transactionHistory();
             const debiCheck = () => this._debiCheck();
@@ -98,7 +98,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             };
 
             if (actions[option]) {
-				await super.handleMultipleNeed(option, () => this._toggleBusyFlag());
+                this.horizonIncidentManager.setCurrentNeed(option);
                 return actions[option]();
             }
         };
@@ -185,7 +185,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				// Do not create subs inc on performing return to screen
 				if (!this.horizonStore.getReturnToScreen()) {
-					await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+					this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT);
 					await super.createAndClassifySubIncident(null, false);
 
 					// setting inc status to not started for landing page needs
@@ -333,7 +333,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
             nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
         });
 
-		await super.handleMultipleNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT);
 
 		await super.createAndClassifySubIncident(null, false);
 
