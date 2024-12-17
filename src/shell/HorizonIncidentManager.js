@@ -115,7 +115,7 @@ export class HorizonIncidentManager {
 		return { 
 			...this.incidentDetails.primaryIncident,
 			toString: function toString () { 
-				return this.incidentReference;
+				return this.Interaction;
 			}
 		};
 	}
@@ -133,7 +133,7 @@ export class HorizonIncidentManager {
 			return {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentReference;
+					return this.Interaction;
 			}
 		};
 	};
@@ -269,13 +269,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString () { 
-					return this.incidentReference;
+					return this.Interaction;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString () { 
-					return this.incidentReference;
+					return this.Interaction;
 				}
 			}
 		};
