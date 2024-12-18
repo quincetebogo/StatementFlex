@@ -285,7 +285,7 @@ export class CreditAccount extends ViewBase {
 		};
 
 		await super.handleMultipleNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType], () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -606,7 +606,7 @@ export class CreditAccount extends ViewBase {
 				this.horizonStore.clearReturnScreen();
 			} else {
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.CREDIT);
-				await super.createAndClassifySubIncident(null, false);
+				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
@@ -681,7 +681,7 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 
 		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -883,7 +883,7 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 
 		const request = {
 			accountNumber: selectedAccountDetails.accountNumber,
@@ -1265,7 +1265,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _disputeOutcome(event) {
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.createAndClassifySubIncident();
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});

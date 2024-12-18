@@ -129,7 +129,7 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.createAndClassifySubIncident();
 		const returnValue = await this.cardService.stopCards(this.failedCards, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {

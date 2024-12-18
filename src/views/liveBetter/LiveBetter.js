@@ -153,7 +153,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
-		await super.createAndClassifySubIncident();
+		this.createAndClassifySubIncident();
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
@@ -373,7 +373,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this._updateLeftBar();
 
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.LBB);
-				await super.createAndClassifySubIncident(null, false);
+				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
@@ -406,7 +406,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 

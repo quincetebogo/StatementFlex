@@ -387,7 +387,7 @@ export class Favourites extends SavingsAccountBase {
 	async _getSubCategories(event) {
 		const currentIncident = this.horizonIncidentManager.currentIncident;
 		if (!currentIncident) {
-			await super.createAndClassifySubIncident();
+			await this.createAndClassifySubIncident();
 		}
 
 		this._updateNeedToState(event.detail.category);
@@ -705,7 +705,7 @@ export class Favourites extends SavingsAccountBase {
 	async _sendCash() {
 		this.sendCashVouchers = await this._getSendCashVouchers();
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.SEND_CASH;
 	}
 
@@ -718,7 +718,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this.payShapDetails = await this._getPayShapDetails();
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.PAYSHAP;
 		this._telemetry.startSpan(QuickTransactionEvents.PAY_SHAP);
 	}
@@ -848,7 +848,7 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
-		await super.createAndClassifySubIncident();
+		await this.createAndClassifySubIncident();
 
 		this.endCallContext = `SearchOtherNeed`;
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
@@ -941,7 +941,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubIncident();
+		await this.createAndClassifySubIncident();
 		return true;
 	}
 
@@ -1154,7 +1154,7 @@ export class Favourites extends SavingsAccountBase {
 		// service call to get list of cards
 		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 
 		if (returnValue.succeeded) {
 			this.cardsList = returnValue.result.cards;

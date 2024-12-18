@@ -119,13 +119,13 @@ export class StopCardLandingPage extends ViewBase {
 	}
 
 	async _cardHistory(_event) {
-		this._telemetry.logEvent(QuickTransactionEvents.CARD_HISTORY, { 
+		this._telemetry.logEvent(QuickTransactionEvents.CARD_HISTORY, {
 			"screen": TelemetryScreen.STOP_CARD,
 			"next-screen": TelemetryScreen.CARD_HISTORY_PAGE
 		});
 
 		this.horizonIncidentManager.setCurrentNeed(`card-history`);
-		await super.createAndClassifySubIncident();
+		await this.createAndClassifySubIncident();
 
 		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.horizonIncidentManager.getIncidentDetails());
 

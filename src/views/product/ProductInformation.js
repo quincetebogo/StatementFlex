@@ -135,7 +135,7 @@ export class ProductInformation extends ViewBase {
 
 		if (this._config) {
 			this.horizonIncidentManager.setCurrentNeed(this._config.product);
-			await super.createAndClassifySubIncident(null, false);
+			await this.createAndClassifySubIncident(null, false);
 		} else {
 			this._config = CONFIG.SavingsAccount;
 		}

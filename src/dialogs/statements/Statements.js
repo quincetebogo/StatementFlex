@@ -3,6 +3,7 @@ import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { RENDER_MODE, TIME_PERIOD } from 'app/constants/Statements';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
 import { CreditService } from 'app/services/CreditService';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -42,6 +43,7 @@ export class Statements extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.selectedProduct = {};
@@ -430,7 +432,7 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await super.createAndClassifySubIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 

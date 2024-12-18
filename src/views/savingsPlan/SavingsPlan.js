@@ -73,7 +73,7 @@ const UNLOCK_TYPE = {
  */
 
 export class SavingsPlan extends ViewBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -85,7 +85,7 @@ export class SavingsPlan extends ViewBase {
 		this.configuration = Configuration.getInstance();
 		this.roleManager = RoleManager.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-			
+
 		// private properites
 		this.selectedAccountNumber = ``;
 		this.taxCertType = ``;
@@ -96,23 +96,23 @@ export class SavingsPlan extends ViewBase {
 		this.savingsService = new SavingsService(() => super._toggleBusyFlag(), ex => this._savingsServiceErrorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.accountViewType = ``;
-		
+
 		this.eventAggregator = EventAggregator.getInstance();
-		
+
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option, null, null, null, true));
-	
+
 		Object.assign(SavingsPlan.prototype, alertBannerMixin);
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		
+
 		this._initialise();
 
 		this._optionClick = (option, savePlanDetails, sendAnother = false) => {
@@ -158,7 +158,7 @@ export class SavingsPlan extends ViewBase {
 			alertBannerMessage: { state: true }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -169,7 +169,7 @@ export class SavingsPlan extends ViewBase {
 		});
 		this._verifyClick();
 	}
-	
+
 	async _clientVerified(event) {
 		super._clientVerified(event);
 
@@ -197,9 +197,9 @@ export class SavingsPlan extends ViewBase {
 
 		if (saveProducts[this.accountViewType]) {
 			this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
-			
-			await super.createAndClassifySubIncident(null, false);
-			
+
+			await this.createAndClassifySubIncident(null, false);
+
 			this.endCallContext = `BalanceEnquiry`;
 			return saveProducts[this.accountViewType]();
 		}
@@ -208,7 +208,7 @@ export class SavingsPlan extends ViewBase {
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// N/A
 
 	// ---------------
@@ -218,9 +218,9 @@ export class SavingsPlan extends ViewBase {
 	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		
+
 		if (this.verificationStatus === `verified`) {
-			
+
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -228,7 +228,7 @@ export class SavingsPlan extends ViewBase {
 			};
 
 			const returnValue = await this.savingsService.savingsPlanLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-			 
+
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to retrieve client Savings plan details from service.`, `_initialise`, returnValue.correlationId);
 				this.renderMode = RENDER_MODE.SERVICE_UNAVAILABLE;
@@ -236,23 +236,23 @@ export class SavingsPlan extends ViewBase {
 			}
 
 			if (returnValue.succeeded && returnValue.result) {
-                this.landingPageInfo = returnValue.result;
+				this.landingPageInfo = returnValue.result;
 				this.savingsPlanDetails = returnValue.result.savingsPlans;
 				this._formatSavingsPlanDetails();
 
 				this._updateLeftBar();
-				
+
 				if (this.savingsPlanDetails.length === 0) {
 					this.horizonRouter.navigateToProductInfo(`SavingsPlan`);
 					return;
 				}
 
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
-				await super.createAndClassifySubIncident(null, false);
+				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
-			} 
+			}
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
 				"screen": TelemetryScreen.SAVINGS_PLAN_LANDING
@@ -321,7 +321,7 @@ export class SavingsPlan extends ViewBase {
 			item.dateOpened = this._formatDate(item.dateOpened);
 			item.dateFixed = this._formatDate(item.dateFixed);
 			item.lastUpdate = this._formatDate(item.lastUpdate);
-			
+
 			item.planName = formatStringAsPascalCase(item.planName);
 			item.depositeType = `${formatStringAsPascalCase(item.planType)} ${item.interestOption === `R` ? `- Reinvest` : ``}`;
 			item.accountStatus = formatStringAsPascalCase(item.accountStatus);
@@ -360,14 +360,14 @@ export class SavingsPlan extends ViewBase {
 		});
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-	
+
 	_getStatements(accNumber, sendAnother) {
 		if (sendAnother) {
 			return true;
 		}
-		
+
 		const accountDetails = this.savingsPlanDetails.find(savingsPlan => savingsPlan.accountNumber === accNumber);
-	
+
 		const productInfo = ACCOUNT_INTCAT_ENUM[accountDetails.accountType][accountDetails.interestCategory] || ACCOUNT_INTCAT_ENUM[accountDetails.accountType];
 		const accName = accountDetails.planName.toLowerCase();
 
@@ -453,7 +453,7 @@ export class SavingsPlan extends ViewBase {
 		this.horizonIncidentManager.setCurrentNeed(need);
 		this.savePlanDetails = savePlanDetails;
 
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -472,17 +472,17 @@ export class SavingsPlan extends ViewBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const date = new Date(Date.parse(item.transactionDate));
-							
-										item.description = item.statementDescription;
-										item.tranDate = date;
-										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										item.formatedBalance = formatCurrency(item.balance);
-							
-										return item;
-									});
+				.map((item) => {
+					const date = new Date(Date.parse(item.transactionDate));
+
+					item.description = item.statementDescription;
+					item.tranDate = date;
+					item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+					item.formatedAmount = formatCurrency(item.amount);
+					item.formatedBalance = formatCurrency(item.balance);
+
+					return item;
+				});
 			this.transactionHistory.push(...formattedTrans);
 
 			this.accountDetails = {
@@ -502,7 +502,7 @@ export class SavingsPlan extends ViewBase {
 
 		// await super._inicidentManager_(need, () => this._toggleBusyFlag());
 	}
-	
+
 	_getFlexibleSavePlan(accNumber) {
 		// TO DO: "flexibleAccountDetails" details to be pulled and formated from services
 		this.flexibleAccountDetails = this.savingsPlanDetails.find(item => item.accountNumber === accNumber);
@@ -535,7 +535,7 @@ export class SavingsPlan extends ViewBase {
 	async _unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-		
+
 		await super.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
@@ -543,7 +543,7 @@ export class SavingsPlan extends ViewBase {
 
 	async _setTranHistoryDone() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+
 		this._setIncidentDone();
 	}
 
@@ -556,10 +556,10 @@ export class SavingsPlan extends ViewBase {
 
 		// Get list of fixed term savings plan accounts as "from accounts" for unlocking or transfering funds.
 		this.unlockFromAccountsList = this._getUnlockFromAccounts();
-		
+
 		// Get primary savings account as "to account" for unclocking or transfering FTSP funds.
 		this.unlockToAccountsList = await this._getUnlockToAccount();
-		
+
 		this.unlockOptions = await this._getUnlockOptions(accountNumber);
 
 		this.horizonStore.clearScreenDetails();
@@ -573,38 +573,38 @@ export class SavingsPlan extends ViewBase {
 		this.horizonStore.setScreenDetails({ unlockAccountNumber: this.selectedUnlockAccNumber });
 
 		// check if we need to log incident for try again also
-		await super.createAndClassifySubIncident(null, false);
+		await this.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
 	}
 
 	_getUnlockFromAccounts() {
 		const fromAccounts = this.savingsPlanDetails
-								.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
-								.map(item => {
-										const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-															ACCOUNT_INTCAT_ENUM[item.accountType];
-										
-										return {
-											'accountNumber': item.accountNumber,
-											'accountName': formatStringAsPascalCase(item.planName),
-											'availableBalance': formatCurrency(item.currentBalance),
-											'accountType': item.accountType,
-											'unlockBalance': item.unlockBalance,
-											'icon': productInfo.icon,
-											'order': productInfo.order
-										};
-									})
-								.sort((x, y) => x.order - y.order);
+			.filter(item => item.accountType === ACCOUNT_TYPE_CODE.FIXED_TERM_SAVINGS_PLAN)
+			.map(item => {
+				const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] ||
+					ACCOUNT_INTCAT_ENUM[item.accountType];
+
+				return {
+					'accountNumber': item.accountNumber,
+					'accountName': formatStringAsPascalCase(item.planName),
+					'availableBalance': formatCurrency(item.currentBalance),
+					'accountType': item.accountType,
+					'unlockBalance': item.unlockBalance,
+					'icon': productInfo.icon,
+					'order': productInfo.order
+				};
+			})
+			.sort((x, y) => x.order - y.order);
 		return fromAccounts;
 	}
 
 	async _getUnlockOptions(accNumber) {
 
 		const unlockOptionsAccountList = this.unlockFromAccountsList
-											.filter(acc => acc.accountNumber === accNumber)
-											.map(account => ({
-													'accountNumber': account.accountNumber 
-												}));
+			.filter(acc => acc.accountNumber === accNumber)
+			.map(account => ({
+				'accountNumber': account.accountNumber
+			}));
 
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
@@ -619,7 +619,7 @@ export class SavingsPlan extends ViewBase {
 			});
 
 			const unlockOptionsInCents = returnValue.result.unlockOptions;
-			
+
 			const unlockOptionsInRands = unlockOptionsInCents.map(item => {
 				item.partialUnlockAmount /= 100; // Convert cents to rands
 				return item;
@@ -633,39 +633,39 @@ export class SavingsPlan extends ViewBase {
 
 	}
 
-    async _getUnlockToAccount() {
-        const request = {
-            cifNumber: this.callerInformation.cifNumber,
-            status: `OPEN`
-        };
-        const returnValue = await this.savingsService.getClientProducts(request);
+	async _getUnlockToAccount() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.savingsService.getClientProducts(request);
 
-        if (returnValue.succeeded) {
+		if (returnValue.succeeded) {
 
-            const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
-            const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
-            return [
-                {
-                    'accountNumber': primarySavings.accountNumber,
-                    'accountName': formatStringAsPascalCase(primarySavings.accountName),
-                    'accountType': primarySavings.accountType,
-                    'availableBalance': formatCurrency(primarySavings.availableBalance),
-                    'icon': productInfo.icon
-                }
-            ];
-        }
-        return [];
+			const [primarySavings] = returnValue.result.savingsProducts.filter(item => item.accountType === 300);
+			const productInfo = ACCOUNT_INTCAT_ENUM[primarySavings.accountType];
+			return [
+				{
+					'accountNumber': primarySavings.accountNumber,
+					'accountName': formatStringAsPascalCase(primarySavings.accountName),
+					'accountType': primarySavings.accountType,
+					'availableBalance': formatCurrency(primarySavings.availableBalance),
+					'icon': productInfo.icon
+				}
+			];
+		}
+		return [];
 	}
 
 	async _getUnlockQuote(unlockType, accNumber, partialUnlockAmount) {
 
 		const request = {
-				cifNumber: this.callerInformation.cifNumber,
-				accountNumber: accNumber,
-				partialUnlockAmount: parseInt(partialUnlockAmount * 100, 10), // Convert rands to cents
-				unlockType: UNLOCK_TYPE[unlockType],
-				channel: `HORIZON`
-			};
+			cifNumber: this.callerInformation.cifNumber,
+			accountNumber: accNumber,
+			partialUnlockAmount: parseInt(partialUnlockAmount * 100, 10), // Convert rands to cents
+			unlockType: UNLOCK_TYPE[unlockType],
+			channel: `HORIZON`
+		};
 
 		const returnValue = await this.savingsService.ftspUnlockQuote(request);
 
@@ -675,12 +675,12 @@ export class SavingsPlan extends ViewBase {
 			// Convert cents to rands
 			quoteDetails.unlockFee = parseInt(quoteDetails.unlockFee, 10) / 100;
 			quoteDetails.balanceAfterUnlock = parseInt(quoteDetails.balanceAfterUnlock, 10) / 100;
-			
+
 			this.horizonIncidentManager.setDescription(`Type: ${unlockType}\nFTSP account number: ${accNumber}\nUnlock amount: ` +
-			`${formatCurrency(partialUnlockAmount)}\nPenalty Fee: ${formatCurrency(quoteDetails.unlockFee)}`);
+				`${formatCurrency(partialUnlockAmount)}\nPenalty Fee: ${formatCurrency(quoteDetails.unlockFee)}`);
 
 			return quoteDetails;
-		} 
+		}
 
 		this.logger.log(`error`, `Failed to retrieve unlock options quote for the selected FTSP from service.`, `_getUnlockQuote`, returnValue.correlationId);
 
@@ -695,13 +695,13 @@ export class SavingsPlan extends ViewBase {
 		};
 
 		const returnValue = await this.savingsService.ftspUnlockAgreement(request);
-		
+
 		if (returnValue.succeeded && returnValue.result) {
 			this.encodedUnlockDocument = returnValue.result.agreementContent.data;
 			this.unlockFromAccountName = event.detail.selectedAccount.accountName;
 			return;
-		} 
-		
+		}
+
 		this.logger.log(`error`, `Failed to view unlock quote agreement for the selected FTSP from service.`, `_getUnlockAgreement`, returnValue.correlationId);
 
 	}
@@ -733,7 +733,7 @@ export class SavingsPlan extends ViewBase {
 		// Updating current need to be specific to unlock Type ie; Full or Partial unlock to classify an incident based on type.
 		const need = UNLOCK_TYPE[event.detail.unlockType] === `Full` ? `full-ftsp-unlock` : `partial-ftsp-unlock`;
 		this.horizonIncidentManager.setCurrentNeed(need);
-			
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		screenDetails.unlockAccountName = event.detail.selectedFromAccount.accountName;
@@ -743,8 +743,8 @@ export class SavingsPlan extends ViewBase {
 		screenDetails.penaltyFee = event.detail.penaltyFee;
 		screenDetails.unlockBalance = event.detail.unlockBalance;
 		screenDetails.balancePostUnlock = screenDetails.unlockType === `Full`
-											? 0
-											: event.detail.unlockBalance - event.detail.unlockAmount - event.detail.penaltyFee;
+			? 0
+			: event.detail.unlockBalance - event.detail.unlockAmount - event.detail.penaltyFee;
 
 		this.horizonStore.setScreenDetails(screenDetails);
 
@@ -791,7 +791,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	async _unloadingUnlockFTSP(details) {
-		
+
 		if (this.horizonIncidentManager.getCurrentNeed() === `unlock-ftsp-save`) {
 			await super.classifyIncident(() => this._toggleBusyFlag());
 			this._setIncidentDone();
@@ -825,7 +825,7 @@ export class SavingsPlan extends ViewBase {
 	 * @static
 	 * @returns {css} CSS for the view.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -862,18 +862,18 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_renderLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE || 
-				this.renderMode === RENDER_MODE.STATEMENTS ||
-				this.renderMode === RENDER_MODE.TAX_CERTIFICATE
+		return this.renderMode === RENDER_MODE.MAIN_PAGE ||
+			this.renderMode === RENDER_MODE.STATEMENTS ||
+			this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 			? html`
 				${this._renderSavingsPlanVerifiedLandingPage()}
 				${this._renderSavingsPlanUnverifiedPage()}`
 			: html``;
 	}
-	
+
 	_renderSavingsPlanVerifiedLandingPage() {
-		return this.verificationStatus === `verified` 
-		? html`
+		return this.verificationStatus === `verified`
+			? html`
 			<capitec-pc-savings-plan
 				.savingsPlanDetails="${this.savingsPlanDetails}"
 				.renderAlertBanner="${() => this._renderAlertBanner()}"
@@ -886,12 +886,12 @@ export class SavingsPlan extends ViewBase {
 				@view-info="${() => this._productEnquiry()}"
 				@account-details="${(e) => this._accountDetails(e.detail.accountType, e.detail.accountNumber)}">
 			</capitec-pc-savings-plan>`
-		: html``;
+			: html``;
 	}
 
 	_renderAlertBanner() {
 		return this.alertBannerMessage
-		? html`
+			? html`
 			<capitec-alert-banner type="unsuccessful-red">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
 					<capitec-label
@@ -903,7 +903,7 @@ export class SavingsPlan extends ViewBase {
 					</capitec-label>
 				</capitec-group>
 			</capitec-alert-banner>`
-		: html``;
+			: html``;
 	}
 
 	_renderSavingsPlanUnverifiedPage() {
@@ -929,7 +929,7 @@ export class SavingsPlan extends ViewBase {
 
 	_renderFlexibleDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === SAVE_PLAN_TYPE.FLEXIBLE
+			this.accountViewType === SAVE_PLAN_TYPE.FLEXIBLE
 			? html`
 				<capitec-flexible-savings-plan-details
 					.flexibleAccountDetails="${this.flexibleAccountDetails}"
@@ -942,7 +942,7 @@ export class SavingsPlan extends ViewBase {
 
 	_renderFixedTermDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === SAVE_PLAN_TYPE.FIXED_TERM
+			this.accountViewType === SAVE_PLAN_TYPE.FIXED_TERM
 			? html`
 				<capitec-fixed-term-savings-plan-details
 					.fixedTermAccountDetails="${this.fixedTermAccountDetails}"
@@ -954,7 +954,7 @@ export class SavingsPlan extends ViewBase {
 
 	_renderNoticeDetailsView() {
 		return this.renderMode === RENDER_MODE.ACCOUNT_DETAIL_VIEW &&
-				this.accountViewType === SAVE_PLAN_TYPE.NOTICE_DEPOSIT
+			this.accountViewType === SAVE_PLAN_TYPE.NOTICE_DEPOSIT
 			? html`
 				<capitec-notice-deposits-plan-details
 					.noticeAccountDetails="${this.noticeAccountDetails}"
@@ -997,12 +997,12 @@ export class SavingsPlan extends ViewBase {
 
 	_renderTaxCertificateNotAvailable() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
-		? html`
+			? html`
 			<horizon-tax-certificate-landing
 				@back="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate-landing>
 			`
-		: html``;
+			: html``;
 	}
 
 	_renderTransactionHistory() {
@@ -1149,7 +1149,7 @@ export class SavingsPlan extends ViewBase {
 
 	_renderUnlockFTSP() {
 		return this.renderMode === RENDER_MODE.UNLOCK_FTSP || this.renderMode === RENDER_MODE.PDF
-		? html`
+			? html`
 			<capitec-pc-unlock-ftsp
 				selectedUnlockAccNumber="${this.selectedUnlockAccNumber}"
 				.unlockOptions="${this.unlockOptions}"
@@ -1179,18 +1179,18 @@ export class SavingsPlan extends ViewBase {
 				@select-transfer-telemetry="${() => this._selectTransferTelemetry()}"
 				@cancel-transfer-telemetry="${() => this._cancelTransferTelemetry()}">
 			</capitec-pc-unlock-ftsp>`
-		: html``;
+			: html``;
 	}
 
 	_renderViewUnlockDocument() {
 		return this.renderMode === RENDER_MODE.PDF
-		? html`
+			? html`
 			<horizon-pdf-viewer
 				header="Agreement"
 				encodedPDF="${this.encodedUnlockDocument}"
 				@cancel="${() => this.renderMode = RENDER_MODE.UNLOCK_FTSP}">
 			</horizon-pdf-viewer>`
-		: html``;
+			: html``;
 	}
 }
 

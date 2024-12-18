@@ -280,7 +280,7 @@ export class ViewBase extends View {
 	// --------------
 
 	async createAndClassifySubIncident(incidentCategorization, classify) {
-		await super.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
+		await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
 	}
 
 	_performReturnToScreen() {

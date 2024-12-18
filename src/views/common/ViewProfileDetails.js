@@ -52,7 +52,7 @@ export class ViewProfileDetails extends ViewBase {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -88,7 +88,7 @@ export class ViewProfileDetails extends ViewBase {
 	_updateProfileDetails() {
 		this.showUpdatePreferenceModal = true;
 	}
-	
+
 	_getSelectedTab(e) {
 		this.selectedTab = DETAILS_TAB[e.detail.selectedIndex];
 	}
@@ -103,7 +103,7 @@ export class ViewProfileDetails extends ViewBase {
 		if (details.preferredlanguage && details.ficaDetails) {
 			// When trying to update Preferred language and FICA details
 			this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
-		
+
 			serviceCalls.push(this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber));
 			serviceCalls.push(this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber));
 
@@ -118,7 +118,7 @@ export class ViewProfileDetails extends ViewBase {
 		} else if (details.preferredlanguage) {
 			// When trying to update only Preferred language
 			this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
-			
+
 			const isLanguageUpdated = await this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber);
 			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
 		} else if (details.ficaDetails) {
@@ -130,10 +130,10 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _updateClientFICADetails(updatedDetails, isUpdateSuccess) {
 		await this._createClassifyAndUpdateIncident(`update-fica-details`, isUpdateSuccess);
-		
+
 		this._showHideToast(isUpdateSuccess, `fica`);
 		this.showUpdatePreferenceModal = false;
-		
+
 		if (isUpdateSuccess) {
 			Object.keys(updatedDetails).map(key => this.clientFICADetails[key] = updatedDetails[key]);
 			this._formatProfileData();
@@ -143,7 +143,7 @@ export class ViewProfileDetails extends ViewBase {
 	_updateClientPreferences(preferredlanguage, isUpdateSuccess) {
 		this._showHideToast(isUpdateSuccess, `language`);
 		this.showUpdatePreferenceModal = false;
-		
+
 		if (isUpdateSuccess) {
 			this.callerInformation.languagePreference = preferredlanguage;
 			this.horizonStore.setCallerInformation(this.callerInformation);
@@ -153,11 +153,11 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _createClassifyAndUpdateIncident(need, succeeded) {
 		this.horizonIncidentMAnager.setCurrentNeed(need);
-		await super.createAndClassifySubIncident(null);
+		await this.createAndClassifySubIncident();
 
-		this.horizonIncidentManager.incidentState = succeeded 
-													? super.HORIZON_NEED_STATUS.COMPLETED 
-													: super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonIncidentManager.incidentState = succeeded
+			? super.HORIZON_NEED_STATUS.COMPLETED
+			: super.HORIZON_NEED_STATUS.FAILED;
 	}
 
 	_showHideToast(success, toastType) {
@@ -180,8 +180,8 @@ export class ViewProfileDetails extends ViewBase {
 		const returnValue = await this.clientProfileService.getEmployer(searchValue);
 		if (returnValue.succeeded) {
 			return returnValue; // return employer list
-		} 
-			return null;
+		}
+		return null;
 	}
 
 	// --------------
@@ -202,7 +202,7 @@ export class ViewProfileDetails extends ViewBase {
 			this._formatProfileData();
 
 			this.horizonIncidentManager.setCurrentNeed(`fica-details-enquiry`);
-			await super.createAndClassifySubIncident(null, false);
+			await this.createAndClassifySubIncident(null, false);
 		} else {
 			this.horizonRouter.navigateToSystemError();
 		}
@@ -219,14 +219,14 @@ export class ViewProfileDetails extends ViewBase {
 		*/
 		const employmentType = employmentStatus ? getValue(EMPLOYMENT_TYPE[employmentStatus], details.employmentType) : ``;
 		let employerName = details.employerName;
-		
+
 		if (INVALID_VALUE.EMPLOYER_NAME.includes(details.employerName) || (details.employmentStatus !== `EMPLOYED` && details.employerName?.replaceAll(`_`, ` `)?.toLowerCase() !== employmentStatus?.toLowerCase())) {
 			employerName = ``;
 		}
-	
+
 		const industryCode = getValue(INDUSTRY_CODE, details.industryCode);
 		const sourceOfFunds = employmentStatus ? getValue(SOURCE_FUNDS[employmentStatus], details.sourceOfFunds) : ``;
-		
+
 		this.clientDetails = {
 			[DETAILS_TYPE.PREFERENCES]: {
 				"Preferred Language": getValue(LANGUAGE_LIST, this.callerInformation.languagePreference) || this.callerInformation.languagePreference
@@ -418,9 +418,9 @@ export class ViewProfileDetails extends ViewBase {
 					data-automation-id="view-profile-client-details-tab"
 					label="Client Details">
 					${Object.entries(this.clientDetails).map(detail => {
-						const [header, fields] = detail;
-					
-						return html`<capitec-title-bar
+			const [header, fields] = detail;
+
+			return html`<capitec-title-bar
 								type="default"
 								label=${header}
 								class="other-options">
@@ -433,7 +433,7 @@ export class ViewProfileDetails extends ViewBase {
 								wrap>
 									${this._renderFields(fields)}
 							</capitec-group>`;
-					})}
+		})}
 						
 			</capitec-tab>
 		`;
@@ -466,7 +466,7 @@ export class ViewProfileDetails extends ViewBase {
 
 	_renderUpdateProfileDetailsModal() {
 		return this.showUpdatePreferenceModal
-		? html`
+			? html`
 			<horizon-update-profile-details
 				header="${this.selectedTab}"
 				.clientDetails="${this.clientDetails}"
@@ -474,12 +474,12 @@ export class ViewProfileDetails extends ViewBase {
 				@cancel="${() => this.showUpdatePreferenceModal = false}"
 				@update-details="${(e) => this._updateClientDetails(e.detail)}">
 			</horizon-update-profile-details>`
-		: html``;
+			: html``;
 	}
-	
+
 	_renderToast(displayToast, details) {
 		return displayToast
-		? html`
+			? html`
 			<capitec-toast 
 				class="${details.detail === TOAST.success.fica || details.detail === TOAST.error.fica ? `secondary-toast` : ``}"
 				?hidden="${!displayToast}"
@@ -489,11 +489,11 @@ export class ViewProfileDetails extends ViewBase {
 				@click="${() => displayToast = false}"
 				closable >
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
+		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
