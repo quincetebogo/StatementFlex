@@ -333,7 +333,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -558,7 +558,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _setTranHistoryDone() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}

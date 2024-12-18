@@ -61,7 +61,7 @@ export class ViewProfileDetails extends ViewBase {
 
 	async disconnectedCallback() {
 		if (this.horizonIncidentManager.incidentDetails.currentNeed === `fica-details-enquiry`) {
-			await super.classifyIncident(() => this._toggleBusyFlag());
+			await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
 

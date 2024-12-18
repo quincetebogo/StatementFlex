@@ -286,13 +286,6 @@ export class HorizonIncidentManager {
 		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 
-		Component.prototype.handleMultipleNeed = (clientNeed, toggleBusyFlag) => this.handleMultipleNeed(clientNeed, toggleBusyFlag);
-		Component.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
-		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
-
-		View.prototype.handleMultipleNeed = (clientNeed, toggleBusyFlag) => this.handleMultipleNeed(clientNeed, toggleBusyFlag);
-		View.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
-		View.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
 	}
 
 	async handleMultipleNeed(clientNeed, toggleBusyFlag) {

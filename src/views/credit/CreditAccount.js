@@ -757,7 +757,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 	}
 
@@ -770,7 +770,7 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this.horizonStore.clearScreenDetails();
 		this._setIncidentDone();

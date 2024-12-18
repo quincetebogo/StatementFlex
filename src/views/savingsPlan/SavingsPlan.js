@@ -536,13 +536,13 @@ export class SavingsPlan extends ViewBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
 
 	async _setTranHistoryDone() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -793,7 +793,7 @@ export class SavingsPlan extends ViewBase {
 	async _unloadingUnlockFTSP(details) {
 
 		if (this.horizonIncidentManager.getCurrentNeed() === `unlock-ftsp-save`) {
-			await super.classifyIncident(() => this._toggleBusyFlag());
+			await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 			this._setIncidentDone();
 		}
 	}

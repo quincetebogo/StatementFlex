@@ -252,7 +252,7 @@ export class Favourites extends SavingsAccountBase {
 			endCallReason: selectedOption
 		};
 
-		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag(), () => this._errorHandler());
+		const isSuccess = await this.horizonIncidentManager.closeIncident(options, () => this._toggleBusyFlag(), () => this._errorHandler());
 
 		if (isSuccess) {
 			// Navigate to favourites landing page
@@ -937,7 +937,7 @@ export class Favourites extends SavingsAccountBase {
 			issue: `${event.detail.issue}`
 		};
 
-		await super.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
 	}
 
 	async _createIncidentOnError() {
@@ -966,7 +966,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onExitSendCash() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -977,7 +977,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onUnloadingSendCash() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -1093,7 +1093,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _unloadingPayshap() {
 		if (this.horizonIncidentManager.currentIncident === `payshap`) {
-			await super.classifyIncident(() => this._toggleBusyFlag());
+			await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 			this._setIncidentDone();
 		}
 
@@ -1194,7 +1194,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _exitCardSettings() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
