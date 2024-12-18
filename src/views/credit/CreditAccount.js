@@ -284,7 +284,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super.handleMultipleNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType], () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
 		await this.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();

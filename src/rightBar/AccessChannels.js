@@ -628,7 +628,7 @@ export class AccessChannels extends Component {
 	}
 
 	async _confirmSuspend(request, need) {
-		await super.handleMultipleNeed(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
 		});
