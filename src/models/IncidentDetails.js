@@ -5,7 +5,7 @@
  * @export
  * @class IncidentDetails
  */
- export class IncidentDetails {
+export class IncidentDetails {
 
 	/**
 	 * Creates an instance of IncidentDetails.
@@ -25,7 +25,10 @@
 		primaryIncident = null,
 		currentNeed = ``,
 		previousNeed = ``,
+		/* Changed during incident management refactor
 		incidentState = `Not Started`,
+		*/
+		incidentState = undefined,
 		feedback = ``,
 		isReassigned = false,
 		incCreated = true,

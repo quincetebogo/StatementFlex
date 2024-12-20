@@ -26,10 +26,10 @@ export class StatementsSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	get incidentDescription() {
 		let accountName = ``;
-		
+
 		if (this.productType === ACCOUNT_TYPES.SAVINGS_PLAN) {
 			accountName = `Account Name: ${this.accName}\n`;
 		}
@@ -43,7 +43,7 @@ export class StatementsSuccess extends ViewBase {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
@@ -60,7 +60,7 @@ export class StatementsSuccess extends ViewBase {
 
 	async disconnectedCallback() {
 		super.disconnectedCallback();
-		
+
 		await this._telemetry.endSpan(this.telemetryEvent.STATEMENTS_SUCCESS, {}, true, true);
 	}
 
@@ -76,7 +76,7 @@ export class StatementsSuccess extends ViewBase {
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``);
-		
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -94,7 +94,9 @@ export class StatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -153,7 +155,7 @@ export class StatementsSuccess extends ViewBase {
 			</horizon-related-options>
 		`;
 	}
-	
+
 }
 
 customElements.define(`horizon-statements-success`, StatementsSuccess);

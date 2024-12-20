@@ -28,7 +28,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-			
+
 		};
 	}
 
@@ -39,7 +39,10 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const limitDetails = screenDetails.limitDetails;
 
@@ -72,9 +75,11 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING
@@ -138,8 +143,8 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				class="id-update-msg" 
 				slot="sub-detail">
 					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
-						? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
-						: `is deactivated`}.
+				? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+				: `is deactivated`}.
 			</section>`;
 	}
 

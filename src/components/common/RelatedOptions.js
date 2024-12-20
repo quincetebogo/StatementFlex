@@ -172,11 +172,14 @@ export class RelatedOptions extends Component {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.incidentState;
+		/* Removed in incident manager refactor
 
+		const incidentState = this.horizonIncidentManager.incidentState;
+		
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+		*/
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

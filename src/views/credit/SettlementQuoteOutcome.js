@@ -33,7 +33,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	/**
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @readonly
@@ -57,14 +57,14 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 		this.emailStatus = this.screenDetails && this.screenDetails.emailStatus;
 		this.failedAccounts = this.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.succeededAccounts = this.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
-		
+
 		this._telemetry.startSpan(SETTLEMENT_QUOTE_EVENTS.SETTLEMENT_QUOTE_PARTIAL_SUCCESS, {
 			"settlement-quote-outcome": this.emailStatus
 		});
@@ -110,23 +110,25 @@ export class SettlementQuoteOutcome extends ViewBase {
 
 		this.horizonRouter.navigateToReturnPage();
 	}
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
 	_getOutcomeDetails() {
-			this.header = `Some settlement quote(s) did not send`;
-			this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
-			this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
-			this.successDetail = html`Settlement quote for<b>${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
-			this.failureDetails = html`Settlement quote for<b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
-		}
+		this.header = `Some settlement quote(s) did not send`;
+		this.toast = `Settlement quote${this._formateToastDetails(this.succeededAccounts)} was sent`;
+		this.secondaryToast = `Settlement quote${this._formateToastDetails(this.failedAccounts)} was not sent`;
+		this.successDetail = html`Settlement quote for<b>${this._formateAccountNames(this.succeededAccounts)}</b> was emailed to <b>${this.emailAddress}</b>`;
+		this.failureDetails = html`Settlement quote for<b>${this._formateAccountNames(this.failedAccounts)}</b> was not emailed to <b>${this.emailAddress}</b>`;
+	}
 
 	_formateToastDetails(accounts) {
 		if (accounts.length === 1) {
@@ -244,8 +246,8 @@ export class SettlementQuoteOutcome extends ViewBase {
 	}
 
 	_renderSuccessToast() {
-		return this.toast 
-		? html`
+		return this.toast
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="success"
@@ -254,7 +256,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderFailureToast() {
@@ -269,7 +271,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -288,8 +290,8 @@ export class SettlementQuoteOutcome extends ViewBase {
 	}
 
 	_renderSuccessDetails() {
-		return this.successDetail 
-		? html`
+		return this.successDetail
+			? html`
 		<capitec-group layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
@@ -297,12 +299,12 @@ export class SettlementQuoteOutcome extends ViewBase {
 			</capitec-icon>
 			${this.successDetail}
 		</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_returnFailureDetails() {
 		return this.failureDetails
-		? html`
+			? html`
 			<capitec-group class="subdetail-group" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
@@ -310,7 +312,7 @@ export class SettlementQuoteOutcome extends ViewBase {
 				</capitec-icon>
 				${this.failureDetails}
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderButtonGroup() {

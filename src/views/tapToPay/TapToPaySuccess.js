@@ -42,7 +42,9 @@ export class TapToPaySuccess extends ViewBase {
 		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayStatus;
 		this.cardMaskedNumber = screenDetails.tapToPayDetails.cardMaskedNumber;
 		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	disconnectedCallback() {
@@ -80,9 +82,11 @@ export class TapToPaySuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING
@@ -132,9 +136,9 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON` 
-							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
-							: `is deactivated`}.
+							The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON`
+				? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+				: `is deactivated`}.
 					</section>
 			</horizon-success-screen>
 		`;

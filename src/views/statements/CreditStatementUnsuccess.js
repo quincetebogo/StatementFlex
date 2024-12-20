@@ -40,7 +40,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 			accountName: { state: false, attribute: false }
 		};
 	}
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -53,14 +53,16 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		});
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
-		
+
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
 		this.accountName = this.screenDetails && this.screenDetails.accountType;
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
-		
+
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 
@@ -87,7 +89,9 @@ export class CreditStatementsUnsuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 
+		/* Removed during incident mangagement refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 		this.horizonStore.clearReturnScreen();
 	}

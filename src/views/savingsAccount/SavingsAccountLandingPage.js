@@ -418,7 +418,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
+		/* Remove during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		*/
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 

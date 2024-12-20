@@ -13,7 +13,7 @@ import 'app/components/common/RelatedOptions';
  * @class SendCashSuccess
  * @extends {ViewBase}
  */
- export class SendCashSuccess extends ViewBase {
+export class SendCashSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -44,7 +44,9 @@ import 'app/components/common/RelatedOptions';
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.selectedReason = screenDetails.sendCashSelectedReason;
 
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	disconnectedCallback() {
@@ -68,9 +70,11 @@ import 'app/components/common/RelatedOptions';
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING

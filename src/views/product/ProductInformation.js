@@ -87,6 +87,7 @@ export class ProductInformation extends ViewBase {
 
 		super.disconnectedCallback();
 
+		/* Removed during incident management refactor
 		const incidentState = this.horizonIncidentManager.incidentState;
 
 		// Rule: When unloading any of the product info screen, if the current active incident is not completed/ closed
@@ -94,6 +95,7 @@ export class ProductInformation extends ViewBase {
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED && incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+		*/
 	}
 
 	// ---------
@@ -115,7 +117,9 @@ export class ProductInformation extends ViewBase {
 
 		window.open(`${productUrl}/`);
 
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 
@@ -147,9 +151,11 @@ export class ProductInformation extends ViewBase {
 		this.isBusy = !this.isBusy;
 	}
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING

@@ -56,7 +56,9 @@ export class TaxCertificateServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({ taxCertificate: null });
 		this.horizonStore.clearReturnScreen();
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	// --------------
@@ -66,7 +68,7 @@ export class TaxCertificateServiceError extends ViewBase {
 	async _findBranchClick() {
 		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
 		window.open(`${branchLocatorUrl}`);
-		
+
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_FIND_BRANCH, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": TelemetryScreen.FAVOURITES

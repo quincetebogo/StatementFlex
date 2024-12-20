@@ -36,12 +36,15 @@ export class AutomaticSavingsFailure extends ViewBase {
 		this.LBSADetails = this.screenDetails.LBSADetails;
 
 		this.hasRoundupChanged = !isNullorEmpty(this.updatedLBSADetails?.accountRoundUpActive) ||
-								 Boolean(this.updatedLBSADetails?.roundUpValue) ||
-								 Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
+			Boolean(this.updatedLBSADetails?.roundUpValue) ||
+			Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
 		this.hasInterestSweepChanged = !isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive);
 
 		this._telemetry.startSpan(LiveBetterEvents.LBB_AUTOMATIC_SAVINGS_FAILURE);
+
+		/* Removed during incident mangagement refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	disconnectedCallback() {
@@ -57,7 +60,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 			"screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE,
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
-		
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToLiveBetter();
 	}
@@ -68,7 +71,9 @@ export class AutomaticSavingsFailure extends ViewBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 		this.horizonStore.clearReturnScreen();
@@ -78,9 +83,12 @@ export class AutomaticSavingsFailure extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
+	*/
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -138,7 +146,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 		if (this.hasRoundupChanged && this.hasInterestSweepChanged) {
 			return html`
 				<span>Round-up and Interest sweep settings are not updated.</span>`;
-		} 
+		}
 
 		return html`
 			<span>${this.hasRoundupChanged ? `Round-up` : `Interest sweep`} settings was not updated.</span>`;

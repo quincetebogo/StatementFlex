@@ -31,7 +31,7 @@ export class StatementsFailure extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -40,20 +40,22 @@ export class StatementsFailure extends ViewBase {
 		super.connectedCallback();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
-		
+
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
 		this.accType = this.screenDetails && this.screenDetails.accountType;
 		this.telemetryEvent = this.screenDetails?.telemetryEvent ?? {};
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 
 		await this._telemetry.startSpan(this.telemetryEvent.STATEMENTS_FAILURE);
 
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 		this.horizonStore.setReturnScreen(returnToScreen.route, ``); // Failure flow don't have perform again action
 	}
-		
+
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 
@@ -68,7 +70,7 @@ export class StatementsFailure extends ViewBase {
 		await this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_FAILURE_DONE, {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
-		
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -77,7 +79,9 @@ export class StatementsFailure extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}

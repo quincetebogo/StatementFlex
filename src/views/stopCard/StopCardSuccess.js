@@ -110,7 +110,9 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -216,8 +218,8 @@ export class StopCardSuccess extends ViewBase {
 			this.accessChannels = returnValue.result;
 
 			this.alertSuspendChannels = this.accessChannels.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+				this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+				this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
 
 			if (this.alertSuspendChannels) {
 				this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_STATUS, {

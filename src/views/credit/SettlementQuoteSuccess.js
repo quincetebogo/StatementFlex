@@ -33,7 +33,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	get incidentDescription() {
 		return `Type: Settlement Quote\nAccount List: ${this._formateAccountNames(this.succeededAccounts)}\nRecipient EmailID: ${this.emailAddress}`;
 	}
@@ -44,7 +44,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.returnToScreen = this.horizonStore.getReturnToScreen().route.title;
 		this.telemetryEvents = this.returnToScreen === `Favourites` ? SettlementQuoteFavouritesEvents : SettlementQuoteCreditEvents;
 
@@ -54,7 +54,7 @@ export class SettlementQuoteSuccess extends ViewBase {
 
 		this.succeededAccounts = this.screenDetails?.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails?.emailAddress;
-		
+
 		this._updateIncidentState();
 	}
 
@@ -100,7 +100,9 @@ export class SettlementQuoteSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

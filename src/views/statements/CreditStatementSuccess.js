@@ -28,7 +28,7 @@ export class CreditStatementsSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	static get properties() {
 		return {
 			mailId: { state: false, attribute: false },
@@ -39,7 +39,7 @@ export class CreditStatementsSuccess extends ViewBase {
 
 	get incidentDescription() {
 		let accountName = ``;
-		
+
 		if (this.productType === ACCOUNT_TYPES.CREDIT) {
 			accountName = `Account Name: ${this.accountName}\n`;
 		}
@@ -87,7 +87,7 @@ export class CreditStatementsSuccess extends ViewBase {
 			"nextScreen": TelemetryScreen.CREDIT_LANDING
 		});
 		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS, {}, true, true);
-		
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToCreditAccount();
 	}
@@ -107,7 +107,9 @@ export class CreditStatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

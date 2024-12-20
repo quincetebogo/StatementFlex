@@ -33,7 +33,7 @@ export class OpenBudgetFailure extends ViewBase {
 	get narrative() {
 		return this.screenDetails.narrative;
 	}
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -42,9 +42,11 @@ export class OpenBudgetFailure extends ViewBase {
 		super.connectedCallback();
 
 		await this._telemetry.startSpan(CreditEvents.OPEN_BUDGET_FAILURE);
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
-		
+
 	async disconnectedCallback() {
 		super.disconnectedCallback();
 		await this._telemetry.endSpan(CreditEvents.OPEN_BUDGET_FAILURE);
@@ -64,11 +66,13 @@ export class OpenBudgetFailure extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
+	*/
 
 	// ---------
 	// RENDERING

@@ -1,4 +1,4 @@
-import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
+import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -148,10 +148,10 @@ export class HorizonIncidentManager {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
-	/**
+	/* * Removed during incident management refactor
 	 * 
 	 * @returns {string} A value indicating the state (progress) of the current incident
-	 */
+	 * /
 	get incidentState() {
 		if (!this.incidentDetails?.incidentState) {
 			return null;
@@ -160,15 +160,16 @@ export class HorizonIncidentManager {
 		return this.incidentDetails.incidentState;
 	}
 
-	/**
+	/* *
 	 * Updates the state of the current incident
 	 * 
 	 * @param {'InProgress'|'Completed'|'Assigned'|'Failed'|'Not Started'|'Closed'} incidentState A value indicating the state of the current incident.
-	 */
+	 * /
 	set incidentState(incidentState) {
 		this.incidentDetails.incidentState = incidentState;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
+	*/
 
 	/**
 	 * Gets a string indicating the need (area) being addressed by the current incident
@@ -283,9 +284,6 @@ export class HorizonIncidentManager {
 
 
 	initialise() {
-		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
-		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
-
 	}
 
 	async handleMultipleNeed(clientNeed, toggleBusyFlag) {

@@ -31,7 +31,7 @@ export class CardSettingsOutcome extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	/**
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @readonly
@@ -51,18 +51,21 @@ export class CardSettingsOutcome extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
 		this.ecommerceUpdated = this.screenDetails?.ecommerceUpdated;
 		this.internationalUpdated = this.screenDetails?.internationalUpdated;
 
 		this.failedCards = this.screenDetails.deactivatedCardsList.filter(card => card.ecommerceUpdated === `ERROR` || card.internationalTransactionsUpdated === `ERROR`);
-		this.succeededCards = this.screenDetails.deactivatedCardsList.filter(card => (card.ecommerceUpdated === `SUCCESS` || card.internationalTransactionsUpdated === `SUCCESS`) && 
-																					!(this.failedCards.indexOf(card) > 0));
+		this.succeededCards = this.screenDetails.deactivatedCardsList.filter(card => (card.ecommerceUpdated === `SUCCESS` || card.internationalTransactionsUpdated === `SUCCESS`) &&
+			!(this.failedCards.indexOf(card) > 0));
 
 		this._getOutcomeDetails();
+
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
@@ -84,22 +87,24 @@ export class CardSettingsOutcome extends ViewBase {
 	_returnToCardList() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = this.failedCards.length === 0 ? super.HORIZON_NEED_STATUS.COMPLETED : super.HORIZON_NEED_STATUS.FAILED;
 	}
+	*/
 
 	_getOutcomeDetails() {
-			this.header = this._getHeaderDetails();
-			this.toast = this._getToast();
-			this.secondaryToast = this._getSecondaryToast();
-			this.displayImage = this.succeededCards.length > 0 && this.failedCards.length > 0 
-									? `/images/insure/assign-pay-arrears.svg`
-									: `/images/cardSettings/CardSettingsSuccess.svg`;
+		this.header = this._getHeaderDetails();
+		this.toast = this._getToast();
+		this.secondaryToast = this._getSecondaryToast();
+		this.displayImage = this.succeededCards.length > 0 && this.failedCards.length > 0
+			? `/images/insure/assign-pay-arrears.svg`
+			: `/images/cardSettings/CardSettingsSuccess.svg`;
 	}
 
 	_getHeaderDetails() {
@@ -232,8 +237,8 @@ export class CardSettingsOutcome extends ViewBase {
 	}
 
 	_renderSuccessToast() {
-		return this.toast 
-		? html`
+		return this.toast
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="success"
@@ -242,7 +247,7 @@ export class CardSettingsOutcome extends ViewBase {
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderFailureToast() {
@@ -257,7 +262,7 @@ export class CardSettingsOutcome extends ViewBase {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -278,8 +283,8 @@ export class CardSettingsOutcome extends ViewBase {
 	}
 
 	_renderSuccessDetails() {
-		return this.succeededCards.length > 0 
-		? html`
+		return this.succeededCards.length > 0
+			? html`
 		<capitec-group layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
@@ -289,12 +294,12 @@ export class CardSettingsOutcome extends ViewBase {
 				${this.succeededCards.map((card, index) => this._renderCardsStatus(card, index, true))}
 			</p>
 		</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_returnFailureDetails() {
 		return this.failedCards.length > 0
-		? html`
+			? html`
 			<capitec-group class="subdetail-group" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
@@ -304,7 +309,7 @@ export class CardSettingsOutcome extends ViewBase {
 					${this.failedCards.map((card, index) => this._renderCardsStatus(card, index, false))}
 				</p>
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderCardsStatus(card, index, succeeded) {
@@ -326,10 +331,10 @@ export class CardSettingsOutcome extends ViewBase {
 	_renderOtherCards(succeeded) {
 		const [, , ...otherCards] = succeeded ? this.succeededCards : this.failedCards;
 		return this.expandOtherCards
-		? html`
+			? html`
 		${otherCards.map(card => html`
 			, <br/> Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`)}`
-		: html`
+			: html`
 			, <br/> and <capitec-hyperlink label="${otherCards.length} other(s)" size="small" @click="${() => this.expandOtherCards = !this.expandOtherCards}"></capitec-hyperlink>
 		`;
 	}

@@ -10,13 +10,12 @@ const COMMON_RESOLUTIONS = {
  * @typedef {string} IncidentState
  */
 
-/**
+/* * Removed during incident management refactor
  * Incident state constants.
  * This depicts the current state of a primary or secondary incident
  * 
  * @readonly
  * @enum {IncidentState}
- */
 export const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,
 	COMPLETED: `Completed`,
@@ -25,6 +24,7 @@ export const HORIZON_NEED_STATUS = {
 	NOT_STARTED: `Not Started`,
 	CLOSED: `Closed`
 };
+ */
 
 /**
  * End call reasons.

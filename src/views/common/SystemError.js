@@ -66,10 +66,12 @@ export class SystemError extends ViewBase {
 		 */
 		const need = this.horizonIncidentManager.getCurrentNeed();
 		const strackMapping = STRACK_MAPPING[need];
-		
+
+		/* Removed during incident management refactor
 		if (!isNullorEmpty(strackMapping)) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		}
+		*/
 	}
 
 	// ---------

@@ -155,11 +155,13 @@ export class AccessChannelsOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		if (this.showTryAgain) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 		} else {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
+		*/
 
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}

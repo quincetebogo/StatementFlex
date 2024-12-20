@@ -53,7 +53,9 @@ export class DebiCheckServiceError extends ViewBase {
 		this.horizonStore.setScreenDetails({});
 		this.horizonStore.clearReturnScreen();
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	// --------------
@@ -63,7 +65,7 @@ export class DebiCheckServiceError extends ViewBase {
 	async _findBranchClick() {
 		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
 		window.open(`${branchLocatorUrl}`);
-		
+
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_FIND_BRANCH, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.FAVOURITES

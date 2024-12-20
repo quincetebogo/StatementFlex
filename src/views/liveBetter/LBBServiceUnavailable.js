@@ -16,7 +16,7 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 
- export class LBBServiceUnavailable extends ViewBase {
+export class LBBServiceUnavailable extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -24,15 +24,15 @@ import 'app/components/common/RelatedOptions';
 
 	constructor() {
 		super();
-		
+
 		this._eventAggregator = EventAggregator.getInstance();
 
 		this._configuration = Configuration.getInstance();
 
-		this._telemetry = HorizonTelemetry.instance; 
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
-	
+
 	// ----------
 	// PROPERTIES
 	// ----------
@@ -46,7 +46,9 @@ import 'app/components/common/RelatedOptions';
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -54,7 +56,7 @@ import 'app/components/common/RelatedOptions';
 		// Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
 		this._telemetry.endSpan(QuickTransactionEvents.LIVE_BETTER_BENEFITS, {
 			"screen": TelemetryScreen.LIVE_BETTER_BENEFITS_UNAVAILABLE
-		}); 
+		});
 	}
 
 	// --------------
@@ -117,7 +119,7 @@ import 'app/components/common/RelatedOptions';
 				
 			</horizon-service-call-error-screen>
 		`;
-		
+
 	}
 }
 

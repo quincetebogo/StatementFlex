@@ -28,7 +28,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-			
+
 		};
 	}
 
@@ -39,7 +39,9 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const limitDetails = screenDetails.limitDetails;
@@ -77,9 +79,11 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Remmoved during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 	}
+	*/
 
 	// ---------
 	// RENDERING

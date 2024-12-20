@@ -37,7 +37,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 	get incidentDescription() {
 		return `Recipient EmailID: ${this.screenDetails.emailAddress}`;
 	}
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -49,7 +49,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
-		
+
 		this._updateIncidentState();
 	}
 
@@ -70,7 +70,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
-	
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -80,7 +80,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
-		
+
 		this.horizonRouter.navigateToReturnPage();
 	}
 
@@ -89,7 +89,9 @@ export class ProofOfAccountSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

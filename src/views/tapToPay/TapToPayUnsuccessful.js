@@ -38,13 +38,18 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
 		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -70,17 +75,19 @@ export class TapToPayUnsuccessful extends ViewBase {
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
-	
+
 	_handoffClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_HANDOFF, {
 			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			"next-screen": null
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
-		
+
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -92,9 +99,11 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING

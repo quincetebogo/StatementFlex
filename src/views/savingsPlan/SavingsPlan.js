@@ -394,11 +394,13 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		/* Removed during incident management refactor
 		const incidentState = this.horizonIncidentManager.incidentState;
 
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+		*/
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -527,8 +529,9 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_setIncidentDone() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-
+		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

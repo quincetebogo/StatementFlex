@@ -154,10 +154,16 @@ export class AccessChannels extends Component {
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
 				await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag());
+				/* Removed during incident management refactor
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
-			} else {
+				*/
+			}
+
+			/* Removed during incident management refactor
+			else {
 				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
 			}
+			*/
 		}
 	}
 
@@ -616,9 +622,11 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
+	/* Removed during incidebt management refactor
 	_updateIncidentState(state) {
 		this.horizonIncidentManager.incidentState = state;
 	}
+	*/
 
 	async _refreshACInfo() {
 		this._deepCopyStatus();

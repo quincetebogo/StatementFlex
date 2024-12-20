@@ -67,7 +67,7 @@ export class TaxCertificateSuccess extends ViewBase {
 			type = `iT3S Tax certificates`;
 			period = `Period: ${this._taxFreeYears()}`;
 		}
-		
+
 		return `Type: ${type} \n${period}\nRecipient EmailID:${this.email}`;
 	}
 
@@ -144,7 +144,9 @@ export class TaxCertificateSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -156,7 +158,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		if (this.type !== `iT3BTaxCertificates` && this.type !== `both`) {
 			return ``;
 		}
-		
+
 		const taxYear = this.iT3BTaxCertificates.taxYears;
 
 		if (taxYear.length === 1) {

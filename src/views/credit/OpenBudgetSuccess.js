@@ -14,7 +14,7 @@ import 'app/components/common/SuccessScreen';
  * @class OpenBudgetSuccess
  * @extends {ViewBase}
  */
- export class OpenBudgetSuccess extends ViewBase {
+export class OpenBudgetSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -52,9 +52,12 @@ import 'app/components/common/SuccessScreen';
 
 	async connectedCallback() {
 		super.connectedCallback();
-		
+
 		await this._telemetry.startSpan(CreditEvents.OPEN_BUDGET_SUCCESS);
+
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	async disconnectedCallback() {
@@ -80,11 +83,13 @@ import 'app/components/common/SuccessScreen';
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
+	*/
 
 	// ---------
 	// RENDERING

@@ -32,7 +32,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	static get properties() {
 		return {
 			emailAddress: { type: String }
@@ -51,7 +51,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 		super.connectedCallback();
 
 		this._telemetry.startSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
-		
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
 		this.succeededAccounts = this.screenDetails?.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
@@ -75,7 +75,7 @@ export class PaidUpLetterSuccess extends ViewBase {
 		});
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {}, true, true, false);
-	
+
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -85,9 +85,9 @@ export class PaidUpLetterSuccess extends ViewBase {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_SUCCESS,
 			"next-screen": TelemetryScreen.PAID_UP_LETTER_ACCOUNTS
 		});
-		
+
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_SUCCESS, {});
-		
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
 	}
@@ -97,10 +97,12 @@ export class PaidUpLetterSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
-	
+
 	_formateAccountNames(accounts) {
 		if (accounts.length === 1) {
 			return `${accounts[0].toLowerCase()}`;

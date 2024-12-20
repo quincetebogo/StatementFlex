@@ -15,7 +15,7 @@ import 'app/components/common/RelatedOptions';
  * @class BudgetFacilitySuccess
  * @extends {ViewBase}
  */
- export class BudgetFacilitySuccess extends OutcomeBase {
+export class BudgetFacilitySuccess extends OutcomeBase {
 
 	// --------------
 	// INITIALISATION
@@ -38,13 +38,15 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.budgetName = screenDetails.accountName;
 		this.documentData = screenDetails.documentData;
 
 		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_SUCCESS);
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	disconnectedCallback() {
@@ -60,14 +62,14 @@ import 'app/components/common/RelatedOptions';
 			"screen": TelemetryScreen.CREDIT_PAY_BUDGET_SUCCESS,
 			"next-screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG
 		});
-		
+
 		const emailAccountsList = [
-				{
-					title: this.budgetName,
-					subtitle: `Proof of transfer`,
-					documentData: this.documentData
-				}
-			];
+			{
+				title: this.budgetName,
+				subtitle: `Proof of transfer`,
+				documentData: this.documentData
+			}
+		];
 		this._showPopDialog(emailAccountsList, BUDGET_FACILITY_POP_EVENTS, CreditEvents.CREDIT_BUDGET_DETAILS);
 	}
 
@@ -105,9 +107,11 @@ import 'app/components/common/RelatedOptions';
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// ---------
 	// RENDERING

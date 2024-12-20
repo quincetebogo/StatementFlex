@@ -523,7 +523,9 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -922,10 +924,12 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		/* Removed during incident management refactor
 		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
+		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -983,10 +987,14 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
+		/* Removed during incident management refactor
 		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
+		*/
+		this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
+		/*
 		}
+		*/
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
@@ -1260,7 +1268,9 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		*/
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 

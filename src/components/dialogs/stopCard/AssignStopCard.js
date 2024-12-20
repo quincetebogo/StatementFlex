@@ -39,7 +39,7 @@ export class AssignStopCard extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
-		
+
 		this.isBusy = false;
 		this.success = true;
 	}
@@ -80,8 +80,8 @@ export class AssignStopCard extends Component {
 				if (returnValue.succeeded) {
 					this.teamsResponse = returnValue.result;
 					this.teamItems = this.teamsResponse.teams.possibleValues;
-				} 
-		});
+				}
+			});
 	}
 
 	disconnectedCallback() {
@@ -115,7 +115,9 @@ export class AssignStopCard extends Component {
 			const returnValue = await this.cardService.assign(assignRequest);
 
 			if (returnValue.succeeded) {
+				/* Removed during incident management refactor
 				this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+				*/
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
@@ -248,7 +250,7 @@ export class AssignStopCard extends Component {
 					--theme-modal-header-color: #3E4547;
 				}
 			`
-];
+		];
 	}
 
 	_mobileTemplate() {
@@ -334,7 +336,7 @@ export class AssignStopCard extends Component {
 				</horizon-alert-banner>
 			`;
 		}
-		
+
 		return html``;
 	}
 

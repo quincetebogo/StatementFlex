@@ -235,7 +235,9 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 	}
 
 	async _cancelMandateAction(eventName, currScreen) {
@@ -382,19 +384,25 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_backToLandingPage() {
+		/* Removed during incident management refactor
 		this._setIncidentNotstarted();
+		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	/* Removed during incident management refactor
 	_setIncidentNotstarted() {
 		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		}
 	}
+	*/
 
 	_setIncidentDone() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

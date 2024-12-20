@@ -199,7 +199,9 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
 
-		this._setIncidentDone();
+		/* Removed during incidentmanagement refactor
+			this._setIncidentDone();
+		*/
 
 		// Clear return to state before navigation
 		this.horizonStore.clearReturnScreen();
@@ -368,6 +370,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 	}
 
+	/* Removed during incident management refactor
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
 
@@ -376,6 +379,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
 	}
+	*/
 
 	// ---------
 	// RENDERING

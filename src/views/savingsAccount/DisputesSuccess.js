@@ -23,7 +23,7 @@ export class DisputesSuccess extends ViewBase {
 
 	constructor() {
 		super();
-		
+
 		this.endCallContext = `QuickTransactionSuccess`;
 		this.displayToast = false;
 	}
@@ -52,7 +52,7 @@ export class DisputesSuccess extends ViewBase {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.clientAnswerWording = screenDetails.clientAnswerWording;
 		this.agentAnswerWording = screenDetails.agentAnswerWording;
@@ -94,7 +94,9 @@ export class DisputesSuccess extends ViewBase {
 	// ---------------
 
 	async _updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.description);
 
 		const options = {
@@ -108,7 +110,7 @@ export class DisputesSuccess extends ViewBase {
 
 	_copyContent() {
 		navigator.clipboard.writeText(`${this.clientAnswerWording}`);
-		
+
 		this.displayToast = true;
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
@@ -255,8 +257,8 @@ export class DisputesSuccess extends ViewBase {
 	}
 
 	_renderCopyToast() {
-		return this.displayToast 
-		? html`
+		return this.displayToast
+			? html`
 			<capitec-toast 
 				class="copy-toast"
 				type="success"
@@ -265,7 +267,7 @@ export class DisputesSuccess extends ViewBase {
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 }
 

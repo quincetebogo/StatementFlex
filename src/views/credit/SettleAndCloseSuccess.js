@@ -16,7 +16,7 @@ import 'app/components/common/RelatedOptions';
  * @class SettleAndCloseSuccess
  * @extends {ViewBase}
  */
- export class SettleAndCloseSuccess extends OutcomeBase {
+export class SettleAndCloseSuccess extends OutcomeBase {
 
 	// --------------
 	// INITIALISATION
@@ -30,15 +30,15 @@ import 'app/components/common/RelatedOptions';
 		this.accountName = ``;
 
 		this.settleAndCloseTelemetryEvents = {};
-		
+
 		this.primaryToast = `Account Settled`;
 		Object.assign(SettleAndCloseSuccess.prototype, creditMixin);
 	}
 
 	get incidentDescription() {
 		const settleAccDetails = this.type === PRODUCTS.TERM_LOAN
-								? `Loan Account: ${this.creditCardNumber}`
-								: `Credit Card Account Number: ${this.creditCardNumber}`;
+			? `Loan Account: ${this.creditCardNumber}`
+			: `Credit Card Account Number: ${this.creditCardNumber}`;
 		return `From Account Number: ${this.fromAccountNumber}\n${settleAccDetails}\nSettlement Amount Paid: ${formatCurrency(this.settlementAmount)}`;
 	}
 
@@ -69,7 +69,7 @@ import 'app/components/common/RelatedOptions';
 		this.type = screenDetails.type;
 		this.settlementAmount = screenDetails.settlementAmount;
 		this.fromAccountNumber = screenDetails.fromAccountNumber;
-		
+
 		this.primaryToast = this.creditType === CREDIT_TYPE.FLEXIBLE ? `Account settled and closed` : `Account settled`;
 		this.settleAndCloseTelemetryEvents = SETTLE_AND_CLOSE[this.creditType];
 	}
@@ -79,7 +79,7 @@ import 'app/components/common/RelatedOptions';
 			"screen": this.creditType === CREDIT_TYPE.FLEXIBLE ? TelemetryScreen.CREDIT_SETTLE_CLOSE_SUCCESS : TelemetryScreen.CREDIT_SETTLE_TERM_LOAN_SUCCESS,
 			"next-screen": TelemetryScreen.PROOF_OF_PAYMENT_DIALOG
 		});
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		const emailAccountsList = [
 			{
@@ -89,7 +89,7 @@ import 'app/components/common/RelatedOptions';
 			}
 		];
 
-	this._showPopDialog(emailAccountsList, this.settleAndCloseTelemetryEvents.POP_EVENTS, this.settleAndCloseTelemetryEvents.NEED);
+		this._showPopDialog(emailAccountsList, this.settleAndCloseTelemetryEvents.POP_EVENTS, this.settleAndCloseTelemetryEvents.NEED);
 	}
 
 	_doneClick() {
@@ -99,7 +99,7 @@ import 'app/components/common/RelatedOptions';
 		});
 
 		this._telemetry.endSpan(this.settleAndCloseTelemetryEvents.SUCCESS, {}, true, true);
-	
+
 		this.horizonRouter.navigateToCreditAccount();
 	}
 
@@ -112,10 +112,12 @@ import 'app/components/common/RelatedOptions';
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
-	
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -180,14 +182,14 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_renderSubDetail() {
-		return this.creditType === CREDIT_TYPE.FLEXIBLE 
-		? html`
+		return this.creditType === CREDIT_TYPE.FLEXIBLE
+			? html`
 			<section 
 				class="id-update-msg" 
 				slot="sub-detail">
 					${this.accountName} was stopped successfully.
 			</section>`
-		: html``;
+			: html``;
 	}
 
 	_renderSubContent() {
