@@ -28,7 +28,7 @@ export const creditMixin = {
 	 * @param {option} option need (statement/ transaction-history/ paid-up)
 	 * @param {*} accNum - account number of selected product
 	 * @param {*} productType - credit product type
-	 * @returns {boolean} True - has CCS status, False - No CCS status
+	 * @returns {Promise<object>} True - has CCS status, False - No CCS status
 	 */
 
 	async _checkCreditPermisions(option, cifNumber, accNum, productType) {
@@ -82,14 +82,14 @@ export const creditMixin = {
 	},
 
 	async _sendSettlementQuote(details) {
-		
+
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `settlement-quote`);
 
 		const accountsList = details.selectedAccounts.map(item => {
-			const account = { 
-								'accountNumber': item.accountNumber,
-								'creditType': item.type.replace(` `, ``)
-							};
+			const account = {
+				'accountNumber': item.accountNumber,
+				'creditType': item.type.replace(` `, ``)
+			};
 			return account;
 		});
 
@@ -109,7 +109,7 @@ export const creditMixin = {
 
 		screenDetails.selectedAccounts = details.selectedAccounts.filter(item => !isNullorEmpty(item));
 		screenDetails.emailAddress = details.emailAddress;
-		
+
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to send settlement quote.`, `_sendSettlementQuote`, returnValue.correlationId);
 
@@ -117,7 +117,7 @@ export const creditMixin = {
 				[PRODUCTS.CREDIT_CARD]: `CreditCard`,
 				[PRODUCTS.ACCESS_FACILITY]: `AccessFacility`,
 				[PRODUCTS.TERM_LOAN]: `TermLoan`
-		 	};
+			};
 
 			screenDetails.emailStatus = details.selectedAccounts.map(item => {
 				const sendStatus = {
@@ -128,7 +128,7 @@ export const creditMixin = {
 				};
 
 				return sendStatus;
-			}); 
+			});
 
 			this.horizonStore.setScreenDetails(screenDetails);
 			this.horizonRouter.navigateToSettlementQuoteFailure();
@@ -152,7 +152,7 @@ export const creditMixin = {
 				this.horizonRouter.navigateToSettlementQuoteSuccess();
 				break;
 
-				case returnValue.result?.sendStatusList.every(item => !item.sentStatus): // If all failure
+			case returnValue.result?.sendStatusList.every(item => !item.sentStatus): // If all failure
 				this.horizonRouter.navigateToSettlementQuoteFailure();
 				break;
 
@@ -218,8 +218,8 @@ export const creditMixin = {
 	},
 
 	_renderSettlementQuoteDialog() {
-		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG 
-		? html`
+		return this.renderMode === RENDER_MODE.SETTLEMENT_QUOTE_DIALOG
+			? html`
 			<horizon-settlement-quote-dialog
 				.selectedAccounts="${this.selectedAccountDetails}"
 				.viewSettlementQuote="${(item) => this._viewSettlementQuote(item)}"
@@ -228,17 +228,17 @@ export const creditMixin = {
 				@cancel="${() => this._cancelSettlementQuoteDialog()}"
 				@send="${(e) => this._sendSettlementQuote(e.detail)}">
 			</horizon-settlement-quote-dialog>`
-		: html``;
+			: html``;
 	},
 
 	_renderCcsModal() {
 		return this.ccsStatus
-		? html`
+			? html`
 			<horizon-warn-dialog
 				content="${this.declineMessage}"
 				@on-okay="${() => this.resetCCSStatusAndReloadScreen()}">
 			</horizon-warn-dialog>`
-		: html``;
+			: html``;
 	}
-	
+
 };

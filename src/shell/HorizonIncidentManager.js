@@ -1,5 +1,4 @@
 import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
-import { Component, View } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';

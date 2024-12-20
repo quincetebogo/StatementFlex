@@ -141,7 +141,7 @@ export class CreditAccount extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option, creditType, productType, selectedAccountDetails, sendAnother = false) => {
+		this._optionClick = async (option, creditType, productType, selectedAccountDetails, sendAnother = false) => {
 
 			const transactionHistory = () => this._transactionHistory(creditType, productType, selectedAccountDetails);
 			const statements = () => this._getStatements(creditType, productType, selectedAccountDetails, sendAnother);
