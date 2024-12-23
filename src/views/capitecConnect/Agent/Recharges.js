@@ -15,7 +15,7 @@ import { formatDate, getTimeFromDate, compareDates, getDateInPast, sortObjectsBy
  * @class CapitecConnectAgentRecharges
  */
 export class CapitecConnectAgentRecharges extends ViewBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -118,7 +118,9 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = "281783047";
+		this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
+		//   this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
+
 
 		this.showTable = true;
 	}
@@ -217,8 +219,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				this.activeFilters.bundleType = [`All`];
 				this.onFilter();
 				return;
-			} 
-				
+			}
+
 			bundleType.splice(index, 1);
 
 			this.activeFilters.bundleType = bundleType;
@@ -237,8 +239,8 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					// All is selected
 					bundleType.splice(indexA, 1);
 				}
-			} 
-			
+			}
+
 			bundleType.push(value);
 			this.activeFilters.bundleType = [...bundleType];
 		}
@@ -267,7 +269,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	async _dateChanged(e) {
-
 		/**
 		 * 1. When dates are not selected on the date time picker, new value dispatched would be null.
 		 *    In such case, data refresh can be skipped.
@@ -354,18 +355,18 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						value="${this.activeFilters.searchValue}" 
 						class="custom-flex-size" 
 						@value-change="${(e) => {
-							this.activeFilters.searchValue = e.detail.new;
-							this.onFilter();
-						}}"></capitec-search-field>
+				this.activeFilters.searchValue = e.detail.new;
+				this.onFilter();
+			}}"></capitec-search-field>
 
 					<capitec-select 
 						label="Select option" 
 						.items="${this.searchTypes}" 
 						.value="${this.activeFilters.searchType}"
 						@value-change="${(e) => {
-							this.activeFilters.searchType = e.detail.new;
-							this.onFilter();
-						}}"
+				this.activeFilters.searchType = e.detail.new;
+				this.onFilter();
+			}}"
 						display-field="text"
 						id-field="value">
 					</capitec-select>
@@ -396,20 +397,20 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<capitec-button-bar align="left" class="no-border-top">
 					<capitec-label type="strong" label="Bundle Types:"></capitec-label>
 					${this.availableBundleFilters.map(item => {
-						if (this.activeFilters?.bundleType.includes(item)) {
-							return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-						}
-						return html`<capitec-chip label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
-					})}
+				if (this.activeFilters?.bundleType.includes(item)) {
+					return html`<capitec-chip closable label="${item}" @remove="${() => this._filterClick(item)}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
+				}
+				return html`<capitec-chip label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`;
+			})}
 				</capitec-button-bar>
 
 				<capitec-button-bar align="left">
 					<capitec-label type="strong" label="Active Filters:"></capitec-label>
 					${this.activeFilters.searchValue ? html`<capitec-chip closable @remove="${this._filterSearchboxClick}" label="${this.activeFilters.searchType.text}: ${this.activeFilters.searchValue}"></capitec-chip>` : null}
 					${this.activeFilters.dateRange.to !== null && this.activeFilters.dateRange.from !== null ?
-						html`<capitec-chip label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"></capitec-chip>` :
-						null
-					}
+				html`<capitec-chip label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"></capitec-chip>` :
+				null
+			}
 					${this.activeFilters.bundleType.map(item => html`<capitec-chip closable @remove="${() => this._filterClick(item)}" label="${item}" @click="${() => this._filterClick(item)}"></capitec-chip>`)}
 					<capitec-spacer></capitec-spacer>
 				</capitec-button-bar>
@@ -476,7 +477,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		return formatAmount(value);
 	}
 
-	_expandRenderer (item) {
+	_expandRenderer(item) {
 		let accountNumber = `-`;
 		let channel = toTitleCase(item.channel);
 		let journalNumber = `-`;
@@ -575,18 +576,18 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 						label="${transactionType} Status"
 						@click="${() => { this.selectedRechargeView = item; }}">
 					</capitec-hyperlink>
-					${!item.reversible 
-					? html`<capitec-hyperlink
+					${!item.reversible
+				? html`<capitec-hyperlink
 						style="margin-top: 10px;"
 						label="Escalate For Reversal"
 						disabled>
 					</capitec-hyperlink>`
-					: html`<capitec-hyperlink
+				: html`<capitec-hyperlink
 						style="margin-top: 10px;"
 						label="Escalate For Reversal"
 						@click="${() => { this.selectedReversal = item; }}">
 					</capitec-hyperlink>`
-					}
+			}
 				</div>
 			</capitec-group>
 		`;
@@ -748,15 +749,15 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<capitec-label label="Choose a reason" type="title"></capitec-label>
 				<capitec-select 
 					label="Choose a reason" 
-					.items="${[ 
-						{
-							label: `Product not received`,
-							value: `Product not received.`
-						}, {
-							label: `Other`,
-							value: `other`
-						}
-					]}" 
+					.items="${[
+				{
+					label: `Product not received`,
+					value: `Product not received.`
+				}, {
+					label: `Other`,
+					value: `other`
+				}
+			]}" 
 					@value-change="${(e) => this.reason = e.detail.new}"
 					display-field="label"
 					id-field="value">
@@ -785,11 +786,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 				<div slot="body">
 					Are you sure you want to escalate this transaction?
 				</div>
-				<capitec-button slot="footer" type="primary" @click="${() => { 
-					this._actionReversal(); 
-					this.selectedReversal = null; 
-					this.showConfirmModal = false;
-					}}" label="Yes"></capitec-button>
+				<capitec-button slot="footer" type="primary" @click="${() => {
+				this._actionReversal();
+				this.selectedReversal = null;
+				this.showConfirmModal = false;
+			}}" label="Yes"></capitec-button>
 				<capitec-button slot="footer" type="clear" @click="${() => this.showConfirmModal = false}" label="No"></capitec-button>
 			</capitec-modal>
 		`;
@@ -809,7 +810,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer" 
 					type="clear" 
 					label="Done"
-					@click="${() => {this.showSuccessModal = false; this.onFilter()}}">
+					@click="${() => { this.showSuccessModal = false; this.onFilter() }}">
 				</capitec-button>
 			</capitec-modal>
 		`;
@@ -828,7 +829,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 					slot="footer" 
 					type="clear" 
 					label="Done"
-					@click="${() => {this.showFailureModal = false; this.onFilter()}}">
+					@click="${() => { this.showFailureModal = false; this.onFilter() }}">
 				</capitec-button>
 			</capitec-modal>
 		`;

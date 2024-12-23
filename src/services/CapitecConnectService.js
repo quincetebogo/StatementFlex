@@ -292,4 +292,45 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	getDeviceOrders(request) {
+		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif } = request;
+
+		const queryParams = {
+			page: pageNumber,
+			size: pageSize,
+			sort: `createdAt,DESC`
+		};
+
+		if (searchValue) {
+			queryParams.searchValue = searchValue;
+		}
+
+		if (dateFrom) {
+			queryParams.dateFrom = dateFrom;
+		}
+
+		if (dateTo) {
+			queryParams.dateTo = dateTo;
+		}
+
+		if (clientCif) {
+			queryParams.cif = clientCif;
+		}
+
+		const queryString = this.convertJsonToUriString(queryParams);
+		const url = `/v1/api/horizon/device/orders/${clientCif}/search?${queryString}`;
+
+		return this.post(
+			url,
+			{},
+			this.setToken(),
+			`getDeviceOrders`,
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }

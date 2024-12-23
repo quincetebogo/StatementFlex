@@ -1,12 +1,13 @@
 import { css, html } from 'platform/elements';
+import { formatCellphoneNumber, isArray } from 'app/utils/capitecConnectUtils';
 import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { getDateInPast, formatCellphoneNumber, isArray } from 'app/utils/capitecConnectUtils';
 
 import './Recharges';
 import './Advances';
 import './AdvancesRepayments';
+import './Devices';
 
 /**
  * Capitec Connect Agent View
@@ -233,6 +234,11 @@ export class CapitecConnectAgent extends ViewBase {
 								.searchAdvances="${this.getRecords}"
 								.getAdvanceBalances="${this.getAdvanceBalances}"
 							></horizon-capitec-connect-agent-advances-repayments>
+						</capitec-tab>
+						<capitec-tab label="Devices" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-devices
+								style="width:100%"
+							></horizon-capitec-connect-agent-devices>
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>
