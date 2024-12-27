@@ -41,7 +41,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			}
 		};
 
-		// this.clientCif = `030530180`; // TODO: comment out when done with dev
+		this.clientCif = `030530180`; // TODO: comment out when done with dev
 	}
 
 	static get properties() {
@@ -360,10 +360,15 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_renderStatus(item, fieldName, value) {
-		let type = `warning`;
-		const label = value.replace(`ORDER_`, ``);
 
-		if (value === `ORDER_DELIVERED`) {
+		const label = value.replace(`ORDER`, ``);
+		let type = `warning`;
+
+		if (value === `ORDER PAYMENT SUCCESSFUL`) {
+			type = `info`;
+		}
+
+		if (value === `ORDER DELIVERED`) {
 			type = `success`;
 		}
 
