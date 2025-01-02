@@ -325,6 +325,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		const getValue = (value) => (!value || value === `null` ? `-` : value);
 		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
 
+		const getDeviceInvoice = async (orderId) => {
+			const testDeliveredOrderId = `979ad379-13d1-415a-94b5-c0e7082ce86a`;
+			try {
+				const response = await this.capitecConnectService.getDeviceInvoice(testDeliveredOrderId);
+				console.log(`🚀 ~ response->`, response);
+			} catch (error) {
+				console.error(`Error getting device invoice:`, error);
+			}
+		};
+
 		return html`
       <capitec-group layout="grid" gap="clear">
         <div column="1" row="1" colspan="4">
@@ -423,7 +433,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 <capitec-hyperlink
                   style="margin-right: 16px; margin-top: 10px;"
                   label="View Invoice"
-                  @click="${() => { }}"
+                  @click="${() => getDeviceInvoice(item.orderNumber)}"
                 >
                 </capitec-hyperlink>
               </div>
