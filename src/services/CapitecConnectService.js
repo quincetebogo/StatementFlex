@@ -333,4 +333,18 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	getDeviceInvoice(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
+		return this.get(
+			url,
+			this.setToken(),
+			`getDeviceInvoice`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
