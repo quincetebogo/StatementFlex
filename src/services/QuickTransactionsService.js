@@ -14,11 +14,11 @@ export class QuickTransactionsService extends ChannelServiceBase {
 	// --------------
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.channelServiceUrl`, 
-			`HorizonChannelService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.channelServiceUrl`,
+			`HorizonChannelService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
@@ -31,7 +31,7 @@ export class QuickTransactionsService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`favouritesLanding`)) {
 			return this.mock(`favouritesLanding`, clientInfo);
 		}
-		
+
 		const url = `/clientcare-favourites-${this._version}/landing`;
 
 		return this.post(
@@ -42,9 +42,9 @@ export class QuickTransactionsService extends ChannelServiceBase {
 				'isCallerVerified': clientInfo.isCallerVerified
 			},
 			this.setToken(),
-			`favouritesLanding`, 
-			null, 
-			null, 
+			`favouritesLanding`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -60,9 +60,9 @@ export class QuickTransactionsService extends ChannelServiceBase {
 		const url = `​/clientcare-documents-${this._version}/select-tax-certificate`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`getTaxCertificate`,
 			null,
 			null,
@@ -81,9 +81,9 @@ export class QuickTransactionsService extends ChannelServiceBase {
 		const url = `/clientcare-documents-${this._version}/view-tax-certificate`;
 
 		return this.post(
-			url, 
-			taxCertificate, 
-			this.setToken(), 
+			url,
+			taxCertificate,
+			this.setToken(),
 			`viewTaxCertificate`,
 			null,
 			null,
@@ -95,14 +95,13 @@ export class QuickTransactionsService extends ChannelServiceBase {
 	}
 
 	async sendTaxCertificate(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 		const url = `/clientcare-documents-${this._version}/send-tax-certificate`;
 
 		return this.post(
-			url, 
-			clientInfo, 
-			this.setToken(), 
+			url,
+			clientInfo,
+			this.setToken(),
 			`sendTaxCertificate`,
 			null,
 			null,

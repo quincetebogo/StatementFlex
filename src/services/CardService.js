@@ -14,11 +14,11 @@ export class CardService extends ChannelServiceBase {
 	// --------------
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.cardServiceUrl`, 
-			`CardService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.cardServiceUrl`,
+			`CardService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
@@ -47,16 +47,16 @@ export class CardService extends ChannelServiceBase {
 			'nonClientIDNumber': ``,
 			'nonClientRelationship': callerInformation.nonClientRelationship
 		};
-	
+
 		return this.post(
-			url, 
-			model, 
-			this.setToken(), 
-			`identifyCaller`, 
-			null, 
-			null, 
+			url,
+			model,
+			this.setToken(),
+			`identifyCaller`,
+			null,
+			null,
 			1000,
-			null, 
+			null,
 			errorHandler,
 			autoRetries
 		);
@@ -85,22 +85,22 @@ export class CardService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`stopCard`)) {
 			return this.mock(`stopCard`, stopCardRequest);
 		}
-	
+
 		const url = `/clientcare-card-${this._version}/StopCard`;
-	
+
 		const returnValue = await this.post(
-			url, 
-			stopCardRequest, 
-			this.setToken(), 
-			`stopCard`, 
-			null, 
-			null, 
+			url,
+			stopCardRequest,
+			this.setToken(),
+			`stopCard`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
-	
+
 		const stopCardResponse = returnValue.result;
 		const todayDate = new Date();
 
@@ -122,22 +122,22 @@ export class CardService extends ChannelServiceBase {
 		returnValue.result = cardStopResults;
 
 		return returnValue;
- 	}
+	}
 
 	assignTeams(incidentData, errorHandler, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/clientcare-card-${this._version}/Assign/Teams`, 
+			`/clientcare-card-${this._version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
 				"incident": incidentData.incident
 			},
 			this.setToken(),
-			`assignTeams`, 
-			null, 
-			null, 
+			`assignTeams`,
+			null,
+			null,
 			900,
 			null,
-			errorHandler, 
+			errorHandler,
 			autoRetries
 		);
 	}
@@ -145,16 +145,16 @@ export class CardService extends ChannelServiceBase {
 	// assignRequest
 	assign(assignData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.post(
-			`/clientcare-card-${this._version}/Assign`, 
+			`/clientcare-card-${this._version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
 				"incident": assignData.incident,
 				"team": assignData.team
 			},
 			this.setToken(),
-			`assign`, 
-			null, 
-			null, 
+			`assign`,
+			null,
+			null,
 			900,
 			null,
 			errorHandler, autoRetries
@@ -198,14 +198,14 @@ export class CardService extends ChannelServiceBase {
 		};
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay-landing`;
-	
+
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`tapToPayLanding`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`tapToPayLanding`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -217,12 +217,12 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
 
 		return this.post(
-			url, 
-			agreementInfo, 
-			this.setToken(), 
-			`tapToPayAgreement`, 
-			null, 
-			null, 
+			url,
+			agreementInfo,
+			this.setToken(),
+			`tapToPayAgreement`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -231,17 +231,17 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay`;
 
 		return this.post(
-			url, 
-			acceptTapToPay, 
-			this.setToken(), 
-			`updateTapToPay`, 
-			null, 
-			null, 
+			url,
+			acceptTapToPay,
+			this.setToken(),
+			`updateTapToPay`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -255,12 +255,12 @@ export class CardService extends ChannelServiceBase {
 		}
 
 		return this.post(
-			`/clientcare-card-${this._version}/limits-agreement`, 
-			cardDetails, 
-			this.setToken(), 
-			`getCardLimitsAgreement`, 
-			null, 
-			null, 
+			`/clientcare-card-${this._version}/limits-agreement`,
+			cardDetails,
+			this.setToken(),
+			`getCardLimitsAgreement`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -269,17 +269,17 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
 		return this.put(
-			url, 
-			request, 
-			this.setToken(), 
-			`updatePermanentLimits`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`updatePermanentLimits`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -288,17 +288,17 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
 		return this.put(
-			url, 
-			request, 
-			this.setToken(), 
-			`updateTemporaryLimits`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`updateTemporaryLimits`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -310,12 +310,12 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getPermanentLimits`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getPermanentLimits`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -331,12 +331,12 @@ export class CardService extends ChannelServiceBase {
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getTemporaryLimits`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getTemporaryLimits`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -345,9 +345,9 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async getStoppedCardDetails(callerInformation, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		 if (await this.isMockEnabled(`stopCardLanding`)) {
+		if (await this.isMockEnabled(`stopCardLanding`)) {
 			return this.mock(`stopCardLanding`);
-		} 
+		}
 
 		const url = `/clientcare-card-${this._version}/LoadConfirmedClientStopCard`;
 
@@ -359,44 +359,44 @@ export class CardService extends ChannelServiceBase {
 			'nonClientIDNumber': ``,
 			'nonClientRelationship': callerInformation.nonClientRelationship
 		};
-	
+
 		return this.post(
-			url, 
-			model, 
-			this.setToken(), 
-			`getStoppedCardDetails`, 
-			null, 
-			null, 
+			url,
+			model,
+			this.setToken(),
+			`getStoppedCardDetails`,
+			null,
+			null,
 			1000,
-			null, 
+			null,
 			errorHandler,
 			autoRetries
 		);
 	};
 
 	async updateCardsSettings(cif, cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`updateCardsSettings`)) {
 			return this.mock(`updateCardsSettings`);
-		} 
+		}
 
 		const request = {
 			cifNumber: cif,
 			cards: cardsList
 		};
-		
+
 		const url = `/clientcare-card-${this._version}/UpdateCardSettings`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`updateCardsSettings`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`updateCardsSettings`,
+			null,
+			null,
 			1000,
-			null, 
+			null,
 			errorHandler,
 			autoRetries
 		);

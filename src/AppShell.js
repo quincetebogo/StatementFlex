@@ -9,7 +9,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 // Import Horizon Routes
 import horizonRoutes from 'app/shell/HorizonRouter';
- 
+
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
@@ -113,10 +113,10 @@ export class AppShell extends Shell {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		// this._casperScript(); 
 		this._instanaHead();
-		this.horizonIncidentManager.initialise();
+
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -124,8 +124,8 @@ export class AppShell extends Shell {
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
-		
-		
+
+
 	}
 
 	async _instanaHead() {
@@ -173,7 +173,7 @@ export class AppShell extends Shell {
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
 
-		this._appStore.setState({ }, `USER_LOGGED_IN`);
+		this._appStore.setState({}, `USER_LOGGED_IN`);
 
 		// We are authenticated and done loading config
 		// trigger the display of the initial landing page.
@@ -220,7 +220,7 @@ export class AppShell extends Shell {
 
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
-		
+
 		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView === HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
 			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 			this.currentView = this.horizonViewManager.getCurrentView();
@@ -233,14 +233,14 @@ export class AppShell extends Shell {
 
 		if (!casper) {
 			const script = document.createElement(`script`);
-			
+
 			script.src = await this._configuration.getSetting(`otherSystemsURL.CASPer`);
 			script.setAttribute(`type`, `text/javascript`);
 			script.setAttribute(`id`, `CASPerScript`);
 			script.setAttribute(`title`, `CASPer Widget`);
 			body.appendChild(script);
 		}
-	  }
+	}
 	// ---------
 	// RENDERING
 	// ---------

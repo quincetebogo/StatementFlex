@@ -148,17 +148,17 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _accountDetails() {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
-		this.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
 	async _toggleRoundUp(event) {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ROUND_UP_TOGGLE, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ROUND_UP_TOGGLE, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
@@ -173,7 +173,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _toggleInterestSweep(event) {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_INTEREST_SWEEP_TOGGLE, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_INTEREST_SWEEP_TOGGLE, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
@@ -209,6 +209,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
+
 		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		*/
@@ -374,7 +375,6 @@ export class LiveBetter extends SavingsAccountBase {
 				this._updateLeftBar();
 
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.LBB);
-				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
@@ -407,7 +407,6 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await this.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 

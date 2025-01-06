@@ -283,10 +283,6 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubIncident(incidentCategorization, classify) {
-		await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
-	}
-
 	_performReturnToScreen() {
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 
@@ -308,6 +304,7 @@ export class ViewBase extends View {
 	}
 
 	_setIncidentNotstarted() {
+
 		/* Removed during incident management refactor
 	
 		if (this.horizonIncidentManager.incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {

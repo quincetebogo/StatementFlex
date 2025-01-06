@@ -198,8 +198,6 @@ export class SavingsPlan extends ViewBase {
 		if (saveProducts[this.accountViewType]) {
 			this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
 
-			await this.createAndClassifySubIncident(null, false);
-
 			this.endCallContext = `BalanceEnquiry`;
 			return saveProducts[this.accountViewType]();
 		}
@@ -248,7 +246,6 @@ export class SavingsPlan extends ViewBase {
 				}
 
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
-				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
@@ -455,7 +452,6 @@ export class SavingsPlan extends ViewBase {
 		this.horizonIncidentManager.setCurrentNeed(need);
 		this.savePlanDetails = savePlanDetails;
 
-		await this.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -575,8 +571,6 @@ export class SavingsPlan extends ViewBase {
 		}
 		this.horizonStore.setScreenDetails({ unlockAccountNumber: this.selectedUnlockAccNumber });
 
-		// check if we need to log incident for try again also
-		await this.createAndClassifySubIncident(null, false);
 		this.renderMode = RENDER_MODE.UNLOCK_FTSP;
 	}
 

@@ -8,7 +8,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  * @class PayShapService
  * @extends {ChannelServiceBase}
  */
- export class PayShapService extends ChannelServiceBase {
+export class PayShapService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
@@ -16,11 +16,11 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.payShapServiceUrl`, 
-			`PayShapChannelService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.payShapServiceUrl`,
+			`PayShapChannelService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
@@ -83,7 +83,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async enlistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`enlistCapitec`)) {
 			return this.mock(`enlistCapitec`);
@@ -107,7 +107,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async delistCapitec(verifiedTelephoneNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`delistCapitec`)) {
 			return this.mock(`delistCapitec`);
@@ -176,8 +176,8 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async payshapProofOfPayment(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-		
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
+
 		if (await this.isMockEnabled(`payshapPop`)) {
 			return this.mock(`payshapPop`);
 		}
@@ -205,4 +205,4 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	// ---------
 	// RENDERING
 	// ---------
- }
+}

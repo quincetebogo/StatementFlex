@@ -42,6 +42,7 @@ export class OpenBudgetFailure extends ViewBase {
 		super.connectedCallback();
 
 		await this._telemetry.startSpan(CreditEvents.OPEN_BUDGET_FAILURE);
+
 		/* Removed during incident management refactor
 		this._updateIncidentState();
 		*/

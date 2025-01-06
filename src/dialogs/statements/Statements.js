@@ -73,16 +73,16 @@ export class Statements extends Component {
 	 * @static
 	 * @memberof Statements
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			cifNumber: { type: String },
 			clientProducts: { type: Array },
 			lastName: { type: String },
-			accountType: { 
-				type: String, 
+			accountType: {
+				type: String,
 				attribute: `type`
 			},
-			title: { 
+			title: {
 				type: String,
 				attribute: `client-title`
 			},
@@ -169,7 +169,7 @@ export class Statements extends Component {
 	}
 
 	async _next(event) {
-		
+
 		switch (event.detail?.stepper) {
 			case RENDER_MODE.CHOOSE_ACCOUNT:
 				this._telemetry.logEvent(this.telemetryEvent.STATEMENTS_ACCOUNT_NEXT, {
@@ -277,7 +277,7 @@ export class Statements extends Component {
 		});
 
 		const returnValue = await this.savingsService.viewStatement(statement, () => this._createIncidentOnError());
-		
+
 		if (returnValue.succeeded) {
 			return base64ToBlobUrl(returnValue.result.statementData);
 		} else if (this.accountType === ACCOUNT_TYPES.LBB) {
@@ -291,7 +291,7 @@ export class Statements extends Component {
 	async _viewCreditStatement(request) {
 
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
-		
+
 			const statementInfo = this.findStatement(request.month);
 			const result = await this.getflexStatement(this.creditProducts[this.selectedProduct.name], statementInfo);
 
@@ -312,7 +312,7 @@ export class Statements extends Component {
 	async _getAvailableMonthlyStatements() {
 
 		if (this.availableMonthlyStatements.length === 0 && [PRODUCTS.CREDIT_CARD, PRODUCTS.ACCESS_FACILITY].includes(this.selectedProduct.name)) {
-			
+
 			const returnValue = await this.creditService.flexibleStatementList(this.selectedProduct.accountNumber, this.creditProducts[this.selectedProduct.name]);
 
 			if (!returnValue.succeeded) {
@@ -329,12 +329,12 @@ export class Statements extends Component {
 			return null;
 		}
 
-		const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber, type, statementInfo.statementId); 
+		const returnValue = await this.creditService.flexibleStatement(statementInfo.accountNumber, type, statementInfo.statementId);
 
 		if (returnValue.succeeded) {
 			return base64ToBlobUrl(returnValue.result?.content?.data);
 		}
-		
+
 		this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
 		return null;
 	}
@@ -388,12 +388,12 @@ export class Statements extends Component {
 			'statement-period': statement.statementDateRange.parseInterval,
 			'next-screen': TelemetryScreen.STATEMENTS_OUTCOME
 		});
-		
+
 		const returnValue = await this.savingsService.sendStatement(statement, null, 1);
 		this._updateScreenDetails(request);
 
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, this.statementAsOption);
-		
+
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
 		} else {
@@ -407,7 +407,7 @@ export class Statements extends Component {
 		if (request.accountType === `FLEXIBLE_CREDIT`) {
 
 			const statementDetails = request.monthInterval.map(item => this.findStatement(item))
-														  .filter(item => item);
+				.filter(item => item);
 			statementDetails.map(item => {
 				const data = {};
 				data.statementId = item.statementId;
@@ -423,7 +423,7 @@ export class Statements extends Component {
 
 		this._updateScreenDetails(request);
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
-		
+
 		if (returnValue?.succeeded) {
 			this.horizonRouter.navigateToCreditStatementSuccess();
 		} else {
@@ -432,7 +432,7 @@ export class Statements extends Component {
 	}
 
 	async _createIncidentOnError() {
-		await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		return true;
 	}
 
@@ -473,7 +473,7 @@ export class Statements extends Component {
 	// ---------
 	_mobileTemplate() {
 		return _webTemplate();
-		
+
 	}
 
 	_webTemplate() {
@@ -504,12 +504,12 @@ export class Statements extends Component {
 
 	_renderCcsModal() {
 		return this.ccsStatus
-		? html`
+			? html`
 			<horizon-warn-dialog
 				content="Unable to perform this transaction as there is a CCS status on this account."
 				@on-okay="${() => this.ccsStatus = false}">
 			</horizon-warn-dialog>`
-		: html``;
+			: html``;
 	}
 }
 

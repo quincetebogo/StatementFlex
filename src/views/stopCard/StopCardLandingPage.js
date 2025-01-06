@@ -125,7 +125,7 @@ export class StopCardLandingPage extends ViewBase {
 		});
 
 		this.horizonIncidentManager.setCurrentNeed(`card-history`);
-		await this.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 
 		const returnValue = await this.cardService.getStoppedCardDetails(this.callerInformation, this.horizonIncidentManager.getIncidentDetails());
 

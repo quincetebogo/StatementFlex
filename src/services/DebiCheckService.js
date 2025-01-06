@@ -38,9 +38,7 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag, null, false);
-
+	async debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`debiCheckMandates`)) {
 			return this.mock(`debiCheckMandates`, cifNumber);
 		}
@@ -52,9 +50,9 @@ export class DebiCheckService extends ChannelServiceBase {
 		const url = `/clientcare-debicheck-${this._version}/client-mandate`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`debiCheckMandates`,
 			null,
 			null,
@@ -64,7 +62,7 @@ export class DebiCheckService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
-	
+
 	/**
 	 * Retrieves the data for the debi-check View Info dialog
 	 *
@@ -89,9 +87,9 @@ export class DebiCheckService extends ChannelServiceBase {
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-details`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`debiCheckDetails`,
 			null,
 			null,
@@ -115,7 +113,7 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async debiCheckDecline(cifNumber, title, lastName, debiCheckDetails, mandateInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckDecline`)) {
 			return this.mock(`debiCheckDecline`, cifNumber, title, lastName, debiCheckDetails, mandateInfo);
@@ -135,9 +133,9 @@ export class DebiCheckService extends ChannelServiceBase {
 		const url = `/clientcare-debicheck-${this._version}/mandate-decline`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`debiCheckDecline`,
 			null,
 			null,
@@ -156,8 +154,8 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckApprove (request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+	async debiCheckApprove(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`debiCheckApprove`)) {
 			return this.mock(`debiCheckApprove`, request);
@@ -166,9 +164,9 @@ export class DebiCheckService extends ChannelServiceBase {
 		const url = `/clientcare-debicheck-${this._version}/mandate-approve`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`debiCheckApprove`,
 			null,
 			null,
@@ -187,7 +185,7 @@ export class DebiCheckService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async debiCheckAgreement (clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckAgreement(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`debiCheckAgreement`)) {
 			return this.mock(`debiCheckAgreement`, clientInfo);
 		}
@@ -201,15 +199,15 @@ export class DebiCheckService extends ChannelServiceBase {
 			registerId: clientInfo.registerId,
 			mandateId: clientInfo.mandateId,
 			mandateReferenceNumber: clientInfo.mandateReferenceNumber,
-			cifNumber: clientInfo.cifNumber 
+			cifNumber: clientInfo.cifNumber
 		};
-		
+
 		const url = `/clientcare-debicheck-${this._version}/client-mandate-agreement-template`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`debiCheckAgreement`,
 			null,
 			null,

@@ -285,7 +285,6 @@ export class CreditAccount extends ViewBase {
 		};
 
 		this.horizonIncidentManager.setCurrentNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
-		await this.createAndClassifySubIncident(null, false);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -523,6 +522,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
+
 		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		*/
@@ -608,7 +608,6 @@ export class CreditAccount extends ViewBase {
 				this.horizonStore.clearReturnScreen();
 			} else {
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.CREDIT);
-				await this.createAndClassifySubIncident(null, false);
 
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
@@ -673,7 +672,7 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	async _transactionHistory(creditType, productType, accountDetails) {
+	_transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -683,7 +682,6 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-		await this.createAndClassifySubIncident(null, false);
 
 		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -885,8 +883,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await this.createAndClassifySubIncident(null, false);
-
 		const request = {
 			accountNumber: selectedAccountDetails.accountNumber,
 			status: BUDGET_FACILITY.STATUS,
@@ -924,6 +920,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
+
 		/* Removed during incident management refactor
 		const incidentState = this.horizonIncidentManager.incidentState;
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
@@ -992,6 +989,7 @@ export class CreditAccount extends ViewBase {
 		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
 		*/
 		this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
+
 		/*
 		}
 		*/
@@ -1223,7 +1221,7 @@ export class CreditAccount extends ViewBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident((ex) => this._errorHandler(ex));
 		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
@@ -1268,6 +1266,7 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
+
 		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		*/
@@ -1275,7 +1274,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _disputeOutcome(event) {
-		await this.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});

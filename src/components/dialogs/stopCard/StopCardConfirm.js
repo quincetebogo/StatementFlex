@@ -50,7 +50,7 @@ export class StopCardConfirm extends Component {
 			cardsToStop: { type: Array },
 			cifNumber: { type: String },
 			lastName: { type: String },
-			title: { 
+			title: {
 				type: String,
 				attribute: `client-title`
 			},
@@ -65,7 +65,7 @@ export class StopCardConfirm extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.cardService = new CardService(
@@ -84,7 +84,7 @@ export class StopCardConfirm extends Component {
 			"screen": TelemetryScreen.STOP_CARD
 		});
 
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		const currentIncident = this.horizonIncidentManager.currentIncident;
 		const returnValue = await this.cardService.stopCards(this.cardsToStop, currentIncident, this.cifNumber, this.title, this.lastName);
 		const cardStopResults = returnValue.result;

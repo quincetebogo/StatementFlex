@@ -153,17 +153,8 @@ export class AccessChannels extends Component {
 			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
-				await this.horizonIncidentManager.createAndClassifySubIncident(() => this._toggleBusyFlag());
-				/* Removed during incident management refactor
-				this._updateIncidentState(super.HORIZON_NEED_STATUS.COMPLETED);
-				*/
+				await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 			}
-
-			/* Removed during incident management refactor
-			else {
-				this._updateIncidentState(super.HORIZON_NEED_STATUS.NOT_STARTED);
-			}
-			*/
 		}
 	}
 

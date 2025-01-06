@@ -134,12 +134,11 @@ export class ProductInformation extends ViewBase {
 		this._config = CONFIG[type];
 	}
 
-	async _initialise() {
+	_initialise() {
 		this._navigationContextUpdate();
 
 		if (this._config) {
 			this.horizonIncidentManager.setCurrentNeed(this._config.product);
-			await this.createAndClassifySubIncident(null, false);
 		} else {
 			this._config = CONFIG.SavingsAccount;
 		}

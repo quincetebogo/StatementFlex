@@ -39,7 +39,7 @@ const TRANSACTION_HISTORY = {
  * -
  * 
  * @export
- * @class SavingsAccount
+ * @class SavingsAccountLandingPage
  * @extends {SavingsAccountBase}
  */
 export class SavingsAccountLandingPage extends SavingsAccountBase {
@@ -186,10 +186,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				// Do not create subs inc on performing return to screen
 				if (!this.horizonStore.getReturnToScreen()) {
 					this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT);
-					await this.createAndClassifySubIncident(null, false);
 
-					// setting inc status to not started for landing page needs
-					this._setIncidentNotstarted();
 				} else if (this.horizonStore.getScreenDetails()?.returningFromScreen === `card-disputes-success-done`) {
 					this.horizonStore.clearScreenDetails();
 					this.horizonStore.clearReturnScreen();
@@ -219,7 +216,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.TRANSACTION_HISTORY
 		});
 
-		// await this.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -327,15 +323,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return `${getMonthName(newdate.getMonth() - 1)}`;
 	}
 
-	async _accountDetails(savingsLandingDetails) {
+	_accountDetails(savingsLandingDetails) {
 		this._telemetry.logEvent(SavingsAccLandingPage.SAVINGS_ACC_INFO, {
 			screen: TelemetryScreen.SAVINGS_ACCOUNT,
 			nextScreen: TelemetryScreen.SAVINGS_ACCOUNT_INFO
 		});
 
 		this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_ACCOUNT);
-
-		await this.createAndClassifySubIncident(null, false);
 
 		this.savingsDetails = {
 			"accountNumber": savingsLandingDetails.accountNumber,
@@ -373,7 +367,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident((ex) => this._errorHandler(ex));
 		const returnValue = await this._getFirstQusToDispute();
 
 		if (!returnValue.succeeded) {
@@ -418,6 +412,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
+
 		/* Remove during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
 		*/
@@ -425,7 +420,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _disputeOutcome(event) {
-		await this.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {});
 
 		this.disputeQuestion = {};

@@ -153,7 +153,7 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _createClassifyAndUpdateIncident(need, succeeded) {
 		this.horizonIncidentMAnager.setCurrentNeed(need);
-		await this.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 
 		this.horizonIncidentManager.incidentState = succeeded
 			? super.HORIZON_NEED_STATUS.COMPLETED
@@ -202,7 +202,6 @@ export class ViewProfileDetails extends ViewBase {
 			this._formatProfileData();
 
 			this.horizonIncidentManager.setCurrentNeed(`fica-details-enquiry`);
-			await this.createAndClassifySubIncident(null, false);
 		} else {
 			this.horizonRouter.navigateToSystemError();
 		}

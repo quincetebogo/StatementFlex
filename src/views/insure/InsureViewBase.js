@@ -82,9 +82,8 @@ export class InsureViewBase extends ViewBase {
 		return resp.result;
 	}
 
-	async setInsureIncident(need) {
+	setInsureIncident(need) {
 		this.horizonIncidentManager.setCurrentNeed(need);
-		await this.createAndClassifySubIncident(null, false);
 	}
 
 	/**
