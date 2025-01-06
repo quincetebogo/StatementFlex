@@ -82,11 +82,6 @@ export class TapToPaySuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	/* Removed during incident management refactor
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
-	*/
 
 	// ---------
 	// RENDERING
@@ -96,16 +91,16 @@ export class TapToPaySuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-update-msg {
-					width: auto;
-					height: auto;
-				}
+			#id-update-msg {
+				width: auto;
+				height: auto;
+			}
 
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 28px;
-				}
+			horizon-success-screen {
+				--horizon-button-group-margin-top: 28px;
+			}
 
-			`
+		`
 		];
 	}
 
@@ -115,41 +110,41 @@ export class TapToPaySuccess extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderTapToPaySuccess()}
-			${this._renderRelatedOptions()}
+		${this._renderTapToPaySuccess()}
+		${this._renderRelatedOptions()}
 
-			${super._webTemplate()}
-		`;
+		${super._webTemplate()}
+	`;
 	}
 
 	_renderTapToPaySuccess() {
 		return html`
-			<horizon-success-screen 
-				data-automation-id="tap-to-pay-success"
-				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				image="/images/tapToPay/cards-successful-tap-to-pay.svg"
-				left="Tap to Pay"
-				right="Done"
-				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				@left-click=${() => this._tapToPayClick()}
-				@right-click=${() => this._doneClick()}>
-					<section 
-						id="id-update-msg" 
-						slot="detail">
-							The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON`
+		<horizon-success-screen 
+			data-automation-id="tap-to-pay-success"
+			header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
+			image="/images/tapToPay/cards-successful-tap-to-pay.svg"
+			left="Tap to Pay"
+			right="Done"
+			toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
+			@left-click=${() => this._tapToPayClick()}
+			@right-click=${() => this._doneClick()}>
+				<section 
+					id="id-update-msg" 
+					slot="detail">
+						The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON`
 				? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
 				: `is deactivated`}.
-					</section>
-			</horizon-success-screen>
-		`;
+				</section>
+		</horizon-success-screen>
+	`;
 	}
 
 	_renderRelatedOptions() {
 		return html`
-			<horizon-related-options
-				context="Success">
-			</horizon-related-options>
-		`;
+		<horizon-related-options
+			context="Success">
+		</horizon-related-options>
+	`;
 	}
 }
 

@@ -370,17 +370,6 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 	}
 
-	/* Removed during incident management refactor
-	_setIncidentDone() {
-		const incidentManager = HorizonIncidentManager.getInstance();
-
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState) &&
-			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
-			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		}
-	}
-	*/
-
 	// ---------
 	// RENDERING
 	// ---------

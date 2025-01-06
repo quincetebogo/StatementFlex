@@ -75,12 +75,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	/* Removed during incident management refactor
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
-	*/
-
 	// ---------
 	// RENDERING
 	// ---------

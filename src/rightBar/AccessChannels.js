@@ -613,12 +613,6 @@ export class AccessChannels extends Component {
 		this.landingInfo = Utilities.deepCopy(this.landingInfo);
 	}
 
-	/* Removed during incidebt management refactor
-	_updateIncidentState(state) {
-		this.horizonIncidentManager.incidentState = state;
-	}
-	*/
-
 	async _refreshACInfo() {
 		this._deepCopyStatus();
 		await this._landingInfo();

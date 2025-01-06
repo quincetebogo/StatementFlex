@@ -1249,9 +1249,6 @@ export class CreditAccount extends ViewBase {
 
 		this.disputeQuestion = {};
 
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		*/
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 

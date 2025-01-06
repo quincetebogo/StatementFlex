@@ -409,9 +409,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 		this.disputeQuestion = {};
 
-		/* Remove during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		*/
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 

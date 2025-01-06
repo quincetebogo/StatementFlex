@@ -110,9 +110,6 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

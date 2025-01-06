@@ -160,9 +160,6 @@ export class StopCardLandingPage extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

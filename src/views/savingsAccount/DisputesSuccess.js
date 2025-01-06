@@ -94,9 +94,6 @@ export class DisputesSuccess extends ViewBase {
 	// ---------------
 
 	async _updateIncidentState() {
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.horizonIncidentManager.setDescription(this.description);
 
 		const options = {

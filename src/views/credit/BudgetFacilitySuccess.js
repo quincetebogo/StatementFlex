@@ -44,9 +44,6 @@ export class BudgetFacilitySuccess extends OutcomeBase {
 		this.documentData = screenDetails.documentData;
 
 		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_SUCCESS);
-		/* Removed during incident management refactor
-		this._updateIncidentState();
-		*/
 	}
 
 	disconnectedCallback() {
@@ -106,12 +103,6 @@ export class BudgetFacilitySuccess extends OutcomeBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	/* Removed during incident management refactor
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
-	*/
 
 	// ---------
 	// RENDERING
