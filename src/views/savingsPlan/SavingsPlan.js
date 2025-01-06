@@ -179,7 +179,7 @@ export class SavingsPlan extends ViewBase {
 	async _accountDetails(type, accNumber) {
 		this.alertBannerMessage = ``;
 
-		this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
+		await this._telemetry.logEvent(SavingsPlanEvents.SAVINGS_PLAN_ACCOUNT_NUMBER_SELECT, {
 			"screen": TelemetryScreen.SAVINGS_PLAN_LANDING,
 			"next-screen": TelemetryScreen.SAVINGS_PLAN_ACCOUNT_DETAILS
 		});
@@ -391,14 +391,6 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		/* Removed during incident management refactor
-		const incidentState = this.horizonIncidentManager.incidentState;
-
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
-		*/
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -525,9 +517,6 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -535,13 +524,13 @@ export class SavingsPlan extends ViewBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
 
 	async _setTranHistoryDone() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -790,7 +779,7 @@ export class SavingsPlan extends ViewBase {
 	async _unloadingUnlockFTSP(details) {
 
 		if (this.horizonIncidentManager.getCurrentNeed() === `unlock-ftsp-save`) {
-			await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+			await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 			this._setIncidentDone();
 		}
 	}

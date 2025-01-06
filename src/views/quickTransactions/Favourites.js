@@ -278,7 +278,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	async _onFavouritesOptionClick(e) {
+	_onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
 		this.curOptionEvent = e;
 
@@ -937,7 +937,7 @@ export class Favourites extends SavingsAccountBase {
 			issue: `${event.detail.issue}`
 		};
 
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag(), incidentCategorization);
+		await this.horizonIncidentManager.manualCreateAndClassify(() => this._toggleBusyFlag(), incidentCategorization);
 	}
 
 	async _createIncidentOnError() {
@@ -966,26 +966,13 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onExitSendCash() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
-		/* Removed during incident management refactor
-		this._setIncidentDone();
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	/* Removed during incident management refactor
-	_setIncidentDone() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
-	*/
-
 	async _onUnloadingSendCash() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
-
-		/* Removed during incident management refactor
-		this._setIncidentDone();
-		*/
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 	}
 
 	_onExitPayShap() {
@@ -1037,11 +1024,9 @@ export class Favourites extends SavingsAccountBase {
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
-			/* Removed during incident management refactor
-			this._setIncidentDone();
-			*/
 		} else {
 			this.payShapDefaultToast = `error`;
+
 			/* Removed during incident management refactor
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			*/
@@ -1067,11 +1052,10 @@ export class Favourites extends SavingsAccountBase {
 
 		if (returnValue.succeeded) {
 			this.payShapDefaultToast = `success`;
-			/* Removed during the incident management refactor
-			this._setIncidentDone();
-			*/
+
 		} else {
 			this.payShapDefaultToast = `error`;
+
 			/* Removed during incident management refactor
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
 			*/
@@ -1107,10 +1091,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _unloadingPayshap() {
 		if (this.horizonIncidentManager.currentIncident === `payshap`) {
-			await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
-			/* Removed during incident management refactor
-			this._setIncidentDone();
-			*/
+			await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		}
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -1208,11 +1189,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _exitCardSettings() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
-
-		/* Removed during incident management refactor
-		this._setIncidentDone();
-		*/
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

@@ -523,9 +523,6 @@ export class CreditAccount extends ViewBase {
 
 	_setIncidentDone() {
 
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -757,7 +754,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 	}
 
@@ -770,7 +767,7 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this.horizonStore.clearScreenDetails();
 		this._setIncidentDone();
@@ -920,13 +917,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-
-		/* Removed during incident management refactor
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -984,15 +974,7 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		/* Removed during incident management refactor
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-		*/
 		this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
-
-		/*
-		}
-		*/
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}

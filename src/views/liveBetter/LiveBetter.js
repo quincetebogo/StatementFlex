@@ -209,10 +209,6 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-
-		/* Removed during incident management refactor
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -335,7 +331,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -558,8 +554,7 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _setTranHistoryDone() {
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
-
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 	}
 

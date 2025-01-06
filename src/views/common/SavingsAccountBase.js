@@ -384,22 +384,11 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		/* Removed during incident management refactor
-		this._setIncidentNotstarted();
-		*/
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	/* Removed during incident management refactor
-	_setIncidentNotstarted() {
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
-	}
-	*/
-
 	_setIncidentDone() {
+
 		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		*/
@@ -412,7 +401,7 @@ export class SavingsAccountBase extends ViewBase {
 		 * Debi check mandates are viewed but view/approve/decline is not selected.
 		 * Navigating away will still be considered as viewed and classified.
 		 */
-		await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this.endCallContext = `LandingPage`;
 		this._setIncidentDone();

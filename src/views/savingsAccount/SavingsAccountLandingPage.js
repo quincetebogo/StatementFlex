@@ -155,10 +155,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	_unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-
-		// await this.horizonIncidentManager.classifyIncident(() => this._toggleBusyFlag());
-
-		// this._setIncidentDone();
 	}
 
 	// ---------------
