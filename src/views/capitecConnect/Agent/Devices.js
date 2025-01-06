@@ -47,7 +47,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			}
 		};
 
-		this.clientCif = `030530180`; // TODO: comment out when done with dev
+		this.clientCif = `807001544`; // TODO: comment out when done with dev
 	}
 
 	static get properties() {
