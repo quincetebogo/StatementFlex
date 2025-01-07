@@ -61,6 +61,9 @@ export class DOAgreementDialog extends Component {
 				--theme-modal-header-background-color: #f7f7f7;
 			}
 
+			.selectable-text {
+					user-select: text !important;
+				}
 		`
 		];
 	}
@@ -71,9 +74,9 @@ export class DOAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Debit Order" style="user-select: text; --theme-modal-header-color: black;">
+		<capitec-modal type="form" class="selectable-text" header="Debit Order" style="--theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box" style="user-select: text;">
+				<capitec-content-box class="body-box selectable-text">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
