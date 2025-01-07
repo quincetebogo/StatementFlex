@@ -71,9 +71,9 @@ export class DOAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Debit Order" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Debit Order" style="user-select: text; --theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box class="body-box" style="user-select: text;">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>

@@ -72,9 +72,9 @@ export class BeneAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Beneficiaries" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Beneficiaries" style=" user-select: text; --theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box class="body-box" style="user-select: text;">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
@@ -100,7 +100,7 @@ export class BeneAgreementDialog extends Component {
 			<li>Note any premiums in arrears will be deducted from the cover amount payable</li>
 		</ul>
 		`;
-		
+
 	}
 
 	/**

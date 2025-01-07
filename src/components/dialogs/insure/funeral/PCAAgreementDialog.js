@@ -15,7 +15,7 @@ import { Component, css, html } from 'platform/elements';
  */
 export class PCAAgreementDialog extends Component {
 
-	
+
 	// #region INITIALIZE
 
 	constructor() {
@@ -72,9 +72,9 @@ export class PCAAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Premium and Cover amount" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" header="Premium and Cover amount" style="user-select: text; --theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box class="body-box" style="user-select: text;">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
