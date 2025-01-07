@@ -237,6 +237,7 @@ export class Favourites extends SavingsAccountBase {
 
 	_handleChannelServiceError() {
 		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+		return false;
 	}
 
 	async _done(event) {

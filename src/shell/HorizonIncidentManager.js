@@ -148,28 +148,6 @@ export class HorizonIncidentManager {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
-	/* Removed during incident management refactor
-	 * 
-	 * @returns {string} A value indicating the state (progress) of the current incident
-	 */
-	get incidentState() {
-		if (!this.incidentDetails?.incidentState) {
-			return null;
-		}
-
-		return this.incidentDetails.incidentState;
-	}
-
-	/* 
-	 * Updates the state of the current incident
-	 * 
-	 * @param {'InProgress'|'Completed'|'Assigned'|'Failed'|'Not Started'|'Closed'} incidentState A value indicating the state of the current incident.
-	 */
-	set incidentState(incidentState) {
-		this.incidentDetails.incidentState = incidentState;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-	}
-
 	/**
 	 * Gets a string indicating the need (area) being addressed by the current incident
 	 * @returns {string} The need associated with the current incident
@@ -207,6 +185,12 @@ export class HorizonIncidentManager {
 		return this.incidentDetails.feedback;
 	}
 
+	/**
+	 * Sets the feedback notes for the current incident
+	 * 
+	 * @param {string} feedback - Sets the feedback for the current incident
+	 * @returns {undefined}
+	 */
 	setFeedback(feedback) {
 		this.incidentDetails.feedback = feedback;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -284,7 +268,7 @@ export class HorizonIncidentManager {
 	/**
 	 * This routine is used to create a new Incident for systems other than Horizon.
 	 * 
-	 * @param {*} errorHandler Error handler function to call should creation fail 
+	 * @param {function} errorHandler Error handler function to call should creation fail 
 	 * @returns {Promise<object>} The newly created incident
 	 */
 	async createExternalIncident(errorHandler) {
@@ -321,6 +305,14 @@ export class HorizonIncidentManager {
 		return incident;
 	}
 
+	/**
+	 * Creates and classifies an incident in a single. Any previous incident is automatically closed.
+	 * The incident is classified based in the need stored in session state
+	 * 
+	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
+	 * @param {string} [newIncidentState = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @returns {promise<void>} A promise to create and classify an incident
+	 */
 	async autoCreateAndClassify(toggleBusyFlag = null, newIncidentState = `Completed`) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
@@ -328,6 +320,15 @@ export class HorizonIncidentManager {
 		await this._classifyIncidentByNeed(newIncidentState);
 	}
 
+	/**
+	 * Creates and classifies an incident in a single. Any previous incident is automatically closed.
+	 * The classification information must be explicitly passed
+	 * 
+	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
+	 * @param {object} incidentCategorization  Object holds category, subcategory & issue that needs to be updated for an incident
+	 * @param {string} [newIncidentState = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @returns {promise<void>} A promise to create and classify an incident
+	 */
 	async manualCreateAndClassify(toggleBusyFlag, incidentCategorization, newIncidentState = `Completed`) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
@@ -336,12 +337,13 @@ export class HorizonIncidentManager {
 	}
 
 	/**
-	 * Classifies/ Categorizes the incident based on need action or incident categorization object
+	 * Classifies/Categorizes the incident based on need action or incident categorization object
 	 * 
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {Object} incidentCategorization - Object holds category, subcategory & issue that needs to be updated for an incident
-	 * @param {Function} errorHandler - Custom error handling function
+	 * @param {Function} toggleBusyFlag Toggle busy flag function
+	 * @param {Object} incidentCategorization Object holds category, subcategory & issue that needs to be updated for an incident
+	 * @param {Function} errorHandler Custom error handling function
 	 * @returns {Promise<void>} A promise to classify an incident
+	 * @deprecated Call the autoCreateAndClassfiy or manualCreateAndClassify methods where possible.
 	 */
 	async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
 		const incidentDetails = this.getIncidentDetails();
@@ -371,7 +373,7 @@ export class HorizonIncidentManager {
 			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
 
 			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+				this.logger.log(`warning`, `Failed to classify incident. ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
 				return;
 			}
 		}
@@ -389,7 +391,7 @@ export class HorizonIncidentManager {
 	 *          - causeCodeByContext - Cause code to end call session
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {boolean} - true/ false, indicating close incident status
+	 * @returns {Promise<boolean>} - true/ false, indicating close incident status
 	 */
 	async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag, errorHandler = null) {
 
@@ -428,7 +430,7 @@ export class HorizonIncidentManager {
 		);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to close incident..`, `closeIncident`, returnValue.correlationId);
 			return false;
 		}
 
@@ -448,7 +450,7 @@ export class HorizonIncidentManager {
 			primaryNeedIncident: this.primaryIncident
 		};
 
-		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
+		const returnValue = await this.incidentService.createIncident(createIncidentRequest, () => true);
 
 		if (!returnValue.succeeded || !returnValue.result) {
 			const ex = returnValue.exception;
@@ -457,7 +459,7 @@ export class HorizonIncidentManager {
 				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${this.primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
 			}
 
-			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createNewIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createNewIncident`, returnValue.correlationId);
 
 
 			this.currentIncident = null;
@@ -474,29 +476,30 @@ export class HorizonIncidentManager {
 	async _classifyIncidentByNeed(newIncidentState) {
 		// Categorize but leave open so that we can add end call details if this turns out to be the last incident
 		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
-		if (incidentUnclassified && _categorizationInfoAvailable(needAction, null)) {
-			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, null, null);
+		if (this._categorizationInfoAvailable(needAction, null)) {
+			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, null, () => true);
 			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+				this.logger.log(`warning`, `Failed to classify incident! ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `_classifyIncidentByNeed`, returnValue.correlationId);
 			}
 		}
 
 		// By default we create a new incident in the 'Completed' state but it could be failed etc.
 		this.incidentDetails.primaryIncidentFinished = true;
-		incidentState = newIncidentState;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	async _classifyIncidentManually(incidentCategorization, newIncidentState) {
-		if (_categorizationInfoAvailable(null, incidentCategorization)) {
-			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, null, incidentCategorization, null);
+		if (this._categorizationInfoAvailable(null, incidentCategorization)) {
+			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, null, incidentCategorization, () => true);
 			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+				this.logger.log(`warning`, `Failed to classify incident! ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `_classifyIncidentManually`, returnValue.correlationId);
 				return;
 			}
 		}
 
 		this.incidentDetails.primaryIncidentFinished = true;
-		incidentState = newIncidentState;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 	}
 
 	async _closeAndCreate() {
@@ -511,7 +514,7 @@ export class HorizonIncidentManager {
 		// If still on the primary incident then there is no previous incident to close
 		if (this.incidentDetails.primaryIncidentFinished) {
 			// Close previous incident
-			await _closePreviousIncident();
+			await this._closePreviousIncident();
 
 			// and start a new one
 			if (!this._createNewIncident(incomingCallDetails)) {
@@ -541,7 +544,7 @@ export class HorizonIncidentManager {
 	 * @returns {Promise<void>} A promise to update the client details on the incident
 	 */
 	async _updateSubsequentNeedClientDetails(callDetails, callerInfo) {
-		const returnValue = await this.incidentService.updateIncidentClientDetails(callerInfo.cifNumber, this.currentIncident);
+		const returnValue = await this.incidentService.updateIncidentClientDetails(callerInfo.cifNumber, this.currentIncident, () => true);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
@@ -575,7 +578,7 @@ export class HorizonIncidentManager {
 			cellPhone: callerInfo.nonClientCellPhone
 		};
 
-		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails);
+		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails, () => true);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
@@ -600,7 +603,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {boolean} - true/ false, indicating close incident status
+	 * @returns {Promise<boolean>} - true/ false, indicating close incident status
 	 */
 	async _closePreviousIncident() {
 		const returnValue = await this.incidentService.closeIncident(
@@ -609,11 +612,11 @@ export class HorizonIncidentManager {
 			resolution,
 			causeCode,
 			this.incidentDetails.description,
-			null
+			() => true
 		);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePreviousIncident`, returnValue.correlationId);
 			return false;
 		}
 
