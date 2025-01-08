@@ -48,6 +48,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		};
 
 		this.clientCif = `807001544`; // TODO: comment out when done with dev
+		this.isInvoiceModalOpen = false;
+		this.emailAddress = ``;
+		this.currentOrderId = ``;
 	}
 
 	static get properties() {
@@ -55,7 +58,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			...super.properties,
 			numOfPagingRows: { type: Number },
 			currentPageIndex: { type: Number },
-			activeFilters: { type: Object }
+			activeFilters: { type: Object },
+			isInvoiceModalOpen: { type: Boolean },
+			emailAddress: { type: String },
+			currentOrderId: { type: String }
 		};
 	}
 
@@ -249,9 +255,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-table-column
             label="Order Date"
             field="orderDate"
-            .renderer="${(item) => (item.orderDate
-				? `${formatDate(item.orderDate)} ${getTimeFromDate(item.orderDate)}`
-				: item.orderDate)}"
+            .renderer="${(item) => this._renderTableCol(item)}"
           ></capitec-table-column>
           <capitec-table-column
             label="Order Number"
@@ -272,6 +276,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
             .renderer="${this._renderStatus}"
           ></capitec-table-column>
         </capitec-table>
+        ${this.isInvoiceModalOpen
+				? this.openInvoiceModal()
+				: null}
       </capitec-content-box>
     `;
 	}
@@ -321,19 +328,97 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		};
 	}
 
-	_expandRenderer(item) {
-		const getValue = (value) => (!value || value === `null` ? `-` : value);
-		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
+	_renderTableCol(item) {
+		return item.orderDate ? `${formatDate(item.orderDate)} ${getTimeFromDate(item.orderDate)}` : item.orderDate;
+	}
 
-		const getDeviceInvoice = async (orderId) => {
-			const testDeliveredOrderId = `979ad379-13d1-415a-94b5-c0e7082ce86a`;
-			try {
-				const response = await this.capitecConnectService.getDeviceInvoice(testDeliveredOrderId);
-				console.log(`🚀 ~ response->`, response);
-			} catch (error) {
-				console.error(`Error getting device invoice:`, error);
-			}
-		};
+	async getInvoice() {
+		try {
+			const testId = `979ad379-13d1-415a-94b5-c0e7082ce86a`;
+			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
+			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
+			console.log(`🚀 ~ response->`, response);
+		} catch (error) {
+			console.error(`Error getting device invoice:`, error);
+		}
+	}
+
+	openInvoiceModal(orderId) {
+		if (!this.isInvoiceModalOpen) {
+			this.currentOrderId = orderId;
+		}
+		this.isInvoiceModalOpen = true;
+
+		return html`
+		<capitec-modal 
+			type="form" 
+			header="Invoice"
+			?open="${this.isInvoiceModalOpen}"
+		>
+			<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 300px; padding: 24px;">
+				<div column="1" row="1" colspan="2">
+					<capitec-label type="strong" label="Enter email address"></capitec-label>
+					<br />
+					<capitec-text-field
+						label="Email Address"
+						placeholder="Enter email address"
+						value="${this.emailAddress || ``}"
+						@value-change="${(e) => this.emailAddress = e.detail.new}"
+					></capitec-text-field>
+				</div>
+
+				<div column="1" row="2" colspan="2" style="margin: 24px -24px;">
+					<hr style="border: none; border-top: 1px solid var(--theme-modal-border-color, #E1E1E1);">
+				</div>
+
+				<div column="1" row="3" colspan="2">
+					<capitec-label type="strong" label="View document" style="margin-bottom: 24px;"></capitec-label>
+					<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--theme-modal-border-color, #E1E1E1); border-radius: 4px;">
+						<capitec-label label="Invoice" style="color: var(--theme-text-primary-color, #333333);"></capitec-label>
+						<capitec-hyperlink
+							label="View Document"
+							style="--theme-hyperlink-color: var(--theme-primary-color, #0091DA);"
+							@click="${() => this.getInvoice()}"
+						></capitec-hyperlink>
+					</div>
+				</div>
+			</capitec-content-box>
+			
+			<div slot="footer" style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;">
+				<capitec-button 
+					type="secondary" 
+					label="Cancel" 
+					@click="${() => this.isInvoiceModalOpen = false}"
+				></capitec-button>
+				<capitec-button 
+					type="primary" 
+					label="Send"
+					.disabled="${this.emailAddress.length === 0}"
+					style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+					@click="${() => this.sendInvoice()}"
+				></capitec-button>
+			</div>
+		</capitec-modal>
+		`;
+	}
+
+	sendInvoice() {
+		if (!this.emailAddress) {
+			return;
+		}
+		try {
+			console.log(`Sending invoice to:`, this.emailAddress);
+			this.isInvoiceModalOpen = false;
+		} catch (error) {
+			console.error(`Error sending invoice:`, error);
+		}
+	}
+
+	_expandRenderer(item) {
+		// eslint-disable-next-line no-extra-parens
+		const getValue = (value) => (!value || value === `null` ? `-` : value);
+		// eslint-disable-next-line no-extra-parens
+		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
 
 		return html`
       <capitec-group layout="grid" gap="clear">
@@ -433,7 +518,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 <capitec-hyperlink
                   style="margin-right: 16px; margin-top: 10px;"
                   label="View Invoice"
-                  @click="${() => getDeviceInvoice(item.orderNumber)}"
+                  @click="${() => {
+					this.openInvoiceModal(item.orderNumber);
+				}}"
                 >
                 </capitec-hyperlink>
               </div>
@@ -447,7 +534,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return formatAmount(value);
 	}
 
-	_renderStatus(item, fieldName, value) {
+	_renderStatus(item, _fieldName, value) {
 		const label = value.replace(`ORDER`, ``);
 		let type = `warning`;
 
