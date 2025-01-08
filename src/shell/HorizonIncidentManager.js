@@ -310,14 +310,14 @@ export class HorizonIncidentManager {
 	 * The incident is classified based in the need stored in session state
 	 * 
 	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
-	 * @param {string} [newIncidentState = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @param {string} [closeType = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
 	 * @returns {promise<void>} A promise to create and classify an incident
 	 */
-	async autoCreateAndClassify(toggleBusyFlag = null, newIncidentState = `Completed`) {
+	async autoCreateAndClassify(toggleBusyFlag = null, closeType = `Completed`) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
 		await this._closeAndCreate();
-		await this._classifyIncidentByNeed(newIncidentState);
+		await this._classifyIncidentByNeed(closeType);
 	}
 
 	/**
@@ -326,14 +326,14 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
 	 * @param {object} incidentCategorization  Object holds category, subcategory & issue that needs to be updated for an incident
-	 * @param {string} [newIncidentState = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @param {string} [closeType = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
 	 * @returns {promise<void>} A promise to create and classify an incident
 	 */
-	async manualCreateAndClassify(toggleBusyFlag, incidentCategorization, newIncidentState = `Completed`) {
+	async manualCreateAndClassify(toggleBusyFlag, incidentCategorization, closeType = `Completed`) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-		await this._closeAndCreate();
-		await this._classifyIncidentManually(incidentCategorization, newIncidentState);
+		await this._closeAndCreate(incidentCategorization);
+		await this._classifyIncidentManually(incidentCategorization, closeType);
 	}
 
 	/**
@@ -465,15 +465,14 @@ export class HorizonIncidentManager {
 			this.currentIncident = null;
 		}
 
-		incidentDetails.incCreated = returnValue.succeeded;
-		this.horizonStore.setIncidentDetails(incidentDetails); // Updates incidentDetails to indicate that we do not have a created incident
-
-		this.currentIncident = returnValue.result?.incident;
+		this.incidentDetails.currentIncident = returnValue.result?.incident;
+		this.incidentDetails.incCreated = returnValue.succeeded;
+		this.horizonStore.setIncidentDetails(this.incidentDetails); // Updates incidentDetails to indicate that we do not have a created incident
 
 		return this.currentIncident !== null;
 	}
 
-	async _classifyIncidentByNeed(newIncidentState) {
+	async _classifyIncidentByNeed(closeType) {
 		// Categorize but leave open so that we can add end call details if this turns out to be the last incident
 		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
 		if (this._categorizationInfoAvailable(needAction, null)) {
@@ -485,10 +484,11 @@ export class HorizonIncidentManager {
 
 		// By default we create a new incident in the 'Completed' state but it could be failed etc.
 		this.incidentDetails.primaryIncidentFinished = true;
+		this.incidentDetails.closeType = closeType;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
-	async _classifyIncidentManually(incidentCategorization, newIncidentState) {
+	async _classifyIncidentManually(incidentCategorization, closeType) {
 		if (this._categorizationInfoAvailable(null, incidentCategorization)) {
 			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, null, incidentCategorization, () => true);
 			if (!returnValue.succeeded) {
@@ -498,11 +498,12 @@ export class HorizonIncidentManager {
 		}
 
 		this.incidentDetails.primaryIncidentFinished = true;
+		this.incidentDetails.closeType = closeType;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 	}
 
-	async _closeAndCreate() {
+	async _closeAndCreate(manualClassification = {}) {
 		// Ensure we have a primary incident/interaction 
 		if (!this._validIncident(this.primaryIncident)) {
 			return; // Should maybe raise an exception and transition to a system error page
@@ -514,10 +515,10 @@ export class HorizonIncidentManager {
 		// If still on the primary incident then there is no previous incident to close
 		if (this.incidentDetails.primaryIncidentFinished) {
 			// Close previous incident
-			await this._closePreviousIncident();
+			await this._closePreviousIncident(manualClassification);
 
 			// and start a new one
-			if (!this._createNewIncident(incomingCallDetails)) {
+			if (!await this._createNewIncident(incomingCallDetails)) {
 				return; // Continuing without an incident - maybe make this a system error now
 			}
 		}
@@ -596,16 +597,25 @@ export class HorizonIncidentManager {
 		return true;
 	}
 
+	_concatenate(str1, str2) {
+		return str1 ? `${str1}\n${str2}` : `${str2}`;
+	}
+
 	/**
-	 * Closing current need
-	 * Since we know the need is fullfilled, closing incident with default values
-	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
+	 * Closes the current incident befpre startog a new incident. This routine is not
+	 * used to close the final incident on ending the call.
 	 * 
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {Promise<boolean>} - true/ false, indicating close incident status
+	 * @param { object } [manualClassification = {}] Manual Classification if not using auto classification
+	 * @returns { Promise<boolean> } Returns true if the previous incident was successfully closed
 	 */
-	async _closePreviousIncident() {
+	async _closePreviousIncident(manualClassification = {}) {
+		// retrieve incicdent information that may have been updated in Strack/Interaction DB outside of Horizon
+		const incidentInfo = await this._incidentStatus(this.currentIncident);
+
+		const reason = CLOSE_REASONS[this.incidentDetails.closeType];
+		const resolution = this._concatenate(incidentInfo.resolution, REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason]);
+		const causeCode = this._getCauseCodeForPreviousIncident(incidentInfo.causeCode, reason, manualClassification);
+
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident,
 			reason,
@@ -615,14 +625,31 @@ export class HorizonIncidentManager {
 			() => true
 		);
 
+		this._updateIncidentState(null);
+
 		if (!returnValue.succeeded) {
-			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePreviousIncident`, returnValue.correlationId);
+			this.logger.log(`warning`, `Failed to close incident.`, `_closePreviousIncident`, returnValue.correlationId);
 			return false;
 		}
 
-		this._updateIncidentState(null);
 		return true;
 	}
+
+	_getCauseCodeForPreviousIncident(existingCauseCode, reason, manualClassification) {
+		let causeCodeByReason = ``;
+		const endCallReason = REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason];
+		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[RoleManager.getInstance().orgUnit];
+		const getFromValObj = (endOfCallReason) => causeCodeByReasons[endOfCallReason][manualClassification.issue] || ``;
+
+		if (causeCodeByReasons[endCallReason]) {
+			causeCodeByReason = typeof causeCodeByReasons[endCallReason] === `object`
+				? getFromValObj(endCallReason)
+				: causeCodeByReasons[endCallReason];
+		}
+
+		return existingCauseCode || causeCodeByReason || `NormalEnquiry`;
+	}
+
 
 	_isIncidentClassified(incidentInfo) {
 		return !(isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue));
@@ -693,20 +720,28 @@ export class HorizonIncidentManager {
 			false,
 			incidentDetails.incCreated,
 			``, // resetting description once incident is closed
-			primaryIncidentFinished = incidentDetails.primaryIncidentFinished
+			incidentDetails.primaryIncidentFinished
 		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	}
 
+	/**
+	 * Loads the incident information as stored in STrack/the Interaction DB. This is done in case the 
+	 * incident has been updated externally to Horizon
+	 * 
+	 * @param {object} incident The incident that needs to be checked
+	 * @returns {Promise<object>} The existing incident information stored in the database
+	 */
 	async _incidentStatus(incident) {
-		const returnValue = await this.incidentService.incidentStatus(incident);
+		const returnValue = await this.incidentService.incidentStatus(incident, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
 
 		this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+
 		return {};
 	}
 }
