@@ -160,6 +160,50 @@ export class CapitecConnectService extends ChannelServiceBase {
 		return sanitizedObject;
 	}
 
+async getVoucherInformation(voucherSerialNumber) {
+    const url = `/v1/api/horizon/voucher/information`;
+    
+    const request = {
+        voucherSerialNumber: voucherSerialNumber
+    };
+
+    return this.post(
+        url,
+        request,
+        this.setToken(),
+        'getVoucherInformation',
+        false,
+        null,
+        2000,
+        null,
+        null,
+        DEFAULT_AUTO_RETRIES
+    );
+}
+
+async getVoucherHistory(voucherSerialNumber) {
+	const url = `/v1/api/horizon/voucher/history`;
+    
+    const request = {
+        voucherSerialNumber: voucherSerialNumber,
+				maxRecords: "10"
+    };
+
+    return this.post(
+        url,
+        request,
+			this.setToken(),
+				'getVoucherHistory',
+        false,
+        null,
+        2000,
+        null,
+        null,
+        DEFAULT_AUTO_RETRIES
+    );
+}
+
+
 	async rechargeHistory(qry_args = {}, pagination_args = {}, mockArgs = {}) {
 		var request = this.sanitizeJsonObject(
 			qry_args,
