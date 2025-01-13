@@ -19,7 +19,7 @@ import 'app/components/common/HorizonExpander';
  * @extends {Component}
  */
 export class SavingsAccount extends Component {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -34,7 +34,7 @@ export class SavingsAccount extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 	}
@@ -61,11 +61,11 @@ export class SavingsAccount extends Component {
 			getTooltipMessage: { type: Object }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	
+
 	_optionSelectedClick(selectedOption) {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
 	}
@@ -75,13 +75,13 @@ export class SavingsAccount extends Component {
 	}
 
 	_accountDetails() {
-		this.dispatchEvent(new CustomEvent(`account-details`, {})); 
+		this.dispatchEvent(new CustomEvent(`account-details`, {}));
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-	
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -256,7 +256,7 @@ export class SavingsAccount extends Component {
 				<capitec-title-bar type="primary">
 					<capitec-icon size="default" icon="product/transact-white">
 					</capitec-icon>
-					<capitec-label label="Savings Account" type="Title"></capitec-label>
+					<capitec-label label="Main Account" type="Title"></capitec-label>
 				</capitec-title-bar>
 
 				<capitec-content-box>
@@ -268,7 +268,7 @@ export class SavingsAccount extends Component {
 			</capitec-card>
 		`;
 	}
-	
+
 	_renderAccountDetailsBar() {
 		return html`
 			<horizon-expander

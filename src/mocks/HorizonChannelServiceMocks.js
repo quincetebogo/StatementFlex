@@ -55,7 +55,7 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `emailPaidUpLetter`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetTransferFromAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.budgetFacility = await loadMockModule(this.budgetFacility, `confirmBudgetTransfer`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
-		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err))); 
+		this.budgetFacility = await loadMockModule(this.budgetFacility, `budgetAccounts`, () => import(`../mocks/CreditBudgetFacilityAccounts`).catch(err => logError(err)));
 		this.kbaMocks = await loadMockModule(this.kbaMocks, `loadKBA`, () => import(`../mocks/KBAMocks`).catch(err => logError(err)));
 		this.unlockFTSPMocks = await loadMockModule(this.unlockFTSPMocks, `ftspUnlockOptions`, () => import(`../mocks/FtspMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `sendSettlementQuoteEmail`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
@@ -65,6 +65,7 @@ export default class HorizonChannelServiceMocks {
 		this.creditMocks = await loadMockModule(this.creditMocks, `creditStatement`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `settleAndClose`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.creditMocks = await loadMockModule(this.creditMocks, `settlementQuoteLanding`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
+		this.creditMocks = await loadMockModule(this.creditMocks, `creditCardDetails`, () => import(`../mocks/CreditMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `getClientProducts`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `payShapDetails`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
 		this.payShapMocks = await loadMockModule(this.payShapMocks, `getInstitutions`, () => import(`../mocks/PayShapMocks`).catch(err => logError(err)));
@@ -521,6 +522,24 @@ export default class HorizonChannelServiceMocks {
 		return errPromise;
 
 	}
+
+	creditCardDetails() {
+		if (this._mockSettings.creditCardDetails.positiveCase) {
+			return this.creditMocks.creditCardDetails;
+		}
+
+		const errPromise = new Promise(() => {
+			const httpError = new HttpStatusError();
+			httpError.status = 400;
+			httpError.message = `Oh no! A fake 400!`;
+
+			throw httpError;
+		});
+
+		return errPromise;
+
+	}
+
 	settlementQuoteLanding() {
 		if (this._mockSettings.settlementQuoteLanding.positiveCase) {
 			return this.creditMocks.settlementQuoteLanding;
@@ -797,14 +816,14 @@ export default class HorizonChannelServiceMocks {
 	getClientDetails() {
 		if (this._mockSettings.getClientDetails.positiveCase) {
 			return this.clientDetails.clientDetails;
-		} 
+		}
 		return null;
 	}
 
 	getEmployer(searchValue) {
 		if (this._mockSettings.getEmployer.positiveCase) {
 			return { "employerList": this.clientDetails.employerList.employerList.filter(item => item.employerName.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1) };
-		} 
+		}
 		return null;
 	}
 }

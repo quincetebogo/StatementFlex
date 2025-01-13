@@ -10,8 +10,8 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
  * @extends {}
  */
 
- export class RoleManager {
-	
+export class RoleManager {
+
 	static getInstance() {
 		return this.instance || (this.instance = new RoleManager());
 	}
@@ -60,10 +60,10 @@ import { ORG_UNITS, ROLES_TO_ORG_UNITS } from 'app/constants/Common';
 
 	get orgUnit() {
 		const filteredAndSorted = this.roles
-									.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
-									.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
-									.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
-		
+			.map((role) => ROLES_TO_ORG_UNITS[role]) // Map the roles to their corresponding orgUnit objects
+			.filter(Boolean) // Remove any undefined elements in case a role is not found in rolesToOrgUnits
+			.sort((a, b) => a.order - b.order); // Sort the orgUnit objects based on the order property
+
 		if (filteredAndSorted.length > 0) {
 			return filteredAndSorted[0].orgUnit;
 		};
