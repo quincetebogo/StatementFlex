@@ -83,6 +83,10 @@ export class CFPAgreementDialog extends Component {
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
+
+				.selectable-text {
+					user-select: text !important;
+				}
 			`
 		];
 	}
@@ -93,9 +97,9 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Capitec Funeral Plan" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" class="selectable-text" header="Capitec Funeral Plan" style="--theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box class="body-box selectable-text" >
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
@@ -149,7 +153,7 @@ export class CFPAgreementDialog extends Component {
 					<li>must have an active Capitec main account to have a Funeral Plan;</li>
 					<li>cannot transfer the rights or obligations of a Funeral Plan to someone else.</li>
 				</ul>`;
-		}else if(this.productCode === INSURE_PRODUCT_CODE.SANLAM){
+		} else if (this.productCode === INSURE_PRODUCT_CODE.SANLAM) {
 			return html`
 				<strong>Capitec:</strong>
 				<ul class="no-margin">
@@ -171,7 +175,7 @@ export class CFPAgreementDialog extends Component {
 				</ul>
 			`
 		}
-		
+
 		return html``;
 	}
 
