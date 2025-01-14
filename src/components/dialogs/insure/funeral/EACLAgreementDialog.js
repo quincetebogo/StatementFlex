@@ -61,6 +61,10 @@ export class EACLAgreementDialog extends Component {
 			capitec-modal {
 				--theme-modal-header-background-color: #f7f7f7;
 			}
+			
+			.selectable-text {
+				user-select: text !important;
+			}
 
 		`
 		];
@@ -72,9 +76,9 @@ export class EACLAgreementDialog extends Component {
 	 */
 	_webTemplate() {
 		return html`
-		<capitec-modal type="form" header="Entry Ages and Child Limits" style="--theme-modal-header-color: black;">
+		<capitec-modal type="form" class="selectable-text" header="Entry Ages and Child Limits" style=" --theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box">
+				<capitec-content-box class="body-box selectable-text" >
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
