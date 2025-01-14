@@ -21,5 +21,8 @@
 	"license": "ISC",
 	"devDependencies": {
 		"cordova": "^10.0.0"
+	},
+	"dependencies": {
+		"com.company.AppName": "file:"
 	}
 }

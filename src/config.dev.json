@@ -433,7 +433,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"payshapPop": {
