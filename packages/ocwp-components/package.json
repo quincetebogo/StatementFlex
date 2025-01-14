@@ -21,7 +21,6 @@
 		"chartjs-plugin-datalabels": "2.0.0",
 		"lit": "2.1.1",
 		"luxon": "3.0.1",
-		"ocwp-components": "file:",
 		"ocwp-core": "file:../ocwp-core",
 		"prismjs": "1.23.0",
 		"query-string": "7.0.0",

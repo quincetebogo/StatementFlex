@@ -11,10 +11,9 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@capacitor/android": "3.3.1",
 		"@capacitor/cli": "3.3.1",
 		"@capacitor/core": "3.3.1",
-		"@capacitor/ios": "3.3.1",
-		"app-name": "file:"
+		"@capacitor/android": "3.3.1",
+		"@capacitor/ios": "3.3.1"
 	}
 }

@@ -9,7 +9,7 @@
 		"debiCheckServiceUrl": "https://cs-debicheck-dev.bussup.npr-plrbsc.asgard.capi",
 		"cardServiceUrl": "https://cs-cards-dev.bussup.npr-plrbsc.asgard.capi",
 		"savingsPlanChannelServiceUrl": "https://cs-save-dev.bussup.npr-plrbsc.asgard.capi",
-		"insureChannelServiceUrl": "https://insure-hics-service-int.inspla.npr-plipla.asgard.capi",
+		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
 		"widgetRegistryService": "http://localhost:6001",
@@ -449,7 +449,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -481,7 +481,7 @@
 			"positiveCase": true
 		},
 		"insureGenericLifeDocument": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureActivatePolicyPause": {
