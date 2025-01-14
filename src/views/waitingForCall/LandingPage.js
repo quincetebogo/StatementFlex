@@ -1,6 +1,5 @@
 import { css, html } from 'platform/elements';
 import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
-import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -8,7 +7,6 @@ import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
@@ -122,8 +120,8 @@ export class LandingPage extends ViewBase {
 
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
-		this.searchCallSub.dispose(); 
-		this.agentUpSub.dispose(); 
+		this.searchCallSub.dispose();
+		this.agentUpSub.dispose();
 		this.eventSub.dispose();
 		this.callStatusSubscription.unsubscribe();
 		this.incCreatedOnRetry.dispose();
@@ -151,20 +149,14 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-		
-		// 1. Saving incoming call details into state
 		this._saveIncomingCallDetails(newCallInfo);
 
-		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
-		// in the desktop agent but has moved here. 
-		const incident = await this._createIncident(newCallInfo);
+		const primaryIncident = await this.horizonIncidentManager.createPrimaryIncident(() => this._toggleBusyFlag(), newCallInfo);
 
-		if (!incident) {
+		if (!primaryIncident) {
 			this.horizonRouter.navigateToCreateIncidentError();
 			return false;
 		}
-
-		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
 
 		this._acceptCall(newCallInfo, primaryIncident);
 	}
@@ -172,30 +164,6 @@ export class LandingPage extends ViewBase {
 	_initiateAcceptCall() {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this._acceptCall(this.incomingCallDetails);
-	}
-
-	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
-		 const incident = returnValue.result?.incident;
-
-		 if (!returnValue.succeeded || !incident) {
-			const ex = returnValue.exception;
-
-			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
-			} 
-
-		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
-		 }
-
-		if (incident) {
-			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
-				"incident-reference": incident.incidentReference,
-				"incident-rec-id": incident.incidentId
-			}, true);
-		}
-	
-		return incident;
 	}
 
 	async _acceptCall(newCallInfo, primaryIncident) {
@@ -237,7 +205,7 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
-		
+
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`
 		};
@@ -251,7 +219,7 @@ export class LandingPage extends ViewBase {
 
 			// Case: We got response for the incoming phone number, meaning its verified phone number
 			this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
-			
+
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
@@ -320,7 +288,7 @@ export class LandingPage extends ViewBase {
 			``, // branch code
 			`` // Masked cif
 		);
-		
+
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
@@ -338,7 +306,7 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
-	
+
 	async _updatePreferredLanguage(preferredLanguage) {
 		// CS call to update preferred language
 		const isUpdateSuccess = await this._updatePreferences(preferredLanguage, this.confirmedCaller.cifNumber);
@@ -353,7 +321,7 @@ export class LandingPage extends ViewBase {
 		} else {
 			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language update failed.` };
 		}
-		
+
 		this.displayToast = true;
 		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
@@ -378,7 +346,7 @@ export class LandingPage extends ViewBase {
 		if (returnValue.succeeded) {
 			const landingPageData = returnValue.result;
 			this.employeeId = landingPageData.loggedInAgent.employeeId;
-			
+
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
@@ -402,7 +370,7 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
-			false, 
+			false,
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
@@ -493,7 +461,7 @@ export class LandingPage extends ViewBase {
 
 	_renderToast() {
 		return this.displayToast
-		? html`
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="${this.preferenceToastDetails.type}" 
@@ -502,7 +470,7 @@ export class LandingPage extends ViewBase {
 				@click="${() => this.displayToast = false}"
 				closable >
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 }
 

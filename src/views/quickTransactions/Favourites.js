@@ -36,6 +36,7 @@ import 'app/components/quickTransactions/UpdateCardSettings';
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
+import { HORIZON_INCIDENT_STATE } from 'app/constants/IncidentManager';
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 const today = new Date();
@@ -237,7 +238,7 @@ export class Favourites extends SavingsAccountBase {
 
 	_handleChannelServiceError() {
 		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-		return false;
+		return true;
 	}
 
 	async _done(event) {
@@ -939,7 +940,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _createIncidentOnError() {
-		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, `Failed`);
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, HORIZON_INCIDENT_STATE.FAILED);
 		return true;
 	}
 

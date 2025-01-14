@@ -135,11 +135,11 @@ export class ConfirmCallerDetails extends Component {
 
 		const today = new Date();
 		const clientBirthDate = new Date(this.callerInformation.birthdate);
-	
+
 		// Minimum age a client should meet for being a major ( > 16 years). 
 		// ClientDOB after 'minMajorAge' are considered to be a minor client.
 		const minMajorAge = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
-	
+
 		return minMajorAge < clientBirthDate;
 	}
 
@@ -207,7 +207,7 @@ export class ConfirmCallerDetails extends Component {
 			this._navigateToInsureBackOfficePage();
 			return;
 		}
-		
+
 		await this._updateClientNonClientDetails();
 
 		/* Navigate to Favourites landing by skipping verification flow 
@@ -219,7 +219,7 @@ export class ConfirmCallerDetails extends Component {
 			this._navigateToLandingPage();
 			return;
 		}
-		
+
 		// Navigation based on need selected
 		const stopCard = () => this._navigateToLandingPage();
 		const productEnquiry = () => this._navigateToLandingPage();
@@ -341,10 +341,10 @@ export class ConfirmCallerDetails extends Component {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.END_CALL
 		});
-		
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
-	
+
 	// Tooltip is displayed only for a long client's name where the overflowing text is hidden
 	_displayTooltip(e) {
 		const tooltip = this.shadowRoot.getElementById(`long-name`);
@@ -360,12 +360,12 @@ export class ConfirmCallerDetails extends Component {
 		if (e.detail.old === e.detail.new.value) {
 			return;
 		}
-		
+
 		this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 		this.languagePreference = e.detail.new.key;
 
 		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);
-		
+
 		if (isLanguageUpdated) {
 			this.callerInformation.languagePreference = this.languagePreference;
 		} else {
@@ -410,7 +410,7 @@ export class ConfirmCallerDetails extends Component {
 			false, // isNonClient
 			false, // hasInsuranceProducts
 			false, // hasDigitalChannels
-			{ itaAttempts: 0, sqAttempts: 0 }, 
+			{ itaAttempts: 0, sqAttempts: 0 },
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
 			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
@@ -438,7 +438,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
-			
+
 			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.currentIncident);
 
 			if (!returnValue.succeeded) {
@@ -491,7 +491,7 @@ export class ConfirmCallerDetails extends Component {
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
-		
+
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
@@ -701,7 +701,7 @@ export class ConfirmCallerDetails extends Component {
 
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
 						incidentRefNumber="${this._currentIncidentRef()}"
-						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable=${true}
 						
@@ -764,7 +764,7 @@ export class ConfirmCallerDetails extends Component {
 						</capitec-hyperlink>
 						<section>if the caller is calling on another client's behalf</section>
 				</horizon-alert-banner>`;
-		} 
+		}
 
 		return html`
 			<horizon-alert-banner 
@@ -836,7 +836,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_renderLanguagePreference() {
 		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator
-		? html`
+			? html`
 				<horizon-label 
 					class="client-info-row" 
 					row="3" 
@@ -860,8 +860,8 @@ export class ConfirmCallerDetails extends Component {
 
 	_renderClientProfileImage() {
 		return this.confirmedCaller.profilePhoto
-		? html`<img src="data:image/jpg;base64,${this.confirmedCaller.profilePhoto}"/>`
-		: html`
+			? html`<img src="data:image/jpg;base64,${this.confirmedCaller.profilePhoto}"/>`
+			: html`
 			<capitec-avatar 
 					shape="square"
 					icon="/images/common/avatar.svg">
@@ -906,8 +906,8 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator data-automation-id="confirm-caller-loading-indicator"></capitec-loading-indicator>` 
+		return this.isBusy
+			? html`<capitec-loading-indicator data-automation-id="confirm-caller-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
 
@@ -919,7 +919,7 @@ export class ConfirmCallerDetails extends Component {
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
@@ -973,7 +973,7 @@ export class ConfirmCallerDetails extends Component {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(event) => this._verificationCancelled(event)}" 
 				@skip="${(event) => this._verificationSkipped(event)}"
@@ -982,7 +982,7 @@ export class ConfirmCallerDetails extends Component {
 		`;
 	}
 
-	
+
 }
 
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

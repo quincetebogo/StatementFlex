@@ -607,7 +607,7 @@ export class CreditAccount extends ViewBase {
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.CREDIT);
 
 				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
+				// this._setIncidentNotstarted();
 			}
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,

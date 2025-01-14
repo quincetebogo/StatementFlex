@@ -1,7 +1,4 @@
 import { css, html } from 'platform/elements';
-import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
-import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
-import { IncidentDetails } from 'app/models/IncidentDetails';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -53,7 +50,7 @@ export class CreateIncidentError extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails(); // retrieving saving incoming call details
 		// Retrieving state to get attempted retries
 		const state = this.horizonStore.recoverState();
@@ -71,28 +68,11 @@ export class CreateIncidentError extends ViewBase {
 		}
 
 		this._retry++; // Incrementing retry count
-		this._saveRetries(); 
+		this._saveRetries();
 
-		const returnValue = await this.incidentManagementService.createIncident(this.incomingCallDetails, () => true, 1);
-		const incident = returnValue.result?.incident;
-		
-		if (!returnValue.succeeded || !incident) {
-			const ex = returnValue.exception;
-
-			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
-			} 
-			
-			this.logger.log(`error`, `Retry create incident failed`, `_retryCreateIncident`, returnValue.correlationId);
-		}
+		const incident = await this.horizonIncidentManager.createPrimaryIncident(() => this._toggleBusyFlag(), this.incomingCallDetails);
 
 		if (incident) {
-			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
-				"incident-reference": incident.incidentNumber,
-				"incident-rec-id": incident.incidentRecId
-			}, true);
-
-			this._saveIncidentDetails(true, incident);
 			this.horizonRouter.navigateToWaitingForCall(() => this._publishAcceptCallEvent());
 		}
 	}
@@ -112,10 +92,6 @@ export class CreateIncidentError extends ViewBase {
 
 	_publishContinueEvent() {
 		this.eventAggregator.publish(`continue-without-incident`, {});
-	}
-
-	_saveIncidentDetails(incCreated = true, incident = null) {
-		this.horizonIncidentManager.setNewPrimaryIncident(incident, this.incomingCallDetails.ivrOptionCode, incCreated);
 	}
 
 	_saveRetries() {

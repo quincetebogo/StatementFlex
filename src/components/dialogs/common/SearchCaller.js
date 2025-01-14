@@ -36,7 +36,7 @@ const ERROR_CODE = Object.freeze({
 	2401: `UNABLE_TO_SIGN_IN`,
 	2402: `BANCS_ERROR`,
 	2403: `TELLER_NOT_FOUND`,
-	2404: `CAPABILITY_LEVELS` 
+	2404: `CAPABILITY_LEVELS`
 });
 
 // Below const need to be removed, once channelService fix the issue on contract.
@@ -372,8 +372,8 @@ export class SearchCaller extends Component {
 
 			const returnValue = await this.clientProfileService.searchCaller(searchClient, null, 1);
 			const identifiedClient = returnValue.result;
-			
-		    if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
@@ -390,7 +390,7 @@ export class SearchCaller extends Component {
 	}
 
 	async _searchBranch() {
-		
+
 		if (this._validateBranchFields() && this._validateFields()) {
 			if (this.clientInBranch === null && this.isClientVerifiedInBranch === null) {
 				this.errMessage.inBranch = `Please choose an option`;
@@ -500,7 +500,7 @@ export class SearchCaller extends Component {
 			return;
 		}
 
-				this._raiseNonClientCaptured();
+		this._raiseNonClientCaptured();
 	}
 
 	_onEndCall() {
@@ -612,7 +612,7 @@ export class SearchCaller extends Component {
 			this.alertBannerMessage = regexValidation.ALERT_BANNER;
 			return false;
 		}
-		
+
 		if (this.searchType.key === `2`) {
 			if (!validateAccountNumber(this.searchValue)) {
 				this.errMessage.searchValue = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
@@ -692,7 +692,7 @@ export class SearchCaller extends Component {
 			initials: identifiedClient.callerInformation.initials,
 			identifiedBy: this.searchType.identificationType,
 			isClientVerifiedInBranch: this.isClientVerifiedInBranch,
-	  		profilePhoto: identifiedClient.callerInformation.profilePhoto,   
+			profilePhoto: identifiedClient.callerInformation.profilePhoto,
 			gender: identifiedClient.callerInformation.gender,
 			branchCallerID: ``,
 			branchCode: ``,
@@ -749,7 +749,7 @@ export class SearchCaller extends Component {
 	}
 
 	async _updateIncidentBranchDetails(branchCode, branchCallerId) {
-		
+
 		if (!this.currentIncident) {
 			this.logger.log(`error`, `There is no incident available to update branch details`, `_updateIncidentBranchDetails`);
 			return;
@@ -944,7 +944,7 @@ export class SearchCaller extends Component {
 
 						headerLabel="${this.headerLabel}"
 						incidentRefNumber="${this._currentIncidentRef()}"
-						?incidentCreated=${this.horizonIncidentManager.isAnIncidentCreated}
+						?incidentCreated=${this.horizonIncidentManager.isPrimaryIncidentCreated}
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable=${true}
 
@@ -971,7 +971,7 @@ export class SearchCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
+		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="search-caller-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
@@ -1019,7 +1019,7 @@ export class SearchCaller extends Component {
 	}
 
 	_renderClientFields() {
-			return html`
+		return html`
 					<capitec-label 
 						class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
 						label="Search existing client">
@@ -1164,7 +1164,7 @@ export class SearchCaller extends Component {
 
 	_renderClientBranchInfo() {
 		return this.roleManager.isHelpDeskAgent
-		? html`
+			? html`
 			<capitec-radio
 				id="clientVerifiedInBranch"
 				data-automation-id="search-caller-branch-client-verified"
@@ -1179,7 +1179,7 @@ export class SearchCaller extends Component {
 				@value-changed="${(e) => this._inBranchVerification(e)}"
 				row="1" column="2">
 			</capitec-radio>`
-		: html`
+			: html`
 			<capitec-radio
 				id="clientPresent"
 				data-automation-id="search-caller-branch-client-present"
@@ -1214,13 +1214,13 @@ export class SearchCaller extends Component {
 	_renderAlertBanner() {
 		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
 			return this.alertBannerMessage instanceof Object
-			? html`
+				? html`
 				<horizon-alert-banner 
 					data-automation-id="search-caller-alert-message"
 					type="error">
 						${this.alertBannerMessage}
 				</horizon-alert-banner>`
-			: html`
+				: html`
 				<horizon-alert-banner 
 					data-automation-id="search-caller-alert-message"
 					type="error"

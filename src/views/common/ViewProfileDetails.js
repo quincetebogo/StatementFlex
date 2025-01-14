@@ -7,6 +7,7 @@ import { LANGUAGE_LIST } from 'app/constants/Common';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'app/components/dialogs/common/UpdateProfileDetails';
+import { HORIZON_INCIDENT_STATE } from 'app/constants/IncidentManager';
 
 const DETAILS_TAB = {
 	0: `Client Details`
@@ -152,7 +153,7 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _createClassifyAndUpdateIncident(need, succeeded) {
 		this.horizonIncidentMAnager.setCurrentNeed(need);
-		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, succeeded ? `Completed` : `Failed`);
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, succeeded ? HORIZON_INCIDENT_STATE.COMPLETED : HORIZON_INCIDENT_STATE.FAILED);
 	}
 
 	_showHideToast(success, toastType) {

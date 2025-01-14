@@ -4,9 +4,6 @@ import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
-/* Removed during incident management refactor
-import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
-*/
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -303,9 +300,6 @@ export class ViewBase extends View {
 			: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
-	_setIncidentNotstarted() {
-	}
-
 	_isIncidentReassigned() {
 		return this.horizonIncidentManager.isReassigned;
 	}
@@ -416,7 +410,7 @@ export class ViewBase extends View {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					incidentRefNumber="${this._currentIncidentRef()}"
-					?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+					?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -443,7 +437,7 @@ export class ViewBase extends View {
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>

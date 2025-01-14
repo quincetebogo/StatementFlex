@@ -1,11 +1,10 @@
 import { css, html } from 'platform/elements';
+import { HORIZON_INCIDENT_STATE } from 'app/constants/IncidentManager';
 import { NavigationContext } from 'platform/core';
-import { STRACK_MAPPING } from 'app/constants/StrackMapping';
 import { SystemErrorEvents } from 'app/constants/telemetry/events/SystemError';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
 import 'app/components/common/ErrorScreen';
+
 
 /**
  * A general System Error Screen that can be displayed when channel service calls fail. 
@@ -39,10 +38,9 @@ export class SystemError extends ViewBase {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, `Failed`);
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, HORIZON_INCIDENT_STATE.FAILED);
 
 		this.endCallContext = `SystemError`;
-		this._updateIncidentState();
 		this._telemetry.logEvent(SystemErrorEvents.SYSTEM_ERR, {
 			previousScreen: this.navigationContext.previous.route.name
 		});
@@ -57,22 +55,6 @@ export class SystemError extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_updateIncidentState() {
-
-		/**
-		 * Updating incident status to failed here, creates subsequent inc when actioning
-		 * subsequent need. Restricting this update when the need is unknown
-		 */
-		const need = this.horizonIncidentManager.getCurrentNeed();
-		const strackMapping = STRACK_MAPPING[need];
-
-		/* Removed during incident management refactor
-		if (!isNullorEmpty(strackMapping)) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
-		}
-		*/
-	}
 
 	// ---------
 	// RENDERING

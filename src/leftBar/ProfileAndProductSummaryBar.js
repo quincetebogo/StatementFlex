@@ -199,9 +199,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		await this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
 
-		/* Removed during incidentmanagement refactor
-			this._setIncidentDone();
-		*/
+		this._setIncidentDone();
 
 		// Clear return to state before navigation
 		this.horizonStore.clearReturnScreen();
@@ -368,6 +366,18 @@ export class ProfileAndProductSummaryBar extends Component {
 		} else {
 			await this._telemetry.endSpan(productEvents[this.product], {}, false, false, true);
 		}
+	}
+
+	_setIncidentDone() {
+		const incidentManager = HorizonIncidentManager.getInstance();
+
+		/* INCIDENT MANAGEMENT REFACTOR: THERE IS NO WAY THE FOLLOWIGN CODE WAS WORKING AS YOU CANNOT LOOK UP INCIDENT STATE
+		   IN LANDING_PAGE_NEEDS
+		   
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState) && incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
+			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+		}
+		*/
 	}
 
 	// ---------

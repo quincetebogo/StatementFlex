@@ -201,7 +201,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.landingPageInfo = screenDetails.LBSADetails;
 
-		this._setIncidentNotstarted();
+		// this._setIncidentNotstarted();
 		this._deepCopyProperty();
 
 		this.automaticSavingsDetails = {};
@@ -356,6 +356,7 @@ export class LiveBetter extends SavingsAccountBase {
 				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
 			};
 
+			this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.LBB);
 			const returnValue = await this.liveBetterService.liveBetterLanding(clientDetails);
 
 			if (returnValue.succeeded && returnValue.result) {
@@ -369,11 +370,6 @@ export class LiveBetter extends SavingsAccountBase {
 				// Live better landing page service call should come here - Data is mocked as below temporarily
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
-
-				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.LBB);
-
-				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
 
 			} else if (returnValue.succeeded) {
 

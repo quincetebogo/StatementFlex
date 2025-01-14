@@ -25,7 +25,7 @@ const ERROR_CODE = Object.freeze({
 	2401: `UNABLE_TO_SIGN_IN`,
 	2402: `BANCS_ERROR`,
 	2403: `TELLER_NOT_FOUND`,
-	2404: `CAPABILITY_LEVELS` 
+	2404: `CAPABILITY_LEVELS`
 });
 
 const ERROR_MESSAGES = {
@@ -189,7 +189,7 @@ export class StopCardSearchCaller extends Component {
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.searchOptions = SEARCH_OPTIONS;
-		
+
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
@@ -277,7 +277,7 @@ export class StopCardSearchCaller extends Component {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.END_CALL
 		});
-		
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -306,9 +306,9 @@ export class StopCardSearchCaller extends Component {
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
-			detail: { 
+			detail: {
 				incomingCallDetails: this.incomingCallDetails,
-				confirmedCaller: confirmedCaller 
+				confirmedCaller: confirmedCaller
 			}
 		}));
 	};
@@ -329,7 +329,7 @@ export class StopCardSearchCaller extends Component {
 			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
 		}
-		
+
 		if (this.identificationMethods.key === `2`) {
 			if (!validateAccountNumber(this.searchFieldText)) {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.INVALID_ACCOUNT_NUMBER.FIELD_ERROR;
@@ -435,7 +435,7 @@ export class StopCardSearchCaller extends Component {
 
 						headerLabel="${HEADER_LABEL}"
 						incidentRefNumber="${this._currentIncidentRef()}"
-						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable="${true}"
 

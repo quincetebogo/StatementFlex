@@ -246,9 +246,6 @@ export class SavingsPlan extends ViewBase {
 				}
 
 				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.SAVINGS_PLAN);
-
-				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
 			}
 
 			this._telemetry.startSpan(SavingsPlanEvents.SAVINGS_PLAN, {
