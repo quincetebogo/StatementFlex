@@ -517,11 +517,9 @@ export class SavingsPlan extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _unloadTransactionHistory() {
+	_unloadTransactionHistory() {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
-
-		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
