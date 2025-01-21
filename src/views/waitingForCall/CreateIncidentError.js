@@ -78,7 +78,6 @@ export class CreateIncidentError extends ViewBase {
 	}
 
 	_continue() {
-		this._saveIncidentDetails(false);
 		this.horizonRouter.navigateToWaitingForCall(() => this._publishContinueEvent());
 	}
 
