@@ -49,6 +49,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 		this.clientCif = `807001544`; // TODO: comment out when done with dev
 		this.isInvoiceModalOpen = false;
+		this.isCancelOrderModalOpen = false;
 		this.emailAddress = ``;
 		this.currentOrderId = ``;
 	}
@@ -60,6 +61,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			currentPageIndex: { type: Number },
 			activeFilters: { type: Object },
 			isInvoiceModalOpen: { type: Boolean },
+			isCancelOrderModalOpen: { type: Boolean },
 			emailAddress: { type: String },
 			currentOrderId: { type: String }
 		};
@@ -402,6 +404,65 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		`;
 	}
 
+	openCancelOrderModal(orderId) {
+		if (!this.isCancelOrderModalOpen) {
+			this.currentOrderId = orderId;
+		}
+		this.isCancelOrderModalOpen = true;
+
+		return html`
+		<capitec-modal 
+			type="form" 
+			header="Cancel Order"
+			?open="${this.isCancelOrderModalOpen}"
+		>
+			<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 300px; padding: 24px;">
+				<div column="1" row="1" colspan="2">
+					<capitec-label type="strong" label="Enter email address"></capitec-label>
+					<br />
+					<capitec-text-field
+						label="Email Address"
+						placeholder="Enter email address"
+						value="${this.emailAddress || ``}"
+						@value-change="${(e) => this.emailAddress = e.detail.new}"
+					></capitec-text-field>
+				</div>
+
+				<div column="1" row="2" colspan="2" style="margin: 24px -24px;">
+					<hr style="border: none; border-top: 1px solid var(--theme-modal-border-color, #E1E1E1);">
+				</div>
+
+				<div column="1" row="3" colspan="2">
+					<capitec-label type="strong" label="View document" style="margin-bottom: 24px;"></capitec-label>
+					<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--theme-modal-border-color, #E1E1E1); border-radius: 4px;">
+						<capitec-label label="Invoice" style="color: var(--theme-text-primary-color, #333333);"></capitec-label>
+						<capitec-hyperlink
+							label="View Document"
+							style="--theme-hyperlink-color: var(--theme-primary-color, #0091DA);"
+							@click="${() => this.getInvoice()}"
+						></capitec-hyperlink>
+					</div>
+				</div>
+			</capitec-content-box>
+			
+			<div slot="footer" style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;">
+				<capitec-button 
+					type="secondary" 
+					label="Cancel" 
+					@click="${() => this.isInvoiceModalOpen = false}"
+				></capitec-button>
+				<capitec-button 
+					type="primary" 
+					label="Send"
+					.disabled="${this.emailAddress.length === 0}"
+					style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+					@click="${() => this.sendInvoice()}"
+				></capitec-button>
+			</div>
+		</capitec-modal>
+		`;
+	}
+
 	sendInvoice() {
 		if (!this.emailAddress) {
 			return;
@@ -419,6 +480,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		const getValue = (value) => (!value || value === `null` ? `-` : value);
 		// eslint-disable-next-line no-extra-parens
 		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
+		const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`;
+		const showCancelButton = item.orderStatus !== `ORDER DELIVERED` && item.orderStatus !== `ORDER CANCELLED`;
 
 		return html`
       <capitec-group layout="grid" gap="clear">
@@ -507,25 +570,32 @@ export class CapitecConnectAgentDevices extends ViewBase {
             label="${getFormattedDate(item.warrantyEndDate)}"
           ></capitec-label>
         </div>
-        ${item.orderStatus !== `ORDER DELIVERED`
-				? html`
-              <div
-                row="4"
-                column="1"
-                colspan="4"
-                style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
-              >
+        ${showInvoiceButton || showCancelButton ? html`
+          <div row="4" column="1" colspan="4">
+            <div style="display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px;">
+              ${showInvoiceButton ? html`
                 <capitec-hyperlink
-                  style="margin-right: 16px; margin-top: 10px;"
+                  style="--theme-hyperlink-color: #009DE0;"
                   label="View Invoice"
                   @click="${() => {
-					this.openInvoiceModal(item.orderNumber);
+			this.openInvoiceModal(item.orderNumber);
+		}}"
+                >
+                </capitec-hyperlink>
+              ` : ``}
+              ${showCancelButton ? html`
+                <capitec-hyperlink
+				  style="--theme-hyperlink-color: #009DE0;"
+                  label="Cancel"
+                  @click="${() => {
+					this.openCancelOrderModal(item.orderNumber);
 				}}"
                 >
                 </capitec-hyperlink>
-              </div>
-            `
-			: ``}
+              ` : ``}
+            </div>
+          </div>
+        ` : ``}
       </capitec-group>
     `;
 	}
