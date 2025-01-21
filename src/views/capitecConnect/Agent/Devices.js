@@ -50,6 +50,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.clientCif = `807001544`; // TODO: comment out when done with dev
 		this.isInvoiceModalOpen = false;
 		this.isCancelOrderModalOpen = false;
+		this.isSuccessModalOpen = false;
 		this.emailAddress = ``;
 		this.currentOrderId = ``;
 		this.currentOrder = null;
@@ -61,8 +62,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			numOfPagingRows: { type: Number },
 			currentPageIndex: { type: Number },
 			activeFilters: { type: Object },
+			clientCif: { type: String },
 			isInvoiceModalOpen: { type: Boolean },
 			isCancelOrderModalOpen: { type: Boolean },
+			isSuccessModalOpen: { type: Boolean },
 			emailAddress: { type: String },
 			currentOrderId: { type: String },
 			currentOrder: { type: Object }
@@ -286,6 +289,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ${this.isCancelOrderModalOpen
 				? this.openCancelOrderModal()
 				: null}
+        ${this.isSuccessModalOpen
+				? this.openSuccessModal()
+				: null}
       </capitec-content-box>
     `;
 	}
@@ -457,11 +463,35 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		`;
 	}
 
-	async cancelOrder() {
+	openSuccessModal() {
+		return html`
+			<capitec-modal 
+				type="form" 
+				header="Success"
+				?open="${this.isSuccessModalOpen}"
+			>
+				<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 100px; padding: 24px; text-align: center;">
+					<div column="1" row="1" colspan="2" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+						<capitec-icon class="indicator right" icon="system/tick-action" style="--icon-color: var(--theme-success-color, #4CAF50); width: 48px; height: 48px;"></capitec-icon>
+						<capitec-label label="Order cancellation requested"></capitec-label>
+					</div>
+				</capitec-content-box>
+				<div slot="footer" style="display: flex; justify-content: center; padding: 16px 24px;">
+					<capitec-button 
+						type="secondary" 
+						label="Close"
+						@click="${() => this.isSuccessModalOpen = false}"
+					></capitec-button>
+				</div>
+			</capitec-modal>
+		`;
+	}
+
+	cancelOrder() {
 		try {
-			await this.capitecConnectService.cancelOrder(this.currentOrderId); // TODO still need to implement in capitecConnectService, waiting for BE
+			// await this.capitecConnectService.cancelOrder(this.currentOrderId); // TODO still need to implement in capitecConnectService, waiting for BE
 			this.isCancelOrderModalOpen = false;
-			await this._retrieveDevices();
+			this.isSuccessModalOpen = true;
 		} catch (error) {
 			console.error(`Error cancelling order:`, error);
 		}
