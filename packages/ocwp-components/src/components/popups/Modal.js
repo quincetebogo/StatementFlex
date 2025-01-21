@@ -121,7 +121,7 @@ export class Modal extends Component {
 
 	_onUserClickOutside(e) {
 		const containerElement = this.shadowRoot.querySelector(`div.container`);
-		if (!e.path.includes(containerElement)) {
+		if (e && e.path && !e.path.includes(containerElement)) {
 			this.dispatchEvent(new CustomEvent(`clicked-out-modal`, {
 				detail: true
 			}));
