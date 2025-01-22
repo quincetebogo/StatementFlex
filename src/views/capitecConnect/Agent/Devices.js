@@ -326,9 +326,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				dateTo: incrementDate(todayStr, 1),
 				clientCif: this.clientCif
 			};
-			response = await this.capitecConnectService.getDeviceOrders(params);
+			response = await this.capitecConnectService.getAllDeviceOrders(params);
 		} catch (error) {
-			console.error(`Error in getDeviceOrders:`, error);
+			console.error(`Error in getAllDeviceOrders:`, error);
 		}
 
 		const mappedItems = response.result.content.map((order) => ({
@@ -339,7 +339,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			deviceName: order.deviceName,
 			imeiNumber: order.imeiNumber,
 			accountNumber: order.accountNumber,
-			orderStatus: order.orderStatus.split(`_`).join(` `)
+			orderId: order.orderId,
+			orderStatus: order.orderStatus.split(`_`).join(` `),
+			hasLogged: false
 		}));
 
 		return {
@@ -556,9 +558,19 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_expandRenderer(item) {
-		// eslint-disable-next-line no-extra-parens
+		if (!item.hasLogged) {
+			this.capitecConnectService.getDeviceOrder(item.orderId)
+				.then(response => {
+					item.deviceOrderResponse = response;
+					item.hasLogged = true;
+					this.requestUpdate();
+				})
+				.catch(error => {
+					console.error(`Error in getDeviceOrder:`, error);
+				});
+		}
+
 		const getValue = (value) => (!value || value === `null` ? `-` : value);
-		// eslint-disable-next-line no-extra-parens
 		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
 		const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`;
 		const showCancelButton = item.orderStatus !== `ORDER DELIVERED` && item.orderStatus !== `ORDER CANCELLED`;
@@ -569,7 +581,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Device Description"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getValue(item.orderDescription)}"
+            label="${getValue(item.deviceOrderResponse.result.orderDescription)}"
           ></capitec-label>
         </div>
 
@@ -578,7 +590,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-copy-text>
             <capitec-label
               type="strong"
-              label="${getValue(item.imeiNumber)}"
+              label="${getValue(item.deviceOrderResponse.result.imeiNumber)}"
             ></capitec-label>
           </capitec-copy-text>
         </div>
@@ -588,7 +600,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-copy-text>
             <capitec-label
               type="strong"
-              label="${getValue(item.imeiNumber2)}"
+              label="${getValue(item.deviceOrderResponse.result.imeiNumber2)}"
             ></capitec-label>
           </capitec-copy-text>
         </div>
@@ -597,7 +609,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Device Cost"></capitec-label>
           <capitec-label
             type="strong"
-            label="R${getValue(item.orderAmount)}"
+            label="R${getValue(item.deviceOrderResponse.result.orderAmount)}"
           ></capitec-label>
         </div>
 
@@ -605,7 +617,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Order Date"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getFormattedDate(item.orderDate)}"
+            label="${getFormattedDate(item.deviceOrderResponse.result.orderDate)}"
           ></capitec-label>
         </div>
 
@@ -613,7 +625,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Order Status"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getValue(item.orderStatus)}"
+            label="${getValue(item.deviceOrderResponse.result.orderStatus)}"
           ></capitec-label>
         </div>
 
@@ -621,7 +633,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Account Number"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getValue(item.accountNumber)}"
+            label="${getValue(item.deviceOrderResponse.result.accountNumber)}"
           ></capitec-label>
         </div>
 
@@ -630,7 +642,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-copy-text>
             <capitec-label
               type="strong"
-              label="${getValue(item.courierTracking)}"
+              label="${getValue(item.deviceOrderResponse.result.courierTracking)}"
             ></capitec-label>
           </capitec-copy-text>
         </div>
@@ -639,7 +651,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Warranty Start Date"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getFormattedDate(item.warrantyStartDate)}"
+            label="${getFormattedDate(item.deviceOrderResponse.result.warrantyStartDate)}"
           ></capitec-label>
         </div>
 
@@ -647,7 +659,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Warranty End Date"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getFormattedDate(item.warrantyEndDate)}"
+            label="${getFormattedDate(item.deviceOrderResponse.result.warrantyEndDate)}"
           ></capitec-label>
         </div>
         ${showInvoiceButton || showCancelButton ? html`
@@ -658,7 +670,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                   style="--theme-hyperlink-color: #009DE0;"
                   label="View Invoice"
                   @click="${() => {
-			this.openInvoiceModal(item.orderNumber);
+			this.openInvoiceModal(item.deviceOrderResponse.result.orderNumber);
 		}}"
                 >
                 </capitec-hyperlink>

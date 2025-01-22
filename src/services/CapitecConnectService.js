@@ -293,7 +293,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
-	getDeviceOrders(request) {
+	getAllDeviceOrders(request) {
 		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif } = request;
 
 		const queryParams = {
@@ -325,10 +325,24 @@ export class CapitecConnectService extends ChannelServiceBase {
 			url,
 			{},
 			this.setToken(),
-			`getDeviceOrders`,
+			`getAllDeviceOrders`,
 			null,
 			null,
 			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getDeviceOrder(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}`;
+		return this.get(
+			url,
+			this.setToken(),
+			`getDeviceOrder`,
+			false,
+			null,
+			null,
 			null,
 			DEFAULT_AUTO_RETRIES
 		);
@@ -343,6 +357,22 @@ export class CapitecConnectService extends ChannelServiceBase {
 			false,
 			null,
 			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	cancelDeviceOrder(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}/cancel`;
+
+		return this.post(
+			url,
+			{},
+			this.setToken(),
+			`cancelDeviceOrder`,
+			null,
+			null,
+			2000,
 			null,
 			DEFAULT_AUTO_RETRIES
 		);
