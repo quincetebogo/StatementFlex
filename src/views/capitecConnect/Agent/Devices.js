@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-parens */
 import { css, html } from "platform/elements";
 import {
 	formatAmount,
@@ -573,7 +574,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		const getValue = (value) => (!value || value === `null` ? `-` : value);
 		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
 		const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`;
-		const showCancelButton = item.orderStatus !== `ORDER DELIVERED` && item.orderStatus !== `ORDER CANCELLED`;
+		const showCancelButton = item.deviceOrderResponse.result.cancellable;
 
 		return html`
       <capitec-group layout="grid" gap="clear">
@@ -609,7 +610,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Device Cost"></capitec-label>
           <capitec-label
             type="strong"
-            label="R${getValue(item.deviceOrderResponse.result.orderAmount)}"
+            label="R${getValue(item.deviceOrderResponse.result.totalInclVat)}"
           ></capitec-label>
         </div>
 
@@ -617,7 +618,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Order Date"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getFormattedDate(item.deviceOrderResponse.result.orderDate)}"
+            label="${getFormattedDate(item.deviceOrderResponse.result.orderPlacedDate)}"
           ></capitec-label>
         </div>
 
@@ -662,10 +663,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
             label="${getFormattedDate(item.deviceOrderResponse.result.warrantyEndDate)}"
           ></capitec-label>
         </div>
-        ${showInvoiceButton || showCancelButton ? html`
+
           <div row="4" column="1" colspan="4">
-            <div style="display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px;">
-              ${showInvoiceButton ? html`
+            ${(showInvoiceButton || showCancelButton) ? html`
+            <div style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);">
+
+			${showInvoiceButton ? html`
                 <capitec-hyperlink
                   style="--theme-hyperlink-color: #009DE0;"
                   label="View Invoice"
@@ -675,6 +678,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 >
                 </capitec-hyperlink>
               ` : ``}
+
               ${showCancelButton ? html`
                 <capitec-hyperlink
 				  style="--theme-hyperlink-color: #009DE0;"
@@ -685,9 +689,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 >
                 </capitec-hyperlink>
               ` : ``}
-            </div>
+
+            </div>` : ``}
           </div>
-        ` : ``}
+		  
       </capitec-group>
     `;
 	}
