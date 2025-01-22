@@ -51,6 +51,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isInvoiceModalOpen = false;
 		this.isCancelOrderModalOpen = false;
 		this.isSuccessModalOpen = false;
+		this.isErrorModalOpen = false;
 		this.emailAddress = ``;
 		this.currentOrderId = ``;
 		this.currentOrder = null;
@@ -66,6 +67,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			isInvoiceModalOpen: { type: Boolean },
 			isCancelOrderModalOpen: { type: Boolean },
 			isSuccessModalOpen: { type: Boolean },
+			isErrorModalOpen: { type: Boolean },
 			emailAddress: { type: String },
 			currentOrderId: { type: String },
 			currentOrder: { type: Object }
@@ -290,7 +292,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				? this.openCancelOrderModal()
 				: null}
         ${this.isSuccessModalOpen
-				? this.openSuccessModal()
+			? this.openSuccessModal()
+				: null}
+        ${this.isErrorModalOpen
+				? this.onOrderCancellationFail()
 				: null}
       </capitec-content-box>
     `;
@@ -466,13 +471,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	openSuccessModal() {
 		return html`
 			<capitec-modal 
-				type="form" 
+				type="alert" 
 				header="Success"
 				?open="${this.isSuccessModalOpen}"
 			>
 				<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 100px; padding: 24px; text-align: center;">
 					<div column="1" row="1" colspan="2" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-						<capitec-icon class="indicator right" icon="system/tick-action" style="--icon-color: var(--theme-success-color, #4CAF50); width: 48px; height: 48px;"></capitec-icon>
+						<capitec-icon size="large" icon="status/success-trans"></capitec-icon>
 						<capitec-label label="Order cancellation requested"></capitec-label>
 					</div>
 				</capitec-content-box>
@@ -484,6 +489,33 @@ export class CapitecConnectAgentDevices extends ViewBase {
 					></capitec-button>
 				</div>
 			</capitec-modal>
+		`;
+	}
+
+	onOrderCancellationFail() {
+		return html`
+		<capitec-modal
+			type="alert"
+			header="Error"
+			?open="${this.isErrorModalOpen}"
+		>
+			<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 100px; padding: 24px; text-align: center;">
+				<div column="1" row="1" colspan="2" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+					<capitec-icon size="large" icon="status/error-trans"></capitec-icon>
+					<div style="display: flex; flex-direction: column; gap: 8px;">
+						<capitec-label label="Order cancellation unsuccessful"></capitec-label>
+						<capitec-label label="Please try again or contact support"></capitec-label>
+					</div>
+				</div>
+			</capitec-content-box>
+			<div slot="footer" style="display: flex; justify-content: center; padding: 16px 24px;">
+				<capitec-button
+					type="secondary"
+					label="Close"
+					@click="${() => this.isErrorModalOpen = false}"
+				></capitec-button>
+			</div>
+		</capitec-modal>
 		`;
 	}
 
