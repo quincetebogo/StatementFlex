@@ -53,6 +53,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isSuccessModalOpen = false;
 		this.isErrorModalOpen = false;
 		this.emailAddress = ``;
+		this.isValidEmail = false;
 		this.currentOrderId = ``;
 		this.currentOrder = null;
 	}
@@ -69,6 +70,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			isSuccessModalOpen: { type: Boolean },
 			isErrorModalOpen: { type: Boolean },
 			emailAddress: { type: String },
+			isValidEmail: { type: Boolean },
 			currentOrderId: { type: String },
 			currentOrder: { type: Object }
 		};
@@ -361,6 +363,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		}
 	}
 
+	_validateEmail(email) {
+		const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+		return EMAIL_REGEX.test(email);
+	}
+
+	_handleEmailInput(event) {
+		const newValue = event.detail.new;
+		this.emailAddress = newValue;
+		this.isValidEmail = this._validateEmail(newValue);
+		this.requestUpdate();
+	}
+
 	openInvoiceModal(orderId) {
 		if (!this.isInvoiceModalOpen) {
 			this.currentOrderId = orderId;
@@ -381,7 +395,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 						label="Email Address"
 						placeholder="Enter email address"
 						value="${this.emailAddress || ``}"
-						@value-change="${(e) => this.emailAddress = e.detail.new}"
+						@key-input="${this._handleEmailInput}"
 					></capitec-text-field>
 				</div>
 
@@ -411,7 +425,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				<capitec-button 
 					type="primary" 
 					label="Send"
-					.disabled="${this.emailAddress.length === 0}"
+					.disabled="${!this.isValidEmail}"
 					style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
 					@click="${() => this.sendInvoice()}"
 				></capitec-button>
