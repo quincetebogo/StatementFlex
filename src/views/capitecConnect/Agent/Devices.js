@@ -489,7 +489,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return html`
 			<capitec-modal 
 				type="alert" 
-				header="Success"
+				header="Cancel Order"
 				?open="${this.isSuccessModalOpen}"
 			>
 				<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 100px; padding: 24px; text-align: center;">
@@ -513,7 +513,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return html`
 		<capitec-modal
 			type="alert"
-			header="Error"
+			header="Cancel Order"
 			?open="${this.isErrorModalOpen}"
 		>
 			<capitec-content-box slot="body" layout="grid" style="height: auto; min-height: 100px; padding: 24px; text-align: center;">
@@ -536,14 +536,15 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		`;
 	}
 
-	cancelOrder() {
-		try {
-			// await this.capitecConnectService.cancelOrder(this.currentOrderId); // TODO still need to implement in capitecConnectService, waiting for BE
+	async cancelOrder() {
+		await this.capitecConnectService.cancelDeviceOrder(this.currentOrderId).then((res) => {
+			console.log(`Order cancelled:`, res);
 			this.isCancelOrderModalOpen = false;
 			this.isSuccessModalOpen = true;
-		} catch (error) {
-			console.error(`Error cancelling order:`, error);
-		}
+		}).catch(() => {
+			this.isCancelOrderModalOpen = false;
+			this.isErrorModalOpen = true;
+		});
 	}
 
 	sendInvoice() {
