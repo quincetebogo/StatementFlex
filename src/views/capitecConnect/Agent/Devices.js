@@ -574,7 +574,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 		const getValue = (value) => (!value || value === `null` ? `-` : value);
 		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
-		const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`;
+		const showInvoiceButton = item.orderStatus === `ORDER DELIVERED`;
 		const showCancelButton = item.deviceOrderResponse.result.cancellable;
 
 		return html`
