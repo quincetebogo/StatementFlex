@@ -433,21 +433,11 @@ export class EndCallSession extends Component {
 	 * @returns {Boolean} True / False
 	 */
 	_preventCloseOfIncident() {
-		const incidentState = this.horizonIncidentManager.incidentState;
-
 		if (this.isReassigned) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} assigned or handed off. The call will be ended without closing the incident.`);
 			// Don't close the incident if it has been reassigned or handed off
 			return true;
 		}
-
-		/*
-		if (incidentState === super.HORIZON_INCIDENT_STATE.CLOSED) {
-			this.logger.log(`info`, `Incident ${this.incidentRefNumber} already marked as closed. No further close action required.`);
-			// Incident might be closed for search other need, no need to close again
-			return true;
-		}
-		*/
 
 		if (this.endCallReason.key === END_CALL_REASON.FOLLOW_UP) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
@@ -501,9 +491,11 @@ export class EndCallSession extends Component {
 			}
 		}
 
-		if (this._preventCloseOfIncident()) {
-			return incidentReference;
-		}
+		/*
+				if (this._preventCloseOfIncident()) {
+					return incidentReference;
+				}
+		*/
 
 		if (!isNullorEmpty(this.endCallDescription)) {
 			const savedDescription = this.horizonIncidentManager.getDescription();
@@ -551,23 +543,29 @@ export class EndCallSession extends Component {
 			// Should actually filter out of the options
 			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT NOT ASSIGNED`;
 			this.logger.log(`warn`, `Stop Card Incident not assigned, blocking selection of incident assigned reason`);
-		} else if (this._selectedNeedFulfilledAfterAssigningStoppedCards()) {
+			return;
+		}
+
+		if (this._selectedNeedFulfilledAfterAssigningStoppedCards()) {
 			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT WAS ASSIGNED`;
 			this.logger.log(`warn`, `Stop Card Incident assigned, blocking selection of need fulfilled`);
-		} else if (this._selectedNeedFulfilledOnFailureToStopCards()) {
+			return;
+		}
+
+		if (this._selectedNeedFulfilledOnFailureToStopCards()) {
 			this.alertBannerMessage = `INCORRECT OPTION: CARDS WERE NOT STOPPED`;
 			this.logger.log(`warn`, `Stop Card Incident was not assigned, blocking selection of need fulfilled`);
-		} else if (this.endCallReason) {
-			if (this._preventCloseOfIncident()) {
-				// Updating state as call ended and redirecting it to call waiting page
-				this._returnToCallWaitingPage(this.currentIncidentRef);
-				return;
-			}
-
-			await this._classifyAndClose();
-		} else {
-			this.alertBannerMessage = ERROR_MESSAGE;
+			return;
 		}
+
+		if (this.endCallReason) {
+			await this._classifyAndClose();
+			// Updating state as call ended and redirecting it to call waiting page
+			this._returnToCallWaitingPage(this.currentIncidentRef);
+			return;
+		};
+
+		this.alertBannerMessage = ERROR_MESSAGE;
 	}
 
 	_selectedAssignOnSuccessfulyStoppedCards() {

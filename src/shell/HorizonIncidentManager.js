@@ -363,7 +363,7 @@ export class HorizonIncidentManager {
 
 		await this._updateClientDetails(savedIncidentInfo, incomingCallDetails, callerInformation);
 		await this._updateNonClientDetails(savedIncidentInfo, callerInformation);
-		await this._updatBranchCallerDetails(savedIncidentInfo, callerInformation);
+		await this._updateBranchCallerDetails(savedIncidentInfo, callerInformation);
 	}
 
 	/**
@@ -604,7 +604,7 @@ export class HorizonIncidentManager {
 	async _closeAndCreate(manualClassification = {}) {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const savedIncidentInfo = this.loadSavedIncident(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
 
 		// If still on the primary incident then there is no previous incident to close
 		if (this.incidentDetails.primaryIncidentFinished) {
@@ -624,7 +624,7 @@ export class HorizonIncidentManager {
 		}
 
 		// Add the client, 3rd party, branch caller and non-client information to the incident
-		await this._updatePartiesOnCall(incomingCallDetails, callerInformation);
+		await this.updatePartiesOnCall(savedIncidentInfo, incomingCallDetails, callerInformation);
 
 		return true;
 	}
@@ -847,9 +847,9 @@ export class HorizonIncidentManager {
 	 * @param {object} callerInformation Caller information object retrieved from state
 	 * @returns {promise<boolean>} A promise to update the non-client details on an incident
 	 */
-	async _updatBranchCallerDetails(savedIncidentInfo, callerInformation) {
+	async _updateBranchCallerDetails(savedIncidentInfo, callerInformation) {
 		if ((callerInformation.isBranchConsultant) && Boolean(callerInformation.branchCallerID) && isNullorEmpty(savedIncidentInfo.branchID)) {
-			const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, callerInformation.branchCode, callerInformation.branchCallerID);
+			const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, callerInformation.branchCode, callerInformation.branchCallerID);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
