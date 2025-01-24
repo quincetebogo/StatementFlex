@@ -25,12 +25,11 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 		// Static variables
 		this.searchTypes = [
-			{ value: `orderDate`, text: `Order Date` },
+			{ value: `orderDescription`, text: `Order Description` },
 			{ value: `accountNumber`, text: `Account Number` },
-			{ value: `imeiNumber`, text: `IMEI Number` },
-			{ value: `description`, text: `Order Description` },
 			{ value: `amount`, text: `Order Amount` },
-			{ value: `deviceName`, text: `Device Name` }
+			{ value: `deviceName`, text: `Device Name` },
+			{ value: `imeiNumber`, text: `IMEI Number` }
 		];
 
 		this.pagingRows = [10, 20, 50];
@@ -41,14 +40,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.activeFilters = {
 			searchType: this.searchTypes[0],
 			searchValue: ``,
-			selectedDate: { value: `NonSelected` },
 			dateRange: {
 				from: getDateInPast(30),
 				to: getDateInPast(0)
 			}
 		};
 
-		this.clientCif = `807001544`; // TODO: comment out when done with dev
+		this.clientCif = ``;
 		this.isInvoiceModalOpen = false;
 		this.isCancelOrderModalOpen = false;
 		this.isSuccessModalOpen = false;
@@ -195,8 +193,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = ``;
-		// this.clientCif = `030530180`; //TODO: Add for DEV testing
+		// this.clientCif = ``;
+		this.clientCif = `030530180`; // TODO: Add for DEV testing
 
 		this.showTable = true;
 	}
@@ -211,11 +209,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const request = {
 				pageNumber: this.currentPageIndex - 1,
 				pageSize: this.numOfPagingRows,
-				searchValue: this.activeFilters.searchValue,
-				dateFrom: this.activeFilters.dateRange.from,
-				dateTo: this.activeFilters.dateRange.to,
-				clientCif: this.clientCif
+				clientCif: this.clientCif,
+				searchType: this.activeFilters.searchType,
+				searchValue: this.activeFilters.searchValue
 			};
+
+			if (!this.clientCif) {
+				return {
+					pagedItems: [],
+					totalCount: 0
+				};
+			}
 
 			const response = await this.capitecConnectService.getAllDeviceOrders(request);
 
@@ -273,7 +277,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const testId = `979ad379-13d1-415a-94b5-c0e7082ce86a`; // TODO remove when ready
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
-			console.log(`🚀 ~ response->`, response);
+			console.log(`🚀 ~ getDeviceInvoice response->`, response);
 		} catch (error) {
 			console.error(`Error getting device invoice:`, error);
 		}

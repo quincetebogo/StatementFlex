@@ -294,7 +294,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	getAllDeviceOrders(request) {
-		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif } = request;
+		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif, searchType } = request;
 
 		const queryParams = {
 			page: pageNumber,
@@ -302,20 +302,33 @@ export class CapitecConnectService extends ChannelServiceBase {
 			sort: `createdAt,DESC`
 		};
 
-		if (searchValue) {
-			queryParams.searchValue = searchValue;
-		}
+		const requestBody = {
+			orderDateRange: {
+				startDate: dateFrom,
+				endDate: dateTo
+			}
+		};
 
-		if (dateFrom) {
-			queryParams.dateFrom = dateFrom;
-		}
-
-		if (dateTo) {
-			queryParams.dateTo = dateTo;
-		}
-
-		if (clientCif) {
-			queryParams.cif = clientCif;
+		if (searchValue && searchType?.value) {
+			switch (searchType.value) {
+				case `amount`:
+					requestBody.orderAmount = parseFloat(searchValue);
+					break;
+				case `accountNumber`:
+					requestBody.accountNumber = parseInt(searchValue, 10);
+					break;
+				case `deviceName`:
+					requestBody.deviceName = searchValue;
+					break;
+				case `orderDescription`:
+					requestBody.orderDescription = searchValue;
+					break;
+				case `imeiNumber`:
+					requestBody.imeiNumber = searchValue;
+					break;
+				default:
+					break;
+			}
 		}
 
 		const queryString = this.convertJsonToUriString(queryParams);
@@ -323,7 +336,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 		return this.post(
 			url,
-			{},
+			requestBody,
 			this.setToken(),
 			`getAllDeviceOrders`,
 			null,
