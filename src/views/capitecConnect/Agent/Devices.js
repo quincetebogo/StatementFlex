@@ -211,7 +211,11 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				pageSize: this.numOfPagingRows,
 				clientCif: this.clientCif,
 				searchType: this.activeFilters.searchType,
-				searchValue: this.activeFilters.searchValue
+				searchValue: this.activeFilters.searchValue,
+				dateRange: {
+					startDate: this.activeFilters.dateRange.from,
+					endDate: this.activeFilters.dateRange.to
+				}
 			};
 
 			if (!this.clientCif) {
