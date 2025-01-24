@@ -195,7 +195,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = `030530180`;
+		this.clientCif = ``;
+		// this.clientCif = `030530180`; //TODO: Add for DEV testing
 
 		this.showTable = true;
 	}
@@ -207,24 +208,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.searchValue = this.renderSet.searchValue;
 
 		try {
-			const filters = {
+			const request = {
 				pageNumber: this.currentPageIndex - 1,
 				pageSize: this.numOfPagingRows,
-				searchValue: this.activeFilters?.searchValue || ``,
+				searchValue: this.activeFilters.searchValue,
 				dateFrom: this.activeFilters.dateRange.from,
-				dateTo: this.activeFilters.dateRange.to
+				dateTo: this.activeFilters.dateRange.to,
+				clientCif: this.clientCif
 			};
 
-			if (this.clientCif) {
-				filters.clientCif = this.clientCif;
-			} else {
-				return {
-					pagedItems: [],
-					totalCount: 0
-				};
-			}
-
-			const response = await this.capitecConnectService.getAllDeviceOrders(filters);
+			const response = await this.capitecConnectService.getAllDeviceOrders(request);
 
 			let r = response.result.content;
 
@@ -277,7 +270,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 	async getInvoice() {
 		try {
-			const testId = `979ad379-13d1-415a-94b5-c0e7082ce86a`;
+			const testId = `979ad379-13d1-415a-94b5-c0e7082ce86a`; // TODO remove when ready
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
 			console.log(`🚀 ~ response->`, response);

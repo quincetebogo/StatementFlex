@@ -238,6 +238,8 @@ export class CapitecConnectAgent extends ViewBase {
 						<capitec-tab label="Devices" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-devices
 								style="width:100%"
+								.searchDevices="${this.getRecords}"
+        						.getAdvanceBalances="${this.getAdvanceBalances}"
 							></horizon-capitec-connect-agent-devices>
 						</capitec-tab>
 					</capitec-tab-group>
