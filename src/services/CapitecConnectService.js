@@ -294,7 +294,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	getAllDeviceOrders(request) {
-		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif, searchType } = request;
+		const { pageNumber = 0, pageSize = 10, searchValue, dateRange, clientCif, searchType } = request;
 
 		const queryParams = {
 			page: pageNumber,
@@ -303,10 +303,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 		};
 
 		const requestBody = {
-			orderDateRange: {
-				startDate: dateFrom,
-				endDate: dateTo
-			}
+			orderDateRange: dateRange
 		};
 
 		if (searchValue && searchType?.value) {
