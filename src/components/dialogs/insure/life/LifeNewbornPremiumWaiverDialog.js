@@ -103,6 +103,14 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		// Reset state
+		this.docsValidated = false;
+		this.waiverSelected = false;
+		this.showLifeNewbornPremiumWaiverDialog = false;
+		this.selectedReason = '';
+		this.checkConfirmed = false;
+	
+		// Close modal
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}
 
