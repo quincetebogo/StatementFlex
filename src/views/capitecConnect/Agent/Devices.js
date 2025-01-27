@@ -61,7 +61,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		/*
+    /*
 			When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
 		*/
 		this.clientCif = this.callerInformation?.cif;
@@ -556,6 +556,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_expandRenderer(item) {
+		const copyWordToClipboard = (value) => {
+			navigator.clipboard.writeText(value);
+		};
+
 		if (!item.hasLogged) {
 			this.capitecConnectService
 				.getDeviceOrder(item.orderId)
@@ -580,28 +584,53 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-label label="Device Description"></capitec-label>
           <capitec-label
             type="strong"
-            label="${getValue(item.deviceOrderResponse.result.orderDescription)}"
+            label="${getValue(item.deviceOrderResponse.result.products[0]
+				.productShortDescription)}"
           ></capitec-label>
         </div>
 
         <div column="2" row="1">
           <capitec-label label="IMEI 1"></capitec-label>
-          <capitec-copy-text>
+          <div
+            column="2"
+            row="1"
+            style="display: flex; align-items: center; gap: 4px;"
+          >
             <capitec-label
               type="strong"
-              label="${getValue(item.deviceOrderResponse.result.imeiNumber)}"
+              label="${getValue(item.deviceOrderResponse.result.imeiNumber)} "
             ></capitec-label>
-          </capitec-copy-text>
+            ${getValue(item.deviceOrderResponse.result.imeiNumber) !== `-`
+				? html`<capitec-icon
+                  size="small"
+                  icon="system/notes-action"
+                  @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse.result.imeiNumber))}"
+                  style="cursor: pointer;"
+                ></capitec-icon>`
+				: ``}
+          </div>
         </div>
 
         <div column="3" row="1">
           <capitec-label label="IMEI 2"></capitec-label>
-          <capitec-copy-text>
+          <div
+            column="2"
+            row="1"
+            style="display: flex; align-items: center; gap: 4px;"
+          >
             <capitec-label
               type="strong"
               label="${getValue(item.deviceOrderResponse.result.imeiNumber2)}"
             ></capitec-label>
-          </capitec-copy-text>
+            ${getValue(item.deviceOrderResponse.result.imeiNumber2) !== `-`
+				? html`<capitec-icon
+                  size="small"
+                  icon="system/notes-action"
+                  @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse.result.imeiNumber2))}"
+                  style="cursor: pointer;"
+                ></capitec-icon>`
+				: ``}
+          </div>
         </div>
 
         <div column="4" row="1">
@@ -638,12 +667,24 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
         <div column="1" row="3">
           <capitec-label label="Courier Tracking"></capitec-label>
-          <capitec-copy-text>
-            <capitec-label
-              type="strong"
-              label="${getValue(item.deviceOrderResponse.result.courierTracking)}"
-            ></capitec-label>
-          </capitec-copy-text>
+          <div
+			column="2"
+			row="3"
+            style="display: flex; align-items: center; gap: 4px;"
+		  >
+			<capitec-label
+			  type="strong"
+			  label="${getValue(item.deviceOrderResponse.result.courierTracking)}"
+			></capitec-label>
+			${getValue(item.deviceOrderResponse.result.courierTracking) !== `-`
+				? html`<capitec-icon
+					size="small"
+					icon="system/notes-action"
+					@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse.result.courierTracking))}"
+					style="cursor: pointer;"
+				  ></capitec-icon>`
+				: ``}
+          </div>
         </div>
 
         <div column="2" row="3">
@@ -664,33 +705,33 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
         <div row="4" column="1" colspan="4">
           ${showInvoiceButton || showCancelButton
-				? html` <div
+			? html` <div
                 style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
               >
                 ${showInvoiceButton
-						? html`
+				? html`
                       <capitec-hyperlink
                         style="--theme-hyperlink-color: #009DE0;"
                         label="View Invoice"
                         @click="${() => {
-								this.openInvoiceModal(item.deviceOrderResponse.result.orderNumber);
-							}}"
+					this.openInvoiceModal(item.deviceOrderResponse.result.orderNumber);
+				}}"
                       >
                       </capitec-hyperlink>
                     `
-					: ``}
+				: ``}
                 ${showCancelButton
-					? html`
+				? html`
                       <capitec-hyperlink
                         style="--theme-hyperlink-color: #009DE0;"
                         label="Cancel"
                         @click="${() => {
-							this.openCancelOrderModal(item);
-						}}"
+					this.openCancelOrderModal(item);
+				}}"
                       >
                       </capitec-hyperlink>
                     `
-					: ``}
+				: ``}
               </div>`
 			: ``}
         </div>
@@ -733,9 +774,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
             value="${this.activeFilters.searchValue}"
             class="custom-flex-size"
             @value-change="${(e) => {
-				this.activeFilters.searchValue = e.detail.new;
-				this.onFilter();
-			}}"
+			this.activeFilters.searchValue = e.detail.new;
+			this.onFilter();
+		}}"
           >
           </capitec-search-field>
 
@@ -744,9 +785,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
             .items="${this.searchTypes}"
             .value="${this.activeFilters.searchType}"
             @value-change="${(e) => {
-				this.activeFilters.searchType = e.detail.new;
-				this.onFilter();
-			}}"
+			this.activeFilters.searchType = e.detail.new;
+			this.onFilter();
+		}}"
             display-field="text"
             id-field="value"
           >
@@ -779,28 +820,28 @@ export class CapitecConnectAgentDevices extends ViewBase {
         <capitec-button-bar align="left" class="no-border-top">
           <capitec-label label="Active Filters:"></capitec-label>
           ${this.activeFilters.searchValue
-				? html`<capitec-chip
+			? html`<capitec-chip
                 closable
                 @remove="${() => {
-						this.activeFilters.searchValue = ``;
-						this.onFilter();
-					}}"
+				this.activeFilters.searchValue = ``;
+				this.onFilter();
+			}}"
                 label="${this.activeFilters.searchType.text}: ${this
-						.activeFilters.searchValue}"
+				.activeFilters.searchValue}"
               >
               </capitec-chip>`
-				: null}
+			: null}
           ${this.activeFilters.dateRange.to !== null &&
-				this.activeFilters.dateRange.from !== null
-				? html`<capitec-chip
+			this.activeFilters.dateRange.from !== null
+			? html`<capitec-chip
                 label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"
               >
               </capitec-chip>`
-				: null}
+			: null}
         </capitec-button-bar>
 
         ${this.showTable
-				? html`
+			? html`
               <capitec-table
                 displayMode="Paging"
                 groupField="month"
@@ -835,7 +876,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 ></capitec-table-column>
               </capitec-table>
             `
-				: html`
+			: html`
               <capitec-table>
                 <capitec-table-column label="Order Date"></capitec-table-column>
                 <capitec-table-column
