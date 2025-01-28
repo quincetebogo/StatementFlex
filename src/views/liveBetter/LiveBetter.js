@@ -255,13 +255,14 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
-	async updated(changedProperties) {
+	updated(changedProperties) {
 
 		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
 
 		if (journalNumber) {
 			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
-			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
+			// CSCEH-11340: Temporarily disabled LBB linked transactions
+			// expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
 			this.requestUpdate();
 		}
 	}
@@ -371,6 +372,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
 
+				
 			} else if (returnValue.succeeded) {
 
 				// Navigate to Live better non-client page if a client is not registered with Live better account
@@ -430,9 +432,10 @@ export class LiveBetter extends SavingsAccountBase {
 
 					// Below condition check is specific to date filter case. We reassigning the linked transaction expanded previously 
 					// to the new set if it has matching journal number
-					if (item.journalNumber === this.journalNumber) {
-						item.linkedTransactionDetails = this.linkedTransactionDetails;
-					}
+					// CSCEH-11340: Temporarily disabled LBB linked transactions
+					// if (item.journalNumber === this.journalNumber) {
+					// item.linkedTransactionDetails = this.linkedTransactionDetails;
+							
 
 					return item;
 				});
@@ -551,6 +554,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 	async _setTranHistoryDone() {
 		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
+		
 		this._setIncidentDone();
 	}
 
@@ -816,7 +820,7 @@ export class LiveBetter extends SavingsAccountBase {
 					</horizon-label>
 				</capitec-group>
 
-				${item.getBreakdownDetails
+				${false /* item.getBreakdownDetails <CSCEH-11340: Temporarily disabled LBB linked transactions> */
 				? html`${this._renderBreakdown(item)}`
 				: html``
 			}
