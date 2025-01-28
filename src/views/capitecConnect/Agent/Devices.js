@@ -278,7 +278,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 	async getInvoice() {
 		try {
-			const testId = `979ad379-13d1-415a-94b5-c0e7082ce86a`; // TODO remove when ready
+			const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
 			console.log(`🚀 ~ getDeviceInvoice response->`, response);
