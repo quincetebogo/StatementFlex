@@ -388,63 +388,54 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isCancelOrderModalOpen = true;
 
 		return html`
-      <capitec-modal
-        type="form"
-        header="Cancel Order"
-        ?open="${this.isCancelOrderModalOpen}"
-      >
-        <capitec-content-box
-          slot="body"
-          layout="grid"
-          style="height: auto; min-height: 300px; padding: 24px; text-align: center;"
-        >
-          <div column="1" row="1" colspan="2">
-            <capitec-label
-              label="You are about to cancel this order and the amount of"
-            ></capitec-label>
-            <div style="display: flex; justify-content: center;">
-              <capitec-label
-                type="strong"
-                label="${formatAmount(this.currentOrder?.orderAmount)}"
-              ></capitec-label>
-              <capitec-label
-                label=" will be refunded to the client"
-              ></capitec-label>
-            </div>
-            <div style="display: flex; justify-content: center;">
-              <capitec-label label="(Account number "></capitec-label>
-              <capitec-label
-                type="strong"
-                label="${this.currentOrder?.accountNumber}"
-              ></capitec-label>
-              <capitec-label label=")."></capitec-label>
-            </div>
-            <capitec-label
-              label="It can take up to 24 hours for the funds to reflect."
-            ></capitec-label>
-            <br /><br />
-            <capitec-label label="Are you sure?"></capitec-label>
-          </div>
-        </capitec-content-box>
+	<capitec-modal
+	  type="alert"
+	  header="Cancel Order"
+	  ?open="${this.isCancelOrderModalOpen}"
+	>
+	  <div slot="body" style="text-align: center; padding-top: 16px;">
+		<capitec-label
+		  label="You are about to cancel this order and the amount of"
+		></capitec-label>
+		<div style="display: flex; justify-content: center;">
+		  <capitec-label
+			type="strong"
+			label="${formatAmount(this.currentOrder?.orderAmount)}"
+		  ></capitec-label>
+		  <capitec-label
+			label=" will be refunded to the client"
+		  ></capitec-label>
+		  </div>
+		<div style="display: flex; justify-content: center;">
+		  <capitec-label label="(Account number "></capitec-label>
+		  <capitec-label
+			type="strong"
+			label="${this.currentOrder?.accountNumber}"
+		  ></capitec-label>
+		  <capitec-label label=")."></capitec-label>
+		</div>
+		<capitec-label
+		  label="It can take up to 24 hours for the funds to reflect."
+		></capitec-label>
+		<br />
+		<capitec-label label="Are you sure?"></capitec-label>
+	  </div>
 
-        <div
-          slot="footer"
-          style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
-        >
-          <capitec-button
-            type="secondary"
-            label="Back"
-            @click="${() => (this.isCancelOrderModalOpen = false)}"
-          ></capitec-button>
-          <capitec-button
-            type="primary"
-            label="Cancel Order"
-            style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
-            @click="${() => this.cancelOrder()}"
-          ></capitec-button>
-        </div>
-      </capitec-modal>
-    `;
+	  <capitec-button
+		slot="footer"
+		type="secondary"
+		label="Back"
+		@click="${() => (this.isCancelOrderModalOpen = false)}"
+	  ></capitec-button>
+	  <capitec-button
+		slot="footer"
+		type="primary"
+		label="Cancel Order"
+		style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+		@click="${() => this.cancelOrder()}"
+	  ></capitec-button>
+	</capitec-modal>
+  `;
 	}
 
 	openSuccessModal() {
@@ -454,79 +445,60 @@ export class CapitecConnectAgentDevices extends ViewBase {
         header="Cancel Order"
         ?open="${this.isSuccessModalOpen}"
       >
-        <capitec-content-box
-          slot="body"
-          layout="grid"
-          style="height: auto; min-height: 100px; padding: 24px; text-align: center;"
-        >
-          <div
-            column="1"
-            row="1"
-            colspan="2"
-            style="display: flex; flex-direction: column; align-items: center; gap: 16px;"
-          >
-            <capitec-icon
-              size="large"
-              icon="status/success-trans"
-            ></capitec-icon>
-            <capitec-label label="Order cancellation requested"></capitec-label>
+        <div slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
+          <capitec-icon
+            size="large"
+            icon="status/success-trans"
+          ></capitec-icon>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
+            <capitec-label type="strong" label="Order cancellation requested"></capitec-label>
           </div>
-        </capitec-content-box>
-        <div
-          slot="footer"
-          style="display: flex; justify-content: center; padding: 16px 24px;"
-        >
-          <capitec-button
-            type="secondary"
-            label="Close"
-            @click="${() => (this.isSuccessModalOpen = false)}"
-          ></capitec-button>
         </div>
+
+        <capitec-button
+          slot="footer"
+          type="secondary"
+          label="Close"
+          @click="${() => (this.isSuccessModalOpen = false)}"
+        ></capitec-button>
       </capitec-modal>
     `;
 	}
 
 	onOrderCancellationFail() {
 		return html`
-      <capitec-modal
-        type="alert"
-        header="Cancel Order"
-        ?open="${this.isErrorModalOpen}"
-      >
-        <capitec-content-box
-          slot="body"
-          layout="grid"
-          style="height: auto; min-height: 100px; padding: 24px; text-align: center;"
-        >
-          <div
-            column="1"
-            row="1"
-            colspan="2"
-            style="display: flex; flex-direction: column; align-items: center; gap: 16px;"
-          >
-            <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <capitec-label
-                label="Order cancellation unsuccessful"
-              ></capitec-label>
-              <capitec-label
-                label="Please try again or contact support"
-              ></capitec-label>
-            </div>
-          </div>
-        </capitec-content-box>
-        <div
-          slot="footer"
-          style="display: flex; justify-content: center; padding: 16px 24px;"
-        >
-          <capitec-button
-            type="secondary"
-            label="Close"
-            @click="${() => (this.isErrorModalOpen = false)}"
-          ></capitec-button>
-        </div>
-      </capitec-modal>
-    `;
+		  <capitec-modal
+			type="alert"
+			header="Cancel Order"
+			?open="${this.isErrorModalOpen}"
+		  >
+
+			<div 
+			column="1"
+	         row="1"
+	         colspan="2"
+			slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
+			  <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
+			  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
+				<capitec-label 
+				  type="strong"
+				  label="Order cancellation unsuccessful"
+				></capitec-label>
+				<capitec-label 
+				  type="strong"
+				  label="Please try again or contact support"
+				></capitec-label>
+			  </div>
+			</div>
+	
+			<capitec-button
+			  slot="footer"
+			  type="secondary"
+			  label="Close"
+			  @click="${() => (this.isErrorModalOpen = false)}"
+			></capitec-button>
+		  </capitec-modal>
+		`;
 	}
 
 	async cancelOrder() {
@@ -708,7 +680,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			? html` <div
                 style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
               >
-                ${showInvoiceButton
+                ${!showInvoiceButton
 				? html`
                       <capitec-hyperlink
                         style="--theme-hyperlink-color: #009DE0;"
