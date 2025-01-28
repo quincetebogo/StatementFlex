@@ -932,7 +932,7 @@ export class Favourites extends SavingsAccountBase {
 
 		const incidentCategorization = {
 			category: `${event.detail.category}`,
-			need: `${event.detail.need}`,
+			subCategory: `${event.detail.need}`,
 			issue: `${event.detail.issue}`
 		};
 

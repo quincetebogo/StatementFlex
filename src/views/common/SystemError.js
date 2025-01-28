@@ -42,7 +42,7 @@ export class SystemError extends ViewBase {
 
 		this.endCallContext = `SystemError`;
 		this._telemetry.logEvent(SystemErrorEvents.SYSTEM_ERR, {
-			previousScreen: this.navigationContext.previous.route.name
+			previousScreen: this.navigationContext?.previous?.route?.name
 		});
 	}
 

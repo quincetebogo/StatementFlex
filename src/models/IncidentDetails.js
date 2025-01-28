@@ -19,7 +19,7 @@ export class IncidentDetails {
 	 * @param {string} [isReassigned = false] Indicates if the current incident has been reassigned in Strack
 	 * @param {boolean} [primaryIncidentCreated = true] Indicates if there is a current successfully created incident
 	 * @param {string} [description = ``] Incident's description to update on strack
-	 * @param {boolean} [primaryIncidentFinished = true] Flag to indicate if future incidents should be sub-incidents
+	 * @param {boolean} [primaryIncidentFinished = false] Flag to indicate if future incidents should be sub-incidents
 	 * @memberof IncidentDetails
 	 */
 
@@ -33,7 +33,7 @@ export class IncidentDetails {
 		isReassigned = false,
 		primaryIncidentCreated = true,
 		description = ``,
-		primaryIncidentFinished = true
+		primaryIncidentFinished = false
 	) {
 		this.currentIncident = currentIncident;
 		this.currentNeed = currentNeed;

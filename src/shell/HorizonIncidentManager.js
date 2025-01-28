@@ -32,8 +32,6 @@ export class HorizonIncidentManager {
 	}
 
 	constructor() {
-		this.checkIncidentStatus = true;
-
 		this._toggleBusyFunc = null;
 
 		this._configuration = Configuration.getInstance();
@@ -357,7 +355,8 @@ export class HorizonIncidentManager {
 	async updatePartiesOnCall(savedIncidentInfo, incomingCallDetails, callerInformation) {
 
 		if (!this._validIncident(this.currentIncident)) {
-			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedNonClientDetails`);
+			console.log(`updatePartiesOnCall: There is no incident available against which to record the client details`);
+			this.logger.log(`error`, `There is no incident available against which to record the client details`, `updatePartiesOnCall`);
 			return;
 		}
 
@@ -383,6 +382,10 @@ export class HorizonIncidentManager {
 			console.log(`autoCreateAndClassify: There is no valid primary incident. Incident managment cannot proceed!`);
 			return false;
 		};
+
+		if (!this._validIncident(this.currentIncident)) {
+			this.currentIncident = this.primaryIncident;
+		}
 
 		if (isNullorEmpty(currentNeed)) {
 			console.log(`autoCreateAndClassify: no current need set`);
@@ -413,12 +416,16 @@ export class HorizonIncidentManager {
 			return false;
 		};
 
-		if (this._isIncidentClassified(incidentCategorization)) {
+		if (!this._validIncident(this.currentIncident)) {
+			this.currentIncident = this.primaryIncident;
+		}
+
+		if (!this._isIncidentClassified(incidentCategorization)) {
 			console.log(`manualCreateAndClassify: incidentCategorization data not supplied`);
 			return false;
 		}
 
-		console.log(`manualCreateAndClassify: Classifying manually ${incidentCategorization}`);
+		console.log(`manualCreateAndClassify: Classifying manually ${incidentCategorization.category}, ${incidentCategorization.subCategory}, ${incidentCategorization.issue}`);
 
 		await this._closeAndCreate(incidentCategorization);
 		await this._classifyIncidentManually(incidentCategorization, closeType);
@@ -437,38 +444,38 @@ export class HorizonIncidentManager {
 		const incidentDetails = this.getIncidentDetails();
 
 		if (!this._validIncident(this.currentIncident)) {
-			this.logger.log(`warning`, `Incident manager: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
+			console.log(`classifyIncident: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`);
+			this.logger.log(`warning`, `classifyIncident: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
 			return;
 		}
-
-		let canClassify = !this.checkIncidentStatus;
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-		if (!this._validIncident(this.currentIncident)) {
-			// If incident details is empty, do nothing and return.
+		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
+		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
+
+		if (this._isIncidentClassified(savedIncidentInfo)) {
+			console.log(`classifyIncident: Ìncident already classified - ${this.currentIncident.incidentId}`);
+			this.logger.log(`warning`, `classifyIncident: Ìncident already classified - ${this.currentIncident.interaction}`, `classifyIncident`, null);
 			return;
 		}
 
-		if (this.checkIncidentStatus) {
-			const incidentInfo = await this.loadSavedIncident(this.currentIncident);
-			canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
+		if (isNullorEmpty(needAction) || !this._isIncidentClassified(incidentCategorization)) {
+			console.log(`classifyIncident: Classification information not provided - ${this.currentIncident.interaction}`);
+			this.logger.log(`warning`, `classifyIncident: Classification information not provided - ${this.currentIncident.incidentId}`, `classifyIncident`, null);
+			return;
 		}
 
-		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
+		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
+		const newInteractionItem = returnValue.result.incident.currentInteractionItem;
 
-		if (canClassify && (!isNullorEmpty(needAction) || !isNullorEmpty(incidentCategorization))) {
-			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
-
-			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
-				return;
-			}
-
-			console.log(`Classified incident: ${this.currentIncident.toString()}`);
+		if (!returnValue.succeeded) {
+			console.log(`classifyIncident: Failed to classify incident.ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`);
+			this.logger.log(`warning`, `classifyIncident: Failed to classify incident.ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+			return;
 		}
 
-		this.checkIncidentStatus = true;
+		console.log(`classifyIncident: (Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem})`);
 	}
 
 	/**
@@ -484,7 +491,10 @@ export class HorizonIncidentManager {
 		if (this._validIncident(this.currentIncident)) {
 			this.incidentDetails.closeType = HORIZON_INCIDENT_STATE.ASSIGNED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
+			return;
 		}
+
+		console.log(`incidentAssigned: No current incident to assign`);
 	}
 
 	/**
@@ -492,41 +502,40 @@ export class HorizonIncidentManager {
 	 * Since we know the need is fullfilled, closing incident with default values
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
-	 * @param {Object} Object
-	 *          - clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
-	 *          - endCallReason - End call reason selected/ default to `Normal Enquiry'
-	 *          - causeCodeByContext - Cause code to end call session
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {Promise<boolean>} - true/ false, indicating close incident status
-	 */
+	 * @param {object} object containing clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 *                                   endCallReason - endCallReason - End call reason selected/ default to `Normal Enquiry'
+	 *                                   manualClassification - manual classfication details
+	 * @param { Function } toggleBusyFlag - Toggle busy flag function
+	 * @param { Function } errorHandler - Custom error handling function* 
+	 * @returns { Promise<boolean>} - true / false, indicating close incident status
+	*/
 	async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag, errorHandler = null) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		manualClassification = manualClassification || {};
 
 		if (!this._validIncident(this.currentIncident)) {
+			console.log(`closeIncident: There is no incident to close`);
 			this.logger.log(`error`, `There is no incident to close`, `closeIncident`);
 			return true;
 		}
 
-		const incidentInfo = await this.loadSavedIncident(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
 
-		if (this._isReassigned(incidentInfo)) {
+		if (this._isReassigned(savedIncidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${this.currentIncident.toString()} is reassigned, skipping close incident`, `closeIncident`, null);
 			return true;
 		}
 
 		// Look at removing this check by ensuring that there are no remaining paths that do not classify before closing
-		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
-			this.checkIncidentStatus = false;
-			// Incident is not classified. Trying to classify before closing
+		if (!this._isIncidentClassified(savedIncidentInfo)) {
+			console.log(`Inident ${this.currentIncident.interaction} not classified before call to closeIncident!`);
 			await this.classifyIncident(toggleBusyFlag, manualClassification, errorHandler);
 		}
 
 		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.closeType] : endCallReason.key;
-		const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
-		const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], manualClassification);
+		const resolution = this._getResolution(savedIncidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
+		const causeCode = this._getCauseCode(savedIncidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], manualClassification);
 
 		const returnValue = await this.incidentService.closeIncident(
 			this.currentIncident,
@@ -544,7 +553,7 @@ export class HorizonIncidentManager {
 			console.log(`Closed incident/interaction ${this.currentIncident.interaction}`);
 		}
 
-		this._updateIncidentState(clientNeed);
+		this._resetIncidentState(clientNeed);
 
 		return returnValue.succeeded;
 	}
@@ -666,10 +675,17 @@ export class HorizonIncidentManager {
 	}
 
 	async _classifyIncidentManually(incidentCategorization, closeType) {
+		if (!this._validIncident(this.currentIncident)) {
+			console.log(`_classifyIncidentManually: no current incident to classify`);
+			return;
+		}
+
 		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, null, incidentCategorization, () => true);
 
 		if (returnValue.succeeded) {
 			const newInteractionItem = returnValue.result.incident.currentInteractionItem;
+
+			console.log(`_classifyIncidentManually (Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem})`);
 
 			if (!this.incidentDetails.primaryIncidentFinished) {
 				this.incidentDetails.primaryIncident.currentInteractionItem = returnValue.result.incident.currentInteractionItem;
@@ -684,12 +700,14 @@ export class HorizonIncidentManager {
 			return true;
 		}
 
-		this.logger.log(`warning`, `Failed to manually classify incident! ID: ${this.currentIncident.incidentId}}`, `_classifyIncidentManually`, returnValue.correlationId);
+		console.log(`_classifyIncidentManually: Failed to manually classify incident! ID: ${this.currentIncident.interaction}}`);
+		this.logger.log(`warning`, `Failed to manually classify incident! ID: ${this.currentIncident.interaction}}`, `_classifyIncidentManually`, returnValue.correlationId);
 
 		return false;
 	}
 
 	async classifyFinalIncident(needAction, manualClassification, closeType) {
+		console.log(`classifyFinalIncident: Need = ${needAction}, Category=${manualClassification?.category}, Subcategory=${manualClassification?.subCategory}, issue=${manualClassification?.issue}`);
 		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, manualClassification);
 
 		if (returnValue.succeeded) {
@@ -740,7 +758,7 @@ export class HorizonIncidentManager {
 
 		console.log(`Closed Interaction Item: (${this.currentIncident.interaction}, ${this.currentIncident.currentInteractionItem})`);
 
-		this._updateIncidentState(this.getCurrentNeed());
+		this._resetIncidentState(this.getCurrentNeed());
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`warning`, `Failed to close incident.`, `_closePreviousIncident`, returnValue.correlationId);
@@ -920,8 +938,10 @@ export class HorizonIncidentManager {
 	}
 
 	_isIncidentClassified(incidentInfo) {
-		return !this._isObjectNullOrEmpty(incidentInfo) &&
-			!(isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue));
+		const isValidObject = !this._isObjectNullOrEmpty(incidentInfo);
+		const isCategorized = !(isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue));
+
+		return isValidObject && isCategorized;
 	}
 
 	_isCallerCapitecClient(incomingCallDetails, callerInfo) {
@@ -950,7 +970,7 @@ export class HorizonIncidentManager {
 		return str1 ? `${str1}\n${str2}` : `${str2}`;
 	}
 
-	_updateIncidentState(clientNeed) {
+	_resetIncidentState(clientNeed) {
 		const incidentDetails = this.getIncidentDetails();
 
 		const curIncidentDetails = new IncidentDetails(
