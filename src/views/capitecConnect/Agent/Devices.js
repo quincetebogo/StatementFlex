@@ -10,6 +10,7 @@ import {
 import { CapitecConnectService } from "app/services/CapitecConnectService";
 import { DateTime } from "luxon";
 import { ViewBase } from "app/views/common/ViewBase";
+import { exampleBase64 } from "./exampleBase64";
 
 /**
  * Capitec Connect Agent Devices View
@@ -282,6 +283,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
 			console.log(`🚀 ~ getDeviceInvoice response->`, response);
+			return exampleBase64;
 		} catch (error) {
 			console.error(`Error getting device invoice:`, error);
 		}
