@@ -362,7 +362,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
 		return this.get(
 			url,
-			this.setToken(),
+			this.invoiceHeaders(),
 			`getDeviceInvoice`,
 			false,
 			null,
