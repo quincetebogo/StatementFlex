@@ -11,6 +11,7 @@ import { CapitecConnectService } from "app/services/CapitecConnectService";
 import { DateTime } from "luxon";
 import { ViewBase } from "app/views/common/ViewBase";
 import { exampleBase64 } from "./exampleBase64";
+import "app/components/common/HorizonPDFViewer";
 
 /**
  * Capitec Connect Agent Devices View
@@ -57,6 +58,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.currentOrderId = ``;
 		this.currentOrder = null;
 		this.showTable = false;
+		this.isViewingInvoicePdf = false;
 	}
 
 	connectedCallback() {
@@ -93,7 +95,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			isValidEmail: { type: Boolean },
 			currentOrderId: { type: String },
 			currentOrder: { type: Object },
-			showTable: { type: Boolean }
+			showTable: { type: Boolean },
+			isViewingInvoicePdf: { type: Boolean }
 		};
 	}
 
@@ -283,7 +286,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
 			console.log(`🚀 ~ getDeviceInvoice response->`, response);
-			return exampleBase64;
+			if (response.succeeded) {
+				this.isViewingInvoicePdf = true;
+			}
 		} catch (error) {
 			console.error(`Error getting device invoice:`, error);
 		}
@@ -319,6 +324,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
           layout="grid"
           style="height: auto; min-height: 300px; padding: 24px;"
         >
+
+		${this.isViewingInvoicePdf ? html`
+			<horizon-pdf-viewer
+			  header="Device Invoice"
+			  encodedPDF="${exampleBase64}"
+			  @cancel="${() => {
+					this.isViewingInvoicePdf = false;
+				}}">
+			</horizon-pdf-viewer>
+		  ` : ``}
+
           <div column="1" row="1" colspan="2">
             <capitec-label
               type="strong"
