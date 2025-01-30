@@ -10,7 +10,7 @@ import {
 import { CapitecConnectService } from "app/services/CapitecConnectService";
 import { DateTime } from "luxon";
 import { ViewBase } from "app/views/common/ViewBase";
-import { exampleBase64 } from "./exampleBase64";
+import { exampleBase64 } from "./exampleBase64"; // TODO: remove all exampleBase64 instances
 import "app/components/common/HorizonPDFViewer";
 
 /**
@@ -59,6 +59,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.currentOrder = null;
 		this.showTable = false;
 		this.isViewingInvoicePdf = false;
+		this.base64Pdf = ``;
+		this.loading = false;
 	}
 
 	connectedCallback() {
@@ -96,7 +98,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			currentOrderId: { type: String },
 			currentOrder: { type: Object },
 			showTable: { type: Boolean },
-			isViewingInvoicePdf: { type: Boolean }
+			isViewingInvoicePdf: { type: Boolean },
+			base64Pdf: { type: String },
+			loading: { type: Boolean }
 		};
 	}
 
@@ -249,7 +253,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			response.result.content = r;
 
 			this.showTable = response.result.totalElements !== 0;
-
 			return {
 				pagedItems: response.result?.content || [],
 				totalCount: response.result.totalElements
@@ -282,14 +285,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 	async getInvoice() {
 		try {
+			this.isLoading = true;
 			const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
-			console.log(`🚀 ~ getDeviceInvoice response->`, response);
 			if (response.succeeded) {
+				this.isLoading = false;
+				this.base64Pdf = response.result;
 				this.isViewingInvoicePdf = true;
 			}
 		} catch (error) {
+			this.isLoading = false;
 			console.error(`Error getting device invoice:`, error);
 		}
 	}
@@ -327,8 +333,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 		${this.isViewingInvoicePdf ? html`
 			<horizon-pdf-viewer
-			  header="Device Invoice"
-			  encodedPDF="${exampleBase64}"
+			  header="View Document"
+			  encodedPDF="${exampleBase64 || base64Pdf}"
 			  @cancel="${() => {
 					this.isViewingInvoicePdf = false;
 				}}">
@@ -551,14 +557,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		};
 
 		if (!item.hasLogged) {
+			this.isLoading = true;
 			this.capitecConnectService
 				.getDeviceOrder(item.orderId)
 				.then((response) => {
 					item.deviceOrderResponse = response;
 					item.hasLogged = true;
 					this.requestUpdate();
+					this.isLoading = false;
 				})
 				.catch((error) => {
+					this.isLoading = false;
 					console.error(`Error in getDeviceOrder:`, error);
 				});
 		}
@@ -758,6 +767,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         valign="top"
         gap="clear"
       >
+	  ${this.isLoading ? html`<capitec-loading-indicator></capitec-loading-indicator>` : ``}
         <capitec-button-bar align="left">
           <capitec-search-field
             label="Search"
