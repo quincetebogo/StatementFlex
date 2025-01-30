@@ -49,19 +49,19 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		};
 
 		this.clientCif = ``;
-		this.isInvoiceModalOpen = false;
-		this.isCancelOrderModalOpen = false;
-		this.isSuccessModalOpen = false;
-		this.isErrorModalOpen = false;
-		this.isInvoiceError = false;
+		this.isInvoiceModalVisible = false;
+		this.isCancelOrderModalVisible = false;
+		this.isSuccessModalVisible = false;
+		this.isErrorModalVisible = false;
+		this.hasInvoiceError = false;
 		this.emailAddress = ``;
 		this.isValidEmail = false;
 		this.currentOrderId = ``;
 		this.currentOrder = null;
-		this.showTable = false;
-		this.isViewingInvoicePdf = false;
-		this.base64Pdf = ``;
-		this.loading = false;
+		this.isDeviceTableVisible = false;
+		this.isInvoicePdfVisible = false;
+		this.invoicePdfBase64 = ``;
+		this.isLoading = false;
 	}
 
 	connectedCallback() {
@@ -90,19 +90,19 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			currentPageIndex: { type: Number },
 			activeFilters: { type: Object },
 			clientCif: { type: String },
-			isInvoiceModalOpen: { type: Boolean },
-			isCancelOrderModalOpen: { type: Boolean },
-			isSuccessModalOpen: { type: Boolean },
-			isErrorModalOpen: { type: Boolean },
-			isInvoiceError: { type: Boolean },
+			isInvoiceModalVisible: { type: Boolean },
+			isCancelOrderModalVisible: { type: Boolean },
+			isSuccessModalVisible: { type: Boolean },
+			isErrorModalVisible: { type: Boolean },
+			hasInvoiceError: { type: Boolean },
 			emailAddress: { type: String },
 			isValidEmail: { type: Boolean },
 			currentOrderId: { type: String },
 			currentOrder: { type: Object },
-			showTable: { type: Boolean },
-			isViewingInvoicePdf: { type: Boolean },
-			base64Pdf: { type: String },
-			loading: { type: Boolean }
+			isDeviceTableVisible: { type: Boolean },
+			isInvoicePdfVisible: { type: Boolean },
+			invoicePdfBase64: { type: String },
+			isLoading: { type: Boolean }
 		};
 	}
 
@@ -194,10 +194,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	onFilter() {
-		this.showTable = false;
+		this.isDeviceTableVisible = false;
 
 		setTimeout(() => {
-			this.showTable = true;
+			this.isDeviceTableVisible = true;
 			this.requestUpdate();
 		}, 100);
 	}
@@ -206,7 +206,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		// this.clientCif = ``;
 		this.clientCif = `030530180`; // TODO: Add for DEV testing
 
-		this.showTable = true;
+		this.isDeviceTableVisible = true;
 	}
 
 	async _retrieveDevices(renderSet) {
@@ -254,14 +254,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 			response.result.content = r;
 
-			this.showTable = response.result.totalElements !== 0;
+			this.isDeviceTableVisible = response.result.totalElements !== 0;
 			return {
 				pagedItems: response.result?.content || [],
 				totalCount: response.result.totalElements
 			};
 		} catch (error) {
 			console.error(`Error in getAllDeviceOrders:`, error);
-			this.showTable = false;
+			this.isDeviceTableVisible = false;
 
 			if (
 				this.activeFilters.searchType.value === `accountNumber` &&
@@ -296,13 +296,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				throw new Error(`Failed to load invoice`);
 			}
 
-			this.base64Pdf = response.result;
-			this.isViewingInvoicePdf = true;
+			this.invoicePdfBase64 = response.result;
+			this.isInvoicePdfVisible = true;
 
 		} catch (error) {
 			console.error(`Error getting device invoice:`, error);
-			this.base64Pdf = null;
-			this.isInvoiceError = true;
+			this.invoicePdfBase64 = null;
+			this.hasInvoiceError = true;
 		} finally {
 			this.isLoading = false;
 			this.requestUpdate();
@@ -322,17 +322,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.requestUpdate();
 	}
 
-	openInvoiceModal(orderId) {
-		if (!this.isInvoiceModalOpen) {
+	renderInvoiceModal(orderId) {
+		if (!this.isInvoiceModalVisible) {
 			this.currentOrderId = orderId;
 		}
-		this.isInvoiceModalOpen = true;
+		this.isInvoiceModalVisible = true;
 
 		return html`
       <capitec-modal
         type="form"
         header="Invoice"
-        ?open="${this.isInvoiceModalOpen}"
+        ?open="${this.isInvoiceModalVisible}"
       >
         <capitec-content-box
           slot="body"
@@ -340,12 +340,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
           style="height: auto; min-height: 300px; padding: 24px;"
         >
 
-		${this.isViewingInvoicePdf ? html`
+		${this.isInvoicePdfVisible ? html`
 			<horizon-pdf-viewer
 			  header="View Document"
-			  encodedPDF="${exampleBase64 || base64Pdf}"
+			  encodedPDF="${exampleBase64 || invoicePdfBase64}"
 			  @cancel="${() => {
-					this.isViewingInvoicePdf = false;
+			this.isInvoicePdfVisible = false;
 				}}">
 			</horizon-pdf-viewer>
 		  ` : ``}
@@ -399,7 +399,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-button
             type="secondary"
             label="Cancel"
-            @click="${() => (this.isInvoiceModalOpen = false)}"
+            @click="${() => (this.isInvoiceModalVisible = false)}"
           ></capitec-button>
           <capitec-button
             type="primary"
@@ -413,18 +413,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
     `;
 	}
 
-	openCancelOrderModal(order) {
-		if (!this.isCancelOrderModalOpen) {
+	renderCancelOrderModal(order) {
+		if (!this.isCancelOrderModalVisible) {
 			this.currentOrderId = order.orderNumber;
 			this.currentOrder = order;
 		}
-		this.isCancelOrderModalOpen = true;
+		this.isCancelOrderModalVisible = true;
 
 		return html`
 	<capitec-modal
 	  type="alert"
 	  header="Cancel Order"
-	  ?open="${this.isCancelOrderModalOpen}"
+	  ?open="${this.isCancelOrderModalVisible}"
 	>
 	  <div slot="body" style="text-align: center; padding-top: 16px;">
 		<capitec-label
@@ -458,7 +458,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		slot="footer"
 		type="secondary"
 		label="Back"
-		@click="${() => (this.isCancelOrderModalOpen = false)}"
+		@click="${() => (this.isCancelOrderModalVisible = false)}"
 	  ></capitec-button>
 	  <capitec-button
 		slot="footer"
@@ -471,12 +471,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
   `;
 	}
 
-	openSuccessModal() {
+	renderOrderCancelSuccessModal() {
 		return html`
       <capitec-modal
         type="alert"
         header="Cancel Order"
-        ?open="${this.isSuccessModalOpen}"
+        ?open="${this.isSuccessModalVisible}"
       >
         <div slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
           <capitec-icon
@@ -492,18 +492,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
           slot="footer"
           type="secondary"
           label="Close"
-          @click="${() => (this.isSuccessModalOpen = false)}"
+          @click="${() => (this.isSuccessModalVisible = false)}"
         ></capitec-button>
       </capitec-modal>
     `;
 	}
 
-	onInvoiceOpenFail() {
+	renderInvoiceErrorModal() {
 		return html`
 		  <capitec-modal
 			type="alert"
 			header="Invoice"
-			?open="${this.isInvoiceError}"
+			?open="${this.hasInvoiceError}"
 		  >
 
 			<div 
@@ -528,18 +528,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			  slot="footer"
 			  type="secondary"
 			  label="Close"
-			  @click="${() => (this.isInvoiceError = false)}"
+			  @click="${() => (this.hasInvoiceError = false)}"
 			></capitec-button>
 		  </capitec-modal>
 		`;
 	}
 
-	onOrderCancellationFail() {
+	renderOrderCancelErrorModal() {
 		return html`
 		  <capitec-modal
 			type="alert"
 			header="Cancel Order"
-			?open="${this.isErrorModalOpen}"
+			?open="${this.isErrorModalVisible}"
 		  >
 
 			<div 
@@ -564,7 +564,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			  slot="footer"
 			  type="secondary"
 			  label="Close"
-			  @click="${() => (this.isErrorModalOpen = false)}"
+			  @click="${() => (this.isErrorModalVisible = false)}"
 			></capitec-button>
 		  </capitec-modal>
 		`;
@@ -575,12 +575,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			.cancelDeviceOrder(this.currentOrderId)
 			.then((res) => {
 				console.log(`Order cancelled:`, res);
-				this.isCancelOrderModalOpen = false;
-				this.isSuccessModalOpen = true;
+				this.isCancelOrderModalVisible = false;
+				this.isSuccessModalVisible = true;
 			})
 			.catch(() => {
-				this.isCancelOrderModalOpen = false;
-				this.isErrorModalOpen = true;
+				this.isCancelOrderModalVisible = false;
+				this.isErrorModalVisible = true;
 			});
 	}
 
@@ -590,7 +590,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		}
 		try {
 			console.log(`Sending invoice to:`, this.emailAddress);
-			this.isInvoiceModalOpen = false;
+			this.isInvoiceModalVisible = false;
 		} catch (error) {
 			console.error(`Error sending invoice:`, error);
 		}
@@ -758,7 +758,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                         style="--theme-hyperlink-color: #009DE0;"
                         label="View Invoice"
                         @click="${() => {
-					this.openInvoiceModal(item.deviceOrderResponse?.result.orderNumber);
+					this.renderInvoiceModal(item.deviceOrderResponse?.result.orderNumber);
 				}}"
                       >
                       </capitec-hyperlink>
@@ -770,7 +770,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                         style="--theme-hyperlink-color: #009DE0;"
                         label="Cancel"
                         @click="${() => {
-					this.openCancelOrderModal(item);
+					this.renderCancelOrderModal(item);
 				}}"
                       >
                       </capitec-hyperlink>
@@ -885,7 +885,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			: null}
         </capitec-button-bar>
 
-        ${this.showTable
+        ${this.isDeviceTableVisible
 			? html`
               <capitec-table
                 displayMode="Paging"
@@ -945,11 +945,11 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 ></capitec-label>
               </capitec-content-box>
             `}
-        ${this.isInvoiceModalOpen ? this.openInvoiceModal() : null}
-        ${this.isCancelOrderModalOpen ? this.openCancelOrderModal() : null}
-        ${this.isSuccessModalOpen ? this.openSuccessModal() : null}
-        ${this.isErrorModalOpen ? this.onOrderCancellationFail() : null}
-		${this.isInvoiceError ? this.onInvoiceOpenFail() : null}
+        ${this.isInvoiceModalVisible ? this.renderInvoiceModal() : null}
+        ${this.isCancelOrderModalVisible ? this.renderCancelOrderModal() : null}
+        ${this.isSuccessModalVisible ? this.renderOrderCancelSuccessModal() : null}
+        ${this.isErrorModalVisible ? this.renderOrderCancelErrorModal() : null}
+		${this.hasInvoiceError ? this.renderInvoiceErrorModal() : null}
       </capitec-content-box>
     `;
 	}
