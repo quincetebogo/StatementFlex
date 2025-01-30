@@ -53,6 +53,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isCancelOrderModalOpen = false;
 		this.isSuccessModalOpen = false;
 		this.isErrorModalOpen = false;
+		this.isInvoiceError = false;
 		this.emailAddress = ``;
 		this.isValidEmail = false;
 		this.currentOrderId = ``;
@@ -93,6 +94,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			isCancelOrderModalOpen: { type: Boolean },
 			isSuccessModalOpen: { type: Boolean },
 			isErrorModalOpen: { type: Boolean },
+			isInvoiceError: { type: Boolean },
 			emailAddress: { type: String },
 			isValidEmail: { type: Boolean },
 			currentOrderId: { type: String },
@@ -289,14 +291,21 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
 			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
 			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
-			if (response.succeeded) {
-				this.isLoading = false;
-				this.base64Pdf = response.result;
-				this.isViewingInvoicePdf = true;
+
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to load invoice`);
 			}
+
+			this.base64Pdf = response.result;
+			this.isViewingInvoicePdf = true;
+
 		} catch (error) {
-			this.isLoading = false;
 			console.error(`Error getting device invoice:`, error);
+			this.base64Pdf = null;
+			this.isInvoiceError = true;
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
 		}
 	}
 
@@ -487,6 +496,42 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ></capitec-button>
       </capitec-modal>
     `;
+	}
+
+	onInvoiceOpenFail() {
+		return html`
+		  <capitec-modal
+			type="alert"
+			header="Invoice"
+			?open="${this.isInvoiceError}"
+		  >
+
+			<div 
+			column="1"
+	         row="1"
+	         colspan="2"
+			slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
+			  <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
+			  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
+				<capitec-label 
+				  type="strong"
+				  label="Invoice could not be opened"
+				></capitec-label>
+				<capitec-label 
+				  type="strong"
+				  label="Please try again or contact support"
+				></capitec-label>
+			  </div>
+			</div>
+	
+			<capitec-button
+			  slot="footer"
+			  type="secondary"
+			  label="Close"
+			  @click="${() => (this.isInvoiceError = false)}"
+			></capitec-button>
+		  </capitec-modal>
+		`;
 	}
 
 	onOrderCancellationFail() {
@@ -904,6 +949,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ${this.isCancelOrderModalOpen ? this.openCancelOrderModal() : null}
         ${this.isSuccessModalOpen ? this.openSuccessModal() : null}
         ${this.isErrorModalOpen ? this.onOrderCancellationFail() : null}
+		${this.isInvoiceError ? this.onInvoiceOpenFail() : null}
       </capitec-content-box>
     `;
 	}
