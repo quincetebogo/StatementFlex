@@ -44,6 +44,7 @@ import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog'
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/funeral/GenerateNewAgreementDialog';
 import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverDialog';
+import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverReasonDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -103,6 +104,7 @@ class ClientSummary extends Component {
 		this.showUpdateIdDobDialog = false;
 		this.showNewbornPremiumWaiverDialog = false;
 		this.showLifeNewbornPremiumWaiverDialog = false;
+		this.showLifeNewbornPremiumWaiverReasonDialog = false;
 		this.showBenefitSuccessToast = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
@@ -137,6 +139,7 @@ class ClientSummary extends Component {
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
+
 	}
 
 	// #endregion INITIALISATION
@@ -258,6 +261,7 @@ class ClientSummary extends Component {
 
 			// Life NBW
 			showLifeNewbornPremiumWaiverDialog: { type: Boolean, state: true },
+			showLifeNewbornPremiumWaiverReasonDialog: { type: Boolean, state: true },
 			executeLifeActivateBenefit: { type: Object, state: true },
 			executeLifeCancelBenefit: { type: Object, state: true },
 			showLifeBenefitSuccessToast: { type: Boolean, state: true },
@@ -936,6 +940,11 @@ class ClientSummary extends Component {
 		this.showLifeNewbornPremiumWaiverDialog = true;
 	}
 
+	_openLifeNewbornPremiumWaiverReason(policyItem) {
+		this.selectedPolicyItem = policyItem;
+		this.showLifeNewbornPremiumWaiverReasonDialog = true;
+	}
+
 	/**
 	 * Newborn dialog close event handler
 	 * @param {event} e e
@@ -962,6 +971,19 @@ class ClientSummary extends Component {
 			this.showBenefitSuccessToast = true;
 		}
 		this.showLifeNewbornPremiumWaiverDialog = false;
+	}
+
+	/** *
+	 * Waiver reason dialog close event handler for life
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_closeLifeNewbornPremiumWaiverReasonDialog(e) {
+		if (!isNullorEmpty(e.detail.successMessage)) {
+			this.benefitSuccessMessage = e.detail.successMessage;
+			this.showBenefitSuccessToast = true;
+		}
+		this.showLifeNewbornPremiumWaiverReasonDialog = false;
 	}
 
 	_startBenefitToastTimer() {
@@ -1979,6 +2001,7 @@ class ClientSummary extends Component {
 			${this._renderLifeIncreaseCoverUnavailable()}
 			${this._renderFuneralNewbornPremiumWaiverDialog()}
 			${this._renderLifeNewbornPremiumWaiverDialog()}
+			${this._renderLifeNewbornPremiumReasonDialog()}
 			${this._renderEmailBenefitDialog()}
 			${this._renderGenerateNewAgreementDialog()}
 
@@ -2385,7 +2408,8 @@ class ClientSummary extends Component {
 				: html``
 			}
 			
-			${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator) && (parseInt(this._calculateLifeTotalCoverAmount(activeLifePolicy).replace(/R|\s/g, ``), 10) < 3000000)
+			${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
+				) && (!this.isInsureAgent && !this.isInsureAdministrator) && parseInt(this._calculateLifeTotalCoverAmount(activeLifePolicy).replace(/R|\s/g, ``), 10) < 3000000
 				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -3239,6 +3263,23 @@ class ClientSummary extends Component {
 					@close-modal="${(e) => this._closeLifeNewbornPremiumWaiverDialog(e)}">
 				</horizon-insure-life-newborn-premium-waiver-dialog>
 			`;
+	}
+
+	/**
+	 * Render dialog for Life Newborn premium waiver
+	 * @returns {void}
+	 */
+	_renderLifeNewbornPremiumReasonDialog() {
+		return this.showLifeNewbornPremiumWaiverReasonDialog === false ? html`` 
+		: html`
+			<horizon-insure-life-newborn-premium-waiver-reason-dialog
+				.policy="${this.selectedPolicyItem}"
+				.executeLifeActivateBenefit="${(activationReason, benefitType, policy) => this.executeLifeActivateBenefit(activationReason, benefitType, policy)}"
+				.executeLifeCancelBenefit="${(policy) => this.executeLifeCancelBenefit(policy)}"
+				.fetchLifeBenefitDetails="${(contractRef) => this.fetchLifeBenefitDetails(contractRef)}"
+				@close-modal="${(e) => this._closeLifeNewbornPremiumWaiverReasonDialog(e)}">
+			</horizon-insure-life-newborn-premium-waiver-reason-dialog>
+		`;
 	}
 
 	/**

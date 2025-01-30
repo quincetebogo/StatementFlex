@@ -103,6 +103,14 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		// Reset state
+		this.docsValidated = false;
+		this.waiverSelected = false;
+		this.showLifeNewbornPremiumWaiverDialog = false;
+		this.selectedReason = '';
+		this.checkConfirmed = false;
+	
+		// Close modal
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}
 
@@ -113,7 +121,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	async _confirmLifeClick() {
 		let response = {};
 		if (this.cancelBenefit === false) {
-			response = await this.executeLifeActivateBenefit(`Birth`, LIFE_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
+			response = await this.executeLifeActivateBenefit(this.selectedReason, LIFE_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
 		} else {
 			response = await this.executeLifeCancelBenefit(this.policy);
 		}
