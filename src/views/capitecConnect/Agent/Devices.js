@@ -116,9 +116,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = ``;
 		this.clientCif = `030530180`; // TODO: comment out when done with DEV testing
-
 		this.isDeviceTableVisible = true;
 	}
 
@@ -293,9 +291,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	async getInvoice() {
 		try {
 			this.isLoading = true;
-			const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
-			const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
-			// const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
+			// const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
+			// const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
+			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to load invoice`);
@@ -326,10 +324,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	renderInvoiceModal(orderId) {
-		if (!this.isInvoiceModalVisible) {
+		if (orderId && orderId !== this.currentOrderId) {
 			this.currentOrderId = orderId;
 		}
-		this.isInvoiceModalVisible = true;
 
 		return html`
       <capitec-modal
@@ -342,16 +339,15 @@ export class CapitecConnectAgentDevices extends ViewBase {
           layout="grid"
           style="height: auto; min-height: 300px; padding: 24px;"
         >
-
-		${this.isInvoicePdfVisible ? html`
-			<horizon-pdf-viewer
-			  header="View Document"
-			  encodedPDF="${this.invoicePdfBase64}"
-			  @cancel="${() => {
-			this.isInvoicePdfVisible = false;
+          ${this.isInvoicePdfVisible ? html`
+            <horizon-pdf-viewer
+              header="View Document"
+              encodedPDF="${this.invoicePdfBase64}"
+              @cancel="${() => {
+					this.isInvoicePdfVisible = false;
 				}}">
-			</horizon-pdf-viewer>
-		  ` : ``}
+            </horizon-pdf-viewer>
+          ` : ``}
 
           <div column="1" row="1" colspan="2">
             <capitec-label
@@ -405,7 +401,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
             @click="${() => {
 				this.isInvoiceModalVisible = false;
 				this.invoicePdfBase64 = ``;
-			}}"@click="${() => (this.isInvoiceModalVisible = false)}"
+		}}"
           ></capitec-button>
           <capitec-button
             type="primary"
@@ -486,11 +482,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	renderCancelOrderModal(order) {
-		if (!this.isCancelOrderModalVisible) {
+		if (order && order !== this.currentOrder) {
 			this.currentOrderId = order.orderNumber;
 			this.currentOrder = order;
 		}
-		this.isCancelOrderModalVisible = true;
 
 		return html`
 	<capitec-modal
@@ -784,7 +779,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 							style="--theme-hyperlink-color: #009DE0;"
 							label="View Invoice"
 							@click="${() => {
-									this.renderInvoiceModal(item.deviceOrderResponse?.result.orderNumber);
+						this.currentOrderId = item?.orderNumber;
+						this.isInvoiceModalVisible = true;
 								}}"
 						  >
 						  </capitec-hyperlink>
@@ -796,7 +792,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 							style="--theme-hyperlink-color: #009DE0;"
 							label="Cancel"
 							@click="${() => {
-									this.renderCancelOrderModal(item);
+						this.currentOrder = item;
+						this.currentOrderId = item?.orderNumber;
+						this.isCancelOrderModalVisible = true;
 								}}"
 						  >
 						  </capitec-hyperlink>
