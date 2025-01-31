@@ -25,6 +25,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isInvoiceModalVisible = false;
 		this.isCancelOrderModalVisible = false;
 		this.isSuccessModalVisible = false;
+		this.isSendEmailSuccessModalVisible = false;
 		this.isErrorModalVisible = false;
 		this.hasInvoiceError = false;
 		this.emailAddress = ``;
@@ -68,6 +69,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			isInvoiceModalVisible: { type: Boolean },
 			isCancelOrderModalVisible: { type: Boolean },
 			isSuccessModalVisible: { type: Boolean },
+			isSendEmailSuccessModalVisible: { type: Boolean },
 			isErrorModalVisible: { type: Boolean },
 			hasInvoiceError: { type: Boolean },
 			emailAddress: { type: String },
@@ -312,105 +314,133 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		}
 	}
 
-	sendInvoice() {
-		if (!this.emailAddress) {
-			return;
-		}
-		try {
-			this.isInvoiceModalVisible = false;
-		} catch (error) {
-			console.error(`Error sending invoice:`, error);
-		}
-	}
-
 	renderInvoiceModal(orderId) {
 		if (orderId && orderId !== this.currentOrderId) {
 			this.currentOrderId = orderId;
 		}
 
 		return html`
-      <capitec-modal
-        type="form"
-        header="Statement"
-        ?open="${this.isInvoiceModalVisible}"
-      >
-        <capitec-content-box
-          slot="body"
-          layout="grid"
-          style="height: auto; min-height: 300px; padding: 24px;"
-        >
-          ${this.isInvoicePdfVisible ? html`
-            <horizon-pdf-viewer
-              header="View Document"
-              encodedPDF="${this.invoicePdfBase64}"
-              @cancel="${() => {
+		  <capitec-modal
+			type="form"
+			header="Statement"
+			?open="${this.isInvoiceModalVisible}"
+		  >
+			<capitec-content-box
+			  slot="body"
+			  layout="grid"
+			  style="height: auto; min-height: 300px; padding: 24px;"
+			>
+			  ${this.isInvoicePdfVisible ? html`
+				<horizon-pdf-viewer
+				  header="View Document"
+				  encodedPDF="${this.invoicePdfBase64}"
+				  @cancel="${() => {
 					this.isInvoicePdfVisible = false;
 				}}">
-            </horizon-pdf-viewer>
-          ` : ``}
-
-          <div column="1" row="1" colspan="2">
-            <capitec-label
-              type="strong"
-              label="Enter email address"
-            ></capitec-label>
-            <br />
-            <capitec-text-field
-              label="Email Address"
-              placeholder="Enter email address"
-              value="${this.emailAddress || ``}"
-              @key-input="${this._handleEmailInput}"
-            ></capitec-text-field>
-          </div>
-
-          <div column="1" row="2" colspan="2" style="margin: 24px -24px;">
-            <hr
-              style="border: none; border-top: 1px solid var(--theme-modal-border-color, #E1E1E1);"
-            />
-          </div>
-
-          <div column="1" row="3" colspan="2">
-            <capitec-label
-              type="strong"
-              label="View document"
-              style="margin-bottom: 24px;"
-            ></capitec-label>
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--theme-modal-border-color, #E1E1E1); border-radius: 4px;"
-            >
-              <capitec-label
-                label="Invoice"
-                style="color: var(--theme-text-primary-color, #333333);"
-              ></capitec-label>
-              <capitec-hyperlink
-                label="View Document"
-                style="--theme-hyperlink-color: var(--theme-primary-color, #0091DA);"
-                @click="${() => this.getInvoice()}"
-              ></capitec-hyperlink>
-            </div>
-          </div>
-        </capitec-content-box>
-
-        <div
-          slot="footer"
-          style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
-        >
-          <capitec-button
-            type="secondary"
-            label="Cancel"
-            @click="${() => {
+				</horizon-pdf-viewer>
+			  ` : ``}
+	
+			  <div column="1" row="1" colspan="2">
+				<capitec-label
+				  type="strong"
+				  label="Enter email address"
+				></capitec-label>
+				<br />
+				<capitec-text-field
+				  label="Email Address"
+				  placeholder="Enter email address"
+				  value="${this.emailAddress || ``}"
+				  @key-input="${this._handleEmailInput}"
+				></capitec-text-field>
+			  </div>
+	
+			  <div column="1" row="2" colspan="2" style="margin: 24px -24px;">
+				<hr
+				  style="border: none; border-top: 1px solid var(--theme-modal-border-color, #E1E1E1);"
+				/>
+			  </div>
+	
+			  <div column="1" row="3" colspan="2">
+				<capitec-label
+				  type="strong"
+				  label="View document"
+				  style="margin-bottom: 24px;"
+				></capitec-label>
+				<div
+				  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--theme-modal-border-color, #E1E1E1); border-radius: 4px;"
+				>
+				  <capitec-label
+					label="Invoice"
+					style="color: var(--theme-text-primary-color, #333333);"
+				  ></capitec-label>
+				  <capitec-hyperlink
+					label="View Document"
+					style="--theme-hyperlink-color: var(--theme-primary-color, #0091DA);"
+					@click="${() => this.getInvoice()}"
+				  ></capitec-hyperlink>
+				</div>
+			  </div>
+			</capitec-content-box>
+	
+			<div
+			  slot="footer"
+			  style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
+			>
+			  <capitec-button
+				type="secondary"
+				label="Cancel"
+				@click="${() => {
 				this.isInvoiceModalVisible = false;
 				this.invoicePdfBase64 = ``;
-		}}"
-          ></capitec-button>
-          <capitec-button
-            type="primary"
-            label="Send"
-            .disabled="${!this.isValidEmail}"
-            style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
-            @click="${() => this.sendInvoice()}"
-          ></capitec-button>
+			}}"
+			  ></capitec-button>
+			  <capitec-button
+				type="primary"
+				label="Send"
+				.disabled="${!this.isValidEmail}"
+				style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+				@click="${() => this.sendInvoice()}"
+			  ></capitec-button>
+			</div>
+		  </capitec-modal>
+		`;
+	}
+
+	sendInvoice() {
+		if (!this.emailAddress) {
+			return;
+		}
+		try {
+			this.isSendEmailSuccessModalVisible = true;
+		} catch (error) {
+			console.error(`Error sending invoice:`, error);
+		}
+	}
+
+
+	renderSendEmailSuccessModal() {
+		return html`
+      <capitec-modal
+        type="alert"
+        header="Cancel Order"
+        ?open="${this.isSendEmailSuccessModalVisible}"
+      >
+        <div slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
+          <capitec-icon
+            size="large"
+            icon="status/success-trans"
+          ></capitec-icon>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
+            <capitec-label type="strong" label="Email sent successfully"></capitec-label>
+          </div>
         </div>
+
+        <capitec-button
+          slot="footer"
+          type="secondary"
+          label="Close"
+          @click="${() => (this.isSendEmailSuccessModalVisible = false)}"
+        ></capitec-button>
       </capitec-modal>
     `;
 	}
@@ -974,6 +1004,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
               </capitec-content-box>
             `}
         ${this.isInvoiceModalVisible ? this.renderInvoiceModal() : null}
+        ${this.isSendEmailSuccessModalVisible ? this.renderSendEmailSuccessModal() : null}
         ${this.isCancelOrderModalVisible ? this.renderCancelOrderModal() : null}
         ${this.isSuccessModalVisible ? this.renderOrderCancelSuccessModal() : null}
         ${this.isErrorModalVisible ? this.renderOrderCancelErrorModal() : null}
