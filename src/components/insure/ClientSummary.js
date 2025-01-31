@@ -2408,11 +2408,6 @@ class ClientSummary extends Component {
 				: html``
 			}
 			
-			${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
-				) && (!this.isInsureAgent && !this.isInsureAdministrator) && parseInt(this._calculateLifeTotalCoverAmount(activeLifePolicy).replace(/R|\s/g, ``), 10) < 3000000
-				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
-				: html``
-			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
