@@ -64,25 +64,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isLoading = false;
 	}
 
-	connectedCallback() {
-		super.connectedCallback();
-
-    /*
-			When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
-		*/
-		this.clientCif = this.callerInformation?.cif;
-
-		if (this.callerInformation?.cifNumber) {
-			this.clientCif = this.callerInformation?.cifNumber;
-		}
-
-		this._initialise();
-	}
-
-	disconnectedCallback() {
-		super.disconnectedCallback();
-	}
-
 	static get properties() {
 		return {
 			...super.properties,
@@ -119,6 +100,32 @@ export class CapitecConnectAgentDevices extends ViewBase {
         }
       `
 		];
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		/*
+				When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
+			*/
+		this.clientCif = this.callerInformation?.cif;
+
+		if (this.callerInformation?.cifNumber) {
+			this.clientCif = this.callerInformation?.cifNumber;
+		}
+
+		this._initialise();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	_initialise() {
+		// this.clientCif = ``;
+		this.clientCif = `030530180`; // TODO: comment out when done with DEV testing
+
+		this.isDeviceTableVisible = true;
 	}
 
 	getPredefinedDateRanges() {
@@ -202,20 +209,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		}, 100);
 	}
 
-	_initialise() {
-		// this.clientCif = ``;
-		this.clientCif = `030530180`; // TODO: Add for DEV testing
-
-		this.isDeviceTableVisible = true;
-	}
-
 	async _retrieveDevices(renderSet) {
-		this.renderSet = renderSet;
-		this.numOfPagingRows = this.renderSet.numOfPagingRows;
-		this.currentPageIndex = this.renderSet.currentPageIndex;
-		this.searchValue = this.renderSet.searchValue;
-
 		try {
+			this.isLoading = true;
+			this.renderSet = renderSet;
+			this.numOfPagingRows = this.renderSet.numOfPagingRows;
+			this.currentPageIndex = this.renderSet.currentPageIndex;
+			this.searchValue = this.renderSet.searchValue;
+
+			if (!this.clientCif) {
+				return { pagedItems: [], totalCount: 0 };
+			}
+
 			const request = {
 				pageNumber: this.currentPageIndex - 1,
 				pageSize: this.numOfPagingRows,
@@ -228,18 +233,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				}
 			};
 
-			if (!this.clientCif) {
-				return {
-					pagedItems: [],
-					totalCount: 0
-				};
-			}
-
 			const response = await this.capitecConnectService.getAllDeviceOrders(request);
 
-			let r = response.result.content;
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to retrieve devices`);
+			}
 
-			r = r.map((order) => ({
+			const devices = response.result.content.map((order) => ({
 				orderDate: order.orderPlacedDate,
 				orderNumber: order.orderId,
 				orderDescription: order.orderDescription,
@@ -252,30 +252,28 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				hasLogged: false
 			}));
 
-			response.result.content = r;
-
 			this.isDeviceTableVisible = response.result.totalElements !== 0;
+
 			return {
-				pagedItems: response.result?.content || [],
+				pagedItems: devices,
 				totalCount: response.result.totalElements
 			};
+
 		} catch (error) {
-			console.error(`Error in getAllDeviceOrders:`, error);
+			console.error(`Error retrieving devices:`, error);
 			this.isDeviceTableVisible = false;
 
-			if (
-				this.activeFilters.searchType.value === `accountNumber` &&
-				this.activeFilters.searchValue.trim() !== `` &&
-				this.clientCif
-			) {
-				alert(`Error: The provided Account Number [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif
-					}]`);
+			if (this.activeFilters.searchType.value === `accountNumber` &&
+				this.activeFilters.searchValue.trim() &&
+				this.clientCif) {
+				alert(`Error: The provided Account Number [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif}]`);
 			}
 
-			return {
-				pagedItems: [],
-				totalCount: 0
-			};
+			return { pagedItems: [], totalCount: 0 };
+
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
 		}
 	}
 
@@ -283,6 +281,19 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return item.orderDate
 			? `${formatDate(item.orderDate)} ${getTimeFromDate(item.orderDate)}`
 			: item.orderDate;
+	}
+
+	_validateEmail(email) {
+		const EMAIL_REGEX =
+			/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+		return EMAIL_REGEX.test(email);
+	}
+
+	_handleEmailInput(event) {
+		const newValue = event.detail.new;
+		this.emailAddress = newValue;
+		this.isValidEmail = this._validateEmail(newValue);
+		this.requestUpdate();
 	}
 
 	async getInvoice() {
@@ -309,17 +320,15 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		}
 	}
 
-	_validateEmail(email) {
-		const EMAIL_REGEX =
-			/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
-		return EMAIL_REGEX.test(email);
-	}
-
-	_handleEmailInput(event) {
-		const newValue = event.detail.new;
-		this.emailAddress = newValue;
-		this.isValidEmail = this._validateEmail(newValue);
-		this.requestUpdate();
+	sendInvoice() {
+		if (!this.emailAddress) {
+			return;
+		}
+		try {
+			this.isInvoiceModalVisible = false;
+		} catch (error) {
+			console.error(`Error sending invoice:`, error);
+		}
 	}
 
 	renderInvoiceModal(orderId) {
@@ -331,7 +340,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return html`
       <capitec-modal
         type="form"
-        header="Invoice"
+        header="Statement"
         ?open="${this.isInvoiceModalVisible}"
       >
         <capitec-content-box
@@ -399,7 +408,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-button
             type="secondary"
             label="Cancel"
-            @click="${() => (this.isInvoiceModalVisible = false)}"
+            @click="${() => {
+				this.isInvoiceModalVisible = false;
+				this.invoicePdfBase64 = ``;
+			}}"@click="${() => (this.isInvoiceModalVisible = false)}"
           ></capitec-button>
           <capitec-button
             type="primary"
@@ -411,6 +423,72 @@ export class CapitecConnectAgentDevices extends ViewBase {
         </div>
       </capitec-modal>
     `;
+	}
+
+	renderInvoiceErrorModal() {
+		return html`
+		  <capitec-modal
+			type="alert"
+			header="Invoice"
+			?open="${this.hasInvoiceError}"
+		  >
+
+			<div 
+			column="1"
+	         row="1"
+	         colspan="2"
+			slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
+			  <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
+			  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
+				<capitec-label 
+				  type="strong"
+				  label="Invoice could not be opened"
+				></capitec-label>
+				<capitec-label 
+				  type="strong"
+				  label="Please try again or contact support"
+				></capitec-label>
+			  </div>
+			</div>
+	<div
+          slot="footer"
+          style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
+        >
+			<capitec-button
+			  slot="footer"
+			  type="secondary"
+			  label="Close"
+			  @click="${() => (this.hasInvoiceError = false)}"
+			></capitec-button>
+			<capitec-button
+            type="primary"
+            label="Retry"
+            style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+            @click="${() => this.getInvoice()}"
+          ></capitec-button>
+		</div>
+		  </capitec-modal>
+		`;
+	}
+
+	async cancelOrder() {
+		try {
+			this.isLoading = true;
+			const response = await this.capitecConnectService.cancelDeviceOrder(this.currentOrderId);
+
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to cancel order`);
+			}
+			this.isCancelOrderModalVisible = false;
+			this.isSuccessModalVisible = true;
+		} catch (error) {
+			console.error(`Error cancelling order:`, error);
+			this.isCancelOrderModalVisible = false;
+			this.isErrorModalVisible = true;
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
+		}
 	}
 
 	renderCancelOrderModal(order) {
@@ -463,7 +541,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	  <capitec-button
 		slot="footer"
 		type="primary"
-		label="Cancel Order"
+		label="Confirm"
 		style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
 		@click="${() => this.cancelOrder()}"
 	  ></capitec-button>
@@ -498,42 +576,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
     `;
 	}
 
-	renderInvoiceErrorModal() {
-		return html`
-		  <capitec-modal
-			type="alert"
-			header="Invoice"
-			?open="${this.hasInvoiceError}"
-		  >
-
-			<div 
-			column="1"
-	         row="1"
-	         colspan="2"
-			slot="body" style="text-align: center; padding-top: 16px; justify-items: center;">
-			  <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
-			  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;">
-				<capitec-label 
-				  type="strong"
-				  label="Invoice could not be opened"
-				></capitec-label>
-				<capitec-label 
-				  type="strong"
-				  label="Please try again or contact support"
-				></capitec-label>
-			  </div>
-			</div>
-	
-			<capitec-button
-			  slot="footer"
-			  type="secondary"
-			  label="Close"
-			  @click="${() => (this.hasInvoiceError = false)}"
-			></capitec-button>
-		  </capitec-modal>
-		`;
-	}
-
 	renderOrderCancelErrorModal() {
 		return html`
 		  <capitec-modal
@@ -559,228 +601,222 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				></capitec-label>
 			  </div>
 			</div>
-	
+			<div
+          slot="footer"
+          style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
+        >
 			<capitec-button
 			  slot="footer"
 			  type="secondary"
 			  label="Close"
 			  @click="${() => (this.isErrorModalVisible = false)}"
 			></capitec-button>
+			<capitec-button
+            type="primary"
+            label="Retry"
+            style="--theme-button-primary-background: var(--theme-primary-color, #0091DA);"
+            @click="${() => this.cancelOrder()}"
+          ></capitec-button>
+		</div>
 		  </capitec-modal>
 		`;
 	}
 
-	async cancelOrder() {
-		await this.capitecConnectService
-			.cancelDeviceOrder(this.currentOrderId)
-			.then((res) => {
-				console.log(`Order cancelled:`, res);
-				this.isCancelOrderModalVisible = false;
-				this.isSuccessModalVisible = true;
-			})
-			.catch(() => {
-				this.isCancelOrderModalVisible = false;
-				this.isErrorModalVisible = true;
-			});
-	}
-
-	sendInvoice() {
-		if (!this.emailAddress) {
-			return;
-		}
-		try {
-			console.log(`Sending invoice to:`, this.emailAddress);
-			this.isInvoiceModalVisible = false;
-		} catch (error) {
-			console.error(`Error sending invoice:`, error);
-		}
-	}
-
 	_expandRenderer(item) {
-		const copyWordToClipboard = (value) => {
-			navigator.clipboard.writeText(value);
-		};
+		try {
+			const copyWordToClipboard = (value) => {
+				navigator.clipboard.writeText(value);
+			};
 
-		if (!item.hasLogged) {
-			this.isLoading = true;
-			this.capitecConnectService
-				.getDeviceOrder(item.orderId)
-				.then((response) => {
-					item.deviceOrderResponse = response;
-					item.hasLogged = true;
-					this.requestUpdate();
-					this.isLoading = false;
-				})
-				.catch((error) => {
-					this.isLoading = false;
-					console.error(`Error in getDeviceOrder:`, error);
-				});
+			if (!item.hasLogged) {
+				this.isLoading = true;
+				this.capitecConnectService
+					.getDeviceOrder(item.orderId)
+					.then((response) => {
+						if (!response || !response.succeeded) {
+							throw new Error(`Failed to get device order`);
+						}
+						item.deviceOrderResponse = response;
+						item.hasLogged = true;
+						this.requestUpdate();
+					})
+					.catch((error) => {
+						console.error(`Error in getDeviceOrder:`, error);
+						item.hasError = true;
+					})
+					.finally(() => {
+						this.isLoading = false;
+						this.requestUpdate();
+					});
+			}
+
+			const getValue = (value) => (!value || value === `null` ? `-` : value);
+			const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
+			const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`; // TODO: remove !== and make ===
+			const showCancelButton = item.deviceOrderResponse?.result.cancellable;
+
+			return html`
+			<capitec-group layout="grid" gap="clear">
+			  <div column="1" row="1" colspan="4">
+				<capitec-label label="Device Description"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getValue(item.deviceOrderResponse?.result.products[0].productShortDescription)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="2" row="1">
+				<capitec-label label="IMEI 1"></capitec-label>
+				<div
+				  column="2"
+				  row="1"
+				  style="display: flex; align-items: center; gap: 4px;"
+				>
+				  <capitec-label
+					type="strong"
+					label="${getValue(item.deviceOrderResponse?.result.imeiNumber)} "
+				  ></capitec-label>
+				  ${getValue(item.deviceOrderResponse?.result.imeiNumber) !== `-`
+					? html`<capitec-icon
+						size="small"
+						icon="system/notes-action"
+						@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber))}"
+						style="cursor: pointer;"
+					  ></capitec-icon>`
+					: ``}
+				</div>
+			  </div>
+	  
+			  <div column="3" row="1">
+				<capitec-label label="IMEI 2"></capitec-label>
+				<div
+				  column="2"
+				  row="1"
+				  style="display: flex; align-items: center; gap: 4px;"
+				>
+				  <capitec-label
+					type="strong"
+					label="${getValue(item.deviceOrderResponse?.result.imeiNumber2)}"
+				  ></capitec-label>
+				  ${getValue(item.deviceOrderResponse?.result.imeiNumber2) !== `-`
+					? html`<capitec-icon
+						size="small"
+						icon="system/notes-action"
+						@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber2))}"
+						style="cursor: pointer;"
+					  ></capitec-icon>`
+					: ``}
+				</div>
+			  </div>
+	  
+			  <div column="4" row="1">
+				<capitec-label label="Device Cost"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="R${getValue(item.deviceOrderResponse?.result.totalInclVat)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="1" row="2">
+				<capitec-label label="Order Date"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getFormattedDate(item.deviceOrderResponse?.result.orderPlacedDate)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="2" row="2">
+				<capitec-label label="Order Status"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getValue(item.deviceOrderResponse?.result.orderStatus)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="3" row="2">
+				<capitec-label label="Account Number"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getValue(item.deviceOrderResponse?.result.accountNumber)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="1" row="3">
+				<capitec-label label="Courier Tracking"></capitec-label>
+				<div
+				  column="2"
+				  row="3"
+				  style="display: flex; align-items: center; gap: 4px;"
+				>
+				  <capitec-label
+					type="strong"
+					label="${getValue(item.deviceOrderResponse?.result.courierTracking)}"
+				  ></capitec-label>
+				  ${getValue(item.deviceOrderResponse?.result.courierTracking) !== `-`
+					? html`<capitec-icon
+						size="small"
+						icon="system/notes-action"
+						@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.courierTracking))}"
+						style="cursor: pointer;"
+					  ></capitec-icon>`
+					: ``}
+				</div>
+			  </div>
+	  
+			  <div column="2" row="3">
+				<capitec-label label="Warranty Start Date"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyStartDate)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div column="3" row="3">
+				<capitec-label label="Warranty End Date"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyEndDate)}"
+				></capitec-label>
+			  </div>
+	  
+			  <div row="4" column="1" colspan="4">
+				${showInvoiceButton || showCancelButton
+					? html` <div
+					  style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
+					>
+					  ${showInvoiceButton
+							? html`
+						  <capitec-hyperlink
+							style="--theme-hyperlink-color: #009DE0;"
+							label="View Invoice"
+							@click="${() => {
+									this.renderInvoiceModal(item.deviceOrderResponse?.result.orderNumber);
+								}}"
+						  >
+						  </capitec-hyperlink>
+						`
+							: ``}
+					  ${showCancelButton
+							? html`
+						  <capitec-hyperlink
+							style="--theme-hyperlink-color: #009DE0;"
+							label="Cancel"
+							@click="${() => {
+									this.renderCancelOrderModal(item);
+								}}"
+						  >
+						  </capitec-hyperlink>
+						`
+							: ``}
+					</div>`
+					: ``}
+			  </div>
+			</capitec-group>
+		  `;
+		} catch (error) {
+			console.error(`Error in expandRenderer:`, error);
+			return html``;
 		}
-
-		const getValue = (value) => (!value || value === `null` ? `-` : value);
-		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
-		const showInvoiceButton = item.orderStatus === `ORDER DELIVERED`;
-		const showCancelButton = item.deviceOrderResponse?.result.cancellable;
-
-		return html`
-      <capitec-group layout="grid" gap="clear">
-        <div column="1" row="1" colspan="4">
-          <capitec-label label="Device Description"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getValue(item.deviceOrderResponse?.result.products[0]
-				.productShortDescription)}"
-          ></capitec-label>
-        </div>
-
-        <div column="2" row="1">
-          <capitec-label label="IMEI 1"></capitec-label>
-          <div
-            column="2"
-            row="1"
-            style="display: flex; align-items: center; gap: 4px;"
-          >
-            <capitec-label
-              type="strong"
-              label="${getValue(item.deviceOrderResponse?.result.imeiNumber)} "
-            ></capitec-label>
-            ${getValue(item.deviceOrderResponse?.result.imeiNumber) !== `-`
-				? html`<capitec-icon
-                  size="small"
-                  icon="system/notes-action"
-                  @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber))}"
-                  style="cursor: pointer;"
-                ></capitec-icon>`
-				: ``}
-          </div>
-        </div>
-
-        <div column="3" row="1">
-          <capitec-label label="IMEI 2"></capitec-label>
-          <div
-            column="2"
-            row="1"
-            style="display: flex; align-items: center; gap: 4px;"
-          >
-            <capitec-label
-              type="strong"
-              label="${getValue(item.deviceOrderResponse?.result.imeiNumber2)}"
-            ></capitec-label>
-            ${getValue(item.deviceOrderResponse?.result.imeiNumber2) !== `-`
-				? html`<capitec-icon
-                  size="small"
-                  icon="system/notes-action"
-                  @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber2))}"
-                  style="cursor: pointer;"
-                ></capitec-icon>`
-				: ``}
-          </div>
-        </div>
-
-        <div column="4" row="1">
-          <capitec-label label="Device Cost"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="R${getValue(item.deviceOrderResponse?.result.totalInclVat)}"
-          ></capitec-label>
-        </div>
-
-        <div column="1" row="2">
-          <capitec-label label="Order Date"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getFormattedDate(item.deviceOrderResponse?.result.orderPlacedDate)}"
-          ></capitec-label>
-        </div>
-
-        <div column="2" row="2">
-          <capitec-label label="Order Status"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getValue(item.deviceOrderResponse?.result.orderStatus)}"
-          ></capitec-label>
-        </div>
-
-        <div column="3" row="2">
-          <capitec-label label="Account Number"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getValue(item.deviceOrderResponse?.result.accountNumber)}"
-          ></capitec-label>
-        </div>
-
-        <div column="1" row="3">
-          <capitec-label label="Courier Tracking"></capitec-label>
-          <div
-			column="2"
-			row="3"
-            style="display: flex; align-items: center; gap: 4px;"
-		  >
-			<capitec-label
-			  type="strong"
-			  label="${getValue(item.deviceOrderResponse?.result.courierTracking)}"
-			></capitec-label>
-			${getValue(item.deviceOrderResponse?.result.courierTracking) !== `-`
-				? html`<capitec-icon
-					size="small"
-					icon="system/notes-action"
-					@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.courierTracking))}"
-					style="cursor: pointer;"
-				  ></capitec-icon>`
-				: ``}
-          </div>
-        </div>
-
-        <div column="2" row="3">
-          <capitec-label label="Warranty Start Date"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyStartDate)}"
-          ></capitec-label>
-        </div>
-
-        <div column="3" row="3">
-          <capitec-label label="Warranty End Date"></capitec-label>
-          <capitec-label
-            type="strong"
-            label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyEndDate)}"
-          ></capitec-label>
-        </div>
-
-        <div row="4" column="1" colspan="4">
-          ${showInvoiceButton || showCancelButton
-			? html` <div
-                style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
-              >
-                ${!showInvoiceButton
-				? html`
-                      <capitec-hyperlink
-                        style="--theme-hyperlink-color: #009DE0;"
-                        label="View Invoice"
-                        @click="${() => {
-					this.renderInvoiceModal(item.deviceOrderResponse?.result.orderNumber);
-				}}"
-                      >
-                      </capitec-hyperlink>
-                    `
-				: ``}
-                ${showCancelButton
-				? html`
-                      <capitec-hyperlink
-                        style="--theme-hyperlink-color: #009DE0;"
-                        label="Cancel"
-                        @click="${() => {
-					this.renderCancelOrderModal(item);
-				}}"
-                      >
-                      </capitec-hyperlink>
-                    `
-				: ``}
-              </div>`
-			: ``}
-        </div>
-      </capitec-group>
-    `;
 	}
 
 	_renderAmount(item, fieldName, value) {
