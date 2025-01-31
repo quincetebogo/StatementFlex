@@ -28,7 +28,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isErrorModalVisible = false;
 		this.hasInvoiceError = false;
 		this.emailAddress = ``;
-		this.isValidEmail = false;
 		this.currentOrderId = ``;
 		this.currentOrder = null;
 		this.isDeviceTableVisible = false;
@@ -36,7 +35,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.invoicePdfBase64 = ``;
 		this.isLoading = false;
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag());
-
+		this.isValidEmail = false;
+		this.pagingRows = [10, 20, 50];
+		this.numOfPagingRows = 10;
+		this.currentPageIndex = 1;
 		// Static variables
 		this.searchTypes = [
 			{ value: `orderDescription`, text: `Order Description` },
@@ -45,11 +47,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			{ value: `deviceName`, text: `Device Name` },
 			{ value: `imeiNumber`, text: `IMEI Number` }
 		];
-
-		this.pagingRows = [10, 20, 50];
-		this.numOfPagingRows = 10;
-		this.currentPageIndex = 1;
-
 		// State variables
 		this.activeFilters = {
 			searchType: this.searchTypes[0],
