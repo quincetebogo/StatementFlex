@@ -926,7 +926,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
             ></capitec-label>
             <capitec-label
               type="strong"
-              label="${convertRandToCents(voucherInfo.amount)}"
+              label="${voucherInfo.amount}"
             ></capitec-label>
             <capitec-label
               type="strong"
