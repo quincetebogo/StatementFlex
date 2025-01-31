@@ -10,7 +10,6 @@ import {
 import { CapitecConnectService } from "app/services/CapitecConnectService";
 import { DateTime } from "luxon";
 import { ViewBase } from "app/views/common/ViewBase";
-import { exampleBase64 } from "./exampleBase64"; // TODO: remove all exampleBase64 instances
 import "app/components/common/HorizonPDFViewer";
 
 /**
@@ -22,7 +21,20 @@ import "app/components/common/HorizonPDFViewer";
 export class CapitecConnectAgentDevices extends ViewBase {
 	constructor() {
 		super();
-
+		this.clientCif = ``;
+		this.isInvoiceModalVisible = false;
+		this.isCancelOrderModalVisible = false;
+		this.isSuccessModalVisible = false;
+		this.isErrorModalVisible = false;
+		this.hasInvoiceError = false;
+		this.emailAddress = ``;
+		this.isValidEmail = false;
+		this.currentOrderId = ``;
+		this.currentOrder = null;
+		this.isDeviceTableVisible = false;
+		this.isInvoicePdfVisible = false;
+		this.invoicePdfBase64 = ``;
+		this.isLoading = false;
 		this.capitecConnectService = new CapitecConnectService(() => super._toggleBusyFlag());
 
 		// Static variables
@@ -47,21 +59,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				to: getDateInPast(0)
 			}
 		};
-
-		this.clientCif = ``;
-		this.isInvoiceModalVisible = false;
-		this.isCancelOrderModalVisible = false;
-		this.isSuccessModalVisible = false;
-		this.isErrorModalVisible = false;
-		this.hasInvoiceError = false;
-		this.emailAddress = ``;
-		this.isValidEmail = false;
-		this.currentOrderId = ``;
-		this.currentOrder = null;
-		this.isDeviceTableVisible = false;
-		this.isInvoicePdfVisible = false;
-		this.invoicePdfBase64 = ``;
-		this.isLoading = false;
 	}
 
 	static get properties() {
@@ -307,7 +304,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				throw new Error(`Failed to load invoice`);
 			}
 
-			this.invoicePdfBase64 = response.result;
+			this.invoicePdfBase64 = response.result.document;
 			this.isInvoicePdfVisible = true;
 
 		} catch (error) {
@@ -352,7 +349,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		${this.isInvoicePdfVisible ? html`
 			<horizon-pdf-viewer
 			  header="View Document"
-			  encodedPDF="${exampleBase64 || invoicePdfBase64}"
+			  encodedPDF="${this.invoicePdfBase64}"
 			  @cancel="${() => {
 			this.isInvoicePdfVisible = false;
 				}}">
