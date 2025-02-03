@@ -146,10 +146,10 @@ export const ORG_UNITS = {
  * @enum {Object} ROLES_TO_ORG_UNITS
  */
 export const ROLES_TO_ORG_UNITS = {
-	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
+	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 1 },
 	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
-	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 },
-	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
+	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 3 },
+	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 3 }
 };
 
 /**
@@ -174,24 +174,24 @@ let CC_HIGH_RISK = [];
 export const HIGH_RISK_TRANSACTIONS = {
 	[ORG_UNITS.CLIENT_CARE]: CC_HIGH_RISK = [
 		`debi-check`,
-		`settle-close`, 
-		`pay-budget`, 
-		`full-unlock`, 
-		`partial-unlock`, 
-		`open-budget`, 
+		`settle-close`,
+		`pay-budget`,
+		`full-unlock`,
+		`partial-unlock`,
+		`open-budget`,
 		`update-card-limits`,
-		`statements`, 
-		`tap-to-pay`, 
-		`tax-certificate`, 
+		`statements`,
+		`tap-to-pay`,
+		`tax-certificate`,
 		`proof-of-account`
 	],
 	[ORG_UNITS.HELPDESK]: [
 		`debi-check`,
-		`settle-close`, 
-		`pay-budget`, 
-		`full-unlock`, 
-		`partial-unlock`, 
-		`open-budget`, 
+		`settle-close`,
+		`pay-budget`,
+		`full-unlock`,
+		`partial-unlock`,
+		`open-budget`,
 		`update-card-limits`,
 		`tap-to-pay`
 	],
