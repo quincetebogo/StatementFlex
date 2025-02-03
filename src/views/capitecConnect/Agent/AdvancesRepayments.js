@@ -101,7 +101,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = "281783047";
+		this.clientCif = `161413722`; // TODO: comment out when done with dev (INT env): - Has voucherSerialNumber
+		// this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
 		this.showTable = true;
 	}
@@ -407,6 +408,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let journalReference = `-`;
 		let advanceAmountPaid = `R0.00`;
 		let airtimeSurplus = `R0.00`;
+		const voucherSerialNumber = item.transactions?.[0]?.voucherSerialNumber;
 
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
@@ -495,6 +497,13 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 						label="Recharge Status"
 						@click="${() => { this.selectedAdvanceView = item; }}">
 					</capitec-hyperlink>
+					${voucherSerialNumber ? html`
+						<capitec-hyperlink
+						style="margin-right: 16px; margin-top: 10px;"
+						label="Voucher Information"
+						@click="${() => this._handleVoucherInfoConfirm(voucherSerialNumber)}" //TODO
+						>
+					</capitec-hyperlink>` : ``}
 				</div>
 			</capitec-group>
 		`;
