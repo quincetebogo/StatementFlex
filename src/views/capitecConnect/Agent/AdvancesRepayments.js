@@ -116,7 +116,7 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = `161413722`; // TODO: comment out when done with dev (INT env): - Has voucherSerialNumber
+		// this.clientCif = `161413722`; // TODO: comment out when done with dev (INT env): - Has voucherSerialNumber
 		// this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
 		this.showTable = true;
