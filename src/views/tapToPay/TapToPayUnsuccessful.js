@@ -41,9 +41,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 		this._updateIncidentState();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
-		//this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
-		//this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
-
 		this.card = screenDetails.tapToPayDetails.tapToPayUpdate.cardDetails.MaskedCardNumber;
 		this.cardType = screenDetails.tapToPayDetails.tapToPayUpdate.cardDetails.cardDisplayName === `Debit card` ? `debit` : `credit`;
 
