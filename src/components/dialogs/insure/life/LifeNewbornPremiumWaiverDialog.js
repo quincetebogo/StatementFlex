@@ -17,7 +17,7 @@ import 'app/components/dialogs/insure/AgreementDialog';
  */
 
 class LifeNewbornPremiumWaiverDialog extends Component {
-	
+
 	// #region INITIALIZE
 
 	constructor() {
@@ -34,21 +34,21 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	// #endregion INITIALIZE
 
 	// #region PROPERTIES
-		/**
-	 * @param {Object} lifeNewbornWaiverAgreementDetails newborn waiver agreement details
-	 * @param {Object} policy details
-	 * @param {Object} executeActivateBenefit callback function to execute activate benefit
-	 * @param {Object} executeCancelBenefit callback function to execute cancel benefit
-	 * 
-	 * @readonly
-	 * @static
-	 */
+	/**
+ * @param {Object} lifeNewbornWaiverAgreementDetails newborn waiver agreement details
+ * @param {Object} policy details
+ * @param {Object} executeActivateBenefit callback function to execute activate benefit
+ * @param {Object} executeCancelBenefit callback function to execute cancel benefit
+ * 
+ * @readonly
+ * @static
+ */
 
 	static get properties() {
 		return {
 			newbornWaiverAgreementDetails: { type: Object, state: true },
 			policy: { type: Object, state: true },
-			executeLifeActivateBenefit: { type: Object, state: true }, 
+			executeLifeActivateBenefit: { type: Object, state: true },
 			executeLifeCancelBenefit: { type: Object, state: true },
 			showAgreement: { type: Boolean, state: true },
 			docsValidated: { type: Boolean, state: true },
@@ -56,11 +56,11 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 			fetchLifeBenefitDetails: { type: Object, state: true },
 			lifeBenefitDetails: { type: Object, state: true },
 			nbpwBenefit: { type: Object, state: true }
-			
+
 		};
 	}
 
-	
+
 	// #endregion PROPERTIES
 
 	// #region LIFECYCLE OVERRIDES
@@ -74,7 +74,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 		this._initialise();
 	}
 
-	
+
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
@@ -86,8 +86,8 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	 */
 	async _initialise() {
 
-		this.nbpwBenefit = this.policy.benefit;
-		if (this.nbpwBenefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE) {
+		this.nbpwBenefit = this.policy?.benefit;
+		if (this.nbpwBenefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE) {
 			this.cancelBenefit = true;
 			this.lifeBenefitDetails = await this.fetchLifeBenefitDetails(this.policy.contractReference);
 
@@ -103,6 +103,14 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
+		// Reset state
+		this.docsValidated = false;
+		this.waiverSelected = false;
+		this.showLifeNewbornPremiumWaiverDialog = false;
+		this.selectedReason = '';
+		this.checkConfirmed = false;
+	
+		// Close modal
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}
 
@@ -113,7 +121,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	async _confirmLifeClick() {
 		let response = {};
 		if (this.cancelBenefit === false) {
-			response = await this.executeLifeActivateBenefit(`Birth`, LIFE_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
+			response = await this.executeLifeActivateBenefit(this.selectedReason, LIFE_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
 		} else {
 			response = await this.executeLifeCancelBenefit(this.policy);
 		}
@@ -132,7 +140,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	_valueSelected(e) {
 		this.activationReason = e.detail.new;
 		this.requestUpdate();
-	
+
 	}
 
 	_checkChange(e) {
@@ -218,7 +226,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	
+
 	_webTemplate() {
 		return html`
 			<capitec-modal type="alert" header="${this.cancelBenefit ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" style="--theme-modal-header-color: black; --theme-modal-alert-m-l-xl-width: 485px;">

@@ -514,7 +514,20 @@ export class ExistingClient extends InsureViewBase {
 				"collectionDay": updatedPolicy.bankDetails.collectionDay
 			},
 			"updatePolicy": updatePolicy,
-			"beneficiaries": updatedPolicy.beneficiaries,
+			"beneficiaries": updatedPolicy.beneficiaries.map(bene => {
+				const { rolePlayer, ...rest } = bene;
+				return {
+					...rest,
+					role: rolePlayer === `Primary Beneficiary` ? `Beneficiary` : rolePlayer,
+					contactDetails: {
+						cellphone: ``,
+						email: ``,
+						homephone: ``,
+						workphone: ``
+					}
+				};
+			}),
+			
 			"totalPremium": updatedPolicy.totalPremium,
 			"totalCoverAmount": updatedPolicy.totalPolicySumAssured
 		};
@@ -1225,9 +1238,9 @@ export class ExistingClient extends InsureViewBase {
 		let dob = new Date(this.callerInformation.birthdate);
 		
 		const benefitAgreementRequest = {
-			"documentFormat": "PDF",
+			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveDocument,
-			"voiceRecordingNumber": "",
+			"voiceRecordingNumber": ``,
 			"markDocumentsAsAccepted": saveDocument,
 			"returnDocumentContent": true,
 			"emailDocumentToClient": false,
@@ -1244,11 +1257,11 @@ export class ExistingClient extends InsureViewBase {
 			},
 			"benefitDetails": benefitInfo,
 			"emailDetails": {
-			  "email": ""
+			  "email": ``
 			},
 			"contractReference": policy.contractReference,
 			"productCode": policy.productCode
-		}
+		};
 
 		let benefitAgreementResponse = {};
 
