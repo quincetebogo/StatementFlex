@@ -372,8 +372,8 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
-	cancelDeviceOrder(orderId) {
-		const url = `/v1/api/horizon/device/orders/${orderId}/cancel`;
+	cancelDeviceOrder(orderId, cif) {
+		const url = `/v1/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
 
 		return this.post(
 			url,

@@ -118,7 +118,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = `030530180`; // TODO: comment out when done with DEV testing
+		// this.clientCif = `030530180`; // TODO: comment out when done with DEV testing
+		// this.clientCif = `403059445`; // TODO: comment out when done with INT testing
 		this.isDeviceTableVisible = true;
 	}
 
@@ -293,9 +294,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	async getInvoice() {
 		try {
 			this.isLoading = true;
-			// const testId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO remove when ready
-			// const response = await this.capitecConnectService.getDeviceInvoice(testId); // TODO remove when ready
-			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId); // TODO put back when ready
+			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId);
+			// const testCurrentOrderId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO: remove when BE errors is fixed
+			// const response = await this.capitecConnectService.getDeviceInvoice(testCurrentOrderId); // TODO: remove when BE errors is fixed
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to load invoice`);
@@ -494,7 +495,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	async cancelOrder() {
 		try {
 			this.isLoading = true;
-			const response = await this.capitecConnectService.cancelDeviceOrder(this.currentOrderId);
+			const response = await this.capitecConnectService.cancelDeviceOrder(this.currentOrderId, this.clientCif);
+			// const testOrderId = `9130440b-ac7f-4957-b7a1-32e1a2085fc4`; // TODO: remove when BE errors is fixed
+			// const response = await this.capitecConnectService.cancelDeviceOrder(testOrderId, this.clientCif); // TODO: remove when BE errors is fixed
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to cancel order`);
@@ -671,7 +674,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 			const getValue = (value) => (!value || value === `null` ? `-` : value);
 			const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
-			const showInvoiceButton = item.orderStatus !== `ORDER DELIVERED`; // TODO: remove !== and make ===
+			const showInvoiceButton = item.orderStatus === `ORDER DELIVERED`;
 			const showCancelButton = item.deviceOrderResponse?.result.cancellable;
 
 			return html`
