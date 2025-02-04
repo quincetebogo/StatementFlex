@@ -118,8 +118,6 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = ``;
-		this.clientCif = ``;
 		// this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
 		//   this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
