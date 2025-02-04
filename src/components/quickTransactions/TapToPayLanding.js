@@ -140,6 +140,7 @@ export class TapToPayLanding extends Component {
 		const request = {
 			tapToPayUpdate: {
 				cardDetails: {
+					MaskedCardNumber: this.selectedCard.maskedCardNumber,
 					cardId: this.selectedCard.cardId,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
 					cardExpiryYear: this.selectedCard.cardExpiryYear,
@@ -152,30 +153,9 @@ export class TapToPayLanding extends Component {
 			},
 			Cif: this.cifNumber,
 		};
-		console.log(request);
 
 		// Call the update directly (which will now trigger _updateTapToPay in the mixin)
 		await this.updateAgreement(request);
-
-		/*
-		const request = {
-			cifNumber: this.cifNumber,
-			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
-			cardDetails: {
-				cardId: this.selectedCard.cardId,
-				cardExpiryYear: this.selectedCard.cardExpiryYear,
-				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-				cardSequenceNumber: this.selectedCard.cardSequenceNumber,
-				cardDisplayName: this.selectedCard.cardDisplayName
-			}
-		};
-
-		const result = await this.getAgreements(request);
-
-		if (result) {
-			this.agreementResult = result;
-			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
-		} */
 	}
 
 	_cancelClick() {
@@ -449,24 +429,26 @@ export class TapToPayLanding extends Component {
 
 	_renderSupplementaryCards() {
 		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard && card.isContactlessCard);
-		return !supplementaryCards
-			<capitec-label
-				class="supplementary-card-label"
-				type="title"
-				label="Supplementary cards"
-				data-automation-id="tap-to-pay-landing-supplementary-cards">
-			</capitec-label>
-
-			<capitec-group
-				class="supplementary-cards"
-				valign="top"
-				halign="left"
-				gap="clear"
-				layout="horizontal"
-				wrap>
-					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex, `supplementary-card-art`))}
-			</capitec-group>`
-		: html``;
+		return supplementaryCards.length > 0
+			? html`
+				<capitec-label
+					class="supplementary-card-label"
+					type="title"
+					label="Supplementary cards"
+					data-automation-id="tap-to-pay-landing-supplementary-cards">
+				</capitec-label>
+	
+				<capitec-group
+					class="supplementary-cards"
+					valign="top"
+					halign="left"
+					gap="clear"
+					layout="horizontal"
+					wrap>
+					${supplementaryCards.map((item, itemIndex) =>
+				this._renderSupplementaryCardArt(item, itemIndex, `supplementary-card-art`))}
+				</capitec-group>`
+			: html``;
 	}
 
 	_renderSupplementaryCardArt(card, index, automationId) {
@@ -494,6 +476,7 @@ export class TapToPayLanding extends Component {
 				</horizon-tap-to-pay-agreement>`
 			: html``;
 	}
+
 }
 
 window.customElements.define(`horizon-tap-to-pay-landing`, TapToPayLanding);

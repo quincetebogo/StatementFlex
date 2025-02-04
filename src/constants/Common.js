@@ -146,10 +146,10 @@ export const ORG_UNITS = {
  * @enum {Object} ROLES_TO_ORG_UNITS
  */
 export const ROLES_TO_ORG_UNITS = {
-	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 1 },
+	'clientcare-agent': { orgUnit: ORG_UNITS.CLIENT_CARE, order: 3 },
 	'helpdesk-agent': { orgUnit: ORG_UNITS.HELPDESK, order: 2 },
-	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 3 },
-	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 3 }
+	'capitecconnect-teamleader': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 },
+	'capitecconnect-agent': { orgUnit: ORG_UNITS.CAPITEC_CONNECT, order: 1 }
 };
 
 /**
