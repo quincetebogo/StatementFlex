@@ -95,23 +95,23 @@ export class CapitecConnectAgentDevices extends ViewBase {
           border-top: none;
         }
       `
-	  ];
-  }
+		];
+	}
 
 	connectedCallback() {
 		super.connectedCallback();
 
-	  /*
-	  When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
-	  */
-	  this.clientCif = this.callerInformation?.cif;
+		/*
+		When a client has called in. We get their CIF number. i.e. If they are "connected" to Horizon
+		*/
+		this.clientCif = this.callerInformation?.cif;
 
-	  if (this.callerInformation?.cifNumber) {
-		  this.clientCif = this.callerInformation?.cifNumber;
-	  }
+		if (this.callerInformation?.cifNumber) {
+			this.clientCif = this.callerInformation?.cifNumber;
+		}
 
-	  this._initialise();
-  }
+		this._initialise();
+	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -153,56 +153,56 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			);
 		}
 
-	  const currentDateTime = DateTime.local();
-	  const fromDate = DateTime.fromISO(e.detail.new.startDate);
-	  let toDate = DateTime.fromISO(e.detail.new.endDate);
+		const currentDateTime = DateTime.local();
+		const fromDate = DateTime.fromISO(e.detail.new.startDate);
+		let toDate = DateTime.fromISO(e.detail.new.endDate);
 
-	  let from, to;
+		let from, to;
 
-	  if (toDate.diff(fromDate, [`days`]).days > 90) {
-		  toDate = fromDate.plus({ days: 90 });
+		if (toDate.diff(fromDate, [`days`]).days > 90) {
+			toDate = fromDate.plus({ days: 90 });
 
-		if (toDate > currentDateTime) {
-			from = e.detail.new.startDate;
-			to = getDateInPast(0);
-		} else {
-			from = e.detail.new.startDate;
-			to = e.detail.new.endDate;
+			if (toDate > currentDateTime) {
+				from = e.detail.new.startDate;
+				to = getDateInPast(0);
+			} else {
+				from = e.detail.new.startDate;
+				to = e.detail.new.endDate;
 
-			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-			if (calendar) {
-				calendar._placeholderEndDate = toDate;
+				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+				if (calendar) {
+					calendar._placeholderEndDate = toDate;
+				}
 			}
+		} else {
+			from = e.detail.new.startDate || getDateInPast(30);
+			to = e.detail.new.endDate || incrementDate(from, 30);
 		}
-	} else {
-		from = e.detail.new.startDate || getDateInPast(30);
-		to = e.detail.new.endDate || incrementDate(from, 30);
+
+		Object.keys(e.detail).forEach((d) => {
+			Object.keys(e.detail[d]).forEach((x) => {
+				if (e.detail[d][x] !== null && e.detail[d][x].indexOf(`T`) > -1) {
+					e.detail[d][x] = e.detail[d][x].split(`T`)[0];
+				}
+			});
+		});
+
+		this.activeFilters.dateRange = {
+			from: from.split(`T`)[0],
+			to: to.split(`T`)[0]
+		};
+
+		return this.onFilter();
 	}
-
-	  Object.keys(e.detail).forEach((d) => {
-		  Object.keys(e.detail[d]).forEach((x) => {
-			  if (e.detail[d][x] !== null && e.detail[d][x].indexOf(`T`) > -1) {
-				  e.detail[d][x] = e.detail[d][x].split(`T`)[0];
-			  }
-		  });
-	  });
-
-	  this.activeFilters.dateRange = {
-		  from: from.split(`T`)[0],
-		  to: to.split(`T`)[0]
-	  };
-
-	  return this.onFilter();
-  }
 
 	onFilter() {
 		this.isDeviceTableVisible = false;
 
-	  setTimeout(() => {
-		  this.isDeviceTableVisible = true;
-		  this.requestUpdate();
-	  }, 100);
-  }
+		setTimeout(() => {
+			this.isDeviceTableVisible = true;
+			this.requestUpdate();
+		}, 100);
+	}
 
 	async _retrieveDevices(renderSet) {
 		try {
@@ -212,66 +212,66 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			this.currentPageIndex = this.renderSet.currentPageIndex;
 			this.searchValue = this.renderSet.searchValue;
 
-		if (!this.clientCif) {
-			return { pagedItems: [], totalCount: 0 };
-		}
-
-		const request = {
-			pageNumber: this.currentPageIndex - 1,
-			pageSize: this.numOfPagingRows,
-			clientCif: this.clientCif,
-			searchType: this.activeFilters.searchType,
-			searchValue: this.activeFilters.searchValue,
-			dateRange: {
-				startDate: this.activeFilters.dateRange.from,
-				endDate: this.activeFilters.dateRange.to
+			if (!this.clientCif) {
+				return { pagedItems: [], totalCount: 0 };
 			}
-		};
 
-		const response = await this.capitecConnectService.getAllDeviceOrders(request);
+			const request = {
+				pageNumber: this.currentPageIndex - 1,
+				pageSize: this.numOfPagingRows,
+				clientCif: this.clientCif,
+				searchType: this.activeFilters.searchType,
+				searchValue: this.activeFilters.searchValue,
+				dateRange: {
+					startDate: this.activeFilters.dateRange.from,
+					endDate: this.activeFilters.dateRange.to
+				}
+			};
 
-		if (!response || !response.succeeded) {
-			throw new Error(`Failed to retrieve devices`);
+			const response = await this.capitecConnectService.getAllDeviceOrders(request);
+
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to retrieve devices`);
+			}
+
+			const devices = response.result.content.map((order) => ({
+				orderDate: order.orderPlacedDate,
+				orderNumber: order.orderId,
+				orderDescription: order.orderDescription,
+				orderAmount: order.amount,
+				deviceName: order.deviceName,
+				imeiNumber: order.imeiNumber,
+				accountNumber: order.accountNumber,
+				orderId: order.orderId,
+				orderStatus: order.orderStatus.split(`_`).join(` `),
+				hasLogged: false
+			}));
+
+			this.isDeviceTableVisible = response.result.totalElements !== 0;
+
+			return {
+				pagedItems: devices,
+				totalCount: response.result.totalElements
+			};
+		} catch (error) {
+			console.error(`Error retrieving devices:`, error);
+			this.isDeviceTableVisible = false;
+
+			if (
+				this.activeFilters.searchType.value === `accountNumber` &&
+				this.activeFilters.searchValue.trim() &&
+				this.clientCif
+			) {
+				alert(`Error: The provided Account Number [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif
+					}]`);
+			}
+
+			return { pagedItems: [], totalCount: 0 };
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
 		}
-
-		const devices = response.result.content.map((order) => ({
-			orderDate: order.orderPlacedDate,
-			orderNumber: order.orderId,
-			orderDescription: order.orderDescription,
-			orderAmount: order.amount,
-			deviceName: order.deviceName,
-			imeiNumber: order.imeiNumber,
-			accountNumber: order.accountNumber,
-			orderId: order.orderId,
-			orderStatus: order.orderStatus.split(`_`).join(` `),
-			hasLogged: false
-		}));
-
-		this.isDeviceTableVisible = response.result.totalElements !== 0;
-
-		return {
-			pagedItems: devices,
-			totalCount: response.result.totalElements
-		};
-	} catch (error) {
-		console.error(`Error retrieving devices:`, error);
-		this.isDeviceTableVisible = false;
-
-		if (
-			this.activeFilters.searchType.value === `accountNumber` &&
-			this.activeFilters.searchValue.trim() &&
-		  this.clientCif
-	  ) {
-		  alert(`Error: The provided Account Number [${this.activeFilters.searchValue.trim()}] is not owned by this client [cif ${this.clientCif
-			  }]`);
-	  }
-
-		return { pagedItems: [], totalCount: 0 };
-	  } finally {
-		  this.isLoading = false;
-		  this.requestUpdate();
-	  }
-  }
+	}
 
 	_renderTableCol(item) {
 		return item.orderDate
@@ -296,31 +296,31 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		try {
 			this.isLoading = true;
 			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId);
-	// const testCurrentOrderId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO: remove when BE errors is fixed
-	// const response = await this.capitecConnectService.getDeviceInvoice(testCurrentOrderId); // TODO: remove when BE errors is fixed
+			// const testCurrentOrderId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO: remove when BE errors is fixed
+			// const response = await this.capitecConnectService.getDeviceInvoice(testCurrentOrderId); // TODO: remove when BE errors is fixed
 
-		if (!response || !response.succeeded) {
-			throw new Error(`Failed to load invoice`);
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to load invoice`);
+			}
+
+			this.invoicePdfBase64 = response.result.document;
+			this.isInvoicePdfVisible = true;
+		} catch (error) {
+			console.error(`Error getting device invoice:`, error);
+			this.invoicePdfBase64 = null;
+			this.hasInvoiceError = true;
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
 		}
-
-		this.invoicePdfBase64 = response.result.document;
-		this.isInvoicePdfVisible = true;
-	  } catch (error) {
-		  console.error(`Error getting device invoice:`, error);
-		  this.invoicePdfBase64 = null;
-		  this.hasInvoiceError = true;
-	  } finally {
-		  this.isLoading = false;
-		  this.requestUpdate();
-	  }
-  }
+	}
 
 	renderInvoiceModal(orderId) {
 		if (orderId && orderId !== this.currentOrderId) {
 			this.currentOrderId = orderId;
 		}
 
-	  return html`
+		return html`
       <capitec-modal
         type="form"
         header="Statement"
@@ -332,17 +332,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
           style="height: auto; min-height: 300px; padding: 24px;"
         >
           ${this.isInvoicePdfVisible
-			? html`
+				? html`
                 <horizon-pdf-viewer
                   header="View Document"
                   encodedPDF="${this.invoicePdfBase64}"
                   @cancel="${() => {
-					this.isInvoicePdfVisible = false;
-		}}"
+						this.isInvoicePdfVisible = false;
+					}}"
                 >
                 </horizon-pdf-viewer>
               `
-			  : ``}
+				: ``}
 
           <div column="1" row="1" colspan="2">
             <capitec-label
@@ -394,9 +394,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
             type="secondary"
             label="Cancel"
             @click="${() => {
-			  this.isInvoiceModalVisible = false;
-			  this.invoicePdfBase64 = ``;
-		  }}"
+				this.isInvoiceModalVisible = false;
+				this.invoicePdfBase64 = ``;
+			}}"
           ></capitec-button>
           <capitec-button
             type="primary"
@@ -408,7 +408,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         </div>
       </capitec-modal>
     `;
-  }
+	}
 
 	sendInvoice() {
 		if (!this.emailAddress) {
@@ -451,7 +451,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ></capitec-button>
       </capitec-modal>
     `;
-  }
+	}
 
 	renderInvoiceErrorModal() {
 		return html`
@@ -500,32 +500,32 @@ export class CapitecConnectAgentDevices extends ViewBase {
         </div>
       </capitec-modal>
     `;
-  }
+	}
 
 	async cancelOrder() {
 		try {
 			this.isLoading = true;
-		const response = await this.capitecConnectService.cancelDeviceOrder(
-			this.currentOrderId,
-			this.clientCif
-		);
-		// const testOrderId = `9130440b-ac7f-4957-b7a1-32e1a2085fc4`; // TODO: remove when BE errors is fixed
-		// const response = await this.capitecConnectService.cancelDeviceOrder(testOrderId, this.clientCif); // TODO: remove when BE errors is fixed
+			const response = await this.capitecConnectService.cancelDeviceOrder(
+				this.currentOrderId,
+				this.clientCif
+			);
+			// const testOrderId = `9130440b-ac7f-4957-b7a1-32e1a2085fc4`; // TODO: remove when BE errors is fixed
+			// const response = await this.capitecConnectService.cancelDeviceOrder(testOrderId, this.clientCif); // TODO: remove when BE errors is fixed
 
-		  if (!response || !response.succeeded) {
-			  throw new Error(`Failed to cancel order`);
-		  }
-		  this.isCancelOrderModalVisible = false;
-		  this.isSuccessModalVisible = true;
-	  } catch (error) {
-		  console.error(`Error cancelling order:`, error);
-		  this.isCancelOrderModalVisible = false;
-		  this.isErrorModalVisible = true;
-	  } finally {
-		  this.isLoading = false;
-		  this.requestUpdate();
-	  }
-  }
+			if (!response || !response.succeeded) {
+				throw new Error(`Failed to cancel order`);
+			}
+			this.isCancelOrderModalVisible = false;
+			this.isSuccessModalVisible = true;
+		} catch (error) {
+			console.error(`Error cancelling order:`, error);
+			this.isCancelOrderModalVisible = false;
+			this.isErrorModalVisible = true;
+		} finally {
+			this.isLoading = false;
+			this.requestUpdate();
+		}
+	}
 
 	renderCancelOrderModal(order) {
 		if (order && order !== this.currentOrder) {
@@ -533,7 +533,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			this.currentOrder = order;
 		}
 
-	  return html`
+		return html`
       <capitec-modal
         type="alert"
         header="Cancel Order"
@@ -582,7 +582,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ></capitec-button>
       </capitec-modal>
     `;
-  }
+	}
 
 	renderOrderCancelSuccessModal() {
 		return html`
@@ -614,7 +614,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         ></capitec-button>
       </capitec-modal>
     `;
-  }
+	}
 
 	renderOrderCancelErrorModal() {
 		return html`
@@ -663,7 +663,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
         </div>
       </capitec-modal>
     `;
-  }
+	}
 
 	_expandRenderer(item) {
 		try {
@@ -671,41 +671,41 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				navigator.clipboard.writeText(value);
 			};
 
-		if (!item.hasLogged) {
-			this.isLoading = true;
-			this.capitecConnectService
-				.getDeviceOrder(item.orderId)
-				.then((response) => {
-					if (!response || !response.succeeded) {
-						throw new Error(`Failed to get device order`);
-					}
-					item.deviceOrderResponse = response;
-					item.hasLogged = true;
-					this.requestUpdate();
-				})
-				.catch((error) => {
-					console.error(`Error in getDeviceOrder:`, error);
-					item.hasError = true;
-				})
-				.finally(() => {
-					this.isLoading = false;
-					this.requestUpdate();
-				});
-		}
+			if (!item.hasLogged) {
+				this.isLoading = true;
+				this.capitecConnectService
+					.getDeviceOrder(item.orderId)
+					.then((response) => {
+						if (!response || !response.succeeded) {
+							throw new Error(`Failed to get device order`);
+						}
+						item.deviceOrderResponse = response;
+						item.hasLogged = true;
+						this.requestUpdate();
+					})
+					.catch((error) => {
+						console.error(`Error in getDeviceOrder:`, error);
+						item.hasError = true;
+					})
+					.finally(() => {
+						this.isLoading = false;
+						this.requestUpdate();
+					});
+			}
 
-		const getValue = (value) => (!value || value === `null` ? `-` : value);
-		const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
-		const showInvoiceButton = item.orderStatus === `ORDER DELIVERED`;
-		const showCancelButton = item.deviceOrderResponse?.result.cancellable;
+			const getValue = (value) => (!value || value === `null` ? `-` : value);
+			const getFormattedDate = (date) => (date ? `${formatDate(date)} ${getTimeFromDate(date)}` : `-`);
+			const showInvoiceButton = item.orderStatus === `ORDER DELIVERED`;
+			const showCancelButton = item.deviceOrderResponse?.result.cancellable;
 
-		return html`
+			return html`
         <capitec-group layout="grid" gap="clear">
           <div column="1" row="1" colspan="4">
             <capitec-label label="Device Description"></capitec-label>
             <capitec-label
               type="strong"
               label="${getValue(item.deviceOrderResponse?.result.products[0]
-				  .productShortDescription)}"
+				.productShortDescription)}"
             ></capitec-label>
           </div>
 
@@ -721,13 +721,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.imeiNumber)} "
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.imeiNumber) !== `-`
-			  ? html`<capitec-icon
+					? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-			  : ``}
+					: ``}
             </div>
           </div>
 
@@ -743,13 +743,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.imeiNumber2)}"
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.imeiNumber2) !== `-`
-			  ? html`<capitec-icon
+					? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber2))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-			  : ``}
+					: ``}
             </div>
           </div>
 
@@ -797,14 +797,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.courierTracking)}"
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.courierTracking) !==
-				  `-`
-				  ? html`<capitec-icon
+					`-`
+					? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.courierTracking))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-				  : ``}
+					: ``}
             </div>
           </div>
 
@@ -826,46 +826,46 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
           <div row="4" column="1" colspan="4">
             ${showInvoiceButton || showCancelButton
-				  ? html` <div
+					? html` <div
                   style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
                 >
                   ${showInvoiceButton
-						  ? html`
+							? html`
                         <capitec-hyperlink
                           style="--theme-hyperlink-color: #009DE0;"
                           label="View Invoice"
                           @click="${() => {
-								  this.currentOrderId = item?.orderNumber;
-								  this.isInvoiceModalVisible = true;
-							  }}"
+									this.currentOrderId = item?.orderNumber;
+									this.isInvoiceModalVisible = true;
+								}}"
                         >
                         </capitec-hyperlink>
                       `
-						  : ``}
+							: ``}
                   ${showCancelButton
-						  ? html`
+							? html`
                         <capitec-hyperlink
                           style="--theme-hyperlink-color: #009DE0;"
                           label="Cancel"
                           @click="${() => {
-								  this.currentOrder = item;
-								  this.currentOrderId = item?.orderNumber;
-								  this.isCancelOrderModalVisible = true;
-							  }}"
+									this.currentOrder = item;
+									this.currentOrderId = item?.orderNumber;
+									this.isCancelOrderModalVisible = true;
+								}}"
                         >
                         </capitec-hyperlink>
                       `
-						  : ``}
+							: ``}
                 </div>`
-				  : ``}
+					: ``}
           </div>
         </capitec-group>
       `;
-	  } catch (error) {
-		  console.error(`Error in expandRenderer:`, error);
-		  return html``;
-	  }
-  }
+		} catch (error) {
+			console.error(`Error in expandRenderer:`, error);
+			return html``;
+		}
+	}
 
 	_renderAmount(item, fieldName, value) {
 		return formatAmount(value);
@@ -875,16 +875,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		const label = value.replace(`ORDER`, ``);
 		let type = `warning`;
 
-	  if (value === `ORDER PAYMENT SUCCESSFUL`) {
-		  type = `info`;
-	  }
+		if (value === `ORDER PAYMENT SUCCESSFUL`) {
+			type = `info`;
+		}
 
-	  if (value === `ORDER DELIVERED`) {
-		  type = `success`;
-	  }
+		if (value === `ORDER DELIVERED`) {
+			type = `success`;
+		}
 
-	  return html`<capitec-tag label="${label}" type="${type}"></capitec-tag>`;
-  }
+		return html`<capitec-tag label="${label}" type="${type}"></capitec-tag>`;
+	}
 
 	render() {
 		return html`
@@ -897,17 +897,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
         gap="clear"
       >
         ${this.isLoading
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: ``}
+				? html`<capitec-loading-indicator></capitec-loading-indicator>`
+				: ``}
         <capitec-button-bar align="left">
           <capitec-search-field
             label="Search"
             value="${this.activeFilters.searchValue}"
             class="custom-flex-size"
             @value-change="${(e) => {
-		this.activeFilters.searchValue = e.detail.new;
-		this.onFilter();
-	}}"
+				this.activeFilters.searchValue = e.detail.new;
+				this.onFilter();
+			}}"
           >
           </capitec-search-field>
 
@@ -916,9 +916,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
             .items="${this.searchTypes}"
             .value="${this.activeFilters.searchType}"
             @value-change="${(e) => {
-		this.activeFilters.searchType = e.detail.new;
-		this.onFilter();
-	}}"
+				this.activeFilters.searchType = e.detail.new;
+				this.onFilter();
+			}}"
             display-field="text"
             id-field="value"
           >
@@ -951,28 +951,28 @@ export class CapitecConnectAgentDevices extends ViewBase {
         <capitec-button-bar align="left" class="no-border-top">
           <capitec-label label="Active Filters:"></capitec-label>
           ${this.activeFilters.searchValue
-		? html`<capitec-chip
+				? html`<capitec-chip
                 closable
                 @remove="${() => {
-			this.activeFilters.searchValue = ``;
-			this.onFilter();
-		}}"
+						this.activeFilters.searchValue = ``;
+						this.onFilter();
+					}}"
                 label="${this.activeFilters.searchType.text}: ${this
-			.activeFilters.searchValue}"
+						.activeFilters.searchValue}"
               >
               </capitec-chip>`
-		: null}
+				: null}
           ${this.activeFilters.dateRange.to !== null &&
-		this.activeFilters.dateRange.from !== null
-		? html`<capitec-chip
+				this.activeFilters.dateRange.from !== null
+				? html`<capitec-chip
                 label="${formatDate(this.activeFilters.dateRange.from)} - ${formatDate(this.activeFilters.dateRange.to)}"
               >
               </capitec-chip>`
-		: null}
+				: null}
         </capitec-button-bar>
 
         ${this.isDeviceTableVisible
-		? html`
+				? html`
               <capitec-table
                 displayMode="Paging"
                 groupField="month"
@@ -1007,7 +1007,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 ></capitec-table-column>
               </capitec-table>
             `
-		: html`
+				: html`
               <capitec-table>
                 <capitec-table-column label="Order Date"></capitec-table-column>
                 <capitec-table-column
@@ -1033,17 +1033,17 @@ export class CapitecConnectAgentDevices extends ViewBase {
             `}
         ${this.isInvoiceModalVisible ? this.renderInvoiceModal() : null}
         ${this.isSendEmailSuccessModalVisible
-			? this.renderSendEmailSuccessModal()
-			: null}
+				? this.renderSendEmailSuccessModal()
+				: null}
         ${this.isCancelOrderModalVisible ? this.renderCancelOrderModal() : null}
         ${this.isSuccessModalVisible
-			? this.renderOrderCancelSuccessModal()
-			: null}
+				? this.renderOrderCancelSuccessModal()
+				: null}
         ${this.isErrorModalVisible ? this.renderOrderCancelErrorModal() : null}
         ${this.hasInvoiceError ? this.renderInvoiceErrorModal() : null}
       </capitec-content-box>
     `;
-  }
+	}
 }
 
 customElements.define(
