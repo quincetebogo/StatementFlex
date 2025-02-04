@@ -144,6 +144,17 @@ export class ChannelServiceBase extends Service {
 	}
 
 	/**
+	 * The custom headers for the invoice headers
+	 * @returns {object} The custom headers for the invoice headers
+	 */
+	invoiceHeaders() {
+		return {
+			'Accept': `application/pdf`,
+			'Authorization': `Bearer ${Security.getInstance().token}`
+		};
+	}
+
+	/**
 	 * Determine if mocking is enabled for the specified method
 	 *
 	 * @param {string} mockName Mock name/method name in the config.json file

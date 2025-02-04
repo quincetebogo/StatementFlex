@@ -293,8 +293,8 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
-	getDeviceOrders(request) {
-		const { pageNumber = 0, pageSize = 10, searchValue, dateFrom, dateTo, clientCif } = request;
+	getAllDeviceOrders(request) {
+		const { pageNumber = 0, pageSize = 10, searchValue, dateRange, clientCif, searchType } = request;
 
 		const queryParams = {
 			page: pageNumber,
@@ -302,20 +302,30 @@ export class CapitecConnectService extends ChannelServiceBase {
 			sort: `createdAt,DESC`
 		};
 
-		if (searchValue) {
-			queryParams.searchValue = searchValue;
-		}
+		const requestBody = {
+			orderDateRange: dateRange
+		};
 
-		if (dateFrom) {
-			queryParams.dateFrom = dateFrom;
-		}
-
-		if (dateTo) {
-			queryParams.dateTo = dateTo;
-		}
-
-		if (clientCif) {
-			queryParams.cif = clientCif;
+		if (searchValue && searchType?.value) {
+			switch (searchType.value) {
+				case `amount`:
+					requestBody.orderAmount = parseFloat(searchValue);
+					break;
+				case `accountNumber`:
+					requestBody.accountNumber = parseInt(searchValue, 10);
+					break;
+				case `deviceName`:
+					requestBody.deviceName = searchValue;
+					break;
+				case `orderDescription`:
+					requestBody.orderDescription = searchValue;
+					break;
+				case `imeiNumber`:
+					requestBody.imeiNumber = searchValue;
+					break;
+				default:
+					break;
+			}
 		}
 
 		const queryString = this.convertJsonToUriString(queryParams);
@@ -323,9 +333,53 @@ export class CapitecConnectService extends ChannelServiceBase {
 
 		return this.post(
 			url,
+			requestBody,
+			this.setToken(),
+			`getAllDeviceOrders`,
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getDeviceOrder(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}`;
+		return this.get(
+			url,
+			this.setToken(),
+			`getDeviceOrder`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getDeviceInvoice(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
+		return this.get(
+			url,
+			this.invoiceHeaders(),
+			`getDeviceInvoice`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	cancelDeviceOrder(orderId, cif) {
+		const url = `/v1/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
+
+		return this.post(
+			url,
 			{},
 			this.setToken(),
-			`getDeviceOrders`,
+			`cancelDeviceOrder`,
 			null,
 			null,
 			2000,
