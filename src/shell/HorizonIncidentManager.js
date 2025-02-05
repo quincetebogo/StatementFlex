@@ -953,7 +953,7 @@ export class HorizonIncidentManager {
 	}
 
 	_clientInfoAlreadySaved(savedIncidentInfo) {
-		return !(isNullorEmpty(savedIncidentInfo.clientDetails.cif) && isNullorEmpty(savedIncidentInfo.clientDetails.southAfricanIDNumber));
+		return !(isNullorEmpty(savedIncidentInfo?.clientDetails?.cif) && isNullorEmpty(savedIncidentInfo?.clientDetails?.southAfricanIDNumber));
 	}
 
 	_validIncident(incident) {
