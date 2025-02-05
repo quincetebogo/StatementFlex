@@ -296,10 +296,10 @@ export class HorizonIncidentManager {
 			const ex = returnValue.exception;
 
 			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`, `createExternalIncident`);
 			}
 
-			this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to create incident on new call`, `createExternalIncident`, returnValue.correlationId);
 		} else if (callerInfo.isBranchConsultant) {
 			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
 		}
@@ -324,7 +324,7 @@ export class HorizonIncidentManager {
 			const ex = returnValue.exception;
 
 			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`, `createPrimaryIncident`);
 			}
 
 			this.logger.log(`error`, `Failed to create incident on new call`, `createPrimaryIncident`, returnValue.correlationId);
@@ -338,7 +338,7 @@ export class HorizonIncidentManager {
 
 			this._setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
 
-			console.log(`Created Interaction/Primary Incident ${this.primaryIncident.interaction}`);
+			console.log(`createPrimaryIncident: Created Interaction/primary incident ${this.primaryIncident.interaction}/${this.primaryIncident.incidentReference}`);
 		}
 
 		return incident;
@@ -384,11 +384,18 @@ export class HorizonIncidentManager {
 		};
 
 		if (!this._validIncident(this.currentIncident)) {
+			// Should not really get here but if for some reason we lose the current incident...
 			this.currentIncident = this.primaryIncident;
 		}
 
 		if (isNullorEmpty(currentNeed)) {
-			console.log(`autoCreateAndClassify: no current need set`);
+			console.log(`autoCreateAndClassify: Cannot classify: no current need set.`);
+			return false;
+		}
+
+		const needAction = STRACK_MAPPING[currentNeed];
+		if (isNullorEmpty(needAction)) {
+			console.log(`autoCreateAndClassify: Cannot classify - need ${currentNeed} not mapped to a need action`);
 			return false;
 		}
 
@@ -421,7 +428,7 @@ export class HorizonIncidentManager {
 		}
 
 		if (!this._isIncidentClassified(incidentCategorization)) {
-			console.log(`manualCreateAndClassify: incidentCategorization data not supplied`);
+			console.log(`manualCreateAndClassify: Cannot classify - incidentCategorization data not supplied`);
 			return false;
 		}
 
@@ -455,14 +462,14 @@ export class HorizonIncidentManager {
 		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
 
 		if (this._isIncidentClassified(savedIncidentInfo)) {
-			console.log(`classifyIncident: Ìncident already classified - ${this.currentIncident.incidentId}`);
-			this.logger.log(`warning`, `classifyIncident: Ìncident already classified - ${this.currentIncident.interaction}`, `classifyIncident`, null);
+			console.log(`classifyIncident: Interaction already classified - (interaction ${this.currentIncident.interaction}/incident ${this.currentIncident.incidentId})`);
+			this.logger.log(`warning`, `classifyIncident: Interaction already classified - (interaction ${this.currentIncident.interaction}/incident ${this.currentIncident.incidentId})`, `classifyIncident`, null);
 			return;
 		}
 
 		if (isNullorEmpty(needAction) || !this._isIncidentClassified(incidentCategorization)) {
-			console.log(`classifyIncident: Classification information not provided - ${this.currentIncident.interaction}`);
-			this.logger.log(`warning`, `classifyIncident: Classification information not provided - ${this.currentIncident.incidentId}`, `classifyIncident`, null);
+			console.log(`classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`);
+			this.logger.log(`warning`, `classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`, `classifyIncident`, null);
 			return;
 		}
 
@@ -470,8 +477,8 @@ export class HorizonIncidentManager {
 		const newInteractionItem = returnValue.result.incident.currentInteractionItem;
 
 		if (!returnValue.succeeded) {
-			console.log(`classifyIncident: Failed to classify incident.ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`);
-			this.logger.log(`warning`, `classifyIncident: Failed to classify incident.ID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+			console.log(`classifyIncident: Failed to classify: (${this.currentIncident.interaction}/${this.currentIncident.incidentId}), CurrentNeed: ${this.getCurrentNeed()}`);
+			this.logger.log(`warning`, `classifyIncident: Failed to classify : (${this.currentIncident.interaction}/${this.currentIncident.incidentId}), CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
 			return;
 		}
 
@@ -529,7 +536,7 @@ export class HorizonIncidentManager {
 
 		// Look at removing this check by ensuring that there are no remaining paths that do not classify before closing
 		if (!this._isIncidentClassified(savedIncidentInfo)) {
-			console.log(`Inident ${this.currentIncident.interaction} not classified before call to closeIncident!`);
+			console.log(`closeIncident: Interaction ${this.currentIncident.interaction} not classified before call to closeIncident!, attempting to classify...`);
 			await this.classifyIncident(toggleBusyFlag, manualClassification, errorHandler);
 		}
 
@@ -547,10 +554,10 @@ export class HorizonIncidentManager {
 		);
 
 		if (!returnValue.succeeded) {
-			console.log(`Failed to close incident/iteraction ${this.currentIncident.interaction}`);
-			this.logger.log(`warning`, `Failed to close incident..`, `closeIncident`, returnValue.correlationId);
+			console.log(`closeIncident: Failed to close interaction/interaction item/incident ${this.currentIncident.interaction}/${this.currentIncident.currentInteractionItem}/${this.currentIncident.incidentReference}`);
+			this.logger.log(`warning`, `Failed to close interaction ${this.currentIncident.interaction}`, `closeIncident`, returnValue.correlationId);
 		} else {
-			console.log(`Closed incident/interaction ${this.currentIncident.interaction}`);
+			console.log(`closeIncident: Closed interaction/interaction item/incident ${this.currentIncident.interaction}/${this.currentIncident.currentInteractionItem}/${this.currentIncident.incidentReference}`);
 		}
 
 		this._resetIncidentState(clientNeed);
@@ -641,19 +648,12 @@ export class HorizonIncidentManager {
 	async _classifyIncidentByNeed(currentNeed, closeType) {
 		const needAction = STRACK_MAPPING[currentNeed];
 
-		console.log(`_classifyIncidentByNeed: need is ${currentNeed}`);
-
-		if (isNullorEmpty(needAction)) {
-			console.log(`_classifyIncidentByNeed: cannot map need ${currentNeed} to a need action`);
-			return false;
-		}
-
 		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, null, () => true);
 
 		if (returnValue.succeeded) {
 			const newInteractionItem = returnValue.result.incident.currentInteractionItem;
 
-			console.log(`_classifyIncidentByNeed (Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem})`);
+			console.log(`_classifyIncidentByNeed (Interaction: ${this.currentIncident.interaction}, Added InteractionItem/incident: ${newInteractionItem})`);
 
 			if (!this.incidentDetails.primaryIncidentFinished) {
 				this.incidentDetails.primaryIncident.currentInteractionItem = returnValue.result.incident.currentInteractionItem;
@@ -668,8 +668,8 @@ export class HorizonIncidentManager {
 			return true;
 		}
 
-		console.log(`warning`, `Failed to classify incident! ID: ${this.currentIncident.incidentId}, CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
-		this.logger.log(`warning`, `Failed to classify incident! ID: ${this.currentIncident.incidentId}, CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
+		console.log(`warning`, `Failed to classify interaction/incident (${this.currentIncident.interaction}, ${this.currentIncident.incidentReference}), CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
+		this.logger.log(`warning`, `Failed to classify interaction/incident (${this.currentIncident.interaction}, ${this.currentIncident.incidentReference}), CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
 
 		return false;
 	}
@@ -700,8 +700,8 @@ export class HorizonIncidentManager {
 			return true;
 		}
 
-		console.log(`_classifyIncidentManually: Failed to manually classify incident! ID: ${this.currentIncident.interaction}}`);
-		this.logger.log(`warning`, `Failed to manually classify incident! ID: ${this.currentIncident.interaction}}`, `_classifyIncidentManually`, returnValue.correlationId);
+		console.log(`_classifyIncidentManually: Failed to manually classify interaction: ${this.currentIncident.interaction}}`);
+		this.logger.log(`warning`, `Failed to manually classify interaction: ${this.currentIncident.interaction}}`, `_classifyIncidentManually`, returnValue.correlationId);
 
 		return false;
 	}
@@ -756,11 +756,15 @@ export class HorizonIncidentManager {
 			() => true
 		);
 
-		console.log(`Closed Interaction Item: (${this.currentIncident.interaction}, ${this.currentIncident.currentInteractionItem})`);
+
+		if (returnValue.succeeded) {
+			console.log(`_closePreviousIncident: Closed Interaction Item: (${this.currentIncident.interaction}, ${this.currentIncident.currentInteractionItem})`);
+		}
 
 		this._resetIncidentState(this.getCurrentNeed());
 
 		if (!returnValue.succeeded) {
+			console.log(`_closePreviousIncident: Failed to close incident`);
 			this.logger.log(`warning`, `Failed to close incident.`, `_closePreviousIncident`, returnValue.correlationId);
 			return false;
 		}
@@ -788,7 +792,7 @@ export class HorizonIncidentManager {
 			this.incidentDetails.currentIncident = returnValue.result.incident;
 			this.horizonStore.setIncidentDetails(this.incidentDetails); // Updates incidentDetails to indicate that we do not have a created incident
 
-			console.log(`Created new incident on Interaction - (${this.currentIncident?.interaction}, Incident: ${this.currentIncident?.incidentReference})`);
+			console.log(`_createNewIncident: Created new incident on Interaction - (${this.currentIncident?.interaction}, Incident: ${this.currentIncident?.incidentReference})`);
 
 			return this.currentIncident;
 		}
