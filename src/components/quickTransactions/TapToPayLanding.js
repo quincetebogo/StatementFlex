@@ -136,18 +136,32 @@ export class TapToPayLanding extends Component {
 		this.selectedCard.isContactlessActivated = event.detail.new;
 		this._updateCards();
 
+
+		// show tap to pay dialog	
+		this.agreementResult = "";
+		this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
+
+
+
+
+	}
+
+
+	async _updateTapToPayFunctionality(event) {
 		// Build the update request for Tap to Pay Update
+
+		const selectedCard = event.detail.selectedCard
 		const request = {
 			tapToPayUpdate: {
 				cardDetails: {
-					MaskedCardNumber: this.selectedCard.maskedCardNumber,
-					cardId: this.selectedCard.cardId,
-					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-					cardExpiryYear: this.selectedCard.cardExpiryYear,
-					cardSequenceNumber: this.selectedCard.cardSequenceNumber,
-					cardDisplayName: this.selectedCard.cardDisplayName
+					MaskedCardNumber: selectedCard.maskedCardNumber,
+					cardId: selectedCard.cardId,
+					cardExpiryMonth: selectedCard.cardExpiryMonth,
+					cardExpiryYear: selectedCard.cardExpiryYear,
+					cardSequenceNumber: selectedCard.cardSequenceNumber,
+					cardDisplayName: selectedCard.cardDisplayName
 				},
-				tapToPayStatus: this.selectedCard.isContactlessActivated ? `ON` : `OFF`,
+				tapToPayStatus: selectedCard.isContactlessActivated ? `ON` : `OFF`,
 				title: this.title,
 				lastName: this.lastName
 			},
@@ -166,50 +180,10 @@ export class TapToPayLanding extends Component {
 	}
 
 	async _agreeClick(event) {
-		const tapToPayStatus = this.selectedCard.isContactlessActivated ? `ON` : `OFF`;
 
-		const request = {
-			tapToPayUpdate: {
-				cardDetails: {
-					cardId: this.selectedCard.cardId,
-					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
-					cardExpiryYear: this.selectedCard.cardExpiryYear,
-					cardSequenceNumber: this.selectedCard.cardSequenceNumber,
-					cardDisplayName: this.selectedCard.cardDisplayName
-				},
-				tapToPayStatus: tapToPayStatus,
-				customerId: this.cifNumber,
-				voiceRecordingReference: this.voiceRecordingReference,
-				screenRecordingReference: ``,
-				agreementAccepted: event.detail.tapToPayAccepted,
-				agreementContent: {
-					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType,
-					agreementContentData: this.agreementResult.cardAgreement.agreementContent.agreementContentData,
-					documentId: this.agreementResult.cardAgreement.agreementContent.documentId
-				},
-				scriptContent: {
-					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
-					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
-					scriptContentType: `HTML`
-				},
-				title: this.title,
-				lastName: this.lastName
-			}
-		};
+		this._updateTapToPayFunctionality(event)
 
-		const result = await this.updateAgreement(request);
 
-		if (result) {
-			this._result(true, {
-				tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
-				cardType: this.selectedCard.cardType
-			}, null);
-		} else {
-			this._result(false, {
-				tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
-				cardType: this.selectedCard.cardType
-			}, `Failed to update agreement`);
-		}
 	}
 
 	// ---------
@@ -470,7 +444,6 @@ export class TapToPayLanding extends Component {
 			? html`
 				<horizon-tap-to-pay-agreement
 					.selectedCard="${this.selectedCard}"
-					.agreementResult="${this.agreementResult}"
 					@on-agree="${(e) => this._agreeClick(e)}"
 					@cancel="${() => this._cancelClick()}">
 				</horizon-tap-to-pay-agreement>`
