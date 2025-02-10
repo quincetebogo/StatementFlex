@@ -137,7 +137,7 @@
 			"positiveCase": true
 		},
 		"stopCardLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCard": {
@@ -173,7 +173,11 @@
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"updateTapToPay": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"viewStatements": {
@@ -569,6 +573,10 @@
 			"positiveCase": true
 		},
 		"insurePolicyHistoryDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"updateCardsSettings": {
 			"enabled": true,
 			"positiveCase": true
 		}
