@@ -2415,7 +2415,7 @@ class ClientSummary extends Component {
 			}
 
 					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE}"@click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
