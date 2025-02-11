@@ -141,7 +141,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
   }
 
   _initialise() {
-      //   this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
+	  //   this.clientCif = `030530180`; // TODO: comment out when done with dev: - Transaction Type:Voucher
       //   this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
     this.showTable = true;
@@ -737,11 +737,17 @@ export class CapitecConnectAgentRecharges extends ViewBase {
         : processedDate;
 
     typeOfRecharge = toTitleCase(typeOfRecharge);
+	  const loading = this.voucherHistoryLoading || this.voucherInfoLoading;
 
     return html`
       <capitec-spacer></capitec-spacer>
 
       <capitec-group layout="grid" gap="clear">
+	  ${loading
+			? html`<capitec-loading-indicator
+			data-automation-id="app-shell-loading-indicator"
+		  ></capitec-loading-indicator>`
+			: null}
         <div column="1" row="1" colspan="4">
           <capitec-label label="Description:"></capitec-label>
           <capitec-label
@@ -778,7 +784,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 
         <div row="3" column="1">
           <capitec-label label="Account:"></capitec-label>
-          <capitec-label type="strong" label="${accountNumber}"></capitec-label>
+          <capitec-label type="strong" label="${accountNumber === `0` ? `-` : accountNumber}"></capitec-label>
         </div>
         <div row="3" column="2">
           <capitec-label label="Transaction Date:"></capitec-label>
@@ -890,16 +896,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
   _renderVoucherInformationModal() {
     const voucherInfo = this.voucherInformationData;
     const voucherHistory = this.voucherHistoryData;
-    const loading = this.voucherHistoryLoading || this.voucherInfoLoading;
+
 
     return html` <!-- Voucher Information  -->
       <capitec-modal type="text" header="Voucher Information">
         <capitec-group slot="body" layout="grid" gap="clear">
-          ${loading
-            ? html`<capitec-loading-indicator
-                data-automation-id="app-shell-loading-indicator"
-              ></capitec-loading-indicator>`
-            : null}
           <div row="1" column="1">
             <capitec-label type="strong" label="Serial Number:"></capitec-label>
             <capitec-label type="strong" label="Issue date"></capitec-label>
@@ -926,7 +927,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
             ></capitec-label>
             <capitec-label
               type="strong"
-              label="${convertRandToCents(voucherInfo.amount)}"
+              label="${voucherInfo.amount}"
             ></capitec-label>
             <capitec-label
               type="strong"
