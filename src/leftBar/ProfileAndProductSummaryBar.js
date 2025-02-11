@@ -371,7 +371,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
 
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.incidentState) &&
+		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.getCurrentNeed()) &&
 			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
 			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		}
