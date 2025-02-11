@@ -29,10 +29,7 @@ const STOPREASONS = [
 		key: `STOLEN`,
 		value: `Card Stolen`
 	},
-	{
-		key: `SUSPECTED_FRAUD`,
-		value: `Suspected Fraud`
-	},
+
 	{
 		key: `SUPPLEMENTARY_ACCESS_REVOKED`,
 		value: `Supplementary Access Revoked`
