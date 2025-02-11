@@ -439,7 +439,9 @@ export const LIFE_POLICY_STATUSES = Object.freeze({
 	NOT_TAKEN_UP: `NotTakenUp`,
 	CANCELLED: `Cancelled`,
 	OUT_OF_FORCE: `OutOfForce`,
-	COOL_OFF: `CoolOff`
+	COOL_OFF: `CoolOff`,
+	NEW_BORN_PREMIUM_WAIVER: `NewbornPremiumWaiver`,
+	VOLUNTARY_PAUSE: `VoluntaryPolicyPause`
 });
 
 /**

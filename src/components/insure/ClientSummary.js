@@ -903,7 +903,7 @@ class ClientSummary extends Component {
 	 * @returns {Boolean} boolean
 	 */
 	_checkLifePolicyStatus(policyStatus) {
-		if (policyStatus === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
+		if (policyStatus === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.LAPSE_PENDING || policyStatus === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER) {
 			return true;
 		}
 		return false;
