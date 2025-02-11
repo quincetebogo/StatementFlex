@@ -44,6 +44,7 @@ import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog'
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/funeral/GenerateNewAgreementDialog';
 import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverDialog';
+import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverReasonDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -103,6 +104,7 @@ class ClientSummary extends Component {
 		this.showUpdateIdDobDialog = false;
 		this.showNewbornPremiumWaiverDialog = false;
 		this.showLifeNewbornPremiumWaiverDialog = false;
+		this.showLifeNewbornPremiumWaiverReasonDialog = false;
 		this.showBenefitSuccessToast = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
@@ -122,8 +124,8 @@ class ClientSummary extends Component {
 		this.showGenerateNewAgreementDialog = false;
 		this.showCreateMandateSuccessToast = false;
 		this.createMandateSuccessMessage = ``
-		
- 
+
+
 		this.showLifeIncreaseUnavailableDialog = false;
 		this.lifeIncreaseCoverUnavailableMessage = ``;
 
@@ -137,6 +139,7 @@ class ClientSummary extends Component {
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
+
 	}
 
 	// #endregion INITIALISATION
@@ -258,6 +261,7 @@ class ClientSummary extends Component {
 
 			// Life NBW
 			showLifeNewbornPremiumWaiverDialog: { type: Boolean, state: true },
+			showLifeNewbornPremiumWaiverReasonDialog: { type: Boolean, state: true },
 			executeLifeActivateBenefit: { type: Object, state: true },
 			executeLifeCancelBenefit: { type: Object, state: true },
 			showLifeBenefitSuccessToast: { type: Boolean, state: true },
@@ -310,7 +314,7 @@ class ClientSummary extends Component {
 			mainLifeIdNumber: { type: String, state: true },
 
 			lifeUpdateMode: { type: String, state: true },
-			
+
 			showFeatureBanner: { type: Boolean, state: true },
 			featureBannerMessage: { type: String, state: true },
 		};
@@ -883,13 +887,13 @@ class ClientSummary extends Component {
 
 
 	async _openConfirmPolicyPauseDialog(e) {
-		
+
 		this.policyPauseReason = e.detail.reason;
-		
+
 		this.funeralPolicyPauseInfo = await this.fetchBenefitDetails(this.selectedPolicyItem.contractReference, this.selectedPolicyItem.productCode);
 		this.showPolicyPauseDialog = false;
 		this.showConfirmPolicyPauseDialog = true;
-			
+
 	}
 
 
@@ -905,11 +909,11 @@ class ClientSummary extends Component {
 		return false;
 	}
 
-/**
- * opens the Update ID/DoB dialog
- * @param {Object} policyItem The policy item.
- * @returns {void}
- */
+	/**
+	 * opens the Update ID/DoB dialog
+	 * @param {Object} policyItem The policy item.
+	 * @returns {void}
+	 */
 	_openUpdateIdDobDialog(policyItem) {
 		this.showUpdateIdDobDialog = true;
 		this.selectedPolicyItem = policyItem;
@@ -926,15 +930,20 @@ class ClientSummary extends Component {
 		this.showNewbornPremiumWaiverDialog = true;
 	}
 
-		/**
-	 * Life Newborn open dialog event handler for life cover
-	 * @param {Object} policyItem policyItem
-	 * @returns {void}
-	 */
-		_openLifeNewBornPremiumWaiverDialog(policyItem) {
-			this.selectedPolicyItem = policyItem;
-			this.showLifeNewbornPremiumWaiverDialog = true;
-		}
+	/**
+ * Life Newborn open dialog event handler for life cover
+ * @param {Object} policyItem policyItem
+ * @returns {void}
+ */
+	_openLifeNewBornPremiumWaiverDialog(policyItem) {
+		this.selectedPolicyItem = policyItem;
+		this.showLifeNewbornPremiumWaiverDialog = true;
+	}
+
+	_openLifeNewbornPremiumWaiverReason(policyItem) {
+		this.selectedPolicyItem = policyItem;
+		this.showLifeNewbornPremiumWaiverReasonDialog = true;
+	}
 
 	/**
 	 * Newborn dialog close event handler
@@ -947,7 +956,7 @@ class ClientSummary extends Component {
 			this.showBenefitSuccessToast = true;
 		}
 		this.showNewbornPremiumWaiverDialog = false;
-		
+
 
 	}
 
@@ -964,11 +973,24 @@ class ClientSummary extends Component {
 		this.showLifeNewbornPremiumWaiverDialog = false;
 	}
 
+	/** *
+	 * Waiver reason dialog close event handler for life
+	 * @param {event} e e
+	 * @returns {void}
+	 */
+	_closeLifeNewbornPremiumWaiverReasonDialog(e) {
+		if (!isNullorEmpty(e.detail.successMessage)) {
+			this.benefitSuccessMessage = e.detail.successMessage;
+			this.showBenefitSuccessToast = true;
+		}
+		this.showLifeNewbornPremiumWaiverReasonDialog = false;
+	}
+
 	_startBenefitToastTimer() {
 		window.setTimeout(() => this.showBenefitSuccessToast = false, 3000);
 	}
 
-	_closePolicyPauseDialog (e) {
+	_closePolicyPauseDialog(e) {
 		if (!isNullorEmpty(e.detail.successMessage)) {
 			this.benefitSuccessMessage = e.detail.successMessage
 			this.showBenefitSuccessToast = true;
@@ -978,15 +1000,15 @@ class ClientSummary extends Component {
 
 	}
 
-	_closePolicyPauseConfirmDialog (e) {
+	_closePolicyPauseConfirmDialog(e) {
 		if (!isNullorEmpty(e.detail.successMessage)) {
 			this.benefitSuccessMessage = e.detail.successMessage
 			this.showBenefitSuccessToast = true;
 			this.showBenefitEmailDialog = true
 			this.dispatchEvent(new CustomEvent(`refresh-funeral-policies`, { detail: {} }));
-		} 
+		}
 		this.showConfirmPolicyPauseDialog = false;
-		
+
 	}
 
 	_sendFuneralBenefitEmail(emailAddress) {
@@ -1005,7 +1027,7 @@ class ClientSummary extends Component {
 			contractReference: policy.contractReference,
 			idNumber: "",
 			accountNumber: policy.deductionDetails.bankDetails.accountNumber
-		  }
+		}
 
 		let response = await this.executeFuneralCreateMandate(request);
 
@@ -1025,7 +1047,7 @@ class ClientSummary extends Component {
 		this.selectedPolicyItem = policy;
 		this.showGenerateNewAgreementDialog = true;
 
-		
+
 	}
 
 	_goToPolicyHistory(policy) {
@@ -1181,48 +1203,68 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * Determine which options to show
-	 * @param {object} policyItem - each policy item
-	 * @returns {void}
-	 */
+   * Determine which options to show
+   * @param {object} policyItem - each policy item
+   * @returns {void}
+   */
 	_calculateFuneralOverflowOptions(policyItem) {
 		policyItem.showOptions = [];
-
+		policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
 		if (policyItem.canReinstate) {
-			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
+			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
+		} else if (
+			policyItem.canReinstate == false &&
+			(policyItem.status === "Cancelled" ||
+				policyItem.status === "Lapsed" ||
+				policyItem.status === "OutOfForce" ||
+				policyItem.status === "NotTakenUp") &&
+			this.isInsureAdministrator
+		) {
 			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
 		} else {
-			policyItem.showOptions.push(POLICY_OPTIONS.EMAIL_PLAN);
-
-			if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
+			if (
+				policyItem.status === `Active` ||
+				policyItem.status === `PendingInForce`
+			) {
 				if (policyItem.arrearDetails?.outstandingAmount > 0) {
 					policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
 				}
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);			
+				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
 			}
 		}
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
-		
-		policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
 
-		const vppBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
-		if ((vppBenefit?.available || vppBenefit?.isBenefitActive) && policyItem.status === `Active`) {
-		policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
+		let vppBenefit = policyItem.benefits?.find(
+			(benefit) =>
+				benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE
+		);
+		if (
+			(vppBenefit?.available || vppBenefit?.isBenefitActive) &&
+			policyItem.status === `Active`
+		) {
+			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
 
-		const newBornBenefit = policyItem.benefits?.find(benefit => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
-		if ((newBornBenefit?.available || newBornBenefit?.isBenefitActive) && policyItem.status === `Active`) {
+		let newBornBenefit = policyItem.benefits?.find(
+			(benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN
+		);
+		if (
+			(newBornBenefit?.available || newBornBenefit?.isBenefitActive) &&
+			policyItem.status === `Active`
+		) {
 			policyItem.showOptions.push(POLICY_OPTIONS.NEW_BORN_WAIVER);
 		}
 
 		if (this.isInsureAdministrator) {
-			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT)
-			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE)
+			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT);
+			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE);
+			if (policyItem.status === "Active" || policyItem.status === "PendingInForce")
+				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
 			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
-		}else if(this.isInsureAgent){
+		} else if (this.isInsureAgent) {
 			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		}
 	}
@@ -1233,12 +1275,12 @@ class ClientSummary extends Component {
 	 * @returns {bool} is feature enabled
 	 */
 	_featureEnabled(featureToCheck) {
-		if(this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
+		if (this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
 			return true;
 		}
-		
+
 		const featureDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === featureToCheck.toUpperCase());
-		if(featureDetails === undefined) {
+		if (featureDetails === undefined) {
 			return false;
 		}
 		return featureDetails.enabled;
@@ -1258,7 +1300,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				.disabled="${this.isInsureAgent || this.isInsureAdministrator || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
+				.disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -1331,7 +1373,7 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureAdministrator || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1379,14 +1421,14 @@ class ClientSummary extends Component {
 					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}"
-					.disabled="${this.isInsureAgent || this.isInsureAdministrator || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || !this._featureEnabled(FEATURE_TOGGLES.ActivatePolicyPause)}">
-					</capitec-overflow-menu-item>`
+					.disabled="${this.isInsureAgent || this.isInsureAdministrator || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || (policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? !this._featureEnabled(FEATURE_TOGGLES.CancelPolicyPause) : !this._featureEnabled(FEATURE_TOGGLES.ActivatePolicyPause))}">
+				</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.NEW_BORN_WAIVER:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openNewBornPremiumWaiverDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? ` Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}"
-					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) || !this._featureEnabled(FEATURE_TOGGLES.ActivateNewBorn) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER}">
+					.disabled="${(!this.isInsureAdministrator && policyItem.policyRule === FUN_POLICY_RULES.STANDARD) || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || ((this.isInsureAdministrator || this.isInsureAgent) && policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER) || (policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER ? !this._featureEnabled(FEATURE_TOGGLES.CancelNewBorn) : !this._featureEnabled(FEATURE_TOGGLES.ActivateNewBorn)) || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.GENERATE_AGREEMENT:
 				return html`<capitec-overflow-menu-item icon="system/documents-action"
@@ -1959,6 +2001,7 @@ class ClientSummary extends Component {
 			${this._renderLifeIncreaseCoverUnavailable()}
 			${this._renderFuneralNewbornPremiumWaiverDialog()}
 			${this._renderLifeNewbornPremiumWaiverDialog()}
+			${this._renderLifeNewbornPremiumReasonDialog()}
 			${this._renderEmailBenefitDialog()}
 			${this._renderGenerateNewAgreementDialog()}
 
@@ -2079,7 +2122,7 @@ class ClientSummary extends Component {
 	 * @returns {html} html
 	 */
 	_renderGetFuneralEstimateButton() {
-		if(!this._featureEnabled("Estimate")) {
+		if (!this._featureEnabled("Estimate")) {
 			return html``
 		}
 
@@ -2348,7 +2391,7 @@ class ClientSummary extends Component {
 						<horizon-label
 							label="Status"
 							class = "${determineLifeStatusColour(activeLifePolicy?.policyStatusEnum)}"
-							value= "${activeLifePolicy?.displayPolicyStatus}">
+							value= "${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING ? `Lapse Pending` : activeLifePolicy?.displayPolicyStatus}">
 						</horizon-label>
 					</div>
 
@@ -2365,10 +2408,6 @@ class ClientSummary extends Component {
 				: html``
 			}
 			
-			<!-- Hidden for now ${(activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`) && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
-				: html``
-			} -->
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -2376,7 +2415,7 @@ class ClientSummary extends Component {
 			}
 
 					${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy.benefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE}"@click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -2388,9 +2427,9 @@ class ClientSummary extends Component {
 						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 						
 					${this.isInsureAdministrator && activeLifePolicy.newBornPremiumWaiverAvailable
-        				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy.benefit.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewBornPremiumWaiverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-						: html``
-					}
+				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewBornPremiumWaiverDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 					</capitec-overflow-menu>
 				</div>
 			</capitec-card>
@@ -2537,10 +2576,9 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							<!-- Hidden for now
 							 ${!this.isInsureAgent && !this.isInsureAdministrator && pol.canReIssue === true ? html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							` : html``} -->
+							` : html``}
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
@@ -3033,7 +3071,7 @@ class ClientSummary extends Component {
 	 */
 	_renderPolicyPauseSuccessAlert() {
 		return this.funeralPolicyPauseSuccess === false ? html``
-		: html`
+			: html`
 			<capitec-toast
 				class="toast"
 				type="success"
@@ -3045,14 +3083,14 @@ class ClientSummary extends Component {
 			${this._startPolicyPauseToastTimer()}
 		`;
 	}
-	
+
 	/**
 		* Renders the Benefit alert
 	 * @returns {html} html content
 	 */
 	_renderBenefitSuccessAlert() {
 		return this.showBenefitSuccessToast === false ? html``
-		: html`
+			: html`
 			<capitec-toast
 				class="toast"
 				type="success"
@@ -3123,7 +3161,7 @@ class ClientSummary extends Component {
 				</horizon-insure-email-dialog>
 			`;
 	}
-	
+
 	/**
 	 *  Render dialog for Voluntary policy pause
 	 * @returns {void}
@@ -3178,7 +3216,7 @@ class ClientSummary extends Component {
 	 */
 	_renderFuneralUpdateIdDobDialog() {
 		return this.showUpdateIdDobDialog === false ? html``
-		: html`
+			: html`
 			<horizon-insure-update-id-dob-dialog
 				.policy="${this.selectedPolicyItem}"
 				.executeUpdateIdDoB="${(policy, updatedLife) => this.executeFuneralUpdateIdDoB(policy, updatedLife)}" 
@@ -3221,13 +3259,30 @@ class ClientSummary extends Component {
 				</horizon-insure-life-newborn-premium-waiver-dialog>
 			`;
 	}
-	
+
+	/**
+	 * Render dialog for Life Newborn premium waiver
+	 * @returns {void}
+	 */
+	_renderLifeNewbornPremiumReasonDialog() {
+		return this.showLifeNewbornPremiumWaiverReasonDialog === false ? html`` 
+		: html`
+			<horizon-insure-life-newborn-premium-waiver-reason-dialog
+				.policy="${this.selectedPolicyItem}"
+				.executeLifeActivateBenefit="${(activationReason, benefitType, policy) => this.executeLifeActivateBenefit(activationReason, benefitType, policy)}"
+				.executeLifeCancelBenefit="${(policy) => this.executeLifeCancelBenefit(policy)}"
+				.fetchLifeBenefitDetails="${(contractRef) => this.fetchLifeBenefitDetails(contractRef)}"
+				@close-modal="${(e) => this._closeLifeNewbornPremiumWaiverReasonDialog(e)}">
+			</horizon-insure-life-newborn-premium-waiver-reason-dialog>
+		`;
+	}
+
 	/**
 	 * Render dialog for emailing the funeral benefit document
 	 * @returns {void}
 	 */
 	_renderEmailBenefitDialog() {
-		return this.showBenefitEmailDialog === false ? html`` 
+		return this.showBenefitEmailDialog === false ? html``
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Benefit Note`}"
@@ -3241,8 +3296,8 @@ class ClientSummary extends Component {
 	 * 
 	 */
 	_renderGenerateNewAgreementDialog() {
-		return this.showGenerateNewAgreementDialog === false ? html`` 
-		:html `
+		return this.showGenerateNewAgreementDialog === false ? html``
+			: html`
 			<horizon-insure-funeral-generate-new-agreement-dialog 
 				.policy="${this.selectedPolicyItem}"
 				.fetchPolicyRescheduleDocumentDetails="${(policy, saveDocument) => this.fetchPolicyRescheduleDocumentDetails(policy, saveDocument)}"
@@ -3250,15 +3305,15 @@ class ClientSummary extends Component {
 				@close-modal ="${() => this.showGenerateNewAgreementDialog = false}">
 			</horizon-insure-funeral-generate-new-agreement-dialog>
 		`
-		
+
 	}
 
 	/**
 		* Renders the create mandate alert
 	 * @returns {html} html content
 	 */
-		_renderCreateMandateSuccessAlert() {
-			return this.showCreateMandateSuccessToast === false ? html``
+	_renderCreateMandateSuccessAlert() {
+		return this.showCreateMandateSuccessToast === false ? html``
 			: html`
 				<capitec-toast
 					class="toast"
@@ -3270,7 +3325,7 @@ class ClientSummary extends Component {
 				</capitec-toast>
 				${this._startCreateMandateToastTimer()}
 		`;
-		}
+	}
 
 	// #endregion RENDERING
 }

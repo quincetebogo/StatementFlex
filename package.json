@@ -1,6 +1,6 @@
 {
 	"name": "ocwpexample",
-	"version": "3.4.0",
+	"version": "3.6.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -55,6 +55,7 @@
 		"helmet-csp": "3.3.1",
 		"html-webpack-plugin": "5.3.2",
 		"mini-css-extract-plugin": "2.2.0",
+		"ocwpexample": "file:",
 		"prismjs": "1.23.0",
 		"style-loader": "3.2.1",
 		"terser-webpack-plugin": "5.2.5",

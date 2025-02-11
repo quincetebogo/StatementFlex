@@ -39,9 +39,9 @@ export class TapToPaySuccess extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 
-		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayStatus;
-		this.cardMaskedNumber = screenDetails.tapToPayDetails.cardMaskedNumber;
-		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
+		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayUpdate.tapToPayStatus;
+		this.cardMaskedNumber = screenDetails.tapToPayDetails.tapToPayUpdate.cardDetails.MaskedCardNumber;
+		this.cardType = screenDetails.tapToPayDetails.tapToPayUpdate.cardDetails.cardDisplayName === `Debit card` ? `debit` : `credit`;
 		this._updateIncidentState();
 	}
 

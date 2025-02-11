@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE} from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatDateToInsure, isValidRSAIdNumber, getDobFromIDNumber } from 'app/utils/insureUtils';
@@ -52,14 +52,15 @@ class UpdateIdDobDialog extends Component {
 			lifeSelected: { type: Boolean, state: true },
 			nextClicked: { type: Boolean, state: true },
 			idErrorMessage: { type: String, state: true },
-			detailsChanged : { type: Boolean, state: true },
-			lifeUpdated : { type: Boolean, state: true },
-			executeUpdateIdDoB : { type: Object, state: true },
-			showAgreement : { type: Boolean, state: true },
-			documentDetails : { type: Object, state: true },
-			showEmailDialog : { type: Boolean, state: true },
-			sendUpdateIdDobEmail : { type: Object, state: true },
-			emailOnPolicy: { type: String, state: true }
+			detailsChanged: { type: Boolean, state: true },
+			lifeUpdated: { type: Boolean, state: true },
+			executeUpdateIdDoB: { type: Object, state: true },
+			showAgreement: { type: Boolean, state: true },
+			documentDetails: { type: Object, state: true },
+			showEmailDialog: { type: Boolean, state: true },
+			sendUpdateIdDobEmail: { type: Object, state: true },
+			emailOnPolicy: { type: String, state: true },
+			validRoleplayers: { type: Array, state: true }
 		};
 	}
 
@@ -73,7 +74,8 @@ class UpdateIdDobDialog extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		
+		this._initialise();
+
 	}
 
 	async disconnectedCallback() {
@@ -81,6 +83,14 @@ class UpdateIdDobDialog extends Component {
 	}
 
 	//  #endregion LIFECYCLE OVERRIDES
+
+	//  region INITIALIZATION
+
+	_initialise() {
+		this.validRoleplayers = this.policy?.roleplayers.filter(life => life.lifeAssured === true && life.relationship !== 'MainLife');
+	}
+
+	//  endregion INITIALIZATION
 
 	//  #region EVENT HANDLERS
 
@@ -90,7 +100,7 @@ class UpdateIdDobDialog extends Component {
 	 * @returns {void} 
 	 */
 	_cancelClick() {
-		
+
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
@@ -115,14 +125,14 @@ class UpdateIdDobDialog extends Component {
 	 */
 	_emailClick() {
 		let mainlife = this.policy.roleplayers.find(life => life.relationship === 'MainLife');
-		this.emailOnPolicy = mainlife.email;
+		this.emailOnPolicy = mainlife?.email;
 		this.showEmailDialog = true;
 	}
 
 	/**
 	 * confirm event from dialog footer button, kicks off the update process and switches view if successful
 	 */
-	async _confirmClick(){
+	async _confirmClick() {
 		const response = await this.executeUpdateIdDoB(this.policy, this.selectedLife);
 
 		if (response !== false) {
@@ -159,7 +169,7 @@ class UpdateIdDobDialog extends Component {
 
 		if (e.detail.new.length === 13) {
 			const isValid = isValidRSAIdNumber(e.detail.new);
-			
+
 			if (isValid) {
 				this.selectedLife.idNumber = e.detail.new;
 				this.selectedLife.dateOfBirth = getDobFromIDNumber(this.selectedLife.idNumber)
@@ -168,7 +178,7 @@ class UpdateIdDobDialog extends Component {
 			} else {
 				this.idErrorMessage = `ID number is Invalid`;
 			}
-			
+
 		}
 		this.requestUpdate()
 	}
@@ -197,8 +207,8 @@ class UpdateIdDobDialog extends Component {
 				productCode: this.policy.productCode
 			}
 		}
-		
-	await this.sendUpdateIdDobEmail(emailPayload);
+
+		await this.sendUpdateIdDobEmail(emailPayload);
 
 
 	}
@@ -311,20 +321,21 @@ class UpdateIdDobDialog extends Component {
 				${this.nextClicked === false ? html`
 					<capitec-content-box class="life-assured-list">
 						<capitec-radio-group>
-								${this.policy.roleplayers.map((life) => html`
-									${life.lifeAssured === false || life.relationship === 'MainLife'? html``
-									: html`
-										<capitec-card class="life-assured-card">
-											<capitec-radio label="${life.firstName} ${life.surname}"
-												@value-changed= "${(e) => this._selectLife(life, e)}">
-											</capitec-radio>
-										</capitec-card>
-									`}
-								`)}
+						${this.validRoleplayers.length >= 1 ? html`
+							${this.validRoleplayers.map((life) => html`
+								<capitec-card class="life-assured-card">
+									<capitec-radio label="${life.firstName} ${life.surname}"
+										@value-changed= "${(e) => this._selectLife(life, e)}">
+									</capitec-radio>
+								</capitec-card>
+							`)}
+						` : html`
+							<capitec-label type="subtitle" label="There are no lives assureds on this policy.">
+						`}
 						</capitec-radio-group>
 					</capitec-content-box>
-				` 
-				: html`
+				`
+					: html`
 					<capitec-text-field label="ID" style="padding-bottom: 15px" 
 						value="${this.selectedLife?.idNumber}"
 						type="numeric"
@@ -344,8 +355,8 @@ class UpdateIdDobDialog extends Component {
 						@value-change="${(e) => this._dobChange(e)}">
 					</capitec-date-time-picker>
 				`}
-			` 
-			: html`
+			`
+				: html`
 				<capitec-label style="padding-top: 15px" type="subtitle" label="Would you like to email the client a copy of the agreement?"> 
 				</capitec-label>
 
@@ -387,8 +398,8 @@ class UpdateIdDobDialog extends Component {
 						.disabled="${!this.detailsChanged}">
 					</capitec-button>
 				`}
-			` 
-			: html`
+			`
+				: html`
 				<capitec-button class="button" slot="footer" type="secondary" label="Cancel"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>
@@ -404,8 +415,8 @@ class UpdateIdDobDialog extends Component {
 	}
 
 	_renderAgreementDialog() {
-		return this.showAgreement === false ? html`` 
-		: html` 
+		return this.showAgreement === false ? html``
+			: html` 
 			<horizon-insure-agreement-dialog
 				.agreementContent="${this.documentDetails.documentContent.value}"
 				@back-click="${() => this._closeAgreementDialog()}">
@@ -413,9 +424,9 @@ class UpdateIdDobDialog extends Component {
 		`
 	}
 
-	_renderEmailDialog() { 
-		return this.showEmailDialog === false ? html`` 
-		: html`
+	_renderEmailDialog() {
+		return this.showEmailDialog === false ? html``
+			: html`
 			<horizon-insure-email-dialog 
 				.contractReference = "${this.policy.contractReference}" 
 				.titleMessage = "${"Email Agreement"}"

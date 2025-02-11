@@ -456,7 +456,7 @@ class LifePolicySummary extends Component {
 					`}
 					<horizon-label
 						label="Status"
-						value="${this.selectedLifePolicy?.displayPolicyStatus}"
+						value="${this.selectedLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING ? `Lapse Pending` : this.selectedLifePolicy?.displayPolicyStatus}"
 						class="column-width-200 ${determineLifeStatusColour(this.selectedLifePolicy?.policyStatusEnum)}">
 					</horizon-label>
 				</capitec-group>
