@@ -9,7 +9,7 @@ import 'app/components/product/CnetProductInfo';
 const CONFIG = {
 	SavingsAccount: {
 		type: `transact`,
-		header: `Savings Account`,
+		header: `Main Account`,
 		product: `savings-product-info`
 	},
 	SavingsPlan: {
@@ -50,7 +50,7 @@ export class ProductInformation extends ViewBase {
 
 	constructor() {
 		super();
-		
+
 		this._config = {};
 
 		this.navigationContext = NavigationContext.getInstance();
@@ -112,9 +112,9 @@ export class ProductInformation extends ViewBase {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 			productUrl = `${globalOneUrl}${this._config.type}`;
 		}
-		
+
 		window.open(`${productUrl}/`);
-		
+
 		this._updateIncidentState();
 	}
 
@@ -126,13 +126,13 @@ export class ProductInformation extends ViewBase {
 	_navigationContextUpdate() {
 		const currRoute = this.navigationContext.current;
 		const type = currRoute.queryParams && currRoute.queryParams.type;
-		
+
 		this._config = CONFIG[type];
 	}
 
 	async _initialise() {
 		this._navigationContextUpdate();
-		
+
 		if (this._config) {
 			await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
 			await super.createAndClassifySubIncident(null, false);

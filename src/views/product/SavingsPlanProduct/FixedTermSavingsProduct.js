@@ -126,10 +126,10 @@ export class FixedTermSavingsProduct extends View {
 							The benefits of our fixed-term savings plans:
 						</p>
 						<ul class="list-items">
-							<li>Reinvest the interest or transfer it to your main savings account</li>
+							<li>Reinvest the interest or transfer it to your main account</li>
 							<li>Interest rate fixed for the full term</li>
 							<li>Money available on the maturity date</li>
-							<li>After maturity, the account becomes a flexible savings plan, which you can refix</li>
+							<li>After maturity, the account becomes an access anytime plan, which you can refix</li>
 							<li>No monthly admin fee</li>
 						</ul>
 					</capitec-content-box>
