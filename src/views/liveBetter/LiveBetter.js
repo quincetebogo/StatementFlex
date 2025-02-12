@@ -51,7 +51,7 @@ const TRAN_CODES = [6447, 6448];
  * @extends {SavingsAccountBase}
  */
 export class LiveBetter extends SavingsAccountBase {
-	
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -63,7 +63,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.updateAutomaticSavings = false;
-	
+
 		// private properites
 		this.loading = true;
 		this.executed = false;
@@ -71,7 +71,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.journalNumber = `00000`;
 		this.transactionHistory = [];
 		this.automaticSavingsDetails = {};
-		
+
 		this.liveBetterService = new LiveBetterService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
@@ -80,14 +80,14 @@ export class LiveBetter extends SavingsAccountBase {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	
+
 	connectedCallback() {
 		super.connectedCallback();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this._initialise();
-		
+
 		this._optionClick = async (option) => {
 
 			const accountDetails = () => this._accountDetails();
@@ -96,7 +96,7 @@ export class LiveBetter extends SavingsAccountBase {
 			const automaticSavings = () => this._automaticSavings();
 			const productEnquiry = () => this._productEnquiry();
 			const partnerBenefits = () => this._partnerBenefits();
-	
+
 			const actions = {
 				'lbb-account-enquiry': accountDetails,
 				'transaction-history-lbb': transactionHistory,
@@ -105,7 +105,7 @@ export class LiveBetter extends SavingsAccountBase {
 				'product-enquiry': productEnquiry,
 				'partner-benefits': partnerBenefits
 			};
-	
+
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
 				return actions[option]();
@@ -132,7 +132,7 @@ export class LiveBetter extends SavingsAccountBase {
 			landingPageInfo: { state: true }
 		};
 	}
-	
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -200,10 +200,10 @@ export class LiveBetter extends SavingsAccountBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.landingPageInfo = screenDetails.LBSADetails;
-		
+
 		this._setIncidentNotstarted();
 		this._deepCopyProperty();
-		
+
 		this.automaticSavingsDetails = {};
 		this.updateAutomaticSavings = false;
 	}
@@ -219,9 +219,9 @@ export class LiveBetter extends SavingsAccountBase {
 		const result = await this.liveBetterService.liveBetterTransactionHistory(request, () => true);
 		return result;
 	}
-	
+
 	_linkedTransactionClick(transactionDetails, formatedAmount) {
-		
+
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_VIEW_LINKED_TRANSACTIONS, {
 			"screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY,
 			"next-screen": TelemetryScreen.LIVE_BETTER_LINKED_TRANSACTIONS
@@ -232,10 +232,10 @@ export class LiveBetter extends SavingsAccountBase {
 
 		this.renderMode = RENDER_MODE.LINKED_TRANSACTION_DETAILS;
 	}
-	
+
 	async _getLinkedransactionDetails(item) {
 
-		var formattedDate = formatDate(item.postingDate, ISO_8601_DATE_FORMAT);
+		const formattedDate = formatDate(item.postingDate, ISO_8601_DATE_FORMAT);
 
 		let linkedTransactions = [];
 		const transactionHistoryRequest = {
@@ -249,21 +249,22 @@ export class LiveBetter extends SavingsAccountBase {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_INFO, {
 			'journal-no': this.journalNumber
 		});
-			
+
 		if (returnValue.succeeded && returnValue.result) {
 			linkedTransactions = returnValue.result.linkedTransactions;
 		}
 		return linkedTransactions;
 	}
-	
+
 	// Function that gets triggered on changing values for those set as properties ( eg: "journalNumber", "transactionHistory" ).
-	async updated(changedProperties) {
+	updated(changedProperties) {
 
 		const journalNumber = Boolean(changedProperties.get(`journalNumber`));
-	
+
 		if (journalNumber) {
 			const expandedItem = this.transactionHistory.find(item => item.journalNumber === this.journalNumber);
-			expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
+			// CSCEH-11340: Temporarily disabled LBB linked transactions
+			// expandedItem.linkedTransactionDetails = await this._getLinkedransactionDetails(expandedItem);
 			this.requestUpdate();
 		}
 	}
@@ -305,11 +306,11 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": returnValue.succeeded ? TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_SUCCESS : TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS_FAILURE
 		});
 
-		
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.updatedLBSADetails = updatedDetails;
 		this.horizonStore.setScreenDetails(screenDetails);
-	
+
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToAutomaticSavingsSuccess();
 		} else {
@@ -337,7 +338,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 		this._setIncidentDone();
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -349,32 +350,32 @@ export class LiveBetter extends SavingsAccountBase {
 	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		
+
 		if (this.verificationStatus === `verified`) {
 
 			const clientDetails = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"GetGenericData": true,
 				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
-			  };
+			};
 
 			const returnValue = await this.liveBetterService.liveBetterLanding(clientDetails);
 
 			if (returnValue.succeeded && returnValue.result) {
-			
+
 				// Navigate to Live better verified landing page if a client has Live better account 
 				this._telemetry.startSpan(LiveBetterEvents.LIVE_BETTER, {
 					"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 					"liveBetter": true
 				});
 
-			// Live better landing page service call should come here - Data is mocked as below temporarily
+				// Live better landing page service call should come here - Data is mocked as below temporarily
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
 
 				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
 				await super.createAndClassifySubIncident(null, false);
-				
+
 				// setting inc status to not started for landing page needs
 				this._setIncidentNotstarted();
 
@@ -383,9 +384,9 @@ export class LiveBetter extends SavingsAccountBase {
 				// Navigate to Live better non-client page if a client is not registered with Live better account
 				this.horizonRouter.navigateToProductInfo(`LiveBetter`);
 			}
-			
+
 		}
-		
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.endCallContext = `LandingPage`;
 		this.loading = false;
@@ -426,24 +427,25 @@ export class LiveBetter extends SavingsAccountBase {
 
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions
-									.map((item) => {
-										const date = new Date(Date.parse(item.transactionDate));
-							
-										item.tranDate = date;
-										item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-										item.formatedAmount = formatCurrency(item.amount);
-										item.formatedBalance = formatCurrency(item.balance);
-										item.description = item.statementDescription;
-										item.getBreakdownDetails = TRAN_CODES.includes(item.transactionCode);
+				.map((item) => {
+					const date = new Date(Date.parse(item.transactionDate));
 
-										// Below condition check is specific to date filter case. We reassigning the linked transaction expanded previously 
-										// to the new set if it has matching journal number
-										if (item.journalNumber === this.journalNumber) {
-											item.linkedTransactionDetails = this.linkedTransactionDetails;
-										}
-							
-										return item;
-									});
+					item.tranDate = date;
+					item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+					item.formatedAmount = formatCurrency(item.amount);
+					item.formatedBalance = formatCurrency(item.balance);
+					item.description = item.statementDescription;
+					item.getBreakdownDetails = TRAN_CODES.includes(item.transactionCode);
+
+					// Below condition check is specific to date filter case. We reassigning the linked transaction expanded previously 
+					// to the new set if it has matching journal number
+					// CSCEH-11340: Temporarily disabled LBB linked transactions
+					// if (item.journalNumber === this.journalNumber) {
+					// item.linkedTransactionDetails = this.linkedTransactionDetails;
+					// }
+
+					return item;
+				});
 			this.transactionHistory.push(...formattedTrans);
 			this.accountDetails = {
 				"Account number": this.landingPageInfo.accountNumber,
@@ -504,7 +506,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.partner-benefits`);
 		window.open(`${globalOneUrl}`);
 	}
-	
+
 	async _getClientProducts() {
 		const request = {
 			cifNumber: this.callerInformation.cifNumber,
@@ -545,7 +547,7 @@ export class LiveBetter extends SavingsAccountBase {
 			"activatedRoundUpAccounts": this.landingPageInfo.activatedRoundUpAccounts,
 			"activatedRoundUpAccountNums": this.landingPageInfo.activatedRoundUpAccounts.map(item => item.accountNumber),
 			"accountInterestSweepActive": this.landingPageInfo.accountInterestSweepActive,
-			
+
 			// Following properties are used to detect toggel change from lbb landing screen
 			"actualRoundUpStatus": this.landingPageInfo.accountRoundUpActive,
 			"actualInterestSweepStatus": this.landingPageInfo.accountInterestSweepActive
@@ -559,7 +561,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 	async _setTranHistoryDone() {
 		await super.classifyIncident(() => this._toggleBusyFlag());
-		
+
 		this._setIncidentDone();
 	}
 
@@ -605,7 +607,7 @@ export class LiveBetter extends SavingsAccountBase {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.STATEMENTS:
-				return !this.loading 
+				return !this.loading
 					? html`
 						${this._renderLiveBetterVerifiedLandingPage()}
 						${this._renderLiveBetterUnverifiedLandingPage()}`
@@ -617,10 +619,10 @@ export class LiveBetter extends SavingsAccountBase {
 		}
 	}
 
-	_renderLiveBetterVerifiedLandingPage() { 
+	_renderLiveBetterVerifiedLandingPage() {
 
 		return this.verificationStatus === `verified` ||
-			   this.updateAutomaticSavings
+			this.updateAutomaticSavings
 			? html`
 				<capitec-pc-live-better-savings
 					class="liveBetter"
@@ -634,7 +636,7 @@ export class LiveBetter extends SavingsAccountBase {
 					@interest-sweep="${(event) => this._toggleInterestSweep(event)}">
 				</capitec-pc-live-better-savings>`
 			: html``;
-		}
+	}
 
 	_renderLiveBetterUnverifiedLandingPage() {
 		return this.verificationStatus === `unverified`
@@ -649,7 +651,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 	_renderAccountDetails() {
 		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS ||
-			   this.updateAutomaticSavings
+			this.updateAutomaticSavings
 			? html`
 				<capitec-pc-live-better-account-details
 					.accountDetails = "${this.landingPageInfo}"
@@ -825,10 +827,10 @@ export class LiveBetter extends SavingsAccountBase {
 					</horizon-label>
 				</capitec-group>
 
-				${item.getBreakdownDetails
-					? html`${this._renderBreakdown(item)}`
-					: html``
-				}
+				${false /* item.getBreakdownDetails <CSCEH-11340: Temporarily disabled LBB linked transactions> */
+				? html`${this._renderBreakdown(item)}`
+				: html``
+			}
 			</capitec-content-box>`;
 	}
 
@@ -882,7 +884,7 @@ export class LiveBetter extends SavingsAccountBase {
 					</capitec-group>
 			</capitec-card>`;
 	}
-	
+
 	_renderLinkedTransactionDetailsModal() {
 		return this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
 			? html`
@@ -890,12 +892,12 @@ export class LiveBetter extends SavingsAccountBase {
 					.transactionDetails = "${this.selectedLinkedTransaction}"
 					@on-loading="${() => this._telemetry.startSpan(TRANSACTION_ENQUIRY_EVENTS.LINKED_TRANSACTIONS_DETAILS, {})}"
 					@on-close = "${() => this._closeLinkedTransView()}">
-				</horizon-linked-transaction-details>` 
+				</horizon-linked-transaction-details>`
 			: html``;
 	}
 
 	_renderAutomaticSavings() {
-		return this.updateAutomaticSavings 
+		return this.updateAutomaticSavings
 			? html`
 				<horizon-manage-automatic-savings
 					.automaticSavingsDetails = "${this.automaticSavingsDetails}"
