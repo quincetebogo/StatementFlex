@@ -705,7 +705,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label
               type="strong"
               label="${getValue(item.deviceOrderResponse?.result.products[0]
-				.productShortDescription)}"
+				  .productShortDescription)}"
             ></capitec-label>
           </div>
 
@@ -721,13 +721,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.imeiNumber)} "
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.imeiNumber) !== `-`
-					? html`<capitec-icon
+				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-					: ``}
+				: ``}
             </div>
           </div>
 
@@ -743,13 +743,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.imeiNumber2)}"
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.imeiNumber2) !== `-`
-					? html`<capitec-icon
+				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber2))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-					: ``}
+				: ``}
             </div>
           </div>
 
@@ -778,11 +778,23 @@ export class CapitecConnectAgentDevices extends ViewBase {
           </div>
 
           <div column="3" row="2">
-            <capitec-label label="Account Number"></capitec-label>
-            <capitec-label
-              type="strong"
-              label="${getValue(item.deviceOrderResponse?.result.accountNumber)}"
-            ></capitec-label>
+            <div
+              column="2"
+              row="3"
+              style="display: flex; align-items: center; gap: 4px;"
+            >
+              <capitec-label label="Account Number"></capitec-label>
+              <capitec-label
+                type="strong"
+                label="${getValue(item.deviceOrderResponse?.result.accountNumber)}"
+              ></capitec-label>
+              <capitec-icon
+                size="small"
+                icon="system/notes-action"
+                @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.accountNumber))}"
+                style="cursor: pointer;"
+              ></capitec-icon>
+            </div>
           </div>
 
           <div column="1" row="3">
@@ -797,14 +809,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 label="${getValue(item.deviceOrderResponse?.result.courierTracking)}"
               ></capitec-label>
               ${getValue(item.deviceOrderResponse?.result.courierTracking) !==
-					`-`
-					? html`<capitec-icon
+				`-`
+				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
                     @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.courierTracking))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
-					: ``}
+				: ``}
             </div>
           </div>
 
@@ -826,38 +838,38 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
           <div row="4" column="1" colspan="4">
             ${showInvoiceButton || showCancelButton
-					? html` <div
+				? html` <div
                   style="padding-top:10px; display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
                 >
                   ${showInvoiceButton
-							? html`
+					? html`
                         <capitec-hyperlink
                           style="--theme-hyperlink-color: #009DE0;"
                           label="View Invoice"
                           @click="${() => {
-									this.currentOrderId = item?.orderNumber;
-									this.isInvoiceModalVisible = true;
-								}}"
+						this.currentOrderId = item?.orderNumber;
+						this.isInvoiceModalVisible = true;
+					}}"
                         >
                         </capitec-hyperlink>
                       `
-							: ``}
+					: ``}
                   ${showCancelButton
-							? html`
+					? html`
                         <capitec-hyperlink
                           style="--theme-hyperlink-color: #009DE0;"
                           label="Cancel"
                           @click="${() => {
-									this.currentOrder = item;
-									this.currentOrderId = item?.orderNumber;
-									this.isCancelOrderModalVisible = true;
-								}}"
+						this.currentOrder = item;
+						this.currentOrderId = item?.orderNumber;
+						this.isCancelOrderModalVisible = true;
+					}}"
                         >
                         </capitec-hyperlink>
                       `
-							: ``}
-                </div>`
 					: ``}
+                </div>`
+				: ``}
           </div>
         </capitec-group>
       `;
