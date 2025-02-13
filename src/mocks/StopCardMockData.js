@@ -1,208 +1,96 @@
 
 export const stopCardMockResponse = {
-	instruction: ``,
-	cards: [
+	"cards": [
 		{
-			cardNumber: `4000000000000060`,
-			maskedCardNumber: `4000********0060`,
-			cardDisplayName: `Cheque Card`,
-			cardStopReason: `LOST`,
-			cardExpiryYear: `2020`,
-			cardExpiryMonth: `10`,
-			cardSequenceNumber: `02`,
-			supplementaryCard: false,
-			cardStopDate: `2023-02-06 04:20:11.767+0000`,
-			stopCard: {
-				enabled: true,
-				tabIndex: 0,
-				visible: true
-			}
+			"cardNumber": "IGBUenPJKYTQXcDQD6SyqqLRbKZFhWcuaAd3QY4V6jTBuq3tVPNUmwjoYFSYI4Ia",
+			"maskedCardNumber": "5284 **** **** 0904",
+			"cardStopReason": "LOST",
+			"cardExpiryYear": "30",
+			"cardExpiryMonth": "05",
+			"cardSequenceNumber": "000",
+			"supplementaryCard": false,
+			"cardArt": "DEBIT_MASTERCARD_20150511",
+			"cardDisplayType": "Virtual_Card",
+			"cardholderName": "MR W GREYLING",
+			"primarySavingsAccountId": "1387001246",
+			"primaryCreditAccountId": null,
+			"cardStopDate": null,
+			"cardPaused": false,
+			"internationalTransactions": true,
+			"ecommerce": true,
+			"cardFriendlyName": null,
+			"cardType": "DEBIT_MASTERCARD",
+			"contactlessInterfaceStatus": "ON_REQUESTED"
 		},
 		{
-			cardNumber: `4000000000000061`,
-			maskedCardNumber: `4000********0061`,
-			cardDisplayName: `Cheque Card`,
-			cardStopReason: `LOST`,
-			cardExpiryYear: `2020`,
-			cardExpiryMonth: `10`,
-			cardSequenceNumber: `02`,
-			supplementaryCard: true,
-			cardStopDate: `2023-03-06 04:11:11.767+0000`,
-			stopCard: {
-				enabled: true,
-				tabIndex: 0,
-				visible: true
-			}
+			"cardNumber": "5gPjTZFfEGoahupAMVy5ZNGPODnZ/jbXTRh6cf8pra9HGH1Pv055NEVoP2uYP2jW",
+			"maskedCardNumber": "5284 **** **** 2002",
+			"cardStopReason": "LOST",
+			"cardExpiryYear": "26",
+			"cardExpiryMonth": "11",
+			"cardSequenceNumber": "000",
+			"supplementaryCard": true,
+			"cardArt": "DEBIT_MASTERCARD_20150511",
+			"cardDisplayType": "Supplementary_Card",
+			"cardholderName": "MR M MOYO",
+			"primarySavingsAccountId": "1953622842",
+			"primaryCreditAccountId": null,
+			"cardStopDate": null,
+			"cardPaused": false,
+			"internationalTransactions": true,
+			"ecommerce": true,
+			"cardFriendlyName": null,
+			"cardType": "DEBIT_MASTERCARD",
+			"contactlessInterfaceStatus": "ON_REQUESTED"
 		},
 		{
-			cardNumber: `4000000000000063`,
-			maskedCardNumber: `4000********0063`,
-			cardDisplayName: `Cheque Card`,
-			cardStopReason: `LOST`,
-			cardExpiryYear: `2020`,
-			cardExpiryMonth: `10`,
-			cardSequenceNumber: `02`,
-			supplementaryCard: true,
-			cardStopDate: `2023-04-06 04:11:11.767+0000`,
-			stopCard: {
-				enabled: true,
-				tabIndex: 0,
-				visible: true
-			}
-		},
-		{
-			cardNumber: `4000000000000064`,
-			maskedCardNumber: `4000********0064`,
-			cardDisplayName: `Cheque Card`,
-			cardStopReason: `LOST`,
-			cardExpiryYear: `2020`,
-			cardExpiryMonth: `10`,
-			cardSequenceNumber: `02`,
-			supplementaryCard: true,
-			cardStopDate: `2023-04-06 04:50:11.767+0000`,
-			stopCard: {
-				enabled: true,
-				tabIndex: 0,
-				visible: true
-			}
-		},
-		{
-			cardNumber: `4000080000000065`,
-			maskedCardNumber: `4000********0065`,
-			cardDisplayName: `Credit Card`,
-			cardStopReason: `LOST`,
-			cardExpiryYear: `2020`,
-			cardExpiryMonth: `08`,
-			cardSequenceNumber: `03`,
-			supplementaryCard: false,
-			cardStopDate: `2023-05-06 04:11:11.767+0000`,
-			stopCard: {
-				enabled: true,
-				tabIndex: 0,
-				visible: true
-			}
+			"cardNumber": "5gPjTZFfEGoahupAMVy5ZGW0zrrG4tunGsxZ+Rn68yF5hlOmGxxitm8D8+2hf3od",
+			"maskedCardNumber": "5284 **** **** 2077",
+			"cardStopReason": "LOST",
+			"cardExpiryYear": "26",
+			"cardExpiryMonth": "11",
+			"cardSequenceNumber": "000",
+			"supplementaryCard": true,
+			"cardArt": "DEBIT_MASTERCARD_20150511",
+			"cardDisplayType": "Supplementary_Card",
+			"cardholderName": "MS C SUPP",
+			"primarySavingsAccountId": "2010196054",
+			"primaryCreditAccountId": null,
+			"cardStopDate": null,
+			"cardPaused": false,
+			"internationalTransactions": true,
+			"ecommerce": true,
+			"cardFriendlyName": null,
+			"cardType": "DEBIT_MASTERCARD",
+			"contactlessInterfaceStatus": "ON_REQUESTED"
 		}
 	],
-	incomingTelephoneNumber: ``,
-	voiceReferenceNumber: ``,
-	notificationBell: {
-		enabled: true,
-		tabIndex: 0,
-		visible: true
+	"clientPersonalInformation": {
+		"name": "Mr DEVJAC SURNAMEREY",
+		"southAfricanIDNumber": "7001195792081",
+		"verifiedTelephoneNumber": "0786140984",
+		"livesIn": "KAKAMAS",
+		"languagePreference": "AFRIKAANS",
+		"birthdate": "19 January 1970"
 	},
-	clientPersonalInformation: {
-		required: true,
-		value: {
-			name: {
-				required: true,
-				value: `Mr A RUITERS`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			southAfricanIDNumber: {
-				required: true,
-				value: `7207125191084`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			verifiedTelephoneNumber: {
-				required: true,
-				value: null,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			livesIn: {
-				required: true,
-				value: `ROBERTSON`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			languagePreference: {
-				required: true,
-				value: `Y`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			birthdate: {
-				required: true,
-				value: `07/12/1972`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			cifNumber: {
-				required: true,
-				value: `152486852`,
-				inputValidationOption: {
-					validationEnabled: false,
-					inputRegexValidation: ``,
-					validationFailedMessage: ``
-				},
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			viewProfileButton: {
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			},
-			documentsButton: {
-				enabled: false,
-				tabIndex: -1,
-				visible: true
-			}
+	"authorized": false,
+	"status": 0
+};
+
+
+export const updateCardsSettings = {
+	"cards": [
+		{
+			"maskedCardNumber": "5284 **** **** 0904",
+			"cardNumber": "IGBUenPJKYTQXcDQD6SyqqLRbKZFhWcuaAd3QY4V6jTBuq3tVPNUmwjoYFSYI4Ia",
+			"internationalTransactionsUpdated": "ERROR",
+			"ecommerceUpdated": "SUCCESS"
 		},
-		inputValidationOption: {
-			validationEnabled: true,
-			inputRegexValidation: ``,
-			validationFailedMessage: ``
-		},
-		enabled: false,
-		tabIndex: -1,
-		visible: true
-	},
-	notAuthorizedLink: {
-		enabled: true,
-		tabIndex: -1,
-		visible: true
-	},
-	authorized: true,
-	clientInsights: {},
-	clientAccess: {}
+		{
+			"maskedCardNumber": "5284 **** **** 0904",
+			"cardNumber": "IGBUenPJKYTQXcDQD6SyqqLRbKZFhWcuaAd3QY4V6jTBuq3tVPNUmwjoYFSYI4Ia",
+			"internationalTransactionsUpdated": "SUCCESS",
+			"ecommerceUpdated": "SUCCESS"
+		}
+	]
 };

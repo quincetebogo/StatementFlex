@@ -30,9 +30,7 @@ export class TapToPayAgreement extends Component {
 	constructor() {
 		super();
 		this.tapToPayInfo = {};
-		this.tapToPayAgreement = ``;
 		this.alertBannerText = ``;
-		this.agreementResult = {};
 		this.selectedCard = {};
 
 		this._telemetry = HorizonTelemetry.instance;
@@ -45,7 +43,6 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
-			agreementResult: { type: Object },
 			alertBannerText: { type: String }
 		};
 	}
@@ -57,7 +54,6 @@ export class TapToPayAgreement extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		ineum(`page`, `Tap to pay Agreement Dialog`);
-		this.tapToPayAgreement = this.agreementResult.cardAgreement.agreementContent.agreementContentData;
 	}
 
 	// --------------
@@ -74,8 +70,8 @@ export class TapToPayAgreement extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_agreeClick(event) {  
-		
+	_agreeClick(event) {
+
 		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE, {
 			"screen": TelemetryScreen.TAP_TO_PAY_AGREEMENT,
 			"next-screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
@@ -84,9 +80,8 @@ export class TapToPayAgreement extends Component {
 
 		if (this._validateCheckBox()) {
 			this.dispatchEvent(new CustomEvent(`on-agree`, {
-				detail: { 
-					agreementResult: this.agreementResult,
-					tapToPayAccepted: this.tapToPayInfo.acceptedTapToPay
+				detail: {
+					selectedCard: this.selectedCard,
 				}
 			}));
 		}
@@ -116,7 +111,7 @@ export class TapToPayAgreement extends Component {
 
 	static get styles() {
 		return [
-			super.styles, 
+			super.styles,
 			css`
 
 				capitec-modal {
@@ -293,12 +288,6 @@ export class TapToPayAgreement extends Component {
 
 				<capitec-expander 
 					expandbuttonalignment="left" 
-					label="View Agreement">
-						${this._renderViewContent()}
-				</capitec-expander>
-
-				<capitec-expander 
-					expandbuttonalignment="left" 
 					label="Tap To Pay"
 					.expanded="${true}">
 							${this._renderTapToPayAgreement()}
@@ -357,7 +346,7 @@ export class TapToPayAgreement extends Component {
 		`;
 	}
 
-		
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
