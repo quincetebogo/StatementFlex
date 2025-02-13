@@ -7,6 +7,7 @@ import { getDateInPast, formatCellphoneNumber, isArray } from 'app/utils/capitec
 import './Recharges';
 import './Advances';
 import './AdvancesRepayments';
+import './Campaigns';
 
 /**
  * Capitec Connect Agent View
@@ -185,6 +186,10 @@ export class CapitecConnectAgent extends ViewBase {
 		return this.capitecConnectService.advanceBalances(queryArgs);
 	}
 
+	async getCampaigns(pagination_args) {
+		return this.capitecConnectService.getCampaigns(pagination_args);
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -233,6 +238,12 @@ export class CapitecConnectAgent extends ViewBase {
 								.searchAdvances="${this.getRecords}"
 								.getAdvanceBalances="${this.getAdvanceBalances}"
 							></horizon-capitec-connect-agent-advances-repayments>
+						</capitec-tab>
+						<capitec-tab label="Campaign Information" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-campaign-info
+								style="width:100%"
+								.getCampaigns="${this.getCampaigns}"
+							></horizon-capitec-connect-agent-campaign-info>
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>
