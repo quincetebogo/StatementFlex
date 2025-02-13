@@ -676,6 +676,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_expandRenderer(item) {
+		const imei1 = item.deviceOrderResponse?.result.products?.[0]?.serialNumbers.split(`|`)[0];
+		const imei2 = item.deviceOrderResponse?.result.products?.[0]?.serialNumbers.split(`|`)[1];
 		try {
 			const copyWordToClipboard = (value) => {
 				navigator.clipboard.writeText(value);
@@ -728,13 +730,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
             >
               <capitec-label
                 type="strong"
-                label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(item.deviceOrderResponse?.result.products?.[0]?.serialNumbers) : `-`}"
+                label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(imei1) : `-`}"
               ></capitec-label>
-              ${getValue(item.deviceOrderResponse.result.products[0].serialNumbers && item?.orderStatus === `ORDER DELIVERED`) !== `-`
+              ${getValue(item?.orderStatus === `ORDER DELIVERED` && imei1) !== `-`
 				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
-                    @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.products?.[0]?.serialNumbers))}"
+                    @click="${() => copyWordToClipboard(getValue(imei1))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
 				: ``}
@@ -750,13 +752,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			>
 				<capitec-label
 				type="strong"
-				label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(item.deviceOrderResponse?.result.serialNumbers2) : `-`}"
+				label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(imei2) : `-`}"
 				></capitec-label>
-				${item?.orderStatus === `ORDER DELIVERED` && getValue(item.deviceOrderResponse?.result.serialNumbers2) !== `-`
+				${item?.orderStatus === `ORDER DELIVERED` && getValue(imei2) !== `-`
 				? html`<capitec-icon
 					size="small"
 					icon="system/notes-action"
-					@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.serialNumbers2))}"
+					@click="${() => copyWordToClipboard(getValue(imei2))}"
 					style="cursor: pointer;"
 					></capitec-icon>`
 				: ``}
@@ -854,12 +856,22 @@ export class CapitecConnectAgentDevices extends ViewBase {
           </div>
 
 		  <div column="4" row="3">
-            <capitec-label label="Order Id"></capitec-label>
-            <capitec-label
-              type="strong"
-              label="${getValue(item.deviceOrderResponse?.result.orderId)}"
-            ></capitec-label>
-          </div>
+		            <capitec-label label="Order Id"></capitec-label>
+		            <div
+		              style="display: flex; align-items: center; gap: 4px;"
+		            >
+		              <capitec-label
+		                type="strong"
+		                label="${getValue(item.deviceOrderResponse?.result.orderId)}"
+		              ></capitec-label>
+		              <capitec-icon
+		                size="small"
+		                icon="system/notes-action"
+		                @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.orderId))}"
+		                style="cursor: pointer;"
+		              ></capitec-icon>
+		            </div>
+		          </div>
 
           <div row="4" column="1" colspan="4">
             ${showInvoiceButton || showCancelButton
@@ -1042,7 +1054,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                   field="orderDescription"
                 ></capitec-table-column>
                 <capitec-table-column
-                  label="Order Amount (incl VAT)"
+                  label="Order Amount"
                   field="orderAmount"
                   .renderer="${this._renderAmount}"
                 ></capitec-table-column>
