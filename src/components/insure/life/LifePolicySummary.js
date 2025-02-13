@@ -32,7 +32,7 @@ class LifePolicySummary extends Component {
 
 	/**
 	 * @property {Object} selectedLifePolicy Selected policy being viewed
-	 * @property {Object} lifePolicyMandates Selected policy mandate details
+	 * @property {Array} lifePolicyMandates Selected policy mandate details
 	 * 
 	 * @readonly
 	 * @static
@@ -40,7 +40,7 @@ class LifePolicySummary extends Component {
 	static get properties() {
 		return {
 			selectedLifePolicy: { type: Object, state: true },
-			lifePolicyMandates: { type: Object, state: true }
+			lifePolicyMandates: { type: Array, state: true }
 		};
 	}
 
@@ -768,13 +768,16 @@ class LifePolicySummary extends Component {
 			const date = new Date(e.mandateInitiationDate);
 			return date;
 		})));
+
+		const latestMandates = mandateDetails.filter(mandate => new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime());
+		
+		const selectedMandate = latestMandates.find(mandate => mandate.mandateStatus === `Active`) || latestMandates[0];
+
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
 			${mandateDetails.length === 0 ? this._renderNoResults()
 				: html`
-			${mandateDetails.map((mandate) => html`
-			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
 				<capitec-content-box  class="accounts-box">
 					<horizon-expander
 					expandButtonAlignment="right"
@@ -789,33 +792,31 @@ class LifePolicySummary extends Component {
 								<horizon-label
 									class="column-width-200"
 									label="Mandate type"
-									value="${isNullorEmpty(mandate.mandateType) ? `-` : mandate.mandateType}">
+									value="${isNullorEmpty(selectedMandate.mandateType) ? `-` : selectedMandate.mandateType}">
 								</horizon-label>
 								<div class="vertical-line"></div>
 								<horizon-label
 									label="Instalment amount"
-									value="${isNullorEmpty(mandate.instalmentAmount) ? `-` : formatCurrency(mandate.instalmentAmount)}">
+									value="${isNullorEmpty(selectedMandate.instalmentAmount) ? `-` : formatCurrency(selectedMandate.instalmentAmount)}">
 								</horizon-label>
 								<horizon-label 
 									label="Instalment Occurrence"
-									value="${isNullorEmpty(mandate.instalmentOccurrence) ? `-` : mandate.instalmentOccurrence}"
+									value="${isNullorEmpty(selectedMandate.instalmentOccurrence) ? `-` : selectedMandate.instalmentOccurrence}"
 									class="column-width-200">
 								</horizon-label>
 								<horizon-label
 									label="Mandate status"
-									value="${mandate.mandateStatus}"
-									class="column-width-200 ${mandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
+									value="${selectedMandate.mandateStatus}"
+									class="column-width-200 ${selectedMandate.mandateStatus === `Active` ? `active-status` : `inactive-status`}">
 								</horizon-label>
 						</capitec-group>
 						<div slot="content">
 							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-								${this._renderMandateOptions(mandate)}
+								${this._renderMandateOptions(selectedMandate)}
 							</capitec-group>
 						</div>
 					</horizon-expander>
 				</capitec-content-box>
-			` : html``}
-			`)}
 			`}
 		`;
 	}
