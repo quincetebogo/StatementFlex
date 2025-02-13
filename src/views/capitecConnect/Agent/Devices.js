@@ -120,6 +120,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	_initialise() {
 		// this.clientCif = `030530180`; // TODO: comment out when done with DEV testing
 		// this.clientCif = `403059445`; // TODO: comment out when done with INT testing
+		// this.clientCif = `161413722`; // TODO: comment out when done with INT testing
+		// this.clientCif = `224274252`; // TODO: comment out when done with INT testing
 		this.isDeviceTableVisible = true;
 	}
 
@@ -237,6 +239,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			const devices = response.result.content.map((order) => ({
 				orderDate: order.orderPlacedDate,
 				orderNumber: order.orderId,
+				orderNumberShort: order.orderId.split(`-`).pop(),
 				orderDescription: order.orderDescription,
 				orderAmount: order.amount,
 				deviceName: order.deviceName,
@@ -447,7 +450,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
           slot="footer"
           type="secondary"
           label="Close"
-          @click="${() => (this.isSendEmailSuccessModalVisible = false)}"
+		  @click="${() => {
+				this.isSendEmailSuccessModalVisible = false;
+				this.requestUpdate();
+			}}"
         ></capitec-button>
       </capitec-modal>
     `;
@@ -509,14 +515,18 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				this.currentOrderId,
 				this.clientCif
 			);
-			// const testOrderId = `9130440b-ac7f-4957-b7a1-32e1a2085fc4`; // TODO: remove when BE errors is fixed
-			// const response = await this.capitecConnectService.cancelDeviceOrder(testOrderId, this.clientCif); // TODO: remove when BE errors is fixed
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to cancel order`);
 			}
 			this.isCancelOrderModalVisible = false;
 			this.isSuccessModalVisible = true;
+			this.isDeviceTableVisible = false;
+			setTimeout(() => {
+				this.isDeviceTableVisible = true;
+				this.requestUpdate();
+			}, 100);
+
 		} catch (error) {
 			console.error(`Error cancelling order:`, error);
 			this.isCancelOrderModalVisible = false;
@@ -610,7 +620,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           slot="footer"
           type="secondary"
           label="Close"
-          @click="${() => (this.isSuccessModalVisible = false)}"
+          @click="${() => this.isSuccessModalVisible = false}"
         ></capitec-button>
       </capitec-modal>
     `;
@@ -700,7 +710,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 			return html`
         <capitec-group layout="grid" gap="clear">
-          <div column="1" row="1" colspan="4">
+          <div column="1" row="1">
             <capitec-label label="Device Description"></capitec-label>
             <capitec-label
               type="strong"
@@ -718,13 +728,13 @@ export class CapitecConnectAgentDevices extends ViewBase {
             >
               <capitec-label
                 type="strong"
-                label="${getValue(item.deviceOrderResponse?.result.imeiNumber)} "
+                label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(item.deviceOrderResponse?.result.products?.[0]?.serialNumbers) : `-`}"
               ></capitec-label>
-              ${getValue(item.deviceOrderResponse?.result.imeiNumber) !== `-`
+              ${getValue(item.deviceOrderResponse.result.products[0].serialNumbers && item?.orderStatus === `ORDER DELIVERED`) !== `-`
 				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
-                    @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber))}"
+                    @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.products?.[0]?.serialNumbers))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
 				: ``}
@@ -732,26 +742,26 @@ export class CapitecConnectAgentDevices extends ViewBase {
           </div>
 
           <div column="3" row="1">
-            <capitec-label label="IMEI 2"></capitec-label>
-            <div
-              column="2"
-              row="1"
-              style="display: flex; align-items: center; gap: 4px;"
-            >
-              <capitec-label
-                type="strong"
-                label="${getValue(item.deviceOrderResponse?.result.imeiNumber2)}"
-              ></capitec-label>
-              ${getValue(item.deviceOrderResponse?.result.imeiNumber2) !== `-`
+			<capitec-label label="IMEI 2"></capitec-label>
+			<div
+				column="2"
+				row="1"
+				style="display: flex; align-items: center; gap: 4px;"
+			>
+				<capitec-label
+				type="strong"
+				label="${item?.orderStatus === `ORDER DELIVERED` ? getValue(item.deviceOrderResponse?.result.serialNumbers2) : `-`}"
+				></capitec-label>
+				${item?.orderStatus === `ORDER DELIVERED` && getValue(item.deviceOrderResponse?.result.serialNumbers2) !== `-`
 				? html`<capitec-icon
-                    size="small"
-                    icon="system/notes-action"
-                    @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.imeiNumber2))}"
-                    style="cursor: pointer;"
-                  ></capitec-icon>`
+					size="small"
+					icon="system/notes-action"
+					@click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.serialNumbers2))}"
+					style="cursor: pointer;"
+					></capitec-icon>`
 				: ``}
-            </div>
-          </div>
+			</div>
+		 </div>
 
           <div column="4" row="1">
             <capitec-label label="Device Cost"></capitec-label>
@@ -773,17 +783,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label label="Order Status"></capitec-label>
             <capitec-label
               type="strong"
-              label="${getValue(item.deviceOrderResponse?.result.orderStatus)}"
+			  label="${this._renderStatus(item.deviceOrderResponse?.result.orderStatus)}"
             ></capitec-label>
           </div>
 
           <div column="3" row="2">
+		  <capitec-label label="Account Number"></capitec-label>
             <div
-              column="2"
               row="3"
               style="display: flex; align-items: center; gap: 4px;"
             >
-              <capitec-label label="Account Number"></capitec-label>
               <capitec-label
                 type="strong"
                 label="${getValue(item.deviceOrderResponse?.result.accountNumber)}"
@@ -795,6 +804,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 style="cursor: pointer;"
               ></capitec-icon>
             </div>
+          </div>
+
+		  <div column="4" row="2">
+            <capitec-label label="Client Id"></capitec-label>
+            <capitec-label
+              type="strong"
+              label="${getValue(item.deviceOrderResponse?.result.clientOrderId)}"
+            ></capitec-label>
           </div>
 
           <div column="1" row="3">
@@ -824,7 +841,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label label="Warranty Start Date"></capitec-label>
             <capitec-label
               type="strong"
-              label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyStartDate)}"
+        	  label="${getFormattedDate(item.deviceOrderResponse?.result?.products?.[0]?.warrantyStartDate)}"
             ></capitec-label>
           </div>
 
@@ -832,7 +849,15 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label label="Warranty End Date"></capitec-label>
             <capitec-label
               type="strong"
-              label="${getFormattedDate(item.deviceOrderResponse?.result.warrantyEndDate)}"
+			  label="${getFormattedDate(item.deviceOrderResponse?.result?.products?.[0]?.warrantyEndDate)}"
+            ></capitec-label>
+          </div>
+
+		  <div column="4" row="3">
+            <capitec-label label="Order Id"></capitec-label>
+            <capitec-label
+              type="strong"
+              label="${getValue(item.deviceOrderResponse?.result.orderId)}"
             ></capitec-label>
           </div>
 
@@ -883,7 +908,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return formatAmount(value);
 	}
 
-	_renderStatus(item, _fieldName, value) {
+	_renderStatus(status) {
+		if (!status) {
+			return `-`;
+		}
+		const label = status.replace(`ORDER`, ``).replace(/_/g, ` `).trim();
+		return label;
+	}
+
+
+	_renderStatusTag(item, _fieldName, value) {
 		const label = value.replace(`ORDER`, ``);
 		let type = `warning`;
 
@@ -1001,7 +1035,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 ></capitec-table-column>
                 <capitec-table-column
                   label="Order Number"
-                  field="orderNumber"
+                  field="orderNumberShort"
                 ></capitec-table-column>
                 <capitec-table-column
                   label="Order Description"
@@ -1015,7 +1049,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
                 <capitec-table-column
                   label="Order Status"
                   field="orderStatus"
-                  .renderer="${this._renderStatus}"
+                  .renderer="${this._renderStatusTag}"
                 ></capitec-table-column>
               </capitec-table>
             `
