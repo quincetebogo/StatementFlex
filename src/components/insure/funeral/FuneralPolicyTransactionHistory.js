@@ -274,6 +274,8 @@ class FuneralPolicyTransactionHistory extends Component {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
+		console.log(this.policyTransactionHistory);
+		console.log(this.filteredData)
 	}
 
 	/**
@@ -606,6 +608,16 @@ class FuneralPolicyTransactionHistory extends Component {
 					data-automation-id="policy-transaction-history-collection-day">
 				</horizon-label>
 			</capitec-group>
+
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Additional Details">
+			</capitec-label>
+			<div
+				<p>
+					${item.reason ? item.reason : `-`}
+				</p>
+			</div>
 		`;
 	}
 
@@ -615,6 +627,11 @@ class FuneralPolicyTransactionHistory extends Component {
 	 */
 	_renderPolicyTransHistoryColumns() {
 		return html`
+			<capitec-table-column
+				label="Status"
+				field="status"
+				size="110px">
+			</capitec-table-column>
 			<capitec-table-column
 				label="Premium"
 				field="formatedPremium"
@@ -628,8 +645,14 @@ class FuneralPolicyTransactionHistory extends Component {
 				size="160px">
 			</capitec-table-column>
 			<capitec-table-column
-				label="Date"
+				label="Date Received"
 				field="date"
+				type="date"
+				size="140px">
+			</capitec-table-column>
+			<capitec-table-column
+				label="Date Allocated To"
+				field="premiumAllocatedDate"
 				type="date"
 				size="140px">
 			</capitec-table-column>
