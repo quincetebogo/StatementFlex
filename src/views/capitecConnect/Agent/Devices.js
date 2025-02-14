@@ -825,14 +825,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
             >
               <capitec-label
                 type="strong"
-                label="${getValue(item?.deviceOrderResponse?.result?.waybillUrl)}"
+				style="cursor: pointer; color: var(--theme-primary-color, #0091DA)"
+				onclick="window.open('${getValue(item?.deviceOrderResponse?.result?.waybillUrl)}')"
+                label="${getValue(item?.deviceOrderResponse?.result?.waybillNumber)}"
               ></capitec-label>
               ${getValue(item?.deviceOrderResponse?.result?.waybillUrl) !==
 				`-`
 				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
-                    @click="${() => copyWordToClipboard(getValue(item?.deviceOrderResponse?.result?.waybillUrl))}"
+                    @click="${() => copyWordToClipboard(getValue(item?.deviceOrderResponse?.result?.waybillNumber))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
 				: ``}
