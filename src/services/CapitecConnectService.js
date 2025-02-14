@@ -336,4 +336,99 @@ async getVoucherHistory(voucherSerialNumber) {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	getAllDeviceOrders(request) {
+		const { pageNumber = 0, pageSize = 10, searchValue, dateRange, clientCif, searchType } = request;
+
+		const queryParams = {
+			page: pageNumber,
+			size: pageSize,
+			sort: `createdAt,DESC`
+		};
+
+		const requestBody = {
+			orderDateRange: dateRange
+		};
+
+		if (searchValue && searchType?.value) {
+			switch (searchType.value) {
+				case `amount`:
+					requestBody.orderAmount = parseFloat(searchValue);
+					break;
+				case `accountNumber`:
+					requestBody.accountNumber = parseInt(searchValue, 10);
+					break;
+				case `deviceName`:
+					requestBody.deviceName = searchValue;
+					break;
+				case `orderDescription`:
+					requestBody.orderDescription = searchValue;
+					break;
+				case `imeiNumber`:
+					requestBody.imeiNumber = searchValue;
+					break;
+				default:
+					break;
+			}
+		}
+
+		const queryString = this.convertJsonToUriString(queryParams);
+		const url = `/v1/api/horizon/device/orders/${clientCif}/search?${queryString}`;
+
+		return this.post(
+			url,
+			requestBody,
+			this.setToken(),
+			`getAllDeviceOrders`,
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getDeviceOrder(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}`;
+		return this.get(
+			url,
+			this.setToken(),
+			`getDeviceOrder`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getDeviceInvoice(orderId) {
+		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
+		return this.get(
+			url,
+			this.invoiceHeaders(),
+			`getDeviceInvoice`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	cancelDeviceOrder(orderId, cif) {
+		const url = `/v1/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
+
+		return this.post(
+			url,
+			{},
+			this.setToken(),
+			`cancelDeviceOrder`,
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
