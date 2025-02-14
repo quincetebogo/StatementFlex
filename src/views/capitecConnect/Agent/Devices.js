@@ -676,8 +676,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	}
 
 	_expandRenderer(item) {
-		const imei1 = item.deviceOrderResponse?.result.products?.[0]?.serialNumbers.split(`|`)[0];
-		const imei2 = item.deviceOrderResponse?.result.products?.[0]?.serialNumbers.split(`|`)[1];
+		const imei1 = item?.deviceOrderResponse?.result.products?.[0]?.serialNumbers?.split(`|`)?.[0];
+		const imei2 = item?.deviceOrderResponse?.result.products?.[0]?.serialNumbers?.split(`|`)?.[1];
 		try {
 			const copyWordToClipboard = (value) => {
 				navigator.clipboard.writeText(value);
@@ -825,14 +825,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
             >
               <capitec-label
                 type="strong"
-                label="${getValue(item.deviceOrderResponse?.result.courierTracking)}"
+                label="${getValue(item?.deviceOrderResponse?.result?.waybillUrl)}"
               ></capitec-label>
-              ${getValue(item.deviceOrderResponse?.result.courierTracking) !==
+              ${getValue(item?.deviceOrderResponse?.result?.waybillUrl) !==
 				`-`
 				? html`<capitec-icon
                     size="small"
                     icon="system/notes-action"
-                    @click="${() => copyWordToClipboard(getValue(item.deviceOrderResponse?.result.courierTracking))}"
+                    @click="${() => copyWordToClipboard(getValue(item?.deviceOrderResponse?.result?.waybillUrl))}"
                     style="cursor: pointer;"
                   ></capitec-icon>`
 				: ``}
