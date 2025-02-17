@@ -217,7 +217,7 @@ export class CapitecConnectAgent extends ViewBase {
 
 		pgArgs = {
 			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
-			sort: [`campaignStartDate,desc`],
+			sort: [`startDate,desc`],
 			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
 		};
 
