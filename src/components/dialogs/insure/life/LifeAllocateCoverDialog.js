@@ -909,17 +909,17 @@ class LifeAllocateCoverDialog extends Component {
 			}
 		}
 
-		if (onceOffTotalAllocated !== this.onceOffCoverValue) {
+		if (this.onceOffCoverValue > 0 && onceOffTotalAllocated !== this.onceOffCoverValue) {
 			onceOffValid = false;
 			invalidPocketNames.push(`Lump Sum`);
 		}
 
-		if (parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
+		if (this.monthlyTotalCoverValue > 0 && parseFloat(monthlyTotalAllocated) !== parseFloat(this.monthlyTotalCoverValue)) {
 			monthlyValid = false;
 			invalidPocketNames.push(`Monthly Income`);
 		}
 
-		if (parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
+		if (this.educationCoverValue > 0 && parseFloat(educationTotalAllocated) !== parseFloat(this.educationCoverValue)) {
 			educationValid = false;
 			invalidPocketNames.push(`Children's Needs`);
 		}
@@ -1304,6 +1304,7 @@ class LifeAllocateCoverDialog extends Component {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = JSON.parse(JSON.stringify(bene));
 					newBene.role = `Beneficiary`;
+					delete newBene.rolePlayer;
 					newBene.benefits = [
 						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
 						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
@@ -1355,6 +1356,8 @@ class LifeAllocateCoverDialog extends Component {
 						validGuardian.bankDetails = {};
 						validGuardian.recordId = null;
 						validGuardian.cifNumber = null;
+						validGuardian.role = `Guardian`;
+						delete validGuardian.rolePlayer;
 						validGuardian.benefits = [
 							{
 								"benefitType": `LumpSum`,
