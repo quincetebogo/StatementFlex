@@ -7,6 +7,7 @@ import { getDateInPast, formatCellphoneNumber, isArray } from 'app/utils/capitec
 import './Recharges';
 import './Advances';
 import './AdvancesRepayments';
+import './Campaigns';
 
 /**
  * Capitec Connect Agent View
@@ -185,6 +186,70 @@ export class CapitecConnectAgent extends ViewBase {
 		return this.capitecConnectService.advanceBalances(queryArgs);
 	}
 
+	async getCampaigns(filters) {
+		var pgArgs = {},
+			queryArgs = {};
+
+		queryArgs.search = {
+			qry: filters.searchValue,
+			type: filters.searchType.value
+		};
+
+		if (isArray(filters.bundleType) && filters.bundleType.filter(e => e !== `All`).length) {
+			queryArgs.bundleTypes = filters.bundleType.filter(e => e !== `All`).map(e => {
+				e = e.toUpperCase();
+				return e;
+			});
+		}
+
+		if (filters.cif) {
+			queryArgs.cif = filters.cif;
+		}
+
+		if (typeof type === 'string') {
+			queryArgs.type = type.toUpperCase();
+		}
+
+		queryArgs.transactionDate = {
+			startDate: filters.dateRange.from,
+			endDate: filters.dateRange.to
+		};
+
+		pgArgs = {
+			page: typeof this.currentPageIndex === `number` ? this.currentPageIndex - 1 : 1, // -1 because we start from 0
+			sort: [`startDate,desc`],
+			size: typeof this.numOfPagingRows === `number` ? this.numOfPagingRows : 10
+		};
+
+		if (queryArgs.search.qry) {
+			switch (queryArgs.search.type) {
+				case "msisdn":
+					queryArgs.msisdn = queryArgs.search.qry;
+
+					filters.searchValue = formatCellphoneNumber(filters.searchValue, true);
+
+					if (filters.searchValue.length > 9) {
+						queryArgs.msisdn = filters.searchValue;
+					} else {
+						delete queryArgs.msisdn;
+					}
+					break;
+				case "transactionReference":
+				case "amount":
+				case "accountNumber":
+					queryArgs[queryArgs.search.type] = queryArgs.search.qry;
+					break;
+				case "productName":
+					queryArgs.bundleTypes = [queryArgs.search.qry];
+					break;
+				default:
+					break;
+			}
+		}
+
+		return this.capitecConnectService.getCampaigns(queryArgs, pgArgs);
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -233,6 +298,12 @@ export class CapitecConnectAgent extends ViewBase {
 								.searchAdvances="${this.getRecords}"
 								.getAdvanceBalances="${this.getAdvanceBalances}"
 							></horizon-capitec-connect-agent-advances-repayments>
+						</capitec-tab>
+						<capitec-tab label="Campaign Information" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-campaign-info
+								style="width:100%"
+								.getCampaigns="${this.getCampaigns}"
+							></horizon-capitec-connect-agent-campaign-info>
 						</capitec-tab>
 					</capitec-tab-group>
 				</capitec-group>

@@ -89,7 +89,7 @@ jobs:
         run: ./ocwp-legacy build
 
       # Step to upload the artifact
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-artifact # Name of the artifact
           path: ${{ env.BUILD_LOCATION }} # Path to the build directory and its contents
