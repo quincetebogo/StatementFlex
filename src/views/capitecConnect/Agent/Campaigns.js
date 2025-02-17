@@ -93,7 +93,7 @@ export class CapitecConnectCampaigns extends ViewBase {
 	}
 
 	_initialise() {
-		this.clientCif = "281783047";
+		// this.clientCif = "281783047";
 
 		this.showTable = true;
 	}
@@ -125,14 +125,14 @@ export class CapitecConnectCampaigns extends ViewBase {
 			*/
 			let filters = this.activeFilters;
 
-			if (this.clientCif) {
-				filters.cif = this.clientCif;
-			} else {
-				return {
-					pagedItems: [],
-					totalCount: 0
-				};
-			}
+			// if (this.clientCif) {
+			// 	filters.cif = this.clientCif;
+			// } else {
+			// 	return {
+			// 		pagedItems: [],
+			// 		totalCount: 0
+			// 	};
+			// }
 
 			const response = await this.getCampaigns(filters);
 
