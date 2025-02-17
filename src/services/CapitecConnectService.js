@@ -337,25 +337,36 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
-	async getCampaigns(pagination_args) {
-		pagination_args = this.sanitizeJsonObject(
-			pagination_args,
-			["page", "size", "sort"]
+	async getCampaigns(qry_args = {}, pagination_args = {}) {
+		var request = this.sanitizeJsonObject(
+			qry_args,
+			["cif", "channel", "msisdn", "amount", "type", "accountNumber", "transactionReference", "productName", "bundleTypes", "transactionDate"]
 		);
 
-		if (!pagination_args) {
-			console.warn("Invalid pagination_args passed into function: getCampaigns()");
+		if (!request) {
+			console.warn("Invalid query arguments passed into function: getCampaigns()");
 			return [];
 		}
 
-		var url = `/v1/api/horizon/campaigns?${this.convertJsonToUriString(pagination_args)}`;
+		pagination_args = {
+			"page": pagination_args.page || 0,
+			"size": pagination_args.size || 1,
+			"sort": typeof pagination_args.sort === "object" && pagination_args.sort.length > 0 ? pagination_args.sort : ["cif"]
+		}
 
-		return this.get(
+		const url = `/v1/api/horizon/campaigns?${this.convertJsonToUriString(pagination_args)}`;
+
+		// we don't need the cif in the body request, seeing as we are only querying the records related to the current user
+		delete request.cif;
+
+		return this.post(
 			url,
+			request,
 			this.setToken(),
 			`capitecConnectCampaignsListing`,
-			false,
 			null,
+			null,
+			2000,
 			null,
 			null,
 			DEFAULT_AUTO_RETRIES
