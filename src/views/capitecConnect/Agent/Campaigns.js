@@ -149,6 +149,7 @@ export class CapitecConnectCampaigns extends ViewBase {
 						this._getCampaign(e.campaignId)
 							.then(r => {
 								e.campaignInfo = r.result;
+								e.campaignInfo.friendlyStartDate = formatDate(e.campaignInfo.campaignStartDate) + ' ' + getTimeFromDate(e.campaignInfo.campaignStartDate);
 								e.campaignInfo.friendlyEndDate = formatDate(e.campaignInfo.campaignEndDate) + ' ' + getTimeFromDate(e.campaignInfo.campaignEndDate);
 							})
 					} catch (error) {
@@ -165,7 +166,7 @@ export class CapitecConnectCampaigns extends ViewBase {
 
 			return {
 				pagedItems: response.result?.content || [],
-				totalCount: response.result.totalElements // for pagination reasons this is not the returned resultset's length
+				totalCount: response.result.totalElements
 			};
 		} catch (error) {
 			this.showTable = false;
@@ -198,7 +199,6 @@ export class CapitecConnectCampaigns extends ViewBase {
 			e.detail.new.startDate = incrementDate(e.detail.new.endDate.split('T')[0], -30);
 		}
 
-		const currentDateTime = DateTime.local();
 		const fromDate = DateTime.fromISO(e.detail.new.startDate);
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 
@@ -208,17 +208,12 @@ export class CapitecConnectCampaigns extends ViewBase {
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			toDate = fromDate.plus({ days: 90 });
 
-			if (toDate > currentDateTime) {
-				from = e.detail.new.startDate;
-				to = getDateInPast(0);
-			} else {
-				from = e.detail.new.startDate;
-				to = e.detail.new.endDate;
+			from = e.detail.new.startDate;
+			to = e.detail.new.endDate;
 
-				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
-				if (calendar) {
-					calendar._placeholderEndDate = toDate;
-				}
+			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
+			if (calendar) {
+				calendar._placeholderEndDate = toDate;
 			}
 		} else {
 			from = e.detail.new.startDate || getDateInPast(30);
@@ -243,7 +238,6 @@ export class CapitecConnectCampaigns extends ViewBase {
 
 	onFilter() {
 		this.showTable = false;
-		// this.requestUpdate();
 
 		setTimeout(() => {
 			this.showTable = true;
@@ -272,7 +266,6 @@ export class CapitecConnectCampaigns extends ViewBase {
 						label="Choose a start and end date"
 						startDate="${this.activeFilters.dateRange.from}"
 						endDate="${this.activeFilters.dateRange.to}"
-						maxDate="${getDateInPast(0)}"
 						type="range"
 						mode="date"
 						inputType="calendar"
@@ -358,7 +351,7 @@ export class CapitecConnectCampaigns extends ViewBase {
 				</div>
 				<div row="3" column="2">
 					<capitec-label label="Product description"></capitec-label>
-					<capitec-label type="strong" label="${campaign?.campaignType || "---"}"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.productName || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="3">
 					<capitec-label label="Valid for"></capitec-label>
@@ -366,7 +359,7 @@ export class CapitecConnectCampaigns extends ViewBase {
 				</div>
 				<div row="3" column="4">
 					<capitec-label label="Start date"></capitec-label>
-					<capitec-label type="strong" label="${item.friendlyDate || "---"}"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.friendlyStartDate || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="5">
 					<capitec-label label="End date"></capitec-label>
