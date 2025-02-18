@@ -372,4 +372,19 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	async getCampaign(campaignId) {
+		const url = `/v1/api/horizon/campaigns/${campaignId}`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			`capitecConnectCampaignDetail`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
