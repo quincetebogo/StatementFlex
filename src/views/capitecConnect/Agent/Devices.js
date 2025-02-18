@@ -299,8 +299,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		try {
 			this.isLoading = true;
 			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId);
-			// const testCurrentOrderId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO: remove when BE errors is fixed
-			// const response = await this.capitecConnectService.getDeviceInvoice(testCurrentOrderId); // TODO: remove when BE errors is fixed
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to load invoice`);
@@ -683,7 +681,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				navigator.clipboard.writeText(value);
 			};
 
-			if (!item.hasLogged) {
+			if (!item.hasLogged && !item.isLoading) {
+				item.isLoading = true;
 				this.isLoading = true;
 				this.capitecConnectService
 					.getDeviceOrder(item.orderId)
@@ -694,15 +693,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 						item.deviceOrderResponse = response;
 						item.hasLogged = true;
 						this.requestUpdate();
-					})
+				  })
 					.catch((error) => {
 						console.error(`Error in getDeviceOrder:`, error);
 						item.hasError = true;
 					})
 					.finally(() => {
-						this.isLoading = false;
-						this.requestUpdate();
-					});
+					  item.isLoading = false;
+					  this.isLoading = false;
+					  this.requestUpdate();
+				  });
 			}
 
 			const getValue = (value) => (!value || value === `null` ? `-` : value);
