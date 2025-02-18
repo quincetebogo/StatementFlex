@@ -251,6 +251,10 @@ export class CapitecConnectAgent extends ViewBase {
 		return this.capitecConnectService.getCampaigns(queryArgs, pgArgs);
 	}
 
+	async getCampaign(campaignId) {
+		return this.capitecConnectService.getCampaign(campaignId);
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -311,6 +315,7 @@ export class CapitecConnectAgent extends ViewBase {
 							<horizon-capitec-connect-agent-campaign-info
 								style="width:100%"
 								.getCampaigns="${this.getCampaigns}"
+								.getCampaign="${this.getCampaign}"
 							></horizon-capitec-connect-agent-campaign-info>
 						</capitec-tab>
 					</capitec-tab-group>

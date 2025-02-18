@@ -143,6 +143,20 @@ export class CapitecConnectCampaigns extends ViewBase {
 					e.friendlyDate = formatDate(e.campaignStartDate) + ' ' + getTimeFromDate(e.campaignStartDate);
 					return e;
 				});
+
+				r.forEach(e => {
+					try {
+						this._getCampaign(e.campaignId)
+							.then(r => {
+								e.campaignInfo = r.result;
+								e.campaignInfo.friendlyEndDate = formatDate(e.campaignInfo.campaignEndDate) + ' ' + getTimeFromDate(e.campaignInfo.campaignEndDate);
+							})
+					} catch (error) {
+						console.log(`failed to get campaign information`);
+						console.log(error);
+						e.campaignInfo = {};
+					}
+				});
 			}
 
 			response.result.content = r;
@@ -161,6 +175,10 @@ export class CapitecConnectCampaigns extends ViewBase {
 				totalCount: 0
 			};
 		}
+	}
+
+	async _getCampaign(campaignId) {
+		return this.getCampaign(campaignId);
 	}
 
 	async _dateChanged(e) {
@@ -319,6 +337,8 @@ export class CapitecConnectCampaigns extends ViewBase {
 	}
 
 	_expandRenderer(item) {
+		var campaign = item.campaignInfo || {};
+
 		return html`
 			<capitec-spacer></capitec-spacer>
 
@@ -329,35 +349,37 @@ export class CapitecConnectCampaigns extends ViewBase {
 
 				<div row="2" column="1" colspan="5">
 					<capitec-label label="Qualification criteria:"></capitec-label>
-					<capitec-label type="strong" label="A customer recharged for R10 in the last 7 days"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.qualificationCriteria || "---"}"></capitec-label>
 				</div>
 
 				<div row="3" column="1">
 					<capitec-label label="Resource type"></capitec-label>
-					<capitec-label type="strong" label="Data"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.resourceType || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="2">
 					<capitec-label label="Product description"></capitec-label>
-					<capitec-label type="strong" label="1GB data bundle"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.campaignType || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="3">
 					<capitec-label label="Valid for"></capitec-label>
-					<capitec-label type="strong" label="7 days"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.productValidity || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="4">
 					<capitec-label label="Start date"></capitec-label>
-					<capitec-label type="strong" label="21/12/2024 16:00"></capitec-label>
+					<capitec-label type="strong" label="${item.friendlyDate || "---"}"></capitec-label>
 				</div>
 				<div row="3" column="5">
 					<capitec-label label="End date"></capitec-label>
-					<capitec-label type="strong" label="21/12/2024 16:00"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.friendlyEndDate || "---"}"></capitec-label>
 				</div>
 
 				<div row="4" column="1">
 					<capitec-label label="Notification channel"></capitec-label>
-					<capitec-label type="strong" label="SMS"></capitec-label>
+					<capitec-label type="strong" label="${campaign?.notificationTypeDescription || "---"}"></capitec-label>
 				</div>
 			</capitec-group>
+
+			<capitec-spacer></capitec-spacer>
 		`;
 	}
 
