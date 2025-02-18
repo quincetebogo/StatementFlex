@@ -785,7 +785,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label label="Order Status"></capitec-label>
             <capitec-label
               type="strong"
-			  label="${this._renderStatus(item.deviceOrderResponse?.result.orderStatus)}"
+			  label="${this._renderStatus(item?.orderStatus)}"
             ></capitec-label>
           </div>
 
