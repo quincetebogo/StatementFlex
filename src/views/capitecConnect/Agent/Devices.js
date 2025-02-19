@@ -46,7 +46,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			{ value: `accountNumber`, text: `Account Number` },
 			{ value: `amount`, text: `Order Amount` },
 			{ value: `deviceName`, text: `Device Name` },
-			{ value: `imeiNumber`, text: `IMEI Number` }
+			{ value: `serialNumbers`, text: `IMEI Number` }
 		];
 		// State variables
 		this.activeFilters = {
@@ -243,7 +243,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				orderDescription: order.orderDescription,
 				orderAmount: order.amount,
 				deviceName: order.deviceName,
-				imeiNumber: order.imeiNumber,
+				serialNumber: order.serialNumber,
 				accountNumber: order.accountNumber,
 				orderId: order.orderId,
 				orderStatus: order.orderStatus.split(`_`).join(` `),
@@ -299,8 +299,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		try {
 			this.isLoading = true;
 			const response = await this.capitecConnectService.getDeviceInvoice(this.currentOrderId);
-			// const testCurrentOrderId = `0aa248ce-fb02-4810-b2bc-ee381b239cbc`; // TODO: remove when BE errors is fixed
-			// const response = await this.capitecConnectService.getDeviceInvoice(testCurrentOrderId); // TODO: remove when BE errors is fixed
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to load invoice`);
@@ -683,7 +681,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				navigator.clipboard.writeText(value);
 			};
 
-			if (!item.hasLogged) {
+			if (!item.hasLogged && !item.isLoading) {
+				item.isLoading = true;
 				this.isLoading = true;
 				this.capitecConnectService
 					.getDeviceOrder(item.orderId)
@@ -694,15 +693,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 						item.deviceOrderResponse = response;
 						item.hasLogged = true;
 						this.requestUpdate();
-					})
+				  })
 					.catch((error) => {
 						console.error(`Error in getDeviceOrder:`, error);
 						item.hasError = true;
 					})
 					.finally(() => {
-						this.isLoading = false;
-						this.requestUpdate();
-					});
+					  item.isLoading = false;
+					  this.isLoading = false;
+					  this.requestUpdate();
+				  });
 			}
 
 			const getValue = (value) => (!value || value === `null` ? `-` : value);
@@ -785,7 +785,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
             <capitec-label label="Order Status"></capitec-label>
             <capitec-label
               type="strong"
-			  label="${this._renderStatus(item.deviceOrderResponse?.result.orderStatus)}"
+			  label="${this._renderStatus(item?.orderStatus)}"
             ></capitec-label>
           </div>
 
