@@ -46,7 +46,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			{ value: `accountNumber`, text: `Account Number` },
 			{ value: `amount`, text: `Order Amount` },
 			{ value: `deviceName`, text: `Device Name` },
-			{ value: `imeiNumber`, text: `IMEI Number` }
+			{ value: `serialNumbers`, text: `IMEI Number` }
 		];
 		// State variables
 		this.activeFilters = {
@@ -243,7 +243,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				orderDescription: order.orderDescription,
 				orderAmount: order.amount,
 				deviceName: order.deviceName,
-				imeiNumber: order.imeiNumber,
+				serialNumber: order.serialNumber,
 				accountNumber: order.accountNumber,
 				orderId: order.orderId,
 				orderStatus: order.orderStatus.split(`_`).join(` `),
