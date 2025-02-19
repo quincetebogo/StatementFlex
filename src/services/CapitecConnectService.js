@@ -364,8 +364,8 @@ export class CapitecConnectService extends ChannelServiceBase {
 				case `orderDescription`:
 					requestBody.orderDescription = searchValue;
 					break;
-				case `imeiNumber`:
-					requestBody.imeiNumber = searchValue;
+				case `serialNumbers`:
+					requestBody.serialNumber = searchValue;
 					break;
 				default:
 					break;
