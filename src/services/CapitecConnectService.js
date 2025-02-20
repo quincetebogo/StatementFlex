@@ -25,7 +25,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
-		
+
 		this.desktopAgentService = DesktopAgentService.getInstance();
 	}
 
@@ -42,32 +42,32 @@ export class CapitecConnectService extends ChannelServiceBase {
 			query_args,
 			["cif", "channel", "msisdn", "amount", "accountNumber", "transactionReference", "processingDate", "productName", "string", "bundleTypes", "actionCreatedDate"]
 		);
-		
+
 		const url = `/v1/api/horizon/recharges/reverse/actions/${status}` + `/search?${this.convertJsonToUriString(pagination_args)}`;
 
 		return this.post(
-			url, 
-			query_args, 
-			this.setToken(), 
-			`getClientProducts`, 
-			null, 
-			null, 
+			url,
+			query_args,
+			this.setToken(),
+			`getClientProducts`,
+			null,
+			null,
 			1000,
 			null,
 			null,
 			1
 		);
 	}
-	
+
 	async lockReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/lock`;
 		return this.put(
-			url, 
-			{}, 
-			this.setToken(), 
-			`lockReversal`, 
-			null, 
-			null, 
+			url,
+			{},
+			this.setToken(),
+			`lockReversal`,
+			null,
+			null,
 			1000,
 			null,
 			null,
@@ -78,12 +78,12 @@ export class CapitecConnectService extends ChannelServiceBase {
 	async unlockReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/unlock`;
 		return this.put(
-			url, 
-			{}, 
-			this.setToken(), 
-			`unlockReversal`, 
-			null, 
-			null, 
+			url,
+			{},
+			this.setToken(),
+			`unlockReversal`,
+			null,
+			null,
 			1000,
 			null,
 			null,
@@ -94,12 +94,12 @@ export class CapitecConnectService extends ChannelServiceBase {
 	async flagReversal(transactionReference) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/flag`;
 		return this.put(
-			url, 
-			{}, 
-			this.setToken(), 
-			`flagReversal`, 
-			null, 
-			null, 
+			url,
+			{},
+			this.setToken(),
+			`flagReversal`,
+			null,
+			null,
 			1000,
 			null,
 			null,
@@ -110,12 +110,12 @@ export class CapitecConnectService extends ChannelServiceBase {
 	async processReversal(transactionReference, accepted) {
 		const url = `/v1/api/horizon/recharges/${transactionReference}/reverse/actions/process?accepted=${accepted}`;
 		return this.put(
-			url, 
-			{}, 
-			this.setToken(), 
-			`processReversal`, 
-			null, 
-			null, 
+			url,
+			{},
+			this.setToken(),
+			`processReversal`,
+			null,
+			null,
 			1000,
 			null,
 			null,
@@ -160,54 +160,54 @@ export class CapitecConnectService extends ChannelServiceBase {
 		return sanitizedObject;
 	}
 
-async getVoucherInformation(voucherSerialNumber) {
-    const url = `/v1/api/horizon/voucher/information`;
-    
-    const request = {
-        voucherSerialNumber: voucherSerialNumber
-    };
+	async getVoucherInformation(voucherSerialNumber) {
+		const url = `/v1/api/horizon/voucher/information`;
 
-    return this.post(
-        url,
-        request,
-        this.setToken(),
-        'getVoucherInformation',
-        false,
-        null,
-        2000,
-        null,
-        null,
-        DEFAULT_AUTO_RETRIES
-    );
-}
+		const request = {
+			voucherSerialNumber: voucherSerialNumber
+		};
 
-async getVoucherHistory(voucherSerialNumber) {
-	const url = `/v1/api/horizon/voucher/history`;
-    
-    const request = {
-        voucherSerialNumber: voucherSerialNumber,
-				maxRecords: "10"
-    };
-
-    return this.post(
-        url,
-        request,
+		return this.post(
+			url,
+			request,
 			this.setToken(),
-				'getVoucherHistory',
-        false,
-        null,
-        2000,
-        null,
-        null,
-        DEFAULT_AUTO_RETRIES
-    );
-}
+			'getVoucherInformation',
+			false,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	async getVoucherHistory(voucherSerialNumber) {
+		const url = `/v1/api/horizon/voucher/history`;
+
+		const request = {
+			voucherSerialNumber: voucherSerialNumber,
+			maxRecords: "10"
+		};
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			'getVoucherHistory',
+			false,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 
 
 	async rechargeHistory(qry_args = {}, pagination_args = {}, mockArgs = {}) {
 		var request = this.sanitizeJsonObject(
 			qry_args,
-			[ "cif", "channel", "msisdn", "amount", "type", "accountNumber", "transactionReference", "productName", "bundleTypes", "transactionDate" ]
+			["cif", "channel", "msisdn", "amount", "type", "accountNumber", "transactionReference", "productName", "bundleTypes", "transactionDate"]
 		);
 
 		var requestLogTitle = ``;
@@ -270,7 +270,7 @@ async getVoucherHistory(voucherSerialNumber) {
 	async advanceBalances(qry_args = {}) {
 		var request = this.sanitizeJsonObject(
 			qry_args,
-			[ "cif", "msisdn" ]
+			["cif", "msisdn"]
 		);
 
 		if (!request) {
@@ -298,16 +298,16 @@ async getVoucherHistory(voucherSerialNumber) {
 		// 		DEFAULT_AUTO_RETRIES
 		// 	);
 		// } else {
-			return this.get(
-				url, 
-				this.setToken(), 
-				`capitecConnectAdvanceBalance`, 
-				false, 
-				null, 
-				null, 
-				null, 
-				DEFAULT_AUTO_RETRIES
-			);
+		return this.get(
+			url,
+			this.setToken(),
+			`capitecConnectAdvanceBalance`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
 		// }
 	}
 
@@ -319,9 +319,9 @@ async getVoucherHistory(voucherSerialNumber) {
 
 		const url = `/v1/api/horizon/recharges/${ref}/reverse`;
 		const request = {
-            reversalReason: reason,
-            additionalComments: comments
-        };
+			reversalReason: reason,
+			additionalComments: comments
+		};
 
 		return this.post(
 			url,
@@ -427,6 +427,42 @@ async getVoucherHistory(voucherSerialNumber) {
 			null,
 			null,
 			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	getRewardsHistory(qryArgs = {}, paginationArgs = {}) {
+		const request = this.sanitizeJsonObject(
+			qryArgs,
+			[`campaignID`, `campaignName`, `productID`, `status`, `beneficiaryName`, `transactionDate`, `cif`]
+		);
+
+		if (!request) {
+			console.warn(`Invalid query arguments passed into function: getRewardsHistory()`);
+			return [];
+		}
+
+		paginationArgs = {
+			"page": paginationArgs.page || 0,
+			"size": paginationArgs.size || 10,
+			"sort": Array.isArray(paginationArgs.sort) ? paginationArgs.sort : [`transactionDate,desc`]
+		};
+
+		const url = `/v1/api/horizon/rewards/${request.cif}/recharges/search?${this.convertJsonToUriString(paginationArgs)}`;
+
+		// Remove cif from request body since it's in the URL
+		delete request.cif;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`getRewardsHistory`,
+			null,
+			null,
+			2000,
+			null,
 			null,
 			DEFAULT_AUTO_RETRIES
 		);
