@@ -9,6 +9,7 @@ import './Advances';
 import './AdvancesRepayments';
 import './Devices';
 import './Campaigns';
+import './RewardHistory';
 
 /**
  * Capitec Connect Agent View
@@ -310,6 +311,11 @@ export class CapitecConnectAgent extends ViewBase {
 								.searchDevices="${this.getRecords}"
 								.getAdvanceBalances="${this.getAdvanceBalances}"
 							></horizon-capitec-connect-agent-devices>
+						</capitec-tab>
+						<capitec-tab label="Rewards History" layout="vertical" halign="left">
+							<horizon-capitec-connect-agent-rewards-history
+								style="width:100%"
+							></horizon-capitec-connect-agent-rewards-history>
 						</capitec-tab>
 						<capitec-tab label="Campaign Information" layout="vertical" halign="left">
 							<horizon-capitec-connect-agent-campaign-info

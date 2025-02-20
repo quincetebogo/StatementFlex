@@ -482,4 +482,41 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	getRewardsHistory(qryArgs = {}, paginationArgs = {}) {
+		// Sanitize and validate the request payload
+		const request = this.sanitizeJsonObject(
+			qryArgs,
+			[`campaignId`, `productId`, `transactionReference`, `transactionDate`, `cif`]
+		);
+
+		if (!request) {
+			console.warn(`Invalid query arguments passed into function: getRewardsHistory()`);
+			return [];
+		}
+
+		// Configure pagination
+		paginationArgs = {
+			"page": paginationArgs.page || 0,
+			"size": paginationArgs.size || 10
+		};
+
+		const url = `/v1/api/horizon/rewards/${request.cif}/recharges/search?${this.convertJsonToUriString(paginationArgs)}`;
+
+		// Remove cif from request body since it's in the URL
+		delete request.cif;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`getRewardsHistory`,
+			null,
+			null,
+			2000,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
