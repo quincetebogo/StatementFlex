@@ -433,9 +433,10 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	getRewardsHistory(qryArgs = {}, paginationArgs = {}) {
+		// Sanitize and validate the request payload
 		const request = this.sanitizeJsonObject(
 			qryArgs,
-			[`campaignID`, `campaignName`, `productID`, `status`, `beneficiaryName`, `transactionDate`, `cif`]
+			[`campaignId`, `productId`, `transactionReference`, `transactionDate`, `cif`]
 		);
 
 		if (!request) {
@@ -443,10 +444,10 @@ export class CapitecConnectService extends ChannelServiceBase {
 			return [];
 		}
 
+		// Configure pagination
 		paginationArgs = {
 			"page": paginationArgs.page || 0,
-			"size": paginationArgs.size || 10,
-			"sort": Array.isArray(paginationArgs.sort) ? paginationArgs.sort : [`transactionDate,desc`]
+			"size": paginationArgs.size || 10
 		};
 
 		const url = `/v1/api/horizon/rewards/${request.cif}/recharges/search?${this.convertJsonToUriString(paginationArgs)}`;
