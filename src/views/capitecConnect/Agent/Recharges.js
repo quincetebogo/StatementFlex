@@ -4,7 +4,6 @@ import { ViewBase } from "app/views/common/ViewBase";
 import { DateTime } from "luxon";
 import {
 	compareDates,
-	convertRandToCents,
 	formatAmount,
 	formatCellphoneNumber,
 	formatDate,
@@ -930,7 +929,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			></capitec-label>
 			<capitec-label
 			  type="strong"
-			  label="${convertRandToCents(voucherInfo.amount)}"
+			  label="${(voucherInfo.amount)}"
 			></capitec-label>
 			<capitec-label
 			  type="strong"
