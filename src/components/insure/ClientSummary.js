@@ -8,7 +8,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
-import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { formatCurrency, deformatCurrency} from 'app/productControls/utilities/Currency';
 import { FUN_POLICY_RULES, FUN_CLIENT_SUMMARY_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -2408,11 +2408,11 @@ class ClientSummary extends Component {
 				: html``
 			}
 			
-			${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
-				) && (!this.isInsureAgent && !this.isInsureAdministrator) && parseInt(this._calculateLifeTotalCoverAmount(activeLifePolicy).replace(/R|\s/g, ``), 10) < 3000000
-				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
-				: html``
-			}
+            ${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
+                ) && (!this.isInsureAgent && !this.isInsureAdministrator) && deformatCurrency(this._calculateLifeTotalCoverAmount(activeLifePolicy)) < 3000000
+                ? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
+                : html``
+            }
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
