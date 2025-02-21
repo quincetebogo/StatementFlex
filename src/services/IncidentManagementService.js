@@ -304,7 +304,9 @@ export class IncidentManagementService extends ChannelServiceBase {
 			{
 				incident: incident,
 				needAction: need,
-				manualClassification: manualClassification
+				manualClassification: { category: manualClassification.category, 
+					need: manualClassification.subCategory, 
+					issue: manualClassification.issue }
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 
