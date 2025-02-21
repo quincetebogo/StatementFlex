@@ -149,7 +149,13 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
+		
 		this._saveIncomingCallDetails(newCallInfo);
+
+		if (this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToWaitingForCall(() => this.eventAggregator.publish(`continue-without-incident`, {}));
+			return false
+		}
 
 		const primaryIncident = await this.horizonIncidentManager.createPrimaryIncident(() => this._toggleBusyFlag(), newCallInfo);
 
@@ -164,6 +170,7 @@ export class LandingPage extends ViewBase {
 	_initiateAcceptCall() {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this._acceptCall(this.incomingCallDetails);
+	
 	}
 
 	async _acceptCall(newCallInfo, primaryIncident) {

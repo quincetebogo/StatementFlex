@@ -188,8 +188,9 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async tapToPayLanding(cifNumber, incident, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
 		if (await this.isMockEnabled(`tapToPayLanding`)) {
-			return this.mock(`tapToPay`, cifNumber);
+			return this.mock(`tapToPayLanding`);
 		}
 
 		const request = {
@@ -232,6 +233,10 @@ export class CardService extends ChannelServiceBase {
 
 	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
+
+		if (await this.isMockEnabled(`updateTapToPay`)) {
+			return this.mock(`updateTapToPay`);
+		}
 
 		const url = `/clientcare-card-${this._version}/tap-to-pay`;
 

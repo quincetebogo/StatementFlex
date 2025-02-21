@@ -316,10 +316,10 @@ export class CardSettingsOutcome extends ViewBase {
 		switch (index) {
 			case 0:
 				return html`
-					Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
+					Card <b>${card.maskedCardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
 			case 1:
 				return html`
-					, <br/> Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
+					, <br/> Card <b>${card.maskedCardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`;
 			case 2:
 				return html`
 					${this._renderOtherCards(succeeded)}`;
@@ -333,7 +333,7 @@ export class CardSettingsOutcome extends ViewBase {
 		return this.expandOtherCards
 			? html`
 		${otherCards.map(card => html`
-			, <br/> Card <b>${card.cardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`)}`
+			, <br/> Card <b>${card.maskedCardNumber}</b> ${succeeded ? `updated successfully` : `not updated`}`)}`
 			: html`
 			, <br/> and <capitec-hyperlink label="${otherCards.length} other(s)" size="small" @click="${() => this.expandOtherCards = !this.expandOtherCards}"></capitec-hyperlink>
 		`;

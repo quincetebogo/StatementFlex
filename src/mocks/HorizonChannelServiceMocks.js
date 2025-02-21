@@ -35,6 +35,7 @@ export default class HorizonChannelServiceMocks {
 		this.mandatesMocks = await loadMockModule(this.mandatesMocks, `debiCheckAgreement`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardLandingMocks = await loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
+		this.stopCardLandingMocks = await loadMockModule(this.stopCardLandingMocks, `updateCardsSettings`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.capitecConnectRechargeHistoryMocks = await loadMockModule(this.capitecConnectRechargeHistoryMocks, `capitecConnectRechargeHistory`, () => import(`../mocks/CapitecConnectRechargeMockData`).catch(err => logError(err)));
 		this.capitecConnectAdvancesHistoryMocks = await loadMockModule(this.capitecConnectAdvancesHistoryMocks, `capitecConnectAdvancesHistory`, () => import(`../mocks/CapitecConnectAdvancesMockData`).catch(err => logError(err)));
@@ -43,7 +44,8 @@ export default class HorizonChannelServiceMocks {
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.savingsAccountMocks = await loadMockModule(this.savingsAccountMocks, `savingsPlanLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
-		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/tapToPayMocks`).catch(err => logError(err)));
+		this.tapToPayMocks = await loadMockModule(this.tapToPayMocks, `updateTapToPay`, () => import(`../mocks/tapToPayMocks`).catch(err => logError(err)));
 		this.liveBetterLandingMocks = await loadMockModule(this.liveBetterLandingMocks, `liveBetterLanding`, () => import(`../mocks/LiveBetterLandingMocks`).catch(err => logError(err)));
 		this.clientInsightsMocks = await loadMockModule(this.clientInsightsMocks, `getClientInsights`, () => import(`../mocks/ClientInsightsMocks`).catch(err => logError(err)));
 		this.accessChannelsMocks = await loadMockModule(this.accessChannelsMocks, `accessChannelLanding`, () => import(`../mocks/AccessChannelsMocks`).catch(err => logError(err)));
@@ -309,6 +311,13 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	updateCardsSettings() {
+
+		if (this._mockSettings.updateCardsSettings.positiveCase) {
+			return this.stopCardLandingMocks.updateCardsSettings;
+		}
+	}
+
 	stopCard(stopCardRequest) {
 		const cardStopResponse = {
 			cardResponses: stopCardRequest.cards.map((card) => (
@@ -333,12 +342,22 @@ export default class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	// Tap to pay function
+	// Tap to pay Landing
 
-	tapToPay(cifNumber) {
+	tapToPayLanding() {
 
 		if (this._mockSettings.tapToPayLanding.positiveCase) {
-			return this.tapToPayMocks.mockCards;
+			return this.tapToPayMocks.tapToPayLanding;
+		}
+		return null;
+	}
+
+	// Tap to pay update 
+
+	updateTapToPay() {
+
+		if (this._mockSettings.updateTapToPay.positiveCase) {
+			return this.tapToPayMocks.updateTapToPay;
 		}
 		return null;
 	}

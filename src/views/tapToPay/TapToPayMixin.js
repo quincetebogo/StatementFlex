@@ -21,30 +21,13 @@ export const tapToPayMixin = {
 		const currentIncident = this.horizonIncidentManager.currentIncident;
 
 		const returnValue = await this.cardService.tapToPayLanding(this.callerInformation.cifNumber, currentIncident);
-			
+
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		} else {
 			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`, `_tapToPay`, returnValue.correlationId);
 		}
-	},
-
-	async _getTapToPayAgreement(agreementRequest) {
-		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_TOGGLE, {
-			"screen": TelemetryScreen.TAP_TO_PAY,
-			"next-screen": null
-		});
-		
-		const returnValue = await this.cardService.tapToPayAgreement(agreementRequest);
-
-		if (returnValue.succeeded) {
-			return returnValue.result;
-		}
-
-		this.logger.log(`error`, `Unable to load Tap To Pay Agreement`, `_getTapToPayAgreement`, returnValue.correlationId);
-
-		return null;
 	},
 
 	async _updateTapToPay(updateRequest) {
@@ -55,11 +38,11 @@ export const tapToPayMixin = {
 
 		const returnValue = await this.cardService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update Tap To Pay Agreement`, `_updateTapToPay`, returnValue.correlationId);
+		if (returnValue.succeeded) {
+			this._tapToPayResult({ detail: { success: true, tapToPayDetails: updateRequest } });
+		} else {
+			this._tapToPayResult({ detail: { success: false, failureReason: "Failed to activate Tap to Pay" } });
 		}
-
-		return returnValue.succeeded;
 	},
 
 	_tapToPayErrorHandler(ex) {
@@ -87,20 +70,18 @@ export const tapToPayMixin = {
 	},
 
 	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
-		? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				.cifNumber=${this.callerInformation.cifNumber}
-				client-title="${this.callerInformation.title}"
-				.lastName="${this.callerInformation.lastName}"
-				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-				.getAgreements="${agreementRequest => this._getTapToPayAgreement(agreementRequest)}"
-				.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
-				@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.TAP_TO_PAY, TelemetryScreen.TAP_TO_PAY)}"
-				@back="${() => this._backToLandingPage()}"
-				@result=${eventData => this._tapToPayResult(eventData)}
-			></horizon-tap-to-pay-landing>
-		` : html``;
+		return this.renderMode === RENDER_MODE.TAP_TO_PAY
+			? html`
+            <horizon-tap-to-pay-landing
+                .cards="${this.cards}"
+                .cifNumber=${this.callerInformation.cifNumber}
+                client-title="${this.callerInformation.title}"
+                .lastName="${this.callerInformation.lastName}"
+                .updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
+                @loading="${() => this._telemetryStartSpan(QuickTransactionEvents.TAP_TO_PAY, TelemetryScreen.TAP_TO_PAY)}"
+                @back="${() => this._backToLandingPage()}"
+                @result=${eventData => this._tapToPayResult(eventData)}
+            ></horizon-tap-to-pay-landing>
+        ` : html``;
 	}
 };
