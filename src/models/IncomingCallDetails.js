@@ -21,6 +21,7 @@ export class IncomingCallDetails {
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
+	 * @param {string} [isAuthenticated=``] Flag indicating whether the incoming call is authenticated already
 	 */
 	constructor(
 		VDN = ``,
@@ -28,7 +29,7 @@ export class IncomingCallDetails {
 		/**
 		 * The CLI (incoming call number). This may not be the verified number of the client
 		 */
-		incomingTelephoneNumber = ``, 
+		incomingTelephoneNumber = ``,
 		isAssigned = false,
 		isHandedOff = false,
 		voiceReferenceNumber = ``,
@@ -38,21 +39,21 @@ export class IncomingCallDetails {
 		 */
 		agentTelephoneNumber = ``,
 
-		ivrOptionCode = ``, 
-		ivrOption = { 
-						'possibleValues': [
-							{
-								key: `StopCard`, value: `Stop Card`
-							},
-							{
-								key: `Transact`, value: `Transact`
-							},
-							{
-								key: `ProductEnquiry`, value: `Product Enquiry`
-							}
-						], 
-						'value': ivrOptionCode
+		ivrOptionCode = ``,
+		ivrOption = {
+			'possibleValues': [
+				{
+					key: `StopCard`, value: `Stop Card`
+				},
+				{
+					key: `Transact`, value: `Transact`
+				},
+				{
+					key: `ProductEnquiry`, value: `Product Enquiry`
 				}
+			],
+			'value': ivrOptionCode
+		}
 	) {
 		this.VDN = VDN;
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
@@ -66,6 +67,8 @@ export class IncomingCallDetails {
 
 		// An array of possible needs (IVR Options are mapped onto one of the needs in this array)
 		this.ivrOption = ivrOption;
+
+		this.isAuthenticated = this.isAuthenticated;
 
 		Object.seal();
 	}
