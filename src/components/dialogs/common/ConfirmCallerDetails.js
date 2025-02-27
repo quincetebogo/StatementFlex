@@ -317,6 +317,8 @@ export class ConfirmCallerDetails extends Component {
 			"next-screen": TelemetryScreen.SEARCH_CLIENT
 		});
 
+		this.incomingCallDetails.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 		} else {
@@ -716,6 +718,7 @@ export class ConfirmCallerDetails extends Component {
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
 								<capitec-content-box>
+									${this._renderIncomingCallIsAuthenticatedBanner()}
 									${this._renderError()}
 									${this._renderAlertBanner()}
 									${this._renderConfirmedCaller()}
@@ -743,6 +746,16 @@ export class ConfirmCallerDetails extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_renderIncomingCallIsAuthenticatedBanner() {
+		return this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL
+			? html`
+				<horizon-alert-banner 
+					type="success"
+					label="In-App call. Already verified.">
+				</horizon-alert-banner>`
+			: html``;
 	}
 
 	_renderError() {

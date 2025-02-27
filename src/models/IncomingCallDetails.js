@@ -4,6 +4,8 @@
  * @module models/IncomingCallDetails
  */
 
+import { INCOMING_CALL_AUTHENTICATION_FLAG } from "app/constants/Common";
+
 /**
  * The IncomingCallDetails class records the information on the incoming call. This object is preserved
  * in state for the duration of the call.
@@ -20,8 +22,8 @@ export class IncomingCallDetails {
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
-	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 * @param {string} [isAuthenticated=``] Flag indicating whether the incoming call is authenticated already
+	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 */
 	constructor(
 		VDN = ``,
@@ -40,6 +42,7 @@ export class IncomingCallDetails {
 		agentTelephoneNumber = ``,
 
 		ivrOptionCode = ``,
+		isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED,
 		ivrOption = {
 			'possibleValues': [
 				{
@@ -68,7 +71,7 @@ export class IncomingCallDetails {
 		// An array of possible needs (IVR Options are mapped onto one of the needs in this array)
 		this.ivrOption = ivrOption;
 
-		this.isAuthenticated = this.isAuthenticated;
+		this.isAuthenticated = isAuthenticated;
 
 		Object.seal();
 	}

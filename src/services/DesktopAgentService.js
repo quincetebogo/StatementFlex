@@ -168,7 +168,8 @@ export class DesktopAgentService {
 				this._logger.log(`warn`, `No Voice Reference Number received! This call may have been handled by doing a manual search.`, `_onNewCall`);
 			}
 
-			newCallEvent.isAuthenticated = this._mapAuthenticatedFlag(newCallEvent.Authenticated);
+			newCallEvent.isAuthenticated = this._mapAuthenticatedFlag(eventData.Authenticated);
+			newCallEvent.clientId = validate(eventData.ClientId, DesktopAgentService.clientId);
 
 			this.nextCall = newCallEvent;
 
@@ -303,7 +304,7 @@ export class DesktopAgentService {
 			newCallEvent.VDN = await this._getVdn();
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
-			newCallEvent.isAuthenticated = IncomingCallAuthenticationFlag.UNAUTHENTICATED;
+			newCallEvent.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
 
 			this._logger.log(`warn`, `Manual call handling invoked. This may be due to a missed incoming call event.`, `manualCreateCall`);
 
@@ -391,6 +392,7 @@ export class DesktopAgentService {
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = `^[0-9]*`;
 		DesktopAgentService.authenticated = `^(0|1)$`;
+		DesktopAgentService.clientId = `^[0-9]{9}$`;
 	}
 
 	_handleIncomingCall() {
