@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel,  } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -16,7 +16,8 @@ const VALIDATION_ERRORS = {
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	INVALID_EMAIL: `Enter a valid email address`,
 	GUARDIAN_UNDER_18: `Caregiver must be over 18`,
-	BENE_UNDER_18: `Beneficiary must be under 18`
+	BENE_UNDER_18: `Beneficiary must be under 18`,
+	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
 };
 
 const STEPS = {
@@ -595,6 +596,17 @@ class LifeUpdateChildDialog extends Component {
 			this.childErrors.dateOfBirth = ``;
 		}
 
+		if (!isNullorEmpty(this.updatingChild?.idNumber) && !isNullorEmpty(this.updatingChild?.dateOfBirth)) {
+			if (getAgeFromDob(this.updatingChild?.dateOfBirth) !== getAgeFromIDNumber(this.updatingChild?.idNumber)) {
+				this.childErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.childErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.childErrors.dateOfBirth = ``;
+				this.childErrors.idNumber = ``;
+			}
+		}
+
 		if (!isNullorEmpty(this.updatingChild?.idNumber)) {
 			if (!isValidRSAIdNumber(this.updatingChild?.idNumber)) {
 				this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
@@ -685,6 +697,17 @@ class LifeUpdateChildDialog extends Component {
 				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
+				this.updatingGuardianErrors.idNumber = ``;
+			}
+		}
+
+		if (!isNullorEmpty(this.updatingGuardian?.idNumber) && !isNullorEmpty(this.updatingGuardian?.dateOfBirth)) {
+			if (getAgeFromDob(this.updatingGuardian?.dateOfBirth) !== getAgeFromIDNumber(this.updatingGuardian?.idNumber)) {
+				this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.updatingGuardianErrors.dateOfBirth = ``;
 				this.updatingGuardianErrors.idNumber = ``;
 			}
 		}
