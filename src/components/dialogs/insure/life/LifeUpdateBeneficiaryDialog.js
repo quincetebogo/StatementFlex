@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -13,7 +13,8 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	INVALID_EMAIL: `Enter a valid email address`
+	INVALID_EMAIL: `Enter a valid email address`,
+	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
 };
 
 const REGEX_EMAIL_PATTERN = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
@@ -407,6 +408,17 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			stepValid = false;
 		} else {
 			this.beneficiaryErrors.dateOfBirth = ``;
+		}
+
+		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber) && !isNullorEmpty(this.updatingBeneficiary?.dateOfBirth)) {
+			if (getAgeFromDob(this.updatingBeneficiary?.dateOfBirth) !== getAgeFromIDNumber(this.updatingBeneficiary?.idNumber)) {
+				this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.beneficiaryErrors.dateOfBirth = ``;
+				this.beneficiaryErrors.idNumber = ``;
+			}
 		}
 
 		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber)) {

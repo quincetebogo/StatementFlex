@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -17,7 +17,8 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_EMAIL: `Enter a valid email address`,
-	FUTURE_DATE: `Date of birth cannot be in the future`
+	FUTURE_DATE: `Date of birth cannot be in the future`,
+	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
 };
 
 const STEPS = {
@@ -379,6 +380,18 @@ class LifeAddChildDialog extends Component {
 			}
 		}
 
+		if (!isNullorEmpty(this.newChild?.idNumber) && !isNullorEmpty(this.newChild?.dateOfBirth)) {
+			if (getAgeFromDob(this.newChild?.dateOfBirth) !== getAgeFromIDNumber(this.newChild?.idNumber)) {
+				this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.newChildErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.newChildErrors.dateOfBirth = ``;
+				this.newChildErrors.idNumber = ``;
+			}
+		}
+
+		
 		if (!isNullorEmpty(this.newChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newChild?.contactEmail)) {
 			this.newChildErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
@@ -462,6 +475,17 @@ class LifeAddChildDialog extends Component {
 				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
+				this.newGuardianErrors.idNumber = ``;
+			}
+		}
+
+		if (!isNullorEmpty(this.newGuardian?.idNumber) && !isNullorEmpty(this.newGuardian?.dateOfBirth)) {
+			if (getAgeFromDob(this.newGuardian?.dateOfBirth) !== getAgeFromIDNumber(this.newGuardian?.idNumber)) {
+				this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.newGuardianErrors.dateOfBirth = ``;
 				this.newGuardianErrors.idNumber = ``;
 			}
 		}
