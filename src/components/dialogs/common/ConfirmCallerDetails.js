@@ -220,10 +220,12 @@ export class ConfirmCallerDetails extends Component {
 			return;
 		}
 
+		const isAuthenticated = this._isInComingCallAuthenticated();
+
 		// Navigation based on need selected
 		const stopCard = () => this._navigateToLandingPage();
 		const productEnquiry = () => this._navigateToLandingPage();
-		const transact = () => this._verifyCaller();
+		const transact = () => this._verifyCaller(isAuthenticated);
 
 		const clientNeed = {
 			StopCard: stopCard,
@@ -235,10 +237,19 @@ export class ConfirmCallerDetails extends Component {
 
 	}
 
-	async _verifyCaller() {
+	_isInComingCallAuthenticated() {
 		if (this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
 			this.callerInformation.verificationStatus = `verified`;
 			this.callerInformation.verificationMethod = `ITA`;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	async _verifyCaller(isInComingCallAuthenticated) {
+		if (isInComingCallAuthenticated) {
 			this._navigateToLandingPage();
 		}
 
@@ -753,7 +764,8 @@ export class ConfirmCallerDetails extends Component {
 			? html`
 				<horizon-alert-banner 
 					type="success"
-					label="In-App call. Already verified.">
+					header="In-App Call:"
+					label="Client calling in via the App and has already authenticated">
 				</horizon-alert-banner>`
 			: html``;
 	}

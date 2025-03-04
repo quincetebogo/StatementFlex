@@ -21,8 +21,8 @@ export class IncomingCallDetails {
 	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
-	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {string} [isAuthenticated=``] Flag indicating whether the incoming call is authenticated already
+	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 */
 	constructor(
@@ -41,8 +41,8 @@ export class IncomingCallDetails {
 		 */
 		agentTelephoneNumber = ``,
 
-		ivrOptionCode = ``,
 		isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED,
+		ivrOptionCode = ``,
 		ivrOption = {
 			'possibleValues': [
 				{

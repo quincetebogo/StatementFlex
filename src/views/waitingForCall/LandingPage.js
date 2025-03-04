@@ -1,5 +1,5 @@
+import { AUTH_IDENTIFICATION_METHODS, INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
-import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -211,7 +211,20 @@ export class LandingPage extends ViewBase {
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
-		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
+		if (newCallInfo.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL && newCallInfo.clientId) {
+			const searchCallerRequest = {
+				identificationMethod: `5`, // Current search caller implementation expects the integer value of the search method
+				searchValue: newCallInfo.clientId
+			};
+
+			const returnValue = await this.clientProfileService.searchCaller(searchCallerRequest, null, 1);
+			callerDetails = returnValue.result;
+			forceSearchDialog = !returnValue.succeeded;
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
+			}
+		} else if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
 			const returnValue = await this.clientProfileService.acceptCall(newCallInfo, null, 1);
 			callerDetails = returnValue.result;
@@ -249,8 +262,11 @@ export class LandingPage extends ViewBase {
 		if (!forceSearchDialog && acceptedCall.callerInformation) {
 			this.confirmedCaller = acceptedCall.callerInformation;
 
-			// Case: We got response for the incoming phone number, meaning its verified phone number
-			this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
+			// Check that the incoming call is not yet authenticated
+			if (newCallInfo.isAuthenticated !== INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
+				// Case: We got response for the incoming phone number / CIF number, meaning its verified phone number or valid CIF
+				this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
+			}
 
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
@@ -406,8 +422,8 @@ export class LandingPage extends ViewBase {
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
-			newCallInfo.ivrOptionCode,
-			newCallInfo.isAuthenticated
+			newCallInfo.isAuthenticated,
+			newCallInfo.ivrOptionCode
 		);
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 	}
