@@ -1098,7 +1098,7 @@ class LifeAllocateCoverDialog extends Component {
 			this.updatedPolicy.pockets = policyPockets;
 
 			// remove allocations from beneficiaries in pockets with cover (Increase cover, reissue and allocate)
-			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE || LIFE_UPDATE_MODE.INCREASE) {
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					if (this.monthlyCoverValue === 0) {
 						bene.monthlyPayoutBenefitAmount = 0;
@@ -1411,7 +1411,7 @@ class LifeAllocateCoverDialog extends Component {
 			} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 
 				let requestBeneficiaries = [];
-				let requestGuadrians = [];
+				let requestGuardians = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
 					newBene.role = `Beneficiary`;
@@ -1477,7 +1477,7 @@ class LifeAllocateCoverDialog extends Component {
 							workphone: ``
 						};
 	
-						requestGuadrians.push(validGuardian);
+						requestGuardians.push(validGuardian);
 					});
 				}
 
@@ -1504,7 +1504,7 @@ class LifeAllocateCoverDialog extends Component {
 					"maxCoverApplicable": this.newOffer.maximumAllowedCover,
 					"discountPercent": 0,
 					"beneficiaries": requestBeneficiaries,
-					"guadrians": requestGuadrians,
+					"guadrians": requestGuardians,
 					"pockets": this.updatedPolicy.pockets,
 					"answers": []
 				};
