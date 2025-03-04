@@ -1504,7 +1504,7 @@ class LifeAllocateCoverDialog extends Component {
 					"maxCoverApplicable": this.newOffer.maximumAllowedCover,
 					"discountPercent": 0,
 					"beneficiaries": requestBeneficiaries,
-					"guadrians": requestGuardians,
+					"guardians": requestGuardians,
 					"pockets": this.updatedPolicy.pockets,
 					"answers": []
 				};
