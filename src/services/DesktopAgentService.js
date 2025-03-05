@@ -448,7 +448,6 @@ export class DesktopAgentService {
 	_checkCapitecConnectTeamLeader() {
 		const rolemanager = RoleManager.getInstance();
 		if (rolemanager.isCapitecConnectTeamleader && this._navigationContext.current.path === `/product/capitec-connect`) {
-			console.log(`teamleader`);
 			return true;
 		}
 
