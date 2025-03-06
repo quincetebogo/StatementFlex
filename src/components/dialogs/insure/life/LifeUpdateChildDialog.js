@@ -836,39 +836,20 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_nextClick() {
 		let stepValid = true;
-		
+
 		if (this.currentStep === STEPS.CHILD_DETAILS) {
 			stepValid = this._validateBeneficiaryDetails();
-		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
-			// First run validation
-			stepValid = this._validateGuardianStep();
-			
-			// Force display of guardian errors - this is important
-			if (!stepValid) {
-				// Force update after error state changes
-				setTimeout(() => {
-					this.requestUpdate();
-				}, 0);
-			}
-		} else if (this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN) {
-			if (this.updatingGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
-				this.newOrExistingErrorMessage = `Please select a guardian option`;
-				stepValid = false;
-			}
 		}
 
-		// If validation passed, move to next step
+		if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			stepValid = this._validateGuardianStep();
+		}
+
 		if (stepValid === true) {
 			this.currentStep++;
-			if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
-				this.childErrors = {}; // Only clear child errors when moving to guardian step
-			}
+			this.childErrors = {};
 			this.beneficiaryDetailsErrorMessage = ``;
-		} else {
-			// Show general error message
-			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		}
-		
 		this.requestUpdate();
 	}
 
