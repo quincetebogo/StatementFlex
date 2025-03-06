@@ -68,6 +68,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 		return `${this.employeeId}_XXXXX_02_2000_XX`;
 	}
 
+
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region PUBLIC METHODS
@@ -709,7 +710,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 		if (await this.isMockEnabled(`insurePolicyHistory`)) {
 			return this.mock(`insurePolicyHistory`);
 		}
-		
+
 		return this.post(
 			`/horizon-insurance/funeral/api/audit-transaction-history`,
 			policyHistoryRequest,
@@ -962,7 +963,7 @@ export class InsureFuneralService extends ChannelServiceBase {
 
 	}
 
-	
+
 
 	// #endregion Documents
 

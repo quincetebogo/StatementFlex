@@ -33,7 +33,7 @@ export const PolicyTransactionHistory =
 			"premiumAllocatedDate": `2024-11-02T00:00:00+02:00`,
 			"premium": 100.00,
 			"transactionStatus": `Financial`,
-			"premiumType": `PremiumCollection`,
+			"premiumType": `AdHocReceipt`,
 			"date": `2024-12-02T00:00:00+02:00`,
 			"amount": 100.00,
 			"bankDetails": {

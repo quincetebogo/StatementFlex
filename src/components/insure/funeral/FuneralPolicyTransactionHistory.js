@@ -651,7 +651,7 @@ class FuneralPolicyTransactionHistory extends Component {
 				size="140px">
 			</capitec-table-column>
 			<capitec-table-column
-				label="Date Allocated To"
+				label="Payment Due Date"
 				field="premiumAllocatedDate"
 				type="date"
 				size="140px">
