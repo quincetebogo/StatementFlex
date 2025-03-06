@@ -368,6 +368,10 @@ class LifeUpdateChildDialog extends Component {
 					const age = getAgeFromDob(this.updatingChild.dateOfBirth);
 					if (age >= 18) {
 						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+						this.childErrors.idNumber = VALIDATION_ERRORS.BENE_UNDER_18;
+					} else {
+						this.childErrors.dateOfBirth = ``;
+						this.childErrors.idNumber = ``;
 					}
 					
 					// ID validation if ID is populated
@@ -405,6 +409,10 @@ class LifeUpdateChildDialog extends Component {
 					const age = getAgeFromDob(this.updatingGuardian.dateOfBirth);
 					if (age < 18) {
 						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+						this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+					} else {
+						this.updatingGuardianErrors.dateOfBirth = ``;
+						this.updatingGuardianErrors.idNumber = ``;
 					}
 					
 					// ID validation if ID is populated
@@ -480,8 +488,10 @@ class LifeUpdateChildDialog extends Component {
 					const age = getAgeFromDob(this.updatingChild.dateOfBirth);
 					if (age >= 18) {
 						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+						this.childErrors.idNumber = VALIDATION_ERRORS.BENE_UNDER_18;
 					} else {
 						this.childErrors.dateOfBirth = ``;
+						this.childErrors.idNumber = ``;
 					}
 				} else {
 					this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
@@ -498,8 +508,10 @@ class LifeUpdateChildDialog extends Component {
 					const age = getAgeFromDob(this.updatingGuardian.dateOfBirth);
 					if (age < 18) {
 						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+						this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 					} else {
 						this.updatingGuardianErrors.dateOfBirth = ``;
+						this.updatingGuardianErrors.idNumber = ``;
 					}
 				} else {
 					this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
@@ -709,11 +721,11 @@ class LifeUpdateChildDialog extends Component {
 
 	/**
 	 *  Validate guardian step
-	 * @returns {void}
+	 * @returns {boolean} true if validation passes
 	 */
 	_validateGuardianStep() {
 		let stepValid = true;
-	
+
 		// Check required fields
 		if (isNullorEmpty(this.updatingGuardian?.title)) {
 			this.updatingGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
@@ -728,21 +740,21 @@ class LifeUpdateChildDialog extends Component {
 		} else {
 			this.updatingGuardianErrors.gender = ``;
 		}
-	
+
 		if (isNullorEmpty(this.updatingGuardian?.firstName)) {
 			this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.firstName = ``;
 		}
-	
+
 		if (isNullorEmpty(this.updatingGuardian?.lastName)) {
 			this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.lastName = ``;
 		}
-	
+
 		if (isNullorEmpty(this.updatingGuardian?.contactNumber)) {
 			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -752,7 +764,7 @@ class LifeUpdateChildDialog extends Component {
 		} else {
 			this.updatingGuardianErrors.contactNumber = ``;
 		}
-	
+
 		if (isNullorEmpty(this.updatingGuardian?.relationship)) {
 			this.updatingGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -768,7 +780,11 @@ class LifeUpdateChildDialog extends Component {
 			const age = getAgeFromDob(this.updatingGuardian?.dateOfBirth);
 			if (age < 18) {
 				this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 				stepValid = false;
+			} else {
+				this.updatingGuardianErrors.dateOfBirth = ``;
+				this.updatingGuardianErrors.idNumber = ``;
 			}
 		}
 		
@@ -795,14 +811,14 @@ class LifeUpdateChildDialog extends Component {
 		} else {
 			this.updatingGuardianErrors.idNumber = ``;
 		}
-	
+
 		if (!isNullorEmpty(this.updatingGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingGuardian?.contactEmail)) {
 			this.updatingGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.contactEmail = ``;
 		}
-	
+
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
@@ -823,26 +839,34 @@ class LifeUpdateChildDialog extends Component {
 		
 		if (this.currentStep === STEPS.CHILD_DETAILS) {
 			stepValid = this._validateBeneficiaryDetails();
-			if (!stepValid) {
-				this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
-				this.requestUpdate();
-			}
 		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			// First run validation
 			stepValid = this._validateGuardianStep();
 			
-			// Make sure the error message is displayed when validation fails
+			// Force display of guardian errors - this is important
 			if (!stepValid) {
-				this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
-				this.requestUpdate();
+				// Force update after error state changes
+				setTimeout(() => {
+					this.requestUpdate();
+				}, 0);
+			}
+		} else if (this.currentStep === STEPS.NEW_OR_EXISTING_GUARDIAN) {
+			if (this.updatingGuardianType === NEW_BENEFICIARY_TYPES.UNSET) {
+				this.newOrExistingErrorMessage = `Please select a guardian option`;
+				stepValid = false;
 			}
 		}
 
+		// If validation passed, move to next step
 		if (stepValid === true) {
 			this.currentStep++;
 			if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
-				this.childErrors = {};
+				this.childErrors = {}; // Only clear child errors when moving to guardian step
 			}
 			this.beneficiaryDetailsErrorMessage = ``;
+		} else {
+			// Show general error message
+			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		}
 		
 		this.requestUpdate();
@@ -1128,7 +1152,7 @@ class LifeUpdateChildDialog extends Component {
 					error="${this.updatingGuardianErrors?.idNumber === undefined ? `` : this.updatingGuardianErrors.idNumber}"
 					@value-changed="${(e) => this._idChange(e, false)}">
 				</capitec-text-field>
-			
+
 				<capitec-date-time-picker 
 					style="width: 50%" 
 					label="Date of Birth" 
