@@ -563,10 +563,8 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			console.log(bene.educationBenefitAmount);
 
 			if (parseFloat(bene.educationBenefitAmount) < this.BENEFICIARY_MINIMUM_COVER) {
-				console.log("WE HAVE ARRIVED");
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
 				beneficiariesValid = false;
 			}
