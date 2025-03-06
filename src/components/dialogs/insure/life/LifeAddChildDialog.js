@@ -16,7 +16,7 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
-	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary OYINTANDA`,
+	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary`,
 	INVALID_EMAIL: `Enter a valid email address`,
 	FUTURE_DATE: `Date of birth cannot be in the future`,
 	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
