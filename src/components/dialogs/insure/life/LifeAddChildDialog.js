@@ -563,7 +563,6 @@ _validateAllocateCover() {
     let beneficiariesValid = true;
     this.pocketBeneficiaries.forEach(bene => {
         bene.metaData.coverErrorMsg = ``;
-        console.log(bene.educationBenefitAmount);
 
         if (parseFloat(bene.educationBenefitAmount) < BENEFICIARY_MINIMUM_COVER) {  // Use the constant directly
             bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
