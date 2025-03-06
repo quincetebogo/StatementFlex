@@ -16,6 +16,7 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary OYINTANDA`,
 	INVALID_EMAIL: `Enter a valid email address`,
 	FUTURE_DATE: `Date of birth cannot be in the future`,
 	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
@@ -311,35 +312,35 @@ class LifeAddChildDialog extends Component {
 	 */
 	_validateChildStep() {
 		let stepValid = true;
-
+	
 		if (isNullorEmpty(this.newChild?.title)) {
 			this.newChildErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newChildErrors.title = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newChild?.gender)) {
 			this.newChildErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newChildErrors.gender = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newChild?.firstName)) {
 			this.newChildErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newChildErrors.firstName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newChild?.lastName)) {
 			this.newChildErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newChildErrors.lastName = ``;
 		}
-
+	
 		if (!isNullorEmpty(this.newChild?.contactNumber)) {
 			if (this.newChild?.contactNumber.length < 10) {
 				this.newChildErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
@@ -350,55 +351,58 @@ class LifeAddChildDialog extends Component {
 		} else {
 			this.newChildErrors.contactNumber = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newChild?.relationship)) {
 			this.newChildErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newChildErrors.relationship = ``;
 		}
-
+	
 		if (this.newChild.dateOfBirth === undefined || this.newChild.dateOfBirth === ``) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else if (getAgeFromDob(this.newChild.dateOfBirth) > 18) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 			stepValid = false;
-		} else if (new Date(this.newChildErrors.dateOfBirth) > new Date()) {
+		} else if (new Date(this.newChild.dateOfBirth) > new Date()) {
 			this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
 			stepValid = false;
 		} else {
 			this.newChildErrors.dateOfBirth = ``;
 		}
-
+	
 		if (!isNullorEmpty(this.newChild.idNumber)) {
 			if (!isValidRSAIdNumber(this.newChild.idNumber)) {
 				this.newChildErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
-				this.newChildErrors.idNumber = ``;
+				const dobFromId = getDobFromIDNumber(this.newChild.idNumber);
+				
+				// Format both dates consistently for comparison
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.newChild.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.newChildErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				} else {
+					this.newChildErrors.dateOfBirth = ``;
+					this.newChildErrors.idNumber = ``;
+				}
 			}
+		} else {
+			this.newChildErrors.idNumber = ``;
 		}
-
-		if (!isNullorEmpty(this.newChild?.idNumber) && !isNullorEmpty(this.newChild?.dateOfBirth)) {
-			if (getAgeFromDob(this.newChild?.dateOfBirth) !== getAgeFromIDNumber(this.newChild?.idNumber)) {
-				this.newChildErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				this.newChildErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				stepValid = false;
-			} else {
-				this.newChildErrors.dateOfBirth = ``;
-				this.newChildErrors.idNumber = ``;
-			}
-		}
-
-		
+	
 		if (!isNullorEmpty(this.newChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newChild?.contactEmail)) {
 			this.newChildErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
 		} else {
 			this.newChildErrors.contactEmail = ``;
 		}
-
+	
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
@@ -407,42 +411,42 @@ class LifeAddChildDialog extends Component {
 		this.requestUpdate();
 		return stepValid;
 	}
-
+	
 	/**
 	 *  Validate guardian step
 	 * @returns {void}
 	 */
 	_validateGuardianStep() {
 		let stepValid = true;
-
+	
 		if (isNullorEmpty(this.newGuardian?.title)) {
 			this.newGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.title = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newGuardian?.gender)) {
 			this.newGuardianErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.gender = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newGuardian?.firstName)) {
 			this.newGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.firstName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newGuardian?.lastName)) {
 			this.newGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.lastName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newGuardian?.contactNumber)) {
 			this.newGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -452,51 +456,55 @@ class LifeAddChildDialog extends Component {
 		} else {
 			this.newGuardianErrors.contactNumber = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newGuardian?.relationship)) {
 			this.newGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.relationship = ``;
 		}
-
+	
 		if (this.newGuardian.dateOfBirth === undefined || this.newGuardian.dateOfBirth === ``) {
 			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else if (getAgeFromDob(this.newGuardian?.dateOfBirth) < 18) {
-			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.dateOfBirth = ``;
 		}
-
+	
 		if (!isNullorEmpty(this.newGuardian.idNumber)) {
 			if (!isValidRSAIdNumber(this.newGuardian.idNumber)) {
 				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
-				this.newGuardianErrors.idNumber = ``;
+				const dobFromId = getDobFromIDNumber(this.newGuardian.idNumber);
+				
+				// Format both dates consistently for comparison
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.newGuardian.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.newGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				} else {
+					this.newGuardianErrors.dateOfBirth = ``;
+					this.newGuardianErrors.idNumber = ``;
+				}
 			}
+		} else {
+			this.newGuardianErrors.idNumber = ``;
 		}
-
-		if (!isNullorEmpty(this.newGuardian?.idNumber) && !isNullorEmpty(this.newGuardian?.dateOfBirth)) {
-			if (getAgeFromDob(this.newGuardian?.dateOfBirth) !== getAgeFromIDNumber(this.newGuardian?.idNumber)) {
-				this.newGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				this.newGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				stepValid = false;
-			} else {
-				this.newGuardianErrors.dateOfBirth = ``;
-				this.newGuardianErrors.idNumber = ``;
-			}
-		}
-
+	
 		if (!isNullorEmpty(this.newGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newGuardian?.contactEmail)) {
 			this.newGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
 		} else {
 			this.newGuardianErrors.contactEmail = ``;
 		}
-
+	
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
@@ -505,7 +513,41 @@ class LifeAddChildDialog extends Component {
 		this.requestUpdate();
 		return stepValid;
 	}
-
+	
+	/**
+	 * Normalize date format for consistent comparison
+	 * @param {string} dateStr - The date string to normalize
+	 * @returns {string} - Normalized date in YYYY-MM-DD format
+	 */
+	_normalizeDate(dateStr) {
+		if (!dateStr) {
+			return ``; 
+		}
+	
+		// Handle different possible formats
+		let date;
+		if (dateStr.includes(`/`)) {
+			// Handle DD/MM/YYYY format
+			const parts = dateStr.split(`/`);
+			if (parts.length === 3) {
+				const day = parts[0].padStart(2, `0`);
+				const month = parts[1].padStart(2, `0`);
+				const year = parts[2];
+				date = new Date(`${year}-${month}-${day}`);
+			}
+		} else {
+			// Handle ISO format or other formats
+			date = new Date(dateStr);
+		}
+		
+		if (isNaN(date.getTime())) {
+			return dateStr; // Return original if parsing failed
+		}
+		
+		// Return standardized format YYYY-MM-DD
+		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, `0`)}-${String(date.getDate()).padStart(2, `0`)}`;
+	}
+	
 	/**
 	 * Validate allocate cover step
 	 * @returns {boolean} true if allocation is valid
@@ -521,16 +563,19 @@ class LifeAddChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (bene.educationBenefitAmount !== 0 && bene.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
-				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+			console.log(bene.educationBenefitAmount);
+
+			if (parseFloat(bene.educationBenefitAmount) < this.BENEFICIARY_MINIMUM_COVER) {
+				console.log("WE HAVE ARRIVED");
+				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
 				beneficiariesValid = false;
 			}
 		});
 
 		// Validate in flight child
 		this.newChild.metaData.coverErrorMsg = ``;
-		if (this.newChild.educationBenefitAmount !== 0 && this.newChild.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
-			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+		if (this.newChild.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
+			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
 			beneficiariesValid = false;
 		}
 

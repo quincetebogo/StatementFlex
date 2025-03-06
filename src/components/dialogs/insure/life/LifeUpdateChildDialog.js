@@ -1,6 +1,6 @@
 import { CHILD_TITLE_OPTIONS, GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_CHILD_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel,  } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -12,6 +12,7 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary for education`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	INVALID_EMAIL: `Enter a valid email address`,
@@ -357,13 +358,33 @@ class LifeUpdateChildDialog extends Component {
 					dob = dob.replace(timezone, ``);
 					this.updatingChild.dateOfBirth = dob;
 				} 
+
 				if (isNullorEmpty(this.updatingChild.dateOfBirth)) {
 					this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 				} else {
 					this.childErrors.dateOfBirth = ``;
-				}
-				if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
-					this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					
+					// Age validation - child must be under 18
+					const age = getAgeFromDob(this.updatingChild.dateOfBirth);
+					if (age >= 18) {
+						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
+					}
+					
+					// ID validation if ID is populated
+					if (!isNullorEmpty(this.updatingChild.idNumber)) {
+						if (isValidRSAIdNumber(this.updatingChild.idNumber)) {
+							const dobFromId = getDobFromIDNumber(this.updatingChild.idNumber);
+							const idDate = this._normalizeDate(dobFromId);
+							const selectedDate = this._normalizeDate(this.updatingChild.dateOfBirth);
+							
+							if (idDate !== selectedDate) {
+								this.childErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+								this.childErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+							} else {
+								this.childErrors.idNumber = ``;
+							}
+						}
+					}
 				}
 			} else {
 				this.updatingGuardian.dateOfBirth = e.detail.new.date;
@@ -374,13 +395,33 @@ class LifeUpdateChildDialog extends Component {
 					dob = dob.replace(timezone, ``);
 					this.updatingGuardian.dateOfBirth = dob;
 				}
+
 				if (isNullorEmpty(this.updatingGuardian.dateOfBirth)) {
 					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 				} else {
 					this.updatingGuardianErrors.dateOfBirth = ``;
-				}
-				if (getAgeFromDob(this.updatingGuardian.dateOfBirth) < 18) {
-					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+					
+					// Age validation - guardian must be 18 or older
+					const age = getAgeFromDob(this.updatingGuardian.dateOfBirth);
+					if (age < 18) {
+						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+					}
+					
+					// ID validation if ID is populated
+					if (!isNullorEmpty(this.updatingGuardian.idNumber)) {
+						if (isValidRSAIdNumber(this.updatingGuardian.idNumber)) {
+							const dobFromId = getDobFromIDNumber(this.updatingGuardian.idNumber);
+							const idDate = this._normalizeDate(dobFromId);
+							const selectedDate = this._normalizeDate(this.updatingGuardian.dateOfBirth);
+							
+							if (idDate !== selectedDate) {
+								this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+								this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+							} else {
+								this.updatingGuardianErrors.idNumber = ``;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -428,24 +469,34 @@ class LifeUpdateChildDialog extends Component {
 	_idChange(e, beneficiary) {
 		if (e.detail.old !== e.detail.new) {
 			if (beneficiary) {
+				// For child beneficiary
 				this.updatingChild.idNumber = e.detail.new;
 				if (isValidRSAIdNumber(this.updatingChild.idNumber)) {
-					this.updatingChild.dateOfBirth = getDobFromIDNumber(this.updatingChild.idNumber);
+					const dobFromId = getDobFromIDNumber(this.updatingChild.idNumber);
+					this.updatingChild.dateOfBirth = dobFromId;
 					this.childErrors.idNumber = ``;
-					if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
+					
+					// Age validation - child must be under 18
+					const age = getAgeFromDob(this.updatingChild.dateOfBirth);
+					if (age >= 18) {
 						this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 					} else {
 						this.childErrors.dateOfBirth = ``;
-					};
+					}
 				} else {
 					this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				}
 			} else {
+				// For guardian
 				this.updatingGuardian.idNumber = e.detail.new;
 				if (isValidRSAIdNumber(this.updatingGuardian.idNumber)) {
-					this.updatingGuardian.dateOfBirth = getDobFromIDNumber(this.updatingGuardian.idNumber);
+					const dobFromId = getDobFromIDNumber(this.updatingGuardian.idNumber);
+					this.updatingGuardian.dateOfBirth = dobFromId;
 					this.updatingGuardianErrors.idNumber = ``;
-					if (getAgeFromDob(this.updatingGuardian.dateOfBirth) < 18) {
+					
+					// Age validation - guardian must be 18 or older
+					const age = getAgeFromDob(this.updatingGuardian.dateOfBirth);
+					if (age < 18) {
 						this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
 					} else {
 						this.updatingGuardianErrors.dateOfBirth = ``;
@@ -499,8 +550,8 @@ class LifeUpdateChildDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (parseFloat(bene.educationBenefitAmount) < 1000 && parseFloat(bene.educationBenefitAmount) !== 0) {
-				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
+			if (parseFloat(bene.educationBenefitAmount) < 50000) {
+				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
 				beneficiariesValid = false;
 			}
 		});
@@ -557,77 +608,103 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_validateBeneficiaryDetails() {
 		let stepValid = true;
-
+		
+		// Check for required fields
+		if (isNullorEmpty(this.updatingChild?.title)) {
+			this.childErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		}
+		
+		if (isNullorEmpty(this.updatingChild?.gender)) {
+			this.childErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		}
+		
 		if (isNullorEmpty(this.updatingChild?.firstName)) {
 			this.childErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else {
-			this.childErrors.firstName = ``;
 		}
-
+		
 		if (isNullorEmpty(this.updatingChild?.lastName)) {
 			this.childErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else {
-			this.childErrors.lastName = ``;
 		}
-
-		if (!isNullorEmpty(this.updatingChild?.contactNumber)) {
-			if (this.updatingChild?.contactNumber.length < 10) {
-				this.childErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
-				stepValid = false;
-			} else {
-				this.childErrors.contactNumber = ``;
-			}
-		} else {
-			this.childErrors.contactNumber = ``;
+		
+		if (isNullorEmpty(this.updatingChild?.relationship)) {
+			this.childErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
 		}
-
+		
+		// Check date of birth
 		if (this.updatingChild.dateOfBirth === undefined || this.updatingChild.dateOfBirth === ``) {
 			this.childErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (getAgeFromDob(this.updatingChild.dateOfBirth) > 18) {
-			this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
-			stepValid = false;
-		} else if (new Date(this.childErrors.dateOfBirth) > new Date()) {
-			this.childErrors.dateOfBirth = VALIDATION_ERRORS.FUTURE_DATE;
-			stepValid = false;
 		} else {
-			this.childErrors.dateOfBirth = ``;
-		}
-
-		if (!isNullorEmpty(this.updatingChild?.idNumber) && !isNullorEmpty(this.updatingChild?.dateOfBirth)) {
-			if (getAgeFromDob(this.updatingChild?.dateOfBirth) !== getAgeFromIDNumber(this.updatingChild?.idNumber)) {
-				this.childErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				this.childErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+			// Check age - child must be under 18
+			const age = getAgeFromDob(this.updatingChild.dateOfBirth);
+			if (age >= 18) {
+				this.childErrors.dateOfBirth = VALIDATION_ERRORS.BENE_UNDER_18;
 				stepValid = false;
-			} else {
-				this.childErrors.dateOfBirth = ``;
-				this.childErrors.idNumber = ``;
 			}
 		}
-
-		if (!isNullorEmpty(this.updatingChild?.idNumber)) {
-			if (!isValidRSAIdNumber(this.updatingChild?.idNumber)) {
+		
+		// ID validation
+		if (!isNullorEmpty(this.updatingChild.idNumber)) {
+			if (!isValidRSAIdNumber(this.updatingChild.idNumber)) {
 				this.childErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
+			} else {
+				const dobFromId = getDobFromIDNumber(this.updatingChild.idNumber);
+				
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.updatingChild.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.childErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.childErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				}
 			}
 		}
-
-		if (!isNullorEmpty(this.updatingChild?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingChild?.contactEmail)) {
+		
+		// Email validation if provided
+		if (!isNullorEmpty(this.updatingChild?.contactEmail) && 
+			!RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingChild?.contactEmail)) {
 			this.childErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
-		} else {
-			this.childErrors.contactEmail = ``;
 		}
-
+		
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
-		} else {
-			this.beneficiaryDetailsErrorMessage = ``;
 		}
-		this.requestUpdate();
+		
 		return stepValid;
+	}
+
+	_normalizeDate(dateStr) {
+		if (!dateStr) {
+			return ``; 
+		}
+
+		// Handle different possible formats
+		let date;
+		if (dateStr.includes(`/`)) {
+			const parts = dateStr.split(`/`);
+			if (parts.length === 3) {
+				const day = parts[0].padStart(2, `0`);
+				const month = parts[1].padStart(2, `0`);
+				const year = parts[2];
+				date = new Date(`${year}-${month}-${day}`);
+			}
+		} else {
+			date = new Date(dateStr);
+		}
+		
+		if (isNaN(date.getTime())) {
+			return dateStr; 
+		}
+
+		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, `0`)}-${String(date.getDate()).padStart(2, `0`)}`;
 	}
 
 	/**
@@ -636,35 +713,36 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_validateGuardianStep() {
 		let stepValid = true;
-
+	
+		// Check required fields
 		if (isNullorEmpty(this.updatingGuardian?.title)) {
 			this.updatingGuardianErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.title = ``;
 		}
-
+		
 		if (isNullorEmpty(this.updatingGuardian?.gender)) {
 			this.updatingGuardianErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.gender = ``;
 		}
-
+	
 		if (isNullorEmpty(this.updatingGuardian?.firstName)) {
 			this.updatingGuardianErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.firstName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.updatingGuardian?.lastName)) {
 			this.updatingGuardianErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.lastName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.updatingGuardian?.contactNumber)) {
 			this.updatingGuardianErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -674,56 +752,63 @@ class LifeUpdateChildDialog extends Component {
 		} else {
 			this.updatingGuardianErrors.contactNumber = ``;
 		}
-
+	
 		if (isNullorEmpty(this.updatingGuardian?.relationship)) {
 			this.updatingGuardianErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.relationship = ``;
 		}
-
+		
+		// Check date of birth and age
 		if (this.updatingGuardian.dateOfBirth === undefined || this.updatingGuardian.dateOfBirth === ``) {
 			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (getAgeFromDob(this.updatingGuardian?.dateOfBirth) < 18) {
-			this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
-			stepValid = false;
 		} else {
-			this.updatingGuardianErrors.dateOfBirth = ``;
+			const age = getAgeFromDob(this.updatingGuardian?.dateOfBirth);
+			if (age < 18) {
+				this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.GUARDIAN_UNDER_18;
+				stepValid = false;
+			}
 		}
-
+		
+		// ID validation - Added full implementation
 		if (!isNullorEmpty(this.updatingGuardian.idNumber)) {
 			if (!isValidRSAIdNumber(this.updatingGuardian.idNumber)) {
 				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
 			} else {
-				this.updatingGuardianErrors.idNumber = ``;
+				const dobFromId = getDobFromIDNumber(this.updatingGuardian.idNumber);
+				
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.updatingGuardian.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				} else {
+					this.updatingGuardianErrors.dateOfBirth = ``;
+					this.updatingGuardianErrors.idNumber = ``;
+				}
 			}
+		} else {
+			this.updatingGuardianErrors.idNumber = ``;
 		}
-
-		if (!isNullorEmpty(this.updatingGuardian?.idNumber) && !isNullorEmpty(this.updatingGuardian?.dateOfBirth)) {
-			if (getAgeFromDob(this.updatingGuardian?.dateOfBirth) !== getAgeFromIDNumber(this.updatingGuardian?.idNumber)) {
-				this.updatingGuardianErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				this.updatingGuardianErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				stepValid = false;
-			} else {
-				this.updatingGuardianErrors.dateOfBirth = ``;
-				this.updatingGuardianErrors.idNumber = ``;
-			}
-		}
-
+	
 		if (!isNullorEmpty(this.updatingGuardian?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.updatingGuardian?.contactEmail)) {
 			this.updatingGuardianErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
 			stepValid = false;
 		} else {
 			this.updatingGuardianErrors.contactEmail = ``;
 		}
-
+	
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
+		
 		this.requestUpdate();
 		return stepValid;
 	}
@@ -735,19 +820,31 @@ class LifeUpdateChildDialog extends Component {
 	 */
 	_nextClick() {
 		let stepValid = true;
+		
 		if (this.currentStep === STEPS.CHILD_DETAILS) {
 			stepValid = this._validateBeneficiaryDetails();
-		}
-		if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+			if (!stepValid) {
+				this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+				this.requestUpdate();
+			}
+		} else if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
 			stepValid = this._validateGuardianStep();
+			
+			// Make sure the error message is displayed when validation fails
+			if (!stepValid) {
+				this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
+				this.requestUpdate();
+			}
 		}
-
 
 		if (stepValid === true) {
 			this.currentStep++;
-			this.childErrors = {};
+			if (this.currentStep === STEPS.GUARDIAN_DETAILS) {
+				this.childErrors = {};
+			}
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
+		
 		this.requestUpdate();
 	}
 
@@ -973,6 +1070,16 @@ class LifeUpdateChildDialog extends Component {
  */
 	_renderGuardianDetails() {
 		return html`
+		    ${this.beneficiaryDetailsErrorMessage !== `` ? html`
+				<div style="padding: 20px 16px 0px 16px;">
+					<horizon-alert-banner
+						type="error"
+						header="Step incomplete"
+						label="${this.beneficiaryDetailsErrorMessage}"
+						layout="vertical">
+					</horizon-alert-banner>
+				</div>` : html``
+			}
 			<div class="grouping">
 				<capitec-select 
 					label="Title" 

@@ -11,6 +11,7 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
 	INVALID_EMAIL: `Enter a valid email address`,
@@ -218,14 +219,70 @@ class LifeUpdateBeneficiaryDialog extends Component {
 				const timezone = `+02:00`;
 				dob = dob.replace(timezone, ``);
 				this.updatingBeneficiary.dateOfBirth = dob;
-			} else {
-				this.updatingBeneficiary.dateOfBirth = e.detail.new.date;
 			}
-
-			this._validateBeneficiaryDetails();
+			
+			// Basic validation
+			if (getAgeFromDob(this.updatingBeneficiary?.dateOfBirth) < 18) {
+				this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			} else {
+				this.beneficiaryErrors.dateOfBirth = ``;
+			}
+			
+			// Revalidate ID number
+			if (!isNullorEmpty(this.updatingBeneficiary.idNumber)) {
+				if (isValidRSAIdNumber(this.updatingBeneficiary.idNumber)) {
+					const dobFromId = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
+					
+					const idDate = this._normalizeDate(dobFromId);
+					const selectedDate = this._normalizeDate(this.updatingBeneficiary.dateOfBirth);
+					
+					if (idDate !== selectedDate) {
+						this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+						this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					} else {
+						this.beneficiaryErrors.dateOfBirth = ``;
+						this.beneficiaryErrors.idNumber = ``;
+					}
+				}
+			}
 		}
 		this.requestUpdate();
 	}
+
+	/**
+ * Normalize date format for consistent comparison
+ * @param {string} dateStr - The date string to normalize
+ * @returns {string} - Normalized date in YYYY-MM-DD format
+ */
+_normalizeDate(dateStr) {
+    if (!dateStr) {
+        return ``; 
+    }
+
+    // Handle different possible formats
+    let date;
+    if (dateStr.includes(`/`)) {
+        // Handle DD/MM/YYYY format
+        const parts = dateStr.split(`/`);
+        if (parts.length === 3) {
+            const day = parts[0].padStart(2, `0`);
+            const month = parts[1].padStart(2, `0`);
+            const year = parts[2];
+            date = new Date(`${year}-${month}-${day}`);
+        }
+    } else {
+        // Handle ISO format or other formats
+        date = new Date(dateStr);
+    }
+    
+    if (isNaN(date.getTime())) {
+        return dateStr; // Return original if parsing failed
+    }
+    
+    // Return standardized format YYYY-MM-DD
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, `0`)}-${String(date.getDate()).padStart(2, `0`)}`;
+}
+
 
 	/**
 	 * Event fired when a beneficiary EMAIL value changes
@@ -275,11 +332,20 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			this.updatingBeneficiary.dateOfBirth = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
 			this.beneficiaryErrors.idNumber = ``;
 
-			// Age check
 			if (getAgeFromDob(this.updatingBeneficiary?.dateOfBirth) < 18) {
 				this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
 			} else {
 				this.beneficiaryErrors.dateOfBirth = ``;
+			}
+			
+			if (!isNullorEmpty(this.updatingBeneficiary.dateOfBirth)) {
+				const idDate = this._normalizeDate(this.updatingBeneficiary.dateOfBirth);
+				const selectedDate = this._normalizeDate(this.updatingBeneficiary.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				}
 			}
 		} else {
 			this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
@@ -305,12 +371,12 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (bene.monthlyPayoutBenefitAmount !== 0 && bene.monthlyPayoutBenefitAmount < 1000)) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (bene.onceOffPayoutBenefitAmount !== 0 && bene.onceOffPayoutBenefitAmount < 1000)) {
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
@@ -376,6 +442,20 @@ class LifeUpdateBeneficiaryDialog extends Component {
 	_validateBeneficiaryDetails() {
 		let stepValid = true;
 
+		if (isNullorEmpty(this.updatingBeneficiary?.title)) {
+			this.beneficiaryErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.beneficiaryErrors.title = ``;
+		}
+	
+		if (isNullorEmpty(this.updatingBeneficiary?.gender)) {
+			this.beneficiaryErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.beneficiaryErrors.gender = ``;
+		}
+
 		if (isNullorEmpty(this.updatingBeneficiary?.firstName)) {
 			this.beneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -393,11 +473,18 @@ class LifeUpdateBeneficiaryDialog extends Component {
 		if (isNullorEmpty(this.updatingBeneficiary?.contactNumber)) {
 			this.beneficiaryErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
-		} else if (this.updatingBeneficiary?.contactNumber.length !== 10) {
+		} else if (this.updatingBeneficiary?.contactNumber.length > 0 && this.updatingBeneficiary?.contactNumber.length < 10) {
 			this.beneficiaryErrors.contactNumber = VALIDATION_ERRORS.INVALID_CELL_NUMBER;
 			stepValid = false;
 		} else {
 			this.beneficiaryErrors.contactNumber = ``;
+		}
+	
+		if (isNullorEmpty(this.updatingBeneficiary?.relationship)) {
+			this.beneficiaryErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
+			stepValid = false;
+		} else {
+			this.beneficiaryErrors.relationship = ``;
 		}
 
 		if (this.updatingBeneficiary.dateOfBirth === undefined || this.updatingBeneficiary.dateOfBirth === ``) {
@@ -410,21 +497,25 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			this.beneficiaryErrors.dateOfBirth = ``;
 		}
 
-		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber) && !isNullorEmpty(this.updatingBeneficiary?.dateOfBirth)) {
-			if (getAgeFromDob(this.updatingBeneficiary?.dateOfBirth) !== getAgeFromIDNumber(this.updatingBeneficiary?.idNumber)) {
-				this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
-				stepValid = false;
-			} else {
-				this.beneficiaryErrors.dateOfBirth = ``;
-				this.beneficiaryErrors.idNumber = ``;
-			}
-		}
-
-		if (!isNullorEmpty(this.updatingBeneficiary?.idNumber)) {
+		if (!isNullorEmpty(this.updatingBeneficiary.idNumber)) {
 			if (!isValidRSAIdNumber(this.updatingBeneficiary.idNumber)) {
 				this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
+			} else {
+				const dobFromId = getDobFromIDNumber(this.updatingBeneficiary.idNumber);
+				
+				// Format both dates consistently for comparison
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.updatingBeneficiary.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.beneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.beneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				} else {
+					this.beneficiaryErrors.dateOfBirth = ``;
+					this.beneficiaryErrors.idNumber = ``;
+				}
 			}
 		} else {
 			this.beneficiaryErrors.idNumber = ``;
@@ -437,12 +528,12 @@ class LifeUpdateBeneficiaryDialog extends Component {
 			this.beneficiaryErrors.contactEmail = ``;
 		}
 
-
 		if (stepValid === false) {
 			this.beneficiaryDetailsErrorMessage = `Some fields contain invalid values`;
 		} else {
 			this.beneficiaryDetailsErrorMessage = ``;
 		}
+
 		this.requestUpdate();
 		return stepValid;
 	}
