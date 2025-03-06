@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -14,7 +14,8 @@ const VALIDATION_ERRORS = {
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	INVALID_EMAIL: `Enter a valid email address`
+	INVALID_EMAIL: `Enter a valid email address`,
+	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -498,6 +499,18 @@ class LifeAddBeneficiaryDialog extends Component {
 		} else {
 			this.newBeneficiaryErrors.idNumber = ``;
 		}
+
+		if (!isNullorEmpty(this.newBeneficiary?.idNumber) && !isNullorEmpty(this.newBeneficiary?.dateOfBirth)) {
+			if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) !== getAgeFromIDNumber(this.newBeneficiary?.idNumber)) {
+				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+				stepValid = false;
+			} else {
+				this.newBeneficiaryErrors.dateOfBirth = ``;
+				this.newBeneficiaryErrors.idNumber = ``;
+			}
+		}
+
 
 		if (!isNullorEmpty(this.newBeneficiary?.contactEmail) && !RegExp(REGEX_EMAIL_PATTERN, `g`).test(this.newBeneficiary?.contactEmail)) {
 			this.newBeneficiaryErrors.contactEmail = VALIDATION_ERRORS.INVALID_EMAIL;
