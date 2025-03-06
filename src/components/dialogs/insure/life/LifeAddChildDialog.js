@@ -548,42 +548,43 @@ class LifeAddChildDialog extends Component {
 		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, `0`)}-${String(date.getDate()).padStart(2, `0`)}`;
 	}
 	
-	/**
-	 * Validate allocate cover step
-	 * @returns {boolean} true if allocation is valid
-	 */
-	_validateAllocateCover() {
-		this.allocateMoneyErrorMessage = ``;
+/**
+ * Validate allocate cover step
+ * @returns {boolean} true if allocation is valid
+ */
+_validateAllocateCover() {
+    this.allocateMoneyErrorMessage = ``;
 
-		if (this.pocketRemainingCover < 0) {
-			this.allocateMoneyErrorMessage = VALIDATION_ERRORS.ALLOCATION_OVER;
-			return false;
-		}
+    if (this.pocketRemainingCover < 0) {
+        this.allocateMoneyErrorMessage = VALIDATION_ERRORS.ALLOCATION_OVER;
+        return false;
+    }
 
-		let beneficiariesValid = true;
-		this.pocketBeneficiaries.forEach(bene => {
-			bene.metaData.coverErrorMsg = ``;
+    let beneficiariesValid = true;
+    this.pocketBeneficiaries.forEach(bene => {
+        bene.metaData.coverErrorMsg = ``;
+        console.log(bene.educationBenefitAmount);
 
-			if (parseFloat(bene.educationBenefitAmount) < this.BENEFICIARY_MINIMUM_COVER) {
-				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
-				beneficiariesValid = false;
-			}
-		});
+        if (parseFloat(bene.educationBenefitAmount) < BENEFICIARY_MINIMUM_COVER) {  // Use the constant directly
+            bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
+            beneficiariesValid = false;
+        }
+    });
 
-		// Validate in flight child
-		this.newChild.metaData.coverErrorMsg = ``;
-		if (this.newChild.educationBenefitAmount < this.BENEFICIARY_MINIMUM_COVER) {
-			this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
-			beneficiariesValid = false;
-		}
+    // Validate in flight child
+    this.newChild.metaData.coverErrorMsg = ``;
+    if (this.newChild.educationBenefitAmount < BENEFICIARY_MINIMUM_COVER) {  // Use the constant directly
+        this.newChild.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM_EDUCATION;
+        beneficiariesValid = false;
+    }
 
-		if (beneficiariesValid === false) {
-			this.requestUpdate();
-			return false;
-		}
+    if (beneficiariesValid === false) {
+        this.requestUpdate();
+        return false;
+    }
 
-		return true;
-	}
+    return true;
+}
 
 	/**
 	 * Get the cover amount for a beneficiary
