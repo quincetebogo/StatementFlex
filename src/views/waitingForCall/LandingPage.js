@@ -1,5 +1,5 @@
+import { AUTH_IDENTIFICATION_METHODS, INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
-import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -122,8 +122,8 @@ export class LandingPage extends ViewBase {
 
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
-		this.searchCallSub.dispose(); 
-		this.agentUpSub.dispose(); 
+		this.searchCallSub.dispose();
+		this.agentUpSub.dispose();
 		this.eventSub.dispose();
 		this.callStatusSubscription.unsubscribe();
 		this.incCreatedOnRetry.dispose();
@@ -151,7 +151,7 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-		
+
 		// 1. Saving incoming call details into state
 		this._saveIncomingCallDetails(newCallInfo);
 
@@ -175,18 +175,18 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
-		 const incident = returnValue.result?.incident;
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
+		const incident = returnValue.result?.incident;
 
-		 if (!returnValue.succeeded || !incident) {
+		if (!returnValue.succeeded || !incident) {
 			const ex = returnValue.exception;
 
 			if (ex && ex instanceof HttpStatusError) {
 				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
-			} 
+			}
 
-		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
-		 }
+			this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
+		}
 
 		if (incident) {
 			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
@@ -194,7 +194,7 @@ export class LandingPage extends ViewBase {
 				"incident-rec-id": incident.incidentId
 			}, true);
 		}
-	
+
 		return incident;
 	}
 
@@ -211,7 +211,20 @@ export class LandingPage extends ViewBase {
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
-		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
+		if (newCallInfo.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL && newCallInfo.clientId) {
+			const searchCallerRequest = {
+				identificationMethod: `5`, // Current search caller implementation expects the integer value of the search method
+				searchValue: newCallInfo.clientId
+			};
+
+			const returnValue = await this.clientProfileService.searchCaller(searchCallerRequest, null, 1);
+			callerDetails = returnValue.result;
+			forceSearchDialog = !returnValue.succeeded;
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
+			}
+		} else if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
 			// Check the incoming call to see if it is a verified or unverified number
 			const returnValue = await this.clientProfileService.acceptCall(newCallInfo, null, 1);
 			callerDetails = returnValue.result;
@@ -237,7 +250,7 @@ export class LandingPage extends ViewBase {
 	 * @memberof LandingPage
 	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
-		
+
 		const state = {
 			callStatus: `CALL-IN-PROGRESS`
 		};
@@ -249,9 +262,12 @@ export class LandingPage extends ViewBase {
 		if (!forceSearchDialog && acceptedCall.callerInformation) {
 			this.confirmedCaller = acceptedCall.callerInformation;
 
-			// Case: We got response for the incoming phone number, meaning its verified phone number
-			this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
-			
+			// Check that the incoming call is not yet authenticated
+			if (newCallInfo.isAuthenticated !== INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
+				// Case: We got response for the incoming phone number / CIF number, meaning its verified phone number or valid CIF
+				this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
+			}
+
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
@@ -320,7 +336,7 @@ export class LandingPage extends ViewBase {
 			``, // branch code
 			`` // Masked cif
 		);
-		
+
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
@@ -338,7 +354,7 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
-	
+
 	async _updatePreferredLanguage(preferredLanguage) {
 		// CS call to update preferred language
 		const isUpdateSuccess = await this._updatePreferences(preferredLanguage, this.confirmedCaller.cifNumber);
@@ -353,7 +369,7 @@ export class LandingPage extends ViewBase {
 		} else {
 			this.preferenceToastDetails = { type: `error`, header: `Error`, detail: `Preferred language update failed.` };
 		}
-		
+
 		this.displayToast = true;
 		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
@@ -378,7 +394,7 @@ export class LandingPage extends ViewBase {
 		if (returnValue.succeeded) {
 			const landingPageData = returnValue.result;
 			this.employeeId = landingPageData.loggedInAgent.employeeId;
-			
+
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
@@ -402,10 +418,11 @@ export class LandingPage extends ViewBase {
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
-			false, 
+			false,
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
+			newCallInfo.isAuthenticated,
 			newCallInfo.ivrOptionCode
 		);
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
@@ -493,7 +510,7 @@ export class LandingPage extends ViewBase {
 
 	_renderToast() {
 		return this.displayToast
-		? html`
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="${this.preferenceToastDetails.type}" 
@@ -502,7 +519,7 @@ export class LandingPage extends ViewBase {
 				@click="${() => this.displayToast = false}"
 				closable >
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 }
 
