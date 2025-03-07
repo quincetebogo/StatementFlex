@@ -6,83 +6,100 @@
  */
 export const PolicyTransactionHistory =
 {
-	"contractReference": `FP00008602`,
+	"contractReference": "FP00008463",
 	"transactions": [
 		{
-			"status": `Pending`,
-			"premiumDueDate": `2025-01-02T00:00:00+02:00`,
-			"premiumAllocatedDate": `2025-01-02T00:00:00+02:00`,
-			"premium": 100.00,
-			"transactionStatus": `Financial`,
-			"premiumType": `PremiumCollection`,
-			"date": `2025-01-02T00:00:00+02:00`,
-			"amount": 100.00,
+			"transactionStatus": "Financial",
+			"premiumType": "PayArrear",
+			"date": "2024-11-29T00:00:00Z",
+			"amount": 189.52,
+			"arrearsAllocatedDate": "2024-08-04T00:00:00Z",
+			"arrearsStatus": "PAID",
 			"bankDetails": {
-				"collectionDay": 2,
-				"accountName": `Capitec Bank`,
-				"branchCode": `470010`,
-				"accountNumber": `2010186040`,
-				"bank": `Capitec`,
-				"accountType": `Savings`
-			},
-			reason: `Not Provided For`
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
 		},
 		{
-			"status": `Successful`,
-			"premiumDueDate": `2024-12-02T00:00:00+02:00`,
-			"premiumAllocatedDate": `2024-11-02T00:00:00+02:00`,
-			"premium": 100.00,
-			"transactionStatus": `Financial`,
-			"premiumType": `AdHocReceipt`,
-			"date": `2024-12-02T00:00:00+02:00`,
-			"amount": 100.00,
+			"transactionStatus": "Financial",
+			"premiumType": "PayArrear",
+			"date": "2024-11-29T00:00:00Z",
+			"amount": 189.52,
+			"arrearsAllocatedDate": "2024-09-04T00:00:00Z",
+			"arrearsStatus": "PAID",
 			"bankDetails": {
-				"collectionDay": 2,
-				"accountName": `Capitec Bank`,
-				"branchCode": `470010`,
-				"accountNumber": `2010186040`,
-				"bank": `Capitec`,
-				"accountType": `Savings`
-			},
-			reason: `November Premium`
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
 		},
 		{
-			"status": `Failed`,
-			"premiumDueDate": `2024-11-02T00:00:00+02:00`,
-			"premiumAllocatedDate": `2024-11-02T00:00:00+02:00`,
-			"premium": 100.00,
-			"transactionStatus": `Financial`,
-			"premiumType": `PremiumCollection`,
-			"date": `2024-11-02T00:00:00+02:00`,
-			"amount": 100.00,
+			"transactionStatus": "Financial",
+			"premiumType": "PayArrear",
+			"date": "2024-11-29T00:00:00Z",
+			"amount": 189.52,
+			"arrearsAllocatedDate": "2024-10-04T00:00:00Z",
+			"arrearsStatus": "PAID",
 			"bankDetails": {
-				"collectionDay": 2,
-				"accountName": `Capitec Bank`,
-				"branchCode": `470010`,
-				"accountNumber": `2010186040`,
-				"bank": `Capitec`,
-				"accountType": `Savings`
-			},
-			reason: `Debit Order Dispute`
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
 		},
 		{
-			"status": `Successful`,
-			"premiumDueDate": `2024-10-02T00:00:00+02:00`,
-			"premiumAllocatedDate": `2024-10-02T00:00:00+02:00`,
-			"premium": 100.00,
-			"transactionStatus": `Financial`,
-			"premiumType": `PremiumCollection`,
-			"date": `2024-10-02T00:00:00+02:00`,
-			"amount": 100.00,
+			"premium": 189.52,
+			"transactionStatus": "Financial",
+			"premiumType": "PremiumCollection",
+			"date": "2024-10-04T00:00:00Z",
+			"amount": 189.52,
 			"bankDetails": {
-				"collectionDay": 2,
-				"accountName": `Capitec Bank`,
-				"branchCode": `470010`,
-				"accountNumber": `2010186040`,
-				"bank": `Capitec`,
-				"accountType": `Savings`
-			},
-			reason: ""
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
+		},
+		{
+			"premium": 189.52,
+			"transactionStatus": "Financial",
+			"premiumType": "PremiumCollection",
+			"date": "2024-09-04T00:00:00Z",
+			"amount": 189.52,
+			"bankDetails": {
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
+		},
+		{
+			"premium": 189.52,
+			"transactionStatus": "Financial",
+			"premiumType": "PremiumCollection",
+			"date": "2024-08-04T00:00:00Z",
+			"amount": 189.52,
+			"bankDetails": {
+				"collectionDay": 4,
+				"accountName": "SAVINGS ACCOUNT",
+				"branchCode": "470010",
+				"accountNumber": "1140703216",
+				"bank": "CAPITEC BANK",
+				"accountType": "Savings"
+			}
 		}
 	]
-};
+}

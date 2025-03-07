@@ -268,7 +268,6 @@ class FuneralPolicyTransactionHistory extends Component {
 		this.startDate = new Date(Date.now() - NINETY_DAYS).toISOString();
 		this.endDate = new Date().toISOString();
 		RENDER_CHIPS[FILTER_BY.DATE] = getDateRangeDisplayValue(this.startDate, this.endDate);
-
 		this.filteredData = [];
 		if (!isNullorEmpty(this.policyTransactionHistory?.transactions)) {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
@@ -629,7 +628,7 @@ class FuneralPolicyTransactionHistory extends Component {
 		return html`
 			<capitec-table-column
 				label="Status"
-				field="status"
+				field="arrearsStatus"
 				size="110px">
 			</capitec-table-column>
 			<capitec-table-column
@@ -652,8 +651,8 @@ class FuneralPolicyTransactionHistory extends Component {
 			</capitec-table-column>
 			<capitec-table-column
 				label="Payment Due Date"
-				field="premiumAllocatedDate"
-				type="date"
+				field="arrearsAllocatedDate"
+				type="string"
 				size="140px">
 			</capitec-table-column>
 			<capitec-table-column

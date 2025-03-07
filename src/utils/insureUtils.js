@@ -281,9 +281,14 @@ export function policyAllowsEditing(ruleType, productParams, field, relationship
  * @param {date} date Date to be formatted 
  * @return {string} formatted date
  */
- function _formatDateToDDMMYYYY(date) {
+function _formatDateToDDMMYYYY(date) {
 	const newdate = new Date(Date.parse(date));
 	return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+}
+
+export function formatDateforPremiumHistory(date) {
+	const newdate = new Date(Date.parse(date));
+	return `${newdate.getDate()} ${String(getMonthName(newdate.getMonth())).padStart(2, `0`)} ${newdate.getFullYear()}`;
 }
 
 /**
@@ -497,7 +502,7 @@ export function determineLifeStatusColour(status) {
 
 	if (status === LIFE_POLICY_STATUSES.IN_FORCE) {
 		cssClass = `active-status`;
-	} 
+	}
 	if (status === LIFE_POLICY_STATUSES.PENDING_IN_FORCE) {
 		cssClass = `active-status`;
 	}
@@ -505,7 +510,7 @@ export function determineLifeStatusColour(status) {
 		cssClass = `active-status`;
 	}
 
-	return cssClass; 
+	return cssClass;
 }
 
 /** 
@@ -538,17 +543,17 @@ export function determineInactiveLifePolicies(lifePolicies) {
  * @returns {String} birthDateString
  */
 export function getDobFromIDNumber(idNumber) {
-		const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
+	const birthdate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
 
-		if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
-			birthdate.setFullYear(birthdate.getFullYear() + 100);
-		}
+	if (birthdate.getFullYear() <= new Date().getFullYear() - 100) {
+		birthdate.setFullYear(birthdate.getFullYear() + 100);
+	}
 
-		const month = birthdate.getMonth() + 1;
-		const day = birthdate.getDate();
-		const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
+	const month = birthdate.getMonth() + 1;
+	const day = birthdate.getDate();
+	const birthDateString = `${birthdate.getFullYear()}-${month <= 9 ? `0${month}` : month}-${day <= 9 ? `0${day}` : day}T00:00:00+00:00`;
 
-		return birthDateString;
+	return birthDateString;
 }
 
 /**
@@ -560,32 +565,32 @@ export function isValidRSAIdNumber(idNumber) {
 	let isValid = true;
 
 	if (idNumber.length !== 13 || !isFinite(idNumber)) {
-        isValid = false;
-    }
+		isValid = false;
+	}
 
 	const tempDate = new Date(idNumber.substring(0, 2), idNumber.substring(2, 4) - 1, idNumber.substring(4, 6));
 	const idDate = tempDate.getDate();
-    const idMonth = tempDate.getMonth();
+	const idMonth = tempDate.getMonth();
 
-    if (!((tempDate.getYear().toString() === idNumber.substring(0, 2).toString() || `0${tempDate.getYear().toString()}` === idNumber.substring(0, 2).toString()) && 
+	if (!((tempDate.getYear().toString() === idNumber.substring(0, 2).toString() || `0${tempDate.getYear().toString()}` === idNumber.substring(0, 2).toString()) &&
 		idMonth.toString() === (idNumber.substring(2, 4) - 1).toString() &&
 		(idDate.toString() === idNumber.substring(4, 6).toString() || `0${idDate.toString()}` === idNumber.substring(4, 6).toString()))) {
-        isValid = false;
-    }
+		isValid = false;
+	}
 
-    let tempTotal = 0;
-    let checkSum = 0;
-    let multiplier = 1;
-    for (let i = 0; i < 13; ++i) {
-        tempTotal = parseInt(idNumber.charAt(i), 10) * multiplier;
-        if (tempTotal > 9) {
-            tempTotal = parseInt(tempTotal.toString().charAt(0), 10) + parseInt(tempTotal.toString().charAt(1), 10);
-        }
-        checkSum += tempTotal;
-        multiplier = multiplier % 2 === 0 ? 1 : 2;
-    }
-    if (checkSum % 10 !== 0) {
-        isValid = false;
-    };
-    return isValid;
+	let tempTotal = 0;
+	let checkSum = 0;
+	let multiplier = 1;
+	for (let i = 0; i < 13; ++i) {
+		tempTotal = parseInt(idNumber.charAt(i), 10) * multiplier;
+		if (tempTotal > 9) {
+			tempTotal = parseInt(tempTotal.toString().charAt(0), 10) + parseInt(tempTotal.toString().charAt(1), 10);
+		}
+		checkSum += tempTotal;
+		multiplier = multiplier % 2 === 0 ? 1 : 2;
+	}
+	if (checkSum % 10 !== 0) {
+		isValid = false;
+	};
+	return isValid;
 }
