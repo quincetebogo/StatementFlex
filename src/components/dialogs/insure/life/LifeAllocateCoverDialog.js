@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel, validateEmailAddressCombo } from 'app/utils/insureUtils';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -1990,6 +1990,7 @@ class LifeAllocateCoverDialog extends Component {
 										class="pocket-details-input" 
 										label="They get" 
 										value="${this.monthlyCoverValue}"
+										.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" 
 										@value-changed="${(e) => this._monthlyCoverChange(e)}"
 										error="${this.monthlyCoverError}">
 									</capitec-text-field>
@@ -2017,6 +2018,7 @@ class LifeAllocateCoverDialog extends Component {
 								class="pocket-details-input" 
 								label="They get" 
 								value="${this._onceOffCoverValue()}"
+								.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}"
 								@value-changed="${(e) => this._onceOffCoverChange(e)}"
 								error="${this.onceOffCoverError}"
 								hint="Minimum R1 000 per beneficiary">
@@ -2038,6 +2040,7 @@ class LifeAllocateCoverDialog extends Component {
 								class="pocket-details-input" 
 								label="They get" 
 								value="${this._educationCoverValue()}"
+								.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}"
 								@value-changed="${(e) => this._educationCoverChange(e)}"
 								error="${this.educationCoverError}"
 								hint="Minimum R50 000 per beneficiary">
