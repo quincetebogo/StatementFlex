@@ -2,7 +2,7 @@ import { css, html } from 'platform/elements';
 import { CapitecConnectService } from 'app/services/CapitecConnectService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { DateTime } from 'luxon';
-import { formatDate, getTimeFromDate, compareDates, getDateInPast, incrementDate, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount } from 'app/utils/capitecConnectUtils';
+import { formatDate, getTimeFromDate, compareDates, getDateInPast, incrementDate, sortObjectsByDateDescending, formatCellphoneNumber, isArray, isJson, toTitleCase, formatAmount, formatDateAndTime } from 'app/utils/capitecConnectUtils';
 
 /**
  * Capitec Connect Agent View
@@ -55,6 +55,16 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		this.showTable = false;
 
 		this.clientCif = ``;
+
+		this.serialNumber = ``;
+		this.showVoucherModal = false;
+		this.showVoucherInformationModal = false;
+		this.showErrorModal = false;
+		this.voucherInformationData = null;
+		this.voucherHistoryData = null;
+		this.voucherInfoLoading = false;
+		this.voucherHistoryLoading = false;
+		this.errorMessage = ``;
 	}
 
 	connectedCallback() {
@@ -85,7 +95,12 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 			clientCif: { type: String },
 			searchValue: { type: String },
 			advanceBalances: { type: Object },
-			advanceBalancePopupOpen: { type: Boolean }
+			advanceBalancePopupOpen: { type: Boolean },
+			showVoucherModal: { type: Boolean },
+			showVoucherInformationModal: { type: Boolean },
+			showErrorModal: { type: Boolean },
+			voucherInfoLoading: { type: Boolean },
+			voucherHistoryLoading: { type: Boolean }
 		};
 	}
 
@@ -101,7 +116,8 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 	}
 
 	_initialise() {
-		// this.clientCif = "281783047";
+		// this.clientCif = `161413722`; // TODO: comment out when done with dev (INT env): - Has voucherSerialNumber
+		// this.clientCif = `281783047`; // TODO: comment out when done with dev: - Transaction Type:Account
 
 		this.showTable = true;
 	}
@@ -272,6 +288,65 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		this.advanceBalancePopupOpen = true;
 	}
 
+	async _handleVoucherInfoConfirm(serial) {
+		if (serial === '') {
+			return;
+		}
+		this.showVoucherInformationModal = false;
+		this.voucherInfoLoading = true;
+		this.voucherHistoryLoading = true;
+		this._getVoucherInformation(serial);
+		this._getVoucherHistory(serial);
+	}
+
+	async _getVoucherInformation(voucherSerialNumber) {
+		try {
+			const response = await this.capitecConnectService.getVoucherInformation(voucherSerialNumber);
+			if (response.succeeded) {
+				this.voucherInformationData = response.result;
+				this.voucherInfoLoading = false;
+				this.requestUpdate();
+				this.showVoucherModal = true;
+			} else {
+				this.voucherInfoLoading = false;
+				console.error(`Failed to get voucher information`);
+				this.showErrorModal = true;
+				this.errorMessage = `Failed to get voucher information`;
+				this.requestUpdate();
+			}
+		} catch (error) {
+			this.voucherInfoLoading = false;
+			console.error(`Error fetching voucher information (bluelabel api down):`, error);
+			this.showErrorModal = true;
+			this.errorMessage = `Unable to retrieve the voucher information. Please try again later.`;
+			this.requestUpdate();
+		}
+	}
+
+	async _getVoucherHistory(voucherSerialNumber) {
+		try {
+			const response = await this.capitecConnectService.getVoucherHistory(voucherSerialNumber);
+			if (response.succeeded) {
+				this.voucherHistoryData = response.result;
+				this.voucherHistoryLoading = false;
+				this.requestUpdate();
+				this.showVoucherModal = true;
+			} else {
+				this.voucherHistoryLoading = false;
+				console.error('Failed to get voucher history');
+				this.showErrorModal = true;
+				this.errorMessage = 'Failed to get voucher history';
+				this.requestUpdate();
+			}
+		} catch (error) {
+			this.voucherHistoryLoading = false;
+			console.error('Error fetching voucher history (bluelabel api down):', error);
+			this.showErrorModal = true;
+			this.errorMessage = 'Unable to retrieve the voucher history. Please try again later.';
+			this.requestUpdate();
+		}
+	}
+
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -381,6 +456,9 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 
 			${this.selectedAdvanceView ? this._renderAdvanceStatusModal() : null}
 			${this.advanceBalancePopupOpen ? this._renderAdvanceBalanceModal() : null}
+			${this.showErrorModal ? this._renderErrorModal() : ``}
+			${this.showVoucherModal ? this._renderVoucherInformationModal() : null}
+			${this.showVoucherInformationModal ? this._renderVoucherSerialModal() : ``}
 		`;
 	}
 
@@ -407,6 +485,11 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		let journalReference = `-`;
 		let advanceAmountPaid = `R0.00`;
 		let airtimeSurplus = `R0.00`;
+		const voucherSerialNumber = item.transactions?.[0]?.voucherSerialNumber;
+		const sourceOfFunds =
+			item.transactions?.[0]?.sourceOfFunds === `BANK_ACCOUNT`
+				? `Account`
+				: `Voucher`;
 
 		if (item.transactions.length > 0) {
 			transactionDate = formatDate(item.transactions[0].transactionDateTime) + ` ` + getTimeFromDate(item.transactions[0].transactionDateTime);
@@ -431,11 +514,17 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 
 		product = toTitleCase(product);
 		typeOfRecharge = toTitleCase(typeOfRecharge.replace("_", " "));
+		const loading = this.voucherHistoryLoading || this.voucherInfoLoading;
 
 		return html`
 			<capitec-spacer></capitec-spacer>
 
 			<capitec-group layout="grid" gap="clear">
+			${loading
+				? html`<capitec-loading-indicator
+				data-automation-id="app-shell-loading-indicator"
+			  ></capitec-loading-indicator>`
+				: null}
 				<div row="1" column="1" colspan="4">
 					<capitec-label label="Description:"></capitec-label>
 					<capitec-label type="strong" label="${channel.toUpperCase()} ${product} ${typeOfRecharge} Capitec Connect"></capitec-label>
@@ -483,6 +572,14 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 					<capitec-label label="Journal Number:"></capitec-label>
 					<capitec-label type="strong" label="${journalReference}"></capitec-label>
 				</div>
+				<div row="4" column="3">
+					<capitec-label label="Serial number:"></capitec-label>
+					<capitec-label type="strong" label="${voucherSerialNumber || `-`}"></capitec-label>
+				</div>
+				<div row="4" column="4">
+					<capitec-label label="Source of funds:"></capitec-label>
+					<capitec-label type="strong" label="${sourceOfFunds}"></capitec-label>
+				</div>
 
 				<div row="5" column="1" colspan="4">
 					<capitec-spacer></capitec-spacer>
@@ -495,6 +592,13 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 						label="Recharge Status"
 						@click="${() => { this.selectedAdvanceView = item; }}">
 					</capitec-hyperlink>
+					${voucherSerialNumber ? html`
+						<capitec-hyperlink
+						style="margin-right: 16px; margin-top: 10px;"
+						label="Voucher Information"
+						@click="${() => this._handleVoucherInfoConfirm(voucherSerialNumber)}" //TODO
+						>
+					</capitec-hyperlink>` : ``}
 				</div>
 			</capitec-group>
 		`;
@@ -607,6 +711,108 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 		</capitec-modal>`;
 	}
 
+	_renderVoucherInformationModal() {
+		const voucherInfo = this.voucherInformationData;
+		const voucherHistory = this.voucherHistoryData;
+
+
+		return html` <!-- Voucher Information  -->
+		  <capitec-modal type="text" header="Voucher Information">
+			<capitec-group slot="body" layout="grid" gap="clear">
+			  <div row="1" column="1">
+				<capitec-label type="strong" label="Serial Number:"></capitec-label>
+				<capitec-label type="strong" label="Issue date"></capitec-label>
+				<capitec-label type="strong" label="Expiry date"></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="Amount (in cents)"
+				></capitec-label>
+				<capitec-label type="strong" label="Status"></capitec-label>
+				<capitec-label type="strong" label="Type"></capitec-label>
+			  </div>
+			  <div row="1" column="2">
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.serialNumber || `No Serial found`}"
+				></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.issueDate ? formatDateAndTime(voucherInfo.issueDate) : `-`}"
+				></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.expiryDate ? formatDateAndTime(voucherInfo.expiryDate) : `-`}"
+				></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.amount}"
+				></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.status || `-`}"
+				></capitec-label>
+				<capitec-label
+				  type="strong"
+				  label="${voucherInfo.voucherType || `-`}"
+				></capitec-label>
+			  </div>
+			  <div row="2" colspan="4">
+				<hr style="border-bottom: none;" />
+			  </div>
+			  <div
+				row="3"
+				column="1"
+				style="margin-bottom: 10px; font-weight: bold;"
+			  >
+				<!-- Voucher History  -->
+				<capitec-label
+				  type="subtitle"
+				  label="Voucher History"
+				></capitec-label>
+			  </div>
+			  ${voucherHistory?.length !== 0
+				? html` <div row="4" colspan="4" column="1">
+					<capitec-table .items="${voucherHistory}">
+					  <capitec-table-column
+						label="MSISDN"
+						field="msisdn"
+					  ></capitec-table-column>
+					  <capitec-table-column
+						label="Network"
+						.renderer="${() => `Capitec Connect`}"
+					  ></capitec-table-column>
+					  <capitec-table-column
+						label="Timestamp"
+						.renderer="${(item) => formatDateAndTime(item.statusDate)}"
+					  ></capitec-table-column>
+					  <capitec-table-column
+						label="Status"
+						.renderer="${(item) => item.status ? item.status : "-"}"
+					  ></capitec-table-column>
+					</capitec-table>
+				  </div>`
+				: html`
+					<div row="4" column="1">
+					  <capitec-label
+						type="strong"
+						label="No history to display"
+					  ></capitec-label>
+					</div>
+				  `}
+			  <div row="7" column="1" colspan="4">
+				<hr style="border-bottom: none;" />
+			  </div>
+			</capitec-group>
+	
+			<capitec-button
+			  slot="footer"
+			  type="primary"
+			  label="Close"
+			  @click="${() => (this.showVoucherModal = false)}"
+			></capitec-button>
+		  </capitec-modal>`;
+	}
+
 	_renderAdvanceBalanceModal() {
 		var today = new Date();
 		today = today.toISOString().split('T')[0];
@@ -658,6 +864,69 @@ export class CapitecConnectAgentAdvancesRepayments extends ViewBase {
 
 			<capitec-button slot="footer" type="primary" label="Close" @click="${() => { this.advanceBalances = []; this.advanceBalancePopupOpen = false }}"></capitec-button>
 		</capitec-modal>`;
+	}
+
+	_renderVoucherSerialModal() {
+		return html`
+			<capitec-modal type="form" header="Voucher Information">
+				<capitec-content-box
+					slot="body"
+					layout="flex"
+					style="min-height:300px;"
+				>
+					<h3>Serial Number</h3>
+					<capitec-text-field
+						@key-input="${(e) => {
+				this.serialNumber = e.detail.new;
+				this.requestUpdate();
+			}}"
+						maxLength="50"
+					>
+					</capitec-text-field>
+				</capitec-content-box>
+
+				<capitec-button
+					slot="footer"
+					type="secondary"
+					label="Cancel"
+					@click="${() => {
+			this.serialNumber = ``;
+				this.showVoucherInformationModal = false;
+			}}"
+				></capitec-button>
+
+				${this.serialNumber?.length > 0
+				? html`<capitec-button
+							slot="footer"
+							type="primary"
+							label="Confirm"
+							@click="${() => this._handleVoucherInfoConfirm(this.serialNumber)}"
+					></capitec-button>`
+				: html`<capitec-button
+							slot="footer"
+							type="primary"
+							label="Confirm"
+							disabled
+					></capitec-button>`}
+			</capitec-modal>
+		`;
+	}
+
+	_renderErrorModal() {
+		return html`
+			<capitec-modal type="alert" header="Error">
+				<div slot="body">${this.errorMessage}</div>
+				<capitec-button
+					slot="footer"
+					type="primary"
+					label="OK"
+					@click="${() => {
+				this.showVoucherModal = false;
+				this.showErrorModal = false;
+			}}"
+				></capitec-button>
+			</capitec-modal>
+		`;
 	}
 
 	_renderIcon() {

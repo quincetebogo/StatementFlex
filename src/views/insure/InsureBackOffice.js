@@ -1231,7 +1231,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(this.selectedLifePolicy?.totalPremium) ? `` : formatCurrency(this.selectedLifePolicy?.totalPremium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
-					item.formatedAmount = isNullorEmpty(item.eventAmount) ? `` : formatCurrency(item.eventAmount);
+					item.eventAmount = isNullorEmpty(item.eventAmount) ? `` : formatCurrency(item.eventAmount);
+					item.eventPaidAmount = isNullorEmpty(item.eventPaidAmount) ? `` : formatCurrency(item.eventPaidAmount);
 					return item;
 				});
 			this.lifeTransactions.push(...formattedTrans);
