@@ -67,12 +67,12 @@ export class ClientProfileService extends ChannelServiceBase {
 		return this.post(
 			url,
 			acceptCallRequest,
-			this.setToken(), 
+			this.setToken(),
 			`acceptCall`,
 			null,
 			null,
 			1000,
-			5000,
+			15000,
 			errorHandler,
 			autoRetries
 		);
@@ -105,12 +105,12 @@ export class ClientProfileService extends ChannelServiceBase {
 		return this.post(
 			url,
 			searchCallerRequest,
-			this.setToken(), 
-			`searchCaller`, 
-			null, 
-			null, 
+			this.setToken(),
+			`searchCaller`,
+			null,
+			null,
 			1000,
-			5000,
+			15000,
 			errorHandler,
 			autoRetries
 		);
@@ -128,7 +128,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	 */
 	async updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
-		
+
 		const url = `/client-${this._version}/preferences/language`;
 
 		const request = {
@@ -162,16 +162,16 @@ export class ClientProfileService extends ChannelServiceBase {
 		const request = {
 			"cifNumber": cifNumber
 		};
-	
+
 		const url = `/client/preferences/consent`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getClientConsent`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getClientConsent`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
@@ -188,15 +188,15 @@ export class ClientProfileService extends ChannelServiceBase {
 		const request = {
 			"cifNumber": vasRequest.cifnumber,
 			"optInInsights": vasRequest.optOutInsights,
-  			"optInMarketing": vasRequest.optOutBehaviouralMarketing
+			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
 
 		const url = `/client/preferences/consent`;
 
 		return this.put(
-			url, 
-			request, 
-			this.setToken(), 
+			url,
+			request,
+			this.setToken(),
 			`putClientConsent`,
 			null,
 			null,
@@ -209,16 +209,16 @@ export class ClientProfileService extends ChannelServiceBase {
 
 	// Client details
 
-	
+
 	async getClientDetails(cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		if (await this.isMockEnabled(`getClientDetails`)) {
 			return this.mock(`getClientDetails`);
 		}
 
 		const url = `/client-${this._version}/details`;
 		const customHeader = { ...this.setToken(), "cifNumber": cif };
-	
+
 		return this.get(
 			url,
 			customHeader,
@@ -232,10 +232,10 @@ export class ClientProfileService extends ChannelServiceBase {
 	}
 
 	updateFICADetails(request, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		const url = `/client-${this._version}/details`;
 		const customHeader = { ...this.setToken(), "cifNumber": cif };
-	
+
 		return this.put(
 			url,
 			request,
@@ -251,7 +251,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	}
 
 	async getEmployer(searchValue, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
+
 		if (await this.isMockEnabled(`getEmployer`)) {
 			return this.mock(`getEmployer`, searchValue);
 		}
@@ -260,15 +260,15 @@ export class ClientProfileService extends ChannelServiceBase {
 
 		const request = {
 			"searchTerm": searchValue
-		  };
+		};
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getEmployer`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getEmployer`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
