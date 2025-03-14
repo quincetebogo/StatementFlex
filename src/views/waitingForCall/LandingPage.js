@@ -157,6 +157,10 @@ export class LandingPage extends ViewBase {
 
 		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
+		if (this.roleManager.isInsureAgent) {
+			this.horizonRouter.navigateToWaitingForCall(() => this.eventAggregator.publish(`continue-without-incident`, {}));
+			return false
+		}
 		const incident = await this._createIncident(newCallInfo);
 
 		if (!incident) {
