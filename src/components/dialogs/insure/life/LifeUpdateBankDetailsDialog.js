@@ -167,6 +167,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_collectionDayChanged(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatedPolicy.bankDetails.collectionDay = e.detail.new.code;
+			this.requestUpdate();
 		}
 	}
 
@@ -191,6 +192,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_accountTypeChanged(e) {
 		if (e.detail.old !== e.detail.new) {
 			this.updatedPolicy.bankDetails.accountType = e.detail.new.code;
+			this.requestUpdate();
 		}
 	
 	}
@@ -491,7 +493,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		return html`
 		<div class="agreement-form-body">
 			<capitec-content-box>
-				<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Cover" icon="" @click="${() => this.showAgreementDocumentDialog = true}">
+				<horizon-product-tile class="view-document" type="default" label="Agreement" subtitle="Life Cover" icon="" @click="${() => this._showAgreementDocumentDialog()}">
 					<capitec-label slot="detail" type="strong" label="View Document">
 					</capitec-label>
 				</horizon-product-tile>
@@ -537,9 +539,19 @@ class LifeUpdateBankDetailsDialog extends Component {
 			: html`
 			<horizon-insure-agreement-dialog
 				.agreementContent="${this.lifeUpdateBankingDetailsAgreement.documentContent?.base64EncodedString}"
-				@back-click="${() => this.showAgreementDocumentDialog = false}">
+				@back-click="${() => this._hideAgreementDialog()}">
 			</horizon-insure-agreement-dialog>
 		`;
+	}
+
+	_showAgreementDocumentDialog(){
+		this.showAgreementDocumentDialog = true;
+		this.requestUpdate();
+	}
+
+	_hideAgreementDialog(){
+		this.showAgreementDocumentDialog = false;
+		this.requestUpdate();
 	}
 
 	// #endregion RENDERING

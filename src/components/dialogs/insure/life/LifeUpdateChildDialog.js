@@ -72,6 +72,7 @@ class LifeUpdateChildDialog extends Component {
 		this.genderOptions = GENDER_OPTIONS;
 		this.titleOptions = TITLE_OPTIONS;
 		this.childTitleOptions = CHILD_TITLE_OPTIONS;
+		this.currentGuardianId = ``;
 	}
 
 	// #endregion INITIALIZE
@@ -91,7 +92,8 @@ class LifeUpdateChildDialog extends Component {
 			pocketRemainingCover: { type: Number, state: true },
 			policy: { type: Object, state: true },
 			selectedPocketType: { type: String, state: true },
-			allocateMoneyErrorMessage: { type: String, state: true }
+			allocateMoneyErrorMessage: { type: String, state: true },
+			selectedGuardianId: { type: String, state: true }
 		};
 	}
 
@@ -126,6 +128,16 @@ class LifeUpdateChildDialog extends Component {
 				this.pocketBeneficiaries.push(bene);
 			}
 		}
+
+		if (this.originalChild.guardianId) {
+			this.selectedGuardianId = this.originalChild.guardianId;
+			const currentGuardian = this.eligibleGuardiansForQuickAdd.find(guardian => guardian.guardianId === this.selectedGuardianId);
+			if (currentGuardian) {
+				this.updatingGuardian = currentGuardian;
+				this.updatingGuardianType = NEW_BENEFICIARY_TYPES.EXISTING;
+			}
+		}
+
 		this._calculateCoverBreakdown();
 	}
 
@@ -181,6 +193,7 @@ class LifeUpdateChildDialog extends Component {
 		this.newOrExistingErrorMessage = ``;
 		this.updatingGuardianErrors = {};
 		this.updatingGuardian = guardian;
+		this.selectedGuardianId = guardian.guardianId;
 		this.updatingChild.guardianId = this.updatingGuardian.guardianId;
 	}
 
@@ -922,7 +935,7 @@ class LifeUpdateChildDialog extends Component {
 					type="radio-button"
 					label="${`${guardian.firstName} ${guardian.lastName}`}"
 					subtitle="${guardian.relationship}"
-					?selected="${this.updatingGuardian.firstName === guardian.firstName}"
+					?selected="${this.updatingGuardian?.guardianId === guardian.guardianId}"
 					@click="${() => this._continueWithExistingGuardian(guardian)}">
 				</horizon-product-tile>
 			`)}

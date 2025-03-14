@@ -20,7 +20,7 @@ export const CreatePolicy = {
 			"accountType": `Savings`
 		},
 		"collectionMethod": `EFT`,
-		"mandateReferenceNumber": ``,
+		"mandateReferenceNumber": `N/A`,
 		"frequency": `MONTHLY`,
 		"effectiveFromDate": `2022-05-14T12:54:01.549Z`,
 		"effectiveToDate": `2022-07-14T12:54:01.549Z`
