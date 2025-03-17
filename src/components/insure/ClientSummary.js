@@ -8,7 +8,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { RoleManager } from 'app/shell/RoleManager';
-import { formatCurrency, deformatCurrency} from 'app/productControls/utilities/Currency';
+import { formatCurrency, deformatCurrency } from 'app/productControls/utilities/Currency';
 import { FUN_POLICY_RULES, FUN_CLIENT_SUMMARY_BENEFIT_TYPES } from 'app/constants/InsureCommon';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -784,7 +784,7 @@ class ClientSummary extends Component {
 		switch (this.selectedFlow) {
 			case `update`:
 				this.showCFPAgreementDialog = false;
-				this._goToFuneralUpdatePlan(this.selectedContractRef, this.canReinstate);
+				this._goToFuneralUpdatePlan(this.selectedContractRef, this.canReinstate, this.selectedPolicyItem);
 				break;
 			case `cancel`:
 				this.showCFPAgreementDialog = false;
@@ -1173,7 +1173,7 @@ class ClientSummary extends Component {
 	 * @param {string} canReinstate canReinstate
 	 * @returns {void}
 	 */
-	_goToFuneralUpdatePlan(contractReference, canReinstate) {
+	_goToFuneralUpdatePlan(contractReference, canReinstate, policyItem) {
 		if (canReinstate === false) {
 			this._telemetry.logEvent(this.telemetryEvents.CLIENT_POLICIES_UPDATE_PLAN, {});
 		} else {
@@ -1184,7 +1184,8 @@ class ClientSummary extends Component {
 				policyContractReference: contractReference,
 				canReinstate: canReinstate,
 				selectedInsureTabIndex: this.selectedInsureTabIndex,
-				productCode: this.selectedProductCode
+				productCode: this.selectedProductCode,
+				policyItem: policyItem
 			}
 		}));
 	}
@@ -2409,20 +2410,20 @@ class ClientSummary extends Component {
 			}
 			
             ${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
-                ) && (!this.isInsureAgent && !this.isInsureAdministrator) && deformatCurrency(this._calculateLifeTotalCoverAmount(activeLifePolicy)) < 3000000
-                ? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
-                : html``
-            }
+			) && (!this.isInsureAgent && !this.isInsureAdministrator) && deformatCurrency(this._calculateLifeTotalCoverAmount(activeLifePolicy)) < 3000000
+				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
+				: html``
+			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-				: html`` 
+				: html``
 			}
 
 
 			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator)
-							? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
-							: html``
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
 			}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
@@ -3271,8 +3272,8 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_renderLifeNewbornPremiumReasonDialog() {
-		return this.showLifeNewbornPremiumWaiverReasonDialog === false ? html`` 
-		: html`
+		return this.showLifeNewbornPremiumWaiverReasonDialog === false ? html``
+			: html`
 			<horizon-insure-life-newborn-premium-waiver-reason-dialog
 				.policy="${this.selectedPolicyItem}"
 				.executeLifeActivateBenefit="${(activationReason, benefitType, policy) => this.executeLifeActivateBenefit(activationReason, benefitType, policy)}"
