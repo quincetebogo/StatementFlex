@@ -3,6 +3,7 @@ import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManag
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -55,7 +56,7 @@ export class DesktopAgentService {
 			return this.instance;
 		}
 
-		
+
 		this._configuration = Configuration.getInstance();
 		this._eventAggregator = EventAggregator.getInstance();
 		this._logger = Logger.getInstance();
@@ -162,10 +163,13 @@ export class DesktopAgentService {
 			}
 
 			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
-				
+
 				newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
 				this._logger.log(`warn`, `No Voice Reference Number received! This call may have been handled by doing a manual search.`, `_onNewCall`);
 			}
+
+			newCallEvent.isAuthenticated = this._mapAuthenticatedFlag(eventData.Authenticated);
+			newCallEvent.clientId = validate(eventData.ClientId, DesktopAgentService.clientId);
 
 			this.nextCall = newCallEvent;
 
@@ -178,7 +182,7 @@ export class DesktopAgentService {
 				"ivr": eventData.IVROptionCode,
 				"ucid": newCallEvent.voiceReferenceNumber
 			});
-			
+
 			this._handleIncomingCall();
 
 		} catch (err) {
@@ -300,15 +304,16 @@ export class DesktopAgentService {
 			newCallEvent.VDN = await this._getVdn();
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
+			newCallEvent.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
 
 			this._logger.log(`warn`, `Manual call handling invoked. This may be due to a missed incoming call event.`, `manualCreateCall`);
-	
+
 			if (this.nextCall) {
 				this._logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `manualCreateCall`);
 			}
-	
+
 			this.nextCall = newCallEvent;
-	
+
 			// Telemetry: If the call was created manually, we log telemetry without any IVR selection.
 			// The mapped need will be logged later.
 			this._telemetry.newTrace();
@@ -351,7 +356,7 @@ export class DesktopAgentService {
 		const currentdate = `${year}${month}${day}-${hours}${minutes}${seconds}`;
 		return `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber;
 	}
-	
+
 
 	async _mapIvrOption(IvrOptionCode) {
 		const ivrMapping = await this._configuration.getSetting(`ivrMapping`);
@@ -360,14 +365,34 @@ export class DesktopAgentService {
 		return selectedOption ? selectedOption.primaryNeed : `Transact`;
 	}
 
+	_mapAuthenticatedFlag(authenticatedFlag) {
+
+		const regex = new RegExp(DesktopAgentService.authenticated);
+
+		if (!regex.test(authenticatedFlag)) {
+			return INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+		}
+
+		switch (authenticatedFlag) {
+			case `1`:
+				return INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL;
+			case `0`:
+			default:
+				return INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+		}
+
+	}
+
 	_setValidationData() {
-		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{3,14}`; 
-		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]*`; 
-		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; 
-		DesktopAgentService.vdnValidation = `^[0-9]*`; 
+		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{3,14}`;
+		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]*`;
+		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`;
+		DesktopAgentService.vdnValidation = `^[0-9]*`;
 		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = `^[0-9]*`;
+		DesktopAgentService.authenticated = `^(0|1)$`;
+		DesktopAgentService.clientId = `^[0-9]{9}$`;
 	}
 
 	_handleIncomingCall() {
@@ -375,7 +400,7 @@ export class DesktopAgentService {
 		// If we have not completed the previous call, the new call will be buffered until returning
 		// to the call waiting landing page. The landing page must make use of the callComplete()
 		// method when reloading which will trigger the handling of the buffered call.
-		
+
 		if (!this.nextCall || this._navigationContext.current === undefined || this.onCall) {
 			return;
 		}
@@ -411,7 +436,7 @@ export class DesktopAgentService {
 		} else if (this._productLandingPagesActive()) {
 
 			// Don't route the capitec teamleaders away from the page.
-			if(this._checkCapitecConnectTeamLeader()) {
+			if (this._checkCapitecConnectTeamLeader()) {
 				return;
 			}
 
@@ -421,9 +446,8 @@ export class DesktopAgentService {
 
 	// If the user is a capitec connect teamleader and the page is capitec connect don't re-route.
 	_checkCapitecConnectTeamLeader() {
-		let rolemanager = RoleManager.getInstance();
-		if(rolemanager.isCapitecConnectTeamleader && this._navigationContext.current.path === '/product/capitec-connect') {
-			console.log('teamleader')
+		const rolemanager = RoleManager.getInstance();
+		if (rolemanager.isCapitecConnectTeamleader && this._navigationContext.current.path === `/product/capitec-connect`) {
 			return true;
 		}
 
