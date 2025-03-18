@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { INCOMING_CALL_AUTHENTICATION_FLAG, LANGUAGE_LIST } from 'app/constants/Common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
@@ -10,7 +11,6 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { LANGUAGE_LIST } from 'app/constants/Common';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
@@ -220,10 +220,12 @@ export class ConfirmCallerDetails extends Component {
 			return;
 		}
 
+		const isAuthenticated = this._isInComingCallAuthenticated();
+
 		// Navigation based on need selected
 		const stopCard = () => this._navigateToLandingPage();
 		const productEnquiry = () => this._navigateToLandingPage();
-		const transact = () => this._verifyCaller();
+		const transact = () => this._verifyCaller(isAuthenticated);
 
 		const clientNeed = {
 			StopCard: stopCard,
@@ -235,7 +237,22 @@ export class ConfirmCallerDetails extends Component {
 
 	}
 
-	async _verifyCaller() {
+	_isInComingCallAuthenticated() {
+		if (this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
+			this.callerInformation.verificationStatus = `verified`;
+			this.callerInformation.verificationMethod = `ITA`;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	async _verifyCaller(isInComingCallAuthenticated) {
+		if (isInComingCallAuthenticated) {
+			this._navigateToLandingPage();
+		}
+
 		if (await this._setAvailabilityFlags()) {
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
@@ -309,6 +326,8 @@ export class ConfirmCallerDetails extends Component {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.SEARCH_CLIENT
 		});
+
+		this.incomingCallDetails.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
@@ -709,6 +728,7 @@ export class ConfirmCallerDetails extends Component {
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
 								<capitec-content-box>
+									${this._renderIncomingCallIsAuthenticatedBanner()}
 									${this._renderError()}
 									${this._renderAlertBanner()}
 									${this._renderConfirmedCaller()}
@@ -736,6 +756,17 @@ export class ConfirmCallerDetails extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_renderIncomingCallIsAuthenticatedBanner() {
+		return this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL
+			? html`
+				<horizon-alert-banner 
+					type="success"
+					header="In-App Call:"
+					label="Client calling in via the App and has already authenticated">
+				</horizon-alert-banner>`
+			: html``;
 	}
 
 	_renderError() {
