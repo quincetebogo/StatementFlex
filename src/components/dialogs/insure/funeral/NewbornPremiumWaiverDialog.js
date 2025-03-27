@@ -115,7 +115,7 @@ class NewbornPremiumWaiverDialog extends Component {
 		} else {
 			response = await this.executeCancelBenefit(FUN_BENEFIT_TYPES.NEW_BORN_WAIVER, this.policy);
 		}
-		if (response.responseMessage) {
+		if (response) {
 			let benefitSuccessMessage = ``;
 			if (this.cancelBenefit === false) {
 				benefitSuccessMessage = `Newborn Premium Waiver has been successfully activated.`;

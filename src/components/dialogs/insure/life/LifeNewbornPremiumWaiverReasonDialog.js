@@ -114,7 +114,7 @@ async _initialise() {
 		} else {
 			response = await this.executeLifeCancelBenefit(this.policy);
 		}
-		if (response.successful) {
+		if (response.responseMessage === `SUCCESS`) {
 			let benefitSuccessMessage = ``;
 			if (this.cancelBenefit === false) {
 				benefitSuccessMessage = `Newborn Premium Waiver has been successfully activated.`;
@@ -136,9 +136,16 @@ async _initialise() {
 		// Reset state
 		this.showLifeNewbornPremiumWaiverDialog = false;
 		this.waiverSelected = false;
-		this.selectedReason = '';
+		this.selectedReason = ``;
 		this.checkConfirmed = false;
 		this.docsValidated = false;
+
+		// Forward the success message up to close this dialog too
+		if (e.detail && e.detail.successMessage) {
+			this.dispatchEvent(new CustomEvent(`close-modal`, { 
+				detail: { successMessage: e.detail.successMessage }
+			}));
+		}
 	}
 
 	_handleContinueClick() {
