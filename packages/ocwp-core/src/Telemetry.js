@@ -1,9 +1,9 @@
 import { v4, validate } from 'uuid';
+import { Configuration } from 'platform/core';
 import { Constants } from './internals/Constants.js';
 import { HttpClient } from './HttpClient.js';
 import LogStore from './stores/LogStore.js';
 import { Utilities } from './Utilities.js';
-
 
 /**
  * A class that provides the ability to capture business telemetry events. 
@@ -31,6 +31,7 @@ export class Telemetry {
 		this._retryTelemetrySchedule(Constants.telemetry.TELEMETRY_EVENT);
 		this._retryTelemetrySchedule(Constants.telemetry.SPAN_START_EVENT);
 		this._retryTelemetrySchedule(Constants.telemetry.SPAN_END_EVENT);
+		this._configuration = Configuration.getInstance();
 	}
 
 	/**
@@ -105,7 +106,7 @@ export class Telemetry {
 		if (!window.platform.security) {
 			return;
 		}
-		
+
 		this._validateSpanEndParams(params);
 
 		// Generate the timestamp.
@@ -174,7 +175,7 @@ export class Telemetry {
 		if (!Utilities.isString(params.eventName)) {
 			throw new Error(`"params.eventName" not of type string`);
 		}
-		
+
 		if (!params.eventType) {
 			throw new Error(`"params.eventType" not provided`);
 		}
@@ -214,7 +215,7 @@ export class Telemetry {
 		}))) {
 			throw new Error(`"params.baggage" invalid`);
 		}
-		
+
 	}
 
 	_validateTelemetryEventParams(params) {
@@ -271,9 +272,23 @@ export class Telemetry {
 
 	}
 
+	_validateTelemetryFunctions(params) {
+		const telemetryArray = [`horizon.call.fulfill-need.stop-card`, `horizon.call.fulfill-need.access-channels`, `horizon.call.fulfill-need.select-stop-card`];
+
+		for (let i = 0; i < telemetryArray.length; i++) {
+			if (telemetryArray.includes(params.eventName.substring(0, telemetryArray[i].length))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	async _postSpanStartEvent(params, skipValidation = false) {
 
-		let valid = true;
+		let valid = false;
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
+		valid = this._validateTelemetryFunctions(params);
+		console.log(this._validateTelemetryFunctions(params));
 		if (!skipValidation) {
 			try {
 				this._validateSpanStartParams(params, true);
@@ -285,7 +300,7 @@ export class Telemetry {
 		}
 
 		if (valid) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/span/start`, params);
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/start`, params);
 		}
 	}
 
@@ -307,7 +322,10 @@ export class Telemetry {
 	}
 
 	async _postSpanEndEvent(params, skipValidation = false) {
-		let valid = true;
+		let valid = false;
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
+		valid = this._validateTelemetryFunctions(params);
+
 		if (!skipValidation) {
 			try {
 				this._validateSpanEndParams(params);
@@ -318,7 +336,7 @@ export class Telemetry {
 		}
 
 		if (valid) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/span/end`, params);
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/end`, params);
 		}
 	}
 
