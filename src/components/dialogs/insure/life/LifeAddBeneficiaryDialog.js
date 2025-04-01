@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { GENDER_OPTIONS, LIFE_BENEFICIARY_RELATIONSHIP_TYPES, LIFE_POCKET_TYPES, TITLE_OPTIONS } from 'app/constants/InsureCommon';
-import { formatCurrencyInsureCoverAmount, getAgeFromDob, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
+import { formatCurrencyInsureCoverAmount, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
@@ -12,9 +12,11 @@ const VALIDATION_ERRORS = {
 	ALLOCATION_OVER: `Beneficiary allocation exceeds pocket cover`,
 	ALLOCATION_UNDER: `Beneficiary allocation is less than pocket cover`,
 	BENEFICIARY_MINIMUM: `Minimum R1 000 per beneficiary`,
+	BENEFICIARY_MINIMUM_EDUCATION: `Minimum R50 000 per beneficiary`,
 	INVALID_ID: `ID Number is invalid`,
 	INVALID_CELL_NUMBER: `Cellphone Number is invalid`,
-	INVALID_EMAIL: `Enter a valid email address`
+	INVALID_EMAIL: `Enter a valid email address`,
+	ID_DOB_MISMATCH: `ID Number and Date of Birth do not match`
 };
 
 const NEW_BENEFICIARY_TYPES = {
@@ -359,16 +361,63 @@ class LifeAddBeneficiaryDialog extends Component {
 				const timezone = `+02:00`;
 				dob = dob.replace(timezone, ``);
 				this.newBeneficiary.dateOfBirth = dob;
-			} else {
-				this.newBeneficiary.dateOfBirth = e.detail.new.date;
 			}
-			this._validateBeneficiaryDetails();
-		}
-		if (!isNullorEmpty(this.newBeneficiary.dateOfBirth)) {
-			this.newBeneficiaryErrors.dateOfBirth = ``;
+			
+			if (getAgeFromDob(this.newBeneficiary?.dateOfBirth) < 18) {
+				this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.BENE_OVER_18;
+			} else {
+				this.newBeneficiaryErrors.dateOfBirth = ``;
+			}
+			
+			if (!isNullorEmpty(this.newBeneficiary.idNumber)) {
+				if (isValidRSAIdNumber(this.newBeneficiary.idNumber)) {
+					const dobFromId = getDobFromIDNumber(this.newBeneficiary.idNumber);
+					
+					const idDate = this._normalizeDate(dobFromId);
+					const selectedDate = this._normalizeDate(this.newBeneficiary.dateOfBirth);
+					
+					if (idDate !== selectedDate) {
+						this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+						this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					} else {
+						this.newBeneficiaryErrors.dateOfBirth = ``;
+						this.newBeneficiaryErrors.idNumber = ``;
+					}
+				}
+			}
 		}
 		this.requestUpdate();
 	}
+
+	_normalizeDate(dateStr) {
+		if (!dateStr) {
+			return ``; 
+		}
+	
+		// Handle different possible formats
+		let date;
+		if (dateStr.includes(`/`)) {
+			// Handle DD/MM/YYYY format
+			const parts = dateStr.split(`/`);
+			if (parts.length === 3) {
+				const day = parts[0].padStart(2, `0`);
+				const month = parts[1].padStart(2, `0`);
+				const year = parts[2];
+				date = new Date(`${year}-${month}-${day}`);
+			}
+		} else {
+			// Handle ISO format or other formats
+			date = new Date(dateStr);
+		}
+		
+		if (isNaN(date.getTime())) {
+			return dateStr; // Return original if parsing failed
+		}
+		
+		// Return standardized format YYYY-MM-DD
+		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, `0`)}-${String(date.getDate()).padStart(2, `0`)}`;
+	}
+
 
 	/**
 	 * Event fired when a beneficiary EMAIL value changes
@@ -434,35 +483,35 @@ class LifeAddBeneficiaryDialog extends Component {
 	 */
 	_validateBeneficiaryDetails() {
 		let stepValid = true;
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.title)) {
 			this.newBeneficiaryErrors.title = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.title = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.gender)) {
 			this.newBeneficiaryErrors.gender = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.gender = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.firstName)) {
 			this.newBeneficiaryErrors.firstName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.firstName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.lastName)) {
 			this.newBeneficiaryErrors.lastName = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.lastName = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.contactNumber)) {
 			this.newBeneficiaryErrors.contactNumber = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -472,14 +521,14 @@ class LifeAddBeneficiaryDialog extends Component {
 		} else {
 			this.newBeneficiaryErrors.contactNumber = ``;
 		}
-
+	
 		if (isNullorEmpty(this.newBeneficiary?.relationship)) {
 			this.newBeneficiaryErrors.relationship = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
 		} else {
 			this.newBeneficiaryErrors.relationship = ``;
 		}
-
+	
 		if (this.newBeneficiary.dateOfBirth === undefined || this.newBeneficiary.dateOfBirth === ``) {
 			this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.REQUIRED_FIELD;
 			stepValid = false;
@@ -489,11 +538,26 @@ class LifeAddBeneficiaryDialog extends Component {
 		} else {
 			this.newBeneficiaryErrors.dateOfBirth = ``;
 		}
-
+	
 		if (!isNullorEmpty(this.newBeneficiary.idNumber)) {
 			if (!isValidRSAIdNumber(this.newBeneficiary.idNumber)) {
 				this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.INVALID_ID;
 				stepValid = false;
+			} else {
+				const dobFromId = getDobFromIDNumber(this.newBeneficiary.idNumber);
+				
+				// Format both dates consistently for comparison
+				const idDate = this._normalizeDate(dobFromId);
+				const selectedDate = this._normalizeDate(this.newBeneficiary.dateOfBirth);
+				
+				if (idDate !== selectedDate) {
+					this.newBeneficiaryErrors.dateOfBirth = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					this.newBeneficiaryErrors.idNumber = VALIDATION_ERRORS.ID_DOB_MISMATCH;
+					stepValid = false;
+				} else {
+					this.newBeneficiaryErrors.dateOfBirth = ``;
+					this.newBeneficiaryErrors.idNumber = ``;
+				}
 			}
 		} else {
 			this.newBeneficiaryErrors.idNumber = ``;
@@ -533,22 +597,24 @@ class LifeAddBeneficiaryDialog extends Component {
 		let beneficiariesValid = true;
 		this.pocketBeneficiaries.forEach(bene => {
 			bene.metaData.coverErrorMsg = ``;
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(bene.monthlyPayoutBenefitAmount) !== 0 && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000)) {
+
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && parseFloat(bene.monthlyPayoutBenefitAmount) < 1000) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
-			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(bene.onceOffPayoutBenefitAmount) !== 0 && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000)) {
+
+			if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && parseFloat(bene.onceOffPayoutBenefitAmount) < 1000) {
 				bene.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 				beneficiariesValid = false;
 			}
 		});
 
 		this.newBeneficiary.metaData.coverErrorMsg = ``;
-		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && (parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount) !== 0 && parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount) < 1000)) {
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.MONTHLY && parseFloat(this.newBeneficiary.monthlyPayoutBenefitAmount) < 1000) {
 			this.newBeneficiary.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 			beneficiariesValid = false;
 		}
-		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && (parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount) !== 0 && parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount) < 1000)) {
+		if (this.selectedPocketType === LIFE_POCKET_TYPES.ONCEOFF && parseFloat(this.newBeneficiary.onceOffPayoutBenefitAmount) < 1000) {
 			this.newBeneficiary.metaData.coverErrorMsg = VALIDATION_ERRORS.BENEFICIARY_MINIMUM;
 			beneficiariesValid = false;
 		}
