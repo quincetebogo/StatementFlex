@@ -1554,7 +1554,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.selectedFuneralPolicyContractReference = e.detail.policyContractReference;
 
-		if (e.detail.canReinstate) {
+		if (e.detail.canReinstate || (e.detail.canReinstate === false && (e.detail.policyItem.status === "Cancelled" || e.detail.policyItem.status === "Lapsed" || e.detail.policyItem.status === "OutOfForce" || e.detail.policyItem.status === "NotTakenUp"))) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
 			const policyResponse = await this._retrieveFuneralPolicySummary(e.detail.policyContractReference, this.callerInformation.cifNumber, this.callerInformation.southAfricanIDNumber, e.detail.productCode);
 			super.setInsureIncident(`funeral-plan-reissue`);
