@@ -57,5 +57,10 @@
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false
-	}
+	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	]
 }

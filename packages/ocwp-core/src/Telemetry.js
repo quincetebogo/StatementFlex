@@ -272,8 +272,8 @@ export class Telemetry {
 
 	}
 
-	_validateTelemetryFunctions(params) {
-		const telemetryArray = [`horizon.call.fulfill-need.stop-card`, `horizon.call.fulfill-need.access-channels`, `horizon.call.fulfill-need.select-stop-card`];
+	async _validateTelemetryFilters(params) {
+		const telemetryArray = await this._configuration.getSetting(`TelemetryFilter`);
 
 		for (let i = 0; i < telemetryArray.length; i++) {
 			if (telemetryArray.includes(params.eventName.substring(0, telemetryArray[i].length))) {
@@ -285,28 +285,27 @@ export class Telemetry {
 
 	async _postSpanStartEvent(params, skipValidation = false) {
 
-		let valid = false;
+		let valid = true;
 		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
-		valid = this._validateTelemetryFunctions(params);
-		console.log(this._validateTelemetryFunctions(params));
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateSpanStartParams(params, true);
-
 			} catch (error) {
 				valid = false;
 				console.error(error, params);
 			}
 		}
 
-		if (valid) {
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
+		if (valid && isTelemetryFilter) {
 			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/start`, params);
 		}
 	}
 
 	async _postTelemetryEvent(params, skipValidation = false) {
-		let valid = true;
-
+		let valid = false;
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateTelemetryEventParams(params);
@@ -316,7 +315,9 @@ export class Telemetry {
 			}
 		}
 
-		if (valid) {
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
+
+		if (valid && isTelemetryFilter) {
 			await HttpClient.getInstance().post(`/platform/telemetry/v1/event`, params);
 		}
 	}
@@ -324,8 +325,7 @@ export class Telemetry {
 	async _postSpanEndEvent(params, skipValidation = false) {
 		let valid = false;
 		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
-		valid = this._validateTelemetryFunctions(params);
-
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateSpanEndParams(params);
@@ -335,7 +335,9 @@ export class Telemetry {
 			}
 		}
 
-		if (valid) {
+		isTelemetryFilter = this._validateTelemetryFunctions(params);
+
+		if (valid && isTelemetryFilter) {
 			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/end`, params);
 		}
 	}

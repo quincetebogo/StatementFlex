@@ -40,6 +40,11 @@
 		"XDS": 2,
 		"KBA": 1
 	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	],
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
@@ -56,7 +61,7 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"createIncident": {
 			"enabled": false
 		},
