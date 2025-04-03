@@ -36,6 +36,17 @@ export function isNullorEmpty(fieldValue) {
 }
 
 /**
+ * Indicates if an object is null or empty
+ * 
+ * @export
+ * @param {String} objectName An object
+ * @returns {Boolean} True if the object is null or is an empty object ({})
+ */
+export function isObjectNullOrEmpty(objectName) {
+	return !objectName || (Object.keys(objectName).length === 0 && objectName.constructor === Object);
+};
+
+/**
  * Validate a field against a regular expression
  *
  * @export

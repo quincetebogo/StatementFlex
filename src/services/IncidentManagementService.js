@@ -1,6 +1,6 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
 import { SecurityContext } from 'platform/SecurityContext';
-
+import { isObjectNullOrEmpty } from 'app/utils/channelServiceUtilities';
 const STRACK_URGENCY = `Medium`;
 const STRACK_IMPACT = `Medium`;
 const STRACK_SOURCE = `RealConnect`;
@@ -298,15 +298,17 @@ export class IncidentManagementService extends ChannelServiceBase {
 	 */
 	classifyIncident(incident, need, manualClassification, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-incident-${this._version}/classification`;
+
+		const classification = isObjectNullOrEmpty(manualClassification) ? null : { category: manualClassification.category, 
+			need: manualClassification.subCategory, 
+			issue: manualClassification.issue };
 	
 		return this.post(
 			url, 
 			{
 				incident: incident,
 				needAction: need,
-				manualClassification: { category: manualClassification.category, 
-					need: manualClassification.subCategory, 
-					issue: manualClassification.issue }
+				manualClassification: classification
 			}, 
 			this.setToken(), 
 			`classifyIncident`, 
