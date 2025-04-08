@@ -304,7 +304,8 @@ export class Telemetry {
 	}
 
 	async _postTelemetryEvent(params, skipValidation = false) {
-		let valid = false;
+		let valid = true;
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
 		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
@@ -318,12 +319,12 @@ export class Telemetry {
 		isTelemetryFilter = await this._validateTelemetryFilters(params);
 
 		if (valid && isTelemetryFilter) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/event`, params);
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/event`, params);
 		}
 	}
 
 	async _postSpanEndEvent(params, skipValidation = false) {
-		let valid = false;
+		let valid = true;
 		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
 		let isTelemetryFilter = false;
 		if (!skipValidation) {
@@ -335,7 +336,7 @@ export class Telemetry {
 			}
 		}
 
-		isTelemetryFilter = this._validateTelemetryFunctions(params);
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
 
 		if (valid && isTelemetryFilter) {
 			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/end`, params);
