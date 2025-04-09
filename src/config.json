@@ -237,7 +237,7 @@
 			"positiveCase": false
 		},
 		"insurePolicyTransactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"creditOverview": {

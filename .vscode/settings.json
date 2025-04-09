@@ -11,13 +11,6 @@
 	"editor.showFoldingControls": "always",
 	"breadcrumbs.enabled": true,
 	"javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
-	"workbench.colorCustomizations": {
-		"activityBar.background": "#04ff0086",
-		"activityBar.foreground": "#FFFFFF",
-		"activityBar.inactiveForeground": "#ffffffbe",
-		"titleBar.activeBackground": "#04ff0086",
-		"titleBar.activeForeground": "#FFFFFF"
-	},
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},

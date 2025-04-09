@@ -2,7 +2,7 @@ import { CANCELATION_REASONS_FUNERAL_CLIENTCARE, DOCUMENT_TYPE, GLOBAL_ONE_GENER
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
 import { MAX_RESULTS, TRANSACTION_TYPE } from 'app/constants/InsureTransactionHistory';
 import { css, html } from 'platform/elements';
-import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { formatDateforPremiumHistory, getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Configuration } from 'platform/core';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
@@ -188,7 +188,7 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
-			
+
 			funeralPolicyPauseSuccess: { type: Boolean, state: true },
 			policyPauseSuccessMessage: { type: String, state: true },
 
@@ -237,15 +237,15 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	initFeaturesBanner() {
-		if(this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
+		if (this.funeralPolicies === undefined || this.funeralPolicies.featureResponse === undefined) {
 			this.showFeatureBanner = false;
 			this.featureBannerMessage = ``;
 			return;
 		}
 
 		const featureBannerDetails = this.funeralPolicies.featureResponse.features.find(feature => feature.feature.toUpperCase() === FEATURE_TOGGLES.Banner.toUpperCase());
-		if(featureBannerDetails !== undefined) {
-			if(featureBannerDetails.enabled === true) {
+		if (featureBannerDetails !== undefined) {
+			if (featureBannerDetails.enabled === true) {
 				this.showFeatureBanner = true;
 				this.featureBannerMessage = featureBannerDetails.message;
 			} else {
@@ -527,7 +527,7 @@ export class ExistingClient extends InsureViewBase {
 					}
 				};
 			}),
-			
+
 			"totalPremium": updatedPolicy.totalPremium,
 			"totalCoverAmount": updatedPolicy.totalPolicySumAssured
 		};
@@ -662,7 +662,7 @@ export class ExistingClient extends InsureViewBase {
 		const lifeEmailSuccess = await this._sendLifeEmail(e);
 		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(lifeEmailSuccess, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, e.detail.contractReference);
 		this.clientConfirmedEmail = e.detail.emailAddress;
-		
+
 		this._goToLifeSuccess();
 	}
 
@@ -1209,13 +1209,13 @@ export class ExistingClient extends InsureViewBase {
 		this.VPPEmailActionActivate = false;
 
 		return cancelBenefitResponse.result;
-	
+
 	}
 
 	async _retrievePolicyBenefitInfo(contractRef, productCode) {
 		const benefitInfoRequest = {
 			"contractReference": contractRef,
-  			"productCode": productCode
+			"productCode": productCode
 		};
 
 		const benefitInfoResponse = await this.insureFuneralService.policyBenefitInfo(benefitInfoRequest);
@@ -1236,7 +1236,7 @@ export class ExistingClient extends InsureViewBase {
 		benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 
 		let dob = new Date(this.callerInformation.birthdate);
-		
+
 		const benefitAgreementRequest = {
 			"documentFormat": `PDF`,
 			"saveDocumentToDocumentum": saveDocument,
@@ -1246,18 +1246,18 @@ export class ExistingClient extends InsureViewBase {
 			"emailDocumentToClient": false,
 			"wetsignBarcode": false,
 			"clientDetails": {
-			  "cifNumber": this.callerInformation.cifNumber,
-			  "primarySavingsAccountNumber": policy.deductionDetails.bankDetails.accountNumber,
-			  "policyContractReference": policy.contractReference,
-			  "productCode": policy.productCode,
-			  "firstName": this.callerInformation.firstName,
-			  "surname": this.callerInformation.surname,
-			  "idNumber": this.callerInformation.southAfricanIDNumber,
-			  "dateOfBirth": dob.toISOString(),
+				"cifNumber": this.callerInformation.cifNumber,
+				"primarySavingsAccountNumber": policy.deductionDetails.bankDetails.accountNumber,
+				"policyContractReference": policy.contractReference,
+				"productCode": policy.productCode,
+				"firstName": this.callerInformation.firstName,
+				"surname": this.callerInformation.surname,
+				"idNumber": this.callerInformation.southAfricanIDNumber,
+				"dateOfBirth": dob.toISOString(),
 			},
 			"benefitDetails": benefitInfo,
 			"emailDetails": {
-			  "email": ``
+				"email": ``
 			},
 			"contractReference": policy.contractReference,
 			"productCode": policy.productCode
@@ -1284,8 +1284,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @param {*} mainLife main life roleplayer
 	 * @returns {*}*
 	 */
-	_updateMainLifeFromCallerInfo(mainLife)
-	{
+	_updateMainLifeFromCallerInfo(mainLife) {
 		let dob = new Date(this.callerInformation.birthdate);
 
 		mainLife.surname = this.callerInformation.lastName;
@@ -1499,7 +1498,7 @@ export class ExistingClient extends InsureViewBase {
 	async _lifeAllowedCover(allowedCoverRequest) {
 		let dob = new Date(this.callerInformation.birthdate)
 
-		allowedCoverRequest.clientDateOfBirth = dob.toISOString() ;
+		allowedCoverRequest.clientDateOfBirth = dob.toISOString();
 		allowedCoverRequest.clientGender = getGenderFromIDNumber(this.callerInformation.southAfricanIDNumber).substring(0, 1);
 		allowedCoverRequest.clientIdNumber = this.callerInformation.southAfricanIDNumber;
 		allowedCoverRequest.cifNumber = this.callerInformation.cifNumber;
@@ -1514,7 +1513,7 @@ export class ExistingClient extends InsureViewBase {
 
 	async _lifeCoverAvailable(selectedPolicy, coverAvailableRequest) {
 
-		
+
 		this.coverAvailableAnswers = coverAvailableRequest.answers;
 
 		coverAvailableRequest.policyNumber = selectedPolicy.contractReference;
@@ -1536,9 +1535,9 @@ export class ExistingClient extends InsureViewBase {
 		increaseCoverRequest.answers = this.coverAvailableAnswers;
 
 		const resp = await this.insureLifeService.lifeIncreaseCover(increaseCoverRequest);
-		
+
 		if (!resp.succeeded) {
-			this.handleToastError(resp.exception); 
+			this.handleToastError(resp.exception);
 			return;
 		}
 		return resp.result;
@@ -1768,13 +1767,14 @@ export class ExistingClient extends InsureViewBase {
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
+				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `PayArrear` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
 					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 					item.formatedAmount = isNullorEmpty(item.amount) ? `` : formatCurrency(item.amount);
+					item.arrearsAllocatedDate = isNullorEmpty(item.arrearsAllocatedDate) ? `` : formatDateforPremiumHistory(new Date(Date.parse(item.arrearsAllocatedDate)));
 					return item;
 				});
 			this.transactions.push(...formattedTrans);
@@ -1836,7 +1836,7 @@ export class ExistingClient extends InsureViewBase {
 		const smsHistoryDetails = {
 			"policyNumber": this.selectedLifePolicy.contractReference
 		};
-	
+
 		const resp = await this.insureLifeService.lifeSMSHistory(smsHistoryDetails, () => true);
 		if (resp.succeeded === true && resp.result !== null) {
 			super.isOnlyProductEnquiry = false;
@@ -1954,8 +1954,7 @@ export class ExistingClient extends InsureViewBase {
 			super.setInsureIncident(`funeral-plan-update-lives`);
 		}
 
-		if(this.selectedFuneralPolicyDetails !== null && this.selectedFuneralPolicyDetails.roleplayers !== null)
-		{ 
+		if (this.selectedFuneralPolicyDetails !== null && this.selectedFuneralPolicyDetails.roleplayers !== null) {
 			const indexOfMainLife = this.selectedFuneralPolicyDetails.roleplayers.findIndex(x => x.relationship === `MainLife`);
 			const mainLifeElement = this.selectedFuneralPolicyDetails.roleplayers.splice(indexOfMainLife, 1)[0];
 			this._updateMainLifeFromCallerInfo(mainLifeElement);
@@ -2055,7 +2054,7 @@ export class ExistingClient extends InsureViewBase {
 			this.callerPage = INSURE_CALLER_PAGE.ESTIMATE;
 		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_CLIENT_POLICIES;
-		}else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) { 
+		} else if (e.detail.callerPage === INSURE_CALLER_PAGE.FUNERAL_VPP) {
 			this.callerPage = INSURE_CALLER_PAGE.FUNERAL_VPP
 		}
 
