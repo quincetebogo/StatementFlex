@@ -16,7 +16,7 @@ const app = express();
 
 app.use(cors());
 
-const host = `0.0.0.0`;
+const host = `localhost`;
 
 
 let csp = ``;
@@ -124,24 +124,6 @@ app.post(`/platform/metric/v1/single`, (req, res) => {
 app.post(`/platform/metric/v1/batch`, (req, res) => {
 	console.log(`METRIC BATCH [${req.path}]:`);
 	console.log(JSON.stringify(req.body));
-	res.status(200).send();
-});
-
-// "telemetry event" endpoint of host.
-app.post(`/platform/telemetry/v1/event`, (req, res) => {
-	console.log(`TELEMETRY EVENT [${req.path}]: ${JSON.stringify(req.body)}`);
-	res.status(200).send();
-});
-
-// "telemetry start span" endpoint of host.
-app.post(`/platform/telemetry/v1/span/start`, (req, res) => {
-	console.log(`SPAN START [${req.path}]: ${JSON.stringify(req.body)}`);
-	res.status(200).send();
-});
-
-// "telemetry end span" endpoint of host.
-app.post(`/platform/telemetry/v1/span/end`, (req, res) => {
-	console.log(`SPAN END [${req.path}]: ${JSON.stringify(req.body)}`);
 	res.status(200).send();
 });
 

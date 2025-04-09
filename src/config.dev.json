@@ -14,7 +14,8 @@
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
 		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-dev.int.capinet",
 		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
-		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff",
+		"telemetryServiceUrl": "https://horizon-telemetry-service-dev.bussup.npr-plrbsc.asgard.capi"
 	},
 	"signalRUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
@@ -472,5 +473,10 @@
 			"enabled": false,
 			"positiveCase": true
 		}
-	}
+	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	]
 }

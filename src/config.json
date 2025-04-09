@@ -14,7 +14,8 @@
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
 		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
-		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff",
+		"telemetryServiceUrl": "https://horizon-telemetry-service-dev.bussup.npr-plrbsc.asgard.capi"
 	},
 	"signalRUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
@@ -39,6 +40,11 @@
 		"XDS": 2,
 		"KBA": 1
 	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	],
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
@@ -55,9 +61,9 @@
 	],
 	"searchClientOptionEnabled": true,
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"createIncident": {
-			"enabled": true
+			"enabled": false
 		},
 		"acceptCall": {
 			"enabled": true,
