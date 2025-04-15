@@ -1796,35 +1796,44 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		let totalArrears = 0;
-		this.selectedLifePolicy?.arrears?.forEach(arrears => {
-			if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
-				totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
-			}
-		});
-
+		if (Array.isArray(this.selectedLifePolicy?.arrears)) {
+			this.selectedLifePolicy.arrears.forEach(arrears => {
+				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
+					totalArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+				}
+			});
+		}
 		this.lifePremiumHistory = {
-			contractReference: this.selectedLifePolicy.contractReference,
-			bankName: this.selectedLifePolicy.bankDetails.bank,
-			accountNumber: this.selectedLifePolicy.bankDetails.accountNumber,
+			contractReference: this.selectedLifePolicy?.contractReference || ``,
+			bankName: this.selectedLifePolicy?.bankDetails?.bank || `Unknown`,
+			accountNumber: this.selectedLifePolicy?.bankDetails?.accountNumber || `Unknown`,
 			arrearsAmount: formatCurrency(totalArrears),
 			transactions: []
 		};
 		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
+		if (!returnValue.result || !Array.isArray(returnValue.result.transactionHistory)) {
+			console.error(`Invalid response: Expected an object with a result property. Received: `, returnValue);
+			this.handleToastError(`No transaction history available.`);
+			return;
+		}
+
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactionHistory.
 				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
-					const formatedDate = new Date(Date.parse(item.eventDate));
+					const formatedDate = isNan(Date.parse(item.eventDate)) ? new Date() : new Date(Date.parse(item.eventDate));
 					item.formatedDate = formatedDate;
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 					item.eventAmount = formatCurrency(item.eventAmount);
 					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
-
+				if (formattedTrans.length === 0) {
+					console.warn(`No transactions found for this policy.`);
+				}
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
-			this.handleToastError(returnValue.exception);
+			this.handleToastError(returnValue.exception || `Failed to fetch premium history. Please try again later.`);
 		}
 	}
 
