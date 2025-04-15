@@ -1812,7 +1812,7 @@ export class ExistingClient extends InsureViewBase {
 		};
 		const returnValue = await this.insureLifeService.lifePremiumHistory(PremiumHistoryRequest);
 		if (!returnValue.result || !Array.isArray(returnValue.result.transactionHistory)) {
-			console.error(`Invalid response:`, returnValue);
+			console.error(`Invalid response: Expected an object with a result property. Received: `, returnValue);
 			this.handleToastError(`No transaction history available.`);
 			return;
 		}
@@ -1820,7 +1820,7 @@ export class ExistingClient extends InsureViewBase {
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactionHistory.
 				filter((ele) => ele.eventTransactionType === `Premium collection` || ele.eventTransactionType === `Refund` || ele.eventTransactionType === `Pay-out` || ele.eventTransactionType === `Ad-hoc`).map((item) => {
-					const formatedDate = new Date(Date.parse(item.eventDate));
+					const formatedDate = isNan(Date.parse(item.eventDate)) ? new Date() : new Date(Date.parse(item.eventDate));
 					item.formatedDate = formatedDate;
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 					item.eventAmount = formatCurrency(item.eventAmount);
