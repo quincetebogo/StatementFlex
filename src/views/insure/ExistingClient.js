@@ -1829,9 +1829,6 @@ export class ExistingClient extends InsureViewBase {
 				});
 				if (formattedTrans.length === 0) {
 					console.warn(`No transactions found for this policy.`);
-					this.lifePremiumHistory.transactions = [];
-					this.handleToastError(`No transactions found for this policy.`);
-					return;
 				}
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
