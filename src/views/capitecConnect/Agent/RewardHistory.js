@@ -41,29 +41,27 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 		};
 
 		this.showTable = false;
-		this.selectedReward = null;
 		this.clientCif = ``;
-	}
+	};
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.clientCif = this.callerInformation?.cif || this.callerInformation?.cifNumber;
 		this._initialise();
-	}
+	};
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-	}
+	};
 
 	static get properties() {
 		return {
-			selectedReward: { type: Object },
 			activeFilters: { type: Object },
 			showTable: { type: Boolean },
 			callerInformation: { type: Object },
 			clientCif: { type: String }
 		};
-	}
+	};
 
 	static get styles() {
 		return [
@@ -74,7 +72,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
                 }
             `
 		];
-	}
+	};
 
 	_initialise() {
 		// this.clientCif = `800929667`;
@@ -82,7 +80,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 		if (this.clientCif) {
 			this.showTable = true;
 		}
-	}
+	};
 
 	async _retrieveRewards(renderSet) {
 		this.renderSet = renderSet;
@@ -158,17 +156,17 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 				totalCount: 0
 			};
 		}
-	}
+	};
 
 	_mobileTemplate() {
 		this._webTemplate();
-	}
+	};
 
 	_webTemplate() {
 		return html`
             ${this._render()}
         `;
-	}
+	};
 
 	_render() {
 		return html`
@@ -226,63 +224,70 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
                     </capitec-content-box>
                 `}
             </capitec-content-box>
-
-            ${this.selectedReward ? this._renderRewardDetailsModal() : null}
         `;
-	}
+	};
 
 	_renderStatus(item, fieldName, value) {
 		return html`<capitec-tag label="${value.toUpperCase()}" type="${value.toUpperCase() === `SUCCESS` ? `success` : `warning`}"></capitec-tag>`;
-	}
+	};
 
 	_expandRenderer(item) {
 		return html`
-            <capitec-group layout="grid" gap="clear">
-                <div column="1" row="1" colspan="4">
-                    <capitec-label label="Transaction Reference:"></capitec-label>
-                    <capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
-                </div>
+            <div>
+                <capitec-group layout="grid" gap="clear">
+                    <div column="1" row="1" colspan="4">
+                        <capitec-label label="Description:"></capitec-label>
+                        <capitec-label
+                            type="strong"
+                            label="REWARD ${item.campaignID} ${toTitleCase(item.status)} Capitec Connect"
+                        ></capitec-label>
+                    </div>
 
-                <div row="2" column="1" colspan="4" style="text-align: right;">
-                    <capitec-hyperlink
-                        label="View Details"
-                        @click="${() => {
-				this.selectedReward = item;
-			}}">
-                    </capitec-hyperlink>
-                </div>
-            </capitec-group>
+                    <div row="2" column="1">
+                        <capitec-label label="Campaign ID:"></capitec-label>
+                        <capitec-label type="strong" label="${item.campaignID}"></capitec-label>
+                    </div>
+                    <div row="2" column="2">
+                        <capitec-label label="Product ID:"></capitec-label>
+                        <capitec-label
+                            type="strong"
+                            label="${item.productID}"
+                        ></capitec-label>
+                    </div>
+                    <div row="2" column="3">
+                        <capitec-label label="Status:"></capitec-label>
+                        <capitec-label
+                            type="strong"
+                            label="${toTitleCase(item.status)}"
+                        ></capitec-label>
+                    </div>
+                    <div row="2" column="4">
+                        <capitec-label label="Beneficiary Name:"></capitec-label>
+                        <capitec-label
+                            type="strong"
+                            label="${item.beneficiaryName}"
+                        ></capitec-label>
+                    </div>
+
+                    <div row="3" column="1">
+                        <capitec-label label="Transaction Date:"></capitec-label>
+                        <capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
+                    </div>
+                    <div row="3" column="2">
+                        <capitec-label label="Transaction Reference:"></capitec-label>
+                        <capitec-label
+                            type="strong"
+                            label="${item.transactionReference}"
+                        ></capitec-label>
+                    </div>
+                    <div row="3" column="3" colspan="2">
+                        <capitec-label label="CIF:"></capitec-label>
+                        <capitec-label type="strong" label="${this.clientCif}"></capitec-label>
+                    </div>
+                </capitec-group>
+            </div>
         `;
-	}
-
-	_renderRewardDetailsModal() {
-		const reward = this.selectedReward;
-		return html`
-        <capitec-modal type="form" header="Reward Details">
-            <capitec-group slot="body" layout="grid" gap="clear">
-                <div row="1" column="1">
-                    <capitec-label label="Transaction Date"></capitec-label>
-                    <capitec-label label="Campaign ID"></capitec-label>
-                    <capitec-label label="Product ID"></capitec-label>
-                    <capitec-label label="Status"></capitec-label>
-                    <capitec-label label="Beneficiary Name"></capitec-label>
-                    <capitec-label label="Transaction Reference"></capitec-label>
-                </div>
-                <div row="1" column="2">
-                    <capitec-label label="${reward.friendlyDate}"></capitec-label>
-                    <capitec-label label="${reward.campaignID}"></capitec-label>
-                    <capitec-label label="${reward.productID}"></capitec-label>
-                    <capitec-label label="${toTitleCase(reward.status)}"></capitec-label>
-                    <capitec-label label="${reward.beneficiaryName}"></capitec-label>
-                    <capitec-label label="${reward.transactionReference}"></capitec-label>
-                </div>
-            </capitec-group>
-
-            <capitec-button slot="footer" type="primary" label="Close" @click="${() => {
-				this.selectedReward = null;
-			}}"></capitec-button>
-        </capitec-modal>`;
-	}
+	};
 
 	onFilter() {
 		this.showTable = false;
@@ -290,7 +295,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 			this.showTable = true;
 			this.requestUpdate();
 		}, 100);
-	}
+	};
 
 	_dateChanged(e) {
 		if (!e.detail.new.startDate && !e.detail.new.endDate) {
@@ -312,13 +317,13 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 		};
 
 		this.onFilter();
-	}
+	};
 
 	_renderIcon() {
 		return html`
             <img src="/images/liveBetter/capitec-connect-white.svg"/>
         `;
-	}
+	};
 }
 
 customElements.define(`horizon-capitec-connect-agent-rewards-history`, CapitecConnectAgentRewardsHistory);
