@@ -41,7 +41,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 		};
 
 		this.showTable = false;
-		this.selectedReward = null;
+		this.expandedRows = new Set();
 		this.clientCif = ``;
 	}
 
@@ -57,7 +57,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 
 	static get properties() {
 		return {
-			selectedReward: { type: Object },
+			expandedRows: { type: Object },
 			activeFilters: { type: Object },
 			showTable: { type: Boolean },
 			callerInformation: { type: Object },
@@ -72,12 +72,24 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
                 .custom-flex-size {
                     flex: 1;
                 }
+                .details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                    margin-top: 12px;
+                }
+                .details-label {
+                    font-weight: normal;
+                }
+                .details-value {
+                    font-weight: bold;
+                }
             `
 		];
 	}
 
 	_initialise() {
-		// this.clientCif = `800929667`;
+		this.clientCif = `800929667`;
 
 		if (this.clientCif) {
 			this.showTable = true;
@@ -226,8 +238,6 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
                     </capitec-content-box>
                 `}
             </capitec-content-box>
-
-            ${this.selectedReward ? this._renderRewardDetailsModal() : null}
         `;
 	}
 
@@ -236,52 +246,108 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 	}
 
 	_expandRenderer(item) {
+		const isExpanded = this.expandedRows.has(item.transactionReference);
+
 		return html`
-            <capitec-group layout="grid" gap="clear">
-                <div column="1" row="1" colspan="4">
-                    <capitec-label label="Transaction Reference:"></capitec-label>
-                    <capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <capitec-label label="Transaction Reference:"></capitec-label>
+                        <capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
+                    </div>
+                    <div>
+                        <capitec-hyperlink
+                            label="${isExpanded ? 'Hide Details' : 'View Details'}"
+                            @click="${() => this._toggleDetails(item)}">
+                        </capitec-hyperlink>
+                    </div>
                 </div>
 
-                <div row="2" column="1" colspan="4" style="text-align: right;">
-                    <capitec-hyperlink
-                        label="View Details"
-                        @click="${() => {
-				this.selectedReward = item;
-			}}">
-                    </capitec-hyperlink>
-                </div>
-            </capitec-group>
+                ${isExpanded ? html`
+                    <capitec-group layout="grid" gap="clear">
+                        <div column="1" row="1" colspan="4">
+                            <capitec-label label="Description:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="REWARD ${item.campaignID} ${toTitleCase(item.status)} Capitec Connect"
+                            ></capitec-label>
+                        </div>
+
+                        <div row="2" column="1">
+                            <capitec-label label="Campaign ID:"></capitec-label>
+                            <capitec-label type="strong" label="${item.campaignID}"></capitec-label>
+                        </div>
+                        <div row="2" column="2">
+                            <capitec-label label="Product ID:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="${item.productID}"
+                            ></capitec-label>
+                        </div>
+                        <div row="2" column="3">
+                            <capitec-label label="Status:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="${toTitleCase(item.status)}"
+                            ></capitec-label>
+                        </div>
+                        <div row="2" column="4">
+                            <capitec-label label="Beneficiary Name:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="${item.beneficiaryName}"
+                            ></capitec-label>
+                        </div>
+
+                        <div row="3" column="1">
+                            <capitec-label label="Transaction Date:"></capitec-label>
+                            <capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
+                        </div>
+                        <div row="3" column="2">
+                            <capitec-label label="Transaction Reference:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="${item.transactionReference}"
+                            ></capitec-label>
+                        </div>
+                        <div row="3" column="3" colspan="2">
+                            <capitec-label label="CIF:"></capitec-label>
+                            <capitec-label type="strong" label="${this.clientCif}"></capitec-label>
+                        </div>
+
+                        <div row="5" column="1" colspan="4">
+                            <capitec-spacer></capitec-spacer>
+                        </div>
+
+                        <div
+                            row="6"
+                            column="1"
+                            colspan="4"
+                            style="text-align: right; --theme-hyperlink-color: #009DE0; border-top: var(--theme-data-table-border, 1px solid #E1E1E1);"
+                        >
+                            <capitec-hyperlink
+                                style="margin-top: 10px;"
+                                label="View Full Details"
+                                @click="${() => {
+					// You can add additional functionality here if needed
+					console.log('View full details clicked for:', item);
+				}}"
+                            >
+                            </capitec-hyperlink>
+                        </div>
+                    </capitec-group>
+                ` : null}
+            </div>
         `;
 	}
 
-	_renderRewardDetailsModal() {
-		const reward = this.selectedReward;
-		return html`
-        <capitec-modal type="form" header="Reward Details">
-            <capitec-group slot="body" layout="grid" gap="clear">
-                <div row="1" column="1">
-                    <capitec-label label="Transaction Date"></capitec-label>
-                    <capitec-label label="Campaign ID"></capitec-label>
-                    <capitec-label label="Product ID"></capitec-label>
-                    <capitec-label label="Status"></capitec-label>
-                    <capitec-label label="Beneficiary Name"></capitec-label>
-                    <capitec-label label="Transaction Reference"></capitec-label>
-                </div>
-                <div row="1" column="2">
-                    <capitec-label label="${reward.friendlyDate}"></capitec-label>
-                    <capitec-label label="${reward.campaignID}"></capitec-label>
-                    <capitec-label label="${reward.productID}"></capitec-label>
-                    <capitec-label label="${toTitleCase(reward.status)}"></capitec-label>
-                    <capitec-label label="${reward.beneficiaryName}"></capitec-label>
-                    <capitec-label label="${reward.transactionReference}"></capitec-label>
-                </div>
-            </capitec-group>
-
-            <capitec-button slot="footer" type="primary" label="Close" @click="${() => {
-				this.selectedReward = null;
-			}}"></capitec-button>
-        </capitec-modal>`;
+	_toggleDetails(item) {
+		if (this.expandedRows.has(item.transactionReference)) {
+			this.expandedRows.delete(item.transactionReference);
+		} else {
+			this.expandedRows.add(item.transactionReference);
+		}
+		this.requestUpdate();
 	}
 
 	onFilter() {
