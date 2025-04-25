@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, EMAIL_ADDRESS_ERROR_MESSAGES, LIFE_POCKET_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadgeColorClass, pocketBadgeIcon, pocketBadgeLabel, validateEmailAddressCombo } from 'app/utils/insureUtils';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -1097,7 +1097,8 @@ class LifeAllocateCoverDialog extends Component {
 			];
 			this.updatedPolicy.pockets = policyPockets;
 
-			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
+			// remove allocations from beneficiaries in pockets with cover (Increase cover, reissue and allocate)
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.REISSUE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					if (this.monthlyCoverValue === 0) {
 						bene.monthlyPayoutBenefitAmount = 0;
@@ -1111,20 +1112,6 @@ class LifeAllocateCoverDialog extends Component {
 				});
 			}
 
-			// remove allocations from beneficiaries in pockets with cover (for Increase cover)
-			if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
-				this.updatedPolicy.beneficiaries.forEach(bene => {
-					if (this.monthlyCoverValue > 0) {
-						bene.monthlyPayoutBenefitAmount = 0;
-					}
-					if (this.onceOffCoverValue > 0) {
-						bene.onceOffPayoutBenefitAmount = 0;
-					}
-					if (this.educationCoverValue > 0) {
-						bene.educationBenefitAmount = 0;
-					}
-				});
-			}
 		}
 
 		// Beneficiaries
@@ -1154,7 +1141,7 @@ class LifeAllocateCoverDialog extends Component {
 				stepValid = false;
 			}
 
-			// Update / Re Allocate Only
+			// Update / Re Allocate / Increase
 			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
 				this.updatedPolicy.pockets.forEach(pocket => {
 					pocket.premium = 0.0;
@@ -1424,6 +1411,7 @@ class LifeAllocateCoverDialog extends Component {
 			} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
 
 				let requestBeneficiaries = [];
+				let requestGuardians = [];
 				this.updatedPolicy.beneficiaries.forEach(bene => {
 					const newBene = bene;
 					newBene.role = `Beneficiary`;
@@ -1442,6 +1430,7 @@ class LifeAllocateCoverDialog extends Component {
 					requestBeneficiaries.push(newBene);
 				});
 
+				// Strip the beneficiaries with no cover
 				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
 				
 				if (!isNullorEmpty(this.updatedPolicy.guardians)) {
@@ -1488,7 +1477,7 @@ class LifeAllocateCoverDialog extends Component {
 							workphone: ``
 						};
 	
-						requestBeneficiaries.push(validGuardian);
+						requestGuardians.push(validGuardian);
 					});
 				}
 
@@ -1515,6 +1504,7 @@ class LifeAllocateCoverDialog extends Component {
 					"maxCoverApplicable": this.newOffer.maximumAllowedCover,
 					"discountPercent": 0,
 					"beneficiaries": requestBeneficiaries,
+					"guardians": requestGuardians,
 					"pockets": this.updatedPolicy.pockets,
 					"answers": []
 				};
@@ -2000,6 +1990,7 @@ class LifeAllocateCoverDialog extends Component {
 										class="pocket-details-input" 
 										label="They get" 
 										value="${this.monthlyCoverValue}"
+										.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" 
 										@value-changed="${(e) => this._monthlyCoverChange(e)}"
 										error="${this.monthlyCoverError}">
 									</capitec-text-field>
@@ -2027,6 +2018,7 @@ class LifeAllocateCoverDialog extends Component {
 								class="pocket-details-input" 
 								label="They get" 
 								value="${this._onceOffCoverValue()}"
+								.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}"
 								@value-changed="${(e) => this._onceOffCoverChange(e)}"
 								error="${this.onceOffCoverError}"
 								hint="Minimum R1 000 per beneficiary">
@@ -2048,6 +2040,7 @@ class LifeAllocateCoverDialog extends Component {
 								class="pocket-details-input" 
 								label="They get" 
 								value="${this._educationCoverValue()}"
+								.disabled="${this.updatedPolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}"
 								@value-changed="${(e) => this._educationCoverChange(e)}"
 								error="${this.educationCoverError}"
 								hint="Minimum R50 000 per beneficiary">

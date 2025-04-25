@@ -418,10 +418,9 @@ jobs:
       - name: GitHub Auto Approve PR to Main
         id: pull-request-create
         env:
-            GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-            PR_URL=$(gh pr create --base main --head "${{ github.ref_name }}" --title "Automatic release - version $RUN" --body "Image Deployed - ${{ needs.container.outputs.IMAGE }}")
-            PR_NUMBER=$(echo "$PR_URL" | awk -F '/' '{print $NF}')
-            echo "PR URL: $PR_URL"
-            echo "PR NUMBER: $PR_NUMBER"
-            gh pr merge --auto --merge $PR_NUMBER
+          PR_URL=$(gh pr create --base main --head "${{ github.ref_name }}" --title "Automatic release - version $RUN" --body "Image Deployed - ${{ needs.container.outputs.IMAGE }}")
+          PR_NUMBER=$(echo "$PR_URL" | awk -F '/' '{print $NF}')
+          echo "PR URL: $PR_URL"
+          echo "PR NUMBER: $PR_NUMBER"
