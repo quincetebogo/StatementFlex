@@ -470,6 +470,10 @@
 		"insureCalculateEstimate": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureLifeActivateBenefit": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }

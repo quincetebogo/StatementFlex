@@ -504,7 +504,7 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.titleErrorMessage = ``;
 						}
 					}
-					
+
 					if (rolePlayer.lifeAssured === true) {
 						if (!isNullorEmpty(rolePlayer.title)) {
 							rolePlayer.coverDetails.titleErrorMessageLA = ``;
@@ -623,11 +623,11 @@ class FuneralUpdatePlan extends Component {
 						const currentYear = fullCurrentYear.toString().substring(2);
 
 						// validations
-					
+
 						if (!isNullorEmpty(rolePlayer.idNumber)) {
 							rolePlayer.coverDetails.idNumberErrorMessage = ``;
 						}
-						
+
 						const dateOfBirth = getDobFromIDNumber(this.policyDetails.roleplayers[index].idNumber);
 						if (!isNullorEmpty(dateOfBirth)) {
 							this.policyDetails.roleplayers[index].dateOfBirth = dateOfBirth;
@@ -999,7 +999,7 @@ class FuneralUpdatePlan extends Component {
 				return;
 			}
 			this.setInsureIncident(`funeral-plan-update-payment-details`);
-		} 
+		}
 	}
 
 	/**
@@ -1154,7 +1154,7 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		const isValid =  await this._calculatePremium();
+		const isValid = await this._calculatePremium();
 
 		if (isValid) {
 			this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
@@ -1199,7 +1199,7 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		await this._calculatePremium();
-		
+
 		this.createPolicyResponse = await this.initiateReinstatePolicy(this.policyDetails);
 		if (isNullorEmpty(this.createPolicyResponse.issuePlanAgreement)) {
 			return;
@@ -1265,6 +1265,11 @@ class FuneralUpdatePlan extends Component {
 	_initialise() {
 
 		this.canReinstate = this.policyDetails.canReinstate;
+
+		if (this.canReinstate === false && (this.policyDetails.status === "Cancelled" || this.policyDetails.status === "Lapsed" || this.policyDetails.status === "OutOfForce" || this.policyDetails.status === "NotTakenUp")) {
+			this.canReinstate = true;
+		}
+
 		if (this.canReinstate === false) {
 			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		}
@@ -1289,7 +1294,7 @@ class FuneralUpdatePlan extends Component {
 					isExtendedFamily,
 					false
 				);
-			}			
+			}
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
@@ -1299,7 +1304,6 @@ class FuneralUpdatePlan extends Component {
 		this.policyDetails.roleplayers = validRoleplayers;
 
 		this.collectionDay = this.policyDetails.deductionDetails.collectionDay;
-		this.canReinstate = this.policyDetails.canReinstate;
 		this.policyDetails.roleplayers.forEach((rolePlayer) => {
 
 			if (isNullorEmpty(rolePlayer.idNumber)) {
@@ -1628,7 +1632,7 @@ class FuneralUpdatePlan extends Component {
 	 * @returns {html} dob html 
 	 */
 	_dateOfBirthRenderer(roleplayer) {
-		if(!this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`) {
+		if (!this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship) && this.policyDetails.policyRule !== `Standard`) {
 			return html`
 				<capitec-text-field label="Date of birth" style="width: 50%" disabled
 				value="${formatDateToInsure(roleplayer?.dateOfBirth)}" error="${roleplayer?.coverDetails?.ageMessage}">

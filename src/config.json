@@ -571,6 +571,10 @@
 		"updateCardsSettings": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"insureLifeActivateBenefit": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	}
 }
