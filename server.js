@@ -16,7 +16,7 @@ const app = express();
 
 app.use(cors());
 
-const host = `localhost`;
+const host = `0.0.0.0`;
 
 
 let csp = ``;
