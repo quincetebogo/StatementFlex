@@ -21,6 +21,7 @@ export class CFPAgreementDialog extends Component {
 		super();
 
 		this.productCode = ``;
+		this.displayToast = false;
 	}
 
 	// #endregion INITIALIZE
@@ -33,7 +34,8 @@ export class CFPAgreementDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			productCode: { type: String }
+			productCode: { type: String },
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -57,6 +59,31 @@ export class CFPAgreementDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { accepted: false } }));
 	}
 
+	/**
+	 * Copy agreement text to clipboard
+	 * @returns {void}
+	 */
+	_copyAgreementText() {
+		const bodyContent = this.shadowRoot.getElementById('agreementText').textContent;
+		navigator.clipboard.writeText(bodyContent.trim());
+		this.displayToast = true;
+		window.setTimeout(() => this.displayToast = false, 3000);
+	}
+
+	_renderCopyToast() {
+		return this.displayToast 
+		? html`
+			<capitec-toast 
+				type="success"
+				header="Copied"
+				detail="Copied Successfully" 
+				closable
+				@click="${() => this.displayToast = false}"
+				style="position: fixed; bottom: 20px; right: 20px;">
+			</capitec-toast>`
+		: html``;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE METHODS
@@ -64,7 +91,7 @@ export class CFPAgreementDialog extends Component {
 	// #endregion PRIVATE METHODS
 
 	// #region RENDERING
-
+	
 	/**
 	 * Generates the view stylesheet.
 	 *
@@ -83,10 +110,6 @@ export class CFPAgreementDialog extends Component {
 				capitec-modal {
 					--theme-modal-header-background-color: #f7f7f7;
 				}
-
-				.selectable-text {
-					user-select: text !important;
-				}
 			`
 		];
 	}
@@ -99,7 +122,8 @@ export class CFPAgreementDialog extends Component {
 		return html`
 		<capitec-modal type="form" class="selectable-text" header="Capitec Funeral Plan" style="--theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box selectable-text" >
+				${this._renderCopyToast()}
+				<capitec-content-box id="agreementText" class="body-box selectable-text">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
@@ -185,10 +209,22 @@ export class CFPAgreementDialog extends Component {
 	 */
 	_renderDialogFooter() {
 		return html`
-			<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
-			</capitec-button>
-			<capitec-button slot="footer" type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
-			</capitec-button>`;
+			<capitec-group slot="footer" layout="horizontal" style="align-items: center;">
+				<capitec-icon 
+					size="medium" 
+					icon="system/notes-action" 
+					@click="${() => this._copyAgreementText()}"
+					style="margin-right: 16px; cursor: pointer;"
+					role="button"
+					tabindex="0"
+					aria-label="Copy agreement text">
+				</capitec-icon>
+				<capitec-button type="secondary" label="Cancel" @click="${() => this._cancelDialog()}">
+				</capitec-button>
+				<capitec-spacer></capitec-spacer>
+				<capitec-button type="primary" label="Accept" @click="${() => this._acceptAndClose()}">
+				</capitec-button>
+			</capitec-group>`;
 	}
 }
 window.customElements.define(`horizon-insure-cfp-agreement-dialog`, CFPAgreementDialog);

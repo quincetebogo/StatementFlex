@@ -25,6 +25,7 @@ import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EarlyCollectionOptionsDialog';
 import 'app/components/dialogs/insure/funeral/FuneralPolicyPauseDialog';
 import 'app/components/dialogs/insure/funeral/ConfirmPolicyPauseDialog';
+import 'app/components/dialogs/insure/funeral/BenefitUnavailableDialog'
 
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
@@ -106,6 +107,7 @@ class ClientSummary extends Component {
 		this.showLifeNewbornPremiumWaiverDialog = false;
 		this.showLifeNewbornPremiumWaiverReasonDialog = false;
 		this.showBenefitSuccessToast = false;
+		this.showBenefitUnavailableDialog = false;
 
 		this.showLifeUpdateBankDetailsDialog = false;
 		this.showLifeCancelPolicyDialog = false;
@@ -245,6 +247,7 @@ class ClientSummary extends Component {
 			createMandateSuccessMessage: { type: String, state: true },
 			fetchPolicyRescheduleDocumentDetails: { type: Object, state: true },
 			executeSendFuneralEmail: { type: Object, state: true },
+			showBenefitUnavailableDialog: { type: Boolean, state: true },
 
 			// Double check these
 			showConfirmPolicyPauseDialog: { type: Boolean, state: true },
@@ -562,6 +565,13 @@ class ClientSummary extends Component {
 
 	_openVoluntaryPolicyPauseDialog(policyItem) {
 		this.selectedPolicyItem = policyItem;
+		let vppBenefit = policyItem.benefits?.find((benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
+
+		if ((!vppBenefit?.available && !vppBenefit?.isBenefitActive)) {
+			this.showBenefitUnavailableDialog = true;
+			return
+		}
+
 		this.showPolicyPauseDialog = true;
 	}
 
@@ -1238,14 +1248,7 @@ class ClientSummary extends Component {
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
 
-		let vppBenefit = policyItem.benefits?.find(
-			(benefit) =>
-				benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE
-		);
-		if (
-			(vppBenefit?.available || vppBenefit?.isBenefitActive) &&
-			policyItem.status === `Active`
-		) {
+		if (policyItem.status === `Active`) {
 			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
 
@@ -2005,6 +2008,7 @@ class ClientSummary extends Component {
 			${this._renderLifeNewbornPremiumReasonDialog()}
 			${this._renderEmailBenefitDialog()}
 			${this._renderGenerateNewAgreementDialog()}
+			${this._renderBenefitUnavailableDialog()}
 
 		`;
 	}
@@ -3334,6 +3338,15 @@ class ClientSummary extends Component {
 		`;
 	}
 
+	_renderBenefitUnavailableDialog() {
+		return this.showBenefitUnavailableDialog === false ? html``
+			: html`
+			<horizon-insure-benefit-unavailable-dialog
+				.policyItem="${this.selectedPolicyItem}"
+				@close-modal="${() => this.showBenefitUnavailableDialog = false}">
+			</horizon-insure-benefit-unavailable-dialog>
+		`;
+	}
 	// #endregion RENDERING
 }
 
