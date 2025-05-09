@@ -737,7 +737,7 @@ export class CreditAccount extends ViewBase {
 		return transactions.map((item) => {
 			const date = new Date(Date.parse(item.processDate));
 			const today = new Date();
-			const _540thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 540);
+			const _120thDateFromNow = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 120);
 			const isDisputable = this.cardClassificationType.includes(item.transactionStatus) && this.cardSpendGroupToDispute.includes(item.spendGroup); // To replace 4060 transCode check
 			item.description = item.statementDescription;
 			item.tranDate = date;
@@ -745,8 +745,8 @@ export class CreditAccount extends ViewBase {
 			item.formatedAmount = formatCurrency(item.amount);
 			item.formatedBalance = formatCurrency(item.balance);
 			item.isDomesticWithdrawl = () => item.spendGroup === `CASH_WITHDRAWAL` && isNullorEmpty(item.currency);
-			item.isTranDateOlderThan540 = () => item.tranDate < _540thDateFromNow;
-			item.hideDisputeBtn = item.disputeFlag || !isDisputable || item.isTranDateOlderThan540() || item.isDomesticWithdrawl();
+			item.isTranDateOlderThan120 = () => item.tranDate < _120thDateFromNow;
+			item.hideDisputeBtn = item.disputeFlag || !isDisputable || item.isTranDateOlderThan120() || item.isDomesticWithdrawl();
 			item.checked = false;
 			item.disableCheck = item.hideDisputeBtn;
 			return item;
