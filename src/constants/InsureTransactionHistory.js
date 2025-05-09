@@ -144,5 +144,6 @@ export const TRANSACTION_TYPE = Object.freeze({
 	UPDATEPOLICYQUOTE: `Update Policy Quote`,
 	UNKNOWN: `Unknown`,
 	DEBITORDERRECEIPT: `Debit Order Receipt`,
-	ADHOCRECEIPT: `Ad Hoc Receipt`
+	ADHOCRECEIPT: `Ad Hoc Receipt`,
+	PAYARREAR: `Pay Arrear`
 });

@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { Logger } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-
 import 'app/components/dialogs/common/DiscardChanges';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
@@ -32,7 +32,9 @@ export class ApproveDebiCheckMandate extends Component {
 		this.alertType = `info`;
 		this.approve = false;
 		this.showDiscardChangesModal = false;
+		this.displayToast = false;
 		this._telemetry = HorizonTelemetry.instance;
+		this.logger = Logger.getInstance();
 	}
 
 	// ----------
@@ -51,7 +53,8 @@ export class ApproveDebiCheckMandate extends Component {
 			mandateInfo: { type: Object },
 			debiCheckDetails: { type: Object },
 			clientDetails: { type: Object },
-			showDiscardChangesModal: { state: true }
+			showDiscardChangesModal: { state: true },
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -157,6 +160,46 @@ export class ApproveDebiCheckMandate extends Component {
 			question.color = `black`;
 			question.accepted = UNANSWERED;
 		});
+	}
+
+	/**
+	 * Copy agreement and declaration text to clipboard
+	 * @returns {void}
+	 */
+	_copyAgreementText() {
+		const agreementContentBox = this.shadowRoot.getElementById(`agree`);
+		const declarationContentBox = this.shadowRoot.getElementById(`declare`);
+		if (!agreementContentBox || !declarationContentBox) {
+			this.logger.warn(`Required elements not found`);
+			return;
+		}
+	
+		const agreementText = agreementContentBox.textContent;
+		const declarationText = declarationContentBox.textContent;
+		const fullText = `${agreementText}\n\n${declarationText}`.trim();
+		
+		navigator.clipboard.writeText(fullText)
+			.then(() => {
+				this.displayToast = true;
+				window.setTimeout(() => this.displayToast = false, 3000);
+			})
+			.catch(err => {
+				this.logger.error(`Failed to copy text:`, err);
+			});
+	}
+
+	_renderCopyToast() {
+		return this.displayToast 
+		? html`
+			<capitec-toast 
+				type="success"
+				header="Copied"
+				detail="Copied Successfully" 
+				closable
+				@click="${() => this.displayToast = false}"
+				style="position: fixed; bottom: 20px; right: 20px; width: calc(100% - 10px); max-width: 400px;">
+			</capitec-toast>`
+		: html``;
 	}
 
 	_getFullDate(shortDate) {
@@ -335,6 +378,7 @@ export class ApproveDebiCheckMandate extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left" header="Approve DebiCheck Mandate">
 				<div slot="body">
+					${this._renderCopyToast()}
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
 						${this._renderAgreementOriginal()}
@@ -434,12 +478,11 @@ export class ApproveDebiCheckMandate extends Component {
 		`;
 	}
 
-
 	_renderDeclarationContent() {
 		return html`
-			<capitec-content-box  
-				data-automation-id="debi-check-agreement-declaration"
-				class="declaration-content">
+				<capitec-content-box
+					data-automation-id="debi-check-agreement-declaration"
+					class="declaration-content">
 				<div id="declare"></div>
 				<capitec-card>
 					<capitec-check
@@ -454,6 +497,15 @@ export class ApproveDebiCheckMandate extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+				<capitec-icon 
+					size="medium" 
+					icon="system/notes-action" 
+					@click="${() => this._copyAgreementText()}"
+					style="margin-right: 16px; cursor: pointer;"
+					role="button"
+					tabindex="0"
+					aria-label="Copy agreement text">
+				</capitec-icon>
 				<capitec-button
 					data-automation-id="debi-check-agreement-cancel"
 					@click="${(e) => this._cancelClick(e)}"
