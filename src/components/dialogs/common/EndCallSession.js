@@ -593,7 +593,7 @@ export class EndCallSession extends Component {
 		if (!isNullorEmpty(screenDetails.category) && !isNullorEmpty(screenDetails.subCategory) && !isNullorEmpty(screenDetails.issue)) {
 			return {
 				category: `${screenDetails.category}`,
-				need: `${screenDetails.subCategory}`,
+				subCategory: `${screenDetails.subCategory}`,
 				issue: `${screenDetails.issue}`
 			};
 		}
@@ -602,7 +602,7 @@ export class EndCallSession extends Component {
 		if (!isNullorEmpty(this.category) && !isNullorEmpty(this.need) && !isNullorEmpty(this.issue)) {
 			return {
 				category: `${this.category}`,
-				need: `${this.need}`,
+				subCategory: `${this.need}`,
 				issue: `${this.issue}`
 			};
 		}
