@@ -1203,7 +1203,7 @@ export class CreditAccount extends ViewBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident((ex) => this._errorHandler(ex));
+		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
@@ -1253,7 +1253,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _disputeOutcome(event) {
-		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});

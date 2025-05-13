@@ -38,7 +38,7 @@ export class HorizonIncidentManager {
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
-		this.incidentService = new IncidentManagementService(null, () => true);
+		this.incidentService = new IncidentManagementService(() => console.log(`No Toggle busy function`), () => true);
 
 		// Incident Details Object that will be persisted in state
 		this.incidentDetails = {};
@@ -269,11 +269,12 @@ export class HorizonIncidentManager {
 
 	/**
 	 * This routine is used to create a new Incident for systems other than Horizon.
-	 * 
+	 *  
+	 * @param {function} toggleBusyFlag Function for toggling the busy flag on the dis;ay
 	 * @param {function} errorHandler Error handler function to call should creation fail 
 	 * @returns {Promise<object>} The newly created incident
 	 */
-	async createExternalIncident(errorHandler) {
+	async createExternalIncident(toggleBusyFlag, errorHandler) {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
@@ -289,6 +290,7 @@ export class HorizonIncidentManager {
 			nonClientEmail: ``
 		};
 
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		const returnValue = await this.incidentService.createIncident(request, (ex) => errorHandler(ex), 1);
 		const incident = returnValue.result?.incident;
 
@@ -401,7 +403,7 @@ export class HorizonIncidentManager {
 
 		console.log(`autoCreateAndClassify: Classifying need: ${currentNeed}`);
 
-		await this._closeAndCreate();
+		await this._closeAndCreate(toggleBusyFlag);
 		await this._classifyIncidentByNeed(currentNeed, closeType);
 	}
 
@@ -434,7 +436,7 @@ export class HorizonIncidentManager {
 
 		console.log(`manualCreateAndClassify: Classifying manually ${incidentCategorization.category}, ${incidentCategorization.subCategory}, ${incidentCategorization.issue}`);
 
-		await this._closeAndCreate(incidentCategorization);
+		await this._closeAndCreate(toggleBusyFlag, incidentCategorization);
 		await this._classifyIncidentManually(incidentCategorization, closeType);
 	}
 
@@ -458,7 +460,7 @@ export class HorizonIncidentManager {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
 		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
 
 		if (this._isIncidentClassified(savedIncidentInfo)) {
@@ -527,7 +529,7 @@ export class HorizonIncidentManager {
 			return true;
 		}
 
-		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
 
 		if (this._isReassigned(savedIncidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${this.currentIncident.toString()} is reassigned, skipping close incident`, `closeIncident`, null);
@@ -569,10 +571,13 @@ export class HorizonIncidentManager {
 	 * Loads the incident information as stored in STrack/the Interaction DB. This is done in case the 
 	 * incident has been updated externally to Horizon
 	 * 
+	 * @param {function} toggleBusyFlag Function to toggle the UI busy indicator
 	 * @param {object} incident The incident that needs to be checked
 	 * @returns {Promise<object>} The existing incident information stored in the database
 	 */
-	async loadSavedIncident(incident) {
+	async loadSavedIncident(toggleBusyFlag, incident) {
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+
 		const returnValue = await this.incidentService.incidentStatus(incident, () => true);
 
 		if (returnValue.succeeded) {
@@ -617,10 +622,10 @@ export class HorizonIncidentManager {
 		return this.primaryIncident;
 	}
 
-	async _closeAndCreate(manualClassification = {}) {
+	async _closeAndCreate(toggleBusyFlag, manualClassification = {}) {
 		const callerInformation = this.horizonStore.getCallerInformation();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const savedIncidentInfo = await this.loadSavedIncident(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
 
 		// If still on the primary incident then there is no previous incident to close
 		if (this.incidentDetails.primaryIncidentFinished) {
