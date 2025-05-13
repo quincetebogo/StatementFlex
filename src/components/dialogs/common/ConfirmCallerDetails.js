@@ -22,7 +22,7 @@ import 'platform/components/core/Icon';
 
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/stopCard/StopCard';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/common/verifyCaller/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
