@@ -146,7 +146,7 @@ export class EndCallSession extends Component {
 
 		this._setDefaultValues();
 		const currentIncident = this.horizonIncidentManager.currentIncident;
-		this.incidentInfo = await this.horizonIncidentManager.loadSavedIncident(currentIncident);
+		this.incidentInfo = await this.horizonIncidentManager.loadSavedIncident(() => this._toggleBusyFlag(), currentIncident);
 		this._loading();
 	}
 
@@ -470,7 +470,7 @@ export class EndCallSession extends Component {
 		const currentNeed = this.horizonIncidentManager.getCurrentNeed();
 		const incident = this.horizonIncidentManager.currentIncident;
 		const needAction = STRACK_MAPPING[currentNeed] || STRACK_MAPPING[this.endCallReason.mapping];
-		const savedIncidentInfo = await this.horizonIncidentManager.loadSavedIncident(incident);
+		const savedIncidentInfo = await this.horizonIncidentManager.loadSavedIncident(() => this._toggleBusyFlag(), incident);
 		const incidentReference = this.currentIncidentRef;
 
 		// Only the primary incident will ever be in an unclassified state with no client information
@@ -531,7 +531,7 @@ export class EndCallSession extends Component {
 		 * and to fit in current stop card flow logic
 		 */
 		const incident = this.horizonIncidentManager.currentIncident;
-		const incidentInfo = await this.horizonIncidentManager.loadSavedIncident(incident);
+		const incidentInfo = await this.horizonIncidentManager.loadSavedIncident(() => this._toggleBusyFlag(), incident);
 
 		if (incidentInfo) {
 			this.isReassigned = this.isReassigned || (incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username);
