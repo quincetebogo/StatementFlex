@@ -445,7 +445,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.gender,
 			this.confirmedCaller.branchCallerID,
 			this.confirmedCaller.branchCode,
-			this.confirmedCaller.maskedCifNumber
+			this.confirmedCaller.maskedCifNumber,
+			this.confirmedCaller.entityIdentifier
 		);
 	}
 
@@ -579,7 +580,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		// Updating client details to Incident at Strack
-		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.callerInformation.entityIdentifier, currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);

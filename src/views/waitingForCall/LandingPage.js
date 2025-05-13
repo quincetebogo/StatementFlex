@@ -1,5 +1,5 @@
-import { css, html } from 'platform/elements';
 import { AUTH_IDENTIFICATION_METHODS, INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
+import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -154,7 +154,7 @@ export class LandingPage extends ViewBase {
 
 		if (this.roleManager.isInsureAgent) {
 			this.horizonRouter.navigateToWaitingForCall(() => this.eventAggregator.publish(`continue-without-incident`, {}));
-			return false
+			return false;
 		}
 
 		const primaryIncident = await this.horizonIncidentManager.createPrimaryIncident(() => this._toggleBusyFlag(), newCallInfo);
@@ -309,7 +309,8 @@ export class LandingPage extends ViewBase {
 			``, // gender
 			``, // branch caller id
 			``, // branch code
-			`` // Masked cif
+			``, // Masked cif
+			`` // Entity Resolver ID
 		);
 
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);

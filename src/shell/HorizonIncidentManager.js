@@ -819,7 +819,7 @@ export class HorizonIncidentManager {
 	 */
 	async _updateClientDetails(savedIncidentInfo, incomingCallDetails, callerInformation) {
 		if (this._isCallerCapitecClient(incomingCallDetails, callerInformation) && !this._clientInfoAlreadySaved(savedIncidentInfo)) {
-			const returnValue = await this.incidentService.updateIncidentClientDetails(callerInformation.cifNumber, this.currentIncident, () => true);
+			const returnValue = await this.incidentService.updateIncidentClientDetails(callerInformation.cifNumber, callerInformation.entityIdentifier, this.currentIncident, () => true);
 
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
