@@ -696,7 +696,8 @@ export class SearchCaller extends Component {
 			gender: identifiedClient.callerInformation.gender,
 			branchCallerID: ``,
 			branchCode: ``,
-			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber
+			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber,
+			entityIdentifier: identifiedClient.callerInformation.entityIdentifier
 		};
 
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
@@ -731,7 +732,8 @@ export class SearchCaller extends Component {
 			gender: identifiedClient.callerInformation.gender,
 			branchCallerID: `cp${this.cpNumber}`,
 			branchCode: this.branchCode,
-			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber
+			maskedCifNumber: identifiedClient.callerInformation.maskedCifNumber,
+			entityIdentifier: identifiedClient.callerInformation.entityIdentifier
 		};
 
 		await this._updateIncidentBranchDetails(this.branchCode, `cp${this.cpNumber}`);
@@ -813,7 +815,8 @@ export class SearchCaller extends Component {
 			``, // gender
 			`cp${this.cpNumber}`, // branch caller id,
 			this.branchCode,
-			`` // masked cif
+			``, // masked cif
+            `` // entity Identifier
 		);
 	}
 
