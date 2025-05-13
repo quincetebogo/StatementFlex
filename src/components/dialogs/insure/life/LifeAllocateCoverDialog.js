@@ -1120,6 +1120,16 @@ class LifeAllocateCoverDialog extends Component {
 			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
 			stepValid = allocatedStepResults[0];
 
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
+				const updateSuccess = await this._executeUpdatePolicyRequest();
+				if (!updateSuccess) {
+					return;
+				}
+				this.currentDialogStep = 3;
+				this._setDialogTitle(this.currentDialogStep);
+				return;
+			}
+
 			if (stepValid === false) {
 				this.invalidPocketNames = allocatedStepResults[1];
 				this.showBeneficiariesAllocateErrorDialog = true;
@@ -1146,74 +1156,6 @@ class LifeAllocateCoverDialog extends Component {
 				this.updatedPolicy.pockets.forEach(pocket => {
 					pocket.premium = 0.0;
 				});
-
-				let requestBeneficiaries = [];
-				this.updatedPolicy.beneficiaries.forEach(bene => {
-					const newBene = bene;
-					newBene.role = `Beneficiary`;
-					newBene.benefits = [
-						{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
-						{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
-						{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
-					];
-					newBene.bankDetails = {};
-					newBene.contactDetails = {
-						cellphone: bene.contactNumber,
-						email: bene.contactEmail,
-						homephone: ``,
-						workphone: ``
-					};
-					requestBeneficiaries.push(newBene);
-				});
-
-				// Strip the beneficiaries with no cover
-				requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
-
-				// Add Guardians back
-				if (!isNullorEmpty(this.updatedPolicy.guardians)) {
-					this.updatedPolicy.guardians.forEach(guardian => {
-						let linkedChild = false;
-						requestBeneficiaries.forEach(reqBene => {
-							if (reqBene.guardianId === guardian.guardianId) {
-								linkedChild = true;
-							}
-						});
-	
-						if (!linkedChild) {
-							return;
-						}
-	
-						const validGuardian = guardian;
-						validGuardian.onceOffPayoutBenefitAmount = 0;
-						validGuardian.monthlyPayoutBenefitAmount = 0;
-						validGuardian.educationBenefitAmount = 0;
-						validGuardian.bankDetails = {};
-						validGuardian.recordId = null;
-						validGuardian.cifNumber = null;
-						validGuardian.benefits = [
-							{
-								"benefitType": `LumpSum`,
-								"pocketAmount": 0.0
-							},
-							{
-								"benefitType": `MonthlyPayout`,
-								"pocketAmount": 0.0
-							},
-							{
-								"benefitType": `Education`,
-								"pocketAmount": 0.0
-							}
-						];
-						validGuardian.contactDetails = {
-							cellphone: validGuardian.contactNumber,
-							email: validGuardian.contactEmail,
-							homephone: ``,
-							workphone: ``
-						};
-						validGuardian.role = `Guardian`;
-						requestBeneficiaries.push(validGuardian);
-					});
-				}
 
 				const updatePolicyReq = {
 					"effectiveDate": new Date(),
@@ -1564,13 +1506,129 @@ class LifeAllocateCoverDialog extends Component {
 		}
 	}
 
+	async _executeUpdatePolicyRequest() {
+
+		let requestBeneficiaries = [];
+
+		// Prepare beneficiaries for update policy request
+		this.updatedPolicy.beneficiaries.forEach(bene => {
+			const newBene = bene;
+			newBene.role = `Beneficiary`;
+			newBene.benefits = [
+				{ benefitType: `LumpSum`, pocketAmount: newBene.onceOffPayoutBenefitAmount ?? 0.0 },
+				{ benefitType: `MonthlyPayout`, pocketAmount: newBene.monthlyPayoutBenefitAmount ?? 0.0 },
+				{ benefitType: `Education`, pocketAmount: newBene.educationBenefitAmount ?? 0.0 }
+			];
+			newBene.bankDetails = {};
+			newBene.contactDetails = {
+				cellphone: bene.contactNumber,
+				email: bene.contactEmail,
+				homephone: ``,
+				workphone: ``
+			};
+			requestBeneficiaries.push(newBene);
+		});
+		
+		// Strip the beneficiaries with no cover
+		requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
+		
+		// Add Guardians back
+		if (!isNullorEmpty(this.updatedPolicy.guardians)) {
+			this.updatedPolicy.guardians.forEach(guardian => {
+				let linkedChild = false;
+				requestBeneficiaries.forEach(reqBene => {
+				if (reqBene.guardianId === guardian.guardianId) {
+					linkedChild = true;
+			}
+			});
+	
+			if (!linkedChild) {
+				return;
+			}
+	
+			const validGuardian = guardian;
+				  validGuardian.onceOffPayoutBenefitAmount = 0;
+				  validGuardian.monthlyPayoutBenefitAmount = 0;
+				  validGuardian.educationBenefitAmount = 0;
+				  validGuardian.bankDetails = {};
+				  validGuardian.recordId = null;
+				  validGuardian.cifNumber = null;
+				  validGuardian.benefits = [
+					{
+						"benefitType": `LumpSum`,
+						"pocketAmount": 0.0
+					},
+					{
+						"benefitType": `MonthlyPayout`,
+						"pocketAmount": 0.0
+					},
+					{
+						"benefitType": `Education`,
+						"pocketAmount": 0.0
+					}
+				];
+				  validGuardian.contactDetails = {
+						cellphone: validGuardian.contactNumber,
+						email: validGuardian.contactEmail,
+						homephone: ``,
+						workphone: ``
+					};
+				  validGuardian.role = `Guardian`;
+				  requestBeneficiaries.push(validGuardian);
+			});
+		}
+
+		// Prepare update policy request
+		const updatePolicyReq = {
+			effectiveDate: new Date(),
+			policyNumber: this.updatedPolicy.contractReference,
+			deductionDetails: {
+				collectionDay: this.updatedPolicy.bankDetails.collectionDay,
+				bankDetails: {
+					accountName: this.accountName,
+					branchCode: this.updatedPolicy.bankDetails.branchCode,
+					accountNumber: this.updatedPolicy.bankDetails.accountNumber,
+					bank: this.updatedPolicy.bankDetails.bank,
+					accountType: this.updatedPolicy.bankDetails.accountType
+				}
+			},
+			totalLoadingApplied: 0.0,
+			underwriting: `No`,
+			channel: `Horizon`,
+			riskRate: this.updatedPolicy.riskRate,
+			channelFee: this.updatedPolicy.channelFee,
+			maxCoverApplicable: this.updatedPolicy.totalPolicySumAssured,
+			discountPercent: 0.0,
+			beneficiaries: requestBeneficiaries,
+			pockets: this.updatedPolicy.pockets
+		};
+
+		// Execute update policy request
+		this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
+		if (this.updatePolicyResult === null) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Back event from dialog footer button, moves a step back
 	 * @returns {void}
 	 */
 	_backStep() {
-		this.currentDialogStep--;
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
+			if (this.currentDialogStep === 3) {
+				this.currentDialogStep = 1;
+			} else if (this.currentDialogStep === 1) {
+				this.currentDialogStep = 0;
+			}
+
+		} else {
+			this.currentDialogStep--;
+		}
 		this._setDialogTitle(this.currentDialogStep);
+
 	}
 
 	/**
