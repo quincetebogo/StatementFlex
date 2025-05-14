@@ -278,6 +278,10 @@ export class DesktopAgentService {
 			this.registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
 		}
 
+		if (this.registrationUrl.length === 0) {
+			return;
+		}
+
 		this.eventSource = new EventSource(`${this.registrationUrl}?eventId=${this.lastEventId}`);
 		this.eventSource.addEventListener(`new-call`, event => this._onNewCall(event));
 
