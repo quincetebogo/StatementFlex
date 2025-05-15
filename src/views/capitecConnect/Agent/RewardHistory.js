@@ -99,7 +99,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 	};
 
 	_initialise() {
-		this.clientCif = `800929667`;
+		// this.clientCif = `800929667`;
 
 		if (this.clientCif) {
 			this.showTable = true;
