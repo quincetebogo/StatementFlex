@@ -263,7 +263,7 @@ export class SavingsPlan extends ViewBase {
 	}
 
 	_savingsServiceErrorHandler(ex) {
-		if (ex.output.statusCode === 1301) {
+		if (ex?.output?.statusCode === 1301) {
 			this.alertBannerMessage = `Tax free Savings account cannot be unlocked.`;
 			return;
 		}
