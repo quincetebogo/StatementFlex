@@ -197,3 +197,8 @@ export const HIGH_RISK_TRANSACTIONS = {
 	],
 	[ORG_UNITS.CAPITEC_CONNECT]: CC_HIGH_RISK
 };
+
+export const INCOMING_CALL_AUTHENTICATION_FLAG = Object.freeze({
+	UNAUTHENTICATED: `unauthenticated`,
+	IN_APP_CALL: `in-app-call`
+});

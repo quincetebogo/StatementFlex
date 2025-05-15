@@ -4,6 +4,8 @@
  * @module models/IncomingCallDetails
  */
 
+import { INCOMING_CALL_AUTHENTICATION_FLAG } from "app/constants/Common";
+
 /**
  * The IncomingCallDetails class records the information on the incoming call. This object is preserved
  * in state for the duration of the call.
@@ -19,6 +21,7 @@ export class IncomingCallDetails {
 	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
+	 * @param {string} [isAuthenticated=``] Flag indicating whether the incoming call is authenticated already
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 */
@@ -28,7 +31,7 @@ export class IncomingCallDetails {
 		/**
 		 * The CLI (incoming call number). This may not be the verified number of the client
 		 */
-		incomingTelephoneNumber = ``, 
+		incomingTelephoneNumber = ``,
 		isAssigned = false,
 		isHandedOff = false,
 		voiceReferenceNumber = ``,
@@ -38,21 +41,22 @@ export class IncomingCallDetails {
 		 */
 		agentTelephoneNumber = ``,
 
-		ivrOptionCode = ``, 
-		ivrOption = { 
-						'possibleValues': [
-							{
-								key: `StopCard`, value: `Stop Card`
-							},
-							{
-								key: `Transact`, value: `Transact`
-							},
-							{
-								key: `ProductEnquiry`, value: `Product Enquiry`
-							}
-						], 
-						'value': ivrOptionCode
+		isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED,
+		ivrOptionCode = ``,
+		ivrOption = {
+			'possibleValues': [
+				{
+					key: `StopCard`, value: `Stop Card`
+				},
+				{
+					key: `Transact`, value: `Transact`
+				},
+				{
+					key: `ProductEnquiry`, value: `Product Enquiry`
 				}
+			],
+			'value': ivrOptionCode
+		}
 	) {
 		this.VDN = VDN;
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
@@ -66,6 +70,8 @@ export class IncomingCallDetails {
 
 		// An array of possible needs (IVR Options are mapped onto one of the needs in this array)
 		this.ivrOption = ivrOption;
+
+		this.isAuthenticated = isAuthenticated;
 
 		Object.seal();
 	}
