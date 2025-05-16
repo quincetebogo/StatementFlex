@@ -4,6 +4,7 @@ import { LIFE_COVER_ERROR_MESSAGES, formatCurrencyInsureCoverAmount, pocketBadge
 import { HorizonStore } from 'app/store/HorizonStore';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { formatCurrency } from 'app/productControls/utilities/Currency';
+import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
@@ -25,7 +26,7 @@ const ERROR_MESSAGES = {
  * @class LifeAllocateCoverDialog
  * @extends {Component}
  */
-class LifeAllocateCoverDialog extends Component {
+class LifeAllocateCoverDialog extends InsureViewBase {
 
 	// #region INITIALIZE
 
@@ -571,7 +572,7 @@ class LifeAllocateCoverDialog extends Component {
 				isValid = false;
 			}
 			if (totalCoverage < this.currentCover) {
-				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.INCREASE_COVER_LESS_CURRENT_COVER.replace("{0}", formatCurrency(this.currentCover));
+				this.allocatedCoverErrorMessage = LIFE_COVER_ERROR_MESSAGES.INCREASE_COVER_LESS_CURRENT_COVER.replace(`{0}`, formatCurrency(this.currentCover));
 				isValid = false;
 			}
 		} else if (totalCoverage > this.currentPolicy?.totalPolicySumAssured) {
@@ -1249,8 +1250,7 @@ class LifeAllocateCoverDialog extends Component {
 	
 			this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
 	
-			if (!this.updatePolicyResult) {
-				console.error("Update Policy API call failed or returned invalid response.");
+			if (!this._handleServiceResponse(this.updatePolicyResult, `Unable to update policy, please try again.`)) {
 				return false;
 			}
 		} else if (this.updateMode === LIFE_UPDATE_MODE.REISSUE) {
@@ -1280,8 +1280,7 @@ class LifeAllocateCoverDialog extends Component {
 	
 			this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
 	
-			if (!this.reIssueResult || !this.reIssueResult.policyNumber) {
-				console.error("Reissue API call failed or returned invalid response.");
+			if (!this._handleServiceResponse(this.reIssueResult, `Unable to reissue policy, please try again.`)) {
 				return false;
 			}
 		} else if (this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
@@ -1314,10 +1313,9 @@ class LifeAllocateCoverDialog extends Component {
 			};
 	
 			this.increaseCoverResult = await this.executeLifeIncreaseCover(increaseCoverRequest);
-	
-			if (!this.increaseCoverResult || !this.increaseCoverResult.policyNumber) {
-				console.error("Increase Cover API call failed or returned invalid response.");
-				return false;
+
+			if (!this._handleServiceResponse(this.increaseCoverResult, `Unable to increase cover, please try again.`)) {
+				return false; 
 			}
 		}
 	
@@ -1369,12 +1367,30 @@ class LifeAllocateCoverDialog extends Component {
 		const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
 	
 		if (!updateAgreementResp) {
-			console.error("Agreement update failed.");
+			console.error(`Agreement update failed.`);
 			return false;
 		}
 	
 		this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
 	
+		return true;
+	}
+
+	_handleServiceResponse(response, defaultErrorMessage) {
+		if (response?.exception) {
+
+			const errorMessage = response.exception || defaultErrorMessage || `An unexpected error occurred. Please try again.`;
+			console.error(errorMessage);
+	
+			const exception = typeof errorMessage === `string`
+				? { output: [{ ErrorMessage: errorMessage }] }
+				: errorMessage;
+	
+			this.handleToastError(exception);
+			return false;
+		}
+	
+		// If no exception, assume the response is successful
 		return true;
 	}
 
