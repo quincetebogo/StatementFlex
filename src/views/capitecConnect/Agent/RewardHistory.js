@@ -42,6 +42,12 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 
 		this.showTable = false;
 		this.clientCif = ``;
+		// Transaction details state
+		this.transactionDetails = null;
+		this.isLoadingTransactionDetails = false;
+
+		// To track expanded items 
+		this._expandedItems = new Map();
 	};
 
 	connectedCallback() {
@@ -59,7 +65,9 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 			activeFilters: { type: Object },
 			showTable: { type: Boolean },
 			callerInformation: { type: Object },
-			clientCif: { type: String }
+			clientCif: { type: String },
+			transactionDetails: { type: Object },
+			isLoadingTransactionDetails: { type: Boolean }
 		};
 	};
 
@@ -69,6 +77,22 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 			css`
                 .custom-flex-size {
                     flex: 1;
+                }
+                .transaction-details {
+                    padding: 10px;
+                    margin-top: 10px;
+                    border-top: 1px solid var(--capitec-light-grey);
+                }
+                .detail-row {
+                    display: flex;
+                    margin-bottom: 8px;
+                }
+                .detail-label {
+                    font-weight: 500;
+                    width: 180px;
+                }
+                .view-details-btn {
+                    margin-top: 10px;
                 }
             `
 		];
@@ -158,6 +182,7 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 		}
 	};
 
+
 	_mobileTemplate() {
 		this._webTemplate();
 	};
@@ -232,59 +257,152 @@ export class CapitecConnectAgentRewardsHistory extends ViewBase {
 	};
 
 	_expandRenderer(item) {
+		// Only fetch transaction details when the row is expanded and we haven't fetched before
+		if (!item.hasLogged && !item.isLoading) {
+			item.isLoading = true;
+			this.isLoadingTransactionDetails = true;
+			this.requestUpdate();
+
+			// Using a regular function call with then/catch instead of async/await
+			this.capitecConnectService.getRechargeDetails(item.transactionReference)
+				.then(response => {
+					if (response && response.result) {
+						this.transactionDetails = response.result;
+						item.hasLogged = true;
+					} else {
+						console.error('No transaction details found', response);
+						this.transactionDetails = null;
+					}
+				})
+				.catch(error => {
+					console.error(`Error fetching transaction details:`, error);
+					this.transactionDetails = null;
+				})
+				.finally(() => {
+					item.isLoading = false;
+					this.isLoadingTransactionDetails = false;
+					this.requestUpdate();
+				});
+		}
+
 		return html`
             <div>
-                <capitec-group layout="grid" gap="clear">
-                    <div column="1" row="1" colspan="4">
-                        <capitec-label label="Description:"></capitec-label>
-                        <capitec-label
-                            type="strong"
-                            label="REWARD ${item.campaignID} ${toTitleCase(item.status)} Capitec Connect"
-                        ></capitec-label>
-                    </div>
+                ${item.isLoading ? html`
+                    <capitec-busy-indicator size="medium"></capitec-busy-indicator>
+                ` : html`
+                    <capitec-group layout="grid" gap="clear">
+                        <div column="1" row="1" colspan="4">
+                            <capitec-label label="Description:"></capitec-label>
+                            <capitec-label
+                                type="strong"
+                                label="REWARD ${item.campaignID} ${toTitleCase(item.status)} Capitec Connect"
+                            ></capitec-label>
+                        </div>
 
-                    <div row="2" column="1">
-                        <capitec-label label="Campaign ID:"></capitec-label>
-                        <capitec-label type="strong" label="${item.campaignID}"></capitec-label>
-                    </div>
-                    <div row="2" column="2">
-                        <capitec-label label="Product ID:"></capitec-label>
-                        <capitec-label
-                            type="strong"
-                            label="${item.productID}"
-                        ></capitec-label>
-                    </div>
-                    <div row="2" column="3">
-                        <capitec-label label="Status:"></capitec-label>
-                        <capitec-label
-                            type="strong"
-                            label="${toTitleCase(item.status)}"
-                        ></capitec-label>
-                    </div>
-                    <div row="2" column="4">
-                        <capitec-label label="Beneficiary Name:"></capitec-label>
-                        <capitec-label
-                            type="strong"
-                            label="${item.beneficiaryName}"
-                        ></capitec-label>
-                    </div>
+                        <div row="2" column="1">
+                            <capitec-label label="Campaign ID:"></capitec-label>
+                            <capitec-label type="strong" label="${item.campaignID}"></capitec-label>
+                        </div>
+                        <div row="2" column="2">
+                            <capitec-label label="Campaign Name:"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.campaignName || '-'}"></capitec-label>
+                        </div>
+                        <div row="2" column="3">
+                            <capitec-label label="Product ID:"></capitec-label>
+                            <capitec-label type="strong" label="${item.productID}"></capitec-label>
+                        </div>
+                        <div row="2" column="4">
+                            <capitec-label label="Product Description:"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.productDescription || '-'}"></capitec-label>
+                        </div>
 
-                    <div row="3" column="1">
-                        <capitec-label label="Transaction Date:"></capitec-label>
-                        <capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
-                    </div>
-                    <div row="3" column="2">
-                        <capitec-label label="Transaction Reference:"></capitec-label>
-                        <capitec-label
-                            type="strong"
-                            label="${item.transactionReference}"
-                        ></capitec-label>
-                    </div>
-                    <div row="3" column="3" colspan="2">
-                        <capitec-label label="CIF:"></capitec-label>
-                        <capitec-label type="strong" label="${this.clientCif}"></capitec-label>
-                    </div>
-                </capitec-group>
+                        <div row="3" column="1">
+                            <capitec-label label="Status:"></capitec-label>
+                            <capitec-label type="strong" label="${toTitleCase(item.status)}"></capitec-label>
+                        </div>
+                        <div row="3" column="2">
+                            <capitec-label label="Beneficiary Name:"></capitec-label>
+                            <capitec-label type="strong" label="${item.beneficiaryName}"></capitec-label>
+                        </div>
+                        <div row="3" column="3">
+                            <capitec-label label="MSISDN:"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.msisdn || '-'}"></capitec-label>
+                        </div>
+                        <div row="3" column="4">
+                            <capitec-label label="Resource Type:"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.resourceType || '-'}"></capitec-label>
+                        </div>
+
+                        <div row="4" column="1">
+                            <capitec-label label="Transaction Date:"></capitec-label>
+                            <capitec-label type="strong" label="${item.friendlyDate}"></capitec-label>
+                        </div>
+                        <div row="4" column="2">
+                            <capitec-label label="Transaction Reference:"></capitec-label>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <capitec-label type="strong" label="${item.transactionReference}"></capitec-label>
+                                <capitec-icon
+                                    size="small"
+                                    icon="system/notes-action"
+                                    @click="${() => navigator.clipboard.writeText(item.transactionReference)}"
+                                    style="cursor: pointer;"
+                                ></capitec-icon>
+                            </div>
+                        </div>
+                        <div row="4" column="3">
+                            <capitec-label label="Product Validity (days):"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.productValidity || '-'}"></capitec-label>
+                        </div>
+                        <div row="4" column="4">
+                            <capitec-label label="Expiry Date:"></capitec-label>
+                            <capitec-label type="strong" label="${this.transactionDetails?.expiryDate ?
+					`${formatDate(this.transactionDetails.expiryDate)} ${getTimeFromDate(this.transactionDetails.expiryDate)}` : '-'}">
+                            </capitec-label>
+                        </div>
+                        
+                        <div row="5" column="1">
+                            <capitec-label label="CIF:"></capitec-label>
+                            <capitec-label type="strong" label="${this.clientCif}"></capitec-label>
+                        </div>
+                        
+                        ${this.transactionDetails?.notificationInformation ? html`
+                            <div row="6" column="1" colspan="4" style="margin-top: 10px;">
+                                <capitec-divider></capitec-divider>
+                                <capitec-label type="h5" label="Notification Information"></capitec-label>
+                            </div>
+                            
+                            <div row="7" column="1">
+                                <capitec-label label="Notification Method:"></capitec-label>
+                                <capitec-label type="strong" label="${this.transactionDetails.notificationInformation.notificationMethod || '-'}"></capitec-label>
+                            </div>
+                            <div row="7" column="2">
+                                <capitec-label label="Notification Status:"></capitec-label>
+                                <capitec-tag 
+                                    label="${(this.transactionDetails.notificationInformation.notificationStatus || '').toUpperCase()}" 
+                                    type="${(this.transactionDetails.notificationInformation.notificationStatus || '').toUpperCase() === 'COMPLETED' ? 'success' : 'warning'}">
+                                </capitec-tag>
+                            </div>
+                            <div row="7" column="3" colspan="2">
+                                <capitec-label label="Notification Date:"></capitec-label>
+                                <capitec-label type="strong" label="${this.transactionDetails.notificationInformation.notificationDate ?
+						`${formatDate(this.transactionDetails.notificationInformation.notificationDate)} ${getTimeFromDate(this.transactionDetails.notificationInformation.notificationDate)}` : '-'}">
+                                </capitec-label>
+                            </div>
+                            
+                            <div row="8" column="1" colspan="4">
+                                <capitec-label label="Message Content:"></capitec-label>
+                                <capitec-label type="strong" label="${this.transactionDetails.notificationInformation.messageContent || '-'}"></capitec-label>
+                            </div>
+                            
+                            ${this.transactionDetails.notificationInformation.failureReason ? html`
+                                <div row="9" column="1" colspan="4">
+                                    <capitec-label label="Failure Reason:"></capitec-label>
+                                    <capitec-label type="strong" label="${this.transactionDetails.notificationInformation.failureReason}"></capitec-label>
+                                </div>
+                            ` : ``}
+                        ` : ``}
+                    </capitec-group>
+                `}
             </div>
         `;
 	};
