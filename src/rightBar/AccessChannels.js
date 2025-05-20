@@ -143,7 +143,7 @@ export class AccessChannels extends Component {
 		if (this.showSideSheet) {
 			await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_TILE_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], {
 				"screen": TelemetryScreen.ACCESS_CHANNELS
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
 
@@ -168,14 +168,14 @@ export class AccessChannels extends Component {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
-			});
+			}, false);
 
 			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 		}
@@ -187,7 +187,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_OUTCOME,
 			"suspend-reason": suspendReason
-		});
+		}, false);
 
 		const request = {
 			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.APP]],
@@ -205,7 +205,7 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_OUTCOME, {
 			"result": returnValue.succeeded && result?.app?.status ? `succeeded` : `failure`
-		});
+		}, false);
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
 
@@ -227,7 +227,7 @@ export class AccessChannels extends Component {
 		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_UNSUSPEND, {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_APP,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_OUTCOME
-		});
+		}, false);
 
 		// TODO: Channel service call to Un-suspend App should come here
 		// If successfully Unsuspended, update app status, else Error scenario
@@ -247,14 +247,14 @@ export class AccessChannels extends Component {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
-			});
+			}, false);
 
 			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 		}
@@ -266,7 +266,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_OUTCOME,
 			"cancel-reason": cancelReason
-		});
+		}, false);
 
 		const request = {
 			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.USSD]],
@@ -283,7 +283,7 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_OUTCOME, {
 			"result": returnValue.succeeded && result?.ussd?.status ? `succeeded` : `failure`
-		});
+		}, false);
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
 
@@ -356,14 +356,14 @@ export class AccessChannels extends Component {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
-			});
+			}, false);
 
 			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 		}
@@ -377,14 +377,14 @@ export class AccessChannels extends Component {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
 				"token-numbers": selectedTokens
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
-			});
+			}, false);
 
 			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
 		}
@@ -397,14 +397,14 @@ export class AccessChannels extends Component {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN
-			});
+			}, false);
 
 			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
-			});
+			}, false);
 
 			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
 		}
@@ -415,7 +415,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_OUTCOME,
 			"suspend-reason": suspendReason
-		});
+		}, false);
 
 		const request = {
 			channels: [CHANNEL_TYPE[ACCESS_CHANNELS_TYPE.INTERNET_BANKING]],
@@ -454,7 +454,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_OUTCOME,
 			"token-numbers": selectedTokens
-		});
+		}, false);
 
 		const requestParams = {
 			"tokenSerialNo": selectedTokens
@@ -494,7 +494,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE,
 			"update-type": updateType
-		});
+		}, false);
 
 		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
@@ -526,7 +526,7 @@ export class AccessChannels extends Component {
 			"screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE,
 			"next-screen": TelemetryScreen.ACCESS_CHANNELS_NOTIFICATIONS,
 			"value-type": valueType
-		});
+		}, false);
 
 		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
 	}
@@ -630,7 +630,7 @@ export class AccessChannels extends Component {
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
-		});
+		}, false);
 
 		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
 

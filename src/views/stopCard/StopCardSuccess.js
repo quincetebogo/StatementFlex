@@ -97,7 +97,7 @@ export class StopCardSuccess extends ViewBase {
 		if (!this.confirmSuspendChannels) {
 			this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
 				"screen": TelemetryScreen.STOP_CARD_OUTCOME
-			});
+			}, false);
 		}
 	}
 
@@ -118,7 +118,7 @@ export class StopCardSuccess extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_DONE, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.FAVOURITES
-		});
+		}, false);
 
 		this.horizonStore.clearScreenDetails();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -133,7 +133,7 @@ export class StopCardSuccess extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ANOTHER, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		const returnValue = await this.cardService.identifyCaller(
 			this.callerInformation,
@@ -216,15 +216,14 @@ export class StopCardSuccess extends ViewBase {
 			this.accessChannels = returnValue.result;
 
 			this.alertSuspendChannels = this.accessChannels.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+				this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+				this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
 
 			if (this.alertSuspendChannels) {
 				this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_STATUS, {
 					App: this.accessChannels.app?.status,
 					InetBanking: this.accessChannels.internetBanking?.status,
 					USSD: this.accessChannels.ussd?.status
-				});
 			}
 		}
 

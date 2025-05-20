@@ -123,7 +123,7 @@ export class StopCard extends Component {
 
 		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD, {
 			"screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 	}
 
 	disconnectedCallback() {
@@ -171,7 +171,7 @@ export class StopCard extends Component {
 					reason: card.cardStopReason
 				}
 			))
-		});
+		}, false);
 	}
 
 	_confirmedStoppingCardsClick(event) {
