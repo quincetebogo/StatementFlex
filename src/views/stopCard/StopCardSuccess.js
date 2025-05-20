@@ -224,6 +224,7 @@ export class StopCardSuccess extends ViewBase {
 					App: this.accessChannels.app?.status,
 					InetBanking: this.accessChannels.internetBanking?.status,
 					USSD: this.accessChannels.ussd?.status
+				}, false);
 			}
 		}
 
