@@ -82,7 +82,7 @@ export class StopCardConfirm extends Component {
 	async _onConfirmClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.CONFIRM_STOP_CARD, {
 			"screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		const currentIncident = this.horizonIncidentManager.currentIncident;
@@ -97,7 +97,7 @@ export class StopCardConfirm extends Component {
 	_onCancelClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.CANCEL_STOP_CARD, {
 			"screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}

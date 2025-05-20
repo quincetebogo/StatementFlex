@@ -68,7 +68,7 @@ export class AssignStopCard extends Component {
 		ineum(`page`, `Assign Stop Card Dialog`);
 		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
@@ -88,7 +88,7 @@ export class AssignStopCard extends Component {
 		super.disconnectedCallback();
 		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 	}
 
 	// --------------
@@ -103,7 +103,7 @@ export class AssignStopCard extends Component {
 				"screen": TelemetryScreen.ASSIGN_STOP_CARD,
 				"next-screen": TelemetryScreen.FAVOURITES,
 				"team": this.team
-			});
+			}, false);
 
 			const assignRequest =
 			{
@@ -131,7 +131,7 @@ export class AssignStopCard extends Component {
 	_onCancelClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_ASSIGN_CANCEL, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}

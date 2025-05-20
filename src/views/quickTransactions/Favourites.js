@@ -66,6 +66,7 @@ export class Favourites extends SavingsAccountBase {
 		// private properites
 
 
+
 		this.isLoading = true;
 
 		// private variables
@@ -517,7 +518,7 @@ export class Favourites extends SavingsAccountBase {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STOP_CARD, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.horizonIncidentManager.currentIncident);
 

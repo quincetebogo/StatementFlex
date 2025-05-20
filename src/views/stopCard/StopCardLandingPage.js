@@ -62,7 +62,7 @@ export class StopCardLandingPage extends ViewBase {
 
 		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
 			"screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		const { pathParams } = this.navigationContext.current;
 		this.context = pathParams.context || this.context;
@@ -122,7 +122,7 @@ export class StopCardLandingPage extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.CARD_HISTORY, {
 			"screen": TelemetryScreen.STOP_CARD,
 			"next-screen": TelemetryScreen.CARD_HISTORY_PAGE
-		});
+		}, false);
 
 		this.horizonIncidentManager.setCurrentNeed(`card-history`);
 		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
