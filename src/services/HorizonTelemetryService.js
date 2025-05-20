@@ -134,7 +134,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} originatingSystem Name of system triggering start span
 	 * @returns {Promise<void>} A Promise for starting a telemetry span
 	 */
-	async startSpan(eventName, baggage = null, systemTriggered = true) {
+	async startSpan(eventName, baggage = null, systemTriggered = false) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -183,7 +183,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} originatingSystem Name of system triggering end span
 	 * @returns {Promise<void>} A promise to end the telemetry span
 	 */
-	async endSpan(eventName, baggage = null, systemTriggered = true, closeParentSpan = false, closeChildSpans = false) {
+	async endSpan(eventName, baggage = null, systemTriggered = false, closeParentSpan = false, closeChildSpans = false) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
