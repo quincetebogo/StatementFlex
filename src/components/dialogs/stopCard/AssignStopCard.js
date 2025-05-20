@@ -39,7 +39,7 @@ export class AssignStopCard extends Component {
 		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
-		
+
 		this.isBusy = false;
 		this.success = true;
 	}
@@ -68,7 +68,7 @@ export class AssignStopCard extends Component {
 		ineum(`page`, `Assign Stop Card Dialog`);
 		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
@@ -80,15 +80,15 @@ export class AssignStopCard extends Component {
 				if (returnValue.succeeded) {
 					this.teamsResponse = returnValue.result;
 					this.teamItems = this.teamsResponse.teams.possibleValues;
-				} 
-		});
+				}
+			});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 	}
 
 	// --------------
@@ -103,7 +103,7 @@ export class AssignStopCard extends Component {
 				"screen": TelemetryScreen.ASSIGN_STOP_CARD,
 				"next-screen": TelemetryScreen.FAVOURITES,
 				"team": this.team
-			});
+			}, false);
 
 			const assignRequest =
 			{
@@ -131,7 +131,7 @@ export class AssignStopCard extends Component {
 	_onCancelClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_ASSIGN_CANCEL, {
 			"screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
@@ -248,7 +248,7 @@ export class AssignStopCard extends Component {
 					--theme-modal-header-color: #3E4547;
 				}
 			`
-];
+		];
 	}
 
 	_mobileTemplate() {
@@ -334,7 +334,7 @@ export class AssignStopCard extends Component {
 				</horizon-alert-banner>
 			`;
 		}
-		
+
 		return html``;
 	}
 
