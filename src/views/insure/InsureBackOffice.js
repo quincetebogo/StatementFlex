@@ -246,11 +246,11 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return respSummary.result;
 	}
 
-		/**
-	* Navigate so specific subview
-	* @param {String} newMode New render mode string to change renderMode to
-	* @returns {void} void
-	 */
+	/**
+* Navigate so specific subview
+* @param {String} newMode New render mode string to change renderMode to
+* @returns {void} void
+ */
 	_navigateTolifeSubView(newMode) {
 		if (this.renderMode !== INSURE_RENDER_MODE.ESTIMATE && this.renderMode !== INSURE_RENDER_MODE.CLIENT_POLICIES) {
 			this.emailEstimateSuccess = false;
@@ -1194,13 +1194,14 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const returnValue = await this.insureFuneralService.policyPremiumHistory(transactionHistoryRequest);
 		if (returnValue.succeeded && returnValue.result) {
 			const formattedTrans = returnValue.result.transactions.
-				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
+				filter((ele) => ele.premiumType === `PremiumCollection` || ele.premiumType === `Disbursement` || ele.premiumType === "PayArrear" || ele.premiumType === `Submit` || ele.premiumType === `AdHocReceipt` || ele.premiumType === `DebitOrderReceipt`).map((item) => {
 					const formatedDate = new Date(Date.parse(item.date));
 					item.premiumType = TRANSACTION_TYPE[item.premiumType?.toUpperCase()];
 					item.formatedDate = formatedDate;
 					item.formatedPremium = isNullorEmpty(item.premium) ? `` : formatCurrency(item.premium);
 					item.groupByDate = `${getMonthName(formatedDate.getMonth())} ${formatedDate.getFullYear()}`;
 					item.formatedAmount = isNullorEmpty(item.amount) ? `` : formatCurrency(item.amount);
+					item.arrearsAllocatedDate = isNullorEmpty(item.arrearsAllocatedDate) ? `` : formatDateforPremiumHistory(new Date(Date.parse(item.arrearsAllocatedDate)));
 					return item;
 				});
 			this.transactions.push(...formattedTrans);
@@ -1850,7 +1851,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	_goToLifeSuccess() {
 		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
 		this.renderMode = INSURE_RENDER_MODE.LIFE_SUCCESS;
-		this.requestUpdate(); 
+		this.requestUpdate();
 	}
 
 	/**
@@ -2295,7 +2296,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@navigate-back="${(e) => this._rerenderClientSummary(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
 	}
-	
+
 	/**
 	 * Renders the Life Success page
 	 * 
@@ -2312,7 +2313,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			</horizon-insure-life-success>
 		`;
 	}
-	
+
 	/**
 	 * Navigate back to summary and reload life policies
 	 * @returns {void}
