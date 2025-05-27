@@ -174,7 +174,7 @@ export class Security {
 	}
 
 	_initKeycloak() {
-		window.keycloak = Keycloak({
+		window.keycloak = new Keycloak({
 			url: this._idpConfig.keycloak[`auth-server-url`],
 			realm: this._idpConfig.keycloak.realm,
 			clientId: this._client
