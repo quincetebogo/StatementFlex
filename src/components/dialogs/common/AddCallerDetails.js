@@ -223,7 +223,7 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.gender,
 						this.callerInformation.branchCallerID,
 						this.callerInformation.branchCode,
-						this.confirmedCaller.maskedCifNumber, 
+						this.callerInformation.maskedCifNumber, 
 						this.entityIdentifer = this.callerInformation.entityIdentifer
 					)
 				}
