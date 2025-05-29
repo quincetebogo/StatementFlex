@@ -98,7 +98,7 @@ export class AccessChannelsOutcome extends ViewBase {
 			SuspendChannels: this.suspendedChannels.join(`, `),
 			UnsuspendChannels: this.unsuspendedChannels.join(`, `),
 			Result: this.toastDetail
-		});
+		}, false);
 		this._updateIncidentState();
 	}
 
@@ -113,7 +113,7 @@ export class AccessChannelsOutcome extends ViewBase {
 	// --------------
 
 	async _doneClick() {
-		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_DONE, {});
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_DONE, {}, false);
 		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME, {}, true, true);
 
 		this.horizonStore.clearReturnScreen();
@@ -123,7 +123,7 @@ export class AccessChannelsOutcome extends ViewBase {
 
 	async _tryAgain() {
 		this.retryCount++;
-		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_TRY_AGAIN, {});
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_TRY_AGAIN, {}, false);
 
 		const returnValue = await this.accessChannelService.suspendChannels(this.retryReq);
 
@@ -135,7 +135,7 @@ export class AccessChannelsOutcome extends ViewBase {
 	}
 
 	_notNow() {
-		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_NOT_NOW, {});
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_NOT_NOW, {}, false);
 
 		this.stopcardLater = true;
 		this.alertStopcard = false;
@@ -144,7 +144,7 @@ export class AccessChannelsOutcome extends ViewBase {
 	}
 
 	_stopCard() {
-		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE, {});
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_OUTCOME_SC_CONTINUE, {}, false);
 
 		this.alertStopcard = false;
 		this.horizonRouter.navigateToStopCard(`ac`);
