@@ -146,11 +146,11 @@ export class AccessChannels extends Component {
 				"screen": TelemetryScreen.ACCESS_CHANNELS
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+			this._telemetry.startSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], null, false);
 
 			this._performAction(`view-${event.detail.tileClicked}`);
 		} else {
-			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`]);
+			this._telemetry.endSpan(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}`], null, false);
 
 			if (this.landingInfo && this.landingInfo[event.detail.tileClicked]) {
 				await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
@@ -168,14 +168,14 @@ export class AccessChannels extends Component {
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, null, false);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_APP_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_APP
 			}, false);
 
-			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, null, false);
 		}
 	}
 
@@ -205,7 +205,7 @@ export class AccessChannels extends Component {
 			"result": returnValue.succeeded && result?.app?.status ? `succeeded` : `failure`
 		}, false);
 
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND);
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_APP_SUSPEND, null, false);
 
 		if (returnValue.succeeded && result?.app?.status) {
 			this.landingInfo.app.status = APP_STATUS.SUSPENDED;
@@ -247,14 +247,14 @@ export class AccessChannels extends Component {
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, null, false);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_USSD_CANCEL_USSD,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_USSD
 			}, false);
 
-			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, null, false);
 		}
 	}
 
@@ -283,7 +283,7 @@ export class AccessChannels extends Component {
 			"result": returnValue.succeeded && result?.ussd?.status ? `succeeded` : `failure`
 		}, false);
 
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD);
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_USSD_CANCEL_USSD, null, false);
 
 		if (returnValue.succeeded && result?.ussd?.status) {
 			this.landingInfo.ussd.status = `Inactive`;
@@ -298,13 +298,13 @@ export class AccessChannels extends Component {
 	}
 
 	async unblockSIM() {
-		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM);
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM, null, false);
 
 		const returnValue = await this.accessChannelService.unblockSIM(this.landingInfo.msisdn);
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_UNBLOCK_SIM_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
-		});
+		}, false);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to unblock SIM.`, `unblockSIM`, returnValue.correlationId);
@@ -320,7 +320,7 @@ export class AccessChannels extends Component {
 	}
 
 	async activateFullMenuUSSD() {
-		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU);
+		this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU, null, false);
 
 		const indexOfReducedMenu = this.landingInfo.ussd.features.indexOf(`REDUCED_MENU`);
 
@@ -332,7 +332,7 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_USSD_ACTIVATE_FULL_USSD_MENU_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
-		});
+		}, false);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unsuccessful call the activate full USSD menu`, `activateFullMenuUSSD`, returnValue.correlationId);
@@ -356,14 +356,14 @@ export class AccessChannels extends Component {
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, null, false);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
 			}, false);
 
-			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, null, false);
 		}
 	}
 
@@ -377,14 +377,14 @@ export class AccessChannels extends Component {
 				"token-numbers": selectedTokens
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, null, false);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_BACK, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_REASON,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_TOKENS
 			}, false);
 
-			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, null, false);
 		}
 	}
 
@@ -397,14 +397,14 @@ export class AccessChannels extends Component {
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN
 			}, false);
 
-			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
+			this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, null, false);
 		} else {
 			await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_CANCEL, {
 				"screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN,
 				"next-screen": TelemetryScreen.ACCESS_CHANNELS_INTERNET_BANKING
 			}, false);
 
-			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN);
+			this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN, null, false);
 		}
 	}
 
@@ -430,8 +430,8 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN_OUTCOME, {
 			"result": returnValue.succeeded && result?.inetbanking?.status ? `succeeded` : `failure`
-		});
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN);
+		}, false);
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_SUSPEND_SECURITY_TOKEN, null, false);
 
 		if (returnValue.succeeded && result?.inetbanking?.status) {
 			this.landingInfo.internetBanking.status = `Suspended`;
@@ -461,7 +461,7 @@ export class AccessChannels extends Component {
 
 		await this._telemetry.logEvent(AccessChannelsEvents.ACCESS_CHANNELS_INTERNET_BANKING_RESET_SECURITY_TOKEN_OUTCOME, {
 			"result": returnValue.succeeded ? `succeeded` : `failure`
-		});
+		}, false);
 
 		// If successfully reset, update Internet Banking status, else Error scenario
 		if (!returnValue.succeeded) {
@@ -494,7 +494,7 @@ export class AccessChannels extends Component {
 			"update-type": updateType
 		}, false);
 
-		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
+		this._telemetry.startSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE, null, false);
 	}
 
 	updateMessageType(selectedType) {
@@ -526,7 +526,7 @@ export class AccessChannels extends Component {
 			"value-type": valueType
 		}, false);
 
-		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE);
+		this._telemetry.endSpan(AccessChannelsEvents.ACCESS_CHANNELS_NOTIFICATIONS_UPDATE, null, false);
 	}
 
 	_stateChanged(state) {
@@ -543,15 +543,15 @@ export class AccessChannels extends Component {
 	}
 
 	async _suspendChannels() {
-		await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}_SUSPEND`]);
+		await this._telemetry.logEvent(AccessChannelsEvents[`ACCESS_CHANNELS_${CHANNEL_TYPE[this.selectedAccessChannelType]}_SUSPEND`], null, false);
 
 		this.showSuspendChannels = true;
 		this.showSideSheet = !this.showSideSheet;
 	}
 
 	async _cancelSuspendChannels() {
-		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL);
-		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS);
+		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, null, false);
+		await this._telemetry.endSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS, null, false);
 
 		this.showSuspendChannels = false;
 		this.showSideSheet = !this.showSideSheet;
@@ -796,7 +796,7 @@ export class AccessChannels extends Component {
 					cifNumber="${this.cifNumber}"
 					.accessChannels="${this.landingInfo}"
 					.suspendChannels="${(request, need) => this._confirmSuspend(request, need)}"
-					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS)}"
+					@onLoad="${() => this._telemetry.startSpan(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS, null, false)}"
 					@cancel="${() => this._cancelSuspendChannels()}"
 					@suspended="${() => this.showSuspendChannels = false}">
 				</horizon-suspend-access-channels>`
