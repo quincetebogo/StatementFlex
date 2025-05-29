@@ -170,7 +170,7 @@ export class StopCardSuccess extends ViewBase {
 	_notNow() {
 		this._toggleAlertSuspendChannels();
 		this.notNowToSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW, {}, false);
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
@@ -178,14 +178,14 @@ export class StopCardSuccess extends ViewBase {
 	_suspendChannels() {
 		this._toggleAlertSuspendChannels();
 		this.confirmSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE, {}, false);
 	}
 
 	_cancelSuspendChannels() {
 		this.confirmSuspendChannels = false;
 		this.notNowToSuspendChannels = true;
 
-		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, {});
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, {}, false);
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
@@ -194,7 +194,7 @@ export class StopCardSuccess extends ViewBase {
 		await super._inicidentManager_(need, () => this._toggleBusyFlag());
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
-		});
+		}, false);
 
 		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
 
