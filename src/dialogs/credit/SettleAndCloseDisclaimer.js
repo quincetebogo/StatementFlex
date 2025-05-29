@@ -17,6 +17,7 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 
 	constructor() {
 		super();
+		this.displayToast = false;
 	}
 
 	// --------------
@@ -26,7 +27,8 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 	static get properties() {
 		return {
 			productType: { type: String },
-			creditType: { type: String }
+			creditType: { type: String },
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -36,7 +38,7 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		ineum('page', `Credit Settle and Close Disclaimer`);
+		ineum(`page`, `Credit Settle and Close Disclaimer`);
 	}
 
 	// --------------
@@ -112,7 +114,6 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 				capitec-content-box > capitec-label {
 					width: auto;
 					margin: 0px 0px 15px 0px;
-
 					--theme-label-default-font-size: 16px;
 				}
 
@@ -127,7 +128,6 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 				capitec-button {
 					height: 48px;
 					border-radius: 5px;
-
 					--theme-button-font-weight: 600;
 					--theme-button-line-height: 20px;
 					--theme-button-padding-top: 10px;
@@ -156,25 +156,26 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
 					<span>
-						<capitec-group layout="horizontal">
-							<capitec-icon size="medium" icon="status/warning-trans"></capitec-icon>
-							<capitec-label type="subtitle" label="${this.creditType === CREDIT_TYPE.FIXED ? `Settle Loan` : `Settle And Close`}"></capitec-label>
-						</capitec-group>
+					<capitec-group layout="horizontal">
+					<capitec-icon size="medium" icon="status/warning-trans"></capitec-icon>
+					<capitec-label type="subtitle" label="${this.creditType === CREDIT_TYPE.FIXED ? `Settle Loan` : `Settle And Close`}"></capitec-label>
+					</capitec-group>
 					</span>
 				</div>
 				<div slot="body">
-				${this.creditType === CREDIT_TYPE.FIXED ? this._renderFixedInformation() : this._renderInformation()}
+					${this.creditType === CREDIT_TYPE.FIXED ? this._renderFixedInformation() : this._renderInformation()}
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
+			${this._renderCopyToast()}
 		`;
 	}
 
 	_renderInformation() {
 		return html`
-			<capitec-content-box>
+			<capitec-content-box id="disclaimer-content">
 				<capitec-label label="If you settle and close your Credit Card account, the balance will be R0 and the account will be closed."></capitec-label>
 				<capitec-label label="This means that you will no longer be able to transact on this account in future."></capitec-label>
 				<capitec-label label="Should you have a need for funds in the future you can apply for a new credit product which is subject to a full credit assessment."></capitec-label>
@@ -185,20 +186,68 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 
 	_renderFixedInformation() {
 		return html`
-			<capitec-content-box>
+			<capitec-content-box id="disclaimer-content">
 				<capitec-label label="If you settle your ${this.productType.toLowerCase()}, the balance will be reduced to R0 and the account will be closed."></capitec-label>
 				<capitec-label label="Do you want to continue with settling and closing the ${this.productType.toLowerCase()}?"></capitec-label>
 			</capitec-content-box>
 		`;
 	}
 
+	_copyInformation() {
+		const contentBox = this.shadowRoot.getElementById(`disclaimer-content`);
+		const labels = contentBox.querySelectorAll(`capitec-label`);
+		const textToCopy = Array.from(labels)
+			.map(label => label.getAttribute(`label`))
+    		.filter(text => text) // Remove any null/undefined values
+    		.join(`\n`);
+		navigator.clipboard.writeText(textToCopy)
+			.then(() => {
+    		 		this.displayToast = true;
+    		 		window.setTimeout(() => {
+    		 		this.displayToast = false;
+    		 		this.requestUpdate(); // Trigger re-render
+        		}, 3000);
+			})
+        	.catch(err => {
+            	this.logger.error(`Failed to copy text: `, err);
+        	});
+    
+    	this.requestUpdate(); // Trigger immediate re-render to show toast
+	}
+
+	_renderCopyToast() {
+		return this.displayToast 
+		? html`
+			<capitec-toast 
+				type="success"
+				header="Copied"
+				detail="Copied Successfully" 
+				closable
+				@click="${() => this.displayToast = false}"
+				style="position: fixed; bottom: 20px; right: 20px; width: calc(100% - 20px); max-width: 300px;">
+			</capitec-toast>`
+		: html``;
+	}
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
+				<capitec-icon 
+					size="medium" 
+					icon="system/notes-action" 
+					@click="${() => this._copyInformation()}"
+					style="margin-right: 16px; cursor: pointer;"
+					role="button"
+					tabindex="0"
+					aria-label="Copy content">
+				</capitec-icon>
+
 				<capitec-button 
 					label="Cancel"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>
+
+				<capitec-spacer></capitec-spacer>
 
 				<capitec-button 
 					type="primary"
@@ -208,6 +257,5 @@ export class SettleAndCloseDisclaimerDialog extends Component {
 			</capitec-group>
 		`;
 	}
-
 }
 window.customElements.define(`horizon-settle-n-close-disclaimer`, SettleAndCloseDisclaimerDialog);

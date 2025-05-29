@@ -125,7 +125,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 		} else {
 			response = await this.executeLifeCancelBenefit(this.policy);
 		}
-		if (response.successful) {
+		if (response.responseMessage === `SUCCESS`) {
 			let benefitSuccessMessage = ``;
 			if (this.cancelBenefit === false) {
 				benefitSuccessMessage = `Newborn Premium Waiver has been successfully activated.`;
