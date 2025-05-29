@@ -265,7 +265,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		let productTilesInfo = {};
 
-		if (!this.callerInformation || this.callerInformation.verificationStatus === `non-client`) {
+		if (this.callerInformation?.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,

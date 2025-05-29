@@ -5,6 +5,7 @@ import { formatStringAsPascalCase, isNullorEmpty, isWellFormedSouthAfricanID } f
 import { CreditEvents } from 'app/constants/telemetry/events/Credit';
 import { DateTime } from 'luxon';
 import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
+import { HORIZON_INCIDENT_STATE } from 'app/constants/IncidentManager';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -36,7 +37,8 @@ import 'app/components/quickTransactions/UpdateCardSettings';
 import 'app/dialogs/credit/PaidUpAccounts';
 import 'app/dialogs/credit/PaidUpLetter';
 import 'app/dialogs/taxCertificates/TaxCertificates';
-import { HORIZON_INCIDENT_STATE } from 'app/constants/IncidentManager';
+
+
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 const today = new Date();
