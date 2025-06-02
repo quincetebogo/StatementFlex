@@ -73,7 +73,7 @@ export class ProductInformation extends ViewBase {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.horizonIncidentManager.currentIncident.toString(),
+				referenceNo: this.horizonIncidentManager.currentIncident?.toString(),
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
