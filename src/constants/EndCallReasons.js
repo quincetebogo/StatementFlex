@@ -11,9 +11,9 @@ const callTransferedResoltuion = (issueType) => {
  * @readonly
  * @enum {Object} END_CALL_REASON
  * 
- * End call mapping refer from Confluience https://confluence.capitecbank.co.za:8443/display/HOR/Quick+Transactions%3A+STrack+Field+Mapping 
+ * End call mapping refer from Confluience https://capitecbank.atlassian.net/wiki/x/zDoTyg
  * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
- * End call contexts confluence https://confluence.capitecbank.co.za:8443/display/HOR/User+Story+1%3A+End+call+session+-+Enhanced
+ * End call contexts confluence https://capitecbank.atlassian.net/wiki/x/a3UTyg
  */
 const NEED_FULFILLED = 0;
 const NEED_INCOMPLETE = 1;

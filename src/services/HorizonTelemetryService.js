@@ -334,6 +334,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns {string} Current span name
 	 */
 	_getCurrentSpanofEvent(events) {
+		if (!events || events.length < 1) {
+			return ``;
+		}
+
 		const event = events[events.length - 1];
 		let eventIndex = events.length - 1;
 		let currSpan = ``;
