@@ -2341,7 +2341,7 @@ class ClientSummary extends Component {
 				`}
 				<div>
 					<capitec-content-box id="client-pockets-box" class="life-policies-box">
-						${this._renderNonActiveLifePolicies(nonActiveLifePolicies)}
+						${this._renderNonActiveLifePolicies(nonActiveLifePolicies, activeLifePolicy)}
 					</capitec-content-box>
 				</div>
 		`;
@@ -2419,7 +2419,7 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) 
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -2494,7 +2494,7 @@ class ClientSummary extends Component {
 		</capitec-content-box>`) : html``}`;
 	}
 
-	_renderNonActiveLifePolicies(nonActiveLifePolicies) {
+	_renderNonActiveLifePolicies(nonActiveLifePolicies, activeLifePolicy) {
 		return html`
 			${nonActiveLifePolicies?.length === 0 ? html``
 				: html`<capitec-label label="Inactive policies" class="strong-label" id="inactive-life-policies-title"></capitec-label>`}
@@ -2587,7 +2587,7 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							 ${!this.isInsureAgent && !this.isInsureAdministrator && pol.canReIssue === true ? html`
+							 ${!this.isInsureAgent && !this.isInsureAdministrator && pol.canReIssue === true && (!activeLifePolicy || activeLifePolicy.length === 0) ? html`
 								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
 							` : html``}
 						</capitec-overflow-menu>
