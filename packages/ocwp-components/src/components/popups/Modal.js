@@ -130,7 +130,7 @@ export class Modal extends Component {
 
 	// --------------
 	// PUBLIC METHODS
-	// --------------	
+	// --------------
 
 	async updated() {
 
@@ -229,20 +229,20 @@ export class Modal extends Component {
 				}
 
 				.container.onboard {
-					width: var(--theme-modal-onboard-xs-s-width); 
+					width: var(--theme-modal-onboard-xs-s-width);
 					border-radius: var(--theme-modal-border-radius, 4px);
-				}	
+				}
 
 				@media screen and (min-width: 767px) {
 
 					.container.onboard {
 						width: var(--theme-modal-onboard-m-l-xl-width);
 					}
-				}		
+				}
 				
-				.container.form, 
-				.container.text { 
-					width: var(--theme-modal-form-xs-s-width); 
+				.container.form,
+				.container.text {
+					width: var(--theme-modal-form-xs-s-width);
 					max-height: 100vh;
 				}
 
@@ -258,11 +258,11 @@ export class Modal extends Component {
 
 				@media screen and (min-width: 767px) { /* Cannot use var in media query */
 
-					.container.form, 
+					.container.form,
 					.container.text {
 						width: var(--theme-modal-form-m-l-xl-width);
 						height: auto;
-						max-height: var(--theme-modal-free-max-height); 
+						max-height: var(--theme-modal-free-max-height);
 					}
 
 					.container.form > .body,
@@ -271,8 +271,8 @@ export class Modal extends Component {
 					}
 				}
 
-				.container.result { 
-					width: var(--theme-modal-result-xs-s-width); 
+				.container.result {
+					width: var(--theme-modal-result-xs-s-width);
 					height: 100vh;
 					border-radius: 0;
 				}
@@ -294,9 +294,9 @@ export class Modal extends Component {
 					}
 				}
 
-				.container.free { 
-					max-width: var(--theme-modal-free-max-width); 
-					max-height: var(--theme-modal-free-max-height); 
+				.container.free {
+					max-width: var(--theme-modal-free-max-width);
+					max-height: var(--theme-modal-free-max-height);
 					border-radius: var(--theme-modal-border-radius, 4px);
 				}
 
@@ -430,7 +430,7 @@ export class Modal extends Component {
 					flex-direction: row;
 				}
 
-				slot[name="header"] {					
+				slot[name="header"] {
 					display: flex;
 					right: var(--theme-modal-slot-header-right);
 					position: absolute;
