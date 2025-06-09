@@ -2419,7 +2419,7 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) 
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && !this.isInsureAgent 
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
