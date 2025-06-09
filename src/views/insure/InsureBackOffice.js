@@ -2077,6 +2077,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.fetchPolicyRescheduleDocumentDetails="${(policy, saveDocument) => this._generatePolicyRescheduleDocument(policy, saveDocument)}"
 				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, false)}"
 				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
+				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
