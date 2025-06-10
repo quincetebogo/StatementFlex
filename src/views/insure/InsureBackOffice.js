@@ -1,7 +1,7 @@
 /* eslint-disable sort-imports */
 import { css, html } from 'platform/elements';
 import { EMAIL_DOCUMENT_REQUEST_PAYLOAD, GENERATE_DOCUMENT_REQUEST_PAYLOAD } from 'app/utils/insureRequestPayload';
-import { getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
+import { formatDateforPremiumHistory, getAgeFromIDNumber, getGenderFromIDNumber } from 'app/utils/insureUtils';
 import { Configuration } from 'platform/core';
 import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { InsureLifeService } from '../../services/InsureLifeService';
