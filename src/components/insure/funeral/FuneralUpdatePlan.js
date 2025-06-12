@@ -1263,7 +1263,6 @@ class FuneralUpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_initialise() {
-
 		this.canReinstate = this.policyDetails.canReinstate;
 
 		if (this.canReinstate === false && (this.policyDetails.status === "Cancelled" || this.policyDetails.status === "Lapsed" || this.policyDetails.status === "OutOfForce" || this.policyDetails.status === "NotTakenUp")) {
