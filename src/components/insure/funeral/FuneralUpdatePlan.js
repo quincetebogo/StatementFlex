@@ -767,7 +767,13 @@ class FuneralUpdatePlan extends Component {
 					if (ele.beneficiary === true) {
 						ele.coverDetails.benefitPayoutErrorMessage = ``;
 					}
+
+					if (ele.benefitPayout < 1000 && ele.beneficiary === true) {
+						ele.coverDetails.benefitPayoutErrorMessage = `Minimum benefit payout of R1000 per beneficiary`;
+					}
 				});
+
+
 			}
 
 			this.requestUpdate();
@@ -1379,6 +1385,12 @@ class FuneralUpdatePlan extends Component {
 				if (ele.benefitPayout === ``) {
 					ele.coverDetails.canUpdate = false;
 					ele.coverDetails.benefitPayoutErrorMessage = `Payout amount is a required field`;
+				}
+
+				//Benefit Minimum Check
+				if (ele.benefitPayout < 1000) {
+					ele.coverDetails.canUpdate = false;
+					ele.coverDetails.benefitPayoutErrorMessage = `Minimum benefit payout of R1000 per beneficiary`;
 				}
 
 				// Contact details
