@@ -693,7 +693,8 @@ async _transactionHistory(creditType, productType, accountDetails) {
 
 	this._setAccountHeaderDetails(accountDetails);
 	// Pass accountOpenDate as startDate to limit transaction history
-	this._getTransactionHistory(accountDetails.openDate);
+	const formattedStartDate = accountDetails.openDate ? accountDetails.openDate.substr(0, 10) : undefined;
+	this._getTransactionHistory(formattedStartDate);
 
 }
 
