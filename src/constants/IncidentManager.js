@@ -10,25 +10,22 @@ const COMMON_RESOLUTIONS = {
  * @typedef {string} IncidentState
  */
 
-/**
+/* 
  * Incident state constants.
  * This depicts the current state of a primary or secondary incident
  * 
  * @readonly
- * @enum {IncidentState}
- */
-export const HORIZON_NEED_STATUS = {
-	INPROGRESS: `InProgress`,
+ * @enum {IncidentState} */
+export const HORIZON_INCIDENT_STATE = {
 	COMPLETED: `Completed`,
 	ASSIGNED: `Assigned`,
 	FAILED: `Failed`,
-	NOT_STARTED: `Not Started`,
 	CLOSED: `Closed`
 };
 
 /**
  * End call reasons.
- * TODO: Refactor to get from actual end call reasons 
+ * Refactor to get from actual end call reasons 
  * 
  * @readonly
  * @enum {object} CLOSE_REASONS

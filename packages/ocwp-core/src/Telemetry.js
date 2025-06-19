@@ -1,9 +1,9 @@
 import { v4, validate } from 'uuid';
+import { Configuration } from 'platform/core';
 import { Constants } from './internals/Constants.js';
 import { HttpClient } from './HttpClient.js';
 import LogStore from './stores/LogStore.js';
 import { Utilities } from './Utilities.js';
-
 
 /**
  * A class that provides the ability to capture business telemetry events. 
@@ -31,6 +31,7 @@ export class Telemetry {
 		this._retryTelemetrySchedule(Constants.telemetry.TELEMETRY_EVENT);
 		this._retryTelemetrySchedule(Constants.telemetry.SPAN_START_EVENT);
 		this._retryTelemetrySchedule(Constants.telemetry.SPAN_END_EVENT);
+		this._configuration = Configuration.getInstance();
 	}
 
 	/**
@@ -105,7 +106,7 @@ export class Telemetry {
 		if (!window.platform.security) {
 			return;
 		}
-		
+
 		this._validateSpanEndParams(params);
 
 		// Generate the timestamp.
@@ -174,7 +175,7 @@ export class Telemetry {
 		if (!Utilities.isString(params.eventName)) {
 			throw new Error(`"params.eventName" not of type string`);
 		}
-		
+
 		if (!params.eventType) {
 			throw new Error(`"params.eventType" not provided`);
 		}
@@ -214,7 +215,7 @@ export class Telemetry {
 		}))) {
 			throw new Error(`"params.baggage" invalid`);
 		}
-		
+
 	}
 
 	_validateTelemetryEventParams(params) {
@@ -271,27 +272,41 @@ export class Telemetry {
 
 	}
 
+	async _validateTelemetryFilters(params) {
+		const telemetryArray = await this._configuration.getSetting(`TelemetryFilter`);
+
+		for (let i = 0; i < telemetryArray.length; i++) {
+			if (telemetryArray.includes(params.eventName.substring(0, telemetryArray[i].length))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	async _postSpanStartEvent(params, skipValidation = false) {
 
 		let valid = true;
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateSpanStartParams(params, true);
-
 			} catch (error) {
 				valid = false;
 				console.error(error, params);
 			}
 		}
 
-		if (valid) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/span/start`, params);
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
+		if (valid && isTelemetryFilter) {
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/start`, params);
 		}
 	}
 
 	async _postTelemetryEvent(params, skipValidation = false) {
 		let valid = true;
-
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateTelemetryEventParams(params);
@@ -301,13 +316,17 @@ export class Telemetry {
 			}
 		}
 
-		if (valid) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/event`, params);
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
+
+		if (valid && isTelemetryFilter) {
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/event`, params);
 		}
 	}
 
 	async _postSpanEndEvent(params, skipValidation = false) {
 		let valid = true;
+		const telemetryUrl = await this._configuration.getSetting(`serviceURIs.telemetryServiceUrl`);
+		let isTelemetryFilter = false;
 		if (!skipValidation) {
 			try {
 				this._validateSpanEndParams(params);
@@ -317,8 +336,10 @@ export class Telemetry {
 			}
 		}
 
-		if (valid) {
-			await HttpClient.getInstance().post(`/platform/telemetry/v1/span/end`, params);
+		isTelemetryFilter = await this._validateTelemetryFilters(params);
+
+		if (valid && isTelemetryFilter) {
+			await HttpClient.getInstance().post(`${telemetryUrl}/telemetryLogging/v1/span/end`, params);
 		}
 	}
 

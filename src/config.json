@@ -12,9 +12,9 @@
 		"insureChannelServiceUrl": "https://insurance-horizoninsurechannelservice.platform-dev.int.capinet",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "http://localhost:6001",
 		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
-		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff",
+		"telemetryServiceUrl": "https://horizon-telemetry-service-dev.bussup.npr-plrbsc.asgard.capi"
 	},
 	"signalRUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-dev.bussup.npr-plrbsc.asgard.capi",
@@ -39,6 +39,11 @@
 		"XDS": 2,
 		"KBA": 1
 	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	],
 	"LogRequestResponseModels": false,
 	"ClientCareVDN": "7250",
 	"HelpDeskVDN": "7287",
@@ -57,7 +62,8 @@
 	"mock": {
 		"enabled": true,
 		"createIncident": {
-			"enabled": true
+			"enabled": true,
+			"positiveCase": true
 		},
 		"acceptCall": {
 			"enabled": true,
@@ -305,15 +311,15 @@
 			"positiveCase": true
 		},
 		"insureGenerateIssueAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
@@ -321,7 +327,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -329,7 +335,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyPay": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureUpdatePolicyAccept": {
@@ -349,7 +355,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {
@@ -453,7 +459,7 @@
 			"positiveCase": true
 		},
 		"insureLifeQuestionnaire": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"payshapPop": {
@@ -488,16 +494,8 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"insureActivatePolicyPause": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"insureCancelPolicyPause": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"insureCalculateEstimate": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"insureAllowedCover": {

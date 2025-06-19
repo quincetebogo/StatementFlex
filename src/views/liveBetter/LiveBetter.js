@@ -88,7 +88,7 @@ export class LiveBetter extends SavingsAccountBase {
 
 		this._initialise();
 
-		this._optionClick = async (option) => {
+		this._optionClick = (option) => {
 
 			const accountDetails = () => this._accountDetails();
 			const transactionHistory = () => this._transactionHistory();
@@ -107,7 +107,7 @@ export class LiveBetter extends SavingsAccountBase {
 			};
 
 			if (actions[option]) {
-				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(option);
 				return actions[option]();
 			}
 		};
@@ -148,17 +148,17 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _accountDetails() {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ACCOUNT_NUMBER, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_ACCOUNT_DETAILS
 		});
 
-		await super.createAndClassifySubIncident();
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
 	}
 
 	async _toggleRoundUp(event) {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ROUND_UP_TOGGLE, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_ROUND_UP_TOGGLE, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
@@ -169,11 +169,11 @@ export class LiveBetter extends SavingsAccountBase {
 		this._deepCopyProperty();
 
 		// To classify incident, setting need as automatic savings
-		await this._optionClick(`automatic-savings-lbb`);
+		this._optionClick(`automatic-savings-lbb`);
 	}
 
 	async _toggleInterestSweep(event) {
-		this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_INTEREST_SWEEP_TOGGLE, {
+		await this._telemetry.logEvent(LiveBetterEvents.LIVE_BETTER_INTEREST_SWEEP_TOGGLE, {
 			"screen": TelemetryScreen.LIVE_BETTER_LANDING_PAGE,
 			"next-screen": TelemetryScreen.LIVE_BETTER_AUTOMATIC_SAVINGS
 		});
@@ -184,7 +184,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this._deepCopyProperty();
 
 		// To classify incident, setting need as automatic savings
-		await this._optionClick(`automatic-savings-lbb`);
+		this._optionClick(`automatic-savings-lbb`);
 	}
 
 	async _backFromAutomaticSavings() {
@@ -201,7 +201,7 @@ export class LiveBetter extends SavingsAccountBase {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.landingPageInfo = screenDetails.LBSADetails;
 
-		this._setIncidentNotstarted();
+		// this._setIncidentNotstarted();
 		this._deepCopyProperty();
 
 		this.automaticSavingsDetails = {};
@@ -209,8 +209,6 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -334,7 +332,7 @@ export class LiveBetter extends SavingsAccountBase {
 		this.endCallContext = `LandingPage`;
 		this.transactionHistory = [];
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this._setIncidentDone();
 	}
@@ -359,6 +357,7 @@ export class LiveBetter extends SavingsAccountBase {
 				"NationalIDNumber": this.callerInformation.southAfricanIDNumber
 			};
 
+			this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.LBB);
 			const returnValue = await this.liveBetterService.liveBetterLanding(clientDetails);
 
 			if (returnValue.succeeded && returnValue.result) {
@@ -373,12 +372,7 @@ export class LiveBetter extends SavingsAccountBase {
 				this.landingPageInfo = returnValue.result;
 				this._updateLeftBar();
 
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.LBB, () => this._toggleBusyFlag());
-				await super.createAndClassifySubIncident(null, false);
-
-				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
-
+				
 			} else if (returnValue.succeeded) {
 
 				// Navigate to Live better non-client page if a client is not registered with Live better account
@@ -407,7 +401,6 @@ export class LiveBetter extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.LIVE_BETTER_TRANSACTION_HISTORY
 		});
 
-		await super.createAndClassifySubIncident(null, false);
 		await this._getTransactionHistory();
 	}
 
@@ -442,7 +435,7 @@ export class LiveBetter extends SavingsAccountBase {
 					// CSCEH-11340: Temporarily disabled LBB linked transactions
 					// if (item.journalNumber === this.journalNumber) {
 					// item.linkedTransactionDetails = this.linkedTransactionDetails;
-					// }
+							
 
 					return item;
 				});
@@ -560,8 +553,8 @@ export class LiveBetter extends SavingsAccountBase {
 	}
 
 	async _setTranHistoryDone() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
-
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
+		
 		this._setIncidentDone();
 	}
 

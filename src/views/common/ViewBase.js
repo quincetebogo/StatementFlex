@@ -4,7 +4,6 @@ import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { ClientProfileService } from 'app/services/ClientProfileService';
 import { EXCEPTIONAL_ENDCALL_CONTEXTS } from 'app/constants/EndCallReasons';
-import { HORIZON_NEED_STATUS } from 'app/constants/IncidentManager';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -130,7 +129,7 @@ export class ViewBase extends View {
 		this.addCallerDetailsSub.dispose();
 		this.vasToast.dispose();
 		this.stateChanged.unsubscribe();
-	
+
 		super.disconnectedCallback();
 	}
 
@@ -184,9 +183,11 @@ export class ViewBase extends View {
 	_endCallClick() {
 		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
 		this.showEndCall = !this.showEndCall;
-		this.endCallContext = this.horizonIncidentManager.incidentState === HORIZON_NEED_STATUS.INPROGRESS && !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
-								? `QuickTransactionsInProgress`
-								: this.endCallContext;
+
+		// incidentState check removed during incident management refactor
+		this.endCallContext = /* this.horizonIncidentManager.incidentState === HORIZON_NEED_STATUS.INPROGRESS && */ !EXCEPTIONAL_ENDCALL_CONTEXTS.includes(this.endCallContext)
+			? `QuickTransactionsInProgress`
+			: this.endCallContext;
 	}
 
 	_cancelEndCallClick() {
@@ -235,7 +236,7 @@ export class ViewBase extends View {
 
 	async _addCallerDetailsConfirmed(event) {
 		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER, {});
-		
+
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
@@ -279,10 +280,6 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	async createAndClassifySubIncident(incidentCategorization, classify) {
-		await super.createAndClassifySubIncident(() => this._toggleBusyFlag(), incidentCategorization, classify);
-	}
-
 	_performReturnToScreen() {
 		const returnToScreen = this.horizonStore.getReturnToScreen();
 
@@ -299,14 +296,8 @@ export class ViewBase extends View {
 		const verificationStatus = this.callerInformation.verificationStatus;
 
 		return verificationStatus === `verified`
-				? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS[this.roleManager.orgUnit]?.includes(need)
-				: !LOW_RISK_TRANSACTIONS.includes(need);
-	}
-
-	_setIncidentNotstarted() {
-		if (this.horizonIncidentManager.incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
+			? verificationMethod === `SQ` && HIGH_RISK_TRANSACTIONS[this.roleManager.orgUnit]?.includes(need)
+			: !LOW_RISK_TRANSACTIONS.includes(need);
 	}
 
 	_isIncidentReassigned() {
@@ -320,17 +311,20 @@ export class ViewBase extends View {
 	async _updatePreferences(language, cif) {
 		const returnValue = await this.clientProfileService.updatePreferredLanguage(language, cif);
 
+		/* Removed during inicident management refactor
 		this.horizonIncidentManager.incidentState = returnValue.succeeded 
 														? super.HORIZON_NEED_STATUS.COMPLETED 
 														: super.HORIZON_NEED_STATUS.FAILED;
+		*/
+
 		return returnValue.succeeded;
 	}
-	
+
 	// Show tooltip when a particular option is disabled
 	_showTooltip(need) {
 		const availableFeatures = AVAILABLE_FEATURES_BY_ROLE[this.roleManager.orgUnit];
 		const availableByVerification = !this._shouldDisable(need);
-		
+
 		if (availableFeatures?.length > 0) {
 			return !(availableFeatures.includes(need) && availableByVerification);
 		}
@@ -343,12 +337,12 @@ export class ViewBase extends View {
 
 		return disableByVerification || disableByRole;
 	}
-	
+
 	_getTooltipMessage(need) {
 		const isHighRiskTransaction = HIGH_RISK_TRANSACTIONS[this.roleManager.orgUnit]?.includes(need);
 		const byRole = {
 			'Capitec Connect': TOOLTIP_CAPITEC_CONNECT
-			
+
 		};
 
 		const byVerificationStatus = {
@@ -361,10 +355,10 @@ export class ViewBase extends View {
 			'ITA': `` // Agent is given access to all the available needs on ITA verification 
 		};
 
-		const message = byRole[this.roleManager.orgUnit] || 
-							(this.callerInformation.verificationStatus === `verified` 
-							? byVerificationType[this.callerInformation.verificationMethod] 
-							: byVerificationStatus[this.callerInformation.verificationStatus]);
+		const message = byRole[this.roleManager.orgUnit] ||
+			(this.callerInformation.verificationStatus === `verified`
+				? byVerificationType[this.callerInformation.verificationMethod]
+				: byVerificationStatus[this.callerInformation.verificationStatus]);
 
 		return message;
 	}
@@ -406,17 +400,17 @@ export class ViewBase extends View {
 			${this._renderLoadingIndicator()}
 			${this._renderAddCallerDetailsModal()}
 			${this._renderVASToast()}
-		`; 
+		`;
 	}
 
 	_renderVerifyNowModal() {
-		return this.showVerifyCallerDialog 
+		return this.showVerifyCallerDialog
 			? html`
 				<horizon-verify-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					incidentRefNumber="${this._currentIncidentRef()}"
-					?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+					?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -436,23 +430,23 @@ export class ViewBase extends View {
 				</horizon-end-call-session>`
 			: html``;
 	}
-	
+
 	_renderAddCallerDetailsModal() {
 		return this.showAddCallerDetails ? html`
 			<horizon-add-caller-details
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`
-		: html``;
+			: html``;
 	}
 
 	_renderLoadingIndicator() {
-		return this.isBusy 
+		return this.isBusy
 			? html`<capitec-loading-indicator data-automation-id="view-base-loading-indicator"></capitec-loading-indicator>`
 			: html``;
 	}
@@ -467,6 +461,6 @@ export class ViewBase extends View {
 					detail="${this.toastDetailVAS}"
 					closable>
 				</capitec-toast>`
-		 	: html``;
+			: html``;
 	}
 }

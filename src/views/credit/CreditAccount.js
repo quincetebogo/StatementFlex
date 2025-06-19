@@ -170,7 +170,7 @@ export class CreditAccount extends ViewBase {
 
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(clientNeed);
 
 				const { permissionResult, declineReasons, declineMessage } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -284,9 +284,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super._inicidentManager_(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType], () => this._toggleBusyFlag());
-		//await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+		this.horizonIncidentManager.setCurrentNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -524,7 +522,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -606,11 +604,10 @@ export class CreditAccount extends ViewBase {
 				this.horizonStore.clearScreenDetails();
 				this.horizonStore.clearReturnScreen();
 			} else {
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-				await super.createAndClassifySubIncident(null, false);
+				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.CREDIT);
 
 				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
+				// this._setIncidentNotstarted();
 			}
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -624,7 +621,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_formatCreditOverviewResponse() {
-		// TODO: Improve the formatting
+		// Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
@@ -672,7 +669,7 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	async _transactionHistory(creditType, productType, accountDetails) {
+	_transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -682,7 +679,6 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-		await super.createAndClassifySubIncident(null, false);
 
 		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -758,7 +754,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 	}
 
@@ -771,7 +767,7 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this.horizonStore.clearScreenDetails();
 		this._setIncidentDone();
@@ -884,8 +880,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubIncident(null, false);
-
 		const request = {
 			accountNumber: selectedAccountDetails.accountNumber,
 			status: BUDGET_FACILITY.STATUS,
@@ -923,10 +917,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -984,10 +974,7 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
-		}
+		this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
@@ -1216,7 +1203,7 @@ export class CreditAccount extends ViewBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
@@ -1261,12 +1248,12 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	async _disputeOutcome(event) {
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});
@@ -1557,7 +1544,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleAndCloseEmailConfirmation() {
-		// TODO: Remove mock once CS integration is complete
+		// TODO Remove mock once CS integration is complete
 		const mockDocuments = [
 			{
 				title: `Credit Card`,

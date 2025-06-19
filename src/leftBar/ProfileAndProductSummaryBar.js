@@ -265,7 +265,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		let productTilesInfo = {};
 
-		if (!this.callerInformation || this.callerInformation.verificationStatus === `non-client`) {
+		if (this.callerInformation?.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -282,7 +282,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				/* 
 				* NOTE: This is a work around as the favourites landing does not return credit information. 
 				* NOTE: This implementation will not include credit information in the favourites landing call fails.
-				* TODO: Develop better solution (CSCEH-7747)
+				* Develop better solution (CSCEH-7747)
 				*/
 				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
 					if (this.callerInformation.verificationStatus === `verified`) {
@@ -371,10 +371,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
 
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.getCurrentNeed()) &&
-			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
-			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		}
+
 	}
 
 	// ---------

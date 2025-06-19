@@ -117,7 +117,7 @@ export class WizardStepperModal extends Component {
 			this.lastInput = inputs[inputs.length - 1];
 
 		}
-		// TODO: fix scroll indicator on wizard stepper modal (screen freezes when scollbar reaches the bottom, suspect there's an infinite loop forming)
+		// Fix scroll indicator on wizard stepper modal (screen freezes when scollbar reaches the bottom, suspect there's an infinite loop forming)
 		// this._updateScrollIndicator(); 
 	}
 

@@ -31,7 +31,7 @@ export class SettlementQuoteFailure extends ViewBase {
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
 
-	
+
 	// ----------
 	// PROPERTIES
 	// ----------
@@ -42,7 +42,7 @@ export class SettlementQuoteFailure extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.returnToScreen = this.horizonStore.getReturnToScreen().route.title;
 		this.telemetryEvents = this.returnToScreen === `Favourites` ? SettlementQuoteFavouritesEvents : SettlementQuoteCreditEvents;
 
@@ -53,7 +53,9 @@ export class SettlementQuoteFailure extends ViewBase {
 		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
