@@ -44,7 +44,7 @@ const TRAN_CODES = [6447, 6448];
  *
  * Events Raised
  * -------------
- * -
+ * - 
  * 
  * @export
  * @class LiveBetter
@@ -672,7 +672,8 @@ export class LiveBetter extends SavingsAccountBase {
 
 					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._setTranHistoryDone()}"
-					@unloading="${() => this._unloadTransactionHistory()}">
+					@unloading="${() => this._unloadTransactionHistory()}"
+					.minDate="${this.landingPageInfo?.accountOpenDate || this.landingPageInfo?.dateOpened || ``}">
 				</horizon-transaction-history>`
 			: html``;
 	}

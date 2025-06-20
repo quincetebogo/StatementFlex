@@ -688,8 +688,18 @@ export class CreditAccount extends ViewBase {
 	this.horizonStore.setScreenDetails(screenDetails);
 
 	this._setAccountHeaderDetails(accountDetails);
-	// Pass accountOpenDate as startDate to limit transaction history
-	const formattedStartDate = accountDetails.openDate ? accountDetails.openDate.substr(0, 10) : undefined;
+
+	// Validate and use account openDate as startDate to limit transaction history
+	let formattedStartDate;
+	if (accountDetails.openDate) {
+		const openDate = new Date(accountDetails.openDate.substr(0, 10));
+		const earliestAllowedDate = new Date(`2000-01-01`); // fallback earliest date
+		formattedStartDate = openDate > earliestAllowedDate ? accountDetails.openDate.substr(0, 10) : earliestAllowedDate.toISOString().substr(0, 10);
+	} else {
+		// fallback to earliest allowed date if openDate is missing
+		formattedStartDate = new Date(`2000-01-01`).toISOString().substr(0, 10);
+	}
+
 	this._getTransactionHistory(formattedStartDate);
 
 }
@@ -719,10 +729,19 @@ async _getTransactionHistory(startDate, endDate, startAtIndex) {
 	this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 }
 
-_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
+	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
 	if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
 		startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
 		endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
+	}
+
+	// Ensure startDate is not earlier than account openDate if available
+	if (this.accountDetails && this.accountDetails[`Account number`] && this.accountDetails.openDate) {
+		const openDate = new Date(this.accountDetails.openDate.substr(0, 10));
+		const requestedStartDate = new Date(startDate);
+		if (requestedStartDate < openDate) {
+			startDate = formatDate(openDate, ISO_8601_DATE_FORMAT);
+		}
 	}
 
 	return {
