@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE, Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -284,7 +284,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		this.horizonIncidentManager.setCurrentNeed(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
+		this.horizonIncidentManager.setCurrentNeed(CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -671,26 +671,28 @@ export class CreditAccount extends ViewBase {
 
 	_transactionHistory(creditType, productType, accountDetails) {
 
-		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
-			"screen": TelemetryScreen.CREDIT_LANDING,
-			"next-screen": `${productType} Transaction History`,
-			"credit-type": creditType,
-			"product-type": productType
-		});
+	this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
+		"screen": TelemetryScreen.CREDIT_LANDING,
+		"next-screen": `${productType} Transaction History`,
+		"credit-type": creditType,
+		"product-type": productType
+	});
 
-		this.productType = productType;
+	this.productType = productType;
 
-		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.creditType = creditType;
-		screenDetails.productType = productType;
-		screenDetails.selectedAccounts = accountDetails;
-		this.horizonStore.setScreenDetails(screenDetails);
+	// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
+	const screenDetails = this.horizonStore.getScreenDetails();
+	screenDetails.creditType = creditType;
+	screenDetails.productType = productType;
+	screenDetails.selectedAccounts = accountDetails;
+	this.horizonStore.setScreenDetails(screenDetails);
 
-		this._setAccountHeaderDetails(accountDetails);
-		this._getTransactionHistory();
+	this._setAccountHeaderDetails(accountDetails);
+	// Pass accountOpenDate as startDate to limit transaction history
+	const formattedStartDate = accountDetails.openDate ? accountDetails.openDate.substr(0, 10) : undefined;
+	this._getTransactionHistory(formattedStartDate);
 
-	}
+}
 
 	_setAccountHeaderDetails(accountDetails) {
 		this.accountDetails = {
@@ -704,34 +706,34 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	async _getTransactionHistory(startDate, endDate, startAtIndex) {
-		const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
-		const returnValue = await this.creditService.transactionHistory(request);
-		if (!returnValue.succeeded || !returnValue.result) {
-			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
-			return;
-		}
-		const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
-		this.transactionHistory.push(...formattedResponse);
-		this.endCallContext = `TransactionHistory`;
-		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+async _getTransactionHistory(startDate, endDate, startAtIndex) {
+	const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
+	const returnValue = await this.creditService.transactionHistory(request);
+	if (!returnValue.succeeded || !returnValue.result) {
+		this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
+		return;
+	}
+	const formattedResponse = this._getFormattedResponse(returnValue.result.transaction);
+	this.transactionHistory.push(...formattedResponse);
+	this.endCallContext = `TransactionHistory`;
+	this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+}
+
+_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
+	if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
+		startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
+		endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
 	}
 
-	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
-		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
-			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
-			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
-		}
-
-		return {
-			"accountNumber": this.accountDetails[`Account number`],
-			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
-			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
-			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
-			"maxResults": TRANSACTION_HISTORY.MAX_RESULTS,
-			"moneyType": TRANSACTION_HISTORY.MONEY_TYPE
-		};
-	}
+	return {
+		"accountNumber": this.accountDetails[`Account number`],
+		"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
+		"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
+		"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
+		"maxResults": TRANSACTION_HISTORY.MAX_RESULTS,
+		"moneyType": TRANSACTION_HISTORY.MONEY_TYPE
+	};
+}
 
 	_getFormattedResponse(transactions) {
 		return transactions.map((item) => {

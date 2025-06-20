@@ -662,6 +662,7 @@ export class LiveBetter extends SavingsAccountBase {
 				<horizon-transaction-history
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
+					accountOpenDate="${this.landingPageInfo?.accountOpenDate || this.landingPageInfo?.dateOpened || ``}"
 					type="${ACCOUNT_TYPES.LBB}"
 
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
