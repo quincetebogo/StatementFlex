@@ -1656,6 +1656,7 @@ async _getTransactionHistory(startDate, endDate, startAtIndex) {
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
 				.product="${this.productType}"
+				.minDate="${this.accountDetails?.openDate || `2000-01-01`}"
 				
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"
