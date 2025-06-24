@@ -1647,17 +1647,20 @@ async _getTransactionHistory(startDate, endDate, startAtIndex) {
 	_renderTransactionHistory() {
 		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION) {
 
+			const accountOpenDate = this.accountDetails?.openDate || `2000-01-01`;
+
 			return html`
 			<horizon-transaction-history
 				.transactionHistory = "${this.transactionHistory}"
 				.accountDetails = "${this.accountDetails}"
+				accountOpenDate="${accountOpenDate}"
 				.type = "${ACCOUNT_TYPES.CREDIT}"
 				.renderTableColumns = "${() => this._renderColumns()}"
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
 				.product="${this.productType}"
-				.minDate="${this.accountDetails?.openDate || `2000-01-01`}"
+				.minDate="${accountOpenDate}"
 				
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"
