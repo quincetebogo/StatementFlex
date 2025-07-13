@@ -519,4 +519,29 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	/**
+	 * Get detailed information about a specific reward transaction by reference
+	 * 
+	 * @param {string} transactionReference 
+	 * @returns {Promise} 
+	 */
+	async getRechargeDetails(transactionReference) {
+		if (!transactionReference) {
+			return null;
+		}
+
+		const url = `/v1/api/horizon/rewards/recharges/${transactionReference}`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			`getRechargeDetails`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
