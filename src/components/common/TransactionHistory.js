@@ -289,17 +289,7 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		// Ensure startDate respects minDate based on accountOpenDate for Live Better accounts
-		let startDateObj = this.startDate;
-		if (!startDateObj) {
-			startDateObj = this._getMinDate(this.accountOpenDate);
-		} else {
-			const minDate = this._getMinDate(this.accountOpenDate);
-			if (startDateObj < minDate) {
-				startDateObj = minDate;
-			}
-		}
-		const startDate = startDateObj.toISOString().slice(0, 10);
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		this.disposeData();
@@ -437,18 +427,7 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-
-		// Ensure startDate respects minDate based on accountOpenDate for Live Better accounts
-		let startDateObj = this.startDate;
-		if (!startDateObj) {
-			startDateObj = this._getMinDate(this.accountOpenDate);
-		} else {
-			const minDate = this._getMinDate(this.accountOpenDate);
-			if (startDateObj < minDate) {
-				startDateObj = minDate;
-			}
-		}
-		const startDate = startDateObj.toISOString().slice(0, 10);
+		const startDate = this.startDate.toLocaleString().slice(0, 10);
 		const endDate = this.endDate.toLocaleString().slice(0, 10);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
