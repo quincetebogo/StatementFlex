@@ -69,7 +69,6 @@ export class TransactionHistory extends Component {
 
 		this.transactionHistory = [];
 		this.accountDetails = {};
-		this.accountOpenDate = null; // Revert to original property
 
 		// private properites
 		this.isBusy = false;
@@ -125,7 +124,6 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			accountOpenDate: { type: String }, // Added property for account open date
 			type: { type: String },
 			product: { type: String },
 
@@ -176,7 +174,6 @@ export class TransactionHistory extends Component {
 
 		this.filteredData = this.transactionHistory.filter(item => item.transactionStatus !== ``);
 		this.hideLoadMore = this.transactionHistory.length % MAX_RESULTS > 0 && this.transactionHistory.length % MAX_RESULTS < MAX_RESULTS;
-		this.requestUpdate();
 	}
 
 	disconnectedCallback() {
@@ -387,16 +384,6 @@ export class TransactionHistory extends Component {
 			const result = new Date(date);
 			result.setDate(result.getDate() - 90);
 			return result.toISOString();
-		};
-
-		// Add _getMinDate function to get minimum date based on accountOpenDate or fallback to 2000-01-01
-		this._getMinDate = (accountOpenDate) => {
-			if (!accountOpenDate) {
-				return new Date(2000, 0, 1);
-			}
-			const minDate = new Date(accountOpenDate);
-			minDate.setDate(minDate.getDate() - 1);
-			return minDate;
 		};
 		
 		// Fetching the telemetry events object at runtime based on product type
@@ -866,7 +853,6 @@ export class TransactionHistory extends Component {
 					label = "Choose a date (up to 90 days)"
 					startDate='${this.startDate}'
 					endDate='${this.endDate}'
-					minDate="${this._getMinDate(this.accountOpenDate).toISOString()}"
 					maxDate="${new Date().toString()}"
 					type="range"
 					mode="date"
