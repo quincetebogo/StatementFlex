@@ -712,8 +712,7 @@ export class CreditAccount extends ViewBase {
 			"Available balance": formatCurrency(accountDetails.availableCredit),
 			"Credit Limit": formatCurrency(accountDetails.creditLimit),
 			"Next repayment": formatCurrency(accountDetails.nextRepayment),
-			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription),
-			"openDate": accountDetails.openDate || null
+			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription)
 		};
 	}
 

@@ -1,6 +1,6 @@
 {
 	"name": "ocwpexample",
-	"version": "3.9.18",
+	"version": "0.4.19",
 	"private": true,
 	"type": "module",
 	"scripts": {
