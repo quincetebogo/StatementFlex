@@ -689,8 +689,7 @@ export class CreditAccount extends ViewBase {
 
 	this._setAccountHeaderDetails(accountDetails);
 	// Pass accountOpenDate as startDate to limit transaction history
-	const formattedStartDate = accountDetails.openDate ? accountDetails.openDate.substr(0, 10) : undefined;
-	this._getTransactionHistory(formattedStartDate);
+	this._getTransactionHistory(accountDetails.openDate);
 
 }
 
