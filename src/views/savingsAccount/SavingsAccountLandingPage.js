@@ -488,14 +488,16 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			: html``;
 	}
 
-	_renderTransactionHistory() {
+    _renderTransactionHistory() {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY ||
 			this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION
 			? html`
 			<horizon-transaction-history
+				accountOpenDate="${this.landingPageInfo.accountOpenDate}"
+				type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+
 				.transactionHistory="${this.transactionHistory}"
 				.accountDetails="${this.accountDetails}"
-				type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
 				.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"

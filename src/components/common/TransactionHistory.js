@@ -74,10 +74,14 @@ export class TransactionHistory extends Component {
 		this.isBusy = false;
 		this.hideLoadMore = true;
 
+		// All the following dates should be in ISO String format
+		this.accountOpenDate = ``;
 		this.startDate = ``;
-		this.endDate = ``;
-		this.product = ``;
+		this.endDate = ``; 
+		this.minDate = ``; 
+		this.maxDate = new Date().toISOString();
 
+		this.product = ``;
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
 		this.statuslabel = DEFAULTS.STATUS_LABEL;
@@ -124,6 +128,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
+			accountOpenDate: { type: String },
 			type: { type: String },
 			product: { type: String },
 
@@ -136,6 +141,8 @@ export class TransactionHistory extends Component {
 			isBusy: { state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
+			minDate: { type: String, state: true },
+			maxDate: { type: String, state: true },			
 			searchTextLabel: { state: true },
 			statuslabel: { state: true },
 			selectedMoneyType: { state: true },
@@ -255,24 +262,24 @@ export class TransactionHistory extends Component {
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
+		this.startDate = fromDate.toISOString();
+		this.endDate = toDate.toISOString();
+
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			
 			toDate = fromDate.plus({ days: 90 });
 			if (toDate > currentDateTime) {
-				this.startDate = fromDate;
-				this.endDate = currentDateTime;
+				this.startDate = fromDate.toISOString();
+				this.endDate = currentDateTime.toISOString();
 			} else {
-				this.startDate = fromDate;
-				this.endDate = toDate;
+				this.startDate = fromDate.toISOString();
+				this.endDate = toDate.toISOString();
 				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 				if (calendar) {
-					calendar._placeholderEndDate = toDate;
+					calendar._placeholderEndDate = toDate; // Check Types here
 				}
 			}
-		} else {
-			this.startDate = fromDate;
-			this.endDate = toDate;
-		}
+		} 
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
 		
@@ -286,8 +293,14 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
+		let ISOstartDate = this.minDate;
+
+		if (new Date(this.startDate) > new Date(this.minDate)) {
+			ISOstartDate = this.startDate;
+		}
+
+		const startDate = new Date(ISOstartDate).toLocaleString(`en-ZA`).slice(0, 10);
+		const endDate = new Date(this.endDate).toLocaleString(`en-ZA`).slice(0, 10);
 
 		this.disposeData();
 		await this.getTransactionHistory(startDate, endDate);
@@ -374,17 +387,31 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
+    
 		this.get90DaysAfter = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() + 90);
 
 			return result > today ? today.toISOString() : result.toISOString();
 		};
+    
 		this.get90DaysBefore = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() - 90);
 			return result.toISOString();
 		};
+
+		this._getMinDate = (accountOpenDate) => {
+			if (!accountOpenDate) {
+				return new Date(2000, 0, 1).toISOString();
+			}
+      
+			const minDate = new Date(accountOpenDate);
+			minDate.setDate(minDate.getDate() - 1);
+			return minDate.toISOString();
+		};
+    
+		this.minDate = this._getMinDate(this.accountOpenDate);
 		
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
@@ -400,8 +427,8 @@ export class TransactionHistory extends Component {
 	// To set the values to default on closing the chip or clearing all the filters
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``;
-			this.endDate = ``;
+			this.startDate = ``; 
+			this.endDate = ``; 
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 			if (calendar) {
@@ -414,8 +441,14 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
+		let ISOstartDate = this.minDate;
+
+		if (new Date(this.startDate) > new Date(this.minDate)) {
+			ISOstartDate = this.startDate;
+		}
+
+		const startDate = new Date(ISOstartDate).toLocaleString(`en-ZA`).slice(0, 10);
+		const endDate = new Date(this.endDate).toLocaleString(`en-ZA`).slice(0, 10);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
 		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
@@ -452,8 +485,8 @@ export class TransactionHistory extends Component {
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(Date.parse(this.startDate));
-			const endDate = new Date(Date.parse(this.endDate));
+			const startDate = new Date(this.startDate);
+			const endDate = new Date(this.endDate); 
 
 			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
 		}
@@ -851,9 +884,10 @@ export class TransactionHistory extends Component {
 				<capitec-date-time-picker
 					id="calendarRange"
 					label = "Choose a date (up to 90 days)"
-					startDate='${this.startDate}'
-					endDate='${this.endDate}'
-					maxDate="${new Date().toString()}"
+					startDate="${this.startDate}"
+					endDate="${this.endDate}"
+					minDate="${this.minDate}"
+					maxDate="${this.maxDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"
