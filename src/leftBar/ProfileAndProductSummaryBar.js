@@ -6,7 +6,6 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -14,7 +13,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
-
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
