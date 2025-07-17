@@ -493,9 +493,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION
 			? html`
 			<horizon-transaction-history
+				accountOpenDate="${this.landingPageInfo.accountOpenDate}"
+				type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
+
 				.transactionHistory="${this.transactionHistory}"
 				.accountDetails="${this.accountDetails}"
-				type="${ACCOUNT_TYPES.SAVINGS_ACCOUNT}"
 				.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"

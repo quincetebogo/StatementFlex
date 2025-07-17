@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE, Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -669,7 +669,7 @@ export class CreditAccount extends ViewBase {
 		};
 	}
 
-	_transactionHistory(creditType, productType, accountDetails) {
+	async _transactionHistory(creditType, productType, accountDetails) {
 
 		this._telemetry.logEvent(CreditEvents.CREDIT_TRANSACTION_HISTORY_SELECT, {
 			"screen": TelemetryScreen.CREDIT_LANDING,
@@ -688,8 +688,17 @@ export class CreditAccount extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		this._setAccountHeaderDetails(accountDetails);
-		this._getTransactionHistory();
 
+		let formattedStartDate;
+		if (accountDetails.openDate) {
+			const openDate = new Date(accountDetails.openDate.substr(0, 10));
+			const earliestAllowedDate = new Date(`2000-01-01`); // fallback earliest date
+			formattedStartDate = openDate > earliestAllowedDate ? accountDetails.openDate.substr(0, 10) : earliestAllowedDate.toISOString().substr(0, 10);
+		} else {
+			formattedStartDate = new Date(`2000-01-01`).toISOString().substr(0, 10);
+		}
+
+		await this._getTransactionHistory(formattedStartDate);
 	}
 
 	_setAccountHeaderDetails(accountDetails) {
@@ -700,12 +709,20 @@ export class CreditAccount extends ViewBase {
 			"Available balance": formatCurrency(accountDetails.availableCredit),
 			"Credit Limit": formatCurrency(accountDetails.creditLimit),
 			"Next repayment": formatCurrency(accountDetails.nextRepayment),
-			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription)
+			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription),
+			"openDate": accountDetails.openDate || null
 		};
 	}
 
+	/**
+	 * @param {string} startDate ISO Date Foramt 
+	 * @param {string} endDate ISO Date Format 
+	 * @param {Number} startAtIndex for pagination
+	 * @returns {Promise<void>} a void promise
+	 */
 	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
+
 		const returnValue = await this.creditService.transactionHistory(request);
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
@@ -717,10 +734,23 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
+	/**
+	 * @param {string} startDate ISO Date Foramt 
+	 * @param {string} endDate ISO Date Format 
+	 * @param {Number} startAtIndex for pagination
+	 * @returns {Promise<void>} a void promise
+	 */
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
 		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
-			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
-			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
+
+			if (this.accountDetails && this.accountDetails[`Account number`] && this.accountDetails.openDate) {
+				const openDate = new Date(this.accountDetails.openDate.substr(0, 10));
+				const requestedStartDate = new Date(startDate);
+
+				if (requestedStartDate < openDate) {
+					startDate = formatDate(openDate, ISO_8601_DATE_FORMAT);
+				}
+			}
 		}
 
 		return {
@@ -1625,16 +1655,21 @@ export class CreditAccount extends ViewBase {
 	_renderTransactionHistory() {
 		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION) {
 
+			const accountOpenDate = this.accountDetails?.openDate || `2000-01-01`;
+
 			return html`
 			<horizon-transaction-history
+				accountOpenDate="${accountOpenDate}"
+				product="${this.productType}"
+				minDate="${accountOpenDate}"
+				type = "${ACCOUNT_TYPES.CREDIT}"
+
 				.transactionHistory = "${this.transactionHistory}"
 				.accountDetails = "${this.accountDetails}"
-				.type = "${ACCOUNT_TYPES.CREDIT}"
 				.renderTableColumns = "${() => this._renderColumns()}"
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
-				.product="${this.productType}"
 				
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"

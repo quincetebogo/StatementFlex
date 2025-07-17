@@ -990,9 +990,11 @@ export class SavingsPlan extends ViewBase {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
 			? html`
 				<horizon-transaction-history
+					accountOpenDate="${this.landingPageInfo?.accountOpenDate || (this.savePlanDetails ? this.savePlanDetails.dateOpened : ``)}"
+					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
+
 					.transactionHistory="${this.transactionHistory}"
 					.accountDetails="${this.accountDetails}"
-					type="${ACCOUNT_TYPES.SAVINGS_PLAN}"
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"

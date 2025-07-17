@@ -129,7 +129,9 @@ export class LiveBetter extends SavingsAccountBase {
 			transactionHistory: { state: true },
 			journalNumber: { state: true },
 			updateAutomaticSavings: { state: true },
-			landingPageInfo: { state: true }
+			landingPageInfo: { state: true },
+			accountOpenDate: { state: true },
+			minDate: { state: true }
 		};
 	}
 
@@ -348,6 +350,9 @@ export class LiveBetter extends SavingsAccountBase {
 	async _initialise() {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
+
+		this.accountOpenDate = this.landingPageInfo?.accountOpenDate || this.landingPageInfo?.dateOpened || ``;
+		this.minDate = this.landingPageInfo?.accountOpenDate || this.landingPageInfo?.dateOpened || ``;
 
 		if (this.verificationStatus === `verified`) {
 
@@ -660,10 +665,12 @@ export class LiveBetter extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.LINKED_TRANSACTION_DETAILS
 			? html`
 				<horizon-transaction-history
-					.transactionHistory="${this.transactionHistory}"
-					.accountDetails="${this.accountDetails}"
+					accountOpenDate="${this.accountOpenDate}"
+					minDate="${this.minDate}"
 					type="${ACCOUNT_TYPES.LBB}"
 
+					.transactionHistory="${this.transactionHistory}"
+					.accountDetails="${this.accountDetails}"
 					.renderTableColumns="${() => this._renderTransHistoryColumns()}"
 					.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 					.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
