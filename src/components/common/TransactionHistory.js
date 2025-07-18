@@ -5,7 +5,6 @@ import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const FILTER_BY = {
 	ALL: `ALL`,
@@ -269,11 +268,11 @@ export class TransactionHistory extends Component {
 			
 			toDate = fromDate.plus({ days: 90 });
 			if (toDate > currentDateTime) {
-				this.startDate = fromDate.toISOString();
-				this.endDate = currentDateTime.toISOString();
+				this.startDate = fromDate.toISO();
+				this.endDate = currentDateTime.toISO();
 			} else {
-				this.startDate = fromDate.toISOString();
-				this.endDate = toDate.toISOString();
+				this.startDate = fromDate.toISO();
+				this.endDate = toDate.toISO();
 				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 				if (calendar) {
 					calendar._placeholderEndDate = toDate; // Check Types here
