@@ -261,8 +261,8 @@ export class TransactionHistory extends Component {
 		let toDate = DateTime.fromISO(e.detail.new.endDate);
 		const currentDateTime = DateTime.local();
 
-		this.startDate = fromDate.toISOString();
-		this.endDate = toDate.toISOString();
+		this.startDate = fromDate.toISO();
+		this.endDate = toDate.toISO();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			
