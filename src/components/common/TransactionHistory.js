@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
-import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
@@ -141,7 +140,7 @@ export class TransactionHistory extends Component {
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
 			minDate: { type: String, state: true },
-			maxDate: { type: String, state: true },			
+			maxDate: { type: String, state: true },
 			searchTextLabel: { state: true },
 			statuslabel: { state: true },
 			selectedMoneyType: { state: true },
@@ -257,22 +256,22 @@ export class TransactionHistory extends Component {
 			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
 		}
 
-		const fromDate = DateTime.fromISO(e.detail.new.startDate);
-		let toDate = DateTime.fromISO(e.detail.new.endDate);
-		const currentDateTime = DateTime.local();
+		const fromDate = new Date(e.detail.new.startDate);
+		let toDate = new Date(e.detail.new.endDate);
+		const currentDateTime = Date.now;
 
-		this.startDate = fromDate.toISO();
-		this.endDate = toDate.toISO();
+		this.startDate = fromDate.toISOString();
+		this.endDate = toDate.toISOString();
 
 		if (toDate.diff(fromDate, [`days`]).days > 90) {
 			
 			toDate = fromDate.plus({ days: 90 });
 			if (toDate > currentDateTime) {
-				this.startDate = fromDate.toISO();
-				this.endDate = currentDateTime.toISO();
+				this.startDate = fromDate.toISOString();
+				this.endDate = currentDateTime.toISOString();
 			} else {
-				this.startDate = fromDate.toISO();
-				this.endDate = toDate.toISO();
+				this.startDate = fromDate.toISOString();
+				this.endDate = toDate.toISOString();
 				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 				if (calendar) {
 					calendar._placeholderEndDate = toDate; // Check Types here
@@ -298,8 +297,8 @@ export class TransactionHistory extends Component {
 			ISOstartDate = this.startDate;
 		}
 
-		const startDate = new Date(ISOstartDate).toLocaleString(`en-ZA`).slice(0, 10);
-		const endDate = new Date(this.endDate).toLocaleString(`en-ZA`).slice(0, 10);
+		const startDate = this._formatDateForRequest(ISOstartDate);
+		const endDate = this._formatDateForRequest(this.endDate);
 
 		this.disposeData();
 		await this.getTransactionHistory(startDate, endDate);
@@ -446,8 +445,9 @@ export class TransactionHistory extends Component {
 			ISOstartDate = this.startDate;
 		}
 
-		const startDate = new Date(ISOstartDate).toLocaleString(`en-ZA`).slice(0, 10);
-		const endDate = new Date(this.endDate).toLocaleString(`en-ZA`).slice(0, 10);
+		const startDate = this._formatDateForRequest(ISOstartDate);
+		const endDate = this._formatDateForRequest(this.endDate);
+
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
 		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
@@ -511,6 +511,16 @@ export class TransactionHistory extends Component {
 	_formatDate(date) {
 		const newdate = new Date(Date.parse(date));
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
+	}
+
+	_formatDateForRequest(ISODateString) {
+	
+		const dateTime = new Date(ISODateString);
+		const day = dateTime.getDate().toString().padStart(2, 0);
+		const month = (dateTime.getMonth() + 1).toString().padStart(2, 0);
+		const year = dateTime.getFullYear().toString();
+	
+		return `${year}-${month}-${day}`;
 	}
 
 	_getDateRange() {
