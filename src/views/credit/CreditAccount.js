@@ -47,8 +47,8 @@ const NINETY_DAYS = 7777000000;
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `CREDIT`,
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	END_DATE: new Date().toISOString().slice(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().slice(0, 10),
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -691,11 +691,11 @@ export class CreditAccount extends ViewBase {
 
 		let formattedStartDate;
 		if (accountDetails.openDate) {
-			const openDate = new Date(accountDetails.openDate.substr(0, 10));
+			const openDate = new Date(accountDetails.openDate.slice(0, 10));
 			const earliestAllowedDate = new Date(`2000-01-01`); // fallback earliest date
-			formattedStartDate = openDate > earliestAllowedDate ? accountDetails.openDate.substr(0, 10) : earliestAllowedDate.toISOString().substr(0, 10);
+			formattedStartDate = openDate > earliestAllowedDate ? accountDetails.openDate.substr(0, 10) : earliestAllowedDate.toISOString().slice(0, 10);
 		} else {
-			formattedStartDate = new Date(`2000-01-01`).toISOString().substr(0, 10);
+			formattedStartDate = new Date(`2000-01-01`).toISOString().slice(0, 10);
 		}
 
 		await this._getTransactionHistory(formattedStartDate);
@@ -744,7 +744,7 @@ export class CreditAccount extends ViewBase {
 		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
 
 			if (this.accountDetails && this.accountDetails[`Account number`] && this.accountDetails.openDate) {
-				const openDate = new Date(this.accountDetails.openDate.substr(0, 10));
+				const openDate = new Date(this.accountDetails.openDate.slice(0, 10));
 				const requestedStartDate = new Date(startDate);
 
 				if (requestedStartDate < openDate) {
@@ -753,10 +753,14 @@ export class CreditAccount extends ViewBase {
 			}
 		}
 
+		
+		const from = startDate ? startDate.slice(0, 10) : TRANSACTION_HISTORY.START_DATE;
+		const to = endDate ? endDate.slice(0, 10) : TRANSACTION_HISTORY.END_DATE;
+
 		return {
 			"accountNumber": this.accountDetails[`Account number`],
-			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
-			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
+			"startDate": from,
+			"endDate": to,
 			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			"maxResults": TRANSACTION_HISTORY.MAX_RESULTS,
 			"moneyType": TRANSACTION_HISTORY.MONEY_TYPE
