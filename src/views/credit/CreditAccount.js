@@ -753,7 +753,7 @@ export class CreditAccount extends ViewBase {
 			}
 		}
 
-		
+
 		const from = startDate ? startDate.slice(0, 10) : TRANSACTION_HISTORY.START_DATE;
 		const to = endDate ? endDate.slice(0, 10) : TRANSACTION_HISTORY.END_DATE;
 
@@ -1306,7 +1306,7 @@ export class CreditAccount extends ViewBase {
 	async _restartDispute() {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
 
-		const returnValue = await this._getFirstQusToDispute();
+		const returnValue = await this._getFirstQusToDispute(this.selectedAccountDetails);
 		return returnValue;
 	}
 
