@@ -439,13 +439,16 @@ export class TransactionHistory extends Component {
 	// To set the values to default on closing the chip or clearing all the filters
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``; 
-			this.endDate = ``; 
+			const currentDate = new Date();
+			const ninetyDaysBefore = this._addDays(currentDate, -90);
+
+			this.startDate = currentDate.toISOString();
+			this.endDate = ninetyDaysBefore.toISOString();
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 			if (calendar) {
-				calendar._placeholderEndDate = null;
-				calendar._placeholderStartDate = null;
+				calendar._placeholderStartDate = this.startDate;
+				calendar._placeholderEndDate = this.endDate;
 			}
 			await this._loadFilteredTransactions();
 		}
