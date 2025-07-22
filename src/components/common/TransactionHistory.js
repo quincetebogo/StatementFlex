@@ -442,8 +442,8 @@ export class TransactionHistory extends Component {
 			const currentDate = new Date();
 			const ninetyDaysBefore = this._addDays(currentDate, -90);
 
-			this.startDate = currentDate.toISOString();
-			this.endDate = ninetyDaysBefore.toISOString();
+			this.endDate = currentDate.toISOString(); 
+			this.startDate = ninetyDaysBefore.toISOString();
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 			if (calendar) {

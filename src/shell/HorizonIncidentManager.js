@@ -107,7 +107,7 @@ export class HorizonIncidentManager {
 		return {
 			...this.incidentDetails.primaryIncident,
 			toString: function toString() {
-				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.primaryIncident?.incidentReference;
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 			}
 		};
 	}
@@ -125,7 +125,7 @@ export class HorizonIncidentManager {
 		return {
 			...this.incidentDetails.currentIncident,
 			toString: function toString(asInteraction = false) {
-				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.currentIncident?.incidentReference;
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 			}
 		};
 	};
@@ -268,13 +268,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString() {
-				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.primaryIncident?.incidentReference;
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString() {
-				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.currentIncident?.incidentReference;
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			}
 		};
