@@ -34,7 +34,7 @@ export class HorizonIncidentManager {
 	constructor() {
 		this._toggleBusyFunc = null;
 
-		this._configuration = Configuration.getInstance();
+
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
@@ -47,6 +47,8 @@ export class HorizonIncidentManager {
 		this.horizonStore = HorizonStore.getInstance();
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 		this.state = null;
+		this.referenceAsInteraction = null;
+		this._getReferenceConfig();
 	}
 
 	_stateChanged(state) {
@@ -56,6 +58,17 @@ export class HorizonIncidentManager {
 		}
 
 		this.incidentDetails = {};
+	}
+
+	async _getReferenceConfig() {
+		if (this.referenceAsInteraction === null) {
+			try {
+				const configuration = Configuration.getInstance();
+				this.referenceAsInteraction = await this.configuration.getSetting(`interactionAsReference`);
+			} catch {
+				this.referenceAsInteraction = false;
+			}
+		}
 	}
 
 	// --------------
@@ -94,7 +107,7 @@ export class HorizonIncidentManager {
 		return {
 			...this.incidentDetails.primaryIncident,
 			toString: function toString() {
-				return this.interaction;
+				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.primaryIncident?.incidentReference;
 			}
 		};
 	}
@@ -111,8 +124,8 @@ export class HorizonIncidentManager {
 
 		return {
 			...this.incidentDetails.currentIncident,
-			toString: function toString() {
-				return this.interaction;
+			toString: function toString(asInteraction = false) {
+				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.currentIncident?.incidentReference;
 			}
 		};
 	};
@@ -255,13 +268,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString() {
-					return this.Interaction;
+				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.primaryIncident?.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString() {
-					return this.Interaction;
+				return this.referenceAsInteraction ? this.interaction : this.incidentDetails?.currentIncident?.incidentReference;
 				}
 			}
 		};
