@@ -232,7 +232,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`updateTapToPay`)) {
 			return this.mock(`updateTapToPay`);
@@ -274,7 +274,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/permanent-limits`;
 
@@ -293,7 +293,7 @@ export class CardService extends ChannelServiceBase {
 	}
 
 	async updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
@@ -380,7 +380,7 @@ export class CardService extends ChannelServiceBase {
 	};
 
 	async updateCardsSettings(cif, cardsList, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`updateCardsSettings`)) {
 			return this.mock(`updateCardsSettings`);

@@ -9,7 +9,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  * @extends {ChannelServiceBase}
  */
 
- export class SavingsService extends ChannelServiceBase {
+export class SavingsService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
@@ -17,11 +17,11 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.savingsPlanChannelServiceUrl`, 
-			`SavingsChannelService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.savingsPlanChannelServiceUrl`,
+			`SavingsChannelService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
@@ -52,11 +52,11 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
- 	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`savingsAccountLanding`)) {
 			return this.mock(`savingsAccountLanding`, cifNumber, nationalIDNumber, getGenericData);
 		}
-	
+
 		const request = {
 			"cifNumber": cifNumber,
 			"nationalIDNumber": nationalIDNumber,
@@ -68,10 +68,10 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		return this.post(
 			url,
 			request,
-			this.setToken(), 
-			`savingsAccountLanding`, 
-			null, 
-			null, 
+			this.setToken(),
+			`savingsAccountLanding`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -87,7 +87,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async savingsAccountTransactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async savingsAccountTransactionHistory(transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`transactionHistory`)) {
 			return this.mock(`transactionHistory`, transactionHistoryRequest);
 		}
@@ -108,10 +108,10 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		return this.post(
 			url,
 			request,
-			this.setToken(), 
-			`transactionHistory`, 
-			null, 
-			null, 
+			this.setToken(),
+			`transactionHistory`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
@@ -129,7 +129,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
- 	async savingsPlanLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async savingsPlanLanding(cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`savingsPlanLanding`)) {
 			return this.mock(`savingsPlanLanding`, cifNumber, nationalIDNumber, getGenericData);
 		}
@@ -145,10 +145,10 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		return this.post(
 			url,
 			request,
-			this.setToken(), 
-			`savingsPlanLanding`, 
-			null, 
-			null, 
+			this.setToken(),
+			`savingsPlanLanding`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -183,10 +183,10 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		return this.post(
 			url,
 			request,
-			this.setToken(), 
-			`transactionHistory`, 
-			null, 
-			null, 
+			this.setToken(),
+			`transactionHistory`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
@@ -204,12 +204,12 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		const url = `/cec-save-${this._version}/documents/view-statement`;
 
 		return this.post(
-			url, 
-			statement, 
-			this.setToken(), 
-			`viewStatement`, 
-			null, 
-			null, 
+			url,
+			statement,
+			this.setToken(),
+			`viewStatement`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
@@ -218,17 +218,17 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/cec-save-${this._version}/documents/send-statement`;
-		
+
 		return this.post(
-			url, 
-			statement, 
-			this.setToken(), 
-			`sendStatement`, 
-			null, 
-			null, 
+			url,
+			statement,
+			this.setToken(),
+			`sendStatement`,
+			null,
+			null,
 			2000,
 			5000,
 			errorHandler,
@@ -242,12 +242,12 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		const url = `/cec-save-${this._version}/documents/view-proof-of-account`;
 
 		return this.post(
-			url, 
-			clientInfo, 
-			this.setToken(), 
-			`viewProofOfAccount`, 
-			null, 
-			null, 
+			url,
+			clientInfo,
+			this.setToken(),
+			`viewProofOfAccount`,
+			null,
+			null,
 			2000,
 			null,
 			errorHandler,
@@ -256,7 +256,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/cec-save-${this._version}/documents/send-proof-of-account`;
 
@@ -285,40 +285,40 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 			"cifNumber": request.cifNumber,
 			"productStatus": request.status
 		};
-		
+
 		const url = `/cec-save-${this._version}/savings-product/products`;
 
 		return this.post(
-			url, 
-			requestObject, 
-			this.setToken(), 
-			`getClientProducts`, 
-			null, 
-			null, 
+			url,
+			requestObject,
+			this.setToken(),
+			`getClientProducts`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
 			autoRetries
 		);
 	}
- 
-     // Fixed Term Savings Plan Unlock
+
+	// Fixed Term Savings Plan Unlock
 
 	async ftspUnlockOptions(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
-	    if (await this.isMockEnabled(`ftspUnlockOptions`)) {
-	        return this.mock(`ftspUnlockOptions`);
-	    }
+		if (await this.isMockEnabled(`ftspUnlockOptions`)) {
+			return this.mock(`ftspUnlockOptions`);
+		}
 
-	    const url = `/cec-save-${this._version}/savings-plan/unlock-options`;
+		const url = `/cec-save-${this._version}/savings-plan/unlock-options`;
 
-	    return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`ftspUnlockOptions`, 
-			null, 
-			null, 
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`ftspUnlockOptions`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -327,20 +327,20 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async ftspUnlockQuote(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
-	    if (await this.isMockEnabled(`ftspUnlockQuote`)) {
-	        return this.mock(`ftspUnlockQuote`);
-	    }
 
-	    const url = `/cec-save-${this._version}/savings-plan/generate/quote`;
+		if (await this.isMockEnabled(`ftspUnlockQuote`)) {
+			return this.mock(`ftspUnlockQuote`);
+		}
 
-	    return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`ftspUnlockQuote`, 
-			null, 
-			null, 
+		const url = `/cec-save-${this._version}/savings-plan/generate/quote`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`ftspUnlockQuote`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -349,20 +349,20 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async ftspUnlockAgreement(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
-	    if (await this.isMockEnabled(`ftspUnlockAgreement`)) {
-	        return this.mock(`ftspUnlockAgreement`);
-	    }
-			
-	    const url = `/cec-save-${this._version}/savings-plan/unlock/generate/agreement`;
 
-	    return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`ftspUnlockAgreement`, 
-			null, 
-			null, 
+		if (await this.isMockEnabled(`ftspUnlockAgreement`)) {
+			return this.mock(`ftspUnlockAgreement`);
+		}
+
+		const url = `/cec-save-${this._version}/savings-plan/unlock/generate/agreement`;
+
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			`ftspUnlockAgreement`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -371,8 +371,8 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	}
 
 	async ftspUnlock(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`ftspUnlock`)) {
 			return this.mock(`ftspUnlock`);
@@ -381,12 +381,12 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		const url = `/cec-save-${this._version}/savings-plan/unlock`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`ftspUnlock`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`ftspUnlock`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -399,12 +399,12 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		const url = `/cec-save-${this._version}/savings-account/transaction/dispute/cue-card/get-first-question`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getFirstQuestion`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getFirstQuestion`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -417,12 +417,12 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 		const url = `/cec-save-${this._version}/savings-account/transaction/dispute/cue-card/get-next-question`;
 
 		return this.post(
-			url, 
-			request, 
-			this.setToken(), 
-			`getNextQuestion`, 
-			null, 
-			null, 
+			url,
+			request,
+			this.setToken(),
+			`getNextQuestion`,
+			null,
+			null,
 			1000,
 			null,
 			errorHandler,
@@ -437,4 +437,4 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	// ---------
 	// RENDERING
 	// ---------
- }
+}

@@ -22,7 +22,7 @@ const ERROR_MESSAGE = {
 
 /**
  * View and email statements based on account selection and period.
- * This component will be called from the favourites screen statements option as well as related options component. (TODO)
+ * This component will be called from the favourites screen statements option as well as related options component. 
  * Config to set period (date/month) to be done on constants/statements.js
  * 
  * Events Raised 

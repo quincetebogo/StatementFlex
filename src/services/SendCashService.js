@@ -8,7 +8,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
  * @class SendCashService
  * @extends {ChannelServiceBase}
  */
- export class SendCashService extends ChannelServiceBase {
+export class SendCashService extends ChannelServiceBase {
 
 	// --------------
 	// INITIALISATION
@@ -16,11 +16,11 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.sendCashServiceUrl`, 
-			`SendCashChannelService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.sendCashServiceUrl`,
+			`SendCashChannelService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 	}
@@ -64,7 +64,7 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 	async putVoucherHold(sendCashHoldVoucherRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		if (await this.isMockEnabled(`sendCashVoucherHold`)) {
 			return this.mock(`sendCashVoucherHold`);
@@ -93,4 +93,4 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 	// ---------
 	// RENDERING
 	// ---------
- }
+}

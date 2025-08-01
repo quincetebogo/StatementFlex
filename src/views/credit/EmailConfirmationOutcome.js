@@ -32,7 +32,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	/**
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @readonly
@@ -51,8 +51,8 @@ export class EmailConfirmationOutcome extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		
+
+
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
@@ -61,8 +61,11 @@ export class EmailConfirmationOutcome extends ViewBase {
 		this.succeededAccounts = this.emailStatus.filter(account => account.sentStatus).map(item => item.productTypeDescription);
 
 		this._getOutcomeDetails();
+
+		/* Removed during incident management refactor
 		this._updateIncidentState();
-		
+		*/
+
 
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
@@ -86,7 +89,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 	_tryAgain() {
 		this.horizonRouter.navigateToReturnPage();
 	}
-	
+
 	_sendAnotherClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonStore.clearScreenDetails();
@@ -96,10 +99,12 @@ export class EmailConfirmationOutcome extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		const completeFailure = this.failedAccounts.length === this.emailStatus.length;
 		this.horizonIncidentManager.incidentState = completeFailure ? super.HORIZON_NEED_STATUS.FAILED : super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	_getOutcomeDetails() {
 		if (this.failedAccounts.length === this.emailStatus.length) {
@@ -241,8 +246,8 @@ export class EmailConfirmationOutcome extends ViewBase {
 	}
 
 	_renderSuccessToast() {
-		return this.toast 
-		? html`
+		return this.toast
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="success"
@@ -251,7 +256,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderFailureToast() {
@@ -266,7 +271,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderContent() {
@@ -285,8 +290,8 @@ export class EmailConfirmationOutcome extends ViewBase {
 	}
 
 	_renderSuccessDetails() {
-		return this.successDetail 
-		? html`
+		return this.successDetail
+			? html`
 		<capitec-group class="${this.failureDetails ? `` : `only-group`}" layout="horizontal" halign="center">
 			<capitec-icon
 				size="default"
@@ -294,12 +299,12 @@ export class EmailConfirmationOutcome extends ViewBase {
 			</capitec-icon>
 			${this.successDetail}
 		</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_returnFailureDetails() {
 		return this.failureDetails
-		? html`
+			? html`
 			<capitec-group class="subdetail-group ${this.successDetail ? `` : `only-group`}" layout="horizontal" halign="center">
 				<capitec-icon
 					size="default"
@@ -307,7 +312,7 @@ export class EmailConfirmationOutcome extends ViewBase {
 				</capitec-icon>
 				${this.failureDetails}
 			</capitec-group>`
-		: html``;
+			: html``;
 	}
 
 	_renderButtonGroup() {

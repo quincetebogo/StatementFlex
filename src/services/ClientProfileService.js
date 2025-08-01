@@ -127,7 +127,7 @@ export class ClientProfileService extends ChannelServiceBase {
 	 * @memberof ClientProfileService
 	 */
 	async updatePreferredLanguage(preferredLanguage, cif, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		const url = `/client-${this._version}/preferences/language`;
 

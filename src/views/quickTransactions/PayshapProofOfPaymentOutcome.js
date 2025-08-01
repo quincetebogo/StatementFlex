@@ -32,7 +32,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.showFailureIcon = false;
 		this.notificationType = [];
 		this.displayToast = true;
-		
+
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
@@ -52,7 +52,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	get incidentDescription() {
 		return this.screenDetails.emailAddress ? `Recipient EmailID: ${this.screenDetails.emailAddress}` : null;
 	}
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -68,8 +68,8 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.paymentUetr = this.screenDetails && this.screenDetails.uetr;
 		this.verifiedCellphoneNumber = this.screenDetails && this.screenDetails.verifiedCellphoneNumber;
 		this.outcome = this.screenDetails && this.screenDetails.outcome;
-		
-	
+
+
 		this._getOutcomeDetails();
 		this._updateIncidentState();
 
@@ -108,7 +108,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		this.horizonRouter.navigateToReturnPage();
 		this.horizonStore.clearScreenDetails();
-		
+
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT_OUTCOME);
 		this._telemetry.endSpan(QuickTransactionEvents.PAY_SHAP_PROOF_OF_PAYMENT, null, true, true);
 	}
@@ -146,12 +146,14 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
+		/* Removed during incident managment refactor
 		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
 			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		} else {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonIncidentManager.incidentState = super..FAILED;
 		}
-		
+		*/
+
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -159,7 +161,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 		if (this.outcome.resendSuccess.length > 0 && this.outcome.resendFailed.length === 0) {
 			return this.toast = `Statement sent`;
 		}
-			return this.secondaryToast = `Statement not sent`;
+		return this.secondaryToast = `Statement not sent`;
 	}
 
 	// ---------
@@ -313,7 +315,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 
 	_renderSuccessToast() {
 		return this.toast
-		? html`
+			? html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}"
 				type="success"
@@ -322,11 +324,11 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderFailureToast() {
-		return this.secondaryToast  
+		return this.secondaryToast
 			? html`
 				<capitec-toast 
 					?hidden="${!this.displayToast}"
@@ -337,23 +339,23 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>`
-		: html``;
+			: html``;
 	}
 
 	_renderSuccessIcon() {
 		return this.outcome.resendSuccess.length >= 1
-		? html`
-			<capitec-icon icon="status/success-trans"></capitec-icon>` 
-		: html``;
+			? html`
+			<capitec-icon icon="status/success-trans"></capitec-icon>`
+			: html``;
 	}
 
 	_renderFailureIcon() {
 		return this.outcome.resendFailed.length >= 1
-		? html`
+			? html`
 			<capitec-icon icon="system/close-circle-error"></capitec-icon>`
-		: html``;
+			: html``;
 	}
-	
+
 	_successMessage() {
 		const notificationMethod = `The proof of payment for transaction ${this.paymentRef} was sent to `;
 		if (!isNullorEmpty(this.outcome.resendSuccess)) {
@@ -408,14 +410,14 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 
 	_renderLeftButton() {
 		return this.outcome.resendFailed.length >= 1
-		? html`
+			? html`
 			<capitec-button
 				class="center-button"
 				label="Try Again"
 				@click="${() => this._tryAgain()}">
 			</capitec-button>
 		`
-		: html`
+			: html`
 		<capitec-button
 				id="button-left"
 				class="center-button"
@@ -434,7 +436,7 @@ export class PayshapProofOfPaymentOutcome extends ViewBase {
 				@click="${() => this._doneClick()}">
 			</capitec-button>`;
 	}
-	
+
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
