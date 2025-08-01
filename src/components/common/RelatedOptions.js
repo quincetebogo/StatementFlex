@@ -110,7 +110,7 @@ export class RelatedOptions extends Component {
 	}
 
 	disconnectedCallback() {
-		
+
 		// do disposed as this one (will be triggered when  you move over to another screen)
 		this.returnToSub.dispose();
 		super.disconnectedCallback();
@@ -128,7 +128,7 @@ export class RelatedOptions extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _navigateToOption(item) {
+	_navigateToOption(item) {
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		const isVerifiedClient = this._isVerifiedClient();
 
@@ -136,7 +136,7 @@ export class RelatedOptions extends Component {
 			this.dispatchEvent(new CustomEvent(`verify-now-alert`, { detail: { option: item } }));
 			return false;
 		}
-	
+
 		const stopCard = () => this._stopCard();
 		const updateCardLimits = (option) => this._updateCardLimits(option);
 		const tapToPay = () => this._tapToPay();
@@ -159,25 +159,19 @@ export class RelatedOptions extends Component {
 			'payshap-proof-of-payment': payshapProofOfPayment
 		};
 
-			if (actions[item]) {
-				await super._inicidentManager_(item, () => this._toggleBusyFlag());
-				return actions[item](item);
-			}
+		if (actions[item]) {
+			this.horizonIncidentManager.setCurrentNeed(item);
+			return actions[item](item);
+		}
 
-			/**
-			 * When verify now on mini profile is selected, we dont need to perform any action
-			 * Returning true for such case
-			 */
-			return true;
+		/**
+		 * When verify now on mini profile is selected, we dont need to perform any action
+		 * Returning true for such case
+		 */
+		return true;
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.incidentState;
-		
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -188,10 +182,10 @@ export class RelatedOptions extends Component {
 	 * @param {object} event - event raised by statements dialog
 	 * @returns {void}
 	 */
-	async _statementsAccConfirmed(event) {
+	_statementsAccConfirmed(event) {
 		const need = `statements-${event.detail.subCategory || event.detail.account}`;
 
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 	}
 
 	// ---------------
@@ -231,7 +225,7 @@ export class RelatedOptions extends Component {
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 			this.horizonStore.setScreenDetails(screenDetails);
-			
+
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();
@@ -243,22 +237,22 @@ export class RelatedOptions extends Component {
 
 		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails.map(item => {
-									const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] || 
-														ACCOUNT_INTCAT_ENUM[item.accountType];
+				const productInfo = ACCOUNT_INTCAT_ENUM[item.accountType][item.interestCategory] ||
+					ACCOUNT_INTCAT_ENUM[item.accountType];
 
-									return {
-										'accountNumber': item.accountNumber,
-										'accountName': capitalizeString(item.accountName),
-										'accountType': item.accountType,
-										'accountOpenDate': item.accountOpenDate,
-										'type': productInfo.type,
-										'category': productInfo.category,
-										'icon': productInfo.icon,
-										'customIcon': productInfo.customIcon,
-										'order': productInfo.order,
-										'choosePeriod': productInfo.choosePeriod
-									};
-								}).sort((x, y) => x.order - y.order);
+				return {
+					'accountNumber': item.accountNumber,
+					'accountName': capitalizeString(item.accountName),
+					'accountType': item.accountType,
+					'accountOpenDate': item.accountOpenDate,
+					'type': productInfo.type,
+					'category': productInfo.category,
+					'icon': productInfo.icon,
+					'customIcon': productInfo.customIcon,
+					'order': productInfo.order,
+					'choosePeriod': productInfo.choosePeriod
+				};
+			}).sort((x, y) => x.order - y.order);
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
@@ -323,7 +317,7 @@ export class RelatedOptions extends Component {
 
 	async _getSavingsAccountDetails() {
 		const clientProductDetails = await this._getClientProducts();
-		
+
 		if (clientProductDetails) {
 			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
 
@@ -476,12 +470,12 @@ export class RelatedOptions extends Component {
 
 	_renderTaxCertificateNotAvailable() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE_NOT_AVAILABLE
-		? html`
+			? html`
 			<horizon-tax-certificate-landing
 				@back="${() => this._back()}">
 			</horizon-tax-certificate-landing>
 			`
-		: html``;
+			: html``;
 	}
 }
 

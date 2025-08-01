@@ -94,7 +94,7 @@ export class StopCardFailure extends ViewBase {
 
 		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME
-		});
+		}, false);
 	}
 
 	// --------------
@@ -117,7 +117,7 @@ export class StopCardFailure extends ViewBase {
 	async _onTryAgain() {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME
-		});
+		}, false);
 
 		this.retry++;
 		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
@@ -129,7 +129,7 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag);
 		const returnValue = await this.cardService.stopCards(this.failedCards, this.horizonIncidentManager.currentIncident);
 
 		if (returnValue.succeeded) {
@@ -170,7 +170,7 @@ export class StopCardFailure extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
-		});
+		}, false);
 
 		this.showHandoffModal = !this.showHandoffModal;
 	}
@@ -189,7 +189,9 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_updateIncidentState() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 

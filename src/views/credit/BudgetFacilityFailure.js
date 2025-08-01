@@ -13,7 +13,7 @@ import 'app/components/common/RelatedOptions';
  * @class BudgetFacilityFailure
  * @extends {ViewBase}
  */
- export class BudgetFacilityFailure extends ViewBase {
+export class BudgetFacilityFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -41,7 +41,9 @@ import 'app/components/common/RelatedOptions';
 
 		this._telemetry.startSpan(CreditEvents.PAY_BUDGET_TRANSFER_FAILURE);
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {

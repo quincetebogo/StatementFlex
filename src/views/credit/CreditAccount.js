@@ -1,4 +1,4 @@
-import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE, Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER } from 'app/constants/Credit';
+import { ACCOUNT_STATUS, CC_CLOSED_STATUS_DISABLE_NEEDS, CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER, CREDIT_TYPE, DECLINE_REASONS_EXCLUSION_LIST, FROM_ACCOUNTS, FROM_ACCOUNTS_LIST, PERMISSION_DECLINE_REASONS, PERMISSION_STATUS, PRODUCTS, PRODUCT_TYPE } from 'app/constants/Credit';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_CODE, LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { Configuration, EventAggregator, NavigationContext, SecurityContext } from 'platform/core';
 import { CreditEvents, SETTLEMENT_QUOTE_EVENTS, SETTLE_AND_CLOSE, TRANSACTION_ENQUIRY_DISPUTE_EVENTS, TRANSACTION_ENQUIRY_EVENTS } from 'app/constants/telemetry/events/Credit';
@@ -47,8 +47,8 @@ const NINETY_DAYS = 7777000000;
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `CREDIT`,
-	END_DATE: new Date().toISOString().substr(0, 10),
-	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+	END_DATE: new Date().toISOString().slice(0, 10),
+	START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().slice(0, 10),
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 50,
 	MONEY_TYPE: `BOTH`
@@ -170,7 +170,7 @@ export class CreditAccount extends ViewBase {
 
 				const clientNeed = `${option}-${accConfig.subCategory}`;
 
-				await super._inicidentManager_(clientNeed, () => this._toggleBusyFlag());
+				this.horizonIncidentManager.setCurrentNeed(clientNeed);
 
 				const { permissionResult, declineReasons, declineMessage } = await this._checkCreditPermisions(option, this.callerInformation.cifNumber, selectedAccountDetails.accountNumber || selectedAccountDetails.budgetAccountNumber, productType);
 				this.ccsStatus = permissionResult === PERMISSION_STATUS.DENIED &&
@@ -284,9 +284,7 @@ export class CreditAccount extends ViewBase {
 			[PRODUCTS.TERM_LOAN]: termLoan
 		};
 
-		await super._inicidentManager_(Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType], () => this._toggleBusyFlag());
-		//await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+		this.horizonIncidentManager.setCurrentNeed(CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER[event.detail.productType]);
 
 		await creditProducts[this.accountViewType]();
 	}
@@ -524,7 +522,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_setIncidentDone() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -606,11 +604,10 @@ export class CreditAccount extends ViewBase {
 				this.horizonStore.clearScreenDetails();
 				this.horizonStore.clearReturnScreen();
 			} else {
-				await super._inicidentManager_(LANDING_PAGE_NEEDS.CREDIT, () => this._toggleBusyFlag());
-				await super.createAndClassifySubIncident(null, false);
+				this.horizonIncidentManager.setCurrentNeed(LANDING_PAGE_NEEDS.CREDIT);
 
 				// setting inc status to not started for landing page needs
-				this._setIncidentNotstarted();
+				// this._setIncidentNotstarted();
 			}
 			this._telemetry.startSpan(CreditEvents.CREDIT, {
 				"screen": TelemetryScreen.CREDIT_LANDING,
@@ -624,7 +621,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_formatCreditOverviewResponse() {
-		// TODO: Improve the formatting
+		// Improve the formatting
 		this.creditAccountDetails.creditCardSummaryList.map(item => {
 			item.type = PRODUCTS.CREDIT_CARD;
 			item.category = CREDIT_TYPE.FLEXIBLE;
@@ -682,7 +679,6 @@ export class CreditAccount extends ViewBase {
 		});
 
 		this.productType = productType;
-		await super.createAndClassifySubIncident(null, false);
 
 		// Transaction history account details are saved for future action - to perform return to screen from Dispute success screen
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -692,8 +688,17 @@ export class CreditAccount extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 
 		this._setAccountHeaderDetails(accountDetails);
-		this._getTransactionHistory();
 
+		let formattedStartDate;
+		if (accountDetails.openDate) {
+			const openDate = new Date(accountDetails.openDate.slice(0, 10));
+			const earliestAllowedDate = new Date(`2000-01-01`); // fallback earliest date
+			formattedStartDate = openDate > earliestAllowedDate ? accountDetails.openDate.substr(0, 10) : earliestAllowedDate.toISOString().slice(0, 10);
+		} else {
+			formattedStartDate = new Date(`2000-01-01`).toISOString().slice(0, 10);
+		}
+
+		await this._getTransactionHistory(formattedStartDate);
 	}
 
 	_setAccountHeaderDetails(accountDetails) {
@@ -704,12 +709,20 @@ export class CreditAccount extends ViewBase {
 			"Available balance": formatCurrency(accountDetails.availableCredit),
 			"Credit Limit": formatCurrency(accountDetails.creditLimit),
 			"Next repayment": formatCurrency(accountDetails.nextRepayment),
-			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription)
+			"Status": accountDetails.arrearIndicator ? `In arrears` : formatStringAsPascalCase(accountDetails.accountStatusDescription),
+			"openDate": accountDetails.openDate || null
 		};
 	}
 
+	/**
+	 * @param {string} startDate ISO Date Foramt 
+	 * @param {string} endDate ISO Date Format 
+	 * @param {Number} startAtIndex for pagination
+	 * @returns {Promise<void>} a void promise
+	 */
 	async _getTransactionHistory(startDate, endDate, startAtIndex) {
 		const request = this._getTransactionHistoryRequest(startDate, endDate, startAtIndex);
+
 		const returnValue = await this.creditService.transactionHistory(request);
 		if (!returnValue.succeeded || !returnValue.result) {
 			this.logger.log(`error`, `Failed to retrieve credit transaction history from credit service.`, `_getTransactionHistory`, returnValue.correlationId);
@@ -721,16 +734,33 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
+	/**
+	 * @param {string} startDate ISO Date Foramt 
+	 * @param {string} endDate ISO Date Format 
+	 * @param {Number} startAtIndex for pagination
+	 * @returns {Promise<void>} a void promise
+	 */
 	_getTransactionHistoryRequest(startDate, endDate, startAtIndex) {
 		if (!isNullorEmpty(startDate) && !isNullorEmpty(endDate)) {
-			startDate = formatDate(startDate, ISO_8601_DATE_FORMAT);
-			endDate = formatDate(endDate, ISO_8601_DATE_FORMAT);
+
+			if (this.accountDetails && this.accountDetails[`Account number`] && this.accountDetails.openDate) {
+				const openDate = new Date(this.accountDetails.openDate.slice(0, 10));
+				const requestedStartDate = new Date(startDate);
+
+				if (requestedStartDate < openDate) {
+					startDate = formatDate(openDate, ISO_8601_DATE_FORMAT);
+				}
+			}
 		}
+
+
+		const from = startDate ? startDate.slice(0, 10) : TRANSACTION_HISTORY.START_DATE;
+		const to = endDate ? endDate.slice(0, 10) : TRANSACTION_HISTORY.END_DATE;
 
 		return {
 			"accountNumber": this.accountDetails[`Account number`],
-			"startDate": startDate || TRANSACTION_HISTORY.START_DATE,
-			"endDate": endDate || TRANSACTION_HISTORY.END_DATE,
+			"startDate": from,
+			"endDate": to,
 			"startAtIndex": startAtIndex || TRANSACTION_HISTORY.START_AT_INDEX,
 			"maxResults": TRANSACTION_HISTORY.MAX_RESULTS,
 			"moneyType": TRANSACTION_HISTORY.MONEY_TYPE
@@ -758,7 +788,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	async _exitTransactionHistory() {
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		this._setIncidentDone();
 	}
 
@@ -771,7 +801,7 @@ export class CreditAccount extends ViewBase {
 			return;
 		}
 
-		await super.classifyIncident(() => this._toggleBusyFlag());
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 
 		this.horizonStore.clearScreenDetails();
 		this._setIncidentDone();
@@ -884,8 +914,6 @@ export class CreditAccount extends ViewBase {
 			"next-screen": TelemetryScreen.CREDIT_BUDGET_ACCOUNT
 		});
 
-		await super.createAndClassifySubIncident(null, false);
-
 		const request = {
 			accountNumber: selectedAccountDetails.accountNumber,
 			status: BUDGET_FACILITY.STATUS,
@@ -923,10 +951,6 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_backToLandingPage() {
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -984,10 +1008,7 @@ export class CreditAccount extends ViewBase {
 
 		this._telemetry.endSpan(CreditEvents.CREDIT_BUDGET_TRANSFER, {});
 
-		const incidentState = this.horizonIncidentManager.incidentState;
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
-		}
+		this.horizonIncidentManager.setCurrentNeed(`view-budgets-credit-card`);
 
 		this.showPayBudgetDialog = !this.showPayBudgetDialog;
 	}
@@ -1216,7 +1237,7 @@ export class CreditAccount extends ViewBase {
 			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
 		});
 
-		this.cueSheetIncident = await this.horizonIncidentManager.createPrimaryInc((ex) => this._errorHandler(ex));
+		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
 
 		if (!returnValue.succeeded) {
@@ -1261,12 +1282,12 @@ export class CreditAccount extends ViewBase {
 		await this._telemetry.endSpan(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE);
 
 		this.disputeQuestion = {};
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
+
 		this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 	}
 
 	async _disputeOutcome(event) {
-		await this.horizonIncidentManager.createAndClassifySubIncident(this._toggleBusyFlag);
+		await this.horizonIncidentManager.autoCreateAndClassify(() => this._toggleBusyFlag());
 		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CONFIRM, {
 			disputeLogged: event.detail.disputed
 		});
@@ -1285,7 +1306,7 @@ export class CreditAccount extends ViewBase {
 	async _restartDispute() {
 		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_RESTART);
 
-		const returnValue = await this._getFirstQusToDispute();
+		const returnValue = await this._getFirstQusToDispute(this.selectedAccountDetails);
 		return returnValue;
 	}
 
@@ -1557,7 +1578,7 @@ export class CreditAccount extends ViewBase {
 	}
 
 	_renderSettleAndCloseEmailConfirmation() {
-		// TODO: Remove mock once CS integration is complete
+		// TODO Remove mock once CS integration is complete
 		const mockDocuments = [
 			{
 				title: `Credit Card`,
@@ -1638,16 +1659,21 @@ export class CreditAccount extends ViewBase {
 	_renderTransactionHistory() {
 		if (this.renderMode === RENDER_MODE.TRANSACTION_HISTORY || this.renderMode === RENDER_MODE.DISPUTE_TRANSACTION) {
 
+			const accountOpenDate = this.accountDetails?.openDate || `2000-01-01`;
+
 			return html`
 			<horizon-transaction-history
+				accountOpenDate="${accountOpenDate}"
+				product="${this.productType}"
+				minDate="${accountOpenDate}"
+				type = "${ACCOUNT_TYPES.CREDIT}"
+
 				.transactionHistory = "${this.transactionHistory}"
 				.accountDetails = "${this.accountDetails}"
-				.type = "${ACCOUNT_TYPES.CREDIT}"
 				.renderTableColumns = "${() => this._renderColumns()}"
 				.renderTransactionDetails="${(item) => this._renderTransactionDetails(item)}"
 				.getTransactionHistory="${(startDate, endDate, startAtIndex) => this._getTransactionHistory(startDate, endDate, startAtIndex)}"
 				.disposeData="${() => this.transactionHistory = []}"
-				.product="${this.productType}"
 				
 				@error-handler = "${() => this._errorHandler()}"
 				@back="${() => this._exitTransactionHistory()}"

@@ -5,7 +5,7 @@
  * @export
  * @class IncidentDetails
  */
- export class IncidentDetails {
+export class IncidentDetails {
 
 	/**
 	 * Creates an instance of IncidentDetails.
@@ -14,9 +14,12 @@
 	 * @param {object} [primaryIncident = null] The initial/primary incident to which all secondary incidents are linked
 	 * @param {string} [currentNeed = ``] Current need [Stopcard/ Debicheck/ Statements etc..]
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
-	 * @param {status} [incidentState = `InProgress`] Status of incident *Internal purpose* [InProgress/ Completed/ Assigned]
+	 * @param {status} [incidentState = null] Status of incident *Internal purposes* [Completed/ Assigned]
 	 * @param {string} [feedback = ``] Feedback of incident (need fulfilled/ assigned/ handed-off)
+	 * @param {string} [isReassigned = false] Indicates if the current incident has been reassigned in Strack
+	 * @param {boolean} [primaryIncidentCreated = true] Indicates if there is a current successfully created incident
 	 * @param {string} [description = ``] Incident's description to update on strack
+	 * @param {boolean} [primaryIncidentFinished = false] Flag to indicate if future incidents should be sub-incidents
 	 * @memberof IncidentDetails
 	 */
 
@@ -25,20 +28,22 @@
 		primaryIncident = null,
 		currentNeed = ``,
 		previousNeed = ``,
-		incidentState = `Not Started`,
+		incidentState = null,
 		feedback = ``,
 		isReassigned = false,
-		incCreated = true,
-		description = ``
+		primaryIncidentCreated = true,
+		description = ``,
+		primaryIncidentFinished = false
 	) {
 		this.currentIncident = currentIncident;
-		this.primaryIncident = primaryIncident;
 		this.currentNeed = currentNeed;
-		this.previousNeed = previousNeed;
-		this.incidentState = incidentState;
-		this.feedback = feedback;
-		this.isReassigned = isReassigned;
-		this.incCreated = incCreated;
 		this.description = description;
+		this.feedback = feedback;
+		this.incidentState = null; // Set only when the incident is Completd, Closed, Assigned or Reassigned 
+		this.isReassigned = isReassigned;
+		this.previousNeed = previousNeed;
+		this.primaryIncident = primaryIncident;
+		this.primaryIncidentCreated = primaryIncidentCreated;
+		this.primaryIncidentFinished = primaryIncidentFinished;
 	}
 };
