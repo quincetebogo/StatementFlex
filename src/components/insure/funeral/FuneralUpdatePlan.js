@@ -1271,10 +1271,6 @@ class FuneralUpdatePlan extends Component {
 	_initialise() {
 		this.canReinstate = this.policyDetails.canReinstate;
 
-		if (this.canReinstate === false && (this.policyDetails.status === "Cancelled" || this.policyDetails.status === "Lapsed" || this.policyDetails.status === "OutOfForce" || this.policyDetails.status === "NotTakenUp")) {
-			this.canReinstate = true;
-		}
-
 		if (this.canReinstate === false) {
 			this.maxAllowedCover += this.policyDetails.roleplayers[0].coverAmount;
 		}
