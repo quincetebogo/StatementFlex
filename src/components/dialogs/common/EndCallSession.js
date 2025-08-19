@@ -716,7 +716,7 @@ export class EndCallSession extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: 503px;
+				height: 1000px;
 				border-radius: 5px;
 			}
 
