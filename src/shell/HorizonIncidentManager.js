@@ -1,6 +1,6 @@
-import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
-import { Component, View } from 'platform/elements';
+import { CAUSE_CODE_BY_ROLE, CLOSE_REASONS, HORIZON_INCIDENT_STATE, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
@@ -32,15 +32,13 @@ export class HorizonIncidentManager {
 	}
 
 	constructor() {
-		this.checkIncidentStatus = true;
-
 		this._toggleBusyFunc = null;
 
-		this._configuration = Configuration.getInstance();
+
 		this.logger = Logger.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 		this.telemetry = HorizonTelemetry.getInstance();
-		this.incidentService = new IncidentManagementService(null, () => true);
+		this.incidentService = new IncidentManagementService(() => console.log(`No Toggle busy function`), () => true);
 
 		// Incident Details Object that will be persisted in state
 		this.incidentDetails = {};
@@ -49,15 +47,28 @@ export class HorizonIncidentManager {
 		this.horizonStore = HorizonStore.getInstance();
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 		this.state = null;
+		this.referenceAsInteraction = null;
+		this._getReferenceConfig();
 	}
 
 	_stateChanged(state) {
 		if (state?.incidentDetails) {
 			this.incidentDetails = state.incidentDetails;
 			return;
-		} 
+		}
 
 		this.incidentDetails = {};
+	}
+
+	async _getReferenceConfig() {
+		if (this.referenceAsInteraction === null) {
+			try {
+				const configuration = Configuration.getInstance();
+				this.referenceAsInteraction = await this.configuration.getSetting(`interactionAsReference`);
+			} catch {
+				this.referenceAsInteraction = false;
+			}
+		}
 	}
 
 	// --------------
@@ -65,41 +76,22 @@ export class HorizonIncidentManager {
 	// --------------
 
 	/**
-	 * Sets up a new primary incident and persists it to state. Horizon can continue without an incident
-	 * There is therefore an incidentCreated flag to signal if an incident was not created.
-	 * 
-	 * @param {object} incident A new primary incident
-	 * @param {string} initialNeed The initial need
-	 * @param {Boolean} incidentCreated Flag to indicate if an incident was actually created
-	 * 
-	 * @returns {object} The primary incident object
+	 * Gets a value indicating whether the primary incident has been created yet. All incidents may be closed
+	 * but we may still be in a session where we can create further sub-incidents off the primary incident
+	 * This flag indicates if this is the case. The flag is now essentially just used as an assist when
+	 * deciding whether or not we can display the incident reference number
+	 * @returns {boolean} A value indicating if an incident has been created yet
 	 */
-	setNewPrimaryIncident(incident, initialNeed, incidentCreated) {
-		this.incidentDetails = new IncidentDetails(
-			incident, // current Incident
-			incident, // current Incident
-			initialNeed, // current Need
-			``,
-			`Not Started`,
-			``,
-			false,
-			incidentCreated, // Flag to indicate if an incident was actually created
-			``
-		);
-	
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		return this.primaryIncident;
+	get isPrimaryIncidentCreated() {
+		return this.incidentDetails.primaryIncidentCreated && this.incidentDetails.primaryIncidentCreated;
 	}
 
 	/**
-	 * Gets a value indicating whether an incident has been created yet. All incidents may be closed
-	 * but we may still be in a session where we can create further sub-incidents off the primary incident
-	 * This flag indicates if this is the case
-	 * @returns {boolean} A value indicating if an incident has been created yet
+	 * Gets a flag indicating if the primary (first incident) has beem completed. 
+	 * This first/primary incident is the only one that is created before classification information is known.
 	 */
-	get isAnIncidentCreated() {
-		return this.incidentDetails.incCreated && this.incidentDetails.incCreated;
+	get isPrimaryIncidentFinished() {
+		return this.incidentDetails.primaryIncidentFinished && this.incidentDetails.primaryIncidentFinished;
 	}
 
 	/**
@@ -112,32 +104,32 @@ export class HorizonIncidentManager {
 			return null;
 		}
 
-		return { 
+		return {
 			...this.incidentDetails.primaryIncident,
-			toString: function toString () { 
-				return this.incidentReference;
+			toString: function toString() {
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 			}
 		};
 	}
-	
+
 	/**
 	 * Gets the current incident. This could be a sub-incident of the primary incident
 	 * 
 	 * @returns {object} An object containing the current incident
 	 */
-	 get currentIncident() {
-			if (!this.incidentDetails?.currentIncident) {
-				return null;
-			}
+	get currentIncident() {
+		if (!this.incidentDetails?.currentIncident) {
+			return null;
+		}
 
-			return {
-				...this.incidentDetails.currentIncident,
-				toString: function toString () { 
-					return this.incidentReference;
+		return {
+			...this.incidentDetails.currentIncident,
+			toString: function toString(asInteraction = false) {
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 			}
 		};
 	};
-	
+
 	/**
 	 * Updates the state of the current incident
 	 * 
@@ -149,9 +141,9 @@ export class HorizonIncidentManager {
 	}
 
 	/**
-	 * 
-	 * @returns {string} A value indicating the state (progress) of the current incident
-	 */
+ * 
+ * @returns {string} A value indicating the final state of the current incident
+ */
 	get incidentState() {
 		if (!this.incidentDetails?.incidentState) {
 			return null;
@@ -161,14 +153,15 @@ export class HorizonIncidentManager {
 	}
 
 	/**
-	 * Updates the state of the current incident
+	 * Updates the final state of the current incident
 	 * 
-	 * @param {'InProgress'|'Completed'|'Assigned'|'Failed'|'Not Started'|'Closed'} incidentState A value indicating the state of the current incident.
+	 * @param {'Completed'|'Assigned'|'Failed'|'Closed'} incidentState A value indicating the final state of the current incident.
 	 */
 	set incidentState(incidentState) {
 		this.incidentDetails.incidentState = incidentState;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
+
 
 	/**
 	 * Gets a string indicating the need (area) being addressed by the current incident
@@ -207,6 +200,12 @@ export class HorizonIncidentManager {
 		return this.incidentDetails.feedback;
 	}
 
+	/**
+	 * Sets the feedback notes for the current incident
+	 * 
+	 * @param {string} feedback - Sets the feedback for the current incident
+	 * @returns {undefined}
+	 */
 	setFeedback(feedback) {
 		this.incidentDetails.feedback = feedback;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -218,7 +217,7 @@ export class HorizonIncidentManager {
 	 * 
 	 * @returns {string} The description field of the incident
 	 */
-	getDescription () {
+	getDescription() {
 		if (!this.incidentDetails?.description) {
 			return null;
 		}
@@ -232,7 +231,7 @@ export class HorizonIncidentManager {
 	 * @param {string} description Text to store on the description field of the incident
 	 * @returns {string} The description field of the incident
 	 */
-	setDescription (description) {
+	setDescription(description) {
 		this.incidentDetails.description = description;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		return description;
@@ -268,152 +267,256 @@ export class HorizonIncidentManager {
 			...this.incidentDetails,
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
-				toString: function toString () { 
-					return this.incidentReference;
+				toString: function toString() {
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
-				toString: function toString () { 
-					return this.incidentReference;
+				toString: function toString() {
+				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			}
 		};
 	}
 
+	/**
+	 * This routine is used to create a new Incident for systems other than Horizon.
+	 *  
+	 * @param {function} toggleBusyFlag Function for toggling the busy flag on the dis;ay
+	 * @param {function} errorHandler Error handler function to call should creation fail 
+	 * @returns {Promise<object>} The newly created incident
+	 */
+	async createExternalIncident(toggleBusyFlag, errorHandler) {
+		const callerInfo = this.horizonStore.getCallerInformation();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
-	initialise() {
-		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
-		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
-		
-		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		Component.prototype.createAndClassifySubIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubIncident(toggleBusyFlag, incidentCategorization, classify);
-		Component.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
-		Component.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
+		const request = {
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			clientCIF: callerInfo.cifNumber,
+			VDN: incomingCallDetails.VDN,
+			nonClientFullName: `${callerInfo.nonClientFirstName} ${callerInfo.nonClientSurName}`,
+			nonClientIDNumber: ``,
+			nonClientCellPhone: callerInfo.nonClientCellPhone,
+			nonClientWorkPhone: ``,
+			nonClientEmail: ``
+		};
 
-		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		View.prototype.createAndClassifySubIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubIncident(toggleBusyFlag, incidentCategorization, classify);
-		View.prototype.closeIncident = (options, toggleBusyFlag, errorHandler) => this.closeIncident(options, toggleBusyFlag, errorHandler);
-		View.prototype.classifyIncident = (toggleBusyFlag, incidentCategorization, errorHandler) => this.classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler);
-	}
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+		const returnValue = await this.incidentService.createIncident(request, (ex) => errorHandler(ex), 1);
+		const incident = returnValue.result?.incident;
 
-	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
-		const horizonIncidentManager = HorizonIncidentManager.getInstance();
+		if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
 
-		const currentNeed = horizonIncidentManager.getCurrentNeed();
-		const incidentState = horizonIncidentManager.incidentState;
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`, `createExternalIncident`);
+			}
 
-		/**
-		 * Checkpoint 1:
-		 * When we reload the same need. i.e., example: assume opening proof of account modal,
-		 * cancelling it and re-opening the modal
-		 * 
-		 * New case: possible to open search other needs more than once.
-		 */
-
-		const finalStates = [HORIZON_NEED_STATUS.CLOSED, HORIZON_NEED_STATUS.COMPLETED, HORIZON_NEED_STATUS.ASSIGNED, HORIZON_NEED_STATUS.FAILED];
-		if (clientNeed === currentNeed && !finalStates.includes(incidentState)) {
-			horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.INPROGRESS;
-			return true;
+			this.logger.log(`error`, `Failed to create incident on new call`, `createExternalIncident`, returnValue.correlationId);
+		} else if (callerInfo.isBranchConsultant) {
+			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
 		}
 
-		/**
-		 * Checkpoint 2:
-		 * When need is In-Progress and toggling between needs should not create new incident
-		 * Example: Landing on favourites screen, choosing proof of account instead of statments
-		 * In such case, we update the state with correct need
-		 */
-		if (clientNeed !== currentNeed && 
-			(incidentState === HORIZON_NEED_STATUS.INPROGRESS ||
-				incidentState === HORIZON_NEED_STATUS.NOT_STARTED)) {
-				
-				horizonIncidentManager.setCurrentNeed(clientNeed);
-				horizonIncidentManager.incidentState = HORIZON_NEED_STATUS.INPROGRESS;
-				return true;
-		}
-
-		/**
-		 * Checkpoint 3:
-		 * 
-		 * When need is fullfilled and switching to other need should close current incident and create new subsequent incident
-		 * Example: Landing on favourites screen, choosing proof of account and emailed client.
-		 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
-		 * 
-		 * Checkpoint 4:
-		 * 
-		 * When current is assigned or handed off, such particular incident will not be closed
-		 * And if the client has a subsequent need, should continue by creating new incident
-		 * 
-		 */
-		 if (clientNeed !== currentNeed &&
-			(incidentState === HORIZON_NEED_STATUS.COMPLETED ||
-			incidentState === HORIZON_NEED_STATUS.ASSIGNED ||
-			incidentState === HORIZON_NEED_STATUS.FAILED)) {
-
-				await this.closeIncident({ clientNeed: clientNeed }, toggleBusyFlag);
-				return true;
-		}
-
-		/**
-		 * Checkpoint 5:
-		 * 
-		 * Special case for Search-other-need: Launch Strack will classify the other need and return to Horizon
-		 * gets the status of other needs, same will be updated to STrack. We just have to create new incident if 
-		 * client have subsequent needs
-		 * 
-		 */
-		if (incidentState === HORIZON_NEED_STATUS.CLOSED) {
-
-			this._updateIncidentState(clientNeed);
-
-			return true;
-		}
+		return incident;
 	}
 
 	/**
-	 * Creating a subsequent incident for other than primary need
+	 * Creates a new Primary Incident. Called at the start of a phone call
 	 * 
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {object} incidentCategorization - Category, Subcategory & issue details
-	 * @param {boolean} classify - Flag (True/ False) to indicate, does incident needs to be classified
-	 * @returns {Promise<void>} A promise to create and classify a sub-incident
+	 * @param {function} toggleBusyFlag A function that toggles the busy flag for the display calling this method
+	 * @param {object} newCallInfo The call information that must be recofded on the incident 
+	 * @returns {Promise<boolean>} A promise for a bollean that indicates if a primary incident was created.
 	 */
-	 async createAndClassifySubIncident(toggleBusyFlag, incidentCategorization = null, classify = true) {
+	async createPrimaryIncident(toggleBusyFlag, newCallInfo) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-		/**
-		 * Stopping creation of subsequent incident when
-		 * 1. This is being triggered for primary incident
-		 * 2. State has an unclosed incident i.e., incident ref number not equals null
-		 */
-		if (!this._validIncident(this.primaryIncident)) {
-			// We don't have a primary incident
-			return;
-		};
+		const returnValue = await this.incidentService.createIncident(newCallInfo, () => true, 1);
+		const incident = returnValue.result?.incident;
 
-		// assume for now we have a current incident that might not be closed or closable
-		this.checkIncidentStatus = true;
+		if (!returnValue.succeeded || !incident) {
+			const ex = returnValue.exception;
 
-		if (!this._validIncident(this.currentIncident)) {
-			const subsequentIncident = await this._createSubIncident();
-			if (!subsequentIncident) {
-				return;
+			if (ex && ex instanceof HttpStatusError) {
+				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`, `createPrimaryIncident`);
 			}
 
-			// We have created a new incident, no need to check its state
-			this.checkIncidentStatus = false;
-		} 
-
-			// We don't have a valid current incident
-
-		if (classify) {
-			await this.classifyIncident(toggleBusyFlag, incidentCategorization);
+			this.logger.log(`error`, `Failed to create incident on new call`, `createPrimaryIncident`, returnValue.correlationId);
 		}
+
+		if (incident) {
+			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+				"incident-reference": incident.incidentReference,
+				"incident-rec-id": incident.incidentId
+			}, true);
+
+			this._setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
+
+			console.log(`createPrimaryIncident: Created Interaction/primary incident ${this.primaryIncident.interaction}/${this.primaryIncident.incidentReference}`);
+		}
+
+		return incident;
+	}
+
+	/**
+	 * Update an incident with the client/3rd-party/branch caller details
+	 * 
+	 * @param {object} savedIncidentInfo Information already stored on the incident in Strack/DB
+	 * @param {object} incomingCallDetails - incoming call details object retrieved from state
+	 * @param {object} callerInformation - Caller information object retrieved from state
+	 * @returns {Promise<void>} A promise to update the client details on the incident
+	 */
+	async updatePartiesOnCall(savedIncidentInfo, incomingCallDetails, callerInformation) {
+
+		if (!this._validIncident(this.currentIncident)) {
+			console.log(`updatePartiesOnCall: There is no incident available against which to record the client details`);
+			this.logger.log(`error`, `There is no incident available against which to record the client details`, `updatePartiesOnCall`);
+			return;
+		}
+
+		await this._updateClientDetails(savedIncidentInfo, incomingCallDetails, callerInformation);
+		await this._updateNonClientDetails(savedIncidentInfo, callerInformation);
+		await this._updateBranchCallerDetails(savedIncidentInfo, callerInformation);
+	}
+
+	/**
+	 * Creates and classifies an incident in a single. Any previous incident is automatically closed.
+	 * The incident is classified based in the need stored in session state
+	 * 
+	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
+	 * @param {string} [closeType = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @returns {promise<void>} A promise to create and classify an incident
+	 */
+	async autoCreateAndClassify(toggleBusyFlag = null, closeType = HORIZON_INCIDENT_STATE.COMPLETED) {
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+
+		const currentNeed = this.getCurrentNeed();
+
+		if (!this._validIncident(this.primaryIncident)) {
+			console.log(`autoCreateAndClassify: There is no valid primary incident. Incident managment cannot proceed!`);
+			return false;
+		};
+
+		if (!this._validIncident(this.currentIncident)) {
+			// Should not really get here but if for some reason we lose the current incident...
+			this.currentIncident = this.primaryIncident;
+		}
+
+		if (isNullorEmpty(currentNeed)) {
+			console.log(`autoCreateAndClassify: Cannot classify: no current need set.`);
+			return false;
+		}
+
+		const needAction = STRACK_MAPPING[currentNeed];
+		if (isNullorEmpty(needAction)) {
+			console.log(`autoCreateAndClassify: Cannot classify - need ${currentNeed} not mapped to a need action`);
+			return false;
+		}
+
+		console.log(`autoCreateAndClassify: Classifying need: ${currentNeed}`);
+
+		await this._closeAndCreate(toggleBusyFlag);
+		await this._classifyIncidentByNeed(currentNeed, closeType);
 	}
 
 
-	_validIncident (incident) {
-		return Boolean(incident) && Object.keys(incident).length !== 0;
+	/**
+	 * Creates and classifies an incident in a single. Any previous incident is automatically closed.
+	 * The classification information must be explicitly passed
+	 * 
+	 * @param {function} [toggleBusyFlag = null] toggleBusyFlag An optional error handler fucntion to call on a failure
+	 * @param {object} incidentCategorization  Object holds category, subcategory & issue that needs to be updated for an incident
+	 * @param {string} [closeType = `Completed`]  The state (Completed|Failed|Assigned) of the current incident
+	 * @returns {promise<void>} A promise to create and classify an incident
+	 */
+	async manualCreateAndClassify(toggleBusyFlag, incidentCategorization, closeType = HORIZON_INCIDENT_STATE.COMPLETED) {
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+
+		if (!this._validIncident(this.primaryIncident)) {
+			console.log(`manualCreateAndClassify: There is no valid primary incident. Incident managment cannot proceed!`);
+			return false;
+		};
+
+		if (!this._validIncident(this.currentIncident)) {
+			this.currentIncident = this.primaryIncident;
+		}
+
+		if (!this._isIncidentClassified(incidentCategorization)) {
+			console.log(`manualCreateAndClassify: Cannot classify - incidentCategorization data not supplied`);
+			return false;
+		}
+
+		console.log(`manualCreateAndClassify: Classifying manually ${incidentCategorization.category}, ${incidentCategorization.subCategory}, ${incidentCategorization.issue}`);
+
+		await this._closeAndCreate(toggleBusyFlag, incidentCategorization);
+		await this._classifyIncidentManually(incidentCategorization, closeType);
+	}
+
+	/**
+	 * Classifies/Categorizes the incident based on need action or incident categorization object
+	 * 
+	 * @param {Function} toggleBusyFlag Toggle busy flag function
+	 * @param {Object} incidentCategorization Object holds category, subcategory & issue that needs to be updated for an incident
+	 * @param {Function} errorHandler Custom error handling function
+	 * @returns {Promise<void>} A promise to classify an incident
+	 * @deprecated Call the autoCreateAndClassfiy or manualCreateAndClassify methods where possible.
+	 */
+	async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
+		const incidentDetails = this.getIncidentDetails();
+
+		if (!this._validIncident(this.currentIncident)) {
+			console.log(`classifyIncident: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`);
+			this.logger.log(`warning`, `classifyIncident: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
+			return;
+		}
+
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
+		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
+
+		if (this._isIncidentClassified(savedIncidentInfo)) {
+			console.log(`classifyIncident: Interaction already classified - (interaction ${this.currentIncident.interaction}/incident ${this.currentIncident.incidentId})`);
+			this.logger.log(`warning`, `classifyIncident: Interaction already classified - (interaction ${this.currentIncident.interaction}/incident ${this.currentIncident.incidentId})`, `classifyIncident`, null);
+			return;
+		}
+
+		if (isNullorEmpty(needAction) || !this._isIncidentClassified(incidentCategorization)) {
+			console.log(`classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`);
+			this.logger.log(`warning`, `classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`, `classifyIncident`, null);
+			return;
+		}
+
+		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
+		const newInteractionItem = returnValue.result.incident.currentInteractionItem;
+
+		if (!returnValue.succeeded) {
+			console.log(`classifyIncident: Failed to classify: (${this.currentIncident.interaction}/${this.currentIncident.incidentId}), CurrentNeed: ${this.getCurrentNeed()}`);
+			this.logger.log(`warning`, `classifyIncident: Failed to classify : (${this.currentIncident.interaction}/${this.currentIncident.incidentId}), CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
+			return;
+		}
+
+		console.log(`classifyIncident: (Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem})`);
+	}
+
+	/**
+	 * Sets the state of the current incident to assigned. 
+	 * The incident should already have been classified before calling this method.
+	 * This method may be used to update the incident state when assigning an incident 
+	 * externally from this class (e.g. The stap card channel service has an assign method 
+	 * that will assign the Strack incident to a team)
+	 * 
+	 * @returns {undefined}
+	 */
+	incidentAssigned() {
+		if (this._validIncident(this.currentIncident)) {
+			this.incidentDetails.closeType = HORIZON_INCIDENT_STATE.ASSIGNED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+			return;
+		}
+
+		console.log(`incidentAssigned: No current incident to assign`);
 	}
 
 	/**
@@ -421,110 +524,405 @@ export class HorizonIncidentManager {
 	 * Since we know the need is fullfilled, closing incident with default values
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
-	 * @param {Object} Object
-	 *          - clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
-	 *          - endCallReason - End call reason selected/ default to `Normal Enquiry'
-	 *          - causeCodeByContext - Cause code to end call session
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {boolean} - true/ false, indicating close incident status
-	 */
-	 async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag, errorHandler = null) {
+	 * @param {object} object containing clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 *                                   endCallReason - endCallReason - End call reason selected/ default to `Normal Enquiry'
+	 *                                   manualClassification - manual classfication details
+	 * @param { Function } toggleBusyFlag - Toggle busy flag function
+	 * @param { Function } errorHandler - Custom error handling function* 
+	 * @returns { Promise<boolean>} - true / false, indicating close incident status
+	*/
+	async closeIncident({ clientNeed, endCallReason = {}, manualClassification = {} }, toggleBusyFlag, errorHandler = null) {
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 		manualClassification = manualClassification || {};
-		
+
 		if (!this._validIncident(this.currentIncident)) {
+			console.log(`closeIncident: There is no incident to close`);
 			this.logger.log(`error`, `There is no incident to close`, `closeIncident`);
 			return true;
 		}
 
-		const incidentInfo = await this._incidentStatus(this.currentIncident);
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
 
-		if (this._isReassigned(incidentInfo)) {
+		if (this._isReassigned(savedIncidentInfo)) {
 			this.logger.log(`warning`, `Incident manager: ${this.currentIncident.toString()} is reassigned, skipping close incident`, `closeIncident`, null);
 			return true;
 		}
-	
-		if (isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue)) {
-			this.checkIncidentStatus = false;
-			// Incident is not classified. Trying to classify before closing
+
+		// Look at removing this check by ensuring that there are no remaining paths that do not classify before closing
+		if (!this._isIncidentClassified(savedIncidentInfo)) {
+			console.log(`closeIncident: Interaction ${this.currentIncident.interaction} not classified before call to closeIncident!, attempting to classify...`);
 			await this.classifyIncident(toggleBusyFlag, manualClassification, errorHandler);
 		}
 
-		 const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.incidentState] : endCallReason.key;
-		 const resolution = this._getResolution(incidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
-		 const causeCode = this._getCauseCode(incidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], manualClassification);
+		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[this.incidentDetails.closeType] : endCallReason.key;
+		const resolution = this._getResolution(savedIncidentInfo.resolution, this.incidentDetails, endCallReason, manualClassification);
+		const causeCode = this._getCauseCode(savedIncidentInfo.causeCode, endCallReason.value || REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason], manualClassification);
 
 		const returnValue = await this.incidentService.closeIncident(
-			this.currentIncident, 
+			this.currentIncident,
 			reason,
 			resolution,
-			causeCode, 
+			causeCode,
 			this.incidentDetails.description,
 			errorHandler
 		);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`warning`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
-			return false;
+			console.log(`closeIncident: Failed to close interaction/interaction item/incident ${this.currentIncident.interaction}/${this.currentIncident.currentInteractionItem}/${this.currentIncident.incidentReference}`);
+			this.logger.log(`warning`, `Failed to close interaction ${this.currentIncident.interaction}`, `closeIncident`, returnValue.correlationId);
+		} else {
+			console.log(`closeIncident: Closed interaction/interaction item/incident ${this.currentIncident.interaction}/${this.currentIncident.currentInteractionItem}/${this.currentIncident.incidentReference}`);
 		}
-		
-		this._updateIncidentState(clientNeed);
-		return true;
+
+		this._resetIncidentState(clientNeed);
+
+		return returnValue.succeeded;
 	}
 
 	/**
-	 * Classifies/ Categorizes the incident based on need action or incident categorization object
+	 * Loads the incident information as stored in STrack/the Interaction DB. This is done in case the 
+	 * incident has been updated externally to Horizon
 	 * 
-	 * @param {Function} toggleBusyFlag - Toggle busy flag function
-	 * @param {Object} incidentCategorization - Object holds category, subcategory & issue that needs to be updated for an incident
-	 * @param {Function} errorHandler - Custom error handling function
-	 * @returns {Promise<void>} A promise to classify an incident
+	 * @param {function} toggleBusyFlag Function to toggle the UI busy indicator
+	 * @param {object} incident The incident that needs to be checked
+	 * @returns {Promise<object>} The existing incident information stored in the database
 	 */
-	 async classifyIncident(toggleBusyFlag, incidentCategorization, errorHandler = null) {
-		const incidentDetails = this.getIncidentDetails();
-
-		if (!this._validIncident(this.currentIncident)) {
-			this.logger.log(`warning`, `Incident manager: No active incident to classify. Current need: ${incidentDetails.currentNeed} previous need: ${incidentDetails.previousNeed}`, `classifyIncident`, null);
-			return;
-		}
-
-		let canClassify = !this.checkIncidentStatus;
-
+	async loadSavedIncident(toggleBusyFlag, incident) {
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-		if (!this._validIncident(this.currentIncident)) {
-			// If incident details is empty, do nothing and return.
-			return;
+		const returnValue = await this.incidentService.incidentStatus(incident, () => true);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
 		}
 
-		if (this.checkIncidentStatus) {
-			const incidentInfo = await this._incidentStatus(this.currentIncident);
-			canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
-		}
+		this.logger.log(`error`, `Failed to get incident status.`, `loadSavedIncident`, returnValue.correlationId);
 
-		const needAction = STRACK_MAPPING[this.getCurrentNeed()];
-
-		if (canClassify && (!isNullorEmpty(needAction) || !isNullorEmpty(incidentCategorization))) {
-			const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, incidentCategorization, errorHandler);
-	
-			if (!returnValue.succeeded) {
-				this.logger.log(`warning`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${this.currentIncident.incidentId}, CurrentNeed: ${this.getCurrentNeed()}`, `classifyIncident`, returnValue.correlationId);
-				return;
-			}
-		}
-		this.checkIncidentStatus = true;
+		return {};
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_isReassigned(incidentInfo) {
-		if (!isNullorEmpty(incidentInfo?.owner)) {
-			return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
+	/**
+	 * Sets up a new primary incident and persists it to state. Horizon can continue without an incident
+	 * There is therefore an incidentCreated flag to signal if an incident was not created.
+	 * 
+	 * @param {object} incident A new primary incident
+	 * @param {string} initialNeed The initial need
+	 * @param {Boolean} incidentCreated Flag to indicate if the primary incident was created
+	 * 
+	 * @returns {object} The primary incident object
+	 */
+	_setNewPrimaryIncident(incident, initialNeed, incidentCreated) {
+		this.incidentDetails = new IncidentDetails(
+			incident, // current Incident
+			incident, // current Incident
+			initialNeed, // current Need
+			``,
+			null,
+			``,
+			false,
+			incidentCreated, // Flag to indicate if the primary incident was successfully created
+			``,
+			false
+		);
+
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		return this.primaryIncident;
+	}
+
+	async _closeAndCreate(toggleBusyFlag, manualClassification = {}) {
+		const callerInformation = this.horizonStore.getCallerInformation();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const savedIncidentInfo = await this.loadSavedIncident(toggleBusyFlag, this.currentIncident);
+
+		// If still on the primary incident then there is no previous incident to close
+		if (this.incidentDetails.primaryIncidentFinished) {
+			// Close previous incident
+			await this._closePreviousIncident(savedIncidentInfo, manualClassification);
+
+			// and start a new one
+			if (!await this._createNewIncident(incomingCallDetails)) {
+				return false;
+			}
+
+			await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
+				"parent-incident-reference": this.primaryIncident.toString(),
+				"child-incident-reference": this.currentIncident.toString(),
+				"child-incident-rec-id": this.currentIncident.incidentId
+			}, true);
 		}
+
+		// Add the client, 3rd party, branch caller and non-client information to the incident
+		await this.updatePartiesOnCall(savedIncidentInfo, incomingCallDetails, callerInformation);
+
+		return true;
+	}
+
+	async _classifyIncidentByNeed(currentNeed, closeType) {
+		const needAction = STRACK_MAPPING[currentNeed];
+
+		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, null, () => true);
+
+		if (returnValue.succeeded) {
+			const newInteractionItem = returnValue.result.incident.currentInteractionItem;
+
+			console.log(`_classifyIncidentByNeed (Interaction: ${this.currentIncident.interaction}, Added InteractionItem/incident: ${newInteractionItem})`);
+
+			if (!this.incidentDetails.primaryIncidentFinished) {
+				this.incidentDetails.primaryIncident.currentInteractionItem = returnValue.result.incident.currentInteractionItem;
+			}
+
+			this.incidentDetails.primaryIncidentFinished = true;
+			this.incidentDetails.closeType = closeType;
+			this.incidentDetails.currentIncident.currentInteractionItem = newInteractionItem;
+			this.incidentDetails.primaryIncident.currentInteractionItem = newInteractionItem;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+			return true;
+		}
+
+		console.log(`warning`, `Failed to classify interaction/incident (${this.currentIncident.interaction}, ${this.currentIncident.incidentReference}), CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
+		this.logger.log(`warning`, `Failed to classify interaction/incident (${this.currentIncident.interaction}, ${this.currentIncident.incidentReference}), CurrentNeed: ${currentNeed}`, `_classifyIncidentByNeed`, returnValue.correlationId);
+
+		return false;
+	}
+
+	async _classifyIncidentManually(incidentCategorization, closeType) {
+		if (!this._validIncident(this.currentIncident)) {
+			console.log(`_classifyIncidentManually: no current incident to classify`);
+			return;
+		}
+
+		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, null, incidentCategorization, () => true);
+
+		if (returnValue.succeeded) {
+			const newInteractionItem = returnValue.result.incident.currentInteractionItem;
+
+			console.log(`_classifyIncidentManually (Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem})`);
+
+			if (!this.incidentDetails.primaryIncidentFinished) {
+				this.incidentDetails.primaryIncident.currentInteractionItem = returnValue.result.incident.currentInteractionItem;
+			}
+
+			this.incidentDetails.primaryIncidentFinished = true;
+			this.incidentDetails.closeType = closeType;
+			this.incidentDetails.currentIncident.currentInteractionItem = newInteractionItem;
+			this.incidentDetails.primaryIncident.currentInteractionItem = newInteractionItem;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+			return true;
+		}
+
+		console.log(`_classifyIncidentManually: Failed to manually classify interaction: ${this.currentIncident.interaction}}`);
+		this.logger.log(`warning`, `Failed to manually classify interaction: ${this.currentIncident.interaction}}`, `_classifyIncidentManually`, returnValue.correlationId);
+
+		return false;
+	}
+
+	async classifyFinalIncident(needAction, manualClassification, closeType) {
+		console.log(`classifyFinalIncident: Need = ${needAction}, Category=${manualClassification?.category}, Subcategory=${manualClassification?.subCategory}, issue=${manualClassification?.issue}`);
+		const returnValue = await this.incidentService.classifyIncident(this.currentIncident, needAction, manualClassification);
+
+		if (returnValue.succeeded) {
+			const newInteractionItem = returnValue.result.incident.currentInteractionItem;
+
+			this.incidentDetails.closeType = closeType;
+			this.incidentDetails.currentIncident.currentInteractionItem = newInteractionItem;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+			console.log(`classifyFinalIncident - Interaction: ${this.currentIncident.interaction}, Added InteractionItem: ${newInteractionItem}`);
+
+			return true;
+		}
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack. RecID: ${incident.incidentId}, CurrentNeed: ${currentNeed}`, `_classifyAndClose`, returnValue.correlationId);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Closes the current incident befpre startog a new incident. This routine is not
+	 * used to close the final incident on ending the call.
+	 * 
+	 * @param { object } savedIncidentInfo Incident information loaded from STrack/DB (incident may have been updated externally to Horizon)
+	 * @param { object } [manualClassification = {}] Manual Classification if not using auto classification
+	 * @returns { Promise<boolean> } Returns true if the previous incident was successfully closed
+	 */
+	async _closePreviousIncident(savedIncidentInfo, manualClassification = {}) {
+		const reason = CLOSE_REASONS[this.incidentDetails.closeType];
+
+		const orgUnit = RoleManager.getInstance().orgUnit;
+		const resolutions = REASON_RESOLUTIONS[orgUnit];
+
+		const resolution = this._concatenate(savedIncidentInfo.resolution, resolutions[reason]);
+
+		const causeCode = this._getCauseCodeForPreviousIncident(savedIncidentInfo.causeCode, reason, manualClassification);
+
+		const returnValue = await this.incidentService.closeIncident(
+			this.currentIncident,
+			reason,
+			resolution,
+			causeCode,
+			this.incidentDetails.description,
+			() => true
+		);
+
+
+		if (returnValue.succeeded) {
+			console.log(`_closePreviousIncident: Closed Interaction Item: (${this.currentIncident.interaction}, ${this.currentIncident.currentInteractionItem})`);
+		}
+
+		this._resetIncidentState(this.getCurrentNeed());
+
+		if (!returnValue.succeeded) {
+			console.log(`_closePreviousIncident: Failed to close incident`);
+			this.logger.log(`warning`, `Failed to close incident.`, `_closePreviousIncident`, returnValue.correlationId);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Creates a new incident for the given incoming call details. 
+	 * 
+	 * @param {object} incomingCallDetails The basic details on an incoming call to add to the new incident
+	 * @returns {promise<boolean>} True if a new incident was created
+	 */
+	async _createNewIncident(incomingCallDetails) {
+		const createIncidentRequest = {
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			VDN: incomingCallDetails.VDN,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			primaryNeedIncident: this.primaryIncident
+		};
+
+		const returnValue = await this.incidentService.createIncident(createIncidentRequest, () => true);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.incidentDetails.currentIncident = returnValue.result.incident;
+			this.horizonStore.setIncidentDetails(this.incidentDetails); // Updates incidentDetails to indicate that we do not have a created incident
+
+			console.log(`_createNewIncident: Created new incident on Interaction - (${this.currentIncident?.interaction}, Incident: ${this.currentIncident?.incidentReference})`);
+
+			return this.currentIncident;
+		}
+
+		const ex = returnValue.exception;
+
+		if (ex && ex instanceof HttpStatusError) {
+			this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${this.primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
+		}
+
+		this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createNewIncident`, returnValue.correlationId);
+
+		this.currentIncident = null;
+		return null;
+	}
+
+	/**
+	 *  Add the client details to the call. The client can be a 3rd-party Capitec Client.
+	 * 
+	 * @param {object} savedIncidentInfo Information already stored on the incident in STrack/DB 
+	 * @param {object} incomingCallDetails Incoming call details object retrieved from state
+	 * @param {object} callerInformation  Caller information object retrieved from state
+	 * @returns {promise<boolean>} A promise for a boolean indicating if the update succeeded
+	 */
+	async _updateClientDetails(savedIncidentInfo, incomingCallDetails, callerInformation) {
+		if (this._isCallerCapitecClient(incomingCallDetails, callerInformation) && !this._clientInfoAlreadySaved(savedIncidentInfo)) {
+			const returnValue = await this.incidentService.updateIncidentClientDetails(callerInformation.cifNumber, callerInformation.entityIdentifier, this.currentIncident, () => true);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
+
+			}
+			return returnValue.succeeded;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Updating non-client details on the incident
+	 * 
+	 * @param {object} savedIncidentInfo Information already stored on the incident in STrack/DB 
+	 * @param {object} callerInformation - Caller information object retrieved from state
+	 * @returns {promise<boolean>} A promise to update the non-client details on an incident
+	 */
+	async _updateNonClientDetails(savedIncidentInfo, callerInformation) {
+		if ((callerInformation.is3rdParty || callerInformation.isNonClient) &&
+			isNullorEmpty(savedIncidentInfo.nonClientDetails.fullName) &&
+			Boolean(callerInformation.nonClientFirstName) &&
+			Boolean(callerInformation.nonClientSurName)) {
+
+			const nonClientDetails = {
+				firstName: callerInformation.nonClientFirstName,
+				surname: callerInformation.nonClientSurName,
+				cellPhone: callerInformation.nonClientCellPhone
+			};
+
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails, () => true);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
+			}
+
+			return returnValue.succeeded;
+		}
+
+		return false;
+	}
+
+	/**
+	 * If the call is from a branch, add the branch details to the call
+	 * 
+	 * @param {object} savedIncidentInfo Information already stored on the incident in STrack/DB 
+	 * @param {object} callerInformation Caller information object retrieved from state
+	 * @returns {promise<boolean>} A promise to update the non-client details on an incident
+	 */
+	async _updateBranchCallerDetails(savedIncidentInfo, callerInformation) {
+		if ((callerInformation.isBranchConsultant) && Boolean(callerInformation.branchCallerID) && isNullorEmpty(savedIncidentInfo.branchID)) {
+			const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, callerInformation.branchCode, callerInformation.branchCallerID);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
+			}
+
+			return returnValue.succeeded;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determine the cause code for the previous inicident (i.e. the incident that is being closed)
+	 * @param { string } existingCauseCode The cause code as currently recorded in Strack (only set if incident updated externally)
+	 * @param { string } reason The close reason ('Completed', 'Failed' etc.) that will be used to look up the cause code
+	 * @param { object } manualClassification The manual classiciation information if automatic classification is not being done
+	 * @returns { string } The cause code to use on the incident beign closed
+	 */
+	_getCauseCodeForPreviousIncident(existingCauseCode, reason, manualClassification) {
+		let causeCodeByReason = ``;
+
+		const endCallReason = REASON_RESOLUTIONS[RoleManager.getInstance().orgUnit][reason];
+		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[RoleManager.getInstance().orgUnit];
+
+		const getFromValObj = (endOfCallReason) => causeCodeByReasons[endOfCallReason][manualClassification.issue] || ``;
+
+		if (causeCodeByReasons[endCallReason]) {
+			causeCodeByReason = typeof causeCodeByReasons[endCallReason] === `object`
+				? getFromValObj(endCallReason)
+				: causeCodeByReasons[endCallReason];
+		}
+
+		return existingCauseCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
 	_getResolution(incResolution, incidentDetails, endCallReason, manualClassification) {
@@ -547,7 +945,7 @@ export class HorizonIncidentManager {
 	 * @param {String} manualClassification - 3 stepper modal from end call dialog
 	 * @returns { String } - Returns "causeCode" || "causeCodeByReason" || "NormalEnquiry"
 	 */
-	 _getCauseCode(causeCode, endCallReason, manualClassification) {
+	_getCauseCode(causeCode, endCallReason, manualClassification) {
 		let causeCodeByReason = ``;
 
 		const causeCodeByReasons = CAUSE_CODE_BY_ROLE[RoleManager.getInstance().orgUnit];
@@ -555,193 +953,63 @@ export class HorizonIncidentManager {
 
 		if (causeCodeByReasons[endCallReason]) {
 			causeCodeByReason = typeof causeCodeByReasons[endCallReason] === `object`
-								? getFromValObj(endCallReason)
-								: causeCodeByReasons[endCallReason];
+				? getFromValObj(endCallReason)
+				: causeCodeByReasons[endCallReason];
 		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
 	}
 
-	_updateIncidentState(clientNeed) {
+	_isIncidentClassified(incidentInfo) {
+		const isValidObject = !this._isObjectNullOrEmpty(incidentInfo);
+		const isCategorized = !(isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue));
+
+		return isValidObject && isCategorized;
+	}
+
+	_isCallerCapitecClient(incomingCallDetails, callerInfo) {
+		return (incomingCallDetails.is3rdParty || !incomingCallDetails.isNonClient) && Boolean(callerInfo.cifNumber);
+	}
+
+	_clientInfoAlreadySaved(savedIncidentInfo) {
+		return !(isNullorEmpty(savedIncidentInfo?.clientDetails?.cif) && isNullorEmpty(savedIncidentInfo?.clientDetails?.southAfricanIDNumber));
+	}
+
+	_validIncident(incident) {
+		return !this._isObjectNullOrEmpty(incident);
+	}
+
+	_isObjectNullOrEmpty(objectName) {
+		return !objectName || (Object.keys(objectName).length === 0 && objectName.constructor === Object);
+	};
+
+	_isReassigned(incidentInfo) {
+		if (!isNullorEmpty(incidentInfo?.owner)) {
+			return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
+		}
+	}
+
+	_concatenate(str1, str2) {
+		return str1 ? `${str1}\n${str2}` : `${str2}`;
+	}
+
+	_resetIncidentState(clientNeed) {
 		const incidentDetails = this.getIncidentDetails();
-		
+
 		const curIncidentDetails = new IncidentDetails(
 			null,
 			this.primaryIncident,
 			clientNeed,
-			incidentDetails.currentNeed,
-			`InProgress`,
+			incidentDetails.currentNeed, // becomes the previous need
+			null,
 			``,
 			false,
-			incidentDetails.incCreated,
-			``// resetting description once incident is closed
+			incidentDetails.primaryincidentCreated,
+			``, // resetting description once incident is closed
+			incidentDetails.primaryIncidentFinished
 		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	}
 
-	async _incidentStatus(incident) {
-		const returnValue = await this.incidentService.incidentStatus(incident);
 
-		if (returnValue.succeeded) {
-			return returnValue.result;
-		}
-
-		this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return {};
-	}
-		
-	async _createSubIncident() {
-		const callerInfo = this.horizonStore.getCallerInformation();
-		const callDetails = this.horizonStore.getIncomingCallDetails();
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		
-		const createIncidentRequest = {
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			VDN: incomingCallDetails.VDN,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			primaryNeedIncident: this.primaryIncident
-		};
-
-		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
-		
-		if (!returnValue.succeeded || !returnValue.result) {
-			const ex = returnValue.exception;
-
-			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${incomingCallDetails.voiceReferenceNumber}, Primary Incident: ${primaryIncident.toString()}, correlationId: ${ex.correlationId}`);
-			} 
-			
-			this.logger.log(`warning`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubIncident`, returnValue.correlationId);
-
-			// updating inc creation status to state
-			incidentDetails.incCreated = returnValue.succeeded;
-			this.horizonStore.setIncidentDetails(incidentDetails);
-			
-			return null;
-		}
-		
-		this.checkIncidentStatus = false;
-
-		this.currentIncident = returnValue.result?.incident;
-		
-		await this.telemetry.logEvent(SubsequentNeedEvents.SUBSEQUENT_INCIDENT, {
-			"parent-incident-reference": this.primaryIncident.toString(),
-			"child-incident-reference": this.currentIncident.toString(),
-			"child-incident-rec-id": this.currentIncident.incidentId
-		}, true);
-		
-		/**
-		 * Updating client or non-client details based on the flow
-		 */
-		 if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
-			await this._updateSubsequentNeedClientDetails(callDetails, callerInfo);
-		} else {
-			await this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
-		}
-
-		return returnValue.result;
-	}
-
-	/**
-	 * Updating client details to newly created subsequent incident
-	 * 
-	 * @param {object} callDetails - incoming call details object retrieved from state
-	 * @param {object} callerInfo - Caller information object retrieved from state
-	 * @returns {void}
-	 */
-	async _updateSubsequentNeedClientDetails(callDetails, callerInfo) {
-		if (!this._validIncident(this.currentIncident)) {
-			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedClientDetails`);
-			return;
-		}
-
-		const returnValue = await this.incidentService.updateIncidentClientDetails(callerInfo.cifNumber, this.currentIncident);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
-		} 
-
-		if (callerInfo.is3rdParty) {
-			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
-		}
-
-		if (callerInfo.isBranchConsultant) {
-			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
-		}
-	}
-
-	/**
-	 * Updating non client details to newly created subsequent incident
-	 * 
-	 * @param {object} callDetails - incoming call details object retrieved from state
-	 * @param {object} callerInfo - Caller information object retrieved from state
-	 * @returns {void}
-	 */
-	async _updateSubsequentNeedNonClientDetails(callDetails, callerInfo) {
-		if (!this._validIncident(this.currentIncident)) {
-			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedNonClientDetails`);
-			return;
-		}
-
-		const nonClientDetails = {
-			firstName: callerInfo.nonClientFirstName,
-			surname: callerInfo.nonClientSurName,
-			cellPhone: callerInfo.nonClientCellPhone
-		};
-
-		const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.currentIncident, nonClientDetails);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
-		}
-	}
-
-	async _updateIncidentBranchDetails(incident, branchCode, branchCallerID) {
-		
-		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerID);
-		
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
-			return false;
-		}
-		return true;
-	}
-
-	_isValidPrimaryIncRecID(recID) {
-		return Boolean(recID) && recID !== `0`;
-	}
-
-	async createPrimaryInc(errorHandler) {
-		const callerInfo = this.horizonStore.getCallerInformation();
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-
-		const request = {
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			clientCIF: callerInfo.cifNumber,
-			VDN: incomingCallDetails.VDN,
-			nonClientFullName: `${callerInfo.nonClientFirstName} ${callerInfo.nonClientSurName}`,
-			nonClientIDNumber: ``,
-			nonClientCellPhone: callerInfo.nonClientCellPhone,
-			nonClientWorkPhone: ``,
-			nonClientEmail: ``
-		};
-
-		const returnValue = await this.incidentService.createIncident(request, (ex) => errorHandler(ex), 1);
-		const incident = returnValue.result?.incident;
-
-		if (!returnValue.succeeded || !incident) {
-			const ex = returnValue.exception;
-
-			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${incomingCallDetails.incomingTelephoneNumber}, VDN: ${incomingCallDetails.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
-			} 
-
-		 	this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
-		} else if (callerInfo.isBranchConsultant) {
-			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
-		}
-
-		return incident;
-	}
 }

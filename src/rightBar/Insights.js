@@ -73,7 +73,7 @@ export class Insights extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._getClientInsights();
+		// this._getClientInsights();
 	}
 
 	// --------------
@@ -174,7 +174,7 @@ export class Insights extends Component {
 				actions: insights.actions
 			};
 
-			this._telemetry.logEvent(NBAEvents.LOAD, {
+			await this._telemetry.logEvent(NBAEvents.LOAD, {
 				"nbaId": insights.nbaId,
 				"parentCategoryId": insights.parentCategoryId,
 				"message": displayDetails.header

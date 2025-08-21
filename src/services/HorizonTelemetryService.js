@@ -39,8 +39,8 @@ export const OutcomeScreen = {
  * @extends Telemetry
  */
 export class HorizonTelemetry extends Telemetry {
-	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
-	
+	// add logic to close all child spans when parent span gets closed. Log a warning if this happens.
+
 	// #region INITIALISATION
 	// --------------
 	// INITIALISATION
@@ -107,14 +107,14 @@ export class HorizonTelemetry extends Telemetry {
 	// --------------
 
 	/** Starts a new trace.
-	 * @todo If graceful shutdown of traces are required, traceId can be saved in state and logic be added to close any stale traces
+	 * If graceful shutdown of traces are required, traceId can be saved in state and logic be added to close any stale traces
 	 * 
 	 * @param {String} traceId Optional trace ID if this is a continuation of a trace started elsewhere.
 	 * @returns {String} a GUID string
 	 */
 	newTrace(traceId = null) {
 		this.traceId = traceId || v4();
-		
+
 		const telemetryDetails = {
 			traceId: this.traceId,
 			activeSpanTree: this.activeSpanTree
@@ -140,36 +140,36 @@ export class HorizonTelemetry extends Telemetry {
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
 		 * And finding the current event('call'/ 'id-caller'/ 'confirm-caller')
 		 */
-		// const events = this._extractTags(eventName);
-		// const currentSpan = events[events.length - 1];
-		// const currentSpanID = this._getSpanID(currentSpan);
-		// const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
+		const events = this._extractTags(eventName);
+		const currentSpan = events[events.length - 1];
+		const currentSpanID = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		// If the specific span got intialized already, do nothing and return
-		// if (currentSpanID) {
-		// 	return;
-		// }
+		if (currentSpanID) {
+			return;
+		}
 
-		
-		// const spanID = await super.spanStart({
-		// 	oldbaggage: this._formatOldBaggageDetails(baggage || []),
-		// 	baggage: this._formatBaggageDetails(baggage || []),
-		// 	eventName: `horizon.${eventName}.start-span`,
-		// 	eventOriginator: this._eventOriginator(eventType),
-		// 	eventType: eventType,
-		// 	parentSpan: this._getParentSpanID(eventName),
-		// 	tags: this._extractTags(`horizon.${eventName}.start-span`),
-		// 	traceId: this.traceId
-		// });
 
-		// if (spanID) {
+		const spanID = await super.spanStart({
+			oldbaggage: this._formatOldBaggageDetails(baggage || []),
+			baggage: this._formatBaggageDetails(baggage || []),
+			eventName: `horizon.${eventName}.start-span`,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
+			parentSpan: this._getParentSpanID(eventName),
+			tags: this._extractTags(`horizon.${eventName}.start-span`),
+			traceId: this.traceId
+		});
 
-		// 	/**
-		// 	 * Assigning the sapnd id to current active span tree('call'/ 'id-caller'/ 'confirm-caller')
-		// 	 */
-		// 	this._addToActiveSpanTree(currentSpan, spanID, eventName);
-		// }
-		
+		if (spanID) {
+
+			/**
+			 * Assigning the sapnd id to current active span tree('call'/ 'id-caller'/ 'confirm-caller')
+			 */
+			this._addToActiveSpanTree(currentSpan, spanID, eventName);
+		}
+
 	}
 
 	/**
@@ -189,39 +189,39 @@ export class HorizonTelemetry extends Telemetry {
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
 		 * And finding the current span of an event('call'/ 'id-caller'/ 'confirm-caller')
 		 */
-		// const events = this._extractTags(eventName);
-		// const currentSpan = events[events.length - 1];
-		// const spanId = this._getSpanID(currentSpan);
-		// const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
+		const events = this._extractTags(eventName);
+		const currentSpan = events[events.length - 1];
+		const spanId = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
-		// if (this.traceId && spanId) {
+		if (this.traceId && spanId) {
 
-		// 	if (closeChildSpans) {
-		// 		await this.closeChildSpans(eventName, baggage?.widget);
-		// 	}
+			if (closeChildSpans) {
+				await this.closeChildSpans(eventName, baggage?.widget);
+			}
 
-		// 	await super.spanEnd({
-		// 		oldbaggage: this._formatOldBaggageDetails(baggage || []),
-		// 		baggage: this._formatBaggageDetails(baggage || []),
-		// 		eventName: `horizon.${eventName}.end-span`,
-		// 		eventOriginator: this._eventOriginator(eventType),
-		// 		eventType: eventType,
-		// 		parentSpan: null,
-		// 		spanId: spanId,
-		// 		tags: this._extractTags(`horizon.${eventName}.end-span`),
-		// 		traceId: this.traceId
-		// 	});
-	
-		// 	// disposing current span node reference
-		// 	this._deleteFromActiveSpanTree(currentSpan);
+			await super.spanEnd({
+				oldbaggage: this._formatOldBaggageDetails(baggage || []),
+				baggage: this._formatBaggageDetails(baggage || []),
+				eventName: `horizon.${eventName}.end-span`,
+				eventOriginator: this._eventOriginator(eventType),
+				eventType: eventType,
+				parentSpan: null,
+				spanId: spanId,
+				tags: this._extractTags(`horizon.${eventName}.end-span`),
+				traceId: this.traceId
+			});
 
-		// 	if (closeParentSpan) {
-		// 		events.pop();
-		// 		this.endSpan(events.join(`.`));
-		// 	}
-		// } else {
-		// 	// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
-		// }
+			// disposing current span node reference
+			this._deleteFromActiveSpanTree(currentSpan);
+
+			if (closeParentSpan) {
+				events.pop();
+				this.endSpan(events.join(`.`));
+			}
+		} else {
+			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
+		}
 	}
 
 	/**
@@ -239,21 +239,21 @@ export class HorizonTelemetry extends Telemetry {
 		 * Extracting eventName(call.incident-created) into events array(['call', 'incident-created'])
 		 * And finding the current span of an event('call'/ 'id-caller'/ 'confirm-caller')
 		 */
-		// const events = this._extractTags(eventName);
-		// const currentSpan = this._getCurrentSpanofEvent(events);
-		// const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
+		const events = this._extractTags(eventName);
+		const currentSpan = this._getCurrentSpanofEvent(events);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
-		// await super.event({
-		// 	oldbaggage: this._formatOldBaggageDetails(baggage || []),
-		// 	baggage: this._formatBaggageDetails(baggage || []),
-		// 	eventName: `horizon.${eventName}`,
-		// 	eventOriginator: this._eventOriginator(eventType),
-		// 	eventType: eventType,
-		// 	parentSpan: null,
-		// 	spanId: this._getSpanID(currentSpan),
-		// 	tags: this._extractTags(`horizon.${eventName}`),
-		// 	traceId: this.traceId
-		// });
+		await super.event({
+			oldbaggage: this._formatOldBaggageDetails(baggage || []),
+			baggage: this._formatBaggageDetails(baggage || []),
+			eventName: `horizon.${eventName}`,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
+			parentSpan: null,
+			spanId: this._getSpanID(currentSpan),
+			tags: this._extractTags(`horizon.${eventName}`),
+			traceId: this.traceId
+		});
 		// event, thus no new span reference to update
 	}
 
@@ -266,26 +266,26 @@ export class HorizonTelemetry extends Telemetry {
 	 */
 	async closeChildSpans(parentEvent, originatingSystem = null) {
 
-		// if (!parentEvent) {
-		// 	return;
-		// }
+		if (!parentEvent) {
+			return;
+		}
 
-		// const baggage = originatingSystem 
-		// 	? { "info": `Closing span, as commanded by parent span` }
-		// 	: {
-		// 		"info": `Closing span, as commanded by parent span`,
-		// 		"widget": originatingSystem
-		// 	};
+		const baggage = originatingSystem
+			? { "info": `Closing span, as commanded by parent span` }
+			: {
+				"info": `Closing span, as commanded by parent span`,
+				"widget": originatingSystem
+			};
 
-		// const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
+		const childSpans = this.activeSpanTree.filter(obj => obj.event.startsWith(parentEvent) && obj.event !== parentEvent);
 
-		// await childSpans.reduceRight(async (promise, span) => {
-		// 	// This line will wait for the last async function to finish.
-		// 	// The first iteration uses an already resolved Promise
-		// 	// so, it will immediately continue.
-		// 	await promise;
-		// 	await this.endSpan(span.event, baggage, true, false, false);
-		// }, Promise.resolve());
+		await childSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, baggage, true, false, false);
+		}, Promise.resolve());
 	}
 
 	// #endregion PUBLIC METHODS
@@ -315,7 +315,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	_eventOriginator(eventType) {
 		switch (eventType) {
-			case TelemetryEventType.SYSTEM: 
+			case TelemetryEventType.SYSTEM:
 				return `horizon-ui`;
 
 			case TelemetryEventType.PERSON:
@@ -333,22 +333,26 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} events Events
 	 * @returns {string} Current span name
 	 */
-	// _getCurrentSpanofEvent(events) {
-	// 	const event = events[events.length - 1];
-	// 	let eventIndex = events.length - 1;
-	// 	let currSpan = ``;
+	_getCurrentSpanofEvent(events) {
+		if (!events || events.length < 1) {
+			return ``;
+		}
 
-	// 	while (!currSpan && eventIndex > 0) {
-	// 		currSpan = events[eventIndex - 1];
-	// 		const currSpanID = this._getSpanID(currSpan);
+		const event = events[events.length - 1];
+		let eventIndex = events.length - 1;
+		let currSpan = ``;
 
-	// 		if (!currSpanID) {
-	// 			currSpan = ``;
-	// 			eventIndex--;
-	// 		}
-	// 	}
-	// 	return currSpan;
-	// }
+		while (!currSpan && eventIndex > 0) {
+			currSpan = events[eventIndex - 1];
+			const currSpanID = this._getSpanID(currSpan);
+
+			if (!currSpanID) {
+				currSpan = ``;
+				eventIndex--;
+			}
+		}
+		return currSpan;
+	}
 
 	/**
 	 * Retrieves the span id from active span tree for the requested event/span
@@ -356,13 +360,13 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name (call/ stop-card/ confirm-caller)
 	 * @returns {string} Span ID
 	 */
-	// _getParentSpanID(eventName) {
-	// 	const eventsArr = this._extractTags(eventName);
-	// 	const curSpanIndex = eventsArr.length - 1;
-	// 	const parentSpan = eventsArr[curSpanIndex - 1];
-		
-	// 	return this._getSpanID(parentSpan);
-	// }
+	_getParentSpanID(eventName) {
+		const eventsArr = this._extractTags(eventName);
+		const curSpanIndex = eventsArr.length - 1;
+		const parentSpan = eventsArr[curSpanIndex - 1];
+
+		return this._getSpanID(parentSpan);
+	}
 
 	/**
 	 * Retrieves the parent span name from active span tree for the requested event/span
@@ -370,13 +374,13 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} eventName Event name (call/ stop-card/ confirm-caller)
 	 * @returns {string} Parent span name
 	 */
-	// _getParentSpanName(eventName) {
-	// 	const eventsArr = this._extractTags(eventName);
-	// 	const curEventIndex = eventsArr.length - 1;
-	// 	const parentEvent = eventsArr[curEventIndex - 1];
-		
-	// 	return parentEvent;
-	// }
+	_getParentSpanName(eventName) {
+		const eventsArr = this._extractTags(eventName);
+		const curEventIndex = eventsArr.length - 1;
+		const parentEvent = eventsArr[curEventIndex - 1];
+
+		return parentEvent;
+	}
 
 	/**
 	 * Formats baggage object to array
@@ -384,32 +388,32 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {object} baggage Object holds event details
 	 * @returns {Array} Baggage array
 	 */
-	// _formatBaggageDetails(baggage) {
-	// 	return Object.entries(baggage).map(item => ({ "key": item[0], "value": this._trimBaggage(item[1]) }));
-	// }
+	_formatBaggageDetails(baggage) {
+		return Object.entries(baggage).map(item => ({ "key": item[0], "value": this._trimBaggage(item[1]) }));
+	}
 
-	// _formatOldBaggageDetails(baggage) {
-	// 	return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
-	// }
-  
+	_formatOldBaggageDetails(baggage) {
+		return Object.entries(baggage).map(item => ({ [item[0]]: this._trimBaggage(item[1]) }));
+	}
+
 	/**
 	 * trims baggage
 	 * 
 	 * @param {object} item Object holds baggage item
 	 * @returns {string} baggage item
 	 */
-	//  _trimBaggage(item) {
-	// 	if (item === null || item === undefined || item === NaN) {
-	// 		return ``;
-	// 	}
+	_trimBaggage(item) {
+		if (item === null || item === undefined || item === NaN) {
+			return ``;
+		}
 
-	// 	if (Utilities.isString(item)) {
-	// 		return String(item.trim());
-	// 	}
-		
-	// 	return String(JSON.stringify(item).trim());
-		
-	// }
+		if (Utilities.isString(item)) {
+			return String(item.trim());
+		}
+
+		return String(JSON.stringify(item).trim());
+
+	}
 
 	/**
 	 * On starting a span for an event, this function is used to maintain active spans
@@ -420,12 +424,12 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} event Current event
 	 * @returns {void}
 	 */
-	// _addToActiveSpanTree(span, spanID, event) {
-	// 	const node = this._generateNode(span, spanID, event);
+	_addToActiveSpanTree(span, spanID, event) {
+		const node = this._generateNode(span, spanID, event);
 
-	// 	this.activeSpanTree.push(node);
-	// 	this._updateTelemetryStore();
-	// }
+		this.activeSpanTree.push(node);
+		this._updateTelemetryStore();
+	}
 
 	/**
 	 * This deletes or splice the requested event node from active span tree
@@ -433,70 +437,70 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {string} span Event name
 	 * @returns {void}
 	 */
-	// _deleteFromActiveSpanTree(span) {
-	// 	if (this.activeSpanTree.length === 0) {
-	// 		return;
-	// 	}
+	_deleteFromActiveSpanTree(span) {
+		if (this.activeSpanTree.length === 0) {
+			return;
+		}
 
-	// 	const spanIndex = this.activeSpanTree.findIndex(item => item.span === span);
-	// 	this.activeSpanTree.splice(spanIndex, 1);
-	// 	this._updateTelemetryStore();
-	// }
+		const spanIndex = this.activeSpanTree.findIndex(item => item.span === span);
+		this.activeSpanTree.splice(spanIndex, 1);
+		this._updateTelemetryStore();
+	}
 
 	/**
 	 * If the childspans are still active for root span, this function
 	 * will close those child spans saying parent span closing child span
 	 * @returns {void}
 	 */
-	// async _endUnClosedChildSpans() {
-	// 	const unClosedSpans = this.activeSpanTree.filter(span => !isNullorEmpty(span.parentSpan));
+	async _endUnClosedChildSpans() {
+		const unClosedSpans = this.activeSpanTree.filter(span => !isNullorEmpty(span.parentSpan));
 
-	// 	await unClosedSpans.reduceRight(async (promise, span) => {
-	// 		// This line will wait for the last async function to finish.
-	// 		// The first iteration uses an already resolved Promise
-	// 		// so, it will immediately continue.
-	// 		await promise;
-	// 		await this.endSpan(span.event, {
-	// 			"info": `Parent span closing child span`
-	// 		});
-	// 	}, Promise.resolve());
-	// }
+		await unClosedSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, {
+				"info": `Parent span closing child span`
+			});
+		}, Promise.resolve());
+	}
 
-	// _generateNode(span, spanID, event) {
-	// 	const parentSpan = this._getParentSpanName(event);
+	_generateNode(span, spanID, event) {
+		const parentSpan = this._getParentSpanName(event);
 
-	// 	return {
-	// 		"span": span,
-	// 		"spanID": spanID,
-	// 		"parentSpan": parentSpan,
-	// 		"event": event
-	// 	};
-	// }
+		return {
+			"span": span,
+			"spanID": spanID,
+			"parentSpan": parentSpan,
+			"event": event
+		};
+	}
 
-	// _getSpanID(span) {
-	// 	if (this.activeSpanTree.length === 0) {
-	// 		return null;
-	// 	}
+	_getSpanID(span) {
+		if (this.activeSpanTree.length === 0) {
+			return null;
+		}
 
-	// 	const spanObj = this.activeSpanTree.find(item => item.span === span);
-	// 	return spanObj && spanObj.spanID;
-	// }
+		const spanObj = this.activeSpanTree.find(item => item.span === span);
+		return spanObj && spanObj.spanID;
+	}
 
-	// _getSpanDetails(span) {
-	// 	if (this.activeSpanTree.length === 0) {
-	// 		return;
-	// 	}
+	_getSpanDetails(span) {
+		if (this.activeSpanTree.length === 0) {
+			return;
+		}
 
-	// 	return this.activeSpanTree.find(item => item.span === span);
-	// }
+		return this.activeSpanTree.find(item => item.span === span);
+	}
 
-	// _updateTelemetryStore() {
-	// 	const telemetryDetails = this.telemetryStore.getTelemetryDetails();
-	// 	telemetryDetails.activeSpanTree = this.activeSpanTree;
+	_updateTelemetryStore() {
+		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
+		telemetryDetails.activeSpanTree = this.activeSpanTree;
 
-	// 	this.telemetryStore.setTelemetryDetails(telemetryDetails);
-	// }
+		this.telemetryStore.setTelemetryDetails(telemetryDetails);
+	}
 
 	// #endregion PRIVATE METHODS
-	
+
 }

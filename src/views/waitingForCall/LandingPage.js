@@ -1,6 +1,5 @@
 import { AUTH_IDENTIFICATION_METHODS, INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
-import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -8,7 +7,6 @@ import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
@@ -116,9 +114,9 @@ export class LandingPage extends ViewBase {
 
 	disconnectedCallback() {
 		// Telemetry
-		// TODO: This should probably move since this point will also mark the end of the caller verification.
+		// This should probably move since this point will also mark the end of the caller verification.
 		this.telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
-		// TODO: Fulfill need span should start here
+		// Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
@@ -152,23 +150,21 @@ export class LandingPage extends ViewBase {
 
 	async _onNewCall(newCallInfo) {
 
-		// 1. Saving incoming call details into state
 		this._saveIncomingCallDetails(newCallInfo);
 
 		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
-		if (this.roleManager.isInsureAgent) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
 			this.horizonRouter.navigateToWaitingForCall(() => this.eventAggregator.publish(`continue-without-incident`, {}));
-			return false
-		}
-		const incident = await this._createIncident(newCallInfo);
-
-		if (!incident) {
-			this.horizonRouter.navigateToCreateIncidentError();
 			return false;
 		}
 
-		const primaryIncident = this.horizonIncidentManager.setNewPrimaryIncident(incident, newCallInfo.ivrOptionCode, true);
+		const primaryIncident = await this.horizonIncidentManager.createPrimaryIncident(() => this._toggleBusyFlag(), newCallInfo);
+
+		if (!primaryIncident) {
+			this.horizonRouter.navigateToCreateIncidentError();
+			return false;
+		}
 
 		this._acceptCall(newCallInfo, primaryIncident);
 	}
@@ -176,30 +172,7 @@ export class LandingPage extends ViewBase {
 	_initiateAcceptCall() {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this._acceptCall(this.incomingCallDetails);
-	}
 
-	async _createIncident(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex), 1);
-		const incident = returnValue.result?.incident;
-
-		if (!returnValue.succeeded || !incident) {
-			const ex = returnValue.exception;
-
-			if (ex && ex instanceof HttpStatusError) {
-				this.logger.log(`error`, `Failed to create incident: HttpStatus: ${ex.status}, CLI: ${newCallInfo.incomingTelephoneNumber}, VDN: ${newCallInfo.VDN}, VoiceRef: ${newCallInfo.voiceReferenceNumber}, correlationId: ${ex.correlationId}`);
-			}
-
-			this.logger.log(`error`, `Failed to create incident on new call`, `_createIncident`, returnValue.correlationId);
-		}
-
-		if (incident) {
-			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
-				"incident-reference": incident.incidentReference,
-				"incident-rec-id": incident.incidentId
-			}, true);
-		}
-
-		return incident;
 	}
 
 	async _acceptCall(newCallInfo, primaryIncident) {
@@ -338,7 +311,8 @@ export class LandingPage extends ViewBase {
 			``, // gender
 			``, // branch caller id
 			``, // branch code
-			`` // Masked cif
+			``, // Masked cif
+			`` // Entity Resolver ID
 		);
 
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
