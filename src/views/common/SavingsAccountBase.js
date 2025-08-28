@@ -140,6 +140,10 @@ export class SavingsAccountBase extends ViewBase {
 					'choosePeriod': productInfo.choosePeriod
 				};
 			}).sort((x, y) => x.order - y.order);
+			
+			// Set return screen so user can navigate back to where they initiated the statement request
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
+			
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}

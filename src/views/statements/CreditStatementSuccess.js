@@ -89,7 +89,7 @@ export class CreditStatementsSuccess extends ViewBase {
 		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS, {}, true, true);
 
 		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToCreditAccount();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	async _sendAnotherClick() {
@@ -99,6 +99,7 @@ export class CreditStatementsSuccess extends ViewBase {
 		});
 		await this._telemetry.endSpan(STATEMENT_EVENTS.STATEMENTS_SUCCESS);
 
+		// Navigate back to return page to send another statement
 		this.horizonRouter.navigateToReturnPage();
 	}
 
