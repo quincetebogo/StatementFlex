@@ -80,7 +80,7 @@ export class CreditStatementsUnsuccess extends ViewBase {
 		});
 
 		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToCreditAccount();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	async _handoffClick() {
