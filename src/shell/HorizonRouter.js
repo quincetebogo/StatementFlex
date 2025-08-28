@@ -360,8 +360,13 @@ export class HorizonRouter {
 
 	navigateToReturnPage() {
 		const horizonStore = HorizonStore.getInstance();
-		const returnToPath = horizonStore.getReturnToScreen().route.path;
-		this.router.navigateByPath(returnToPath);
+		const returnScreen = horizonStore.getReturnToScreen();
+		if (returnScreen && returnScreen.route && returnScreen.route.path) {
+			this.router.navigateByPath(returnScreen.route.path);
+		} else {
+			// Fallback to favourites if no return screen is set
+			this.navigateToQuickTransactionFavourites();
+		}
 	}
 
 	navigateToSavingsAccount() {
