@@ -1304,7 +1304,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				.disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
+				.disabled="${this.isInsureAgent || this.isInsureAdministrator || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:

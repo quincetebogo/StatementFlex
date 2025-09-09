@@ -892,19 +892,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @returns {*} preparePlanResponse
 	 */
 	async _updateFuneralPlanPrepare(policyToUpdate) {
-		const quoteCalcRequest = {
-			"saveQuote": true,
-			"contractReference": policyToUpdate.contractReference,
-			"cifNumber": this.callerInformation.cifNumber,
-			"totalPremium": policyToUpdate.totalPremium,
-			"lifesAssured": policyToUpdate.roleplayers.filter(ele => ele.lifeAssured === true),
-			"productCode": this.selectedFuneralPolicyProductCode
-		};
-		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
-		if (!calculateQuoteResp.succeeded) {
-			this.handleToastError(calculateQuoteResp.exception);
-			return;
-		}
 
 		const prepareUpdateRequest = {
 			"contractReference": policyToUpdate.contractReference,
