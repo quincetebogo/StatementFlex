@@ -317,7 +317,7 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		let ISOstartDate = this.startDate || this.minDate;
+		const ISOstartDate = this.startDate || this.minDate;
 
 		// Ensure endDate is valid, fallback to current date if invalid
 		let validEndDate = this.endDate;
@@ -328,14 +328,15 @@ export class TransactionHistory extends Component {
 		// Ensure date range doesn't exceed 6 months
 		const startDateObj = new Date(ISOstartDate);
 		const endDateObj = new Date(validEndDate);
-		const sixMonthsInMs = 6 * 30 * 24 * 60 * 60 * 1000;
-		
-		if (endDateObj - startDateObj > sixMonthsInMs) {
-			const adjustedStartDate = new Date(endDateObj.getTime() - sixMonthsInMs);
-			ISOstartDate = adjustedStartDate.toISOString();
-		}
 
-		const startDate = this._formatDateForRequest(ISOstartDate);
+		// Clone end date and subtract 6 months
+		const sixMonthsAgo = new Date(endDateObj);
+		sixMonthsAgo.setMonth(endDateObj.getMonth() - 6);
+
+		// Pick whichever is later: the original startDate or 6 months ago
+		const adjustedStartDateObj = startDateObj < sixMonthsAgo ? sixMonthsAgo : startDateObj;
+
+		const startDate = this._formatDateForRequest(adjustedStartDateObj.toISOString());
 		const endDate = this._formatDateForRequest(validEndDate);
 
 		this.disposeData();
