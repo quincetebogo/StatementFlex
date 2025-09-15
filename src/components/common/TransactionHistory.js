@@ -75,7 +75,7 @@ export class TransactionHistory extends Component {
 		// All the following dates should be in ISO String format
 		this.accountOpenDate = ``;
 		this.startDate = ``;
-		this.endDate = new Date().toISOString(); 
+		this.endDate = ``; 
 		this.minDate = ``; 
 		this.maxDate = new Date().toISOString();
 
@@ -272,22 +272,10 @@ export class TransactionHistory extends Component {
 
 		const fromDate = new Date(e.detail.new.startDate);
 		let toDate = new Date(e.detail.new.endDate);
-		const currentDateTime = new Date();
+		const currentDateTime = Date.now;
 
-		// Validate dates before setting
-		if (isNaN(fromDate.getTime())) {
-			console.warn(`Invalid startDate provided, using current date`);
-			this.startDate = new Date().toISOString();
-		} else {
-			this.startDate = fromDate.toISOString();
-		}
-
-		if (isNaN(toDate.getTime())) {
-			console.warn(`Invalid endDate provided, using current date`);
-			this.endDate = new Date().toISOString();
-		} else {
-			this.endDate = toDate.toISOString();
-		}
+		this.startDate = fromDate.toISOString();
+		this.endDate = toDate.toISOString();
 
 		if (this._dateDiffInDays(toDate, fromDate) > 90) {
 			
@@ -317,27 +305,14 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		const ISOstartDate = this.startDate || this.minDate;
+		let ISOstartDate = this.minDate;
 
-		// Ensure endDate is valid, fallback to current date if invalid
-		let validEndDate = this.endDate;
-		if (!validEndDate || isNaN(new Date(validEndDate))) {
-			validEndDate = new Date().toISOString();
+		if (new Date(this.startDate) > new Date(this.minDate)) {
+			ISOstartDate = this.startDate;
 		}
 
-		// Ensure date range doesn't exceed 6 months
-		const startDateObj = new Date(ISOstartDate);
-		const endDateObj = new Date(validEndDate);
-
-		// Clone end date and subtract 6 months
-		const sixMonthsAgo = new Date(endDateObj);
-		sixMonthsAgo.setMonth(endDateObj.getMonth() - 6);
-
-		// Pick whichever is later: the original startDate or 6 months ago
-		const adjustedStartDateObj = startDateObj < sixMonthsAgo ? sixMonthsAgo : startDateObj;
-
-		const startDate = this._formatDateForRequest(adjustedStartDateObj.toISOString());
-		const endDate = this._formatDateForRequest(validEndDate);
+		const startDate = this._formatDateForRequest(ISOstartDate);
+		const endDate = this._formatDateForRequest(this.endDate);
 
 		this.disposeData();
 		await this.getTransactionHistory(startDate, endDate);
@@ -481,27 +456,18 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-		let ISOstartDate = this.startDate || this.minDate;
+		let ISOstartDate = this.minDate;
 
-		// Ensure endDate is valid, fallback to current date if invalid
-		let validEndDate = this.endDate;
-		if (!validEndDate || isNaN(new Date(validEndDate))) {
-			validEndDate = new Date().toISOString();
-		}
-
-		// Enforce 90-day limit for load more
-		const startDateObj = new Date(ISOstartDate);
-		const endDateObj = new Date(validEndDate);
-		if (this._dateDiffInDays(startDateObj, endDateObj) > 90) {
-			ISOstartDate = this._addDays(endDateObj, -90).toISOString();
+		if (new Date(this.startDate) > new Date(this.minDate)) {
+			ISOstartDate = this.startDate;
 		}
 
 		const startDate = this._formatDateForRequest(ISOstartDate);
-		const endDate = this._formatDateForRequest(validEndDate);
+		const endDate = this._formatDateForRequest(this.endDate);
+
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
-		// Pass the current count as offset for pagination
-		await this.getTransactionHistory(startDate, endDate, oldCount);
+		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
@@ -565,15 +531,10 @@ export class TransactionHistory extends Component {
 	}
 
 	_formatDateForRequest(ISODateString) {
+	
 		const dateTime = new Date(ISODateString);
-		
-		// Check if date is valid
-		if (isNaN(dateTime.getTime())) {
-			dateTime.setTime(Date.now());
-		}
-		
-		const day = dateTime.getDate().toString().padStart(2, `0`);
-		const month = (dateTime.getMonth() + 1).toString().padStart(2, `0`);
+		const day = dateTime.getDate().toString().padStart(2, 0);
+		const month = (dateTime.getMonth() + 1).toString().padStart(2, 0);
 		const year = dateTime.getFullYear().toString();
 	
 		return `${year}-${month}-${day}`;
