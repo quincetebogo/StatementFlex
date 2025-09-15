@@ -489,21 +489,19 @@ export class TransactionHistory extends Component {
 			validEndDate = new Date().toISOString();
 		}
 
-		// Ensure date range doesn't exceed 6 months
+		// Enforce 90-day limit for load more
 		const startDateObj = new Date(ISOstartDate);
 		const endDateObj = new Date(validEndDate);
-		const sixMonthsInMs = 6 * 30 * 24 * 60 * 60 * 1000;
-		
-		if (endDateObj - startDateObj > sixMonthsInMs) {
-			const adjustedStartDate = new Date(endDateObj.getTime() - sixMonthsInMs);
-			ISOstartDate = adjustedStartDate.toISOString();
+		if (this._dateDiffInDays(startDateObj, endDateObj) > 90) {
+			ISOstartDate = this._addDays(endDateObj, -90).toISOString();
 		}
 
 		const startDate = this._formatDateForRequest(ISOstartDate);
 		const endDate = this._formatDateForRequest(validEndDate);
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
-		await this.getTransactionHistory(startDate, endDate);
+		// Pass the current count as offset for pagination
+		await this.getTransactionHistory(startDate, endDate, oldCount);
 
 		// If the old record count and count after load more are same means no more data to populate,
 		// so hiding loadmore button
