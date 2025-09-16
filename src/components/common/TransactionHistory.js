@@ -10,7 +10,7 @@ const FILTER_BY = {
 	TEXT: `TEXT`,
 	DATE: `DATE`,
 	STATUS: `STATUS`,
-	MONEY_TYPE: `MONEY_TYPE` 
+	MONEY_TYPE: `MONEY_TYPE`
 };
 
 const RENDER_CHIPS = {
@@ -75,8 +75,8 @@ export class TransactionHistory extends Component {
 		// All the following dates should be in ISO String format
 		this.accountOpenDate = ``;
 		this.startDate = ``;
-		this.endDate = ``; 
-		this.minDate = ``; 
+		this.endDate = ``;
+		this.minDate = ``;
 		this.maxDate = new Date().toISOString();
 
 		this.product = ``;
@@ -158,7 +158,7 @@ export class TransactionHistory extends Component {
 
 	get showActionFooter() {
 		return [ACCOUNT_TYPES.SAVINGS_ACCOUNT, ACCOUNT_TYPES.CREDIT].includes(this.type) &&
-			   (RoleManager.getInstance().isClientCareAgent || RoleManager.getInstance().isHelpDeskAgent);
+			(RoleManager.getInstance().isClientCareAgent || RoleManager.getInstance().isHelpDeskAgent);
 	}
 
 	// -------------------
@@ -278,7 +278,7 @@ export class TransactionHistory extends Component {
 		this.endDate = toDate.toISOString();
 
 		if (this._dateDiffInDays(toDate, fromDate) > 90) {
-			
+
 			toDate = this._addDays(fromDate, 90);
 			if (toDate > currentDateTime) {
 				this.startDate = fromDate.toISOString();
@@ -291,10 +291,10 @@ export class TransactionHistory extends Component {
 					calendar._placeholderEndDate = toDate; // Check Types here
 				}
 			}
-		} 
+		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		
+
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
 			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
 			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
@@ -305,14 +305,14 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		let ISOstartDate = this.minDate;
+		let ISOstartDate = this.startDate;
 
-		if (new Date(this.startDate) > new Date(this.minDate)) {
-			ISOstartDate = this.startDate;
+		if (this.startDate && new Date(this.startDate) < new Date(this.minDate)) {
+			ISOstartDate = this.minDate;
 		}
 
-		const startDate = this._formatDateForRequest(ISOstartDate);
-		const endDate = this._formatDateForRequest(this.endDate);
+		const startDate = ISOstartDate ? this._formatDateForRequest(ISOstartDate) : ``;
+		const endDate = this.endDate ? this._formatDateForRequest(this.endDate) : ``;
 
 		this.disposeData();
 		await this.getTransactionHistory(startDate, endDate);
@@ -349,10 +349,10 @@ export class TransactionHistory extends Component {
 
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 		Array.from(activeFilters.children)
-			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
-			 .forEach(item => {
-				 this._clearFilter(item.id);
-			 });
+			.filter(field => field.localName === `capitec-chip` && !field.hidden)
+			.forEach(item => {
+				this._clearFilter(item.id);
+			});
 
 		this._refineSearch();
 	}
@@ -364,10 +364,10 @@ export class TransactionHistory extends Component {
 
 		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_SCROLL_TOP, {});
 	}
-	
+
 	_selectedMoneyType(e) {
 		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
-		
+
 		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
 			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
 			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
@@ -387,7 +387,7 @@ export class TransactionHistory extends Component {
 
 	_selectAllCheck(e) {
 		e.detail.filteredDisputableTransID = this.disputableFilteredTrans.map(d => d.transactionId);
-		
+
 		this.dispatchEvent(new CustomEvent(`select-all`, {
 			detail: e.detail
 		}));
@@ -399,14 +399,14 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
-    
+
 		this.get90DaysAfter = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() + 90);
 
 			return result > today ? today.toISOString() : result.toISOString();
 		};
-    
+
 		this.get90DaysBefore = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() - 90);
@@ -417,14 +417,14 @@ export class TransactionHistory extends Component {
 			if (!accountOpenDate) {
 				return new Date(2000, 0, 1).toISOString();
 			}
-      
+
 			const minDate = new Date(accountOpenDate);
 			minDate.setDate(minDate.getDate() - 1);
 			return minDate.toISOString();
 		};
-    
+
 		this.minDate = this._getMinDate(this.accountOpenDate);
-		
+
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
 
@@ -442,7 +442,7 @@ export class TransactionHistory extends Component {
 			const currentDate = new Date();
 			const ninetyDaysBefore = this._addDays(currentDate, -90);
 
-			this.endDate = currentDate.toISOString(); 
+			this.endDate = currentDate.toISOString();
 			this.startDate = ninetyDaysBefore.toISOString();
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
@@ -456,15 +456,14 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-		let ISOstartDate = this.minDate;
+		let ISOstartDate = this.startDate;
 
-		if (new Date(this.startDate) > new Date(this.minDate)) {
-			ISOstartDate = this.startDate;
+		if (this.startDate && new Date(this.startDate) < new Date(this.minDate)) {
+			ISOstartDate = this.minDate;
 		}
 
-		const startDate = this._formatDateForRequest(ISOstartDate);
-		const endDate = this._formatDateForRequest(this.endDate);
-
+		const startDate = ISOstartDate ? this._formatDateForRequest(ISOstartDate) : ``;
+		const endDate = this.endDate ? this._formatDateForRequest(this.endDate) : ``;
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
 		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
@@ -492,8 +491,8 @@ export class TransactionHistory extends Component {
 						return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
 					}
 					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-															parseFloat(item.amount).toFixed(2).startsWith(key) ||
-															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
+						parseFloat(item.amount).toFixed(2).startsWith(key) ||
+						(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
 				}
 				return [];
 			});
@@ -502,9 +501,9 @@ export class TransactionHistory extends Component {
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
 			const startDate = new Date(this.startDate);
-			const endDate = new Date(this.endDate); 
+			const endDate = new Date(this.endDate);
 
-			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -531,12 +530,12 @@ export class TransactionHistory extends Component {
 	}
 
 	_formatDateForRequest(ISODateString) {
-	
+
 		const dateTime = new Date(ISODateString);
 		const day = dateTime.getDate().toString().padStart(2, 0);
 		const month = (dateTime.getMonth() + 1).toString().padStart(2, 0);
 		const year = dateTime.getFullYear().toString();
-	
+
 		return `${year}-${month}-${day}`;
 	}
 
@@ -550,7 +549,7 @@ export class TransactionHistory extends Component {
 		if (selectedValue.length > 0) {
 			return selectedValue[0].text;
 		}
-	
+
 		return `${fromDate} - ${toDate}`;
 	}
 
@@ -562,10 +561,10 @@ export class TransactionHistory extends Component {
 	_clearFilter(type) {
 		const text = () => this._clearTextFilter();
 		const date = () => this._reset();
-		const status = () => { 
-			this.statuslabel = DEFAULTS.STATUS_LABEL; 
+		const status = () => {
+			this.statuslabel = DEFAULTS.STATUS_LABEL;
 		};
-		
+
 		const resetForfilters = {
 			'DATE': date,
 			'TEXT': text,
@@ -876,15 +875,15 @@ export class TransactionHistory extends Component {
 				halign="left"
 				valign="center">
 					${accDetails.map(item => {
-						const [key, value] = item;
-						return html`
+			const [key, value] = item;
+			return html`
 							<horizon-label
 								label="${key}"
 								value="${value}"
 								data-automation-id="transaction-history-${key.toLowerCase().split(``).join(`-`)}">
 							</horizon-label>
 						`;
-					})}
+		})}
 			</capitec-group>
 		`;
 	}
@@ -1018,8 +1017,8 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionHistory() {
-		return this.filteredData.length > 0 
-		? html`
+		return this.filteredData.length > 0
+			? html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
@@ -1029,7 +1028,7 @@ export class TransactionHistory extends Component {
 				data-automation-id="transaction-history-table">
 					${this.renderTableColumns()}
 			</capitec-table>`
-		: html`
+			: html`
 			${this._renderNoResults()}
 		`;
 	}
