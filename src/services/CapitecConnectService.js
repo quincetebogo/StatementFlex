@@ -1,5 +1,4 @@
 import { ChannelServiceBase, DEFAULT_AUTO_RETRIES } from 'app/services/ChannelServiceBase';
-import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 
 /**
@@ -537,6 +536,31 @@ export class CapitecConnectService extends ChannelServiceBase {
 			url,
 			this.setToken(),
 			`getRechargeDetails`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+	/**
+	 * Get recharge status from Order Service for a specific business transaction reference
+	 * This endpoint returns product-level data for one or more line items
+	 *
+	 * @param {string} businessTransactionReference
+	 * @returns {Promise}
+	 */
+	async getRechargeStatus(businessTransactionReference) {
+		if (!businessTransactionReference) {
+			return null;
+		}
+		const url = `/v1/api/horizon/order/offer-line-items/${businessTransactionReference}`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			`getRechargeStatus`,
 			false,
 			null,
 			null,
