@@ -545,7 +545,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	/**
-	 * Get recharge status from Order Service for a specific business transaction reference
+	 * Get recharge status from order management service for a specific business transaction reference
 	 * This endpoint returns product-level data for one or more line items
 	 *
 	 * @param {string} businessTransactionReference
