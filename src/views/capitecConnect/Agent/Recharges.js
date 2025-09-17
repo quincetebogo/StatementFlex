@@ -1206,10 +1206,11 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		  <hr style="border-bottom: none;" />
 		</div>
 
-     ${this.rechargeStatusData?.[0] ? html`
+     ${this.rechargeStatusData?.length ? html`
 		<!-- Product-level Details Section -->
-		<div row="6" column="1">
-			<capitec-label type="strong" label="Product 1"></capitec-label>
+		${this.rechargeStatusData.map((product, index) => html`
+		<div row="${6 + (index * 2)}" column="1">
+			<capitec-label type="strong" label="Product ${index + 1}"></capitec-label>
 			<capitec-label label="Message ID"></capitec-label>
 			<capitec-label label="Status"></capitec-label>
 			<capitec-label label="Product Name"></capitec-label>
@@ -1218,40 +1219,18 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 			<capitec-label label="Date"></capitec-label>
 			<capitec-label label="Fulfilment Error"></capitec-label>
 		</div>
-		<div row="6" column="2">
+		<div row="${6 + (index * 2)}" column="2">
 			<capitec-label label=" "></capitec-label><br>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.id }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.status }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.name }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.type }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.category }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.updatedDate }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[0]?.fulfilmentError }"></capitec-label>
+			<capitec-label label="${product?.id || '-'}"></capitec-label>
+			<capitec-label label="${product?.status || '-'}"></capitec-label>
+			<capitec-label label="${product?.name || '-'}"></capitec-label>
+			<capitec-label label="${product?.type || '-'}"></capitec-label>
+			<capitec-label label="${product?.category || '-'}"></capitec-label>
+			<capitec-label label="${product?.updatedDate || '-'}"></capitec-label>
+			<capitec-label label="${product?.fulfilmentError || '-'}"></capitec-label>
 		</div>
+		`)}
 	 ` : ``}
-
-		${this.rechargeStatusData?.[1] ? html`
-		<div row="8" column="1">
-			<capitec-label type="strong" label="Product 2"></capitec-label>
-			<capitec-label label="Message ID"></capitec-label>
-			<capitec-label label="Status"></capitec-label>
-			<capitec-label label="Product Name"></capitec-label>
-			<capitec-label label="Product Type"></capitec-label>
-			<capitec-label label="Product Category"></capitec-label>
-			<capitec-label label="Date"></capitec-label>
-			<capitec-label label="Fulfilment Error"></capitec-label>
-		</div>
-		<div row="8" column="2">
-			<capitec-label label=""></capitec-label><br>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.id }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.status }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.name }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.type }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.category }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.updatedDate }"></capitec-label>
-			<capitec-label label="${this.rechargeStatusData?.[1]?.fulfilmentError }"></capitec-label>
-		</div>
-` : ``}
 	  </capitec-group>
 
 	  <div slot="footer">
