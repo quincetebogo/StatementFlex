@@ -71,7 +71,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 		this.voucherInformationData = null;
 		this.voucherHistoryData = null;
 		this.selectedRechargeView = null;
-		this.rechargeStatusData = null; // Store product-level data from Order Service
+		this.rechargeStatusData = null; // Store product-level data from order management service
 		this.reversalAction = null;
 
 		this.showConfirmModal = false;
@@ -222,7 +222,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	}
 
 	/**
-	 * Fetch recharge status data from Order Service
+	 * Fetch recharge status data from order management service
 	 * @param {string} businessTransactionReference - The business transaction reference
 	 */
 	async _getRechargeStatus(businessTransactionReference) {
@@ -1035,7 +1035,7 @@ export class CapitecConnectAgentRecharges extends ViewBase {
 	_renderRechargeStatusModal() {
 		const item = this.selectedRechargeView;
 
-		// Fetch recharge status data from Order Service when modal is opened
+		// Fetch recharge status data from order management service when modal is opened
 		if (item && item.transactionReference && !this.rechargeStatusData) {
 			this._getRechargeStatus(item.transactionReference);
 		}
