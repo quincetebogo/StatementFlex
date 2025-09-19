@@ -655,7 +655,7 @@ export class EndCallSession extends Component {
 
 			const contextualReasonsByRole = reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
 
-			console.log(`contextualReasonsByRole: ${JSON.stringify(this.contextualReasonsByRole)}`);
+			console.log(`contextualReasonsByRole: ${JSON.stringify(contextualReasonsByRole)}`);
 
 			return contextualReasonsByRole;
 		}
