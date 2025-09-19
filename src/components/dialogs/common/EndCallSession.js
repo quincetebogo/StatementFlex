@@ -640,12 +640,27 @@ export class EndCallSession extends Component {
 	}
 
 	_getEndCallReasons() {
-		const orgUnit = RoleManager.getInstance().orgUnit;
-		const reasonsByRole = END_CALL_REASON_BY_ROLE[orgUnit];
+		console.log(`Start: _getEndCallReasons`);
 
+		const orgUnit = RoleManager.getInstance().orgUnit;
+
+		console.log(`OrgUnit: ${RoleManager.getInstance().orgUnit}`);
+
+		const reasonsByRole = END_CALL_REASON_BY_ROLE[orgUnit];
+		
 		if (ROLES_WITH_END_CALL_CONTEXT.includes(orgUnit)) {
-			return reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
+			console.log(`Determining reasons for role with end call context for org unit ${orgUnit}`);
+			console.log(`endcallContext ${this.endCallContext}`);
+			console.log(`verification Status ${this.callerInformation.verificationStatus}`);
+
+			const contextualReasonsByRole = reasonsByRole[this.endCallContext][this.callerInformation.verificationStatus] || reasonsByRole[this.endCallContext];
+
+			console.log(`contextualReasonsByRole: ${JSON.stringify(this.contextualReasonsByRole)}`);
+
+			return contextualReasonsByRole;
 		}
+
+		console.log(`reasonsByRole: ${JSONG.stringify(END_CALL_REASON_BY_ROLE[orgUnit])}`);
 
 		return reasonsByRole;
 	}
