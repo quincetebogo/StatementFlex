@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -100,6 +101,11 @@ export class StopCardFailure extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+		this.showEndCall = !this.showEndCall;
+		this.endCallContext = `QuickTransactionsUnSuccess`;
+	}
 
 	_onToastDisplayTimeout() {
 		this.displayNotification = false;

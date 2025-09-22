@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { NavigationContext } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -104,6 +105,11 @@ export class StopCardSuccess extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+		this.showEndCall = !this.showEndCall;
+		this.endCallContext = `QuickTransactionSuccess`;
+	}
 
 	_onToastDisplayTimeout() {
 		this.displayNotification = true;
