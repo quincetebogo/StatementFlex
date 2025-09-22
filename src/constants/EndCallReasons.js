@@ -136,6 +136,16 @@ export const END_CALL_REASON = Object.freeze({
                 mapping: `general-product-enquiry`
             },
             {
+				key: NEED_ASSIGNED,
+				value: `Need assigned`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_HANDED_OFF,
+				value: `Need handed off`,
+				mapping: `general-product-enquiry`
+			},
+			{
                 key: LANGUAGE_TRANSFER,
                 value: `Language transfer`,
                 mapping: `language-transfer`
@@ -154,6 +164,16 @@ export const END_CALL_REASON = Object.freeze({
                 mapping: `general-product-enquiry`
             },
             {
+				key: NEED_ASSIGNED,
+				value: `Need assigned`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_HANDED_OFF,
+				value: `Need handed off`,
+				mapping: `general-product-enquiry`
+			},
+			{
                 key: LANGUAGE_TRANSFER,
                 value: `Language transfer`,
                 mapping: `language-transfer`
@@ -169,6 +189,16 @@ export const END_CALL_REASON = Object.freeze({
             {
                 key: NEED_FULFILLED,
                 value: `Need fulfilled`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_ASSIGNED,
+				value: `Need assigned`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_HANDED_OFF,
+				value: `Need handed off`,
                 mapping: `general-product-enquiry`
             },
             {
@@ -195,6 +225,16 @@ export const END_CALL_REASON = Object.freeze({
                 mapping: `general-product-enquiry`
             },
             {
+				key: NEED_ASSIGNED,
+				value: `Need assigned`,
+				mapping: `general-product-enquiry`
+			},
+			{
+				key: NEED_HANDED_OFF,
+				value: `Need handed off`,
+				mapping: `general-product-enquiry`
+			},
+			{
                 key: LANGUAGE_TRANSFER,
                 value: `Language transfer`,
                 mapping: `language-transfer`
@@ -211,6 +251,16 @@ export const END_CALL_REASON = Object.freeze({
         {
             key: NEED_FULFILLED,
             value: `Need fulfilled`,
+			mapping: `transaction-history`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `transaction-history`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
             mapping: `transaction-history`
         },
         CALLTRANSFERED,
@@ -231,6 +281,16 @@ export const END_CALL_REASON = Object.freeze({
             value: `Need fulfilled`,
             mapping: `general-product-enquiry`
         },
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
         CALLTRANSFERED,
         {
             key: NEED_INCOMPLETE,
@@ -249,6 +309,16 @@ export const END_CALL_REASON = Object.freeze({
             value: `Need incomplete - Transaction Failed`,
             mapping: ``
         },
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
         CALLTRANSFERED,
         {
             key: FOLLOW_UP,
@@ -261,6 +331,16 @@ export const END_CALL_REASON = Object.freeze({
             key: NEED_INCOMPLETE,
             value: `Need incomplete - bad connection`,
             mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
         },
         CALLTRANSFERED,
         {
@@ -297,6 +377,8 @@ export const CALL_TRANSFERED_CLASSIFICATION = Object.freeze({
  */
 export const RECOGNIZE_NEED_REASONS = Object.freeze([
     END_CALL_REASON.NEED_FULFILLED,
+	END_CALL_REASON.NEED_ASSIGNED,
+	END_CALL_REASON.NEED_HANDED_OFF,
     END_CALL_REASON.PRODUCT_ENQUIRY,
     END_CALL_REASON.CALL_TRANSFERED
 ]);
