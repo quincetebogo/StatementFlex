@@ -1,18 +1,16 @@
 import { Component, css, html } from 'platform/elements';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ACCOUNT_TYPES } from 'app/constants/Common';
-import { DateTime } from 'luxon';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
-import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const FILTER_BY = {
 	ALL: `ALL`,
 	TEXT: `TEXT`,
 	DATE: `DATE`,
 	STATUS: `STATUS`,
-	MONEY_TYPE: `MONEY_TYPE` 
+	MONEY_TYPE: `MONEY_TYPE`
 };
 
 const RENDER_CHIPS = {
@@ -74,10 +72,14 @@ export class TransactionHistory extends Component {
 		this.isBusy = false;
 		this.hideLoadMore = true;
 
+		// All the following dates should be in ISO String format
+		this.accountOpenDate = ``;
 		this.startDate = ``;
 		this.endDate = ``;
-		this.product = ``;
+		this.minDate = ``;
+		this.maxDate = new Date().toISOString();
 
+		this.product = ``;
 		this.filteredData = [];
 		this.searchTextLabel = DEFAULTS.SEARCH_TEXT_LABEL;
 		this.statuslabel = DEFAULTS.STATUS_LABEL;
@@ -124,6 +126,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
+			accountOpenDate: { type: String },
 			type: { type: String },
 			product: { type: String },
 
@@ -136,6 +139,8 @@ export class TransactionHistory extends Component {
 			isBusy: { state: true },
 			startDate: { type: String, state: true },
 			endDate: { type: String, state: true },
+			minDate: { type: String, state: true },
+			maxDate: { type: String, state: true },
 			searchTextLabel: { state: true },
 			statuslabel: { state: true },
 			selectedMoneyType: { state: true },
@@ -153,7 +158,7 @@ export class TransactionHistory extends Component {
 
 	get showActionFooter() {
 		return [ACCOUNT_TYPES.SAVINGS_ACCOUNT, ACCOUNT_TYPES.CREDIT].includes(this.type) &&
-			   (RoleManager.getInstance().isClientCareAgent || RoleManager.getInstance().isHelpDeskAgent);
+			(RoleManager.getInstance().isClientCareAgent || RoleManager.getInstance().isHelpDeskAgent);
 	}
 
 	// -------------------
@@ -235,6 +240,20 @@ export class TransactionHistory extends Component {
 		this.statuslabel = ``;
 	}
 
+	_dateDiffInDays(a, b) {
+		const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+		// Discard the time and time-zone information.
+		const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+		const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+		return Math.floor((utc2 - utc1) / _MS_PER_DAY);
+	}
+
+	_addDays(date, days) {
+		const result = new Date(date); // Create a new Date object to avoid modifying the original
+		result.setDate(result.getDate() + days);
+		return result;
+	}
+
 	async _dateChanged(e) {
 
 		/**
@@ -251,31 +270,31 @@ export class TransactionHistory extends Component {
 			e.detail.new.startDate = e.detail.old.startDate || this.get90DaysBefore(e.detail.new.endDate);
 		}
 
-		const fromDate = DateTime.fromISO(e.detail.new.startDate);
-		let toDate = DateTime.fromISO(e.detail.new.endDate);
-		const currentDateTime = DateTime.local();
+		const fromDate = new Date(e.detail.new.startDate);
+		let toDate = new Date(e.detail.new.endDate);
+		const currentDateTime = Date.now;
 
-		if (toDate.diff(fromDate, [`days`]).days > 90) {
-			
-			toDate = fromDate.plus({ days: 90 });
+		this.startDate = fromDate.toISOString();
+		this.endDate = toDate.toISOString();
+
+		if (this._dateDiffInDays(toDate, fromDate) > 90) {
+
+			toDate = this._addDays(fromDate, 90);
 			if (toDate > currentDateTime) {
-				this.startDate = fromDate;
-				this.endDate = currentDateTime;
+				this.startDate = fromDate.toISOString();
+				this.endDate = currentDateTime.toISOString();
 			} else {
-				this.startDate = fromDate;
-				this.endDate = toDate;
+				this.startDate = fromDate.toISOString();
+				this.endDate = toDate.toISOString();
 				const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 				if (calendar) {
-					calendar._placeholderEndDate = toDate;
+					calendar._placeholderEndDate = toDate; // Check Types here
 				}
 			}
-		} else {
-			this.startDate = fromDate;
-			this.endDate = toDate;
 		}
 
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
-		
+
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
 			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
 			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
@@ -286,8 +305,14 @@ export class TransactionHistory extends Component {
 	}
 
 	async _loadFilteredTransactions() {
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
+		let ISOstartDate = this.startDate;
+
+		if (this.startDate && new Date(this.startDate) < new Date(this.minDate)) {
+			ISOstartDate = this.minDate;
+		}
+
+		const startDate = ISOstartDate ? this._formatDateForRequest(ISOstartDate) : ``;
+		const endDate = this.endDate ? this._formatDateForRequest(this.endDate) : ``;
 
 		this.disposeData();
 		await this.getTransactionHistory(startDate, endDate);
@@ -324,10 +349,10 @@ export class TransactionHistory extends Component {
 
 		const activeFilters = this.shadowRoot.getElementById(`active-filters`);
 		Array.from(activeFilters.children)
-			 .filter(field => field.localName === `capitec-chip` && !field.hidden)
-			 .forEach(item => {
-				 this._clearFilter(item.id);
-			 });
+			.filter(field => field.localName === `capitec-chip` && !field.hidden)
+			.forEach(item => {
+				this._clearFilter(item.id);
+			});
 
 		this._refineSearch();
 	}
@@ -339,10 +364,10 @@ export class TransactionHistory extends Component {
 
 		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_SCROLL_TOP, {});
 	}
-	
+
 	_selectedMoneyType(e) {
 		RENDER_CHIPS[FILTER_BY.MONEY_TYPE] = e.target.label;
-		
+
 		this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_FILTER, {
 			'search-by-text': RENDER_CHIPS[FILTER_BY.TEXT],
 			'date-filter': RENDER_CHIPS[FILTER_BY.DATE],
@@ -362,7 +387,7 @@ export class TransactionHistory extends Component {
 
 	_selectAllCheck(e) {
 		e.detail.filteredDisputableTransID = this.disputableFilteredTrans.map(d => d.transactionId);
-		
+
 		this.dispatchEvent(new CustomEvent(`select-all`, {
 			detail: e.detail
 		}));
@@ -374,18 +399,32 @@ export class TransactionHistory extends Component {
 
 	async _initialise() {
 		this.telemetryEvent = {};
+
 		this.get90DaysAfter = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() + 90);
 
 			return result > today ? today.toISOString() : result.toISOString();
 		};
+
 		this.get90DaysBefore = (date) => {
 			const result = new Date(date);
 			result.setDate(result.getDate() - 90);
 			return result.toISOString();
 		};
-		
+
+		this._getMinDate = (accountOpenDate) => {
+			if (!accountOpenDate) {
+				return new Date(2000, 0, 1).toISOString();
+			}
+
+			const minDate = new Date(accountOpenDate);
+			minDate.setDate(minDate.getDate() - 1);
+			return minDate.toISOString();
+		};
+
+		this.minDate = this._getMinDate(this.accountOpenDate);
+
 		// Fetching the telemetry events object at runtime based on product type
 		const { TRANSACTION_ENQUIRY_EVENTS } = await _importTelemetryEvents_[this.type]();
 
@@ -400,13 +439,16 @@ export class TransactionHistory extends Component {
 	// To set the values to default on closing the chip or clearing all the filters
 	async _reset() {
 		if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
-			this.startDate = ``;
-			this.endDate = ``;
+			const currentDate = new Date();
+			const ninetyDaysBefore = this._addDays(currentDate, -90);
+
+			this.endDate = currentDate.toISOString();
+			this.startDate = ninetyDaysBefore.toISOString();
 
 			const calendar = this.shadowRoot.querySelector(`#calendarRange`);
 			if (calendar) {
-				calendar._placeholderEndDate = null;
-				calendar._placeholderStartDate = null;
+				calendar._placeholderStartDate = this.startDate;
+				calendar._placeholderEndDate = this.endDate;
 			}
 			await this._loadFilteredTransactions();
 		}
@@ -414,8 +456,14 @@ export class TransactionHistory extends Component {
 
 	async _loadMoreTransactions() {
 		const oldCount = this.transactionHistory.length;
-		const startDate = this.startDate.toLocaleString().slice(0, 10);
-		const endDate = this.endDate.toLocaleString().slice(0, 10);
+		let ISOstartDate = this.startDate;
+
+		if (this.startDate && new Date(this.startDate) < new Date(this.minDate)) {
+			ISOstartDate = this.minDate;
+		}
+
+		const startDate = ISOstartDate ? this._formatDateForRequest(ISOstartDate) : ``;
+		const endDate = this.endDate ? this._formatDateForRequest(this.endDate) : ``;
 
 		await this._telemetry.logEvent(this.telemetryEvent.TRANSACTION_HISTORY_LOAD_MORE, {});
 		await this.getTransactionHistory(startDate, endDate, this.transactionHistory.length + 1);
@@ -443,8 +491,8 @@ export class TransactionHistory extends Component {
 						return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
 					}
 					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
-															parseFloat(item.amount).toFixed(2).startsWith(key) ||
-															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
+						parseFloat(item.amount).toFixed(2).startsWith(key) ||
+						(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
 				}
 				return [];
 			});
@@ -452,10 +500,10 @@ export class TransactionHistory extends Component {
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
-			const startDate = new Date(Date.parse(this.startDate));
-			const endDate = new Date(Date.parse(this.endDate));
+			const startDate = new Date(this.startDate);
+			const endDate = new Date(this.endDate);
 
-			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -481,6 +529,16 @@ export class TransactionHistory extends Component {
 		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
+	_formatDateForRequest(ISODateString) {
+
+		const dateTime = new Date(ISODateString);
+		const day = dateTime.getDate().toString().padStart(2, 0);
+		const month = (dateTime.getMonth() + 1).toString().padStart(2, 0);
+		const year = dateTime.getFullYear().toString();
+
+		return `${year}-${month}-${day}`;
+	}
+
 	_getDateRange() {
 		const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
 		const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
@@ -491,7 +549,7 @@ export class TransactionHistory extends Component {
 		if (selectedValue.length > 0) {
 			return selectedValue[0].text;
 		}
-	
+
 		return `${fromDate} - ${toDate}`;
 	}
 
@@ -503,10 +561,10 @@ export class TransactionHistory extends Component {
 	_clearFilter(type) {
 		const text = () => this._clearTextFilter();
 		const date = () => this._reset();
-		const status = () => { 
-			this.statuslabel = DEFAULTS.STATUS_LABEL; 
+		const status = () => {
+			this.statuslabel = DEFAULTS.STATUS_LABEL;
 		};
-		
+
 		const resetForfilters = {
 			'DATE': date,
 			'TEXT': text,
@@ -817,15 +875,15 @@ export class TransactionHistory extends Component {
 				halign="left"
 				valign="center">
 					${accDetails.map(item => {
-						const [key, value] = item;
-						return html`
+			const [key, value] = item;
+			return html`
 							<horizon-label
 								label="${key}"
 								value="${value}"
 								data-automation-id="transaction-history-${key.toLowerCase().split(``).join(`-`)}">
 							</horizon-label>
 						`;
-					})}
+		})}
 			</capitec-group>
 		`;
 	}
@@ -851,9 +909,10 @@ export class TransactionHistory extends Component {
 				<capitec-date-time-picker
 					id="calendarRange"
 					label = "Choose a date (up to 90 days)"
-					startDate='${this.startDate}'
-					endDate='${this.endDate}'
-					maxDate="${new Date().toString()}"
+					startDate="${this.startDate}"
+					endDate="${this.endDate}"
+					minDate="${this.minDate}"
+					maxDate="${this.maxDate}"
 					type="range"
 					mode="date"
 					inputType="calendar"
@@ -958,8 +1017,8 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionHistory() {
-		return this.filteredData.length > 0 
-		? html`
+		return this.filteredData.length > 0
+			? html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
@@ -969,7 +1028,7 @@ export class TransactionHistory extends Component {
 				data-automation-id="transaction-history-table">
 					${this.renderTableColumns()}
 			</capitec-table>`
-		: html`
+			: html`
 			${this._renderNoResults()}
 		`;
 	}

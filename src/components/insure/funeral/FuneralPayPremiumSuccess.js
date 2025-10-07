@@ -229,7 +229,7 @@ class FuneralPayPremiumSuccess extends Component {
 		`;
 	}
 
-	// TODO: fix inline styling for icon
+	// fix inline styling for icon
 	/**
 	 * Render the content HTML for the component
 	 * @returns {html} html content

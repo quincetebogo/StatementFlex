@@ -62,7 +62,10 @@ export class CardSettingsOutcome extends ViewBase {
 			!(this.failedCards.indexOf(card) > 0));
 
 		this._getOutcomeDetails();
+
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 
 		window.setTimeout(() => this.displayToast = false, 3000);
 	}
@@ -89,9 +92,11 @@ export class CardSettingsOutcome extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		this.horizonIncidentManager.incidentState = this.failedCards.length === 0 ? super.HORIZON_NEED_STATUS.COMPLETED : super.HORIZON_NEED_STATUS.FAILED;
 	}
+	*/
 
 	_getOutcomeDetails() {
 		this.header = this._getHeaderDetails();

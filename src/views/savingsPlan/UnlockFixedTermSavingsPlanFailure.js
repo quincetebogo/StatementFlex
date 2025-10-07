@@ -16,10 +16,7 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 	constructor() {
 		super();
 
-		// TODO: Remove the hardcoded values when wiring up the navigation.
-		this.amount = formatCurrency(`7500`);
 		this.partialUnlock = true;
-		this.accountName = `My dream car`;
 
 		this.endCallContext = `QuickTransactionsUnSuccess`;
 	}
@@ -39,7 +36,9 @@ export class FixedTermSavingsPlanFailure extends ViewBase {
 
 		this._telemetry.startSpan(UNLOCK_FTSP_EVENTS.UNLOCK_FTSP_TRANSFER_FAILURE);
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {

@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { ACCESS_CHANNEL_STATUS } from 'app/productControls/AccessChannels/src/Constants';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { NavigationContext } from 'platform/core';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -97,20 +98,24 @@ export class StopCardSuccess extends ViewBase {
 		if (!this.confirmSuspendChannels) {
 			this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
 				"screen": TelemetryScreen.STOP_CARD_OUTCOME
-			});
+			}, false);
 		}
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+		this.showEndCall = !this.showEndCall;
+		this.endCallContext = `QuickTransactionSuccess`;
+	}
 
 	_onToastDisplayTimeout() {
 		this.displayNotification = true;
 	}
 
 	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonIncidentManager.setDescription(this.incidentDescription);
 	}
 
@@ -118,7 +123,7 @@ export class StopCardSuccess extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_DONE, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.FAVOURITES
-		});
+		}, false);
 
 		this.horizonStore.clearScreenDetails();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -133,7 +138,7 @@ export class StopCardSuccess extends ViewBase {
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ANOTHER, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.STOP_CARD
-		});
+		}, false);
 
 		const returnValue = await this.cardService.identifyCaller(
 			this.callerInformation,
@@ -170,7 +175,7 @@ export class StopCardSuccess extends ViewBase {
 	_notNow() {
 		this._toggleAlertSuspendChannels();
 		this.notNowToSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_NOT_NOW, {}, false);
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
@@ -178,23 +183,23 @@ export class StopCardSuccess extends ViewBase {
 	_suspendChannels() {
 		this._toggleAlertSuspendChannels();
 		this.confirmSuspendChannels = true;
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE, {});
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_SUSPEND_CONTINUE, {}, false);
 	}
 
 	_cancelSuspendChannels() {
 		this.confirmSuspendChannels = false;
 		this.notNowToSuspendChannels = true;
 
-		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, {});
+		this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CANCEL, {}, false);
 		this._updateIncidentState();
 		this._updateSuspendAcAction();
 	}
 
 	async _confirmSuspend(request, need) {
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(need);
 		await this._telemetry.logEvent(SUSPEND_CHANNELS_EVENTS.SUSPEND_ACCESS_CHANNELS_CONFIRM, {
 			'channels': request.channels
-		});
+		}, false);
 
 		const returnValue = await this.accessChannelService.suspendChannels(request, () => true, 1);
 
@@ -216,15 +221,15 @@ export class StopCardSuccess extends ViewBase {
 			this.accessChannels = returnValue.result;
 
 			this.alertSuspendChannels = this.accessChannels.app?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
-										this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
+				this.accessChannels.internetBanking?.status === ACCESS_CHANNEL_STATUS.ACTIVE ||
+				this.accessChannels.ussd?.status === ACCESS_CHANNEL_STATUS.ACTIVE;
 
 			if (this.alertSuspendChannels) {
 				this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_AC_STATUS, {
 					App: this.accessChannels.app?.status,
 					InetBanking: this.accessChannels.internetBanking?.status,
 					USSD: this.accessChannels.ussd?.status
-				});
+				}, false);
 			}
 		}
 

@@ -82,9 +82,8 @@ export class InsureViewBase extends ViewBase {
 		return resp.result;
 	}
 
-	async setInsureIncident(need) {
-		await super._inicidentManager_(need, () => this._toggleBusyFlag());
-		await super.createAndClassifySubIncident(null, false);
+	setInsureIncident(need) {
+		this.horizonIncidentManager.setCurrentNeed(need);
 	}
 
 	/**
@@ -94,7 +93,7 @@ export class InsureViewBase extends ViewBase {
 	 * @returns {void}
 	 */
 	handleToastError(exception) {
-				
+
 		if (exception.output[0]?.ErrorMessage) {
 			this.insureErrorToastMessage = exception.output[0].ErrorMessage;
 		} else if (exception.output?.ErrorMessage) {

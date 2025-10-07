@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { SQFailedMixin } from 'app/views/common/SQFailedMixin';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
@@ -60,6 +61,11 @@ export class KbaVerificationFailed extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+		this.showEndCall = !this.showEndCall;
+		this.endCallContext = `VerifyClientFailed`;
+	}
 
 	_continueUnverifiedClick() {
 		this._telemetry.logEvent(VerifyCallerEvents.KBA_VERIFICATION_FAILED_CONTINUE_UNVERIFIED, {
@@ -82,7 +88,7 @@ export class KbaVerificationFailed extends ViewBase {
 	// ---------
 	// RENDERING
 	// ---------
-	
+
 	// N/A
 
 	// ---------

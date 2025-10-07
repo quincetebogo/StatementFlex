@@ -11,10 +11,10 @@
 		"savingsPlanChannelServiceUrl": "https://cs-save-qa.bussup.npr-plrbsc.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash-qa.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-qa.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-qa.int.capinet",
-		"incidentManagementService": "https://cs-incident-qa.bussup.npr-plrbsc.asgard.capi",
+		"incidentManagementService": "https://cs-incident-aux-qa.bussup.npr-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insure-hics-service-qa.inspla.npr-plipla.asgard.capi",
-		"capitecConnectServiceUrl": "https://digital-services-api-gateway-qa.conect.npr-plrcon.asgard.capi/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-qa.conect.npr-plrcon.asgard.capi/horizon-bff",
+		"telemetryServiceUrl": "https://horizon-telemetry-service-qa.bussup.npr-plrbsc.asgard.capi"
 	},
 	"signalRUrl": "https://cs-client-auth-qa.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-qa.bussup.npr-plrbsc.asgard.capi",
@@ -56,5 +56,10 @@
 	"searchClientOptionEnabled": false,
 	"mock": {
 		"enabled": false
-	}
+	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	]
 }

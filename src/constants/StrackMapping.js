@@ -13,6 +13,7 @@ export const STRACK_MAPPING = Object.freeze({
 	"debi-check-approve": `DEBI_CHECK_APPROVE`,
 	"debi-check-decline": `DEBI_CHECK_DECLINE`,
 	"debi-check-viewInfo": `DEBI_CHECK`,
+	"StopCard": `STOP_CARD`,
 	"stop-card": `STOP_CARD`,
 	"update-card-limits": `UPDATE_CARD_LIMITS`,
 	"tap-to-pay": `TAP_TO_PAY`,

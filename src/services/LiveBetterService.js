@@ -14,11 +14,11 @@ export class LiveBetterService extends ChannelServiceBase {
 	// --------------
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		super(
-			toggleBusyFunc, 
-			defaultErrorHandlerFunc, 
-			`serviceURIs.liveBetterServiceUrl`, 
-			`HorizonChannelService`, 
-			`v1`, 
+			toggleBusyFunc,
+			defaultErrorHandlerFunc,
+			`serviceURIs.liveBetterServiceUrl`,
+			`HorizonChannelService`,
+			`v1`,
 			() => import(`../mocks/HorizonChannelServiceMocks.js`)
 		);
 
@@ -38,15 +38,15 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
- 	async liveBetterLanding (clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async liveBetterLanding(clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`liveBetterLanding`)) {
 			return this.mock(`liveBetterLanding`);
 		}
 
 		return this.post(
-			`/clientcare-lbb-${this._version_2}/landing`, 
+			`/clientcare-lbb-${this._version_2}/landing`,
 			clientDetails,
-			this.setToken(), 
+			this.setToken(),
 			`liveBetterLanding`,
 			null,
 			null,
@@ -57,7 +57,7 @@ export class LiveBetterService extends ChannelServiceBase {
 		);
 	}
 
-		
+
 	/**
 	 * Live better Transaction History - list of Transactions
 	 *
@@ -66,15 +66,15 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async liveBetterTransactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async liveBetterTransactionHistory(transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`liveBetterTransactionHistory`)) {
 			return this.mock(`liveBetterTransactionHistory`, transactionHistoryRequest);
 		}
 
 		return this.post(
-			`/clientcare-lbb-${this._version_2}/transactions`, 
-			transactionHistoryRequest, 
-			this.setToken(), 
+			`/clientcare-lbb-${this._version_2}/transactions`,
+			transactionHistoryRequest,
+			this.setToken(),
 			`liveBetterTransactionHistory`,
 			null,
 			null,
@@ -93,15 +93,15 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async lbbLinkedTransactionDetails (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async lbbLinkedTransactionDetails(transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`lbbLinkedTransactionDetails`)) {
 			return this.mock(`lbbLinkedTransactionDetails`, transactionHistoryRequest);
 		}
 
 		return this.post(
-			`/clientcare-lbb-${this._version_2}/transaction-detail`, 
-			transactionHistoryRequest, 
-			this.setToken(), 
+			`/clientcare-lbb-${this._version_2}/transaction-detail`,
+			transactionHistoryRequest,
+			this.setToken(),
 			`lbbLinkedTransactionDetails`,
 			null,
 			null,
@@ -120,13 +120,13 @@ export class LiveBetterService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	 async lbbUpdateRoundupDetails (updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		await HorizonIncidentManager.getInstance().createAndClassifySubIncident(this._toggleBusyFlag);
+	async lbbUpdateRoundupDetails(updateRoundupRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().autoCreateAndClassify(this._toggleBusyFlag);
 
 		return this.put(
-			`/clientcare-lbb-${this._version_2}/update-lbb-account`, 
-			updateRoundupRequest, 
-			this.setToken(), 
+			`/clientcare-lbb-${this._version_2}/update-lbb-account`,
+			updateRoundupRequest,
+			this.setToken(),
 			`lbbUpdateRoundupDetails`,
 			null,
 			null,

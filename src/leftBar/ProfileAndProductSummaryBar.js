@@ -6,7 +6,6 @@ import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { LiveBetterEvents } from 'app/constants/telemetry/events/LiveBetter';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
@@ -14,7 +13,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RoleManager } from 'app/shell/RoleManager';
 import { SavingsAccLandingPage } from 'app/constants/telemetry/events/SavingsAccount';
 import { SavingsPlanEvents } from 'app/constants/telemetry/events/SavingsPlan';
-
+import { formatCurrency } from 'app/productControls/utilities/Currency';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -265,7 +264,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		let productTilesInfo = {};
 
-		if (!this.callerInformation || this.callerInformation.verificationStatus === `non-client`) {
+		if (this.callerInformation?.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -282,7 +281,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				/* 
 				* NOTE: This is a work around as the favourites landing does not return credit information. 
 				* NOTE: This implementation will not include credit information in the favourites landing call fails.
-				* TODO: Develop better solution (CSCEH-7747)
+				* Develop better solution (CSCEH-7747)
 				*/
 				if (returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded && returnValues[1].value.result.availableBalance !== null) {
 					if (this.callerInformation.verificationStatus === `verified`) {
@@ -371,10 +370,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_setIncidentDone() {
 		const incidentManager = HorizonIncidentManager.getInstance();
 
-		if (Object.values(LANDING_PAGE_NEEDS).includes(incidentManager.getCurrentNeed()) &&
-			incidentManager.incidentState !== super.HORIZON_NEED_STATUS.NOT_STARTED) {
-			incidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-		}
+
 	}
 
 	// ---------

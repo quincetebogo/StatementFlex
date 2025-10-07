@@ -226,9 +226,21 @@ export class PayShapLanding extends Component {
 
 	async _getMoneyOutTransactionHistory(startDate, endDate, paginationToken) {
 
+		const accountOpenDate = this.accountOpenDate ? new Date(this.accountOpenDate) : null;
+		const defaultStartDate = new Date(Date.now() - NINETY_DAYS);
+		const startDateObj = startDate ? new Date(startDate) : null;
+
+		let effectiveStartDate = defaultStartDate;
+
+		if (accountOpenDate && (!startDateObj || accountOpenDate > startDateObj)) {
+			effectiveStartDate = accountOpenDate;
+		} else if (startDateObj && startDateObj > defaultStartDate) {
+			effectiveStartDate = startDateObj;
+		}
+
 		const moneyOutTHRequest = {
 			cifNumber: this.cifNumber,
-			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
+			fromDateTime: effectiveStartDate.toISOString().slice(0, 10),
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
 			pageSize: `12`,
 			paginationToken: paginationToken || null
@@ -261,10 +273,21 @@ export class PayShapLanding extends Component {
 	}
 
 	async _getMoneyInTransactionHistory(startDate, endDate) {
+		const accountOpenDate = this.accountOpenDate ? new Date(this.accountOpenDate) : null;
+		const defaultStartDate = new Date(Date.now() - NINETY_DAYS);
+		const startDateObj = startDate ? new Date(startDate) : null;
+
+		let effectiveStartDate = defaultStartDate;
+
+		if (accountOpenDate && (!startDateObj || accountOpenDate > startDateObj)) {
+			effectiveStartDate = accountOpenDate;
+		} else if (startDateObj && startDateObj > defaultStartDate) {
+			effectiveStartDate = startDateObj;
+		}
 		const moneyInTHRequest = {
 			cifNumber: this.cifNumber,
 			accountNumber: this.accountNumber,
-			fromDateTime: startDate || TRANSACTION_HISTORY.START_DATE,
+			fromDateTime: effectiveStartDate.toISOString().slice(0, 10),
 			toDateTime: endDate || TRANSACTION_HISTORY.END_DATE,
 			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
 			pageSize: `10`

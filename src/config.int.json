@@ -11,15 +11,15 @@
 		"savingsPlanChannelServiceUrl": "https://cs-save-int.bussup.npr-plrbsc.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash-int.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-int.bussup.npr-plrbsc.asgard.capi",
-		"widgetRegistryService": "https://cec-cs-widgetregistry.platform-int.int.capinet",
-		"incidentManagementService": "https://cs-incident-int.bussup.npr-plrbsc.asgard.capi",
+		"incidentManagementService": "https://cs-incident-aux-int.bussup.npr-plrbsc.asgard.capi",
 		"insureChannelServiceUrl": "https://insure-hics-service-int.inspla.npr-plipla.asgard.capi",
-		"capitecConnectServiceUrl": "https://digital-services-api-gateway-int.conect.npr-plrcon.asgard.capi/horizon-bff"
+		"capitecConnectServiceUrl": "https://digital-services-api-gateway-int.conect.npr-plrcon.asgard.capi/horizon-bff",
+		"telemetryServiceUrl": "https://horizon-telemetry-service-int.bussup.npr-plrbsc.asgard.capi"
 	},
 	"signalRUrl": "https://cs-client-auth-int.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-int.bussup.npr-plrbsc.asgard.capi",
 	"DesktopAgent": {
-		"registrationUrl": "http://localhost:8889/subscribe"
+		"registrationUrl": ""
 	},
 	"otherSystemsURL": {
 		"sbl": "https://standardbancslinkv3int.int.capinet:8080/",
@@ -56,5 +56,10 @@
 	"searchClientOptionEnabled": true,
 	"mock": {
 		"enabled": false
-	}
+	},
+	"TelemetryFilter": [
+		"horizon.call.fulfill-need.stop-card",
+		"horizon.call.fulfill-need.access-channels",
+		"horizon.call.fulfill-need.select-stop-card"
+	]
 }

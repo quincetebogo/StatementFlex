@@ -59,7 +59,7 @@ export const ACTION_IDENTIFIER = Object.freeze({
  * @readonly
  * @enum {Object} Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER
  */
-export const Credit_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER = Object.freeze({
+export const CREDIT_ACCOUNT_ENQUIRY_TYPE_IDENTIFIER = Object.freeze({
 	'Credit card': `credit-account-enquiry`,
 	'Term Loan': `loan-account-enquiry`,
 	'Access facility': `access-facility-account-enquiry`

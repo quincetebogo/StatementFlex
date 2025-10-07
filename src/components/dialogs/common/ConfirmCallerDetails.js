@@ -193,7 +193,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _confirmClick() {
-		// TODO: Should this be updated to indicate next screen to be insure?
+
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
@@ -202,7 +202,7 @@ export class ConfirmCallerDetails extends Component {
 			"confirmed-client-cif": this.callerInformation.cifNumber
 		});
 
-		// TODO: If insure role then navigate to Insure landing page.
+		// If insure role then navigate to Insure landing page.
 		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
 			this._navigateToInsureBackOfficePage();
 			return;
@@ -265,7 +265,6 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller = event.detail.confirmedCaller;
 		this.confirmedCaller.isBranchConsultant = false;
 
-		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -381,7 +380,7 @@ export class ConfirmCallerDetails extends Component {
 			return;
 		}
 
-		await super._inicidentManager_(`update-language-preference`, () => this._toggleBusyFlag());
+		this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 		this.languagePreference = e.detail.new.key;
 
 		const isLanguageUpdated = await this.updateLanguage(this.languagePreference);
@@ -446,7 +445,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.gender,
 			this.confirmedCaller.branchCallerID,
 			this.confirmedCaller.branchCode,
-			this.confirmedCaller.maskedCifNumber
+			this.confirmedCaller.maskedCifNumber,
+			this.confirmedCaller.entityIdentifier
 		);
 	}
 
@@ -580,7 +580,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		// Updating client details to Incident at Strack
-		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, currentIncident);
+		let returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.callerInformation.entityIdentifier, currentIncident);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateClientNonClientDetails`, returnValue.correlationId);
@@ -721,7 +721,7 @@ export class ConfirmCallerDetails extends Component {
 
 						headerLabel="${this.callerInformation.isBranchConsultant ? `Confirm Client` : `Confirm Caller`}"
 						incidentRefNumber="${this._currentIncidentRef()}"
-						?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+						?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						?isNeedSelectable=${true}
 						
@@ -951,7 +951,7 @@ export class ConfirmCallerDetails extends Component {
 				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
@@ -1005,7 +1005,7 @@ export class ConfirmCallerDetails extends Component {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
 				incidentRefNumber="${this._currentIncidentRef()}"
-				?incidentCreated="${this.horizonIncidentManager.isAnIncidentCreated}"
+				?incidentCreated="${this.horizonIncidentManager.isPrimaryIncidentCreated}"
 
 				@cancel="${(event) => this._verificationCancelled(event)}" 
 				@skip="${(event) => this._verificationSkipped(event)}"
