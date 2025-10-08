@@ -28,7 +28,7 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -41,11 +41,13 @@ export class AutomaticSavingsSuccess extends ViewBase {
 		this.LBSADetails = this.screenDetails.LBSADetails;
 
 		this.hasRoundupChanged = !isNullorEmpty(this.updatedLBSADetails?.accountRoundUpActive) ||
-								 Boolean(this.updatedLBSADetails?.roundUpValue) ||
-								 Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
+			Boolean(this.updatedLBSADetails?.roundUpValue) ||
+			Boolean(this.updatedLBSADetails?.activatedRoundUpAccounts);
 		this.hasInterestSweepChanged = !isNullorEmpty(this.updatedLBSADetails?.accountInterestSweepActive);
 
+		/* Removed during incident manager refactor
 		this._updateIncidentState();
+		*/
 	}
 
 	disconnectedCallback() {
@@ -78,10 +80,6 @@ export class AutomaticSavingsSuccess extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
-	}
 
 	// ---------
 	// RENDERING

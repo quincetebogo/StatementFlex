@@ -11,7 +11,7 @@ import 'app/components/common/RelatedOptions';
  * @class SendCashFailure
  * @extends {ViewBase}
  */
- export class SendCashFailure extends ViewBase {
+export class SendCashFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -35,7 +35,9 @@ import 'app/components/common/RelatedOptions';
 	connectedCallback() {
 		super.connectedCallback();
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -51,7 +53,9 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_assignClick() {
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
 
@@ -126,5 +130,5 @@ import 'app/components/common/RelatedOptions';
 		`;
 	}
 
- }
- customElements.define(`horizon-send-cash-failure`, SendCashFailure);
+}
+customElements.define(`horizon-send-cash-failure`, SendCashFailure);

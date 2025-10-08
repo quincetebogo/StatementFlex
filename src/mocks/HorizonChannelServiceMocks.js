@@ -645,7 +645,7 @@ export default class HorizonChannelServiceMocks {
 
 	sendSettlementQuoteEmail() {
 		if (this._mockSettings.sendSettlementQuoteEmail.positiveCase) {
-			// TODO: Add postive case data
+			// Add postive case data
 			return [];
 		}
 
@@ -740,22 +740,6 @@ export default class HorizonChannelServiceMocks {
 		if (this._mockSettings.ftspUnlock.positiveCase) {
 		}
 		return null;
-	}
-
-	getWidgetById() {
-		if (this._mockSettings.getWidgetById.positiveCase) {
-			return this.widgetRegistryMocks.widgetDetails;
-		}
-
-		const errPromise = new Promise(() => {
-			const httpError = new HttpStatusError();
-			httpError.status = 418;
-			httpError.message = `Short and stout!`;
-
-			throw httpError;
-		});
-
-		return errPromise;
 	}
 
 	payShapDetails() {

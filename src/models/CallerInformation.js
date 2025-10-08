@@ -51,6 +51,7 @@
 	 * @param {string} [branchCallerID=""] Specifically for branch caller flow
 	 * @param {string} [branchCode=""] Branc code, again this is only for branch flow
 	 * @param {string} [maskedCif=""] Masked client's cif
+	 * @param {string} [entityIdentifier=""] Entity Resolver ID. Unique for Client.
 	 */
 	constructor(
 		cifNumber,
@@ -90,7 +91,8 @@
  		gender = ``,
 		branchCallerID = ``,
 		branchCode = ``,
-		maskedCif = ``
+		maskedCif = ``,
+		entityIdentifier = ``
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -130,6 +132,7 @@
 		this.branchCallerID = branchCallerID;
 		this.branchCode = branchCode;
 		this.maskedCif = maskedCif;
+		this.entityIdentifier = entityIdentifier;
 		Object.seal();
 	}
 }

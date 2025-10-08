@@ -15,7 +15,7 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 
- export class PaidUpLetterFailure extends ViewBase {
+export class PaidUpLetterFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -30,11 +30,11 @@ import 'app/components/common/RelatedOptions';
 		this._telemetry = HorizonTelemetry.getInstance();
 	}
 
-	
+
 	// ----------
 	// PROPERTIES
 	// ----------
-	
+
 	static get properties() {
 		return {
 			emailAddress: { type: String }
@@ -56,12 +56,14 @@ import 'app/components/common/RelatedOptions';
 		this.failedAccounts = this.screenDetails?.emailStatus.filter(account => !account.sentStatus).map(item => item.productTypeDescription);
 		this.emailAddress = this.screenDetails && this.screenDetails.emailAddress;
 
+		/* Removed duing incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		
+
 		this._telemetry.endSpan(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE, {}, true, true, false);
 	}
 
@@ -80,13 +82,15 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_tryAgainClick() {
-		
+
 		this._telemetry.logEvent(CreditEvents.CREDIT_PAID_UP_LETTER_FAILURE_ASSIGN, {
 			"screen": TelemetryScreen.CREDIT_PAID_UP_LETTER_FAILURE,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();

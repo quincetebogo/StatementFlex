@@ -73,7 +73,7 @@ export class ProductInformation extends ViewBase {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.horizonIncidentManager.currentIncident.toString(),
+				referenceNo: this.horizonIncidentManager.currentIncident?.toString(),
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
@@ -86,14 +86,6 @@ export class ProductInformation extends ViewBase {
 		this.navSub.dispose();
 
 		super.disconnectedCallback();
-
-		const incidentState = this.horizonIncidentManager.incidentState;
-
-		// Rule: When unloading any of the product info screen, if the current active incident is not completed/ closed
-		// which means we haven't started it, so manually setting it to Not strated status
-		if (incidentState !== super.HORIZON_NEED_STATUS.COMPLETED && incidentState !== super.HORIZON_NEED_STATUS.CLOSED) {
-			this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		}
 	}
 
 	// ---------
@@ -115,7 +107,9 @@ export class ProductInformation extends ViewBase {
 
 		window.open(`${productUrl}/`);
 
+		/* Removed during incident management refactor
 		this._updateIncidentState();
+		*/
 	}
 
 
@@ -130,12 +124,11 @@ export class ProductInformation extends ViewBase {
 		this._config = CONFIG[type];
 	}
 
-	async _initialise() {
+	_initialise() {
 		this._navigationContextUpdate();
 
 		if (this._config) {
-			await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
-			await super.createAndClassifySubIncident(null, false);
+			this.horizonIncidentManager.setCurrentNeed(this._config.product);
 		} else {
 			this._config = CONFIG.SavingsAccount;
 		}
@@ -145,10 +138,6 @@ export class ProductInformation extends ViewBase {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_updateIncidentState() {
-		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
 
 	// ---------

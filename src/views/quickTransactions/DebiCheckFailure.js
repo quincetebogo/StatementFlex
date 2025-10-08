@@ -73,7 +73,9 @@ export class DebiCheckFailure extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 		this.horizonStore.clearReturnScreen();
@@ -136,7 +138,7 @@ export class DebiCheckFailure extends ViewBase {
 			</horizon-error-screen>
 		`;
 		};
-		
+
 		return html`
 		<horizon-error-screen
 			data-automation-id="debi-check-failure-screen"

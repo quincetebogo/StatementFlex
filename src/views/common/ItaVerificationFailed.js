@@ -1,4 +1,5 @@
 import { css, html } from 'platform/elements';
+import { LandingPageEvents } from 'app/constants/telemetry/events/LandingPage';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/telemetry/events/VerifyCaller';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -33,14 +34,13 @@ export class ItaVerificationFailed extends ViewBase {
 
 	disconnectedCallback() {
 		this._telemetry.endSpan(VerifyCallerEvents.ITA_VERIFICATION_FAILED);
-	
+
 		super.disconnectedCallback();
 	}
 
 	// -------------
 	// PRIVATE METHODS
 	// -------------
-
 	async _clientVerified(event) {
 		await super._clientVerified(event);
 
@@ -62,6 +62,11 @@ export class ItaVerificationFailed extends ViewBase {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+		this.showEndCall = !this.showEndCall;
+		this.endCallContext = `VerifyClientFailed`;
+	}
 
 	_leftClick() {
 

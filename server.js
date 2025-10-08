@@ -127,24 +127,6 @@ app.post(`/platform/metric/v1/batch`, (req, res) => {
 	res.status(200).send();
 });
 
-// "telemetry event" endpoint of host.
-app.post(`/platform/telemetry/v1/event`, (req, res) => {
-	console.log(`TELEMETRY EVENT [${req.path}]: ${JSON.stringify(req.body)}`);
-	res.status(200).send();
-});
-
-// "telemetry start span" endpoint of host.
-app.post(`/platform/telemetry/v1/span/start`, (req, res) => {
-	console.log(`SPAN START [${req.path}]: ${JSON.stringify(req.body)}`);
-	res.status(200).send();
-});
-
-// "telemetry end span" endpoint of host.
-app.post(`/platform/telemetry/v1/span/end`, (req, res) => {
-	console.log(`SPAN END [${req.path}]: ${JSON.stringify(req.body)}`);
-	res.status(200).send();
-});
-
 app.listen(port, host, () => {
 	console.log(`Running on http://${host}:${port}`);
 });

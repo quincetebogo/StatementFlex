@@ -39,7 +39,7 @@ export class SavingsPlanServiceError extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// TODO: Is a telemetry event needed here?
+		// Is a telemetry event needed here?
 	}
 
 	disconnectedCallback() {

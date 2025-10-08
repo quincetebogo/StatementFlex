@@ -72,16 +72,20 @@ class LifeSuccessPage extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		/* Removed during incident management
 		this._updateIncidentState();
+		*/
 	}
 
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
 
+	/* Removed during incident management refactor
 	_updateIncidentState() {
 		// this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.COMPLETED;
 	}
+	*/
 
 	// #endregion PRIVATE METHODS
 
@@ -94,8 +98,8 @@ class LifeSuccessPage extends Component {
 	 * @param {*} e email address
 	 * @return {void} 
 	 */
-	 async _sendEmail(e) {
-		
+	async _sendEmail(e) {
+
 		if (!isNullorEmpty(e?.detail?.emailAddress)) {
 			this.showEmailDialog = false;
 			this.email = e.detail.emailAddress;
@@ -219,8 +223,8 @@ class LifeSuccessPage extends Component {
 					<capitec-image src="platform/illustrations/application.svg"
 						style="width: 300px; margin-left: auto; margin-right: auto;"></capitec-image>
 					<capitec-label class="label" type="title" label="${this.successMessages?.actionSuccessLabel}"></capitec-label>
-						${isNullorEmpty(this.email) || isNullorEmpty(this.successMessages?.emailMessage) ? html`` 
-						: html`
+						${isNullorEmpty(this.email) || isNullorEmpty(this.successMessages?.emailMessage) ? html``
+				: html`
 						<div class="success-message">
 							<capitec-icon size="medium" icon="status/${this.successMessages?.emailSuccess ? `success` : `error`}" style="margin-right: 10px; margin-top: 15px;" ></capitec-icon>
 							<p>${unsafeHTML(this.successMessages?.emailMessage)}</p>
@@ -233,8 +237,8 @@ class LifeSuccessPage extends Component {
 						${this.successMessages?.emailSuccess ? html`
 							<capitec-button label="Done" class="capitec-button-medium" type="primary" @click="${() => this._navigateToSummary()}">
 							</capitec-button>
-						` 
-						: html`
+						`
+				: html`
 							<capitec-button label="Email" class="capitec-button-medium" type="primary" @click="${() => this._sendEmail()}">
 							</capitec-button>
 							<capitec-button label="Done" class="capitec-button-medium" type="secondary" @click="${() => this._navigateToSummary()}">
@@ -256,7 +260,7 @@ class LifeSuccessPage extends Component {
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 			</horizon-insure-email-dialog>
 		`
-		: html``;
+			: html``;
 	}
 
 	// #endregion

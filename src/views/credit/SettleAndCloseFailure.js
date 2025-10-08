@@ -14,7 +14,7 @@ import 'app/components/common/RelatedOptions';
  * @class SettleAndCloseFailure
  * @extends {ViewBase}
  */
- export class SettleAndCloseFailure extends ViewBase {
+export class SettleAndCloseFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -41,7 +41,9 @@ import 'app/components/common/RelatedOptions';
 		this._initialise();
 		this._telemetry.startSpan(this.telemetryEvents.FAILURE);
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -59,7 +61,7 @@ import 'app/components/common/RelatedOptions';
 		});
 
 		this._telemetry.endSpan(this.telemetryEvents.FAILURE, {}, true, true);
-	
+
 		this.horizonRouter.navigateToCreditAccount();
 		this.horizonStore.clearScreenDetails();
 	}

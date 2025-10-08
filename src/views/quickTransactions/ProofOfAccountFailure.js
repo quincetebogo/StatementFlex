@@ -15,7 +15,7 @@ import 'app/components/common/RelatedOptions';
  * @extends {ViewBase}
  */
 
- export class ProofOfAccountFailure extends ViewBase {
+export class ProofOfAccountFailure extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -30,7 +30,7 @@ import 'app/components/common/RelatedOptions';
 		this._telemetry = HorizonTelemetry.instance;
 	}
 
-	
+
 	// ----------
 	// PROPERTIES
 	// ----------
@@ -46,7 +46,10 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
 		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -78,7 +81,9 @@ import 'app/components/common/RelatedOptions';
 		});
 
 
+		/* Removed during incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}

@@ -36,6 +36,17 @@ export function isNullorEmpty(fieldValue) {
 }
 
 /**
+ * Indicates if an object is null or empty
+ * 
+ * @export
+ * @param {String} objectName An object
+ * @returns {Boolean} True if the object is null or is an empty object ({})
+ */
+export function isObjectNullOrEmpty(objectName) {
+	return !objectName || (Object.keys(objectName).length === 0 && objectName.constructor === Object);
+};
+
+/**
  * Validate a field against a regular expression
  *
  * @export
@@ -299,7 +310,7 @@ export function formatStringAsPascalCase(unformatedString, identifier = ` `) {
  * @returns {string} stA capitalized string
  */
 export function capitalizeString(str) {
-	const result = str.replace(/\0/g, ``); // TODO: Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
+	const result = str.replace(/\0/g, ``); // Temporary fix for telemetry issue. This must come out once the PS side problem has been addressed.
 	return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
 }
 

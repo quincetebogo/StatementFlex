@@ -39,13 +39,13 @@ export class TaxCertificateFailure extends ViewBase {
 	// PROPERTIES
 	// --------------
 
-		/**
-	 * Registry of all properties defined by the component.
-	 * 
-	 * @readonly
-	 * @static
-	 * @memberof TaxCertificateFailure
-	 */
+	/**
+ * Registry of all properties defined by the component.
+ * 
+ * @readonly
+ * @static
+ * @memberof TaxCertificateFailure
+ */
 	static get properties() {
 		return {
 			// Private Properties
@@ -82,7 +82,9 @@ export class TaxCertificateFailure extends ViewBase {
 			this.secondaryToast = ``;
 		}
 
+		/* Renoved from incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.FAILED;
+		*/
 	}
 
 	disconnectedCallback() {
@@ -105,14 +107,16 @@ export class TaxCertificateFailure extends ViewBase {
 
 		this.horizonRouter.navigateToReturnPage();
 	}
-	
+
 	_assignClick() {
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_ASSIGN, {
-		"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
-		"next-screen": null
+			"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
+			"next-screen": null
 		});
 
+		/* Removed from incident management refactor
 		this.horizonIncidentManager.incidentState = super.HORIZON_NEED_STATUS.ASSIGNED;
+		*/
 
 		this.horizonRouter.navigateToStrack(this.horizonIncidentManager.currentIncident);
 	}
@@ -133,7 +137,7 @@ export class TaxCertificateFailure extends ViewBase {
 		if (this.type !== `iT3BTaxCertificates` && this.type !== `both`) {
 			return ``;
 		}
-		
+
 		const taxYear = this.iT3BTaxCertificates.taxYears;
 
 		if (taxYear.length === 1) {
@@ -251,7 +255,7 @@ export class TaxCertificateFailure extends ViewBase {
 
 		return html``;
 	}
-	
+
 	_renderTaxSavingsLine() {
 		return html`
 			<section
