@@ -760,7 +760,7 @@ export class AccessChannels extends Component {
 	}
 
 	renderVerificationAlertBanner() {
-		return this.callerInformation?.hasDigitalChannels
+		return this.callerInformation?.hasDigitalChannels && !this.callerInformation?.isSalesforceVerified
 			? html`
 				<horizon-alert-banner
 					class="has-digital-channels"

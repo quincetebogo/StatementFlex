@@ -52,6 +52,7 @@
 	 * @param {string} [branchCode=""] Branc code, again this is only for branch flow
 	 * @param {string} [maskedCif=""] Masked client's cif
 	 * @param {string} [entityIdentifier=""] Entity Resolver ID. Unique for Client.
+	 * @param {boolean} [isSalesforceVerified = false] Set to true if client is verified via salesforce
 	 */
 	constructor(
 		cifNumber,
@@ -92,7 +93,8 @@
 		branchCallerID = ``,
 		branchCode = ``,
 		maskedCif = ``,
-		entityIdentifier = ``
+		entityIdentifier = ``,
+		isSalesforceVerified = false
 	) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
@@ -133,6 +135,7 @@
 		this.branchCode = branchCode;
 		this.maskedCif = maskedCif;
 		this.entityIdentifier = entityIdentifier;
-		Object.seal();
+		this.isSalesforceVerified = isSalesforceVerified;
+		Object.seal(this);
 	}
 }

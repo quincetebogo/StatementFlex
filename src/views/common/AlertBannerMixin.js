@@ -83,7 +83,7 @@ export const alertBannerMixin = {
 	},
 
 	_renderHighRiskTransAlertBanner() {
-		return this.callerInformation.verificationMethod === `SQ`
+		return this.callerInformation.verificationMethod === `SQ` && !this.callerInformation.isSalesforceVerified
 			? html`
 				<horizon-alert-banner
 					class="verificatoin-status"
