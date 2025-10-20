@@ -544,4 +544,29 @@ export class CapitecConnectService extends ChannelServiceBase {
 			DEFAULT_AUTO_RETRIES
 		);
 	}
+
+	/**
+	 * Get recharge status from order management service for a specific business transaction reference
+	 * This endpoint returns product-level data for one or more line items
+	 *
+	 * @param {string} businessTransactionReference
+	 * @returns {Promise}
+	 */
+	async getRechargeStatus(businessTransactionReference) {
+		if (!businessTransactionReference) {
+			return null;
+		}
+		const url = `/v1/api/horizon/order/offer-line-items/${businessTransactionReference}`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			`getRechargeStatus`,
+			false,
+			null,
+			null,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
 }
