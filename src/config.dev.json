@@ -12,7 +12,7 @@
 		"insureChannelServiceUrl": "https://insure-hics-service-dev.inspla.npr-plipla.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash-dev.bussup.npr-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap-dev.bussup.npr-plrbsc.asgard.capi",
-		"incidentManagementService": "https://cs-incident-dev.bussup.npr-plrbsc.asgard.capi",
+		"incidentManagementService": "http://cs-incident:8080",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway-dev.conect.npr-plrcon.asgard.capi/horizon-bff",
 		"telemetryServiceUrl": "https://horizon-telemetry-service-dev.bussup.npr-plrbsc.asgard.capi"
 	},
