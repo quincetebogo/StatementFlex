@@ -11,7 +11,7 @@
 		"savingsPlanChannelServiceUrl": "https://cs-save.bussup.prd-plrbsc.asgard.capi",
 		"sendCashServiceUrl": "https://cs-sendcash.bussup.prd-plrbsc.asgard.capi",
 		"payShapServiceUrl": "https://cs-payshap.bussup.prd-plrbsc.asgard.capi",
-		"incidentManagementService": "https://cs-incident.bussup.prd-plrbsc.asgard.capi",
+		"incidentManagementService": "http://cs-incident:8080",
 		"insureChannelServiceUrl": "https://insure-hics-service.inspla.prd-plipla.asgard.capi",
 		"capitecConnectServiceUrl": "https://digital-services-api-gateway.conect.prd-plrcon.asgard.capi/horizon-bff",
 		"telemetryServiceUrl": "https://horizon-telemetry-service.bussup.prd-plrbsc.asgard.capi"
