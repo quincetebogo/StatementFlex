@@ -482,7 +482,7 @@ export class HorizonIncidentManager {
 			return;
 		}
 
-		if (isNullorEmpty(needAction) || !this._isIncidentClassified(incidentCategorization)) {
+		if (this._isClassificationInformationNotProvided(needAction, incidentCategorization)) {
 			console.log(`classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`);
 			this.logger.log(`warning`, `classifyIncident: Classification information not provided - ${this.currentIncident.interaction}/${this.currentIncident.incidentId}`, `classifyIncident`, null);
 			return;
@@ -957,6 +957,10 @@ export class HorizonIncidentManager {
 				: causeCodeByReasons[endCallReason];
 		}
 		return causeCode || causeCodeByReason || `NormalEnquiry`;
+	}
+
+	_isClassificationInformationNotProvided(needAction, incidentCategorization) {
+		return isNullorEmpty(needAction) && !this._isIncidentClassified(incidentCategorization);
 	}
 
 	_isIncidentClassified(incidentInfo) {
