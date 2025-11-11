@@ -30,7 +30,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.accountNumberErrorMsg = ``;
 		this.showAgreementDocumentDialog = false;
 		this.defaultSavingsAccountNumber = ``;
-	} s
+	}
 
 	// #endregion INITIALIZE
 
