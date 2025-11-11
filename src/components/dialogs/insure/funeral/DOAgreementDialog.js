@@ -96,6 +96,7 @@ export class DOAgreementDialog extends Component {
 			<li>Note partial payments are not allowed</li>
 			<li>We will give you 31 days' notice before we make changes to your Premium</li>
 			<li>Note any Premiums in arrears will be deducted from the cover amount payable</li>
+			<li>If you use Capitec as your collection account, all debit orders will be processed via DebiCheck. Alternatively, approve the DebiCheck mandate on your other bank account.</li>
 		</ul>
 		`;
 	}
