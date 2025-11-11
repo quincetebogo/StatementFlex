@@ -105,6 +105,7 @@ export class PCAAgreementDialog extends Component {
 			<li>Must be made in full every month</li>
 			<li>The amount may change if you make updates to your policy; or a live assured dies​</li>
 			<li>We will give you 31 days' notice before we make changes to terms, including changes to your premiums​</li>
+			<li>If you use Capitec as your collection account, all debit orders will be processed via DebiCheck. Alternatively, approve the DebiCheck mandate on your other bank account.​</li>
 		</ul>
 		`;
 	}
