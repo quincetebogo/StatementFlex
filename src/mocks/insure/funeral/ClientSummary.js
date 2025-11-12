@@ -145,7 +145,7 @@ export const ClientSummary = {
 				policyRule: "Standard",
 				policyMinumumPremium: 0,
 				canReinstate: false,
-				isOptedOutForEarlyCollection: false,
+				isOptedOutForEarlyCollection: true,
 			},
 			{
 				roleplayers: [

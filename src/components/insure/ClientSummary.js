@@ -558,8 +558,7 @@ class ClientSummary extends Component {
 	 * @param {Object} policyItem policyItem
 	 * @returns {void}
 	 */
-	_openEarlyCollectionOPTInDialog(policyItem) {
-		this.selectedPolicyItem = policyItem;
+	_openEarlyCollectionOPTInDialog() {
 		this.showEarlyCollectionDialog = true;
 	}
 
@@ -1021,6 +1020,26 @@ class ClientSummary extends Component {
 
 	}
 
+	_checkEarlyCollectStatus() {
+		let isOptedOut = false;
+		let policies = this.funeralPolicies?.summaryDetails?.policies
+		console.log(policies)
+		for (let i = 0; i < policies?.length; i++) {
+			if (policies[i]?.isOptedOutForEarlyCollection) {
+				console.log(isOptedOut)
+				isOptedOut = true
+				console.log(isOptedOut)
+			}
+		}
+
+		if (isOptedOut) {
+			console.log("in if")
+			return true
+		}
+		console.log("isOptedOut", isOptedOut)
+		return false
+	}
+
 	_sendFuneralBenefitEmail(emailAddress) {
 		this.dispatchEvent(new CustomEvent(`send-benefit-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_VPP, contractRef: this.selectedPolicyItem.contractReference, productCode: this.selectedPolicyItem.productCode, policy: this.selectedPolicyItem } }));
 		this.showBenefitEmailDialog = false;
@@ -1406,13 +1425,6 @@ class ClientSummary extends Component {
 					.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing)}"
 					label="SMS History" @click="${() => this._goToFuneralSMSHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
-			case POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN:
-				return html`<capitec-overflow-menu-item
-					@click="${() => this._openEarlyCollectionOPTInDialog(policyItem)}"
-					icon="system/send-action" 
-					label="Early December collection"
-					.disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.Emailing)}">
-				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_ID_DOB:
 				return html`<capitec-overflow-menu-item
 					@click="${() => this._openUpdateIdDobDialog(policyItem)}"
@@ -1613,6 +1625,24 @@ class ClientSummary extends Component {
 		}
 
 		return benefitsActive;
+	}
+
+	_determineEarlyCollectVisibility() {
+		let showEarlyCollect = false
+
+		for (let i = 0; i < this.clientPolicies?.summaryDetails?.policies?.length; i++) {
+			if (this.clientPolicies?.summaryDetails?.policies[i].Status === "Active") {
+				showEarlyCollect = true
+			}
+		}
+
+		for (let i = 0; i < this.lifePolicies?.policies?.length; i++) {
+			if (this.lifePolicies?.policies[i].policyStatus === "Active") {
+				showEarlyCollect = true
+			}
+		}
+		return showEarlyCollect
+
 	}
 
 	// #endregion PRIVATE FUNCTIONS
@@ -2098,6 +2128,11 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
+					${this._determineEarlyCollectVisibility() ? html`` : html`
+						<capitec-button type="white"  style="width: 195px;" label="Early Collect ${this._checkEarlyCollectStatus() ? "Opt in" : "Opt out"}" data-automation-id="insure-landing-lodge-claim"
+							@click="${() => this._openEarlyCollectionOPTInDialog()}">
+						</capitec-button>
+					`}
 					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.isInsureAgent === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openClaimInfoDialog()}">
@@ -3151,7 +3186,7 @@ class ClientSummary extends Component {
 		return this.showEarlyCollectionDialog === false ? html``
 			: html`
 			<horizon-insure-early-collection-options-dialog
-				.policy="${this.selectedPolicyItem}"
+				.policies="${this.funeralPolicies.summaryDetails.policies}"
 				.updateEarlyCollectionPreferences="${this.updateEarlyCollectionPreferences}"
 				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
 			</horizon-insure-early-collection-options-dialog>

@@ -20,7 +20,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	constructor() {
 		super();
 
-		this.policy = {};
+		this.policies = {};
 		this.isOptedIn = true;
 	}
 
@@ -50,10 +50,22 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	connectedCallback() {
 		super.connectedCallback();
-		this.isOptedIn = !this.policy.isOptedOutForEarlyCollection;
+		this.isOptedIn = this._checkStatus()
+		// this.isOptedIn = !this.policy.isOptedOutForEarlyCollection;
 	}
 
 	// #region EVENT HANDLERS
+
+	_checkStatus() {
+		console.log(this.policies)
+		let isOptedOut = false
+		for (let i = 0; i < this.policies.length; i++) {
+			if (this.policies[i].isOptedOutForEarlyCollection) {
+				isOptedOut = true
+			}
+		}
+		return isOptedOut
+	}
 
 	/**
 	 * Accept terms and close dialog 
@@ -61,7 +73,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	async _updatePreferences() {
 		const updatePrefsRequest = {
-			contractReference: this.policy.contractReference,
+			// contractReference: this.policy.contractReference,
 			option: `EarlyCollection`,
 			participating: !this.isOptedIn
 		};
