@@ -21,6 +21,7 @@ export class IncidentDetails {
 	 * @param {string} [description = ``] Incident's description to update on strack
 	 * @param {boolean} [primaryIncidentFinished = false] Flag to indicate if future incidents should be sub-incidents
 	 * @memberof IncidentDetails
+
 	 */
 
 	constructor(
@@ -33,7 +34,7 @@ export class IncidentDetails {
 		isReassigned = false,
 		primaryIncidentCreated = true,
 		description = ``,
-		primaryIncidentFinished = false
+		primaryIncidentFinished = false,
 	) {
 		this.currentIncident = currentIncident;
 		this.currentNeed = currentNeed;

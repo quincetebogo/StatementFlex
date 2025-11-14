@@ -1,5 +1,5 @@
-import { AUTH_IDENTIFICATION_METHODS, INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { css, html } from 'platform/elements';
+import { AUTH_IDENTIFICATION_METHODS } from 'app/constants/Common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { ClientProfileService } from 'app/services/ClientProfileService';
@@ -149,7 +149,6 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-
 		this._saveIncomingCallDetails(newCallInfo);
 
 		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
@@ -175,6 +174,14 @@ export class LandingPage extends ViewBase {
 
 	}
 
+	_clientAuthenticatedAlready(newCallInfo) {
+		return newCallInfo.authenticationMethod > 0 && newCallInfo.clientId;
+	}
+
+	_incomingNumberProvided(incomingNumber) {
+		return incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``;
+	}
+
 	async _acceptCall(newCallInfo, primaryIncident) {
 		const incomingNumber = newCallInfo.incomingTelephoneNumber;
 		let callerDetails = null;
@@ -188,7 +195,7 @@ export class LandingPage extends ViewBase {
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
 		// telephone number. For a manually created call, we don't know the incoming telephone number.
-		if (newCallInfo.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL && newCallInfo.clientId) {
+		if (this._clientAuthenticatedAlready(newCallInfo)) {
 			const searchCallerRequest = {
 				identificationMethod: `5`, // Current search caller implementation expects the integer value of the search method
 				searchValue: newCallInfo.clientId
@@ -201,7 +208,7 @@ export class LandingPage extends ViewBase {
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
 			}
-		} else if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
+		} else if (this._incomingNumberProvided(incomingNumber)) {
 			// Check the incoming call to see if it is a verified or unverified number
 			const returnValue = await this.clientProfileService.acceptCall(newCallInfo, null, 1);
 			callerDetails = returnValue.result;
@@ -240,8 +247,8 @@ export class LandingPage extends ViewBase {
 			this.confirmedCaller = acceptedCall.callerInformation;
 
 			// Check that the incoming call is not yet authenticated
-			if (newCallInfo.isAuthenticated !== INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
-				// Case: We got response for the incoming phone number / CIF number, meaning its verified phone number or valid CIF
+			if (!this._clientAuthenticatedAlready(newCallInfo)) {
+				// Case: We got response for the incoming phone number
 				this.confirmedCaller.identifiedBy = AUTH_IDENTIFICATION_METHODS.CELLPHONE_NUMBER;
 			}
 
@@ -312,7 +319,8 @@ export class LandingPage extends ViewBase {
 			``, // branch caller id
 			``, // branch code
 			``, // Masked cif
-			`` // Entity Resolver ID
+			``, // Entity Resolver ID
+			false // is Salesforce Verified
 		);
 
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
@@ -400,9 +408,26 @@ export class LandingPage extends ViewBase {
 			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
-			newCallInfo.isAuthenticated,
-			newCallInfo.ivrOptionCode
+			newCallInfo.authenticationMethod,
+			newCallInfo.ivrOptionCode,
+			{
+			'possibleValues': [
+				{
+					key: `StopCard`, value: `Stop Card`
+				},
+				{
+					key: `Transact`, value: `Transact`
+				},
+				{
+					key: `ProductEnquiry`, value: `Product Enquiry`
+				}
+			],
+			'value': newCallInfo.ivrOptionCode
+			},
+			newCallInfo.externalId,
+			newCallInfo.externalSystem
 		);
+		
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 	}
 
