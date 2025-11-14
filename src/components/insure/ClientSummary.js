@@ -141,6 +141,7 @@ class ClientSummary extends Component {
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
+		this.hasActiveLifePolicy = false;
 
 	}
 
@@ -320,6 +321,8 @@ class ClientSummary extends Component {
 
 			showFeatureBanner: { type: Boolean, state: true },
 			featureBannerMessage: { type: String, state: true },
+
+			hasActiveLifePolicy: { type: Boolean, state: true }
 		};
 	}
 
@@ -559,6 +562,12 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_openEarlyCollectionOPTInDialog() {
+		let lifePolicy = determineActiveLifePolicies(this.lifePolicies?.policies);
+
+		if (lifePolicy) {
+			this.hasActiveLifePolicy = true;
+		}
+
 		this.showEarlyCollectionDialog = true;
 	}
 
@@ -1023,20 +1032,15 @@ class ClientSummary extends Component {
 	_checkEarlyCollectStatus() {
 		let isOptedOut = false;
 		let policies = this.funeralPolicies?.summaryDetails?.policies
-		console.log(policies)
 		for (let i = 0; i < policies?.length; i++) {
 			if (policies[i]?.isOptedOutForEarlyCollection) {
-				console.log(isOptedOut)
 				isOptedOut = true
-				console.log(isOptedOut)
 			}
 		}
 
 		if (isOptedOut) {
-			console.log("in if")
 			return true
 		}
-		console.log("isOptedOut", isOptedOut)
 		return false
 	}
 
@@ -2129,7 +2133,7 @@ class ClientSummary extends Component {
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					${this._determineEarlyCollectVisibility() ? html`` : html`
-						<capitec-button type="white"  style="width: 195px;" label="Early Collect ${this._checkEarlyCollectStatus() ? "Opt in" : "Opt out"}" data-automation-id="insure-landing-lodge-claim"
+						<capitec-button type="white" label="Early Collect ${this._checkEarlyCollectStatus() ? "Opt in" : "Opt out"}" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openEarlyCollectionOPTInDialog()}">
 						</capitec-button>
 					`}
@@ -3188,6 +3192,7 @@ class ClientSummary extends Component {
 			<horizon-insure-early-collection-options-dialog
 				.policies="${this.funeralPolicies.summaryDetails.policies}"
 				.updateEarlyCollectionPreferences="${this.updateEarlyCollectionPreferences}"
+				.hasActiveLifePolicy = "${this.hasActiveLifePolicy}"
 				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
 			</horizon-insure-early-collection-options-dialog>
 		`;

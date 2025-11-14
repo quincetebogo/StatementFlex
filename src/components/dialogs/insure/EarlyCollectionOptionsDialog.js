@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_PRODUCT_CODE } from 'app/constants/InsureCommon';
+import { FUNERAL_ACTIVE_STATUSES } from 'app/constants/InsureCommon';
 
 /**
  * Dialog for setting early collection preferences
@@ -22,6 +22,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 
 		this.policies = {};
 		this.isOptedIn = true;
+		this.hasActiveLifePolicy = false;
 	}
 
 	// #endregion INITIALIZE
@@ -38,7 +39,8 @@ export class EarlyCollectionOptionsDialog extends Component {
 			policy: { type: Object, state: true },
 			isOptedIn: { type: String, state: true },
 			earlyCollectionLabel: { type: String, state: true },
-			updateEarlyCollectionPreferences: { type: Object, state: true }
+			updateEarlyCollectionPreferences: { type: Object, state: true },
+			hasActiveLifePolicy: { type: Boolean, state: true }
 		};
 	}
 
@@ -57,7 +59,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 	// #region EVENT HANDLERS
 
 	_checkStatus() {
-		console.log(this.policies)
 		let isOptedOut = false
 		for (let i = 0; i < this.policies.length; i++) {
 			if (this.policies[i].isOptedOutForEarlyCollection) {
@@ -73,7 +74,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	async _updatePreferences() {
 		const updatePrefsRequest = {
-			// contractReference: this.policy.contractReference,
+			contractReference: `No-Policy`,
 			option: `EarlyCollection`,
 			participating: !this.isOptedIn
 		};
@@ -97,6 +98,20 @@ export class EarlyCollectionOptionsDialog extends Component {
 	*/
 	_preferenceChange(e, optIn) {
 		this.isOptedIn = optIn;
+	}
+
+	_checkProducts() {
+		let activeFuneralPolicy = this.policies?.find((policy) => policy.status === FUNERAL_ACTIVE_STATUSES.ACTIVE || policy.status === FUNERAL_ACTIVE_STATUSES.PENDING_IN_FORCE);
+
+		if (activeFuneralPolicy && this.hasActiveLifePolicy) {
+			return "Funeral & Life Cover"
+		} else {
+			if (activeFuneralPolicy) {
+				return "Funeral"
+			} else {
+				return "Life Cover"
+			}
+		}
 	}
 
 	// #endregion EVENT HANDLERS
@@ -143,7 +158,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					<p>
-					Due to early pay dates, we'll collect your December funeral plan (${this.policy?.contractReference}) premium early. IF you opt out,  your premium will be collected on your nominated debit order date.
+					Due to the festive season and early closures in December, we'll deduct your insurance premiums for ${this._checkProducts()} in line with your pay date or from 12 December to ensure your cover stays active throughout the holiday season.
 					</p>
 					
 					<capitec-radio-group>
