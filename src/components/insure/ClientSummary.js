@@ -1029,20 +1029,6 @@ class ClientSummary extends Component {
 
 	}
 
-	_checkEarlyCollectStatus() {
-		let isOptedOut = false;
-		let policies = this.funeralPolicies?.summaryDetails?.policies
-		for (let i = 0; i < policies?.length; i++) {
-			if (policies[i]?.isOptedOutForEarlyCollection) {
-				isOptedOut = true
-			}
-		}
-
-		if (isOptedOut) {
-			return true
-		}
-		return false
-	}
 
 	_sendFuneralBenefitEmail(emailAddress) {
 		this.dispatchEvent(new CustomEvent(`send-benefit-email`, { detail: { emailId: emailAddress, callerPage: INSURE_CALLER_PAGE.FUNERAL_VPP, contractRef: this.selectedPolicyItem.contractReference, productCode: this.selectedPolicyItem.productCode, policy: this.selectedPolicyItem } }));
@@ -2133,7 +2119,7 @@ class ClientSummary extends Component {
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					${this._determineEarlyCollectVisibility() ? html`` : html`
-						<capitec-button type="white" label="Early Collect ${this._checkEarlyCollectStatus() ? "Opt in" : "Opt out"}" data-automation-id="insure-landing-lodge-claim"
+						<capitec-button type="white" label="Early Collect Opt out" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openEarlyCollectionOPTInDialog()}">
 						</capitec-button>
 					`}
