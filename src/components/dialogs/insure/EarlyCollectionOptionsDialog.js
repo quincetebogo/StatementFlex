@@ -53,7 +53,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.isOptedIn = this._checkStatus()
-		// this.isOptedIn = !this.policy.isOptedOutForEarlyCollection;
 	}
 
 	// #region EVENT HANDLERS
