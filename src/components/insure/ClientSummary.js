@@ -558,7 +558,6 @@ class ClientSummary extends Component {
 
 	/**
 	 * Open dialog for early collection options
-	 * @param {Object} policyItem policyItem
 	 * @returns {void}
 	 */
 	_openEarlyCollectionOPTInDialog() {
