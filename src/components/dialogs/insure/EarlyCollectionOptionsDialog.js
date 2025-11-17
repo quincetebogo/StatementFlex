@@ -36,7 +36,7 @@ export class EarlyCollectionOptionsDialog extends Component {
 	 */
 	static get properties() {
 		return {
-			policy: { type: Object, state: true },
+			policies: { type: Object, state: true },
 			earlyCollectionLabel: { type: String, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
 			hasActiveLifePolicy: { type: Boolean, state: true }
