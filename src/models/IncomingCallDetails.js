@@ -4,7 +4,7 @@
  * @module models/IncomingCallDetails
  */
 
-import { INCOMING_CALL_AUTHENTICATION_FLAG } from "app/constants/Common";
+import { CALL_AUTHENTICATION_METHOD } from "app/constants/Common";
 
 /**
  * The IncomingCallDetails class records the information on the incoming call. This object is preserved
@@ -21,9 +21,11 @@ export class IncomingCallDetails {
 	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
-	 * @param {string} [isAuthenticated=``] Flag indicating whether the incoming call is authenticated already
+	 * @param {integer} [authenticationMethod=0] A value indicating the type of authentication done on the incoming call
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
+	 * @param {string} [externalId = ''] An identifier to link this call to an external system
+	 * @param {string} [externalSystem = ''] The extenal system to which this call should be linked
 	 */
 	constructor(
 		VDN = ``,
@@ -41,7 +43,7 @@ export class IncomingCallDetails {
 		 */
 		agentTelephoneNumber = ``,
 
-		isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED,
+		authenticationMethod = CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED,
 		ivrOptionCode = ``,
 		ivrOption = {
 			'possibleValues': [
@@ -56,7 +58,9 @@ export class IncomingCallDetails {
 				}
 			],
 			'value': ivrOptionCode
-		}
+		},
+		externalId = ``,
+		externalSystem = ``
 	) {
 		this.VDN = VDN;
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
@@ -64,6 +68,7 @@ export class IncomingCallDetails {
 		this.isHandedOff = isHandedOff;
 		this.voiceReferenceNumber = voiceReferenceNumber;
 		this.agentTelephoneNumber = agentTelephoneNumber;
+		this.authenticationMethod = authenticationMethod;
 
 		// The IVR Option selected in the telephony system
 		this.ivrOptionCode = ivrOptionCode;
@@ -71,7 +76,9 @@ export class IncomingCallDetails {
 		// An array of possible needs (IVR Options are mapped onto one of the needs in this array)
 		this.ivrOption = ivrOption;
 
-		this.isAuthenticated = isAuthenticated;
+
+		this.externalId = externalId;
+		this.externalSystem = externalSystem;
 
 		Object.seal();
 	}

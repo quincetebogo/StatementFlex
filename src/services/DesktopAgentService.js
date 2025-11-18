@@ -1,9 +1,9 @@
+import { CALL_AUTHENTICATION_METHOD, DESKTOP_AGENT_AUTH_METHOD } from 'app/constants/Common';
 import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { INCOMING_CALL_AUTHENTICATION_FLAG } from 'app/constants/Common';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
@@ -56,7 +56,6 @@ export class DesktopAgentService {
 			return this.instance;
 		}
 
-
 		this._configuration = Configuration.getInstance();
 		this._eventAggregator = EventAggregator.getInstance();
 		this._logger = Logger.getInstance();
@@ -96,6 +95,7 @@ export class DesktopAgentService {
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
+		
 		const eventData = JSON.parse(event.data);
 
 		// Do nothing with hearbeats. They are just to keep the connection alive
@@ -134,6 +134,8 @@ export class DesktopAgentService {
 			// Copy the information we require out of the incoming event into a new object.
 			// We validate the information received and discard anything unexpected that may 
 			// have been injected into the event.
+			eventData.IncomingTelephoneNumber = eventData.IncomingTelephoneNumber ?? `0000000000`;
+			eventData.VoiceReferenceNumber = eventData.VoiceReferenceNumber ?? ``;
 
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber.trim(), DesktopAgentService.incomingTelephoneNumberValidation);
 
@@ -145,11 +147,9 @@ export class DesktopAgentService {
 			}
 
 			newCallEvent.incomingTelephoneNumber = this._cleanupTelephoneNumber(newCallEvent.incomingTelephoneNumber);
-
 			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
-
 			newCallEvent.ivrOptionCode = await this._mapIvrOption(eventData.IVROptionCode);
 			newCallEvent.date = eventData.Date;
 
@@ -168,9 +168,12 @@ export class DesktopAgentService {
 				this._logger.log(`warn`, `No Voice Reference Number received! This call may have been handled by doing a manual search.`, `_onNewCall`);
 			}
 
-			newCallEvent.isAuthenticated = this._mapAuthenticatedFlag(eventData.Authenticated);
+			newCallEvent.authenticationMethod = this._verifyAuthenticationMethod(eventData.Authenticated);
+			newCallEvent.authenticationMethod = this._mapToHorizonAuthenticationMethod(newCallEvent.authenticationMethod);
 			newCallEvent.clientId = validate(eventData.ClientId, DesktopAgentService.clientId);
-
+			newCallEvent.idType = eventData.IdType;
+			newCallEvent.externalId = eventData.ExternalId;
+			newCallEvent.externalSystem = eventData.ExternalSystem;
 			this.nextCall = newCallEvent;
 
 			// Telemetry
@@ -298,6 +301,31 @@ export class DesktopAgentService {
 
 	async manualCreateCall() {
 		if (!this.onCall) {
+
+/*
+            //  Debug code for mocking event using the search button. Left here for future debugging efforts
+            // AgentExtension="000000"&VDN="7250"&Authenticated="3"&ClientID="296827134"&IdType="CIF"&ExternalID="0u39O0000001S3tQAE"&ExternalIdType="EngagementInteraction"&ExternalSystem="SALESFORCE"
+		    const event = {
+			   "lastEventId": `123456`,
+			   "data": JSON.stringify({
+                  "IncomingTelephoneNumber": null,
+                  "VoiceReferenceNumber": null,
+			      "AgentTelephoneNumber": `000000`,
+			      "VDN": `7250`,
+			      "IVROptionCode": `7250`,
+			      "Date": new Date().toISOString(),
+			      "Authenticated": `4`,
+			      "ClientId": `296827134`,
+			      "IdType": `CIF`,
+			      "ExternalId": `0u39O0000001S3tQAE`,
+			      "ExternalSystem": `SALESFORCE`
+			   })
+		    };
+			
+			await this._onNewCall(event);
+
+			return;
+*/
 			const d = new Date();
 			const currentdate = d.toISOString();
 			const newCallEvent = new NewCallEvent();
@@ -308,7 +336,7 @@ export class DesktopAgentService {
 			newCallEvent.VDN = await this._getVdn();
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
-			newCallEvent.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+			newCallEvent.authenticationMethod = CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED;
 
 			this._logger.log(`warn`, `Manual call handling invoked. This may be due to a missed incoming call event.`, `manualCreateCall`);
 
@@ -369,22 +397,40 @@ export class DesktopAgentService {
 		return selectedOption ? selectedOption.primaryNeed : `Transact`;
 	}
 
-	_mapAuthenticatedFlag(authenticatedFlag) {
-
+	_verifyAuthenticationMethod(authenticationMethod) {
 		const regex = new RegExp(DesktopAgentService.authenticated);
 
-		if (!regex.test(authenticatedFlag)) {
-			return INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+		if (!regex.test(authenticationMethod)) {
+			return CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED;
 		}
 
-		switch (authenticatedFlag) {
-			case `1`:
-				return INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL;
-			case `0`:
-			default:
-				return INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
-		}
+		return parseInt(authenticationMethod, 10);
+	}
 
+	_mapToHorizonAuthenticationMethod(authMethod) {
+		switch (authMethod) {
+			case DESKTOP_AGENT_AUTH_METHOD.UNAUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED;
+
+			case DESKTOP_AGENT_AUTH_METHOD.HRZ_APP_AUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.HRZ_APP_AUTHENTICATED;
+
+			case DESKTOP_AGENT_AUTH_METHOD.SF_SQ_AUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.SF_SQ_AUTHENTICATED;
+
+			case DESKTOP_AGENT_AUTH_METHOD.SF_ITA_AUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.SF_ITA_AUTHENTICATED;
+
+			case DESKTOP_AGENT_AUTH_METHOD.SF_APP_AUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.SF_APP_AUTHENTICATED;
+
+			case DESKTOP_AGENT_AUTH_METHOD.SF_BRANCH_AUTHENTICATED: 
+			   return CALL_AUTHENTICATION_METHOD.SF_BRANCH_AUTHENTICATED;
+
+			default: 
+			   return CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED;
+			
+		}
 	}
 
 	_setValidationData() {
@@ -395,7 +441,7 @@ export class DesktopAgentService {
 		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = `^[0-9]*`;
-		DesktopAgentService.authenticated = `^(0|1)$`;
+		DesktopAgentService.authenticated = `^(0|1|2|3|4|5)$`;
 		DesktopAgentService.clientId = `^[0-9]{9}$`;
 	}
 
@@ -409,7 +455,7 @@ export class DesktopAgentService {
 			return;
 		}
 
-		// Insure the agent has the correct authorisation 
+		// Ensure the agent has the correct authorisation 
 		if (!RoleManager.getInstance().isAuthorised) {
 			return;
 		}
@@ -418,8 +464,6 @@ export class DesktopAgentService {
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
 		if (this._waitingForCallPageActive()) {
-			// If Landing Page => publish event
-
 			this.onCall = true;
 
 			this._eventAggregator.publish(`new-call`, this.nextCall);

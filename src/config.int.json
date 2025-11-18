@@ -19,7 +19,7 @@
 	"signalRUrl": "https://cs-client-auth-int.bussup.npr-plrbsc.asgard.capi",
 	"KbaChannelServiceUrl": "https://cs-client-auth-int.bussup.npr-plrbsc.asgard.capi",
 	"DesktopAgent": {
-		"registrationUrl": ""
+		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "https://standardbancslinkv3int.int.capinet:8080/",

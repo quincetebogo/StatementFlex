@@ -300,7 +300,8 @@ export class HorizonIncidentManager {
 			nonClientIDNumber: ``,
 			nonClientCellPhone: callerInfo.nonClientCellPhone,
 			nonClientWorkPhone: ``,
-			nonClientEmail: ``
+			nonClientEmail: ``,
+			SalesforceReference: null
 		};
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
@@ -801,7 +802,8 @@ export class HorizonIncidentManager {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
 			VDN: incomingCallDetails.VDN,
 			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			primaryNeedIncident: this.primaryIncident
+			primaryNeedIncident: this.primaryIncident,
+			SalesforceReference: null
 		};
 
 		const returnValue = await this.incidentService.createIncident(createIncidentRequest, () => true);
@@ -1009,11 +1011,9 @@ export class HorizonIncidentManager {
 			false,
 			incidentDetails.primaryincidentCreated,
 			``, // resetting description once incident is closed
-			incidentDetails.primaryIncidentFinished
+			incidentDetails.primaryIncidentFinished,
 		);
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	}
-
-
 }
