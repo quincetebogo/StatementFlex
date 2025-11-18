@@ -89,7 +89,8 @@ export class IncidentManagementService extends ChannelServiceBase {
 				"workPhone": incidentData.nonClientWorkPhone || ``,
 				"email": incidentData.nonClientEmail || ``
 			},
-			"primaryNeedIncident": incidentData.primaryNeedIncident
+			"primaryNeedIncident": incidentData.primaryNeedIncident,
+			"salesforceReference": incidentData.externalId
 		};
 	}
 

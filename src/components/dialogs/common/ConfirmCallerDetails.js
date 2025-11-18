@@ -1,6 +1,6 @@
+import { AUTH_LEVEL, CALL_AUTHENTICATION_METHOD, LANGUAGE_LIST } from 'app/constants/Common';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
-import { INCOMING_CALL_AUTHENTICATION_FLAG, LANGUAGE_LIST } from 'app/constants/Common';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
@@ -13,7 +13,6 @@ import { ITAChannelService } from 'app/services/ITAChannelService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { RoleManager } from 'app/shell/RoleManager';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
-import { formatStringAsPascalCase } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -202,6 +201,8 @@ export class ConfirmCallerDetails extends Component {
 			"confirmed-client-cif": this.callerInformation.cifNumber
 		});
 
+		this._setSaleforceVerificationFlag();
+
 		// If insure role then navigate to Insure landing page.
 		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
 			this._navigateToInsureBackOfficePage();
@@ -210,52 +211,85 @@ export class ConfirmCallerDetails extends Component {
 
 		await this._updateClientNonClientDetails();
 
-		/* Navigate to Favourites landing by skipping verification flow 
-		 * Scenario 1: When branch consultant is calling in and client is not present at branch
-		 * Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
-		 */
-
-		if (this.callerInformation.isBranchConsultant && (this.roleManager.isHelpDeskAgent || !this.confirmedCaller.isClientPresent)) {
-			this._navigateToLandingPage();
+		if (this._agentVerificationBypass()) {
+			await this._navigateToLandingPage();
 			return;
 		}
 
-		const isAuthenticated = this._isInComingCallAuthenticated();
+		if (this._shouldAuthForTransact()) {
+			await this._setAvailabilityFlags();
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+			return;
+		}
 
-		// Navigation based on need selected
-		const stopCard = () => this._navigateToLandingPage();
-		const productEnquiry = () => this._navigateToLandingPage();
-		const transact = () => this._verifyCaller(isAuthenticated);
+		// For all other scenarious we go straight to landing page without authenticating
+		await this._navigateToLandingPage();
+	}
 
-		const clientNeed = {
-			StopCard: stopCard,
-			ProductEnquiry: productEnquiry,
-			Transact: transact
-		};
+	_setSaleforceVerificationFlag() {
+		switch (this.incomingCallDetails.authenticationMethod) {
+			case CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.HRZ_APP_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.HRZ_SQ_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.HRZ_ITA_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.HRZ_BRANCH_AUTHENTICATED:
+				this.callerInformation.isSalesforceVerified = false;
+				break;
+			case CALL_AUTHENTICATION_METHOD.SF_SQ_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.SF_ITA_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.SF_APP_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.SF_BRANCH_AUTHENTICATED:
+				this.callerInformation.isSalesforceVerified = true;
+				break;
+			default:
+				this.callerInformation.isSalesforceVerified = false;
+				break;
+		}
+	}
 
-		clientNeed[this.incomingCallDetails.ivrOptionCode]();
+	_shouldAuthForTransact() {
+		return this.incomingCallDetails.ivrOptionCode === `Transact` && !this._isInComingCallAuthenticated();
+	}
 
+	_agentVerificationBypass() {
+
+		/**
+			Navigate to Favourites landing by skipping verification flow 
+
+		    Scenario 1: When branch consultant is calling in and client is not present at branch
+		    Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
+		 */
+
+		/*
+			bc	ha	cp	verified
+			0	0	0	0
+			0	0	1 	0
+			0	1	0	0
+			0	1	1	0 
+			1	0	0	1 - Branch consultant is allowed in if the client is not present
+			1	0	1	0 - Branch consultant not allowed in if client is present
+			1	1	0	1 - help  desk agents are allowed in
+			1	1	1	1 - Help desk agents are allowed in
+		*/
+
+		return this.callerInformation.isBranchConsultant && (this.roleManager.isHelpDeskAgent || !this.confirmedCaller.isClientPresent);
 	}
 
 	_isInComingCallAuthenticated() {
-		if (this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL) {
+		const authMethod = this.incomingCallDetails.authenticationMethod;
+
+		if (authMethod === CALL_AUTHENTICATION_METHOD.HRZ_APP_AUTHENTICATED || authMethod >= AUTH_LEVEL.HIGH) {
 			this.callerInformation.verificationStatus = `verified`;
 			this.callerInformation.verificationMethod = `ITA`;
-
-			return true;
+		} else if (authMethod >= AUTH_LEVEL.MEDIUM) {
+			this.callerInformation.verificationStatus = `verified`;
+			this.callerInformation.verificationMethod = `SQ`;
+		} else {
+			this.callerInformation.verificationStatus = `unverified`;
+			this.callerInformation.verificationMethod = `unverified`;
 		}
 
-		return false;
-	}
-
-	async _verifyCaller(isInComingCallAuthenticated) {
-		if (isInComingCallAuthenticated) {
-			this._navigateToLandingPage();
-		}
-
-		if (await this._setAvailabilityFlags()) {
-			this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		}
+		return authMethod !== AUTH_LEVEL.NONE;
 	}
 
 	_identifiedClient(event) {
@@ -327,7 +361,7 @@ export class ConfirmCallerDetails extends Component {
 			"next-screen": TelemetryScreen.SEARCH_CLIENT
 		});
 
-		this.incomingCallDetails.isAuthenticated = INCOMING_CALL_AUTHENTICATION_FLAG.UNAUTHENTICATED;
+		this.incomingCallDetails.authenticationMethod = CALL_AUTHENTICATION_METHOD.UNAUTHENTICATED;
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
@@ -446,7 +480,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.branchCallerID,
 			this.confirmedCaller.branchCode,
 			this.confirmedCaller.maskedCifNumber,
-			this.confirmedCaller.entityIdentifier
+			this.confirmedCaller.entityIdentifier,
+			this.confirmedCaller.isSalesforceVerified
 		);
 	}
 
@@ -760,14 +795,42 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderIncomingCallIsAuthenticatedBanner() {
-		return this.incomingCallDetails.isAuthenticated === INCOMING_CALL_AUTHENTICATION_FLAG.IN_APP_CALL
-			? html`
-				<horizon-alert-banner 
-					type="success"
-					header="In-App Call:"
-					label="Client calling in via the App and has already authenticated">
-				</horizon-alert-banner>`
-			: html``;
+		switch (this.incomingCallDetails.authenticationMethod) {
+			case CALL_AUTHENTICATION_METHOD.HRZ_APP_AUTHENTICATED:
+				return html`
+					<horizon-alert-banner 
+						type="success"
+						label="Client calling in via the App and has already authenticated">
+					</horizon-alert-banner>`;
+			case CALL_AUTHENTICATION_METHOD.SF_APP_AUTHENTICATED:
+				return html`
+					<horizon-alert-banner 
+						type="success"
+						label="Client has already authenticated via the App in Salesforce">
+					</horizon-alert-banner>`;
+			case CALL_AUTHENTICATION_METHOD.SF_ITA_AUTHENTICATED:
+				return html`
+					<horizon-alert-banner 
+						type="success"
+						label="Client has already authenticated via ITA in Salesforce">
+					</horizon-alert-banner>`;
+			case CALL_AUTHENTICATION_METHOD.SF_SQ_AUTHENTICATED:
+				return html`
+					<horizon-alert-banner 
+						type="success"
+						label="Client has already authenticated via Security Questions in Salesforce">
+					</horizon-alert-banner>`;
+		
+			case CALL_AUTHENTICATION_METHOD.SF_BRANCH_AUTHENTICATED:
+			case CALL_AUTHENTICATION_METHOD.HRZ_BRANCH_AUTHENTICATED:
+				return html`
+					<horizon-alert-banner 
+						type="success"
+						label="Client has already authenticated via the Branch">
+					</horizon-alert-banner>`;
+			default:
+				return html``;
+		}
 	}
 
 	_renderError() {

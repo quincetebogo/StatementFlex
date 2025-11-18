@@ -224,7 +224,8 @@ export class AddCallerDetails extends Component {
 						this.callerInformation.branchCallerID,
 						this.callerInformation.branchCode,
 						this.callerInformation.maskedCifNumber, 
-						this.entityIdentifer = this.callerInformation.entityIdentifer
+						this.callerInformation.entityIdentifer,
+						this.callerInformation.isSalesforceVerified
 					)
 				}
 			}));
