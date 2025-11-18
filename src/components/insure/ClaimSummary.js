@@ -200,7 +200,7 @@ class ClaimSummary extends Component {
 						value="${this.claimSummary?.claimType}">
 					</horizon-label>
 					<horizon-label label="Claim status" 
-					class="${this.claimSummary?.claimStatus === `Active` ? `active-status` : `inactive-status`} row-item"
+					class="row-item"
 						value="${this.claimSummary?.claimStatus}">
 					</horizon-label>
 				</div>
@@ -226,7 +226,7 @@ class ClaimSummary extends Component {
 					</horizon-label>
 					${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? html`
 						<horizon-label label="Cause of death" class="row-item"
-							value="${this.claimSummary?.causeOfIncident}">
+							value="${this.claimSummary?.causeOfIncident?.displayValue}">
 						</horizon-label>
 					` : html``}
 				</div>
@@ -283,7 +283,7 @@ class ClaimSummary extends Component {
 									class="fixed-label"
 									label="ID Number"
 									textOverflow="ellipsis"
-									value="${this.claimSummary?.lifeAssured?.idNumber}">
+									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.idNumber) ? `-` : this.claimSummary?.lifeAssured?.idNumber}">
 								</horizon-label>
 							</capitec-group>
 						</horizon-expander>
