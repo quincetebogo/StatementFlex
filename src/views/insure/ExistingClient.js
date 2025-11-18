@@ -1827,9 +1827,9 @@ export class ExistingClient extends InsureViewBase {
 					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
-				if (formattedTrans.length === 0) {
-					console.warn(`No transactions found for this policy.`);
-				}
+			if (formattedTrans.length === 0) {
+				console.warn(`No transactions found for this policy.`);
+			}
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
@@ -1942,6 +1942,7 @@ export class ExistingClient extends InsureViewBase {
 	async _goToFuneralUpdatePlan(e) {
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.selectedFuneralPolicyContractReference = e.detail.policyContractReference;
+		await this._getSavingsAccountDetails()
 
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);

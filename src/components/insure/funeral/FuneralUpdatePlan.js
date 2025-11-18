@@ -810,9 +810,10 @@ class FuneralUpdatePlan extends Component {
 				this.disableBranchCode = false;
 			} else {
 				this.disableBranchCode = true;
+				this.branchCodeErrorMsg = ``;
 			}
 
-			if (this.policyDetails.deductionDetails.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
+			if (this.policyDetails.deductionDetails.bankDetails.branchCode === `470010`) {
 				if (this.defaultSavingsAccountNumber === ``) {
 					this.policyDetails.deductionDetails.bankDetails.accountNumber = ``;
 					this.accountNumErrorMsg = `Account number is a required field`;
@@ -1660,7 +1661,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_disableAccountNumber() {
-		const isDisabled = this.defaultSavingsAccountNumber !== `` && this.policyDetails?.deductionDetails?.bankDetails?.bank.toUpperCase() === `CAPITEC BANK`;
+		const isDisabled = this.defaultSavingsAccountNumber !== `` && this.policyDetails?.deductionDetails?.bankDetails?.branchCode === `470010`;
 		return isDisabled;
 	}
 

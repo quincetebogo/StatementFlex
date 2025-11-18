@@ -30,7 +30,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.accountNumberErrorMsg = ``;
 		this.showAgreementDocumentDialog = false;
 		this.defaultSavingsAccountNumber = ``;
-	}s
+	}
 
 	// #endregion INITIALIZE
 
@@ -140,7 +140,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 				this.branchCodeDisabled = true;
 			}
 
-			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
+			if (this.updatedPolicy.bankDetails.branchCode === `470010`) {
 				if (this.defaultSavingsAccountNumber === ``) {
 					this.updatedPolicy.bankDetails.accountNumber = ``;
 					this.accountNumberErrorMsg = `Account number is a required field`;
@@ -181,7 +181,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 			this.updatedPolicy.bankDetails.accountNumber = e.detail.new;
 			this.accountNumberErrorMsg = ``;
 		}
-	
+
 	}
 
 	/**
@@ -194,7 +194,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 			this.updatedPolicy.bankDetails.accountType = e.detail.new.code;
 			this.requestUpdate();
 		}
-	
+
 	}
 
 	/**
@@ -266,10 +266,12 @@ class LifeUpdateBankDetailsDialog extends Component {
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent(`agree`, { detail: {
-			policy: this.updatedPolicy,
-			email: this.email
-		} }));
+		this.dispatchEvent(new CustomEvent(`agree`, {
+			detail: {
+				policy: this.updatedPolicy,
+				email: this.email
+			}
+		}));
 	}
 
 	/**
@@ -544,12 +546,12 @@ class LifeUpdateBankDetailsDialog extends Component {
 		`;
 	}
 
-	_showAgreementDocumentDialog(){
+	_showAgreementDocumentDialog() {
 		this.showAgreementDocumentDialog = true;
 		this.requestUpdate();
 	}
 
-	_hideAgreementDialog(){
+	_hideAgreementDialog() {
 		this.showAgreementDocumentDialog = false;
 		this.requestUpdate();
 	}
