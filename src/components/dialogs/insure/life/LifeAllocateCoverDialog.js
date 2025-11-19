@@ -154,7 +154,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 			executeLifeUpdatePocket: { type: Object, state: true },
 			executeLifeIncreaseCover: { type: Object, state: true },
 			segments: { type: Array, state: true }
-			
+
 		};
 	}
 
@@ -459,7 +459,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 	 * Recalculate premium based on cover values
 	 * @returns {void}
 	 */
-	 _recalculatePremium() {
+	_recalculatePremium() {
 		if (isNullorEmpty(this.onceOffCoverValue) || isNaN(this.onceOffCoverValue)) {
 			this.onceOffCoverValue = 0;
 		}
@@ -504,11 +504,11 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 
 		if (this.updateMode === LIFE_UPDATE_MODE.INCREASE && this.totalCoverAllocatedAllPockets >= 100000) {
 			this.calculatedPremium = 0;
-			
+
 			if (this.currentCover < this.totalCoverAllocatedAllPockets) {
 				const coverDiff = this.totalCoverAllocatedAllPockets - this.currentCover;
 
-				const basePremium = (coverDiff / 1000) * this.riskRate; 
+				const basePremium = (coverDiff / 1000) * this.riskRate;
 				const loadedPremium = this.totalLoadingApplied * basePremium;
 				const coverDiffPremium = basePremium + loadedPremium + this.channelFee;
 				this.calculatedPremium = coverDiffPremium + this.currentPremium
@@ -1079,7 +1079,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 			if (!stepValid) {
 				return;
 			}
-	
+
 			// Map to pockets
 			const policyPockets = [
 				{ "coverage": this.monthlyTotalCoverValue || 0, "pocketType": `MonthlyPayout` },
@@ -1087,7 +1087,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				{ "coverage": this.educationCoverValue || 0, "pocketType": `Education` }
 			];
 			this.updatedPolicy.pockets = policyPockets;
-	
+
 			// Remove allocations from beneficiaries in pockets with no cover
 			if ([LIFE_UPDATE_MODE.ALLOCATE, LIFE_UPDATE_MODE.REISSUE, LIFE_UPDATE_MODE.INCREASE].includes(this.updateMode)) {
 				this.updatedPolicy.beneficiaries.forEach(bene => {
@@ -1097,19 +1097,19 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				});
 			}
 		}
-	
+
 		// Step 1: Beneficiaries
 		if (this.currentDialogStep === 1) {
 			this.invalidPocketNames = [];
 			const allocatedStepResults = this._validateAllocateBeneficiariesStep();
 			stepValid = allocatedStepResults[0];
-	
+
 			if (!stepValid) {
 				this.invalidPocketNames = allocatedStepResults[1];
 				this.showBeneficiariesAllocateErrorDialog = true;
 				return;
 			}
-	
+
 			// Execute update policy request for ALLOCATE or INCREASE modes
 			if ([LIFE_UPDATE_MODE.ALLOCATE, LIFE_UPDATE_MODE.INCREASE].includes(this.updateMode)) {
 				const updateSuccess = await this._executeUpdatePolicyRequest();
@@ -1121,32 +1121,34 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				return;
 			}
 		}
-	
+
 		// Step 2: Payment Details
 		if (this.currentDialogStep === 2) {
 			if (isNullorEmpty(this.updatedPolicy.bankDetails.accountNumber)) {
 				this.accountNumberErrorMsg = ERROR_MESSAGES.ACCOUNT_NUMBER_REQUIRED;
 				stepValid = false;
 			}
-	
+
 			if (isNullorEmpty(this.updatedPolicy.bankDetails.branchCode)) {
 				if (this.updatedPolicy.bankDetails.branchCode === ``) {
 					this.branchCodeErrorMsg = ERROR_MESSAGES.BRANCH_CODE_REQUIRED;
 				}
 				stepValid = false;
 			}
-	
+
 			if (!stepValid) {
 				return;
 			}
-	
-			// Execute update policy request for ALLOCATE, REISSUE, or INCREASE modes
-			const updateSuccess = await this._executeUpdatePolicyRequest();
-			if (!updateSuccess) {
-				return;
+
+			// Execute update policy request for ALLOCATE, or INCREASE modes
+			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
+				const updateSuccess = await this._executeUpdatePolicyRequest();
+				if (!updateSuccess) {
+					return;
+				}
 			}
 		}
-	
+
 		// if all is good
 		if (stepValid) {
 			this.currentDialogStep++;
@@ -1158,7 +1160,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 	async _executeUpdatePolicyRequest() {
 		let requestBeneficiaries = [];
 		let requestGuardians = [];
-	
+
 		// Prepare beneficiaries
 		this.updatedPolicy.beneficiaries.forEach(bene => {
 			const newBene = {
@@ -1179,10 +1181,10 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 			};
 			requestBeneficiaries.push(newBene);
 		});
-	
+
 		// Filter beneficiaries with no cover
 		requestBeneficiaries = requestBeneficiaries.filter(bene => bene.onceOffPayoutBenefitAmount > 0 || bene.monthlyPayoutBenefitAmount > 0 || bene.educationBenefitAmount > 0);
-	
+
 		// Add guardians back
 		if (!isNullorEmpty(this.updatedPolicy.guardians)) {
 			this.updatedPolicy.guardians.forEach(guardian => {
@@ -1192,11 +1194,11 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 						linkedChild = true;
 					}
 				});
-	
+
 				if (!linkedChild) {
 					return;
 				}
-	
+
 				const validGuardian = {
 					...guardian,
 					onceOffPayoutBenefitAmount: 0,
@@ -1221,7 +1223,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				requestGuardians.push(validGuardian);
 			});
 		}
-	
+
 		// Handle different update modes
 		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE) {
 			const updatePolicyReq = {
@@ -1247,9 +1249,9 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				beneficiaries: requestBeneficiaries,
 				pockets: this.updatedPolicy.pockets
 			};
-	
+
 			this.updatePolicyResult = await this.executeLifeUpdatePolicy(updatePolicyReq);
-	
+
 			if (!this._handleServiceResponse(this.updatePolicyResult, `Unable to update policy, please try again.`)) {
 				return false;
 			}
@@ -1277,9 +1279,9 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				pockets: this.updatedPolicy.pockets,
 				answers: this.newOfferAnswers
 			};
-	
+
 			this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
-	
+
 			if (!this._handleServiceResponse(this.reIssueResult, `Unable to reissue policy, please try again.`)) {
 				return false;
 			}
@@ -1311,69 +1313,98 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				pockets: this.updatedPolicy.pockets,
 				answers: []
 			};
-	
+
 			this.increaseCoverResult = await this.executeLifeIncreaseCover(increaseCoverRequest);
 
 			if (!this._handleServiceResponse(this.increaseCoverResult, `Unable to increase cover, please try again.`)) {
-				return false; 
+				return false;
 			}
 		}
-	
+
 		// Call agreement for all modes
-		const updateAgreementReq = {
-			saveDocument: false,
-			documentOptions: {
-				stamp: `None`,
-				barcode: `None`,
-				watermark: `None`,
-				channel: `Horizon`,
-				contentType: `Pdf`
-			},
-			bankingDetails: {
-				currentBankName: this.originalBankName,
-				newBankName: this.updatedPolicy.bankDetails.bank,
-				currentAccountNumber: this.originalAccountNumber,
-				newAccountNumber: this.updatedPolicy.bankDetails.accountNumber,
-				currentBranchCode: this.originalBranchCode,
-				newBranchCode: this.updatedPolicy.bankDetails.branchCode,
-				currentAccountType: this.originalAccountType,
-				newAccountType: this.updatedPolicy.bankDetails.accountType,
-				collectionDay: this.updatedPolicy.bankDetails.collectionDay
-			},
-			acceptanceDate: new Date(),
-			signatureDate: new Date(),
-			metadata: {},
-			nonPrimarySignatoryDetails: {},
-			userDetails: {},
-			policyNumber: this.updateMode === LIFE_UPDATE_MODE.REISSUE
-				? this.reIssueResult.policyNumber
-				: this.updateMode === LIFE_UPDATE_MODE.INCREASE
-				? this.increaseCoverResult.policyNumber
-				: this.updatePolicyResult.policyNumber,
-			updatePolicy: true,
-			totalPremium: this.updateMode === LIFE_UPDATE_MODE.REISSUE
-				? this.reIssueResult.newPremium
-				: this.updateMode === LIFE_UPDATE_MODE.INCREASE
-				? this.increaseCoverResult.newPremium
-				: this.updatePolicyResult.newPremium,
-			totalCoverAmount: this.updateMode === LIFE_UPDATE_MODE.REISSUE
-				? this.reIssueResult.newCoverAmount
-				: this.updateMode === LIFE_UPDATE_MODE.INCREASE
-				? this.increaseCoverResult.newCoverAmount
-				: this.updatePolicyResult.newCoverAmount,
-			beneficiaries: requestBeneficiaries
-		};
-	
-		const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
-	
-		if (!updateAgreementResp) {
-			console.error(`Agreement update failed.`);
-			return false;
+		if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
+			const updateAgreementReq = {
+				saveDocument: false,
+				documentOptions: {
+					stamp: `None`,
+					barcode: `None`,
+					watermark: `None`,
+					channel: `Horizon`,
+					contentType: `Pdf`
+				},
+				bankingDetails: {
+					currentBankName: this.originalBankName,
+					newBankName: this.updatedPolicy.bankDetails.bank,
+					currentAccountNumber: this.originalAccountNumber,
+					newAccountNumber: this.updatedPolicy.bankDetails.accountNumber,
+					currentBranchCode: this.originalBranchCode,
+					newBranchCode: this.updatedPolicy.bankDetails.branchCode,
+					currentAccountType: this.originalAccountType,
+					newAccountType: this.updatedPolicy.bankDetails.accountType,
+					collectionDay: this.updatedPolicy.bankDetails.collectionDay
+				},
+				acceptanceDate: new Date(),
+				signatureDate: new Date(),
+				metadata: {},
+				nonPrimarySignatoryDetails: {},
+				userDetails: {},
+				policyNumber: this.updateMode === LIFE_UPDATE_MODE.INCREASE
+					? this.increaseCoverResult.policyNumber
+					: this.updatePolicyResult.policyNumber,
+				updatePolicy: true,
+				totalPremium: this.updateMode === LIFE_UPDATE_MODE.INCREASE
+					? this.increaseCoverResult.newPremium
+					: this.updatePolicyResult.newPremium,
+				totalCoverAmount: this.updateMode === LIFE_UPDATE_MODE.INCREASE
+					? this.increaseCoverResult.newCoverAmount
+					: this.updatePolicyResult.newCoverAmount,
+				beneficiaries: requestBeneficiaries
+			};
+
+			const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
+
+			if (!updateAgreementResp?.documentContent) {
+				console.error(`Agreement update failed.`);
+				return false;
+			}
+
+			this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
+		} else {
+			const reissueAgreementResponse = await this._generateReissueAgreement(false)
+
+			if (!reissueAgreementResponse.documentContent) {
+				return false
+			}
+
+			this.agreementDocumentContent = reissueAgreementResponse.documentContent.base64EncodedString;
+
 		}
-	
-		this.agreementDocumentContent = updateAgreementResp.documentContent.base64EncodedString;
-	
+
 		return true;
+	}
+
+	async _generateReissueAgreement(saveDoc) {
+
+		const reissueAgreementReq = {
+			saveDocument: saveDoc,
+			documentOptions: {
+				stamp: "None",
+				barcode: "None",
+				watermark: "None",
+				channel: "Horizon",
+				contentType: "Pdf"
+			},
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			cifNumber: "",
+			policyNumber: this.reIssueResult?.policyNumber,
+			acceptanceDate: "",
+			signatureDate: "",
+			emailAddress: ""
+		}
+
+		const resp = await this.executeLifeGenerateIssueAgreement(reissueAgreementReq);
+
+		return resp;
 	}
 
 	_handleServiceResponse(response, defaultErrorMessage) {
@@ -1381,16 +1412,14 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 
 			const errorMessage = response.exception || defaultErrorMessage || `An unexpected error occurred. Please try again.`;
 			console.error(errorMessage);
-	
+
 			const exception = typeof errorMessage === `string`
 				? { output: [{ ErrorMessage: errorMessage }] }
 				: errorMessage;
-	
+
 			this.handleToastError(exception);
 			return false;
 		}
-	
-		// If no exception, assume the response is successful
 		return true;
 	}
 
