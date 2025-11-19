@@ -30,6 +30,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.accountNumberErrorMsg = ``;
 		this.showAgreementDocumentDialog = false;
 		this.defaultSavingsAccountNumber = ``;
+		this.lifePolicies = null;
 	}
 
 	// #endregion INITIALIZE
@@ -64,7 +65,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 			getLifeUpdateBankingDetailsDocument: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			defaultSavingsAccountNumber: { type: String, state: true },
-			getDefaultSavingsAccountNumber: { type: Object, state: true }
+			getDefaultSavingsAccountNumber: { type: Object, state: true },
+			lifePolicies: { type: Object, state: true }
 		};
 	}
 
@@ -78,8 +80,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.collectionDay = this.policy.bankDetails.collectionDay;
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
+
+		this.updatedPolicy.bankDetails.collectionDay = this.lifePolicies?.idealPayDate;
 
 		await this.getDefaultSavingsAccountNumber();
 	}
@@ -113,10 +116,13 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 *  @returns {String} day formatted text
 	 */
 	_getCollectionDay() {
-		if (!this.collectionDay) {
-			return ``;
+		let selectedDay = this.updatedPolicy?.bankDetails?.collectionDay;
+
+		if (selectedDay === undefined || selectedDay === null || selectedDay === 0) {
+			selectedDay = 25;
+			this.updatedPolicy.bankDetails.collectionDay = selectedDay;
 		}
-		const day = this.collectionDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
+		const day = this.collectionDayOptions.find(days => days.code.toString() === selectedDay.toString());
 		return day?.text;
 	}
 
