@@ -209,7 +209,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			return;
 		}
 
-		if (this.product !== `Insure` && (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator)) {
+		if (this.product !== `Insure` && (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector)) {
 			this.horizonRouter.navigateToUnavaliableForRole();
 			return;
 		}
@@ -244,7 +244,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.product = ``;
 		this.horizonStore.clearReturnScreen();
 
-		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector) {
 			this.horizonRouter.navigateToUnavaliableForRole();
 			return;
 		}
@@ -405,7 +405,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				.miniProfile="${this.miniProfile}"
 				.isHelpDeskAgent="${this.roleManager.isHelpDeskAgent}"
 				@view-profile="${() => this._viewProfileDetails()}"
-				?isInsureAgent="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}">
+				?isInsureAgent="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector}">
 			</horizon-mini-profile>
 			
 			${this._renderFavourites()}
@@ -419,12 +419,11 @@ export class ProfileAndProductSummaryBar extends Component {
 		</section>`;
 	}
 
-
 	_renderFavourites() {
 		return html`
 				<horizon-favourites-tile
 					data-automation-id="profile-and-product-summary-bar-favourites"
-					class="favourites-button ${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator ? `insureAgent` : ``}"
+					class="favourites-button ${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector ? `insureAgent` : ``}"
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
 					@click="${() => this._favouritesClicked()}"

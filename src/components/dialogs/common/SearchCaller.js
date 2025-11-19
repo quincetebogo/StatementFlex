@@ -816,7 +816,7 @@ export class SearchCaller extends Component {
 			`cp${this.cpNumber}`, // branch caller id,
 			this.branchCode,
 			``, // masked cif
-            ``, // entity Identifier
+			``, // entity Identifier
 			false // is Salesforce Verified
 		);
 	}
@@ -1001,7 +1001,7 @@ export class SearchCaller extends Component {
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2"
-						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}">
+						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector}">
 					</capitec-radio>
 					<capitec-radio 
 						id="branch" 
@@ -1010,7 +1010,7 @@ export class SearchCaller extends Component {
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3"
 						?checked="${this.clientType === CLIENT_TYPE.BRANCH}"
-						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}">
+						?hidden="${this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector}">
 					</capitec-radio>
 
 			</capitec-radio-group>`;
