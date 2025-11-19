@@ -25,7 +25,7 @@ import 'app/components/dialogs/insure/funeral/CancelPolicyDialog';
 import 'app/components/dialogs/insure/EarlyCollectionOptionsDialog';
 import 'app/components/dialogs/insure/funeral/FuneralPolicyPauseDialog';
 import 'app/components/dialogs/insure/funeral/ConfirmPolicyPauseDialog';
-import 'app/components/dialogs/insure/funeral/BenefitUnavailableDialog'
+import 'app/components/dialogs/insure/funeral/BenefitUnavailableDialog';
 
 import 'app/components/dialogs/insure/life/LifeCancelPolicyDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateBankDetailsDialog';
@@ -41,7 +41,7 @@ import 'app/components/dialogs/insure/life/LifeAddChildDialog';
 import 'app/components/dialogs/insure/life/LifeHonestyPledgeDialog';
 import 'app/components/dialogs/insure/life/LifeUpdateChildDialog';
 import 'app/components/dialogs/insure/life/LifeIncreaseCoverUnavailableDialog';
-import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog'
+import 'app/components/dialogs/insure/funeral/UpdateIdDobDialog';
 import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/funeral/GenerateNewAgreementDialog';
 import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverDialog';
@@ -125,7 +125,7 @@ class ClientSummary extends Component {
 		this.showBenefitEmailDialog = false;
 		this.showGenerateNewAgreementDialog = false;
 		this.showCreateMandateSuccessToast = false;
-		this.createMandateSuccessMessage = ``
+		this.createMandateSuccessMessage = ``;
 
 
 		this.showLifeIncreaseUnavailableDialog = false;
@@ -141,6 +141,10 @@ class ClientSummary extends Component {
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
+
+		this.blackListBannerMessage = ``;
+		this.showBlackListBanner = false;
+		this.blackListCheck = false;
 
 	}
 
@@ -320,6 +324,8 @@ class ClientSummary extends Component {
 
 			showFeatureBanner: { type: Boolean, state: true },
 			featureBannerMessage: { type: String, state: true },
+			showBlackListBanner: { type: Boolean, state: true },
+			blackListBannerMessage: { type: String, state: true }
 		};
 	}
 
@@ -471,7 +477,7 @@ class ClientSummary extends Component {
 	}
 
 	_goToIncreaseCover(lifePolicy) {
-		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65 && lifePolicy.canIncreaseCover === true) {
+		if (getAgeFromIDNumber(this.mainLifeIdNumber) < 65 && lifePolicy.canIncreaseCover === true && !this.lifePolicies.doNotDoBusiness) {
 			this.showLifeHonestyPledgeDialog = true;
 			this.selectedLifeUpdateMode = LIFE_UPDATE_MODE.INCREASE;
 			this.selectedLifePolicy = lifePolicy;
@@ -565,11 +571,11 @@ class ClientSummary extends Component {
 
 	_openVoluntaryPolicyPauseDialog(policyItem) {
 		this.selectedPolicyItem = policyItem;
-		let vppBenefit = policyItem.benefits?.find((benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
+		const vppBenefit = policyItem.benefits?.find((benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.POLICY_PAUSE);
 
-		if ((!vppBenefit?.available && !vppBenefit?.isBenefitActive)) {
+		if (!vppBenefit?.available && !vppBenefit?.isBenefitActive) {
 			this.showBenefitUnavailableDialog = true;
-			return
+			return;
 		}
 
 		this.showPolicyPauseDialog = true;
@@ -1012,9 +1018,9 @@ class ClientSummary extends Component {
 
 	_closePolicyPauseConfirmDialog(e) {
 		if (!isNullorEmpty(e.detail.successMessage)) {
-			this.benefitSuccessMessage = e.detail.successMessage
+			this.benefitSuccessMessage = e.detail.successMessage;
 			this.showBenefitSuccessToast = true;
-			this.showBenefitEmailDialog = true
+			this.showBenefitEmailDialog = true;
 			this.dispatchEvent(new CustomEvent(`refresh-funeral-policies`, { detail: {} }));
 		}
 		this.showConfirmPolicyPauseDialog = false;
@@ -1027,7 +1033,7 @@ class ClientSummary extends Component {
 	}
 
 	/**
-	 * 
+	 * Generates a mandate for the specified policy
 	 * @param {Object} policy selected policy
 	 * @returns 
 	 */
@@ -1035,11 +1041,11 @@ class ClientSummary extends Component {
 
 		let request = {
 			contractReference: policy.contractReference,
-			idNumber: "",
+			idNumber: ``,
 			accountNumber: policy.deductionDetails.bankDetails.accountNumber
 		}
 
-		let response = await this.executeFuneralCreateMandate(request);
+		const response = await this.executeFuneralCreateMandate(request);
 
 		if (response) {
 			this.createMandateSuccessMessage = `Mandate Successfully created for policy ${policy.contractReference}`;
@@ -1056,8 +1062,47 @@ class ClientSummary extends Component {
 	_openGenerateNewAgreementDialog(policy) {
 		this.selectedPolicyItem = policy;
 		this.showGenerateNewAgreementDialog = true;
+	}
 
+	/**
+	 * Determines whether the increase policy option should be displayed
+	 * @param {Object} activeLifePolicy - The policy to check
+	 * @returns {Boolean} - True if increase option should be shown
+	 */
+	_canShowIncreaseCover(activeLifePolicy) {
+		const validStatuses = [`ACTIVE`, `PENDING IN FORCE`, `IN FORCE`];
+		const isValidStatus = validStatuses.includes(activeLifePolicy?.policyStatus?.toUpperCase());
+		const isUnderCoverLimit = deformatCurrency(this._calculateLifeTotalCoverAmount(activeLifePolicy)) < 3000000;
+		const isNotAgentOrAdmin = !this.isInsureAgent && !this.isInsureAdministrator;
 
+		return activeLifePolicy?.canIncreaseCover === true &&
+			!this.blackListCheck?.isBlacklisted &&
+			isValidStatus &&
+			isNotAgentOrAdmin &&
+			isUnderCoverLimit;
+	}
+
+	/**
+ * Determines whether the re-issue policy option should be displayed
+ * @param {Object} policy - The policy to check
+ * @param {Object|Array} activeLifePolicy - Any active life policies
+ * @returns {Boolean} - True if re-issue option should be shown
+ */
+	_canShowReIssuePolicy(policy) {
+		return !this.isInsureAgent &&
+			!this.isInsureAdministrator &&
+			!this.blackListCheck?.isBlacklisted &&
+			policy.canReIssue === true &&
+			this._hasNoActiveLifePolicy();
+	}
+
+	/**
+	 * Checks if there are no active life policies
+	 * @returns {Boolean} - True if there are no active life policies
+	 */
+	_hasNoActiveLifePolicy() {
+		const activeLifePolicy = determineActiveLifePolicies(this.lifePolicies?.policies);
+		return !activeLifePolicy || activeLifePolicy.length === 0;
 	}
 
 	_goToPolicyHistory(policy) {
@@ -1232,18 +1277,14 @@ class ClientSummary extends Component {
 			this.isInsureAdministrator
 		) {
 			policyItem.showOptions.push(POLICY_OPTIONS.REINSTATE);
-		} else {
-			if (
-				policyItem.status === `Active` ||
-				policyItem.status === `PendingInForce`
-			) {
-				if (policyItem.arrearDetails?.outstandingAmount > 0) {
-					policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
-				}
-				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
-				policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
+		} else if (policyItem.status === `Active` || policyItem.status === `PendingInForce`) {
+			if (policyItem.arrearDetails?.outstandingAmount > 0) {
+				policyItem.showOptions.push(POLICY_OPTIONS.PAY_ARREARS);
 			}
+			policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_PLAN);
+			policyItem.showOptions.push(POLICY_OPTIONS.CANCEL_PLAN);
 		}
+
 		policyItem.showOptions.push(POLICY_OPTIONS.SMS_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.TRANSACTION_HISTORY);
 		policyItem.showOptions.push(POLICY_OPTIONS.EARLY_COLLECTION_OPT_IN);
@@ -1252,9 +1293,7 @@ class ClientSummary extends Component {
 			policyItem.showOptions.push(POLICY_OPTIONS.VOLUNTARY_PAUSE);
 		}
 
-		let newBornBenefit = policyItem.benefits?.find(
-			(benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN
-		);
+		let newBornBenefit = policyItem.benefits?.find((benefit) => benefit.type === FUN_CLIENT_SUMMARY_BENEFIT_TYPES.NEW_BORN);
 		if (
 			(newBornBenefit?.available || newBornBenefit?.isBenefitActive) &&
 			policyItem.status === `Active`
@@ -1265,8 +1304,9 @@ class ClientSummary extends Component {
 		if (this.isInsureAdministrator) {
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_AGREEMENT);
 			policyItem.showOptions.push(POLICY_OPTIONS.GENERATE_MANDATE);
-			if (policyItem.status === "Active" || policyItem.status === "PendingInForce")
+			if (policyItem.status === "Active" || policyItem.status === "PendingInForce") {
 				policyItem.showOptions.push(POLICY_OPTIONS.UPDATE_ID_DOB);
+			}
 			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
 		} else if (this.isInsureAgent) {
 			// policyItem.showOptions.push(POLICY_OPTIONS.POLICY_HISTORY)
@@ -2118,6 +2158,11 @@ class ClientSummary extends Component {
 						${unsafeHTML(this.featureBannerMessage)}
 					</div>
 				` : html``}
+				${this.showBlackListBanner ? html`
+					<div style="background-color: #fdecea; padding: 0px 10px; margin: 10px; border-radius: 10px; color: #C83C37; font-weight: 600;">
+						${unsafeHTML(this.blackListBannerMessage)}
+					</div>
+				` : html``}
 				${this._renderInsureTabs()}
 		</capitec-card>`;
 	}
@@ -2413,11 +2458,11 @@ class ClientSummary extends Component {
 				: html``
 			}
 			
-            ${activeLifePolicy?.canIncreaseCover === true && (activeLifePolicy?.policyStatus?.toUpperCase() === `ACTIVE` || activeLifePolicy?.policyStatus?.toUpperCase() === `PENDING IN FORCE` || activeLifePolicy?.policyStatus?.toUpperCase() === `IN FORCE`
-			) && (!this.isInsureAgent && !this.isInsureAdministrator) && deformatCurrency(this._calculateLifeTotalCoverAmount(activeLifePolicy)) < 3000000
-				? html`<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>`
-				: html``
-			}
+           ${this._canShowIncreaseCover(activeLifePolicy) ? html`
+					<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" @click="${() => this._goToIncreaseCover(activeLifePolicy, LIFE_UPDATE_MODE.INCREASE)}"></capitec-overflow-menu-item>
+				` : html`
+					<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" disabled></capitec-overflow-menu-item>
+				`}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -2587,9 +2632,11 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-							 ${!this.isInsureAgent && !this.isInsureAdministrator && pol.canReIssue === true && (!activeLifePolicy || activeLifePolicy.length === 0) ? html`
-								<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
-							` : html``}
+						${this._canShowReIssuePolicy(pol) ? html`
+							<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
+						` : html`
+							<capitec-overflow-menu-item label="Re-Issue Policy" disabled></capitec-overflow-menu-item>
+						`}
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
