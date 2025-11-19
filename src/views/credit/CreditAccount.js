@@ -117,7 +117,6 @@ export class CreditAccount extends ViewBase {
 		this.budgetStatus = ``;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
-		this.cueSheetIncident = {};
 		this.declineMessage = ``;
 		this.isDisputableWithdrawal = true;
 
@@ -509,7 +508,8 @@ export class CreditAccount extends ViewBase {
 		return `Flexible`;
 	}
 
-	_errorHandler() {
+	_errorHandler(exception) {
+		this.logger.log(`error`, `System Error from Credit Account Page: $${exception?.message || exception}`, `_errorHandler`);
 		this.horizonRouter.navigateToSystemError();
 	}
 
@@ -1229,47 +1229,118 @@ export class CreditAccount extends ViewBase {
 		this.renderMode = RENDER_MODE.BUDGET_ACCOUNTS_VIEW;
 	}
 
+	_isValidObject(param) {
+		if (param === null || param === undefined) {
+			return false;
+		}
+
+		if (typeof param === `string`) {
+			return false;
+		}
+
+		if (typeof param === `object` && Object.keys(param).length === 0) {
+			return false;
+		}
+
+		// If none of the above conditions are met, the parameter is considered valid.
+		return true;
+	}
+
+
 	async _cardDisputeTransaction(selectedAccountDetails) {
-		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
-
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
-			transactionId: this.tranToDispute.map(t => t.transactionId),
-			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
-		});
-
-		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-		const returnValue = await this._getFirstQusToDispute(selectedAccountDetails);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
+		if (!this._isValidObject(selectedAccountDetails)) {
+			this.logger.log(`warning`, `Credit Account: No account selected`, `_cardDisputeTransaction`);
+			this.horizonRouter.navigateToSystemError();
 			return;
 		}
 
-		this.disputeQuestion = returnValue.result;
+		if (!Array.isArray(this.transactionHistory) || this.transactionHistory.length === 0) {
+			this.logger.log(`warning`, `Credit Account: No transactions loaded`, `_cardDisputeTransaction`);
+			this.horizonRouter.navigateToSystemError();
+			return;
+		}
+
+		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
+
+		if (!Array.isArray(this.tranToDispute) || this.tranToDispute.length === 0) {
+			this.logger.log(`warning`, `Credit Account: No transactions selected for dispute`, `_cardDisputeTransaction`);
+			this.horizonRouter.navigateToSystemError();
+			return;
+		}
+
+		/*
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+			transactionId: this.tranToDispute.map(t => t.transactionId),
+			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
+		});
+		*/
+
+		const cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.disputeQuestion = await this._getFirstQusToDispute(selectedAccountDetails?.accountNumber, cueSheetIncident);
+
+		if (!this.disputeQuestion) {
+			this.horizonRouter.navigateToSystemError();
+			return;
+		}
+
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute(selectedAccountDetails) {
+	async _getFirstQusToDispute(accountNumber, cueSheetIncident) {
+		const cifNumber = this.callerInformation?.cifNumber;
+
+		if (!cueSheetIncident) {
+			this.logger.log(`error`, `Credit Account: No incident created for cue sheet process`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		if (!cifNumber || cifNumber === ``) {
+			this.logger.log(`error`, `Credit Account: No CIF number provided for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		if (!accountNumber || accountNumber === ``) {
+			this.logger.log(`error`, `Credit Account: No Account Number provided for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		const transactions = this.tranToDispute.map((item) => ({
+				transactionID: item?.transactionId,
+				transactionPostingDate: item?.postingDate
+			}));
+
+		if (transactions.some(t => !t.transactionID || !t.transactionPostingDate)) {
+			this.logger.log(`error`, `Credit Account: Invalid transaction data for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
 		const request = {
-			"transactions": this.tranToDispute.map((item) => ({
-				transactionID: item.transactionId,
-				transactionPostingDate: item.postingDate
-			})),
-			"incident": this.cueSheetIncident,
-			"accountNumber": selectedAccountDetails.accountNumber,
-			"cifNumber": this.callerInformation.cifNumber,
+			"transactions": transactions,
+			"incident": cueSheetIncident,
+			"accountNumber": accountNumber,
+			"cifNumber": cifNumber,
 			"agentId": `${this.securityContext.username}`
 		};
-		const returnValue = await this.creditService.getFirstQuestion(request);
-		return returnValue;
+
+		const returnValue = await this.creditService.getFirstQuestion(request, (ex) => this._errorHandler(ex));
+
+		if (!returnValue || !returnValue.succeeded) {
+			this.logger.log(`error`, `Credit Account: Failed to get first cue card question for dispute process`, `_cardDisputeTransaction`, returnValue?.correlationId);
+			return null;
+		}
+
+		return returnValue.result;
 	}
 
 	async _getNextQusToDispute(request) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+		
+		/*
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_DISPUTE_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
 			cueSheetId: request.cueSheetId,
 			caseId: request.caseId,
 			answerId: request.answerId
 		});
+		*/
 
 		const returnValue = await this.creditService.getNextQuestion(request, () => true);
 		this.disputeQuestion = returnValue.result;
