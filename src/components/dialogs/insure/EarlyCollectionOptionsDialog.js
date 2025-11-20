@@ -22,7 +22,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 
 		this.policies = {};
 		this.isOptedIn = true;
-		this.hasActiveLifePolicy = false;
 	}
 
 	// #endregion INITIALIZE
@@ -39,7 +38,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 			policies: { type: Object, state: true },
 			earlyCollectionLabel: { type: String, state: true },
 			updateEarlyCollectionPreferences: { type: Object, state: true },
-			hasActiveLifePolicy: { type: Boolean, state: true }
 		};
 	}
 
@@ -78,21 +76,6 @@ export class EarlyCollectionOptionsDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-dialog`));
 	}
 
-
-
-	_checkProducts() {
-		let activeFuneralPolicy = this.policies?.find((policy) => policy.status === FUNERAL_ACTIVE_STATUSES.ACTIVE || policy.status === FUNERAL_ACTIVE_STATUSES.PENDING_IN_FORCE);
-
-		if (activeFuneralPolicy && this.hasActiveLifePolicy) {
-			return "Funeral & Life Cover"
-		} else {
-			if (activeFuneralPolicy) {
-				return "Funeral"
-			} else {
-				return "Life Cover"
-			}
-		}
-	}
 
 	// #endregion EVENT HANDLERS
 
@@ -138,7 +121,10 @@ export class EarlyCollectionOptionsDialog extends Component {
 			<div slot="body">
 				<capitec-content-box class="body-box">
 					<p>
-					Due to the festive season and early closures in December, we'll deduct your insurance premiums for ${this._checkProducts()} in line with your pay date or from 12 December to ensure your cover stays active throughout the holiday season.
+					We’re processing your request to opt out of the early December collections. This change will also apply to all future early collections in December. 
+					</p>
+					<p>
+					Please confirm if you’d like us to proceed with this update. This will not affect your regular chosen collection date; it only applies to December. 
 					</p>
 				</capitec-content-box>
 			</div>

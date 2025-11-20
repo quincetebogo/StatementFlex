@@ -141,7 +141,6 @@ class ClientSummary extends Component {
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
-		this.hasActiveLifePolicy = false;
 
 	}
 
@@ -321,8 +320,6 @@ class ClientSummary extends Component {
 
 			showFeatureBanner: { type: Boolean, state: true },
 			featureBannerMessage: { type: String, state: true },
-
-			hasActiveLifePolicy: { type: Boolean, state: true }
 		};
 	}
 
@@ -561,11 +558,6 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_openEarlyCollectionOPTInDialog() {
-		let lifePolicy = determineActiveLifePolicies(this.lifePolicies?.policies);
-
-		if (lifePolicy) {
-			this.hasActiveLifePolicy = true;
-		}
 
 		this.showEarlyCollectionDialog = true;
 	}
@@ -3177,7 +3169,6 @@ class ClientSummary extends Component {
 			<horizon-insure-early-collection-options-dialog
 				.policies="${this.funeralPolicies.summaryDetails.policies}"
 				.updateEarlyCollectionPreferences="${this.updateEarlyCollectionPreferences}"
-				.hasActiveLifePolicy = "${this.hasActiveLifePolicy}"
 				@close-dialog="${() => this.showEarlyCollectionDialog = false}">
 			</horizon-insure-early-collection-options-dialog>
 		`;
