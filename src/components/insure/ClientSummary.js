@@ -1,5 +1,5 @@
 import { Component, css, html, unsafeHTML } from 'platform/elements';
-import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, INSURE_PRODUCT_CODE, FUNERAL_ACTIVE_STATUSES, LIFE_ARREARS_STATUSES, LIFE_POCKET_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_STATUSES, LIFE_UPDATE_MODE, POLICY_OPTIONS, POLICY_RULES, Status, FEATURE_TOGGLES } from 'app/constants/InsureCommon';
 import { determineActiveLifePolicies, determineInactiveLifePolicies, determineLifeStatusColour, formatCurrencyInsureCoverAmount, getAgeFromIDNumber, pocketBadgeColorClass, pocketBadgeLabel } from 'app/utils/insureUtils';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { ClientPoliciesEvents } from 'app/constants/telemetry/events/Insure';
@@ -1611,14 +1611,14 @@ class ClientSummary extends Component {
 	_determineEarlyCollectVisibility() {
 		let showEarlyCollect = false
 
-		for (let i = 0; i < this.clientPolicies?.summaryDetails?.policies?.length; i++) {
-			if (this.clientPolicies?.summaryDetails?.policies[i].Status === "Active") {
+		for (let i = 0; i < this.funeralPolicies?.summaryDetails?.policies?.length; i++) {
+			if (this.funeralPolicies?.summaryDetails?.policies[i].status === FUNERAL_ACTIVE_STATUSES.ACTIVE || this.funeralPolicies?.summaryDetails?.policies[i].status === FUNERAL_ACTIVE_STATUSES.PENDING_IN_FORCE) {
 				showEarlyCollect = true
 			}
 		}
 
 		for (let i = 0; i < this.lifePolicies?.policies?.length; i++) {
-			if (this.lifePolicies?.policies[i].policyStatus === "Active") {
+			if (this.lifePolicies?.policies[i].policyStatusEnum === LIFE_POLICY_STATUSES.IN_FORCE || this.lifePolicies?.policies[i].policyStatusEnum === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || this.lifePolicies?.policies[i].policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING) {
 				showEarlyCollect = true
 			}
 		}
@@ -2109,7 +2109,7 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${this._determineEarlyCollectVisibility() ? html`` : html`
+					${!this._determineEarlyCollectVisibility() ? html`` : html`
 						<capitec-button type="white" label="Early Collect Opt out" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openEarlyCollectionOPTInDialog()}">
 						</capitec-button>
