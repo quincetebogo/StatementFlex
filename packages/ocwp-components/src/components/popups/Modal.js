@@ -180,6 +180,7 @@ export class Modal extends Component {
 					height: 100%;
 					background-color: var(--theme-modal-screen-background-color, rgba(0,0,0,0.6));
 					cursor: default;
+					overflow: scroll;
 				}
 
 				.select-modal {

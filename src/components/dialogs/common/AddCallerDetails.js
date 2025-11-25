@@ -27,7 +27,7 @@ const ERROR_MESSAGE = {
 	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
 	INVALID_SURNAME: `Only alpha characters and hyphen allowed`
 };
- 
+
 const REGEX_CELLPHONE = {
 	PATTERN: /^[0-9]{10}$/,
 	ERR_MESSAGE: `Incorrect cellphone number`
@@ -43,7 +43,7 @@ const REGEX_SURNAME = {
 	ERR_MESSAGE: `Name and surname must be completed`
 };
 
-const POSSIBLE_RELATIONSHIPS = [ 
+const POSSIBLE_RELATIONSHIPS = [
 	{ key: 0, value: `Spouse` },
 	{ key: 1, value: `Sibling` },
 	{ key: 2, value: `Child` },
@@ -134,7 +134,7 @@ export class AddCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		ineum(`page`, `Add Caller Details`);
-		
+
 		this.telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
@@ -249,11 +249,11 @@ export class AddCallerDetails extends Component {
 			"next-screen": TelemetryScreen.END_CALL
 		});
 
-        this.callerInformation.nonClientFirstName = this.firstNameTextField;
-        this.callerInformation.nonClientSurName = this.surnameTextField;
-        this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
-        this.callerInformation.is3rdParty = true;
-        this.callerInformation.isNonClient = false;
+		this.callerInformation.nonClientFirstName = this.firstNameTextField;
+		this.callerInformation.nonClientSurName = this.surnameTextField;
+		this.callerInformation.nonClientCellPhone = this.cellPhoneTextField;
+		this.callerInformation.is3rdParty = true;
+		this.callerInformation.isNonClient = false;
 
 		this.renderMode = RENDER_MODE.END_CALL;
 	}

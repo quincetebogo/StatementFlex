@@ -388,6 +388,43 @@ export class CapitecConnectService extends ChannelServiceBase {
 		);
 	}
 
+
+	getDeviceReturnsByCif(request) {
+		const { clientCif } = request;
+
+		const url = `/v1/api/horizon/devices/returns?cif=${clientCif}`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			'getDeviceReturnsByCif',
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+
+	async submitDeviceReturn(payload = {}) {
+
+		const url = `/v1/api/horizon/devices/return`;
+
+		return this.post(
+			url,
+			payload,
+			this.setToken(),
+			'submitDeviceReturn',
+			null,
+			null,
+			2000,
+			null,
+			DEFAULT_AUTO_RETRIES
+		);
+	}
+
+
 	getDeviceOrder(orderId) {
 		const url = `/v1/api/horizon/device/orders/${orderId}`;
 		return this.get(
@@ -403,7 +440,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	getDeviceInvoice(orderId) {
-		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
+		const url = `/v2/api/horizon/device/orders/${orderId}/invoice`;
 		return this.get(
 			url,
 			this.invoiceHeaders(),
@@ -417,7 +454,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	cancelDeviceOrder(orderId, cif) {
-		const url = `/v1/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
+		const url = `/v2/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
 
 		return this.post(
 			url,
