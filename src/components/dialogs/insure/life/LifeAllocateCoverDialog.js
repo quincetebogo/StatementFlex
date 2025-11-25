@@ -1372,7 +1372,7 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 		} else {
 			const reissueAgreementResponse = await this._generateReissueAgreement(false)
 
-			if (!reissueAgreementResponse.documentContent) {
+			if (!reissueAgreementResponse?.documentContent) {
 				return false
 			}
 
@@ -1383,6 +1383,11 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 		return true;
 	}
 
+	/**
+	 * Generate reissue agreement document
+	 * @param {boolean} saveDoc - Whether to save the document
+	 * @returns {Promise<Object>} Agreement response
+	 */
 	async _generateReissueAgreement(saveDoc) {
 
 		const reissueAgreementReq = {
@@ -1397,8 +1402,8 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			cifNumber: "",
 			policyNumber: this.reIssueResult?.policyNumber,
-			acceptanceDate: "",
-			signatureDate: "",
+			acceptanceDate: new Date(),
+			signatureDate: new Date(),
 			emailAddress: ""
 		}
 

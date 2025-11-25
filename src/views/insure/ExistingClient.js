@@ -114,7 +114,7 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
 		this.VPPEmailActionActivate = false;
 
-		this.blackListCheck = false;
+		this.blackListCheck = {};
 		this.showBlackListBanner = false;
 		this.blackListBannerMessage = ``;
 	}

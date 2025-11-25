@@ -226,7 +226,7 @@ class ClaimSummary extends Component {
 					</horizon-label>
 					${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? html`
 						<horizon-label label="Cause of death" class="row-item"
-							value="${this.claimSummary?.causeOfIncident?.displayValue}">
+							value="${!this.claimSummary?.causeOfIncident?.displayValue ? `-` : this.claimSummary?.causeOfIncident?.displayValue}">
 						</horizon-label>
 					` : html``}
 				</div>

@@ -94,7 +94,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.lifeCancelationReasons = LIFE_CANCELATION_REASONS_BACKOFFICE;
 		this.lifeSuccessPageMessages = {};
 
-		this.blackListCheck = false;
+		this.blackListCheck = {};
 		this.showBlackListBanner = false;
 		this.blackListBannerMessage = ``;
 	}
