@@ -575,7 +575,7 @@ export const FUN_POLICY_RULES = Object.freeze({
  */
 export const FUN_BENEFIT_PERIOD = Object.freeze({
 	PERIOD: 6
-	
+
 });
 
 /**
@@ -586,7 +586,7 @@ export const FUN_BENEFIT_PERIOD = Object.freeze({
  */
 export const LIFE_BENEFIT_PERIOD = Object.freeze({
 	PERIOD: 6
-	
+
 });
 
 /**
@@ -622,3 +622,14 @@ export const FEATURE_TOGGLES = Object.freeze({
 	ReissuePolicy: `ReissuePolicy`,
 	Banner: `Banner`
 });
+
+/**
+ * FUNERAL_ACTIVE_STATUSES
+ *
+ * @readonly
+ * @enum {Object} FUNERAL_ACTIVE_STATUSES
+ */
+export const FUNERAL_ACTIVE_STATUSES = Object.freeze({
+	PENDING_IN_FORCE: `PendingInForce`,
+	ACTIVE: `Active`
+})

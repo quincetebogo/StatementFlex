@@ -1827,9 +1827,9 @@ export class ExistingClient extends InsureViewBase {
 					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
-				if (formattedTrans.length === 0) {
-					console.warn(`No transactions found for this policy.`);
-				}
+			if (formattedTrans.length === 0) {
+				console.warn(`No transactions found for this policy.`);
+			}
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
@@ -2244,7 +2244,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 		super.isOnlyProductEnquiry = false;
 		this.showInsureSuccessToast = true;
-		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		this.insureSuccessToastMessage = `Early December collection OPT OUT successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		return true;
