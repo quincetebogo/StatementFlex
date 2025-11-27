@@ -440,7 +440,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	getDeviceInvoice(orderId) {
-		const url = `/v2/api/horizon/device/orders/${orderId}/invoice`;
+		const url = `/v1/api/horizon/device/orders/${orderId}/invoice`;
 		return this.get(
 			url,
 			this.invoiceHeaders(),
@@ -454,7 +454,7 @@ export class CapitecConnectService extends ChannelServiceBase {
 	}
 
 	cancelDeviceOrder(orderId, cif) {
-		const url = `/v2/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
+		const url = `/v1/api/horizon/devices/orders/${orderId}/cancel?cif=${cif}`;
 
 		return this.post(
 			url,
