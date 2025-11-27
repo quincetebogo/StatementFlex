@@ -47,18 +47,15 @@ export class RoleManager {
 	}
 
 	get isCapitecConnectTeamleader() {
-		// return this.roles && this.roles.includes(`capitecconnect-teamleader`);
-		return true;
+		return this.roles && this.roles.includes(`capitecconnect-teamleader`);
 	}
 
 	get isCapitecConnectAgent() {
-		// return this.roles && this.roles.includes(`capitecconnect-agent`);
-		return true;
+		return this.roles && this.roles.includes(`capitecconnect-agent`);
 	}
 
 	get isClientCareAgent() {
-		// return this.roles && this.roles.includes(`clientcare-agent`);
-		return false;
+		return this.roles && this.roles.includes(`clientcare-agent`);
 	}
 
 	get orgUnit() {
@@ -76,12 +73,12 @@ export class RoleManager {
 	}
 
 	async isSearchClientEnabled() {
-		// if (this.isAuthorised) {
-		// 	const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
-		// 	const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
+		if (this.isAuthorised) {
+			const searchClientEnabledByConfig = await this._configuration.getSetting(`searchClientOptionEnabled`);
+			const searchClientEnabledByGroup = this.roles.map(element => element.toLowerCase()).includes(`hzn_search_button_enabled`);
 
-		// 	return searchClientEnabledByConfig || searchClientEnabledByGroup;
-		// }
-		return true;
+			return searchClientEnabledByConfig || searchClientEnabledByGroup;
+		}
+		return false;
 	}
 };

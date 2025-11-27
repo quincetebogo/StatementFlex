@@ -49,6 +49,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.isOrderTrackerModalVisible = false;
 		this.isOrderNegativeStatesModalVisible = false;
 		this.isReturnsTableVisible = true;
+		this.isReturnsModalVisible = false;
 		this.returnsCache = [];
 		// Static variables
 		this.searchTypes = [
@@ -152,6 +153,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			currentOrderStatus: { type: String },
 			negativeStateModalConfig: { type: Object },
 			isReturnsTableVisible: { type: Boolean },
+			isReturnsErrorModalVisible: { type: Boolean },
 		};
 	}
 
@@ -589,6 +591,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				accountNumber: order.accountNumber,
 				orderId: order.orderId,
 				orderStatus: order.orderStatus.split(`_`).join(` `),
+				productOrderId: order.productOrderId,
 				hasLogged: false
 			}));
 
@@ -802,11 +805,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				throw new Error(`Failed to send device return`);
 			}
 
+			this.isReturnsSuccessModalVisible = true;
+
 		} catch (error) {
 			console.error(`Error sending the device return:`, error);
 			console.log("error ", error);
-			this.invoicePdfBase64 = null;
-			this.hasInvoiceError = true;
+			this.isReturnsErrorModalVisible = true;
 		} finally {
 			this.isLoading = false;
 			this.requestUpdate();
@@ -2095,10 +2099,52 @@ export class CapitecConnectAgentDevices extends ViewBase {
     `;
 	}
 
+	renderReturnsErrorModal() {
+		return html`
+      <capitec-modal
+        type="alert"
+        header="Returns & Repairs"
+        ?open="${this.isReturnsErrorModalVisible}"
+      >
+        <div
+          column="1"
+          row="1"
+          colspan="2"
+          slot="body"
+          style="text-align: center; padding-top: 16px; justify-items: center;"
+        >
+          <capitec-icon size="large" icon="status/error-trans"></capitec-icon>
+          <div
+            style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px;"
+          >
+            <capitec-label
+              type="strong"
+              label="Request unsuccessful"
+            ></capitec-label>
+            <capitec-label
+              type="strong"
+              label="Please try again or contact support"
+            ></capitec-label>
+          </div>
+        </div>
+        <div
+          slot="footer"
+          style="display: flex; gap: 16px; justify-content: flex-end; padding: 16px 24px;"
+        >
+          <capitec-button
+            slot="footer"
+            type="secondary"
+            label="Close"
+            @click="${() => (this.isReturnsErrorModalVisible = false)}"
+          ></capitec-button>
+        </div>
+      </capitec-modal>
+    `;
+	}
+
 	_returnsExpandRendererForReturns(item) {
 		if (!item) return html``;
 
-		// 🔥 Pull through the raw data we stored during mapping
 		const ret = item.rawReturn || {};
 		const order = ret.productOrder || {};
 		const contact = ret.contactDetails || {};
@@ -2106,12 +2152,10 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		const faults = ret.faults || [];
 		const steps = ret.statusHistory || [];
 
-		// 🔥 Build device name like Samsung A06 | Light Blue | 64GB Storage
 		const deviceName =
 			(order.productName || '') +
 			(order.shortDescription ? ` | ${order.shortDescription}` : '');
 
-		// 🔥 Faults combined into a readable string
 		const faultText = faults.length
 			? faults
 				.map((f) => f.description || f.subCategory || f.category)
@@ -2119,7 +2163,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				.join(', ')
 			: '-';
 
-		// 🔥 Format warranty dates
 		const warrantyStart = order.warrantyStart
 			? formatDate(order.warrantyStart)
 			: '-';
@@ -2248,7 +2291,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 								deviceName: item.deviceName || '-',
 								specs: item.deviceName || '-',
 								imei1: serials[0] || '-',
-								productOrderId: item.orderId,
+								productOrderId: item.productOrderId,
 							};
 
 							this.tempReturnForm = { ...this.tempReturnForm, ...deviceDetails };
@@ -2563,18 +2606,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return html`<capitec-tag label="${label}" type="${type}"></capitec-tag>`;
 	}
 
-	_renderReturnsPlaceholder() {
-		return html`
-			<capitec-content-box style="padding: 24px;">
-			<capitec-label type="strong" label="Return and repairs"></capitec-label>
-			<br />
-			<capitec-label
-				label="Returns data and actions will appear here. We’ll hook this up next."
-			></capitec-label>
-			</capitec-content-box>
-		`;
-	}
-
 	render() {
 		return html`
     <capitec-content-box
@@ -2712,22 +2743,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
                     type="default"
                     label="No device orders found."
                   ></capitec-label>
-				  <capitec-hyperlink
-                          style="--theme-hyperlink-color: #009DE0;"
-                          label="Return"
-                          @click="${() => {
-						this.isConnectivityModalVisible = true;
-					}}">
-                        </capitec-hyperlink>
-
-
-						<capitec-hyperlink
-                          style="--theme-hyperlink-color: #009DE0;"
-                          label="Order Tracker"
-                          @click="${() => {
-						this.isOrderTrackerModalVisible = true;
-					}}">
-                        </capitec-hyperlink>
                 </capitec-content-box>
 				 
               `}
@@ -2748,6 +2763,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		  ${this.isReturnsSuccessModalVisible ? this.renderReturnsSuccessModal() : null}
 		  ${this.isOrderTrackerModalVisible ? this.renderOrderTrackerModal() : null}
 		  ${this.isOrderNegativeStatesModalVisible ? this.renderOrderNegativeStateModal() : null}
+		  ${this.isReturnsErrorModalVisible ? this.renderReturnsErrorModal() : null}
 
         </capitec-tab>
 

@@ -267,18 +267,6 @@ export class CapitecConnectAgent extends ViewBase {
 		`;
 	}
 
-	_renderReturnsPlaceholder() {
-		return html`
-			<capitec-content-box style="padding: 24px;">
-			<capitec-label type="strong" label="Returns"></capitec-label>
-			<br />
-			<capitec-label
-				label="Returns data and actions will appear here. We’ll hook this up next."
-			></capitec-label>
-			</capitec-content-box>
-		`;
-	}
-
 	_renderProductInfo() {
 		return html`
 			<capitec-card class="product-info">
