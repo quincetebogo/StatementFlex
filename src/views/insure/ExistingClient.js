@@ -2275,7 +2275,7 @@ export class ExistingClient extends InsureViewBase {
 		}
 		super.isOnlyProductEnquiry = false;
 		this.showInsureSuccessToast = true;
-		this.insureSuccessToastMessage = `Early December collection OPT ${electRequest.participating === true ? `OUT` : `IN`} successfully updated.`;
+		this.insureSuccessToastMessage = `Early December collection OPT OUT successfully updated.`;
 		window.setTimeout(() => this.showInsureSuccessToast = false, 5000);
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		return true;

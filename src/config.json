@@ -471,7 +471,7 @@
 			"positiveCase": true
 		},
 		"insureElectOption": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"getClientDetails": {

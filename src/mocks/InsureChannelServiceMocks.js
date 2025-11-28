@@ -639,7 +639,7 @@ export default class InsureChannelServiceMocks {
 
 	insureElectOption() {
 		if (this._mockSettings.insureElectOption.positiveCase) {
-			return this.electOptionsMocks.InsureElectOption;
+			return this.electOptionMocks.InsureElectOption;
 		}
 		return null;
 	}

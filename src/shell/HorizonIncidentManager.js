@@ -316,7 +316,10 @@ export class HorizonIncidentManager {
 			}
 
 			this.logger.log(`error`, `Failed to create incident on new call`, `createExternalIncident`, returnValue.correlationId);
-		} else if (callerInfo.isBranchConsultant) {
+			return null;
+		} 
+		
+		if (callerInfo.isBranchConsultant) {
 			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
 		}
 
