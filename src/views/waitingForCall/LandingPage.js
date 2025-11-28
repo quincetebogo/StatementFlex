@@ -153,7 +153,7 @@ export class LandingPage extends ViewBase {
 
 		// 2. Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
-		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCollector) {
 			this.horizonRouter.navigateToWaitingForCall(() => this.eventAggregator.publish(`continue-without-incident`, {}));
 			return false;
 		}
@@ -411,23 +411,23 @@ export class LandingPage extends ViewBase {
 			newCallInfo.authenticationMethod,
 			newCallInfo.ivrOptionCode,
 			{
-			'possibleValues': [
-				{
-					key: `StopCard`, value: `Stop Card`
-				},
-				{
-					key: `Transact`, value: `Transact`
-				},
-				{
-					key: `ProductEnquiry`, value: `Product Enquiry`
-				}
-			],
-			'value': newCallInfo.ivrOptionCode
+				'possibleValues': [
+					{
+						key: `StopCard`, value: `Stop Card`
+					},
+					{
+						key: `Transact`, value: `Transact`
+					},
+					{
+						key: `ProductEnquiry`, value: `Product Enquiry`
+					}
+				],
+				'value': newCallInfo.ivrOptionCode
 			},
 			newCallInfo.externalId,
 			newCallInfo.externalSystem
 		);
-		
+
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 	}
 

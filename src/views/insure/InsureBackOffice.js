@@ -93,6 +93,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		this.lifeCancelationReasons = LIFE_CANCELATION_REASONS_BACKOFFICE;
 		this.lifeSuccessPageMessages = {};
+
+		this.blackListCheck = {};
+		this.showBlackListBanner = false;
+		this.blackListBannerMessage = ``;
 	}
 
 	/**
@@ -115,6 +119,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 * @property {Boolean} funeralShowEstimateSuccessToast determine whether to show a success alert for estimate email
 	 * @property {Object} funeralPolicyArrears contains client arrears and payable accounts for funeral policy
 	 * @property {String} contractReference contains the contract reference for the selected policy 
+	 * @property {Object} blackListCheck determines if client can reissue policy or increase cover
 	 * 
 	 * @readonly
 	 * @static
@@ -149,6 +154,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 			defaultSavingsAccountNumber: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
+			blackListCheck: { type: Object, state: true }
 
 		};
 	}
@@ -181,7 +187,9 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.claims = await this._retrieveClaims();
+		this.blackListCheck = await this._retrieveBlackListCheck();
 		this.initFeaturesBanner();
+		this.initBlackListBanner();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
@@ -205,6 +213,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 				this.showFeatureBanner = false;
 				this.featureBannerMessage = ``;
 			}
+		}
+	}
+
+	initBlackListBanner() {
+		if (this.blackListCheck?.isBlacklisted === true) {
+			this.showBlackListBanner = true;
+			this.blackListBannerMessage = `We are unable to offer you a new or an additional insurance product at this time based on our current policy guidelines.`;
+
+		} else {
+			this.showBlackListBanner = false;
+			this.blackListBannerMessage = ``;
 		}
 	}
 
@@ -241,6 +260,18 @@ export class InsureBackOfficeView extends InsureViewBase {
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
 		if (!respSummary.succeeded) {
 			this.handleToastError(resp.exception);
+			return;
+		}
+		return respSummary.result;
+	}
+
+	async _retrieveBlackListCheck() {
+		const request = {
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		const respSummary = await this.insureLifeService.blackListCheck(request);
+		if (!respSummary.succeeded) {
+			this.handleToastError(respSummary.exception);
 			return;
 		}
 		return respSummary.result;
@@ -2083,7 +2114,10 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				.showFeatureBanner="${this.showFeatureBanner}"
-				.featureBannerMessage="${this.featureBannerMessage}">
+				.featureBannerMessage="${this.featureBannerMessage}"
+				.blackListBannerMessage="${this.blackListBannerMessage}"
+				.showBlackListBanner="${this.showBlackListBanner}"
+				.blackListCheck="${this.blackListCheck}">
 			</horizon-insure-client-summary>`;
 	}
 

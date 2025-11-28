@@ -113,6 +113,10 @@ export class ExistingClient extends InsureViewBase {
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
 		this.VPPEmailActionActivate = false;
+
+		this.blackListCheck = {};
+		this.showBlackListBanner = false;
+		this.blackListBannerMessage = ``;
 	}
 
 	// #endregion INITIALISATION
@@ -146,7 +150,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} funeralPolicyPauseSuccess contains the policy pause success flag
 	 * @property {Object} policyPauseSuccessMessage contains the policy pause success message
 	 * @property {Object} lifePolicyMandates contains life policy mandates
-	 * 
+	 * @property {Object} blackListCheck determines if client can reissue policy or increase cover
 	 * @readonly
 	 * @static
 	 */
@@ -196,6 +200,7 @@ export class ExistingClient extends InsureViewBase {
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			coverAvailableAnswers: { type: Array, state: true },
 			funeralBenefitAgreementDocument: { type: Object, state: true },
+			blackListCheck: { type: Object, state: true }
 		};
 	}
 
@@ -228,7 +233,9 @@ export class ExistingClient extends InsureViewBase {
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this.insuranceClaims = await this._retrieveClientClaims();
 		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.blackListCheck = await this._retrieveBlackListCheck();
 		this.initFeaturesBanner();
+		this.initBlackListBanner();
 		super.setInsureIncident(LANDING_PAGE_NEEDS.INSURE);
 	}
 
@@ -252,6 +259,17 @@ export class ExistingClient extends InsureViewBase {
 				this.showFeatureBanner = false;
 				this.featureBannerMessage = ``;
 			}
+		}
+	}
+
+	initBlackListBanner() {
+		if (this.blackListCheck?.isBlacklisted === true) {
+			this.showBlackListBanner = true;
+			this.blackListBannerMessage = `We are unable to offer you a new or an additional insurance product at this time based on our current policy guidelines.`;
+
+		} else {
+			this.showBlackListBanner = false;
+			this.blackListBannerMessage = ``;
 		}
 	}
 
@@ -869,6 +887,18 @@ export class ExistingClient extends InsureViewBase {
 		};
 
 		const respSummary = await this.insureLifeService.lifeClientSummary(request);
+		if (!respSummary.succeeded) {
+			this.handleToastError(respSummary.exception);
+			return;
+		}
+		return respSummary.result;
+	}
+
+	async _retrieveBlackListCheck() {
+		const request = {
+			idNumber: this.callerInformation.southAfricanIDNumber
+		};
+		const respSummary = await this.insureLifeService.blackListCheck(request);
 		if (!respSummary.succeeded) {
 			this.handleToastError(respSummary.exception);
 			return;
@@ -1827,9 +1857,9 @@ export class ExistingClient extends InsureViewBase {
 					item.eventPaidAmount = formatCurrency(item.eventPaidAmount);
 					return item;
 				});
-				if (formattedTrans.length === 0) {
-					console.warn(`No transactions found for this policy.`);
-				}
+			if (formattedTrans.length === 0) {
+				console.warn(`No transactions found for this policy.`);
+			}
 			this.lifePremiumHistory.transactions.push(...formattedTrans);
 			this.renderMode = INSURE_RENDER_MODE.LIFE_POLICY_PREMIUM_HISTORY;
 		} else {
@@ -1942,6 +1972,7 @@ export class ExistingClient extends InsureViewBase {
 	async _goToFuneralUpdatePlan(e) {
 		this.selectedFuneralPolicyProductCode = e.detail.productCode;
 		this.selectedFuneralPolicyContractReference = e.detail.policyContractReference;
+		await this._getSavingsAccountDetails()
 
 		if (e.detail.canReinstate) {
 			const calcResponse = await this._reissueFuneralPolicyQuote(e.detail.policyContractReference, this.callerInformation.cifNumber);
@@ -2432,7 +2463,10 @@ export class ExistingClient extends InsureViewBase {
 				@refresh-funeral-policies = "${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				.showFeatureBanner="${this.showFeatureBanner}"
-				.featureBannerMessage="${this.featureBannerMessage}">
+				.featureBannerMessage="${this.featureBannerMessage}"
+				.blackListBannerMessage="${this.blackListBannerMessage}"
+				.showBlackListBanner="${this.showBlackListBanner}"
+				.blackListCheck="${this.blackListCheck}">
 			</horizon-insure-client-summary>`;
 	}
 

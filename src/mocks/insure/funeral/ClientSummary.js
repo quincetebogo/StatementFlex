@@ -592,8 +592,8 @@ export const ClientSummary = {
 				feature: "AdhocPayment",
 			},
 			{
-				enabled: true,
-				visible: true,
+				enabled: false,
+				visible: false,
 				message: "Heads up: We're in mock mode!",
 				feature: "Banner",
 			},
@@ -640,8 +640,8 @@ export const ClientSummary = {
 				feature: "IssuePolicy",
 			},
 			{
-				enabled: true,
-				visible: true,
+				enabled: false,
+				visible: false,
 				message: "Reissue Policy not available",
 				feature: "ReissuePolicy",
 			},

@@ -31,7 +31,7 @@ export class HorizonActionBar extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.roleManager = RoleManager.getInstance();
-		
+
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
@@ -109,7 +109,7 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-    _onAssign() {
+	_onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
 	}
 
@@ -205,7 +205,7 @@ export class HorizonActionBar extends Component {
 	_mobileTemplate() {
 	}
 
-    _webTemplate() {
+	_webTemplate() {
 		return html`
 			<capitec-title-bar>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
@@ -241,7 +241,7 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 					<capitec-button type="clear"
 									label="Add caller details"
-									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator}"
+									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector}"
 									@click="${() => this._addCallerDetails()}"
 									data-automation-id="action-bar-add-caller-details">
 					</capitec-button>
@@ -258,7 +258,7 @@ export class HorizonActionBar extends Component {
 
 	_renderIncRefNumber() {
 		return !this._incRefNumber
-		? html`
+			? html`
 			<capitec-content-box class="noIncRef" layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-icon
 					size="medium"
@@ -266,7 +266,7 @@ export class HorizonActionBar extends Component {
 				</capitec-icon>
 				<capitec-label label="Incident not created"></capitec-label>
 			</capitec-content-box>`
-		: html`
+			: html`
 			<horizon-label
 				label="Reference Number" 
 				value="${this._incRefNumber}"

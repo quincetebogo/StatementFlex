@@ -349,7 +349,7 @@ export class HorizonRouter {
 
 	navigateToInsureLanding() {
 		// Navigation to the correct insure page
-		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector) {
 			this.navigateToInsureBackOfficePage();
 			return;
 		}
@@ -594,7 +594,7 @@ export class HorizonRouter {
 	static _guardNonInsureProductPagesForInsureRole(isInsureLandingPage) {
 		const roleManager = RoleManager.getInstance();
 
-		if (!isInsureLandingPage && (roleManager.isInsureAgent || roleManager.isInsureAdministrator)) {
+		if (!isInsureLandingPage && (roleManager.isInsureAgent || roleManager.isInsureAdministrator || roleManager.isInsureCampaigner || roleManager.isInsureCollector)) {
 			return true;
 		}
 
