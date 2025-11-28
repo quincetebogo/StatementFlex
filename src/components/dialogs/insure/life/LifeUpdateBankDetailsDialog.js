@@ -343,7 +343,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 				}
 
 				.banking-form-body{
-					padding: 40px 20px 0px 20px; 
+					padding: 30px 20px 0px 20px; 
 					min-height: 400px;
 				}
 
@@ -369,6 +369,9 @@ class LifeUpdateBankDetailsDialog extends Component {
 					--theme-label-font-color: #009DE0;
 					--theme-label-strong-font-size: 16px;
 					--theme-label-strong-font-weight: 600;
+				}
+				.payment-details-label {
+					padding-bottom: 35px;
 				}
 				`
 		];
@@ -442,6 +445,11 @@ class LifeUpdateBankDetailsDialog extends Component {
 	_renderPaymentDetailsPage() {
 		return html`
 		<div class="banking-form-body" >
+			<div>
+				<capitec-label type="strong" label="Please provide your banking details to set up your premium collection securely. We’ll use a DebiCheck mandate where available or an EFT mandate if DebiCheck is not supported."
+					class="payment-details-label">
+				</capitec-label>
+			</div>
 			<div>
 				<capitec-select
 					label="Collection Day" 

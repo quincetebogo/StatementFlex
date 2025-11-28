@@ -63,7 +63,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this._loading = true;
 		this.tranToDispute = {};
 		this.disputeQuestion = {};
-		this.cueSheetIncident = {};
 
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 
@@ -203,6 +202,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	_errorHandler(exception) {
+		this.logger.log(`error`, `System Error from Savings Account Landing Page: ${exception?.message || exception}`, `_errorHandler`);
 		this.horizonRouter.navigateToSystemError();
 	}
 
@@ -356,46 +356,94 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	}
 
 	async _cardDisputeTransaction() {
+		if (!Array.isArray(this.transactionHistory) || this.transactionHistory.length === 0) {
+			this.logger.log(`warning`, `Savings Account: No transactions loaded`, `_cardDisputeTransaction`);
+			this.horizonRouter.navigateToSystemError();
+			return;
+		}
+		
 		this.tranToDispute = this.transactionHistory.filter(t => t.checked);
 
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
-			transactionId: this.tranToDispute.map(t => t.transactionId),
-			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
-		});
-
-		this.cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-		const returnValue = await this._getFirstQusToDispute();
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get cue sheet questions to dispute`, `_cardDisputeTransaction`, returnValue.correlationId);
+		if (!Array.isArray(this.tranToDispute) || this.tranToDispute.length === 0) {
+			this.logger.log(`warning`, `Savings Account: No transactions selected for dispute`, `_cardDisputeTransaction`);
+			this.horizonRouter.navigateToSystemError();
 			return;
 		}
 
-		this.disputeQuestion = returnValue.result;
+		/*
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_CLICK, {
+			transactionId: this.tranToDispute.map(t => t.transactionId),
+			cardAuthType: this.tranToDispute.map(t => t.cardAuthType)
+		});
+		*/
+
+		const cueSheetIncident = await this.horizonIncidentManager.createExternalIncident(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.disputeQuestion = await this._getFirstQusToDispute(cueSheetIncident);
+
+		if (!this.disputeQuestion) {
+			this.horizonRouter.navigateToSystemError();
+			return;
+		}
+
 		this.renderMode = RENDER_MODE.DISPUTE_TRANSACTION;
 	}
 
-	async _getFirstQusToDispute() {
-		const request = {
-			"transactions": this.tranToDispute.map((item) => ({
+	async _getFirstQusToDispute(cueSheetIncident) {
+		const cifNumber = this.callerInformation?.cifNumber;
+		const accountNumber = this.landingPageInfo?.accountNumber;
+
+		if (!cueSheetIncident) {
+			this.logger.log(`error`, `Savings Account: No incident created for cue sheet process`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		if (!cifNumber || cifNumber === ``) {
+			this.logger.log(`error`, `Savings Account: No CIF number provided for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		if (!accountNumber || accountNumber === ``) {
+			this.logger.log(`error`, `Savings Account: No Account Number provided for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		const transactions = this.tranToDispute.map((item) => ({
 				transactionID: item.transactionId,
 				transactionPostingDate: item.postingDate
-			})),
-			"incident": this.cueSheetIncident,
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.accountNumber,
+			}));
+
+		if (transactions.some(t => !t.transactionID || !t.transactionPostingDate)) {
+			this.logger.log(`error`, `Savings Account: Invalid transaction data for dispute`, `_getFirstQusToDispute`);
+			return null;
+		}
+
+		const request = {
+			"transactions": transactions,
+			"incident": cueSheetIncident,
+			"cifNumber": cifNumber,
+			"accountNumber": accountNumber,
 			"agentId": `${this.securityContext.username}`
 		};
-		const returnValue = await this.savingsService.getFirstQuestion(request);
-		return returnValue;
+
+		const returnValue = await this.savingsService.getFirstQuestion(request, (ex) => this._errorHandler(ex));
+
+		if (!returnValue || !returnValue.succeeded) {
+			this.logger.log(`error`, `Savings Account: Failed to get first cue card question for dispute process!`, `_getFirstQusToDispute`, returnValue?.correlationId);
+			return null;
+		}
+
+		return returnValue.result;
 	}
 
 	async _getNextQusToDispute(request) {
-		this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
+		
+		/*
+		await this._telemetry.logEvent(TRANSACTION_ENQUIRY_EVENTS.TRANSACTION_HISTORY_DISPUTE_NEXT, {
 			cueSheetId: request.cueSheetId,
 			caseId: request.caseId,
 			answerId: request.answerId
 		});
+		*/
 
 		const returnValue = await this.savingsService.getNextQuestion(request, () => true);
 		this.disputeQuestion = returnValue.result;
