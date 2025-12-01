@@ -1326,7 +1326,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           row="1"
           colspan="2"
           slot="body"
-          style="padding: 20px 0px !important;min-width: 800px;"
+          style="padding: 20px 0px !important;"
         >
 		  <capitec-label
             type="strong"
