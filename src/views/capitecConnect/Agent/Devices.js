@@ -413,8 +413,8 @@ export class CapitecConnectAgentDevices extends ViewBase {
 	_getPositiveOrderStatuses() {
 		return [
 			'ORDER_PLACED',
-			'ORDER_PAYMENT_SUCCESSFUL',
 			'ORDER_PROCESSING',
+			'ORDER_OUT_FOR_DELIVERY',
 			'ORDER_DELIVERED',
 			'ORDER_PLACED_AT_SUPPLIER',
 		];
@@ -425,9 +425,9 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			'ORDER_PAYMENT_FAILED',
 			'ORDER_FAILED',
 			'ORDER_CANCELLATION_PENDING',
-			'ORDER_OUT_FOR_DELIVERY',
 			'ORDER_CANCELLED',
 			'ORDER_DELIVERY_FAILED_RETURNED',
+			'ORDER_ADDRESS_VALIDATION_FAILED',
 		];
 	}
 
@@ -1326,7 +1326,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
           row="1"
           colspan="2"
           slot="body"
-          style="padding: 20px 0px !important;min-width: 800px;"
+          style="padding: 20px 0px !important;"
         >
 		  <capitec-label
             type="strong"
@@ -2514,13 +2514,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 									this.currentOrderId = item?.orderNumber;
 									this.isConnectivityModalVisible = true;
 								}}"
-                        >
-                        </capitec-hyperlink>
-
-						<capitec-hyperlink
-                          style="--theme-hyperlink-color: #009DE0;"
-                          label="Order Tracker"
-                          @click="${() => this._handleOrderTrackerClick(item)}"
                         >
                         </capitec-hyperlink>
                       `
