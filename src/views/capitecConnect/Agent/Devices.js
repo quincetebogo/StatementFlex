@@ -1201,9 +1201,16 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 			<div style="display:flex; justify-content:space-between; gap:12px; width:296px;">
 				<capitec-check label="Display" 
-					@change="${(e) => this._onReturnBoolChange('issueDisplay', e)}"></capitec-check>
-				<capitec-check label="Other"  @change="${(e) => this._onReturnBoolChange('issueOther', e)}"
-				.checked="${!!this.tempReturnForm.issueOther}"
+					.checked="${!!this.tempReturnForm.faultFive}"
+					@change="${(e) => this._onReturnBoolChange('faultFive', e)}"
+					@value-change="${(e) => this._onReturnBoolChange('faultFive', e)}"  
+				 	@checked-change="${(e) => this._onReturnBoolChange('faultFive', e)}"
+					></capitec-check>
+				<capitec-check label="Other"  
+				.checked="${!!this.tempReturnForm.faultSix}"
+					@change="${(e) => this._onReturnBoolChange('faultSix', e)}"
+					@value-change="${(e) => this._onReturnBoolChange('faultSix', e)}"  
+				 	@checked-change="${(e) => this._onReturnBoolChange('faultSix', e)}"
 				></capitec-check>
 			</div>
 		</div>
@@ -1557,9 +1564,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			<span>Device</span>
 			<span><strong>${data.deviceName || ' '}</strong></span>
 			</div>
-
-            <capitec-label label="Specifications: "></capitec-label>
-
 			<div class="review-card-labels">
 			<span>IMEI</span>
 			<span><strong>${data.imei1 || ' '}</strong></span>
@@ -1590,7 +1594,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			</div>
 			<div class="review-card-labels">
 			<span>Fault 4</span>
-			<span><strong>${data.faultFour || ' '}</strong></span>
+			<span><strong>${data.faultFour || data.faultFive || data.faultSix || ' '}</strong></span>
 			</div>
           </capitec-group>
         </capitec-content-box>
@@ -1601,27 +1605,27 @@ export class CapitecConnectAgentDevices extends ViewBase {
           <capitec-group layout="grid" columns="auto auto" gap="normal">
 
 			<div class="review-card-labels">
-			<span>Name</span>
+			<span>Name:</span>
 			<span><strong>${data.firstName || ' '}</strong></span>
 			</div>
 
 			<div class="review-card-labels">
-			<span>Surname</span>
+			<span>Surname:</span>
 			<span><strong>${data.lastName || ' '}</strong></span>
 			</div>
 
 			<div class="review-card-labels">
-			<span>Cellphone</span>
+			<span>Cellphone:</span>
 			<span><strong>${data.cell || ' '}</strong></span>
 			</div>
 
 			<div class="review-card-labels">
-			<span>Alternate number</span>
+			<span>Alternate number:</span>
 			<span><strong>${data.altNumber || '-'}</strong></span>
 			</div>
 
 			<div class="review-card-labels">
-			<span>Email</span>
+			<span>Email: </span>
 			<span><strong>${data.email || ' '}</strong></span>
 			</div>
           </capitec-group>
