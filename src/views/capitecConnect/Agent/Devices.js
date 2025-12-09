@@ -84,29 +84,23 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		this.requestUpdate();
 	}
 
-	_onReturnBoolChange(field, e) {
-		const isChecked = !!(
-			e?.detail?.new ??
-			e?.detail?.checked ??
-			e?.target?.checked
-		);
+	_onReturnFaultToggle(faultLabel, e) {
+		const checked = e.target?.checked;
 
-		// If checked → store its label (or name), otherwise remove it
-		if (isChecked) {
-			this.tempReturnForm = {
-				...this.tempReturnForm,
-				[field]: e.target?.label || field, // stores e.g. "Audio"
-			};
+		let faults = Array.isArray(this.tempReturnForm.faults)
+			? [...this.tempReturnForm.faults]
+			: [];
+
+		if (checked) {
+			if (!faults.includes(faultLabel)) faults.push(faultLabel);
 		} else {
-			// remove from object when unchecked
-			const { [field]: _, ...rest } = this.tempReturnForm;
-			this.tempReturnForm = rest;
+			faults = faults.filter(f => f !== faultLabel);
 		}
 
-		// persist in localStorage
-		localStorage.setItem('returnDraft', JSON.stringify(this.tempReturnForm));
-		this.requestUpdate();
+		this.tempReturnForm = { ...this.tempReturnForm, faults };
+		localStorage.setItem("returnDraft", JSON.stringify(this.tempReturnForm));
 	}
+
 
 	_resetReturnDraft(orderId) {
 		if (orderId) this.currentOrderId = orderId;
@@ -595,8 +589,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				hasLogged: false
 			}));
 
-			console.log("devices data: ", devices);
-
 			this.isDeviceTableVisible = response.result.totalElements !== 0;
 
 			return {
@@ -650,7 +642,6 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 				// JSON you showed: { "returns": [ ... ] }
 				const returns = (response.result && response.result.returns) || response.returns || [];
-				console.log("RETURNS", returns);
 
 				this.returnsCache = returns.map((r) => this._mapReturnToRow(r));
 			}
@@ -772,16 +763,14 @@ export class CapitecConnectAgentDevices extends ViewBase {
 			this.isLoading = true;
 			const payload = {
 				cif: this.clientCif,
-				appearance: data.deviceCondition?.text || '',
+				appearance: data.deviceCondition?.value || '',
 				cpaReason: data.reason || '',
 				cpaDescription: data.description || '',
-				faults: [
-					{
-						category: 'Device',
-						subCategory: data.faultOne || '',
-						description: data.faultTwo || ''
-					}
-				],
+				faults: (data.faults || []).map(f => ({
+					category: null,
+					description: f,
+					subCategory: null
+				})),
 				productOrderId: data.productOrderId,
 				addressLine1: data.addr1 || '',
 				addressLine2: data.addr2 || '',
@@ -797,19 +786,19 @@ export class CapitecConnectAgentDevices extends ViewBase {
 				phoneNumber: data.cell || ''
 			};
 
-			console.log(payload);
-
 			const response = await this.capitecConnectService.submitDeviceReturn(payload);
 
 			if (!response || !response.succeeded) {
 				throw new Error(`Failed to send device return`);
 			}
 
+			localStorage.removeItem('returnDraft');
+			this.tempReturnForm = {};
+
 			this.isReturnsSuccessModalVisible = true;
 
 		} catch (error) {
 			console.error(`Error sending the device return:`, error);
-			console.log("error ", error);
 			this.isReturnsErrorModalVisible = true;
 		} finally {
 			this.isLoading = false;
@@ -1071,7 +1060,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		return html`
       <capitec-modal
         type="form"
-        header="Repairs and returns — details"
+        header="Repairs and returns details"
         ?open="${this.isReturnsDetailsModalVisible}"
 		class="no-padding"
       >
@@ -1140,11 +1129,12 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		if (item.kind === 'condition') {
 			const conditionItems = [
 				{ value: 'GOOD', text: 'Device is in good condition' },
-				{ value: 'SCRATCHES', text: 'Scratches on device' },
+				{ value: 'SCRATCHED', text: 'Scratches on device' },
 				{ value: 'DENTED', text: 'Device is dented' },
-				{ value: 'BENT', text: 'Device is bent/deformed' },
+				{ value: 'DEFORMED', text: 'Device is bent/deformed' },
 				{ value: 'CRACKED', text: 'Screen/back of device is cracked' },
-				{ value: 'DAMAGED', text: 'Device has major damages' }
+				{ value: 'DAMAGED', text: 'Device has major damages' },
+				{ value: 'PARTS MISSING', text: 'Parts/accessories missing' }
 			];
 			const selectedCondition = conditionItems.find(i => i.value === this.tempReturnForm.deviceCondition) || null;
 
@@ -1170,47 +1160,49 @@ export class CapitecConnectAgentDevices extends ViewBase {
 		      <capitec-label type="strong" label="Tell us about the issues with your device"></capitec-label>
 		<div>
 			<div style="display:flex; justify-content:space-between; gap:12px; width:300px;">
-				<capitec-check label="Audio" .checked="${!!this.tempReturnForm.faultOne}"  
-				 	@change="${(e) => this._onReturnBoolChange('faultOne', e)}"  
-				 	@value-change="${(e) => this._onReturnBoolChange('faultOne', e)}"  
-				 	@checked-change="${(e) => this._onReturnBoolChange('faultOne', e)}">
+				<capitec-check label="Audio" 
+					.checked="${(this.tempReturnForm.faults || []).includes('Audio')}"
+				 	@change="${(e) => this._onReturnFaultToggle('Audio', e)}"  
+				 	@value-change="${(e) => this._onReturnFaultToggle('Audio', e)}"  
+				 	@checked-change="${(e) => this._onReturnFaultToggle('Audio', e)}">
 				</capitec-check>
-				<capitec-check label="Power" .checked="${!!this.tempReturnForm.faultTwo}"  
-					@change="${(e) => this._onReturnBoolChange('faultTwo', e)}"
-					@value-change="${(e) => this._onReturnBoolChange('faultTwo', e)}"  
-					@checked-change="${(e) => this._onReturnBoolChange('faultTwo', e)}"
+				<capitec-check label="Power" 
+					.checked="${(this.tempReturnForm.faults || []).includes('Power')}"
+					@change="${(e) => this._onReturnFaultToggle('Power', e)}"
+					@value-change="${(e) => this._onReturnFaultToggle('Power', e)}"  
+					@checked-change="${(e) => this._onReturnFaultToggle('Power', e)}"
 				>
 				</capitec-check>
 			</div>
 
 			<div style="display:flex; justify-content:space-between; gap:14px; width:316px;">
 				<capitec-check label="Camera"
-					.checked="${!!this.tempReturnForm.faultThree}"
-				 	@change="${(e) => this._onReturnBoolChange('faultThree', e)}"
-				 	@value-change="${(e) => this._onReturnBoolChange('faultThree', e)}"  
-				 	@checked-change="${(e) => this._onReturnBoolChange('faultThree', e)}"
+					.checked="${(this.tempReturnForm.faults || []).includes('Camera')}"
+				 	@change="${(e) => this._onReturnFaultToggle('Camera', e)}"
+				 	@value-change="${(e) => this._onReturnFaultToggle('Camera', e)}"  
+				 	@checked-change="${(e) => this._onReturnFaultToggle('Camera', e)}"
 				>
 				 </capitec-check>
 				<capitec-check label="Software" style="margin-left:6px;" 
-					.checked="${!!this.tempReturnForm.faultFour}"
-					@change="${(e) => this._onReturnBoolChange('faultFour', e)}"
-					@value-change="${(e) => this._onReturnBoolChange('faultFour', e)}"  
-				 	@checked-change="${(e) => this._onReturnBoolChange('faultFour', e)}"
+					.checked="${(this.tempReturnForm.faults || []).includes('Software')}"
+					@change="${(e) => this._onReturnFaultToggle('Software', e)}"
+					@value-change="${(e) => this._onReturnFaultToggle('Software', e)}"  
+				 	@checked-change="${(e) => this._onReturnFaultToggle('Software', e)}"
 				></capitec-check>
 			</div>
 
 			<div style="display:flex; justify-content:space-between; gap:12px; width:296px;">
 				<capitec-check label="Display" 
-					.checked="${!!this.tempReturnForm.faultFive}"
-					@change="${(e) => this._onReturnBoolChange('faultFive', e)}"
-					@value-change="${(e) => this._onReturnBoolChange('faultFive', e)}"  
-				 	@checked-change="${(e) => this._onReturnBoolChange('faultFive', e)}"
+					.checked="${(this.tempReturnForm.faults || []).includes('Display')}"
+					@change="${(e) => this._onReturnFaultToggle('Display', e)}"
+					@value-change="${(e) => this._onReturnFaultToggle('Display', e)}"  
+				 	@checked-change="${(e) => this._onReturnFaultToggle('Display', e)}"
 					></capitec-check>
 				<capitec-check label="Other"  
-				.checked="${!!this.tempReturnForm.faultSix}"
-					@change="${(e) => this._onReturnBoolChange('faultSix', e)}"
-					@value-change="${(e) => this._onReturnBoolChange('faultSix', e)}"  
-				 	@checked-change="${(e) => this._onReturnBoolChange('faultSix', e)}"
+					.checked="${(this.tempReturnForm.faults || []).includes('Other')}"
+					@change="${(e) => this._onReturnFaultToggle('Other', e)}"
+					@value-change="${(e) => this._onReturnFaultToggle('Other', e)}"  
+				 	@checked-change="${(e) => this._onReturnFaultToggle('Other', e)}"
 				></capitec-check>
 			</div>
 		</div>
@@ -1541,9 +1533,7 @@ export class CapitecConnectAgentDevices extends ViewBase {
 
 	renderConfirmDetailsModal() {
 		const data = this._getReturnDraft();
-		// const order = this.currentOrder;
-		// const deviceName = product.productShortDescription || '-';
-
+		const faults = Array.isArray(data.faults) ? data.faults : [];
 
 		return html`
       <capitec-modal
@@ -1580,23 +1570,21 @@ export class CapitecConnectAgentDevices extends ViewBase {
         <capitec-content-box layout="grid" class="review-card" column="2" row="1">
           <capitec-label type="strong" label="Faults listed" class="bordered-labels"></capitec-label>
           <capitec-group layout="grid" columns="auto auto" gap="normal">
-		  	<div class="review-card-labels">
-			<span>Fault 1</span>
-			<span><strong>${data.faultOne || ' '}</strong></span>
-			</div>
-			<div class="review-card-labels">
-			<span>Fault 2</span>
-			<span><strong>${data.faultTwo || ' '}</strong></span>
-			</div>
-			<div class="review-card-labels">
-			<span>Fault 3</span>
-			<span><strong>${data.faultThree || ' '}</strong></span>
-			</div>
-			<div class="review-card-labels">
-			<span>Fault 4</span>
-			<span><strong>${data.faultFour || data.faultFive || data.faultSix || ' '}</strong></span>
-			</div>
-          </capitec-group>
+    ${faults.length
+				? faults.slice(0, 4).map((fault, index) => html`
+          <div class="review-card-labels">
+            <span>Fault ${index + 1}</span>
+            <span><strong>${fault || ' '}</strong></span>
+          </div>
+        `)
+				: html`
+          <div class="review-card-labels">
+            <span>Faults</span>
+            <span><strong>-</strong></span>
+          </div>
+        `
+			}
+  </capitec-group>
         </capitec-content-box>
 
         <!-- Person details -->
