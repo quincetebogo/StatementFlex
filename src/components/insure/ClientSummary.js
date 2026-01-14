@@ -3046,7 +3046,6 @@ class ClientSummary extends Component {
 				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
-				.lifePolicies="${this.lifePolicies}"
 				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
 				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
 			</horizon-insure-life-update-bank-details-dialog>
