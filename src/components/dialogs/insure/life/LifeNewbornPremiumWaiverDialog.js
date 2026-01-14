@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_BENEFIT_REASONS, LIFE_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
+import { LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_NBPW_REASONS, LIFE_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import 'app/components/dialogs/insure/AgreementDialog';
 
@@ -23,7 +23,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 	constructor() {
 		super();
 
-		this.benefitReasons = LIFE_BENEFIT_REASONS;
+		this.benefitReasons = LIFE_NBPW_REASONS;
 		this.policy = {};
 		this.cancelBenefit = false;
 		this.showAgreement = false;
@@ -109,7 +109,7 @@ class LifeNewbornPremiumWaiverDialog extends Component {
 		this.showLifeNewbornPremiumWaiverDialog = false;
 		this.selectedReason = '';
 		this.checkConfirmed = false;
-	
+
 		// Close modal
 		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
 	}

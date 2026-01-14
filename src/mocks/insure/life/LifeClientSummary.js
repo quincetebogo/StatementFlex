@@ -11,7 +11,7 @@ export const insureLifeClientSummary = {
 		{
 			"contractReference": "LP00003393",
 			"policyStatus": "Pending In Force",
-			"policyStatusEnum": "PendingInForce",
+			"policyStatusEnum": "VoluntaryPolicyPause",
 			"displayPolicyStatus": "Active - Pending Payment",
 			"policyStartDate": "2025-05-30T00:00:00+00:00",
 			"cancellationReason": "",
@@ -67,7 +67,7 @@ export const insureLifeClientSummary = {
 			"totalPolicySumAssured": 120000,
 			"policyReinstatementCount": 0,
 			"newBornPremiumWaiverAvailable": false,
-			"voluntaryPremiumPauseAvailable": false,
+			"voluntaryPremiumPauseAvailable": true,
 			"canReIssue": false,
 			"canIncreaseCover": true,
 			"channelFee": 31

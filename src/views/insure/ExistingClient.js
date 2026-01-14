@@ -1324,6 +1324,51 @@ export class ExistingClient extends InsureViewBase {
 		mainLife.dateOfBirth = dob.toISOString();
 	}
 
+	async _fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType) {
+
+		const agreementRequest = {
+
+		}
+
+		let agreementResponse = {}
+
+		if (actionType === ACTION_TYPE.ACTIVATE) {
+			agreementResponse = await this.insureLifeService.VppActivateAgreement(agreementRequest)
+		} else {
+			agreementResponse = await this.insureLifeService.VppStopAgreement(agreementRequest)
+		}
+
+		if (!agreementResponse.succeeded) {
+			this.handleToastError(agreementResponse.exception);
+			return;
+		}
+
+		this.lifeVPPAgreementDetails = agreementResponse.result;
+
+		return this.lifeVPPAgreementDetails;
+
+	}
+
+	async _lifeCancelPolicyPause(policy) {
+
+		const request = {
+			cifNumber: policy.cifNumber,
+			policyNumber: policy.contractReference,
+			benefitStopDate: new Date()
+		}
+
+		let resp = await this.insureLifeService.vppStop(request)
+		console.log("resp:", resp)
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+
+		return resp.result
+
+
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS 
@@ -1807,7 +1852,6 @@ export class ExistingClient extends InsureViewBase {
 					item.arrearsAllocatedDate = isNullorEmpty(item.arrearsAllocatedDate) ? `` : formatDateforPremiumHistory(new Date(Date.parse(item.arrearsAllocatedDate)));
 					return item;
 				});
-			this.transactions.push(...formattedTrans);
 			this.funeralPolicyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY;
 		} else {
@@ -2438,6 +2482,8 @@ export class ExistingClient extends InsureViewBase {
 				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
 				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
+				.fetchLifePolicyPauseAgreementDetails = "${(saveDoc, policy, actionType) => this._fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
+				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"

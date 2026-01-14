@@ -504,9 +504,9 @@ export const FUN_BENEFIT_REASONS = Object.freeze([
 /**
  * Reasons for Activating Life benefits
  * @readonly
- * @enum {Object} LIFE_BENEFIT_REASONS
+ * @enum {Object} LIFE_NBPW_REASONS
  */
-export const LIFE_BENEFIT_REASONS = Object.freeze([
+export const LIFE_NBPW_REASONS = Object.freeze([
 	{ code: `Birth`, text: `Birth` },
 	{ code: `Adoption`, text: `Adoption` }
 ]);
@@ -529,7 +529,8 @@ export const FUN_BENEFIT_TYPES = Object.freeze({
  * @enum {Object} LIFE_BENEFIT_TYPES
  */
 export const LIFE_BENEFIT_TYPES = Object.freeze({
-	NEW_BORN_WAIVER: `NewBornPremiumWaiver`
+	NEW_BORN_WAIVER: `NewBornPremiumWaiver`,
+	VOLUNTARY_PAUSE: `VoluntaryPolicyPause`
 });
 
 /**
