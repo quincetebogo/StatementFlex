@@ -2153,11 +2153,11 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${!this._determineEarlyCollectVisibility() ? html`` : html`
+					<!--${!this._determineEarlyCollectVisibility() ? html`` : html`
 						<capitec-button type="white" label="Early Collect Opt out" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openEarlyCollectionOPTInDialog()}">
 						</capitec-button>
-					`}
+					`} -->
 					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.isInsureAgent === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openClaimInfoDialog()}">
