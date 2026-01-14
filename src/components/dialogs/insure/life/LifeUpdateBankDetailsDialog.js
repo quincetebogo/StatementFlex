@@ -80,9 +80,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.collectionDay = this.policy.bankDetails.collectionDay;
+		this.collectionDay = this.policy.bankDetails?.collectionDay;
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
-		console.log(this.policy)
 
 		await this.getDefaultSavingsAccountNumber();
 	}
