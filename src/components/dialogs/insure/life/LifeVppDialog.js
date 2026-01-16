@@ -100,13 +100,11 @@ class LifeVppDialog extends Component {
 		if (this.isActivate) {
 			//TODO do the benefit info call here to get dates
 		}
-		console.log(`this.isActivate: `, this.isActivate)
 
 		if (!this.isActivate) {
 			this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.CANCEL)
 		}
 
-		console.log(this.policyPauseDocumentDetails)
 	}
 
 	// #endregion PRIVATE METHODS
@@ -118,23 +116,20 @@ class LifeVppDialog extends Component {
 	 * @returns {void}
 	 */
 	async _confirmPolicyPauseClick() {
-		console.log(`this.isActivate: `, this.isActivate)
 		if (!this.isActivate) { //for Cancel pause 
-			console.log(`in confirm cancel`)
 			const resp = await this.lifeCancelPolicyPause(this.policy);
 
 			if (resp.successful) {
-				this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `Your Policy Pause benefit has been successfully cancelled` } }));
+				this.dispatchEvent(new CustomEvent(`action-success`, { detail: { successMessage: `Your Policy Pause benefit has been successfully cancelled` } }));
 			}
 
 		} else { // for activate pause
-			console.log("reason: ", this.selectedReason)
 			if (isNullorEmpty(this.selectedReason)) {
 				this.errorMessage = `A reason needs to be selected`;
 				return;
 			}
 			this.errorMessage = ``;
-			// this.dispatchEvent(new CustomEvent(`go-to-confirm`, { detail: { reason: this.selectedReason } }));
+			this.dispatchEvent(new CustomEvent(`action-success`, { detail: { successMessage: `Your Policy Pause benefit has been successfully activated` } }));
 		}
 
 
@@ -143,8 +138,7 @@ class LifeVppDialog extends Component {
 	async _reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this.errorMessage = ``;
-		console.log("reason: ", this.selectedReason)
-		// this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE)
+		this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE)
 	}
 
 	/**
@@ -152,7 +146,7 @@ class LifeVppDialog extends Component {
 	 * @returns {void}
 	 */
 	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`close-modal`, { detail: { successMessage: `` } }));
+		this.dispatchEvent(new CustomEvent(`close-modal`));
 	}
 
 	_showAgreement() {
@@ -242,7 +236,7 @@ class LifeVppDialog extends Component {
 		return html` 
 		${this._renderAgreementDialog()}
 				${this.isActivate ? html`
-					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 280px;` : `height: 220px;`} ">
+					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 280px;` : `height: 180px;`} ">
 						
 						<p>Select a reason for activating pause on policy <b>${this.policy.contractReference}</b>?</p>
 						<div>
@@ -260,7 +254,7 @@ class LifeVppDialog extends Component {
 
 							
 							<div>
-								<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Funeral plan" detail="" icon="" @click="${() => this._showAgreement()}">
+								<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Life Cover" detail="" icon="" @click="${() => this._showAgreement()}">
 									<capitec-label slot="detail" type="strong" label="View Document" >
 									</capitec-label>
 								</horizon-product-tile>
@@ -275,7 +269,7 @@ class LifeVppDialog extends Component {
 					<div style="padding-bottom: 10px; height: 200px;">
 						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>date</b>.</p>
 						<div>
-							<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Funeral plan" detail="" icon="" @click="${() => this._showAgreement()}">
+							<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Life Cover" detail="" icon="" @click="${() => this._showAgreement()}">
 								<capitec-label slot="detail" type="strong" label="View Document" >
 								</capitec-label>
 							</horizon-product-tile>

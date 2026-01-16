@@ -1342,11 +1342,9 @@ export class ExistingClient extends InsureViewBase {
 			this.handleToastError(agreementResponse.exception);
 			return;
 		}
+		this.lifeDocsToEmail = agreementResponse.result;
 
-		this.lifeVPPAgreementDetails = agreementResponse.result;
-
-		return this.lifeVPPAgreementDetails;
-
+		return agreementResponse.result;
 	}
 
 	async _lifeCancelPolicyPause(policy) {
