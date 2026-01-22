@@ -2504,7 +2504,7 @@ class ClientSummary extends Component {
 					`}
 
 					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy, LIFE_UPDATE_MODE.ALLOCATE)}"></capitec-overflow-menu-item>`
+				? html`<capitec-overflow-menu-item icon="system/documents-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy, LIFE_UPDATE_MODE.ALLOCATE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 			
