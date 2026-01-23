@@ -268,13 +268,13 @@ export class HorizonIncidentManager {
 			primaryIncident: {
 				...this.incidentDetails.primaryIncident,
 				toString: function toString() {
-				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
+					return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			},
 			currentIncident: {
 				...this.incidentDetails.currentIncident,
 				toString: function toString() {
-				return this.referenceAsInteraction ? this.interaction : this.incidentReference;
+					return this.referenceAsInteraction ? this.interaction : this.incidentReference;
 				}
 			}
 		};
@@ -317,13 +317,23 @@ export class HorizonIncidentManager {
 
 			this.logger.log(`error`, `Failed to create incident on new call`, `createExternalIncident`, returnValue.correlationId);
 			return null;
-		} 
-		
+		}
+
 		if (callerInfo.isBranchConsultant) {
 			await this._updateIncidentBranchDetails(this.currentIncident, callerInfo.branchCode, callerInfo.branchCallerID);
 		}
 
 		return incident;
+	}
+
+	async _updateIncidentBranchDetails(incident, branchCode, branchCallerID) {
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incident, branchCode, branchCallerID);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -897,7 +907,7 @@ export class HorizonIncidentManager {
 			const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(this.currentIncident, callerInformation.branchCode, callerInformation.branchCallerID);
 
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateIncidentBranchDetails`, returnValue.correlationId);
+				this.logger.log(`error`, `Unable to update branch caller details on incident due to a system error`, `_updateBranchCallerDetails`, returnValue.correlationId);
 			}
 
 			return returnValue.succeeded;
