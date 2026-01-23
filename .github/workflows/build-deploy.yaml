@@ -219,7 +219,7 @@ jobs:
 
       - name: Deploy via Argo to DEV
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v4
+        uses: capitec-odin/action-deploy@v7
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -227,18 +227,6 @@ jobs:
           image: "${{ needs.container.outputs.IMAGE }}"
           org: ${{ vars.GITOPS_ORG }}
           enviro: dev
-
-      - name: Install JFrog
-        id: install-jfrog
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-      - name: Ping JFrog
-        run: jf rt ping
-
-      - name: JFrog Promote Build to DEV
-        id: promote-docker
-        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status DEV
 
   deploy-int:
     name: Deploy to INT
@@ -260,7 +248,7 @@ jobs:
 
       - name: Deploy via Argo to INT
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v4
+        uses: capitec-odin/action-deploy@v7
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -268,18 +256,6 @@ jobs:
           image: "${{ needs.container.outputs.IMAGE }}"
           org: ${{ vars.GITOPS_ORG }}
           enviro: int
-
-      - name: Install JFrog
-        id: install-jfrog
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-      - name: Ping JFrog
-        run: jf rt ping
-
-      - name: JFrog Promote to INT
-        id: promote
-        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status INT
 
   create-release:
     name: Create Release
@@ -345,7 +321,7 @@ jobs:
 
       - name: Deploy via Argo to QA
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v4
+        uses: capitec-odin/action-deploy@v7
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -353,21 +329,6 @@ jobs:
           image: "${{ needs.container.outputs.IMAGE }}"
           org: ${{ vars.GITOPS_ORG }}
           enviro: qa
-
-      - name: Install JFrog
-        id: install-jfrog
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-        # with:
-        #     version: latest
-        #     download-repository: odin-jfrog-cli-remote
-      - name: Ping JFrog
-        run: jf rt ping
-
-      - name: JFrog Promote to QA
-        id: promote
-        run: jf rt build-promote $BUILD_NAME $RUN $DOCKER_REPO --project $JF_PROJECT_KEY --status QA
 
   deploy-prod:
     name: Deploy to PROD
@@ -391,7 +352,7 @@ jobs:
 
       - name: Deploy via Argo to Prod
         id: deploy
-        uses: capitec-odin/action-deploy@v4
+        uses: capitec-odin/action-deploy@v7
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -399,17 +360,6 @@ jobs:
           image: "${{ needs.container.outputs.IMAGE }}"
           org: ${{ vars.GITOPS_ORG }}
           enviro: prd
-
-      - name: Install JFrog
-        id: install-jfrog
-        uses: jfrog/setup-jfrog-cli@v3
-        env:
-          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-        #with:
-        # version: latest
-        # download-repository: odin-jfrog-cli-remote
-      - name: Ping JFrog
-        run: jf rt ping
 
       - name: Promote JFrog Build to Prod
         id: promote
