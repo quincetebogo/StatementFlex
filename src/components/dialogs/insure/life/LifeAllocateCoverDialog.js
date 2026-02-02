@@ -793,7 +793,13 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 	_updateChild(event) {
 		const guardian = event.detail.guardian;
 		if (guardian !== null) {
-			this.updatedPolicy.guardians.push(guardian);
+			if (this.updatedPolicy?.guardians) {
+				this.updatedPolicy?.guardians.push(guardian);
+			} else {
+				this.updatedPolicy.guardians = [];
+				this.updatedPolicy?.guardians.push(guardian);
+			}
+
 		}
 
 		this.updatedPolicy.beneficiaries.forEach(bene => {
