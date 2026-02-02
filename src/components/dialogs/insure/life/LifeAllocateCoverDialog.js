@@ -1140,13 +1140,12 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				return;
 			}
 
-			// Execute update policy request for ALLOCATE, or INCREASE modes
-			if (this.updateMode === LIFE_UPDATE_MODE.ALLOCATE || this.updateMode === LIFE_UPDATE_MODE.INCREASE) {
-				const updateSuccess = await this._executeUpdatePolicyRequest();
-				if (!updateSuccess) {
-					return;
-				}
+			// Execute update policy request for ALL modes
+			const updateSuccess = await this._executeUpdatePolicyRequest();
+			if (!updateSuccess) {
+				return;
 			}
+
 		}
 
 		// if all is good
@@ -1279,7 +1278,6 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				pockets: this.updatedPolicy.pockets,
 				answers: this.newOfferAnswers
 			};
-
 			this.reIssueResult = await this.executeLifeReIssue(reIssueRequest);
 
 			if (!this._handleServiceResponse(this.reIssueResult, `Unable to reissue policy, please try again.`)) {
@@ -1364,7 +1362,6 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 			const updateAgreementResp = await this.executeLifeUpdateDocument(updateAgreementReq);
 
 			if (!updateAgreementResp?.documentContent) {
-				console.error(`Agreement update failed.`);
 				return false;
 			}
 
@@ -1408,7 +1405,6 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 		}
 
 		const resp = await this.executeLifeGenerateIssueAgreement(reissueAgreementReq);
-
 		return resp;
 	}
 
@@ -1474,7 +1470,6 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				"contractReference": this.updatePolicyResult.policyNumber
 			};
 			const updatePocketResp = await this.executeLifeUpdatePocket(updatePocketReq);
-
 			if (updatePocketResp === null) {
 				return;
 			}

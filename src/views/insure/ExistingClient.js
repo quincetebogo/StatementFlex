@@ -1587,7 +1587,6 @@ export class ExistingClient extends InsureViewBase {
 	async _lifeReIssue(reIssueRequest) {
 		reIssueRequest.idNumber = this.callerInformation.southAfricanIDNumber;
 		reIssueRequest.cifNumber = this.callerInformation.cifNumber;
-
 		const resp = await this.insureLifeService.lifeReIssue(reIssueRequest);
 		if (!resp.succeeded) {
 			this.handleToastError(resp.exception);

@@ -2467,13 +2467,13 @@ class ClientSummary extends Component {
 
 					<capitec-overflow-menu label="Menu">
 					
-					${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner ? html`` : html`
+					${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCollector ? html`` : html`
 						<capitec-overflow-menu-item icon="system/send-action" label="Email Policy"
 							@click="${() => this._openLifeEmailDialog(activeLifePolicy)}">
 						</capitec-overflow-menu-item>
 					`}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCollector)
 				? html`<capitec-overflow-menu-item icon="system/documents-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy, LIFE_UPDATE_MODE.ALLOCATE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -2484,18 +2484,18 @@ class ClientSummary extends Component {
 					<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" disabled></capitec-overflow-menu-item>
 				`}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
 
-			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCollector)
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureCollector)
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
