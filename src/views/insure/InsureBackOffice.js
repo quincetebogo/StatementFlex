@@ -574,7 +574,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		};
 
 		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
-		if (!isNullorEmpty(returnValue?.result?.accountNumber) && !isNullorEmpty(returnValue?.result?.accountNumber)) {
+		if (!isNullorEmpty(returnValue?.result?.accountNumber)) {
 			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
 
 			this.defaultSavingsAccountAvailableBalance = returnValue?.result?.accountAvailableBalance;
@@ -794,7 +794,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 				"policyNumber": contractReference,
 				"arrears": selectedArrears,
 				"cifNumber": this.callerInformation.cifNumber,
-				"policyNumber": contractReference,
 				"paidWithClaims": false,
 				"fromAccount": accountSelected
 			}
