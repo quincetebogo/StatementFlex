@@ -1470,7 +1470,6 @@ class LifeAllocateCoverDialog extends InsureViewBase {
 				"contractReference": this.updatePolicyResult.policyNumber
 			};
 			const updatePocketResp = await this.executeLifeUpdatePocket(updatePocketReq);
-
 			if (updatePocketResp === null) {
 				return;
 			}
