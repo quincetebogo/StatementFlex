@@ -581,6 +581,10 @@
 		"insureLifeActivateBenefit": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureBlackListCheck": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

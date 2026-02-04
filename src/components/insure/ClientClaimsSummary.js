@@ -276,7 +276,6 @@ class ClientClaimsSummary extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Status"
-							class = "${claim?.claimStatus === `Active` ? `active-status` : `inactive-status`}"
 							value="${this._claimStatusLabel(claim)}">
 						</horizon-label>
 				</capitec-group>

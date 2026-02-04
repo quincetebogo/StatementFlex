@@ -30,6 +30,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 		this.accountNumberErrorMsg = ``;
 		this.showAgreementDocumentDialog = false;
 		this.defaultSavingsAccountNumber = ``;
+		this.lifePolicies = null;
 	}
 
 	// #endregion INITIALIZE
@@ -64,7 +65,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 			getLifeUpdateBankingDetailsDocument: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
 			defaultSavingsAccountNumber: { type: String, state: true },
-			getDefaultSavingsAccountNumber: { type: Object, state: true }
+			getDefaultSavingsAccountNumber: { type: Object, state: true },
+			lifePolicies: { type: Object, state: true }
 		};
 	}
 
@@ -78,7 +80,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
-		this.collectionDay = this.policy.bankDetails.collectionDay;
+		this.collectionDay = this.policy.bankDetails?.collectionDay;
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
 
 		await this.getDefaultSavingsAccountNumber();
@@ -113,9 +115,11 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 *  @returns {String} day formatted text
 	 */
 	_getCollectionDay() {
+
 		if (!this.collectionDay) {
 			return ``;
 		}
+
 		const day = this.collectionDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 		return day?.text;
 	}
@@ -140,7 +144,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 				this.branchCodeDisabled = true;
 			}
 
-			if (this.updatedPolicy.bankDetails.bank.toUpperCase() === `CAPITEC BANK`) {
+			if (this.updatedPolicy.bankDetails.branchCode === `470010`) {
 				if (this.defaultSavingsAccountNumber === ``) {
 					this.updatedPolicy.bankDetails.accountNumber = ``;
 					this.accountNumberErrorMsg = `Account number is a required field`;

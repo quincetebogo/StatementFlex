@@ -120,11 +120,10 @@ class LifePayArrearsDialog extends Component {
 	//  #region PRIVATE METHODS
 
 	_initialise() {
-
 		if (this.lifePolicyArrears.arrears) {
 			this.lifePolicyArrears.arrears.forEach(arrears => {
 				if (arrears?.arrearsPaymentStatus !== LIFE_ARREARS_STATUSES.PAID) {
-				this.totalPolicyArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
+					this.totalPolicyArrears += parseFloat(arrears.arrearsPaymentDueAmount, 10);
 				}
 			});
 		}
@@ -233,15 +232,15 @@ class LifePayArrearsDialog extends Component {
 		}
 
 		const index = this.payableAccounts.map(object => object.accountNumber).indexOf(this.selectedAccountNumber);
-			if (this.payableAccounts[index]?.availableBalance < this.totalSelectedArrears) {
-				this.accountSelected = false;
-				this.insufficientFunds = true;
-				this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
-				return;
-			} else if (this.accountSelected === false) {
-				this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
-				return;
-			}
+		if (this.payableAccounts[index]?.availableBalance < this.totalSelectedArrears) {
+			this.accountSelected = false;
+			this.insufficientFunds = true;
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.INSUFFICIENT_FUNDS;
+			return;
+		} else if (this.accountSelected === false) {
+			this.arrearsAlertBannerMessage = ARREARS_ERROR_MESSAGES.NO_ACCOUNT_SELECTED;
+			return;
+		}
 		this.selectedAccount = this.payableAccounts[index];
 
 		this.arrearsAlertBannerMessage = ``;

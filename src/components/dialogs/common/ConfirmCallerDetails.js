@@ -204,7 +204,7 @@ export class ConfirmCallerDetails extends Component {
 		this._setSaleforceVerificationFlag();
 
 		// If insure role then navigate to Insure landing page.
-		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator) {
+		if (this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector) {
 			this._navigateToInsureBackOfficePage();
 			return;
 		}
@@ -256,8 +256,8 @@ export class ConfirmCallerDetails extends Component {
 		/**
 			Navigate to Favourites landing by skipping verification flow 
 
-		    Scenario 1: When branch consultant is calling in and client is not present at branch
-		    Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
+			Scenario 1: When branch consultant is calling in and client is not present at branch
+			Scenario 2: When branch consultant is calling in and an agent is with Helpdesk role
 		 */
 
 		/*
@@ -820,7 +820,7 @@ export class ConfirmCallerDetails extends Component {
 						type="success"
 						label="Client has already authenticated via Security Questions in Salesforce">
 					</horizon-alert-banner>`;
-		
+
 			case CALL_AUTHENTICATION_METHOD.SF_BRANCH_AUTHENTICATED:
 			case CALL_AUTHENTICATION_METHOD.HRZ_BRANCH_AUTHENTICATED:
 				return html`
@@ -930,7 +930,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLanguagePreference() {
-		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator
+		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector
 			? html`
 				<horizon-label 
 					class="client-info-row" 
