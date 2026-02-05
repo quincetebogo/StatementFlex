@@ -219,7 +219,7 @@ jobs:
 
       - name: Deploy via Argo to DEV
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v7
+        uses: capitec-odin/action-deploy@v8.0.2
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -230,6 +230,7 @@ jobs:
           jf-access-user: ${{ vars.JF_ACCESS_USER }}
           jf-access-token: ${{ secrets.JF_ACCESS_TOKEN }}
           jf-project-key: ${{ vars.JF_PROJECT_KEY }}
+          promotion-workflow: linear
 
   deploy-int:
     name: Deploy to INT
@@ -251,7 +252,7 @@ jobs:
 
       - name: Deploy via Argo to INT
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v7
+        uses: capitec-odin/action-deploy@v8.0.2
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -262,6 +263,7 @@ jobs:
           jf-access-user: ${{ vars.JF_ACCESS_USER }}
           jf-access-token: ${{ secrets.JF_ACCESS_TOKEN }}
           jf-project-key: ${{ vars.JF_PROJECT_KEY }}
+          promotion-workflow: linear
 
   create-release:
     name: Create Release
@@ -327,7 +329,7 @@ jobs:
 
       - name: Deploy via Argo to QA
         id: argo-deploy
-        uses: capitec-odin/action-deploy@v7
+        uses: capitec-odin/action-deploy@v8.0.2
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -338,6 +340,7 @@ jobs:
           jf-access-user: ${{ vars.JF_ACCESS_USER }}
           jf-access-token: ${{ secrets.JF_ACCESS_TOKEN }}
           jf-project-key: ${{ vars.JF_PROJECT_KEY }}
+          promotion-workflow: linear
 
   deploy-prod:
     name: Deploy to PROD
@@ -361,7 +364,7 @@ jobs:
 
       - name: Deploy via Argo to Prod
         id: deploy
-        uses: capitec-odin/action-deploy@v7
+        uses: capitec-odin/action-deploy@v8.0.2
         with:
           repository: ${{ vars.GITOPS_REPO}}
           access-token: ${{ secrets.GITOPS_TOKEN }}
@@ -372,6 +375,7 @@ jobs:
           jf-access-user: ${{ vars.JF_ACCESS_USER }}
           jf-access-token: ${{ secrets.JF_ACCESS_TOKEN }}
           jf-project-key: ${{ vars.JF_PROJECT_KEY }}
+          promotion-workflow: linear
 
       - name: GitHub Auto Approve PR to Main
         id: pull-request-create
