@@ -116,11 +116,18 @@ export class ValueAddedServices extends Component {
 				"insights": valueAddedServices.optOutInsights,
 				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing
 				
-				
 			});
 		}
 
 		return returnValue.succeeded;
+	}
+
+	async _updateClientInterestConsent(clientInterestConsent){
+		const returnValue = await this.clientProfileService.updateClientInterestConsent(clientInterestConsent);
+
+		if(!returnValue.succeeded){
+			// Need to display that error screen if anything fails;
+		}
 	}
 
 	// ---------
@@ -143,6 +150,7 @@ export class ValueAddedServices extends Component {
 		<capitec-pc-value-added-services
 			.statusVAS="${this.statusVAS}"
 			.updateValueAddedServicesCallback="${(valueAddedServices) => this._updateValueAddedServices(valueAddedServices)}"
+			.updateClientInterestConsentCallback="${(clientInterestConsent) => this._updateClientInterestConsent(clientInterestConsent)}"
 			@accept="${(e) => this._accept(e)}"
 			@cancel="${(e) => this._cancel(e)}">
 		</capitec-pc-value-added-services>`;
