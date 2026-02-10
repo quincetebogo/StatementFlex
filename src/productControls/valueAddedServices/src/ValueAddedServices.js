@@ -83,15 +83,11 @@ export class ValueAddedServices extends Component {
 		this.optOutInsights = this.statusVAS.insights;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
-		
-		console.log('we are now logging from the other side', this.statusVAS.newStatusInterestConsent);
 	}
 
 	updated(changedProperties) {
-		console.log('Lifecycle: updated() just fired!');
 		// Only run this if the data actually changed and isn't null
 		if (changedProperties.has('statusVAS')) {
-			console.log('Data has officially arrived:', this.statusInterestConsent);
 			this._initializeInterests();
 		}
 	}
@@ -416,7 +412,6 @@ _renderConsentOption(type, categoryKey, label, description) {
 					[categoryKey]: newValue
 				};
 			}
-			console.log('view the updated object before it is sent off to back end: ', this.marketingInterestConsent);
 			// This tells the component to re-render with the new "Yes/No" selection
 			this.requestUpdate();
 	}
