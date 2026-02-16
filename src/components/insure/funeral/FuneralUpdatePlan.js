@@ -1657,7 +1657,7 @@ class FuneralUpdatePlan extends Component {
 				</capitec-text-field>`;
 		} else if (isNullorEmpty(roleplayer?.idNumber) || roleplayer?.idNumber.length !== 13 || roleplayer?.coverDetails?.disableDoB === false) {
 			return html`
-				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar"
+				<capitec-date-time-picker style="width: 50%" label="Date of Birth" type="single" mode="date" inputType="calendar" ?disabled="${this.isInsureCollector}"
 					date="${roleplayer?.dateOfBirth}" outputType="string" maxdate="${this.today}" minDate="1901-01-01" 
 					@value-change="${(e) => this._lifeDobValueChange(e, roleplayer.rowID)}" error="${roleplayer?.coverDetails?.ageMessage}">
 				</capitec-date-time-picker>`;
