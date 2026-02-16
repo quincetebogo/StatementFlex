@@ -1367,7 +1367,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${this.isInsureAgent || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
+				.disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -1421,7 +1421,7 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" .disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1430,7 +1430,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" .disabled="${this.isInsureAgent || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1438,7 +1438,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/delete-action" 
-					label="Cancel Plan" .disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
+					label="Cancel Plan" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
