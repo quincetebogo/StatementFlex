@@ -7,498 +7,204 @@
  */
 
 export const insureLifeClientSummary = {
-    "policies": [
-        {
-            "contractReference": `LP00008360`,
-            "policyStatus": `Pending In Force`,
-            "policyStatusEnum": `PendingInForce`,
-            "displayPolicyStatus": `Active - Pending Payment`,
-            "policyStartDate": `2024-07-03T00:00:00+00:00`,
-            "cancellationReason": ``,
-            "cancellationReasonEnum": `Unknown`,
-            "totalPremium": 73.62,
-            "nextCollectionDate": `2024-08-10T00:00:00+00:00`,
-            "nextCollectionAmount": 73.62,
-            "bankDetails": {
-                "accountName": `DEVXOL SURNAMESIM`,
-                "branchCode": `470010`,
-                "accountNumber": `1633180644`,
-                "bank": `Capitec`,
-                "accountType": `Savings`,
-                "collectionDay": 10,
-                "mandateReference": `00102024070397F1A01952`
-            },
-            "pockets": [
-                {
-                    "pocketType": `LumpSum`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                },
-                {
-                    "pocketType": `MonthlyPayout`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                },
-                {
-                    "pocketType": `Education`,
-                    "coverage": 100000.0,
-                    "premium": 42.62
-                }
-            ],
-            "beneficiaries": [
-                {
-                    "title": `Mr`,
-                    "firstName": `Lisa`,
-                    "lastName": `khanya`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 0.0,
-                    "educationBenefitAmount": 100000.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Child`,
-                    "gender": `Female`,
-                    "dateOfBirth": `2024-07-01T00:00:00+00:00`,
-                    "clientType": `Child`,
-                    "guardianId": `11cf9f95-33ca-4b71-a442-a88002f77b6f`,
-                    "clientId": `F4F41DCB-DA4D-440E-BDC4-1910C2904299`
-                }
-            ],
-            "totalPolicySumAssured": 100000.0,
-            "policyReinstatementCount": 1,
-            "canReIssue": false,
-            "canIncreaseCover": true,
-            "mandates": [
-                {
-                    "accountName": `Mr DEVXOL SURNAMESIM`,
-                    "branchCode": `470010`,
-                    "accountNumber": `1633180644`,
-                    "bank": `CAPITEC BANK`,
-                    "accountType": `Bond`,
-                    "mandateType": `Debicheck`,
-                    "initialInstalmentAmount": 73.62,
-                    "firstCollectionDate": `2024-08-10T00:00:00+00:00`,
-                    "numberOfDebitInstalments": 9999,
-                    "statusReason": `ACCEPTED`,
-                    "mandateStatus": `Active`,
-                    "mandateInitiationDate": `2024-07-03T00:00:00+00:00`,
-                    "mandateId": 16329,
-                    "instalmentAmount": 73.62,
-                    "contractReference": `LP00008360`,
-                    "collectionDay": 10,
-                    "cifNumber": 283348968,
-                    "idNumber": `8603266349086`,
-                    "instalmentOccurrence": `RCUR`,
-                    "authRequired": false,
-                    "mandateReferenceNumber": `00102024070397F1A01952`,
-                    "contactNumber": ``,
-                    "voiceRecordingNumber": ``,
-                    "mandateRequestTransactionIdentifier": `00102024-07-03000000014`
-                }
-            ],
-            "channelFee": 31.0
-        },
-        {
-            "contractReference": `LP00008310`,
-            "policyStatus": `Cancelled`,
-            "policyStatusEnum": `Cancelled`,
-            "displayPolicyStatus": `Cancelled`,
-            "policyStartDate": `2024-03-10T00:00:00+00:00`,
-            "actualCancellationDate": `2024-07-31T00:00:00+00:00`,
-            "effectiveCancellationDate": `2024-07-01T00:00:00+00:00`,
-            "cancellationReason": `Policy with other service provider`,
-            "cancellationReasonEnum": `BetterOffAtAnotherProvider`,
-            "totalPremium": 58.0039256879,
-            "lastCollectionDate": `2024-05-10T00:00:00+00:00`,
-            "lastCollectionAmount": 58.0039256879,
-            "nextCollectionDate": `2024-07-10T00:00:00+00:00`,
-            "nextCollectionAmount": 58.0039256879,
-            "bankDetails": {
-                "accountName": `Testing`,
-                "branchCode": `470010`,
-                "accountNumber": `1724555233`,
-                "bank": `Capitec`,
-                "accountType": `Savings`,
-                "collectionDay": 10,
-                "mandateReference": `0010202407017BABA946A2`
-            },
-            "pockets": [
-                {
-                    "pocketType": `LumpSum`,
-                    "coverage": 153260.0,
-                    "premium": 30.1
-                },
-                {
-                    "pocketType": `MonthlyPayout`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                },
-                {
-                    "pocketType": `Education`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                }
-            ],
-            "beneficiaries": [
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1978-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `206332BF-6170-4822-BEB6-AA499C18BCC6`
-                },
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1988-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `F6B91A41-8B5F-46A7-ACC6-CAE2B92E2CBB`
-                }
-            ],
-            "totalPolicySumAssured": 153260.0,
-            "policyReinstatementCount": 0,
-            "newBornPremiumWaiverAvailable": false,
-            "voluntaryPremiumPauseAvailable": false,
-            "canReIssue": true,
-            "canIncreaseCover": true,
-            "channelFee": 27.9
-        },
-        {
-            "contractReference": `LP00008307`,
-            "policyStatus": `Cool-Off`,
-            "policyStatusEnum": `CoolOff`,
-            "displayPolicyStatus": `Not Taken Up`,
-            "policyStartDate": `2024-07-01T00:00:00+00:00`,
-            "actualCancellationDate": `2024-07-01T00:00:00+00:00`,
-            "effectiveCancellationDate": `2024-07-01T00:00:00+00:00`,
-            "cancellationReason": `Policy with other service provider`,
-            "cancellationReasonEnum": `BetterOffAtAnotherProvider`,
-            "totalPremium": 58.0039256879,
-            "nextCollectionDate": `2024-08-01T00:00:00+00:00`,
-            "nextCollectionAmount": 58.0039256879,
-            "bankDetails": {
-                "accountName": `Testing`,
-                "branchCode": `470010`,
-                "accountNumber": `1724555233`,
-                "bank": `Capitec`,
-                "accountType": `Savings`,
-                "collectionDay": 1,
-                "mandateReference": `001020240701B439521281`
-            },
-            "pockets": [
-                {
-                    "pocketType": `LumpSum`,
-                    "coverage": 153260.0,
-                    "premium": 30.1
-                },
-                {
-                    "pocketType": `MonthlyPayout`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                },
-                {
-                    "pocketType": `Education`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                }
-            ],
-            "beneficiaries": [
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1988-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `6D9113F5-5DDB-4E00-9A3C-7C3A44DAF8FB`
-                },
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1978-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `A1A5E54B-B9D9-40A4-A1ED-55DD0183680E`
-                }
-            ],
-            "totalPolicySumAssured": 153260.0,
-            "policyReinstatementCount": 0,
-            "newBornPremiumWaiverAvailable": false,
-            "voluntaryPremiumPauseAvailable": false,
-            "canReIssue": false,
-            "canIncreaseCover": true,
-            "channelFee": 27.9
-        },
-        {
-            "contractReference": `LP00008300`,
-            "policyStatus": `Lapsed`,
-            "policyStatusEnum": `Lapsed`,
-            "displayPolicyStatus": `Lapsed`,
-            "policyStartDate": `2024-02-01T00:00:00+00:00`,
-            "actualCancellationDate": `2024-06-27T00:00:00+00:00`,
-            "cancellationReason": ``,
-            "cancellationReasonEnum": `Unknown`,
-            "totalPremium": 0.0,
-            "lastCollectionDate": `2024-03-10T00:00:00+00:00`,
-            "lastCollectionAmount": 91.0,
-            "nextCollectionDate": `2024-07-10T00:00:00+00:00`,
-            "nextCollectionAmount": 91.0,
-            "bankDetails": {
-                "accountName": `Faith Holdings`,
-                "branchCode": `470010`,
-                "accountNumber": `1724555233`,
-                "bank": `CAPITEC`,
-                "accountType": `Current`,
-                "collectionDay": 10,
-                "mandateReference": `MD2001`
-            },
-            "pockets": [
-                {
-                    "pocketType": `LumpSum`,
-                    "coverage": 100000.0,
-                    "premium": 20.0
-                },
-                {
-                    "pocketType": `MonthlyPayout`,
-                    "coverage": 100000.0,
-                    "premium": 20.0
-                },
-                {
-                    "pocketType": `Education`,
-                    "coverage": 150000.0,
-                    "premium": 20.0
-                }
-            ],
-            "arrears": [
-                {
-                    "arrearsID": `AR0000000442`,
-                    "arrearsPaymentStatus": `PENDING`,
-                    "arrearsPaymentDueAmount": `91.0000000000`,
-                    "arrearsPaymentDueDate": `2024-04-10T00:00:00+00:00`,
-                    "arrearsPaymentReceivedAmount": `0.0000000000`
-                },
-                {
-                    "arrearsID": `AR0000000443`,
-                    "arrearsPaymentStatus": `PENDING`,
-                    "arrearsPaymentDueAmount": `91.0000000000`,
-                    "arrearsPaymentDueDate": `2024-05-10T00:00:00+00:00`,
-                    "arrearsPaymentReceivedAmount": `0.0000000000`
-                },
-                {
-                    "arrearsID": `AR0000000444`,
-                    "arrearsPaymentStatus": `PENDING`,
-                    "arrearsPaymentDueAmount": `91.0000000000`,
-                    "arrearsPaymentDueDate": `2024-06-10T00:00:00+00:00`,
-                    "arrearsPaymentReceivedAmount": `0.0000000000`
-                }
-            ],
-            "beneficiaries": [
-                {
-                    "title": `Miss`,
-                    "firstName": `LuthoChild`,
-                    "lastName": `Parkar`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 0.0,
-                    "educationBenefitAmount": 150000.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `MainLife`,
-                    "gender": `Female`,
-                    "dateOfBirth": `2009-05-02T00:00:00+00:00`,
-                    "contactNumber": `1234567890`,
-                    "contactEmail": `lisaparkar05@xyz.com`,
-                    "clientType": `Child`,
-                    "guardianId": `GID001`,
-                    "clientId": `BAD9CE7B-DC25-49AE-864E-08C24C2A673F`
-                },
-                {
-                    "title": `Miss`,
-                    "firstName": `Lisa`,
-                    "lastName": `Parkar`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 100000.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 100000.0,
-                    "bankDetails": {
-                        "branchCode": `LEF00021`,
-                        "accountNumber": `63456765`,
-                        "bank": `Life Essence Financial`,
-                        "accountType": `Current`
-                    },
-                    "relationship": `MainLife`,
-                    "gender": `Female`,
-                    "dateOfBirth": `2000-05-02T00:00:00+00:00`,
-                    "contactNumber": `1234567890`,
-                    "contactEmail": `lisaparkar05@xyz.com`,
-                    "clientType": `Adult`,
-                    "clientId": `829E7A3F-2509-44D7-9270-C5C11C2B9E55`
-                }
-            ],
-            "guardians": [
-                {
-                    "title": `Miss`,
-                    "firstName": `LomieGuadian`,
-                    "lastName": `Parkar`,
-                    "rolePlayer": `Guardian`,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `MainLife`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1995-05-02T00:00:00+00:00`,
-                    "contactNumber": `1234567890`,
-                    "contactEmail": `lisaparkar05@xyz.com`,
-                    "clientType": `Guardian`,
-                    "guardianId": `GID001`,
-                    "clientId": `7E3E834C-7168-4FCD-810E-34857BCBF289`
-                }
-            ],
-            "totalPolicySumAssured": 350000.0,
-            "policyLapseDate": `2024-06-27T00:00:00+00:00`,
-            "arrearsMissedPremiumCount": 3,
-            "policyReinstatementCount": 0,
-            "newBornPremiumWaiverAvailable": false,
-            "voluntaryPremiumPauseAvailable": false,
-            "canReIssue": false,
-            "canIncreaseCover": true,
-            "channelFee": 31.0
-        },
+	"policies": [
 		{
-            "contractReference": `LP00008313`,
-            "policyStatus": `Cancelled`,
-            "policyStatusEnum": `Cancelled`,
-            "displayPolicyStatus": `Cancelled`,
-            "policyStartDate": `2024-03-10T00:00:00+00:00`,
-            "actualCancellationDate": `2024-07-02T00:00:00+00:00`,
-            "effectiveCancellationDate": `2024-07-02T00:00:00+00:00`,
-            "cancellationReason": `Change In Family Circumstances`,
-            "cancellationReasonEnum": `ChangeInFamilyCircumstances`,
-            "totalPremium": 58.0039256879,
-            "lastCollectionDate": `2024-04-10T00:00:00+00:00`,
-            "lastCollectionAmount": 58.0039256879,
-            "nextCollectionDate": `2024-06-10T00:00:00+00:00`,
-            "nextCollectionAmount": 58.0039256879,
-            "bankDetails": {
-                "accountName": `Testing`,
-                "branchCode": `470010`,
-                "accountNumber": `1592099082`,
-                "bank": `Capitec`,
-                "accountType": `Savings`,
-                "collectionDay": 10,
-                "mandateReference": `00102024070132F9F0D3B2`
-            },
-            "pockets": [
-                {
-                    "pocketType": `LumpSum`,
-                    "coverage": 153260.0,
-                    "premium": 30.1
-                },
-                {
-                    "pocketType": `MonthlyPayout`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                },
-                {
-                    "pocketType": `Education`,
-                    "coverage": 0.0,
-                    "premium": 0.0
-                }
-            ],
-            "beneficiaries": [
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1978-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `2796E6C7-D977-460F-8866-7B0B65043F28`
-                },
-                {
-                    "title": `Mr`,
-                    "firstName": `Justin`,
-                    "lastName": `Brennand`,
-                    "rolePlayer": `Primary Beneficiary`,
-                    "onceOffPayoutBenefitAmount": 76630.0,
-                    "educationBenefitAmount": 0.0,
-                    "monthlyPayoutBenefitAmount": 0.0,
-                    "bankDetails": {
-                        "accountType": `Bond`
-                    },
-                    "relationship": `Spouse`,
-                    "gender": `Female`,
-                    "dateOfBirth": `1988-03-04T00:00:00+00:00`,
-                    "contactNumber": `0823214321`,
-                    "contactEmail": `justin@youwish.org`,
-                    "clientType": `Adult`,
-                    "clientId": `E166A400-CF14-474A-9926-1B1DB9FC5D88`
-                }
-            ],
-            "totalPolicySumAssured": 153260.0,
-            "policyReinstatementCount": 0,
-            "newBornPremiumWaiverAvailable": false,
-            "voluntaryPremiumPauseAvailable": false,
-            "canReIssue": true,
-            "canIncreaseCover": true,
-            "channelFee": 27.9
-        }
-    ]
+			"contractReference": "LP00003393",
+			"policyStatus": "Pending In Force",
+			"policyStatusEnum": "PendingInForce",
+			"displayPolicyStatus": "Active - Pending Payment",
+			"policyStartDate": "2025-05-30T00:00:00+00:00",
+			"cancellationReason": "",
+			"cancellationReasonEnum": "Unknown",
+			"totalPremium": 50.85826096,
+			"nextCollectionDate": "2025-07-03T00:00:00+00:00",
+			"nextCollectionAmount": 50.85826096,
+			"bankDetails": {
+				"accountName": "Main Account",
+				"branchCode": "470010",
+				"accountNumber": "2338922081",
+				"bank": "CAPITEC",
+				"accountType": "Savings",
+				"collectionDay": 3,
+				"mandateReference": "1c0c2c34-2d39-4797-bf33-e51213e9244",
+				"mandateStatus": "ACTIVE"
+			},
+			"pockets": [
+				{
+					"pocketType": "LumpSum",
+					"coverage": 0,
+					"premium": 0
+				},
+				{
+					"pocketType": "MonthlyPayout",
+					"coverage": 120000,
+					"premium": 19.86
+				},
+				{
+					"pocketType": "Education",
+					"coverage": 0,
+					"premium": 0
+				}
+			],
+			"beneficiaries": [
+				{
+					"title": "Mr",
+					"firstName": "test",
+					"lastName": "nish",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 0,
+					"educationBenefitAmount": 0,
+					"monthlyPayoutBenefitAmount": 120000,
+					"bankDetails": {},
+					"relationship": "MainLife",
+					"gender": "Male",
+					"dateOfBirth": "1995-01-01T00:00:00+00:00",
+					"contactNumber": "0666666666",
+					"clientType": "Adult",
+					"clientId": "B58726F4-6EE8-4CDB-9FAE-4D3BC8ABB1C0"
+				}
+			],
+			"totalPolicySumAssured": 120000,
+			"policyReinstatementCount": 0,
+			"newBornPremiumWaiverAvailable": false,
+			"voluntaryPremiumPauseAvailable": false,
+			"canReIssue": false,
+			"canIncreaseCover": true,
+			"channelFee": 31
+		},
+		{
+			"contractReference": "LP00001625",
+			"policyStatus": "Lapsed",
+			"policyStatusEnum": "Lapsed",
+			"displayPolicyStatus": "Lapsed",
+			"policyStartDate": "2024-07-01T00:00:00+00:00",
+			"actualCancellationDate": "2025-03-06T00:00:00+00:00",
+			"cancellationReason": "",
+			"cancellationReasonEnum": "Unknown",
+			"totalPremium": 157.35,
+			"lastCollectionDate": "2025-01-15T00:00:00+00:00",
+			"lastCollectionAmount": 157.35,
+			"nextCollectionDate": "2025-03-15T00:00:00+00:00",
+			"nextCollectionAmount": 157.35,
+			"bankDetails": {
+				"accountName": "Rigardt Smit",
+				"branchCode": "470010",
+				"accountNumber": "1412506423",
+				"bank": "Capitec",
+				"accountType": "Savings",
+				"collectionDay": 15,
+				"mandateReference": "001020250114FA9F7105CB",
+				"mandateStatus": "ACTIVE"
+			},
+			"pockets": [
+				{
+					"pocketType": "LumpSum",
+					"coverage": 100000,
+					"premium": 40.45
+				},
+				{
+					"pocketType": "MonthlyPayout",
+					"coverage": 100000,
+					"premium": 40.45
+				},
+				{
+					"pocketType": "Education",
+					"coverage": 100000,
+					"premium": 40.45
+				}
+			],
+			"arrears": [
+				{
+					"arrearsID": "AR0000001261",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "157.3500000000",
+					"arrearsPaymentDueDate": "2024-09-15T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
+				},
+				{
+					"arrearsID": "AR0000001270",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "157.3500000000",
+					"arrearsPaymentDueDate": "2024-12-15T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
+				},
+				{
+					"arrearsID": "AR0000001790",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "157.3500000000",
+					"arrearsPaymentDueDate": "2025-02-15T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
+				}
+			],
+			"beneficiaries": [
+				{
+					"title": "Dr",
+					"idNumber": "1911147826082",
+					"firstName": "Antonio",
+					"lastName": "Lee",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 0,
+					"educationBenefitAmount": 50000,
+					"monthlyPayoutBenefitAmount": 0,
+					"bankDetails": {},
+					"relationship": "Spouse",
+					"gender": "Male",
+					"dateOfBirth": "2019-11-14T00:00:00+00:00",
+					"contactNumber": "0731855252",
+					"contactEmail": "jdoe@youwish.org",
+					"clientType": "Child",
+					"guardianId": "GD00124",
+					"clientId": "CA8728D6-4138-4143-B2A0-44345BF7A45C"
+				},
+				{
+					"title": "Dr",
+					"idNumber": "1711147826082",
+					"firstName": "Antonio",
+					"lastName": "Lee",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 0,
+					"educationBenefitAmount": 50000,
+					"monthlyPayoutBenefitAmount": 0,
+					"bankDetails": {},
+					"relationship": "Sibling",
+					"gender": "Male",
+					"dateOfBirth": "2017-11-14T00:00:00+00:00",
+					"contactNumber": "0731855252",
+					"contactEmail": "jdoe@youwish.org",
+					"clientType": "Child",
+					"guardianId": "GD00123",
+					"clientId": "5E4311C3-6FCF-4E32-948B-4EC06AC56212"
+				},
+				{
+					"title": "Dr",
+					"idNumber": "0011147826082",
+					"firstName": "Antonio",
+					"lastName": "Lee",
+					"rolePlayer": "Primary Beneficiary",
+					"onceOffPayoutBenefitAmount": 100000,
+					"educationBenefitAmount": 0,
+					"monthlyPayoutBenefitAmount": 100000,
+					"bankDetails": {},
+					"relationship": "Sibling",
+					"gender": "Male",
+					"dateOfBirth": "2000-11-14T00:00:00+00:00",
+					"contactNumber": "0731855252",
+					"contactEmail": "jdoe@youwish.org",
+					"clientType": "Adult",
+					"clientId": "67DB678D-9C57-4D7D-A0AA-3220FDCE99A8"
+				}
+			],
+			"totalPolicySumAssured": 300000,
+			"policyLapseDate": "2025-03-06T00:00:00+00:00",
+			"arrearsMissedPremiumCount": 3,
+			"policyReinstatementCount": 0,
+			"newBornPremiumWaiverAvailable": true,
+			"voluntaryPremiumPauseAvailable": false,
+			"canReIssue": true,
+			"canIncreaseCover": true,
+			"channelFee": 36
+		}
+	],
+	"idealPayDate": 1,
+	"doNotDoBusiness": true
 };

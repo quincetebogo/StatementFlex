@@ -616,8 +616,7 @@ export class EndCallSession extends Component {
 		// Sending static value '4' as end-call reason key, which is mapped to `TransactionFailed` on cs-code
 
 		const endReason = this.endCallReason.value === `Need incomplete - Transaction Failed` ? 4 : this.endCallReason.key;
-
-		if (this._isCifNumberValid(this.callerInformation && (!this.roleManager.isInsureAgent && !this.roleManager.isInsureAdministrator))) {
+		if (this._isCifNumberValid(this.callerInformation) && (!this.roleManager.isInsureAgent && !this.roleManager.isInsureAdministrator && !this.roleManager.isInsureCollector)) {
 			const req = {
 				endReason: endReason,
 				title: this.callerInformation.title,

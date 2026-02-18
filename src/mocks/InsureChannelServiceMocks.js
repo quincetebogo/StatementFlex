@@ -101,6 +101,7 @@ export default class InsureChannelServiceMocks {
 
 		this.activateLifeBenefitMocks = await this._loadMockModule(this.activateLifeBenefitMocks, `insureLifeActivateBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
 		this.cancelLifeBenefitMocks = await this._loadMockModule(this.cancelLifeBenefitMocks, `insureLifeCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
+		this.lifeBlackListCheckMocks = await this._loadMockModule(this.lifeBlackListCheckMocks, `insureBlackListCheck`, () => import(`../mocks/insure/life/LifeBlackListCheck`).catch(err => logError(err)));
 	}
 
 	// #region FUNERAL
@@ -408,6 +409,17 @@ export default class InsureChannelServiceMocks {
 	insureLifeClientSummary() {
 		if (this._mockSettings.insureLifeClientSummary.positiveCase) {
 			return this.lifeClientSummaryMocks.insureLifeClientSummary;
+		}
+		return null;
+	}
+
+	/**
+	 * Client black list mock check
+	 * @returns {Object} Mock response data
+	 */
+	insureBlackListCheck() {
+		if (this._mockSettings.insureBlackListCheck.positiveCase) {
+			return this.lifeBlackListCheckMocks.insureBlackListCheck;
 		}
 		return null;
 	}
