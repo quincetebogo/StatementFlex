@@ -22,7 +22,6 @@ export class ValueAddedServices extends Component {
 
 	constructor() {
 		super();
-		this.optOutInsights = false;
 		this.optOutBehaviouralMarketing = false;
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
@@ -47,7 +46,6 @@ export class ValueAddedServices extends Component {
 			updateValueAddedServicesCallback: { type: Object },
 			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
-			optOutInsights: { state: true },
 			optOutBehaviouralMarketing: { state: true }
 		};
 	}
@@ -60,7 +58,6 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 		
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.insights;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
 	}
@@ -72,11 +69,9 @@ export class ValueAddedServices extends Component {
 	_toggleValue(e, value) {
 		this.alertBannerMessage = ``;
 		
-		const insights = () => this._insightsStatusChanged(value);
 		const behavioural = () => this._behavioralStatusChanged(value);
 
 		const toggleSwitched = {
-			'insights': insights,
 			'behavioural': behavioural
 		};
 
@@ -91,7 +86,7 @@ export class ValueAddedServices extends Component {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
-			optOutInsights: this.optOutInsights,
+			optOutInsights: false,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
 			
 		};
@@ -107,10 +102,6 @@ export class ValueAddedServices extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_insightsStatusChanged(value) {
-		this.optOutInsights = value;
-	}
 
 	_behavioralStatusChanged(value) {
 		this.optOutBehaviouralMarketing = value;
@@ -276,50 +267,8 @@ export class ValueAddedServices extends Component {
 
 	_renderPermissionList() {
 		return html`
-			${this._renderInsights()}
 			${this._renderBehavioral()}
 		`;
-	}
-
-
-_renderInsights() {
-	return html`
-			<capitec-group gap="none">
-			<capitec-title-bar>
-			<capitec-group layout="horizontal">
-			<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you? <strong>(personalised offers)</strong></p>
-			<capitec-radio-group layout="horizontal" >
-			<capitec-radio 
-							id="insights"
-							label="Yes"
-							@value-change="${(e) => this._toggleValue(e, true)}"
-							?checked = "${this.optOutInsights}">
-						</capitec-radio>
-						<capitec-radio
-						id="insights"
-						label="No"
-							@value-change="${(e) => this._toggleValue(e, false)}"
-							?checked = "${!this.optOutInsights}">
-						</capitec-radio>
-						</capitec-radio-group>
-						
-						</capitec-group>
-						</capitec-title-bar>
-						${this._renderInsightsAlert()}
-						</capitec-group>
-	`;
-}
-
-
-	_renderInsightsAlert() {
-		return !this.optOutInsights
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-insights-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
-			</horizon-alert-banner>`
-		: html``;
 	}
 
 	_renderBehavioral() {

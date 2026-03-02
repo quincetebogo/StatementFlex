@@ -116,13 +116,14 @@ export class Insights extends Component {
 	}
 
 	async _valueAddedService() {
+		// Get direct marketing consent only (personalised offers removed)
 		const returnValue = await this.clientProfileService.getClientConsent(this.cifNumber);
 
 		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS =
 			{
 				cifNumber : this.cifNumber,
-				insights : returnValue.result.insights,
+				insights : false, // Personalised offers removed
 				marketing : returnValue.result.marketing
 			};
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;

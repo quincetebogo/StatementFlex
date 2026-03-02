@@ -150,7 +150,7 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-	// consent management methods
+	// consent management methods - direct marketing only
 
 	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
