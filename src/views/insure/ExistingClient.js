@@ -2530,6 +2530,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-funeral-cancel-policy-success
 				.contractReference = ${this.selectedFuneralPolicyContractReference}
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email = "${(e) => this._sendEmail(e)}" 
 				@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-funeral-cancel-policy-success>`;
@@ -2544,6 +2545,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-funeral-pay-premium-success-page 
 				.amountToPay = "${this.amountToPay}" 
 				.contractReference = "${this.selectedFuneralPolicyContractReference}"
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToFuneralPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -2682,6 +2684,7 @@ export class ExistingClient extends InsureViewBase {
 				.successMessage="${this.successPageMessage}" 
 				.callerPage = "${this.callerPage}" 
 				.contractReference = "${this.selectedFuneralPolicyContractReference}"
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${(e) => this._rerenderClientSummary(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
