@@ -602,6 +602,10 @@ class ClientSummary extends Component {
 		this.showLifeEmailDialog = false;
 	}
 
+	_getMainLifeEmail(policy) {
+    	return policy?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || '';
+	}
+
 	/**
 	 * Close Pay Premium Dialog and Open the Pay Premium Confirmation Dialog.
 	 *
@@ -2994,10 +2998,14 @@ class ClientSummary extends Component {
 	 * @returns {html} html
 	 */
 	_renderFuneralEmailDialog() {
+		const policy = this.policiesList?.find(p => p.contractReference === this.emailContractRef);
+		const email = this._getMainLifeEmail(policy);
+
 		return this.showFuneralEmailPlanDialog === false ? ``
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Funeral Plan`}"
+					.email="${email}"
 					@close-modal="${() => this.showFuneralEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendFuneralEmail(emailAddress)}">
 				</horizon-insure-email-dialog>`;
@@ -3231,10 +3239,13 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_renderLifeEmailDialog() {
+		const email = this._horizonInsureStore?.callerInformation?.emailId || '';
+
 		return this.showLifeEmailDialog === false ? html``
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Life Policy`}"
+					.email="${email}"
 					@close-modal="${() => this.showLifeEmailDialog = false}"
 					@send-email = "${(emailAddress) => this._sendLifeEmail(emailAddress)}">
 				</horizon-insure-email-dialog>
@@ -3365,6 +3376,7 @@ class ClientSummary extends Component {
 			: html`
 				<horizon-insure-email-dialog 
 					.titleMessage = "${`Email Benefit Note`}"
+					.email="${this._getMainLifeEmail(this.selectedPolicyItem)}"
 					@close-modal="${() => this.showBenefitEmailDialog = false}"
 					@send-email = "${(emailAddress) => this._sendFuneralBenefitEmail(emailAddress)}">
 				</horizon-insure-email-dialog>
