@@ -123,7 +123,6 @@ export class Insights extends Component {
 			this.statusVAS =
 			{
 				cifNumber : this.cifNumber,
-				insights : false, // Personalised offers removed
 				marketing : returnValue.result.marketing
 			};
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;

@@ -187,7 +187,6 @@ export class ClientProfileService extends ChannelServiceBase {
 
 		const request = {
 			"cifNumber": vasRequest.cifnumber,
-			"optInInsights": vasRequest.optOutInsights,
 			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
 

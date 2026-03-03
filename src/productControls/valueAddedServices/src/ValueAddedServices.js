@@ -86,7 +86,6 @@ export class ValueAddedServices extends Component {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
-			optOutInsights: false,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
 			
 		};

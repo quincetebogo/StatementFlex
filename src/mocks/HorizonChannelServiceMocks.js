@@ -23,8 +23,8 @@ export default class HorizonChannelServiceMocks {
 
 		this.callMocks = await loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.callMocks = await loadMockModule(this.callMocks, `searchCaller`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
-		this.callMocks = await loadMockModule(this.callMocks, `getClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
-		this.callMocks = await loadMockModule(this.callMocks, `putClientConsent`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
+		this.callMocks = 
+		this.callMocks = 
 		this.favouritesMocks = await loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
 		this.cardLimitsMocks = await loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.cardLimitsMocks = await loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
