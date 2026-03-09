@@ -59,6 +59,7 @@ export class Insights extends Component {
 			
 			isBusy: { state: true },
 			statusVAS: { state: true },
+			statusInterestConsent: {state: true},
 			showValueAddedServicesModal: { state: true },
 			showUnavailableVASModal: { state: true },
 			showVASNoClientDataModal: { state: true },
@@ -116,17 +117,32 @@ export class Insights extends Component {
 	}
 
 	async _valueAddedService() {
-		// Get direct marketing consent only (personalised offers removed)
-		const returnValue = await this.clientProfileService.getClientConsent(this.cifNumber);
 
-		if (returnValue.succeeded && returnValue.result !== ``) {
-			this.statusVAS =
-			{
-				cifNumber : this.cifNumber,
-				marketing : returnValue.result.marketing
-			};
-			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-			return;
+	const returnedConsentInterest = await this.clientProfileService.getClientInterestConsent(this.cifNumber);
+    const returnValue = await this.clientProfileService.getClientConsent(this.cifNumber);
+
+
+    if (returnValue.succeeded && returnedConsentInterest.succeeded) {
+        
+		const newStatusInterestConsent = {
+            marketing: returnedConsentInterest.result?.optInConsentInterestPreferences?.marketing ?? [],
+            insights: returnedConsentInterest.result?.optInConsentInterestPreferences?.insights ?? []
+        };
+
+        const newStatusVAS = {
+            cifNumber: this.cifNumber,
+            insights: returnValue.result?.insights ?? false,
+            marketing: returnValue.result?.marketing ?? false,
+			newStatusInterestConsent : newStatusInterestConsent
+        };
+
+        this.statusVAS = newStatusVAS;
+        this.statusInterestConsent = newStatusInterestConsent;
+
+        this.requestUpdate();
+        
+        this.showValueAddedServicesModal = true;
+        return;
 		};
 		
 		if (returnValue.succeeded) {

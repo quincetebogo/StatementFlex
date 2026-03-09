@@ -13,6 +13,18 @@ import { Component, css, html } from 'platform/elements';
  * @class ValueAddedServices
  * @extends {Component}
  */
+const CONSENT_CATEGORIES = [
+  { key: 'REWARDS',label: 'Rewards and benefits',description: 'Get discounts, special offers and Live Better rewards.'},
+  { key: 'SAVE', label: 'Money tips', description: 'Learn simple ways to manage and grow your money.'},
+  { key: 'AIRTIME', label: 'Affordable data and devices', description: 'Deals on data, airtime and devices to help you stay connected.'},
+  { key: 'CREDIT', label: 'Credit when I need it', description: 'Personalised credit offers for your needs.' },
+  { key: 'SPENDING', label: 'Hassle-free payments and renewals', description: 'Send money, buy airtime, pay bills and renew license discs.' },
+  { key: 'INSURE', label: 'Cover and protection', description: 'Cover options for your personal and business needs.' },
+  { key: 'LOTTO', label: 'LOTTO and Powerball', description: 'How-to-play tips and reminders so you never miss a draw.' },
+  { key: 'MONEY', label: 'Smarter ways to get things done', description: 'New features and tools that make everyday banking easier.' },
+  { key: 'BUSINESS', label: 'Support for business goals', description: 'Solutions to help you start, grow and run your business.' },
+  { key: 'NEWS', label: 'Our performance and news', description: 'Updates on results, leadership and how we’re evolving.' }
+];
 
 export class ValueAddedServices extends Component {
 
@@ -26,6 +38,9 @@ export class ValueAddedServices extends Component {
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
 		this.updateValueAddedServicesCallback = null;
+		this.updateClientInterestConsentCallback = null;
+		this.marketingInterestConsent = {};
+		this.insightsInterestConsent = {};
 	}
 
 	
@@ -35,7 +50,7 @@ export class ValueAddedServices extends Component {
 
 	/**
 	 * @property {String} statusVAS - value of the statusVAS
-	 *
+	 * @property {String} statusInterestConsent
 	 * @readonly
 	 * @static
 	 * @memberof AddCallerDetails
@@ -43,12 +58,18 @@ export class ValueAddedServices extends Component {
 	 static get properties() {
 		return {
 			statusVAS: { type: Object },
+			statusInterestConsent: {type: Object},
 			updateValueAddedServicesCallback: { type: Object },
+			updateClientInterestConsentCallback: {type: Object },
 			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
-			optOutBehaviouralMarketing: { state: true }
+			optOutInsights: { state: true },
+			optOutBehaviouralMarketing: { state: true },
+			marketingInterestConsent: { state: true },
+        	insightsInterestConsent: { state: true },
 		};
 	}
+	
 	
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -60,6 +81,28 @@ export class ValueAddedServices extends Component {
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
+	}
+
+	updated(changedProperties) {
+		// Only run this if the data actually changed and isn't null
+		if (changedProperties.has('statusVAS')) {
+			this._initializeInterests();
+		}
+	}
+
+	_initializeInterests() {
+		// This helper looks at your JSON and creates a simple true/false map
+		const flatten = (arr) => (arr || []).reduce((acc, item) => {
+			// key = "REWARDS", value = true
+			acc[item.interestType] = item.optInPreference;
+			return acc;
+		}, {});
+
+		this.marketingInterestConsent = flatten(this.statusVAS.newStatusInterestConsent.marketing);
+		this.insightsInterestConsent = flatten(this.statusVAS.newStatusInterestConsent.insights);
+		
+		// This forces the radio buttons to re-render with the new "checked" values
+		this.requestUpdate();
 	}
 
 	// --------------
@@ -87,8 +130,21 @@ export class ValueAddedServices extends Component {
 			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
-			
 		};
+
+		console.log('this is accept button: ', this.marketingInterestConsent);
+
+		const clientInterestConsent = {
+			cifNumber: this.cifnumber,
+			optInConsentInterestPreferences : {
+				marketing: this.marketingInterestConsent,
+				insights: this.insightsInterestConsent
+			}
+		};
+
+		if(await this.updateClientInterestConsentCallback(clientInterestConsent)){
+			this.dispatchEvent(new CustomEvent('accept', {detail: {clientInterestConsent: clientInterestConsent}}));
+		}
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
 			this.dispatchEvent(new CustomEvent(`accept`, { detail: { valueAddedServices: valueAddedServices } }));
@@ -266,8 +322,101 @@ export class ValueAddedServices extends Component {
 
 	_renderPermissionList() {
 		return html`
+			${this._renderInsights()}
+					
 			${this._renderBehavioral()}
+
+			<div class="interests-container">
+				<capitec-label type="title" label="Direct Marketing Categories"></capitec-label>
+				<hr class="section-divider">
+				${CONSENT_CATEGORIES.map(cat => this._renderConsentOption('marketing', cat.key, cat.label, cat.description))}
+			</div>
 		`;
+	}
+
+_renderConsentOption(type, categoryKey, label, description) {
+    const consentSource = type === 'marketing' 
+        ? this.marketingInterestConsent 
+        : this.insightsInterestConsent;
+
+    const isChecked = consentSource[categoryKey] === true;
+
+    return html`
+        <capitec-group gap="none">
+			<capitec-title-bar>
+            <capitec-group layout="horizontal">
+                <p class="permission-message">
+                    <strong>${label}</strong><br>
+                    <span class="description">${description}</span>
+                </p>
+                <capitec-radio-group layout="horizontal">
+                    <capitec-radio
+                        name="${categoryKey}"
+                        label="Yes"
+                        .checked="${isChecked}" 
+                        @click="${() => this._updateConsent(type, categoryKey, true)}">
+                    </capitec-radio>
+                    <capitec-radio
+                        name="${categoryKey}"
+                        label="No"
+                        .checked="${!isChecked}"
+                        @click="${() => this._updateConsent(type, categoryKey, false)}">
+                    </capitec-radio>
+                </capitec-radio-group>
+            </capitec-group>
+        </capitec-group>
+    `;
+}
+	_renderInsights() {
+		return html`
+				<capitec-group gap="none">
+				<capitec-title-bar>
+				<capitec-group layout="horizontal">
+				<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you? <strong>(personalised offers)</strong></p>
+				<capitec-radio-group layout="horizontal" >
+				<capitec-radio 
+								id="insights"
+								label="Yes"
+								@value-change="${(e) => this._toggleValue(e, true)}"
+								?checked = "${this.optOutInsights}">
+							</capitec-radio>
+							<capitec-radio
+							id="insights"
+							label="No"
+								@value-change="${(e) => this._toggleValue(e, false)}"
+								?checked = "${!this.optOutInsights}">
+							</capitec-radio>
+							</capitec-radio-group>
+							
+							</capitec-group>
+							</capitec-title-bar>
+							${this._renderInsightsAlert()}
+							</capitec-group>
+		`;
+	}
+
+	_updateConsent(type, categoryKey, newValue) {
+			if (type === 'marketing') {
+				// Create a new object to ensure Lit detects the change
+				this.marketingInterestConsent = {
+					...this.marketingInterestConsent,
+					[categoryKey]: newValue
+				};
+			}
+			// This tells the component to re-render with the new "Yes/No" selection
+			this.requestUpdate();
+	}
+
+
+	_renderInsightsAlert() {
+		return !this.optOutInsights
+		? html`
+			<horizon-alert-banner 
+				data-automation-id="value-added-services-insights-alert-banner"
+				type="warning"
+				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
+			</horizon-alert-banner>`
+		: html``;
 	}
 
 	_renderBehavioral() {
