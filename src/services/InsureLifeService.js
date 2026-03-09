@@ -721,5 +721,31 @@ export class InsureLifeService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Checks if the client is flaged in the FraudDB
+	 *
+	 * @param {Object} [dndbRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async blackListCheck(dndbRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureBlackListCheck`)) {
+			return this.mock(`insureBlackListCheck`);
+		}
+		return this.post(
+			`/life-cover/api/v1/client/dndb/blacklist-check`,
+			dndbRequest,
+			this._setInsureHeaders(),
+			`blackListCheck`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 	// #endregion PUBLIC METHODS
 }

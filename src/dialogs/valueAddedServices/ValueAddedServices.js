@@ -104,7 +104,7 @@ export class ValueAddedServices extends Component {
 	// ---------------
 
 	async _updateValueAddedServices(valueAddedServices) {
-		
+		// Only update direct marketing consent (personalised offers removed)
 		const returnValue = await this.clientProfileService.putClientConsent(valueAddedServices);
 
 		if (returnValue.succeeded) {
@@ -113,7 +113,6 @@ export class ValueAddedServices extends Component {
 				"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
 				"next-screen": TelemetryScreen.FAVOURITES,
 				"capitec-entity-id": valueAddedServices.capitecEntityId,
-				"insights": valueAddedServices.optOutInsights,
 				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing
 				
 			});

@@ -34,7 +34,6 @@ export class ValueAddedServices extends Component {
 
 	constructor() {
 		super();
-		this.optOutInsights = false;
 		this.optOutBehaviouralMarketing = false;
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
@@ -80,7 +79,6 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 		
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.insights;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
 	}
@@ -114,11 +112,9 @@ export class ValueAddedServices extends Component {
 	_toggleValue(e, value) {
 		this.alertBannerMessage = ``;
 		
-		const insights = () => this._insightsStatusChanged(value);
 		const behavioural = () => this._behavioralStatusChanged(value);
 
 		const toggleSwitched = {
-			'insights': insights,
 			'behavioural': behavioural
 		};
 
@@ -133,7 +129,6 @@ export class ValueAddedServices extends Component {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
-			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
 		};
 
@@ -162,10 +157,6 @@ export class ValueAddedServices extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_insightsStatusChanged(value) {
-		this.optOutInsights = value;
-	}
 
 	_behavioralStatusChanged(value) {
 		this.optOutBehaviouralMarketing = value;
