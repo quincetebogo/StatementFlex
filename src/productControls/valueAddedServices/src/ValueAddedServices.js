@@ -40,7 +40,6 @@ export class ValueAddedServices extends Component {
 		this.updateValueAddedServicesCallback = null;
 		this.updateClientInterestConsentCallback = null;
 		this.marketingInterestConsent = {};
-		this.insightsInterestConsent = {};
 	}
 
 	
@@ -63,10 +62,8 @@ export class ValueAddedServices extends Component {
 			updateClientInterestConsentCallback: {type: Object },
 			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
-			optOutInsights: { state: true },
 			optOutBehaviouralMarketing: { state: true },
 			marketingInterestConsent: { state: true },
-        	insightsInterestConsent: { state: true },
 		};
 	}
 	
@@ -98,9 +95,8 @@ export class ValueAddedServices extends Component {
 			return acc;
 		}, {});
 
-		this.marketingInterestConsent = flatten(this.statusVAS.newStatusInterestConsent.marketing);
-		this.insightsInterestConsent = flatten(this.statusVAS.newStatusInterestConsent.insights);
-		
+		this.marketingInterestConsent = flatten(this.statusVAS.optInConsentInterestPreferences?.marketing);
+
 		// This forces the radio buttons to re-render with the new "checked" values
 		this.requestUpdate();
 	}
@@ -137,8 +133,7 @@ export class ValueAddedServices extends Component {
 		const clientInterestConsent = {
 			cifNumber: this.cifnumber,
 			optInConsentInterestPreferences : {
-				marketing: this.marketingInterestConsent,
-				insights: this.insightsInterestConsent
+				marketing: this.marketingInterestConsent
 			}
 		};
 
@@ -322,8 +317,6 @@ export class ValueAddedServices extends Component {
 
 	_renderPermissionList() {
 		return html`
-			${this._renderInsights()}
-					
 			${this._renderBehavioral()}
 
 			<div class="interests-container">
@@ -335,9 +328,7 @@ export class ValueAddedServices extends Component {
 	}
 
 _renderConsentOption(type, categoryKey, label, description) {
-    const consentSource = type === 'marketing' 
-        ? this.marketingInterestConsent 
-        : this.insightsInterestConsent;
+    const consentSource = this.marketingInterestConsent;
 
     const isChecked = consentSource[categoryKey] === true;
 
@@ -367,33 +358,6 @@ _renderConsentOption(type, categoryKey, label, description) {
         </capitec-group>
     `;
 }
-	_renderInsights() {
-		return html`
-				<capitec-group gap="none">
-				<capitec-title-bar>
-				<capitec-group layout="horizontal">
-				<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you? <strong>(personalised offers)</strong></p>
-				<capitec-radio-group layout="horizontal" >
-				<capitec-radio 
-								id="insights"
-								label="Yes"
-								@value-change="${(e) => this._toggleValue(e, true)}"
-								?checked = "${this.optOutInsights}">
-							</capitec-radio>
-							<capitec-radio
-							id="insights"
-							label="No"
-								@value-change="${(e) => this._toggleValue(e, false)}"
-								?checked = "${!this.optOutInsights}">
-							</capitec-radio>
-							</capitec-radio-group>
-							
-							</capitec-group>
-							</capitec-title-bar>
-							${this._renderInsightsAlert()}
-							</capitec-group>
-		`;
-	}
 
 	_updateConsent(type, categoryKey, newValue) {
 			if (type === 'marketing') {
@@ -405,18 +369,6 @@ _renderConsentOption(type, categoryKey, label, description) {
 			}
 			// This tells the component to re-render with the new "Yes/No" selection
 			this.requestUpdate();
-	}
-
-
-	_renderInsightsAlert() {
-		return !this.optOutInsights
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-insights-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
-			</horizon-alert-banner>`
-		: html``;
 	}
 
 	_renderBehavioral() {
