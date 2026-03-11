@@ -40,6 +40,7 @@ export class ValueAddedServices extends Component {
 		this.updateValueAddedServicesCallback = null;
 		this.updateClientInterestConsentCallback = null;
 		this.marketingInterestConsent = {};
+		this.selectAllConsent = false;
 	}
 
 	
@@ -64,6 +65,7 @@ export class ValueAddedServices extends Component {
 			alertBannerMessage: { state: true },
 			optOutBehaviouralMarketing: { state: true },
 			marketingInterestConsent: { state: true },
+			selectAllConsent: { state: true },
 		};
 	}
 	
@@ -258,6 +260,24 @@ export class ValueAddedServices extends Component {
 					width: 450px;
 					font-size: 12px;
 				}
+
+				.select-all-group {
+					background-color: #F7F7F7;
+					padding: 12px 16px;
+					border-radius: 4px;
+					margin: 12px 0px;
+					border: 1px solid #E1E1E1;
+				}
+
+				.section-divider {
+					border: none;
+					border-top: 1px solid #E1E1E1;
+					margin: 16px 0px;
+				}
+
+				.interests-container {
+					margin-top: 16px;
+				}
 			`
 		];
 	}
@@ -321,6 +341,7 @@ export class ValueAddedServices extends Component {
 
 			<div class="interests-container">
 				<capitec-label type="title" label="Direct Marketing Categories"></capitec-label>
+				${this._renderSelectAll()}
 				<hr class="section-divider">
 				${CONSENT_CATEGORIES.map(cat => this._renderConsentOption('marketing', cat.key, cat.label, cat.description))}
 			</div>
@@ -371,6 +392,46 @@ _renderConsentOption(type, categoryKey, label, description) {
 			this.requestUpdate();
 	}
 
+	_toggleSelectAll(value) {
+		this.alertBannerMessage = ``;
+		this.selectAllConsent = value;
+
+		// Set all consent categories to the selected value
+		const updatedConsent = {};
+		CONSENT_CATEGORIES.forEach(cat => {
+			updatedConsent[cat.key] = value;
+		});
+
+		this.marketingInterestConsent = updatedConsent;
+		this.requestUpdate();
+	}
+
+	_renderSelectAll() {
+		return html`
+			<capitec-group gap="none" class="select-all-group">
+				<capitec-title-bar>
+					<capitec-group layout="horizontal">
+						<p class="permission-message"><strong>Select All / Deselect All</strong></p>
+						<capitec-radio-group layout="horizontal">
+							<capitec-radio
+								id="selectAll"
+								label="Select All"
+								@value-change="${() => this._toggleSelectAll(true)}"
+								?checked="${this.selectAllConsent}">
+							</capitec-radio>
+							<capitec-radio
+								id="selectAll"
+								label="Deselect All"
+								@value-change="${() => this._toggleSelectAll(false)}"
+								?checked="${!this.selectAllConsent}">
+							</capitec-radio>
+						</capitec-radio-group>
+					</capitec-group>
+				</capitec-title-bar>
+			</capitec-group>
+		`;
+	}
+
 	_renderBehavioral() {
 		return html`
 				<capitec-group gap="none">
@@ -378,7 +439,7 @@ _renderConsentOption(type, categoryKey, label, description) {
 				<capitec-group layout="horizontal">
 				<p class="permission-message">Receive the latest offers and products by means of electronic communication <br><strong>(direct marketing)</strong> </p>
 				<capitec-radio-group layout="horizontal" >
-				<capitec-radio 
+				<capitec-radio
 								id="behavioural"
 								label="Yes"
 								@value-change="${(e) => this._toggleValue(e, true)}"
