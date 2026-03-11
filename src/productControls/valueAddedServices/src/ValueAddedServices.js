@@ -90,14 +90,23 @@ export class ValueAddedServices extends Component {
 	}
 
 	_initializeInterests() {
-		// This helper looks at your JSON and creates a simple true/false map
-		const flatten = (arr) => (arr || []).reduce((acc, item) => {
-			// key = "REWARDS", value = true
-			acc[item.interestType] = item.optInPreference;
-			return acc;
-		}, {});
+		// Get the marketing consent data (it's already in object format from the API)
+		const marketingData = this.statusVAS.optInConsentInterestPreferences?.marketing;
 
-		this.marketingInterestConsent = flatten(this.statusVAS.optInConsentInterestPreferences?.marketing);
+		// If the API returns an array, convert it to object format
+		if (Array.isArray(marketingData)) {
+			this.marketingInterestConsent = marketingData.reduce((acc, item) => {
+				acc[item.interestType] = item.optInPreference;
+				return acc;
+			}, {});
+		} else {
+			// If it's already an object, use it directly
+			this.marketingInterestConsent = marketingData || {};
+		}
+
+		// Update selectAllConsent based on whether all items are selected
+		const consentValues = Object.values(this.marketingInterestConsent);
+		this.selectAllConsent = consentValues.length > 0 && consentValues.every(val => val === true);
 
 		// This forces the radio buttons to re-render with the new "checked" values
 		this.requestUpdate();
@@ -268,6 +277,15 @@ export class ValueAddedServices extends Component {
 					margin: 12px 0px;
 					border: 1px solid #E1E1E1;
 				}
+			.select-all-group capitec-toggle {
+				margin: 0px 0px 0px 8px;
+				width: 32px;
+			}
+
+			.select-all-group capitec-label {
+				margin: 0px 0px 0px 8px;
+				font-size: 13px;
+			}
 
 				.section-divider {
 					border: none;
@@ -409,25 +427,14 @@ _renderConsentOption(type, categoryKey, label, description) {
 	_renderSelectAll() {
 		return html`
 			<capitec-group gap="none" class="select-all-group">
-				<capitec-title-bar>
-					<capitec-group layout="horizontal">
-						<p class="permission-message"><strong>Select All / Deselect All</strong></p>
-						<capitec-radio-group layout="horizontal">
-							<capitec-radio
-								id="selectAll"
-								label="Select All"
-								@value-change="${() => this._toggleSelectAll(true)}"
-								?checked="${this.selectAllConsent}">
-							</capitec-radio>
-							<capitec-radio
-								id="selectAll"
-								label="Deselect All"
-								@value-change="${() => this._toggleSelectAll(false)}"
-								?checked="${!this.selectAllConsent}">
-							</capitec-radio>
-						</capitec-radio-group>
-					</capitec-group>
-				</capitec-title-bar>
+				<capitec-group layout="horizontal" halign="left" valign="center">
+					<p class="permission-message"><strong>Select All / Deselect All</strong></p>
+					<capitec-toggle
+						size="small"
+						@value-changed="${(event) => this._toggleSelectAll(event.detail.new)}"
+						?checked="${this.selectAllConsent}">
+					</capitec-toggle>
+				</capitec-group>
 			</capitec-group>
 		`;
 	}
