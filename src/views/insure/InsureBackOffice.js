@@ -911,7 +911,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 		} else if (sourcePage === INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION) {
 			emailDocumentRequestPayload.documentInfo = [
 				{
-					"documentType": DOCUMENT_TYPE.POLICY_RESCHEDULE_AGREEMENT,
+					"documentType": DOCUMENT_TYPE.UPDATE_POLICY_AGREEMENT,
 					"documentGuid": this.funeralPolicyRescheduleAgreement?.documentDetails?.guid,
 					"content": {
 						"type": `PDF`,
