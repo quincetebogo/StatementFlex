@@ -1375,7 +1375,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${this.isInsureAgent || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
+				.disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -1429,7 +1429,7 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" .disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1438,7 +1438,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" .disabled="${this.isInsureAgent || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1446,7 +1446,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/delete-action" 
-					label="Cancel Plan" .disabled="${this.isInsureAgent || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
+					label="Cancel Plan" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
@@ -2184,11 +2184,11 @@ class ClientSummary extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					${!this._determineEarlyCollectVisibility() ? html`` : html`
+					<!--${!this._determineEarlyCollectVisibility() ? html`` : html`
 						<capitec-button type="white" label="Early Collect Opt out" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openEarlyCollectionOPTInDialog()}">
 						</capitec-button>
-					`}
+					`} -->
 					${this.clientPolicies?.summaryDetails?.policies?.length === 0 || this.isInsureAgent === true ? `` : html`
 						<capitec-button type="white" class="capitec-button-medium" label="Lodge Claim" data-automation-id="insure-landing-lodge-claim"
 							@click="${() => this._openClaimInfoDialog()}">
@@ -2498,7 +2498,7 @@ class ClientSummary extends Component {
 
 					<capitec-overflow-menu label="Menu">
 					
-					${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner ? html`` : html`
+					${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCollector ? html`` : html`
 						<capitec-overflow-menu-item icon="system/send-action" label="Email Policy"
 							@click="${() => this._openLifeEmailDialog(activeLifePolicy)}">
 						</capitec-overflow-menu-item>
@@ -2526,7 +2526,7 @@ class ClientSummary extends Component {
 				: html``
 			}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureCollector)
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
@@ -2687,11 +2687,12 @@ class ClientSummary extends Component {
 							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
 							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
-						${this._canShowReIssuePolicy(pol) ? html`
+
+						<!--${this._canShowReIssuePolicy(pol) ? html`
 							<capitec-overflow-menu-item label="Re-Issue Policy" @click="${() => this._goToLifePolicyReIssue(pol)}"></capitec-overflow-menu-item>
 						` : html`
 							<capitec-overflow-menu-item label="Re-Issue Policy" disabled></capitec-overflow-menu-item>
-						`}
+						`}-->
 						</capitec-overflow-menu>
 					</div>
 			</capitec-card>`)
@@ -3081,7 +3082,6 @@ class ClientSummary extends Component {
 				.lifeUpdateBankingDetailsAgreement= "${this.lifeUpdateBankingDetailsAgreement}"
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.getDefaultSavingsAccountNumber="${() => this.getDefaultSavingsAccountNumber()}"
-				.lifePolicies="${this.lifePolicies}"
 				@close-dialog="${() => this.showLifeUpdateBankDetailsDialog = false}"
 				@agree="${(e) => this._lifeUpdateBankingDetailsConfirm(e)}">
 			</horizon-insure-life-update-bank-details-dialog>

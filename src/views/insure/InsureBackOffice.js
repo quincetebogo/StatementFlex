@@ -5,6 +5,7 @@ import { formatDateforPremiumHistory, getAgeFromIDNumber, getGenderFromIDNumber 
 import { Configuration } from 'platform/core';
 import { InsureFuneralService } from '../../services/InsureFuneralService';
 import { InsureLifeService } from '../../services/InsureLifeService';
+import { SavingsService } from 'app/services/SavingsService';
 import { InsureViewBase } from 'app/views/insure/InsureViewBase';
 import { LANDING_PAGE_NEEDS } from 'app/constants/Common';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
@@ -61,6 +62,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		this.insureFuneralService = new InsureFuneralService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.insureLifeService = new InsureLifeService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
+		this.savingsAccountService = new SavingsService(() => this._toggleBusyFlag(), (ex) => super._handleChannelServiceError(ex));
 		this.configuration = Configuration.getInstance();
 
 		this.productParams = {};
@@ -93,6 +95,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 
 		this.lifeCancelationReasons = LIFE_CANCELATION_REASONS_BACKOFFICE;
 		this.lifeSuccessPageMessages = {};
+		this.lifePolicies = {}
 
 		this.blackListCheck = {};
 		this.showBlackListBanner = false;
@@ -136,7 +139,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 			selectedFuneralPolicyContractReference: { type: String, state: true },
 			selectedFuneralPolicyProductCode: { type: String, state: true },
 			funeralPolicies: { type: Object, state: true },
-			lifePolicies: { type: Object, state: true },
 			funeralEstimateDetails: { type: Object, state: true },
 			funeralIssuePlanAgreementDocument: { type: Object, state: true },
 			funeralUpdatePlanAgreementDocument: { type: Object, state: true },
@@ -148,11 +150,15 @@ export class InsureBackOfficeView extends InsureViewBase {
 			selectedInsureTabIndex: { type: Number, state: true },
 			funeralPolicyRescheduleAgreement: { type: Object, state: true },
 
+			lifePolicyArrears: { type: Object, state: true },
+			lifePolicies: { type: Object, state: true },
+
 			contractReference: { type: String, state: true },
 			claims: { type: Object, state: true },
 			lifePolicyMandates: { type: Object, state: true },
 
 			defaultSavingsAccountNumber: { type: String, state: true },
+			defaultSavingsAccountAvailableBalance: { type: String, state: true },
 			showInsureSuccessToast: { type: Boolean, state: true },
 			blackListCheck: { type: Object, state: true }
 
@@ -533,6 +539,63 @@ export class InsureBackOfficeView extends InsureViewBase {
 		mainLife.dateOfBirth = dob.toISOString();;
 	}
 
+	/**
+	 * gets the life policy arrears
+	 * 
+	 * @param {object} selectedPolicy the selected policy
+	 * @returns {void}
+	 */
+	async _retrieveLifePolicyArrears(selectedPolicy) {
+		const arrearsRequest =
+		{
+			"contractReference": selectedPolicy.contractReference,
+			"cifNumber": this.callerInformation.cifNumber
+		};
+
+		const resp = await this.insureLifeService.lifeGetArrears(arrearsRequest);
+		if (!resp.succeeded) {
+			this.handleToastError(resp.exception);
+			return;
+		}
+		await this._getSavingsAccountDetails();
+		this.lifePolicyArrears = resp.result;
+
+		const removeLeadingZerosRegex = accountNumber => accountNumber.replace(/^0+(?=\d)/, ``);
+		const formattedAccounts = resp.result.payableAccounts.map(account => ({ ...account, accountNumber: removeLeadingZerosRegex(account.accountNumber) }));
+		this.lifePolicyArrears.payableAccounts = formattedAccounts;
+	}
+
+	// Attempt to get global one savings account number to pre populate, if fails, continue
+	async _getSavingsAccountDetails() {
+		const landingRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+			getGenericData: true
+		};
+
+		const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
+		if (!isNullorEmpty(returnValue?.result?.accountNumber)) {
+			this.defaultSavingsAccountNumber = returnValue?.result?.accountNumber;
+
+			this.defaultSavingsAccountAvailableBalance = returnValue?.result?.accountAvailableBalance;
+		}
+	}
+
+	// Update life policy, but not yet accepted
+	async _lifeUpdatePolicy(updateRequest) {
+		const updateReq = updateRequest;
+		updateReq.idNumber = this.callerInformation.southAfricanIDNumber;
+		updateReq.cifNumber = this.callerInformation.cifNumber;
+
+		const updateResp = await this.insureLifeService.lifeUpdatePolicy(updateReq, () => true);
+		if (!updateResp.succeeded) {
+			this.handleToastError(updateResp.exception);
+			return null;
+		}
+		return updateResp.result;
+
+	}
+
 	// #endregion PRIVATE METHODS
 
 	// #region DOCUMENT GENERATION
@@ -697,6 +760,52 @@ export class InsureBackOfficeView extends InsureViewBase {
 		}
 
 		this.requestUpdate();
+	}
+
+	/**
+ * Pay Life Policy Arrears Agreement
+ * @param {String} contractReference contractReference
+ * @param {string} accountSelected accountSelected
+ * @param {Object} selectedArrears selectedArrears
+ * @param {boolean} saveToDocumentum saveToDocumentum
+ * @returns {Object} resp
+ */
+	async _generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum) {
+		const generateDocumentRequest = {
+			"saveDocument": saveToDocumentum,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
+			},
+			"metadata": {
+				"deviceId": null,
+				"signatureType": `V`,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"payArrears": {
+				"policyNumber": contractReference,
+				"arrears": selectedArrears,
+				"cifNumber": this.callerInformation.cifNumber,
+				"paidWithClaims": false,
+				"fromAccount": accountSelected
+			}
+		};
+
+		const resp = await this.insureLifeService.lifePayArrearsAgreement(generateDocumentRequest, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			this.lifeDocsToEmail = resp.result;
+			return resp;
+		}
+		this.handleToastError(resp.exception);
+		return null;
 	}
 
 	/**
@@ -1512,6 +1621,86 @@ export class InsureBackOfficeView extends InsureViewBase {
 		return response.result.auditDetails;
 	}
 
+	/**
+	 * Pay arrears for active life policy
+	 * @param {string} contractReference contractReference
+	 * @param {object} selectedAccount selectedAccount
+	 * @param {string} selectedArrears selectedArrears
+	 * @returns {object} resp
+	 */
+	async _payArrearsLife(contractReference, selectedAccount, selectedArrears) {
+		const payArrears = {
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": contractReference,
+			"bankDetails": {
+				"accountName": selectedAccount.accountName,
+				"branchCode": selectedAccount.branchCode,
+				"accountNumber": selectedAccount.accountNumber,
+				"bank": selectedAccount.bank,
+				"accountType": selectedAccount.accountType,
+				"effectiveDate": null
+			},
+			"arrears": selectedArrears
+		};
+
+		const resp = await this.insureLifeService.lifePayArrears(payArrears, () => true);
+		if (resp.succeeded === true && resp.result !== null) {
+			return resp;
+		}
+		this.handleToastError(resp.exception);
+		return null;
+	}
+
+	/** Email and navigate after success  
+		 * @param {string} contractReference contractReference of policy
+		 * @param {string} totalPaid total arrears settled
+		 * @param {string} email email to send agreement too
+		 * @param {string} agreementResult result from CDS call
+		 * @returns {void}
+		*/
+	_payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult) {
+
+		const e = {
+			detail: {
+				emailAddress: email,
+				contractReference: contractReference
+			}
+		};
+		const emailSent = this._sendLifeEmail(e);
+
+		this.lifeSuccessPageMessages = {
+			emailSuccess: emailSent,
+			actionSuccessLabel: `Life Cover arrears was successfully paid`,
+			emailMessage: `Your life cover policy of <b>${contractReference}</b> arrears was settled with <b>${totalPaid}</b>`
+		};
+		this.selectedInsureTabIndex = INSURE_TABS.LIFE;
+		this._navigateToSubView(INSURE_RENDER_MODE.LIFE_SUCCESS);
+	}
+
+	async _lifeUpdateDocument(documentRequest) {
+		const updateDocReq = documentRequest;
+		updateDocReq.cifNumber = this.callerInformation.cifNumber;
+		updateDocReq.bankingDetails.idNumber = this.callerInformation.southAfricanIDNumber;
+
+		const updateDocResp = await this.insureLifeService.lifeUpdateAgreement(updateDocReq, () => true);
+		if (!updateDocResp.succeeded) {
+			this.handleToastError(updateDocResp.exception);
+			return null;
+		}
+		return updateDocResp.result;
+	}
+
+	async _lifeUpdatePocket(updatePocketRequest) {
+		const updatePocketReq = updatePocketRequest;
+		updatePocketReq.cifNumber = this.callerInformation.cifNumber;
+		const updatePocketResp = await this.insureLifeService.lifeUpdatePocket(updatePocketRequest, () => true);
+		if (!updatePocketResp.succeeded) {
+			this.handleToastError(updatePocketResp.exception);
+			return null;
+		}
+		return updatePocketResp.result;
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region NAVIGATION METHODS
@@ -1947,6 +2136,11 @@ export class InsureBackOfficeView extends InsureViewBase {
 		}
 	}
 
+	_lifeUpdateCompleted(e) {
+		this.lifeSuccessPageMessages = this._buildLifeSuccessMessage(true, INSURE_CALLER_PAGE.LIFE_UPDATE_POLICY_DIALOG, e.detail.emailAddress, e.detail.policyNumber);
+		this._goToLifeSuccess();
+	}
+
 	// #endregion NAVIGATION METHODS
 
 
@@ -2096,6 +2290,17 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.generateDocumentsUpdateBankingDetails="${(policy, updatedPolicy, saveToDocumentum) => this._generateDocumentsLifeUpdateBankingDetails(policy, updatedPolicy, saveToDocumentum, false)}"
 				.executeLifeRefreshPolicies="${() => this._refreshLifePolicies()}"
 				.lifeUpdateBankingDetailsAgreement = "${this.lifeUpdateBankingDetailsAgreement}"
+				.lifeGetPolicyArrears="${(selectedPolicy) => this._retrieveLifePolicyArrears(selectedPolicy)}"
+				.lifePolicyArrears = "${this.lifePolicyArrears}"
+				.executeLifePayArrearsGenerateAgreementDocument="${(contractReference, accountSelected, selectedArrears, saveToDocumentum) => this._generateDocumentsLifePayArrears(contractReference, accountSelected, selectedArrears, saveToDocumentum)}"
+				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
+				.defaultSavingsAccountAvailableBalance="${this.defaultSavingsAccountAvailableBalance}"
+				.executeLifePayArrears="${(contractReference, selectedAccount, selectedArrears) => this._payArrearsLife(contractReference, selectedAccount, selectedArrears)}"
+				.executeLifeArrearsSendEmail="${(contractReference, totalPaid, email, agreementResult) => this._payArrearsLifeEmail(contractReference, totalPaid, email, agreementResult)}"
+				.getDefaultSavingsAccountNumber = "${() => this._getSavingsAccountDetails()}"
+				.executeLifeUpdatePolicy="${(updatePolicyRequest) => this._lifeUpdatePolicy(updatePolicyRequest)}"
+				.executeLifeUpdateDocument="${(documentRequest) => this._lifeUpdateDocument(documentRequest)}"
+				.executeLifeUpdatePocket="${(updatePocketRequest) => this._lifeUpdatePocket(updatePocketRequest)}"
 				@send-life-email = "${(e) => this._sendLifeEmail(e)}"
 				@product-enquiry="${() => this._productEnquiry()}"
 				@pay-policy="${(e) => this._payFuneralPolicyArrears(e)}"
@@ -2112,6 +2317,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@send-funeral-email = "${(e) => this._sendEmail(e)}"
 				@life-update-banking-details = "${(e) => this._updateBankingDetailsLifePolicy(e)}"
 				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
+				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				.showFeatureBanner="${this.showFeatureBanner}"
 				.featureBannerMessage="${this.featureBannerMessage}"

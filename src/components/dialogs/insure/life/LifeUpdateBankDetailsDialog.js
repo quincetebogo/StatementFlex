@@ -80,9 +80,8 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 */
 	async connectedCallback() {
 		super.connectedCallback();
+		this.collectionDay = this.policy.bankDetails?.collectionDay;
 		this.updatedPolicy = JSON.parse(JSON.stringify(this.policy));
-
-		this.updatedPolicy.bankDetails.collectionDay = this.lifePolicies?.idealPayDate;
 
 		await this.getDefaultSavingsAccountNumber();
 	}
@@ -116,13 +115,12 @@ class LifeUpdateBankDetailsDialog extends Component {
 	 *  @returns {String} day formatted text
 	 */
 	_getCollectionDay() {
-		let selectedDay = this.updatedPolicy?.bankDetails?.collectionDay;
 
-		if (selectedDay === undefined || selectedDay === null || selectedDay === 0) {
-			selectedDay = 25;
-			this.updatedPolicy.bankDetails.collectionDay = selectedDay;
+		if (!this.collectionDay) {
+			return ``;
 		}
-		const day = this.collectionDayOptions.find(days => days.code.toString() === selectedDay.toString());
+
+		const day = this.collectionDayOptions.find(days => days.code.toString() === this.collectionDay.toString());
 		return day?.text;
 	}
 
