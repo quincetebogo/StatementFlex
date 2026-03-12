@@ -868,7 +868,7 @@ export class InsureLifeService extends ChannelServiceBase {
 			`/life-cover/api/v1/document/generate/cancel-vpp-agreement`,
 			vppStopAgreementRequest,
 			this._setInsureHeaders(),
-			`VppStopAgreement`,
+			`vppStopAgreement`,
 			null,
 			null,
 			900,
