@@ -476,7 +476,7 @@
 			"enabled": false,
 			"positiveCase": true
 		},
-		"insureLifeVppStop": {
+		"insureVppStop": {
 			"enabled": false,
 			"positiveCase": true
 		},

@@ -11,7 +11,9 @@ import 'app/components/dialogs/insure/AgreementDialog';
  * 
  *  
  * @export
- * @class RequestCallback
+ * @class  LifeVppDialog
+ * Dialog component for managing life policy pause (VPP) actions, including
+ * activating or canceling a policy pause and displaying the pause agreement.
  * @extends {Component}
  */
 
@@ -175,7 +177,6 @@ class LifeVppDialog extends Component {
 	}
 
 	_showAgreement() {
-		console.log(`in show agreement`)
 		this.showPolicyPauseAgreement = true;
 	}
 
@@ -285,9 +286,9 @@ class LifeVppDialog extends Component {
 								</horizon-product-tile>
 							</div>
 							<ul>
-								<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>startDate</b> and will expire on <b>endDate</b>.</li>
-								<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo?.nextCollectionDate)}</b>.</p></li>
 								<li><b>Please note:</b> If you activate this VPP benefit, your Life cover will be paused. This means you will not have Life cover and cannot claim until your premium payments start again</li>
+								<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>${formatDateToInsure(this.policyPauseInfo?.benefitStartDate)}</b> and will expire on <b>${formatDateToInsure(this.policyPauseInfo?.benefitEndDate)}</b>.</li>
+								<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo?.nextCollectionDate)}</b>.</p></li>
 							</ul>
 						` : html``}
 					</div>

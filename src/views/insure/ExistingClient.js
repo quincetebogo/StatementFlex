@@ -1428,7 +1428,7 @@ export class ExistingClient extends InsureViewBase {
 		this.lifeDocsToEmail = agreementResponse.result;
 
 		// Fetch VPP benefit info after agreement and return both
-		const policyPauseInfo = await this._retrieveLifePolicyPauseInfo(policy.contractReference, actionType === ACTION_TYPE.ACTIVATE, policy.cifNumber);
+		const policyPauseInfo = await this._retrieveLifePolicyPauseInfo(policy.contractReference, actionType === ACTION_TYPE.ACTIVATE, this.callerInformation.cifNumber);
 
 		return {
 			agreementDetails: agreementResponse.result,
@@ -2553,7 +2553,7 @@ export class ExistingClient extends InsureViewBase {
 				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
 				.fetchLifePolicyPauseAgreementDetails = "${(saveDoc, policy, actionType) => this._fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
 				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
-				.lifeActivatePolicyPause= "${(policy) => this._lifeActivatePolicyPause(policy)}"
+				.lifeActivatePolicyPause= "${(policy, pauseReason) => this._lifeActivatePolicyPause(policy, pauseReason)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"

@@ -1694,7 +1694,6 @@ class ClientSummary extends Component {
 	}
 
 	_closeLifeVppDialog(e) {
-		console.log(e);
 		this.showLifeVppDialog = false;
 		this.benefitSuccessMessage = e.detail.successMessage;
 		this.showBenefitSuccessToast = true;
