@@ -119,7 +119,6 @@ class LifeVppDialog extends Component {
 		}
 	}
 
-// ...existing code...
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
