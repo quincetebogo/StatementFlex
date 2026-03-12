@@ -587,7 +587,19 @@
 			"positiveCase": true
 		},
 		"insureLifeVppStop": {
-			"enabled": true,
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppInfo": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppActivate": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppStop": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

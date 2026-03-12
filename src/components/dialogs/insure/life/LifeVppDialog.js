@@ -18,7 +18,7 @@ import 'app/components/dialogs/insure/AgreementDialog';
 const ACTION_TYPE = {
 	ACTIVATE: 'ACTIVATE',
 	CANCEL: 'CANCEL'
-}
+};
 class LifeVppDialog extends Component {
 
 	// #region INITIALIZE
@@ -34,7 +34,6 @@ class LifeVppDialog extends Component {
 		this.errorMessage = ``;
 		this.showPolicyPauseAgreement = false;
 
-
 	}
 
 	// #endregion INITIALIZE
@@ -49,7 +48,8 @@ class LifeVppDialog extends Component {
 	 * @property {String} selectedReason - selected reason for activating policy pause
 	 * @property {Boolean} showPolicyPauseAgreement - show policy pause agreement dialog
 	 * @property {Object} vppBenefit - contains vpp benefit object from the summary response
-	 * @property {Object} fetchBenefitDetails - callback function to fetch benefit details
+	 * @property {Object} fetchLifePolicyPauseInfo - callback function to fetch benefit details
+	 * @property {object} lifePolicyPauseInfo - contains vpp benefit info such as next collection date
 	 * 
 	 * @readonly
 	 * @static
@@ -59,12 +59,14 @@ class LifeVppDialog extends Component {
 			policy: { type: Object, state: true },
 			isActivate: { type: Boolean, state: true },
 			reasons: { type: Array, state: true },
-			selectedReason: { type: String, stat: true },
-			errorMessage: { type: String, stat: true },
+			selectedReason: { type: String, state: true },
+			errorMessage: { type: String, state: true },
 			policyPauseDocumentDetails: { type: Object, state: true },
-			fetchLifePolicyPauseAgreementDetails: { type: Object, state: true },
-			lifeCancelPolicyPause: { type: Object, state: true },
-			showPolicyPauseAgreement: { type: Boolean, state: true }
+			fetchLifePolicyPauseAgreementDetails: { type: Function },
+			lifeCancelPolicyPause: { type: Function },
+			lifeActivatePolicyPause: { type: Function },
+			showPolicyPauseAgreement: { type: Boolean, state: true },
+			policyPauseInfo: { type: Object, state: true }
 		};
 	}
 
@@ -92,21 +94,30 @@ class LifeVppDialog extends Component {
 	// #region PRIVATE METHODS
 
 	async _initialise() {
-
-		if (this.policy.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
-			this.isActivate = false
-		}
+		this.isActivate = this.policy.policyStatusEnum !== LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE;
 
 		if (this.isActivate) {
-			//TODO do the benefit info call here to get dates
-		}
+			const result = await this.fetchLifePolicyPauseAgreementDetails(
+				false,
+				this.policy,
+				ACTION_TYPE.ACTIVATE
+			);
 
-		if (!this.isActivate) {
-			this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.CANCEL)
-		}
+			this.policyPauseDocumentDetails = result?.agreementDetails;
+			this.policyPauseInfo = result?.policyPauseInfo;
+		} else {
+			const result = await this.fetchLifePolicyPauseAgreementDetails(
+				false,
+				this.policy,
+				ACTION_TYPE.CANCEL
+			);
 
+			this.policyPauseDocumentDetails = result?.agreementDetails;
+			this.policyPauseInfo = result?.policyPauseInfo;
+		}
 	}
 
+// ...existing code...
 	// #endregion PRIVATE METHODS
 
 	// #region EVENT HANDLERS
@@ -116,29 +127,43 @@ class LifeVppDialog extends Component {
 	 * @returns {void}
 	 */
 	async _confirmPolicyPauseClick() {
-		if (!this.isActivate) { //for Cancel pause 
+		if (!this.isActivate) {
+			// Cancel pause — call vppStop
 			const resp = await this.lifeCancelPolicyPause(this.policy);
 
-			if (resp.successful) {
-				this.dispatchEvent(new CustomEvent(`action-success`, { detail: { successMessage: `Your Policy Pause benefit has been successfully cancelled` } }));
-			}
+			if (resp?.succeeded) {
+				// Generate the save-to-documentum agreement
+				await this.fetchLifePolicyPauseAgreementDetails(true, this.policy, `CANCEL`);
 
-		} else { // for activate pause
+				this.dispatchEvent(new CustomEvent(`action-success`, {
+					detail: { successMessage: `Your Policy Pause benefit has been successfully cancelled` }
+				}));
+			}
+		} else {
+			// Activate pause — call vppActivate
 			if (isNullorEmpty(this.selectedReason)) {
 				this.errorMessage = `A reason needs to be selected`;
 				return;
 			}
 			this.errorMessage = ``;
-			this.dispatchEvent(new CustomEvent(`action-success`, { detail: { successMessage: `Your Policy Pause benefit has been successfully activated` } }));
+
+			const resp = await this.lifeActivatePolicyPause(this.policy, this.selectedReason);
+
+			if (resp?.succeeded) {
+				// Generate the save-to-documentum agreement
+				await this.fetchLifePolicyPauseAgreementDetails(true, this.policy, `ACTIVATE`);
+
+				this.dispatchEvent(new CustomEvent(`action-success`, {
+					detail: { successMessage: `Your Policy Pause benefit has been successfully activated` }
+				}));
+			}
 		}
-
-
 	}
 
 	async _reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this.errorMessage = ``;
-		this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE)
+		this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE);
 	}
 
 	/**
@@ -236,7 +261,7 @@ class LifeVppDialog extends Component {
 		return html` 
 		${this._renderAgreementDialog()}
 				${this.isActivate ? html`
-					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 280px;` : `height: 180px;`} ">
+					<div style="padding-bottom: 10px; ${this.selectedReason ? `height: 350px;` : `height: 220px;`} ">
 						
 						<p>Select a reason for activating pause on policy <b>${this.policy.contractReference}</b>?</p>
 						<div>
@@ -261,13 +286,14 @@ class LifeVppDialog extends Component {
 							</div>
 							<ul>
 								<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>startDate</b> and will expire on <b>endDate</b>.</li>
-								<li>Your next collection date will be <b>collectionDate</b>.</li>
+								<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo?.nextCollectionDate)}</b>.</p></li>
+								<li><b>Please note:</b> If you activate this VPP benefit, your Life cover will be paused. This means you will not have Life cover and cannot claim until your premium payments start again</li>
 							</ul>
 						` : html``}
 					</div>
-				`: html`
+				` : html`
 					<div style="padding-bottom: 10px; height: 200px;">
-						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>date</b>.</p>
+						<p>Your Voluntary policy pause will be <b>deactivated</b> and your next collection date will be on the <b>${formatDateToInsure(this.policyPauseInfo?.nextCollectionDate)}</b>.</p>
 						<div>
 							<horizon-product-tile class="view-document" type="default" label="Policy Pause Agreement" subtitle="Life Cover" detail="" icon="" @click="${() => this._showAgreement()}">
 								<capitec-label slot="detail" type="strong" label="View Document" >
@@ -276,8 +302,7 @@ class LifeVppDialog extends Component {
 						</div>
 					</div>
 				`}
-			`
-			;
+			`;
 	}
 
 	/**

@@ -1242,6 +1242,49 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	async _lifeCancelPolicyPause(policy) {
+		const cancelVppRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			policyNumber: policy.contractReference,
+			benefitStopDate: new Date().toISOString()
+		};
+
+		const cancelVppResponse = await this.insureLifeService.vppStop(cancelVppRequest);
+
+		if (!cancelVppResponse?.succeeded) {
+			if (cancelVppResponse?.exception) {
+				this.handleToastError(cancelVppResponse.exception);
+			} else {
+				console.error('VPP Stop failed:', cancelVppResponse);
+			}
+			return;
+		}
+
+		return cancelVppResponse;
+	}
+
+	async _lifeActivatePolicyPause(policy, pauseReason) {
+		const activateVppRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			policyNumber: policy.contractReference,
+			pauseReason: pauseReason,
+			benefitStartDate: new Date().toISOString()
+		};
+
+		const activateVppResponse = await this.insureLifeService.vppActivate(activateVppRequest);
+
+		if (!activateVppResponse?.succeeded) {
+			if (activateVppResponse?.exception) {
+				this.handleToastError(activateVppResponse.exception);
+			} else {
+				console.error('VPP Activate failed:', activateVppResponse);
+			}
+			return;
+		}
+
+		return activateVppResponse;
+	}
+
 	async _retrievePolicyBenefitInfo(contractRef, productCode) {
 		const benefitInfoRequest = {
 			"contractReference": contractRef,
@@ -1259,9 +1302,26 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	async _retrieveLifePolicyPauseInfo(contractRef, isActivate, cif) {
+		const vppInfoRequest = {
+			"contractReference": contractRef,
+			"isActivate": isActivate,
+			"cifNumber": cif
+		};
+
+		const lifeBenefitResponse = await this.insureLifeService.vppBenefitInfo(vppInfoRequest);
+
+		if (!lifeBenefitResponse.succeeded) {
+			this.handleToastError(lifeBenefitResponse.exception);
+			return;
+		}
+
+		return lifeBenefitResponse.result;
+	}
+
 	async _fetchBenefitAgreement(saveDocument, policy, action) {
 
-		let benefitInfo = {}
+		let benefitInfo = {};
 
 		benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 
@@ -1283,7 +1343,7 @@ export class ExistingClient extends InsureViewBase {
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.surname,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString(),
+				"dateOfBirth": dob.toISOString()
 			},
 			"benefitDetails": benefitInfo,
 			"emailDetails": {
@@ -1327,45 +1387,55 @@ export class ExistingClient extends InsureViewBase {
 	async _fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType) {
 
 		const agreementRequest = {
+			"saveDocument": saveDoc,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
+			},
+			"metadata": {
+				"deviceId": null,
+				"signatureType": `V`,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails?.voiceReferenceNumber ?? null,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": policy.contractReference,
+			"acceptanceDate": new Date().toISOString(),
+			"signatureDate": new Date().toISOString(),
+			"emailAddress": this.callerInformation?.emailId ?? null
+		};
 
-		}
-
-		let agreementResponse = {}
+		let agreementResponse = {};
 
 		if (actionType === ACTION_TYPE.ACTIVATE) {
-			agreementResponse = await this.insureLifeService.VppActivateAgreement(agreementRequest)
+			agreementResponse = await this.insureLifeService.vppActivateAgreement(agreementRequest);
 		} else {
-			agreementResponse = await this.insureLifeService.VppStopAgreement(agreementRequest)
+			agreementResponse = await this.insureLifeService.vppStopAgreement(agreementRequest);
 		}
 
 		if (!agreementResponse.succeeded) {
 			this.handleToastError(agreementResponse.exception);
 			return;
 		}
+
 		this.lifeDocsToEmail = agreementResponse.result;
 
-		return agreementResponse.result;
+		// Fetch VPP benefit info after agreement and return both
+		const policyPauseInfo = await this._retrieveLifePolicyPauseInfo(policy.contractReference, actionType === ACTION_TYPE.ACTIVATE, policy.cifNumber);
+
+		return {
+			agreementDetails: agreementResponse.result,
+			policyPauseInfo: policyPauseInfo
+		};
 	}
 
-	async _lifeCancelPolicyPause(policy) {
-
-		const request = {
-			cifNumber: policy.cifNumber,
-			policyNumber: policy.contractReference,
-			benefitStopDate: new Date()
-		}
-
-		let resp = await this.insureLifeService.vppStop(request)
-		console.log("resp:", resp)
-		if (!resp.succeeded) {
-			this.handleToastError(resp.exception);
-			return;
-		}
-
-		return resp.result
-
-
-	}
 
 	// #endregion PRIVATE METHODS
 
@@ -2479,9 +2549,11 @@ export class ExistingClient extends InsureViewBase {
 				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
 				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
+				.fetchLifePolicyPauseInfo="${(contractRef, isActivate, cif) => this._retrieveLifePolicyPauseInfo(contractRef, isActivate, cif)}"
 				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
 				.fetchLifePolicyPauseAgreementDetails = "${(saveDoc, policy, actionType) => this._fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
 				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
+				.lifeActivatePolicyPause= "${(policy) => this._lifeActivatePolicyPause(policy)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
@@ -2669,6 +2741,8 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
+				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
+                .lifeActivatePolicyPause= "${(policy, pauseReason) => this._lifeActivatePolicyPause(policy, pauseReason)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}

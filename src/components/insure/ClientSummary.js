@@ -281,6 +281,8 @@ class ClientSummary extends Component {
 			showLifeVppDialog: { type: Boolean, state: true },
 			fetchLifePolicyPauseAgreementDetails: { type: Object, state: true },
 			lifeCancelPolicyPause: { type: Object, state: true },
+			lifePolicyPauseInfo: { type: Object, state: true },
+			lifeActivatePolicyPause: { type: Object, state: true },
 
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
@@ -1679,20 +1681,20 @@ class ClientSummary extends Component {
 	_openLifeVppDialog(activeLifePolicy) {
 		//check for activate or cancel
 
-		this.selectedLifePolicy = activeLifePolicy
+		this.selectedLifePolicy = activeLifePolicy;
 		this.showLifeVppDialog = true;
 	}
 
 	_determineLifeVppLabel(activeLifePolicy) {
 		if (activeLifePolicy.policyStatusEnum !== LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
-			return `Activate Voluntary Policy pause`
-		} else {
-			return `Cancel Voluntary Policy pause`
-		}
+			return `Activate Voluntary Policy pause`;
+		} 
+			return `Cancel Voluntary Policy pause`;
+		
 	}
 
 	_closeLifeVppDialog(e) {
-		console.log(e)
+		console.log(e);
 		this.showLifeVppDialog = false;
 		this.benefitSuccessMessage = e.detail.successMessage;
 		this.showBenefitSuccessToast = true;
@@ -3457,6 +3459,7 @@ class ClientSummary extends Component {
 				.policy="${this.selectedLifePolicy}"
 				.fetchLifePolicyPauseAgreementDetails="${(saveDoc, policy, actionType) => this.fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
 				.lifeCancelPolicyPause="${(policy) => this.lifeCancelPolicyPause(policy)}"
+				.lifeActivatePolicyPause="${(policy, pauseReason) => this.lifeActivatePolicyPause(policy, pauseReason)}"
 				@action-success= "${(e) => this._closeLifeVppDialog(e)}"
 				@close-modal="${() => this.showLifeVppDialog = false}">
 			</horizon-insure-life-vpp-dialog>

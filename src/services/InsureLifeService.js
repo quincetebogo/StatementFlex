@@ -757,6 +757,7 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async vppActivate(vppActivateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		console.log('Activate VPP request - ' + JSON.stringify(vppActivateRequest, null, 2));
 		if (await this.isMockEnabled(`insureVppActivate`)) {
 			return this.mock(`insureVppActivate`);
 		}
@@ -783,14 +784,40 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async vppStop(vppStopRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureCancelBenefit`)) {
-			return this.mock(`insureCancelBenefit`);
+		if (await this.isMockEnabled(`insureVppStop`)) {
+			return this.mock(`insureVppStop`);
 		}
 		return this.post(
 			`/life-cover/api/v1/policy/voluntary-premium-pause-stop`,
 			vppStopRequest,
 			this._setInsureHeaders(),
 			`vppStop`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Voluntary policy pause Info
+	 *
+	 * @param {Object} [vppInfoRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppBenefitInfo(vppInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureVppInfo`)) {
+			return this.mock(`insureVppInfo`);
+		}
+		return this.post(
+			`/life-cover/api/v1/policy/voluntary-pause-info`,
+			vppInfoRequest,
+			this._setInsureHeaders(),
+			`vppBenefitInfo`,
 			null,
 			null,
 			900,
@@ -808,12 +835,12 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async VppActivateAgreement(vppActivateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async vppActivateAgreement(vppActivateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
 			return this.mock(`insureGenerateAgreement`);
 		}
 		return this.post(
-			`/life-cover/api/v1/policy/voluntary-premium-pause-stop`,
+			`/life-cover/api/v1/document/generate/vpp-agreement`,
 			vppActivateAgreementRequest,
 			this._setInsureHeaders(),
 			`vppActivateAgreement`,
@@ -834,15 +861,15 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	async VppStopAgreement(vppStopAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async vppStopAgreement(vppStopAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
 			return this.mock(`insureGenerateAgreement`);
 		}
 		return this.post(
-			`/life-cover/api/v1/policy/voluntary-premium-pause-stop`,
+			`/life-cover/api/v1/document/generate/cancel-vpp-agreement`,
 			vppStopAgreementRequest,
 			this._setInsureHeaders(),
-			`vppStopAgreement`,
+			`VppStopAgreement`,
 			null,
 			null,
 			900,

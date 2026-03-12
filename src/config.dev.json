@@ -475,6 +475,18 @@
 		"insureLifeActivateBenefit": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"insureLifeVppStop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppInfo": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppActivate": {
+			"enabled": false,
+			"positiveCase": true
 		}
 	},
 	"TelemetryFilter": [
