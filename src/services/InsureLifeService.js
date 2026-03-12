@@ -757,7 +757,6 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async vppActivate(vppActivateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		console.log('Activate VPP request - ' + JSON.stringify(vppActivateRequest, null, 2));
 		if (await this.isMockEnabled(`insureVppActivate`)) {
 			return this.mock(`insureVppActivate`);
 		}
