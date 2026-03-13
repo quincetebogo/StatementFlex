@@ -91,7 +91,7 @@ export class ValueAddedServices extends Component {
 
 	_initializeInterests() {
 		// Get the marketing consent data (it's already in object format from the API)
-		const marketingData = this.statusVAS.optInConsentInterestPreferences?.marketing;
+		const marketingData = this.statusVAS.newStatusInterestConsent?.marketing;
 
 		// If the API returns an array, convert it to object format
 		if (Array.isArray(marketingData)) {
