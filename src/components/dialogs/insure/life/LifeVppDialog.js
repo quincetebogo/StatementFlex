@@ -331,7 +331,7 @@ class LifeVppDialog extends Component {
 		return this.showPolicyPauseAgreement === false ? html``
 			: html`
 			<horizon-insure-agreement-dialog
-			.agreementContent="${this.policyPauseDocumentDetails.documentContent.value}"
+			.agreementContent="${this.policyPauseDocumentDetails.documentContent.base64EncodedString}"
 			@back-click="${() => this.showPolicyPauseAgreement = false}">
 			</horizon-insure-agreement-dialog>
 		`;

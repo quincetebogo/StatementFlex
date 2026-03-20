@@ -1304,7 +1304,7 @@ export class ExistingClient extends InsureViewBase {
 
 	async _retrieveLifePolicyPauseInfo(contractRef, isActivate, cif) {
 		const vppInfoRequest = {
-			"contractReference": contractRef,
+			"policyNumber": contractRef,
 			"isActivate": isActivate,
 			"cifNumber": cif
 		};
