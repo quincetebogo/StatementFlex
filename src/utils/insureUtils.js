@@ -512,6 +512,9 @@ export function determineLifeStatusColour(status) {
 	if (status === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER) {
 		cssClass = `active-status`;
 	}
+	if (status === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
+		cssClass = `active-status`;
+	}
 	return cssClass;
 }
 
@@ -524,7 +527,7 @@ export function determineActiveLifePolicies(lifePolicies) {
 	if (isNullorEmpty(lifePolicies)) {
 		return null;
 	}
-	return lifePolicies.find(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER);
+	return lifePolicies.find(policy => policy.policyStatusEnum === LIFE_POLICY_STATUSES.IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policy.policyStatusEnum === LIFE_POLICY_STATUSES.LAPSE_PENDING || policy.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || policy.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE);
 }
 
 /**
