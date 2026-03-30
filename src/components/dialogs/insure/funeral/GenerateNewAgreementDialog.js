@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { INSURE_CALLER_PAGE } from 'app/constants/InsureCommon';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import {formatDateToInsure} from "app/utils/insureUtils"
+import { formatDateToInsure } from "app/utils/insureUtils"
 import 'app/components/dialogs/insure/AgreementDialog';
 
 
@@ -33,9 +33,9 @@ class GenerateNewAgreementDialog extends Component {
 
 	constructor() {
 		super();
-		
+
 		this.policy = {};
-		
+
 		this.showNewAgreement = false;
 		this.DocumentDetails = {};
 
@@ -96,7 +96,7 @@ class GenerateNewAgreementDialog extends Component {
 
 	async _initialise() {
 		this.documentDetails = await this.fetchPolicyRescheduleDocumentDetails(this.policy, false);
-	
+
 	}
 
 	// #endregion PRIVATE METHODS
@@ -116,7 +116,7 @@ class GenerateNewAgreementDialog extends Component {
 		}
 
 		this.agreementAccepted = true;
-		
+
 	}
 
 	/**
@@ -127,9 +127,9 @@ class GenerateNewAgreementDialog extends Component {
 		this.dispatchEvent(new CustomEvent(`close-modal`, {}));
 	}
 
-	 _showAgreement() {
+	_showAgreement() {
 		this.showNewAgreement = true;
-		
+
 	}
 
 	/**
@@ -165,14 +165,14 @@ class GenerateNewAgreementDialog extends Component {
 
 			let emailPayload = {
 				detail: {
-					emailId: {detail: {emailAddress: this.email}},
+					emailId: { detail: { emailAddress: this.email } },
 					callerPage: INSURE_CALLER_PAGE.FUNERAL_NEW_AGREEMENT_GENERATION,
 					contractRef: this.policy.contractReference,
 					productCode: this.policy.productCode
 				}
-			}
+			};
 
-			await this.sendEmail(emailPayload)
+			await this.sendEmail(emailPayload);
 		}
 	}
 
@@ -184,7 +184,7 @@ class GenerateNewAgreementDialog extends Component {
 	}
 
 
-	
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -196,7 +196,7 @@ class GenerateNewAgreementDialog extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-	 static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -243,7 +243,7 @@ class GenerateNewAgreementDialog extends Component {
 	 * Main render point for component
 	 * @returns {html} The html content of the component.
 	 */
-	 _webTemplate() {
+	_webTemplate() {
 		return html`
 			${this._renderAgreementDialog()}
 			<capitec-modal header="Generate Agreement" style="--theme-modal-alert-m-l-xl-width: 500px; --theme-modal-header-color: black;"> 
@@ -262,7 +262,7 @@ class GenerateNewAgreementDialog extends Component {
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-	 _renderDialogBody() {
+	_renderDialogBody() {
 		return html` 
 			${this.agreementAccepted === false ? html`
 				<div>
@@ -271,7 +271,7 @@ class GenerateNewAgreementDialog extends Component {
 						</capitec-label>
 					</horizon-product-tile>
 				</div>
-				` 
+				`
 				: html`
 
 					${this._renderAlertBanner()}
@@ -290,7 +290,7 @@ class GenerateNewAgreementDialog extends Component {
 				`}
 				
 			
-		`; 
+		`;
 	}
 
 	/**
@@ -301,7 +301,7 @@ class GenerateNewAgreementDialog extends Component {
 	_renderDialogFooter() {
 		return html`
 			
-			<capitec-button slot="footer" type="secondary" label="${this.agreementAccepted ? "Done" : "Cancel" }" class="capitec-button-small"
+			<capitec-button slot="footer" type="secondary" label="${this.agreementAccepted ? "Done" : "Cancel"}" class="capitec-button-small"
 				@click="${() => this._cancelClick()}">
 			</capitec-button>
 			
@@ -333,13 +333,13 @@ class GenerateNewAgreementDialog extends Component {
 		`;
 	}
 
-		/**
-	 * render the alert banner
-	 * 
-	 * @returns {html} html content 
-	 */
-		_renderAlertBanner() {
-			return this.alertBannerMessage 
+	/**
+ * render the alert banner
+ * 
+ * @returns {html} html content 
+ */
+	_renderAlertBanner() {
+		return this.alertBannerMessage
 			? html`
 				<capitec-alert-banner type="unsuccessful-red" class= "alert">
 					<capitec-group layout="horizontal">
@@ -353,7 +353,7 @@ class GenerateNewAgreementDialog extends Component {
 					</capitec-group>
 				</capitec-alert-banner>`
 			: html``;
-		}
+	}
 
 	// #endregion RENDERING
 

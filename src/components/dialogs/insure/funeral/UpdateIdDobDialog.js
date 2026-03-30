@@ -125,7 +125,7 @@ class UpdateIdDobDialog extends Component {
 	 */
 	_emailClick() {
 		let mainlife = this.policy.roleplayers.find(life => life.relationship === 'MainLife');
-		this.emailOnPolicy = mainlife?.email;
+		this.emailOnPolicy = mainlife?.contactDetails?.email;
 		this.showEmailDialog = true;
 	}
 
