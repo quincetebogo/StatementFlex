@@ -81,6 +81,7 @@ class ClientSummary extends Component {
 		super();
 
 		this._horizonInsureStore = HorizonInsureStore.getInstance();
+		this._horizonStore = HorizonStore.getInstance();
 		this._telemetry = HorizonTelemetry.getInstance();
 		this.roleManager = RoleManager.getInstance();
 
@@ -603,7 +604,7 @@ class ClientSummary extends Component {
 	}
 
 	_getMainLifeEmail(policy) {
-    	return policy?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || '';
+		return policy?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || '';
 	}
 
 	/**
@@ -3239,8 +3240,8 @@ class ClientSummary extends Component {
 	 * @returns {void}
 	 */
 	_renderLifeEmailDialog() {
-		const email = this._horizonInsureStore?.callerInformation?.emailId || '';
-
+		const callerInfo = this._horizonStore.getCallerInformation();
+		const email = callerInfo?.emailId || '';
 		return this.showLifeEmailDialog === false ? html``
 			: html`
 				<horizon-insure-email-dialog 
