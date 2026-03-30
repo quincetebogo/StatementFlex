@@ -1263,12 +1263,11 @@ export class ExistingClient extends InsureViewBase {
 		return cancelVppResponse;
 	}
 
-	async _lifeActivatePolicyPause(policy, pauseReason) {
+	async _lifeActivatePolicyPause(policy, benefitReason) {
 		const activateVppRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			policyNumber: policy.contractReference,
-			pauseReason: pauseReason,
-			benefitStartDate: new Date().toISOString()
+			pauseReason: benefitReason
 		};
 
 		const activateVppResponse = await this.insureLifeService.vppActivate(activateVppRequest);
@@ -2552,7 +2551,7 @@ export class ExistingClient extends InsureViewBase {
 				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
 				.fetchLifePolicyPauseAgreementDetails = "${(saveDoc, policy, actionType) => this._fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
 				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
-				.lifeActivatePolicyPause= "${(policy, pauseReason) => this._lifeActivatePolicyPause(policy, pauseReason)}"
+				.lifeActivatePolicyPause= "${(policy, benefitReason) => this._lifeActivatePolicyPause(policy, benefitReason)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
@@ -2743,7 +2742,7 @@ export class ExistingClient extends InsureViewBase {
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
 				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
-                .lifeActivatePolicyPause= "${(policy, pauseReason) => this._lifeActivatePolicyPause(policy, pauseReason)}"
+                .lifeActivatePolicyPause= "${(policy, benefitReason) => this._lifeActivatePolicyPause(policy, benefitReason)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}

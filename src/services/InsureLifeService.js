@@ -835,8 +835,8 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async vppActivateAgreement(vppActivateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`insureGenerateAgreement`);
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`);
 		}
 		return this.post(
 			`/life-cover/api/v1/document/generate/vpp-agreement`,
@@ -861,8 +861,8 @@ export class InsureLifeService extends ChannelServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	async vppStopAgreement(vppStopAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		if (await this.isMockEnabled(`insureGenerateAgreement`)) {
-			return this.mock(`insureGenerateAgreement`);
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`);
 		}
 		return this.post(
 			`/life-cover/api/v1/document/generate/cancel-vpp-agreement`,

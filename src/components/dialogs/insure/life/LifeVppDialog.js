@@ -164,7 +164,9 @@ class LifeVppDialog extends Component {
 	async _reasonSelected(e) {
 		this.selectedReason = e.detail.new.code;
 		this.errorMessage = ``;
-		this.policyPauseDocumentDetails = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE);
+		const result = await this.fetchLifePolicyPauseAgreementDetails(false, this.policy, ACTION_TYPE.ACTIVATE);
+		this.policyPauseDocumentDetails = result?.agreementDetails;
+		this.policyPauseInfo = result?.policyPauseInfo;
 	}
 
 	/**

@@ -400,6 +400,7 @@ class LifePolicySummary extends Component {
 			${this._renderPocketsSection()}
 			${this._renderBankDetailsSection()}
 			${this._renderMandatesDetailsSection()}
+			${this._renderVppBenefitSection()}
 		`;
 	}
 
@@ -770,7 +771,7 @@ class LifePolicySummary extends Component {
 		})));
 
 		const latestMandates = mandateDetails.filter(mandate => new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime());
-		
+
 		const selectedMandate = latestMandates.find(mandate => mandate.mandateStatus === `Active`) || latestMandates[0];
 
 		return html`
@@ -778,10 +779,10 @@ class LifePolicySummary extends Component {
 			</capitec-title-bar>
 			${mandateDetails.length === 0 ? this._renderNoResults()
 				: html`
-				<capitec-content-box  class="accounts-box">
+				<capitec-content-box  class="details-box">
 					<horizon-expander
 					expandButtonAlignment="right"
-					.expanded = "${false}">
+					.expanded="${false}">
 						<capitec-group 
 							class="expander-header"
 							slot="custom-header"
@@ -853,13 +854,75 @@ class LifePolicySummary extends Component {
 		`;
 	}
 
+	_renderVppBenefitSection() {
+		const benefit = this.selectedLifePolicy?.benefit;
+		console.log(this.selectedLifePolicy)
+		console.log(benefit)
+		// Only render if the benefit object exists
+		if (isNullorEmpty(benefit)) {
+			return html``;
+		}
+
+		return html`
+			<capitec-title-bar type="default" label="Premium Waivers">
+			</capitec-title-bar>
+			<capitec-content-box class="details-box"> 
+				<horizon-expander
+					expandButtonAlignment="right"
+					.expanded="${false}">
+					<capitec-group 
+						class="expander-header"
+						slot="custom-header"
+						layout="horizontal"
+						gap="clear"
+						halign="left"
+						valign="center">
+						<horizon-label
+							class="column-width-200"
+							label="Benefit type"
+							value="${benefit.benefitType === 'VoluntaryPause' ? 'Voluntary Policy Pause' : benefit.benefitType === 'NewbornWaiver' ? 'Newborn Premium Waiver' : '-'}">
+						</horizon-label>
+						<div class="vertical-line"></div>
+						<horizon-label
+							label="Status"
+							value="${benefit.benefitStatus === 'Active' ? 'Active' : 'Inactive'}"
+							class="${benefit.benefitStatus === 'Active' ? 'active-status' : 'inactive-status'}">
+						</horizon-label>
+					</capitec-group>
+					<div slot="content">
+						<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+							${this._renderVppExpandedDetails(benefit)}
+						</capitec-group>
+					</div>
+				</horizon-expander>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderVppExpandedDetails(benefit) {
+		return html`
+			<capitec-title-bar type="default" label="Additional Information" class="inner-details-title"></capitec-title-bar>
+			<capitec-group class="options-group first-row" layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label label="Start date"
+					value="${isNullorEmpty(benefit.benefitStartDate) ? '-' : formatDate(benefit.benefitStartDate, 'dd mmm yyyy')}">
+				</horizon-label>
+				<horizon-label label="End date"
+					value="${isNullorEmpty(benefit.benefitEndDate) ? '-' : formatDate(benefit.benefitEndDate, 'dd mmm yyyy')}">
+				</horizon-label>
+				<horizon-label label="Next Collection Date"
+					value="${isNullorEmpty(benefit.collectionDateIfCancelled) ? '-' : formatDate(benefit.collectionDateIfCancelled, 'dd mmm yyyy')}">
+				</horizon-label>
+			</capitec-group>
+		`;
+	}
+
 	/**
 	 * Render message when no results found
 	 * @returns {html} The html content of No results
 	 */
 	_renderNoResults() {
 		return html`
-			<capitec-content-box class="accounts-box">
+			<capitec-content-box class="details-box">
 				<horizon-expander expandButtonAlignment="" .expanded="${false}" ?disabled=${true}>
 					<capitec-group class="no-result-group" slot="custom-header" layout="horizontal" gap="clear" halign="left"
 						valign="center">

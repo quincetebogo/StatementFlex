@@ -1698,6 +1698,21 @@ class ClientSummary extends Component {
 
 	}
 
+	/**
+	 * Determines if VPP button should be disabled
+	 * @param {Object} activeLifePolicy - The policy to check
+	 * @returns {Boolean} - True if button should be disabled
+	 */
+	_shouldDisableVppButton(activeLifePolicy) {
+		if (!activeLifePolicy?.voluntaryPremiumPauseAvailable) {
+			if (activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
+				return false; // Enable cancel button
+			}
+			return true;
+		}
+		return false;
+	}
+
 	_closeLifeVppDialog(e) {
 		this.showLifeVppDialog = false;
 		this.benefitSuccessMessage = e.detail.successMessage;
@@ -2542,8 +2557,12 @@ class ClientSummary extends Component {
 				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewbornPremiumWaiverReason(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
-			${!this.isInsureAgent && !this.isInsureCampaigner && !this.isInsureCollector && activeLifePolicy.voluntaryPremiumPauseAvailable
-				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${this._determineLifeVppLabel(activeLifePolicy)}" @click="${() => this._openLifeVppDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+			${!this.isInsureAgent && !this.isInsureCampaigner && !this.isInsureCollector ? html`<capitec-overflow-menu-item 
+						icon="system/profile-action" 
+						label="${this._determineLifeVppLabel(activeLifePolicy)}" 
+						.disabled="${this._shouldDisableVppButton(activeLifePolicy)}"
+						@click="${() => this._openLifeVppDialog(activeLifePolicy)}">
+					</capitec-overflow-menu-item>`
 				: html``
 			}
 					</capitec-overflow-menu>
@@ -3471,7 +3490,7 @@ class ClientSummary extends Component {
 				.policy="${this.selectedLifePolicy}"
 				.fetchLifePolicyPauseAgreementDetails="${(saveDoc, policy, actionType) => this.fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
 				.lifeCancelPolicyPause="${(policy) => this.lifeCancelPolicyPause(policy)}"
-				.lifeActivatePolicyPause="${(policy, pauseReason) => this.lifeActivatePolicyPause(policy, pauseReason)}"
+				.lifeActivatePolicyPause="${(policy, benefitReason) => this.lifeActivatePolicyPause(policy, benefitReason)}"
 				@action-success= "${(e) => this._closeLifeVppDialog(e)}"
 				@close-modal="${() => this.showLifeVppDialog = false}">
 			</horizon-insure-life-vpp-dialog>
