@@ -11,7 +11,7 @@ export const insureLifeClientSummary = {
 		{
 			"contractReference": "LP00003393",
 			"policyStatus": "Pending In Force",
-			"policyStatusEnum": "PendingInForce",
+			"policyStatusEnum": "VoluntaryPolicyPause",
 			"displayPolicyStatus": "Active - Pending Payment",
 			"policyStartDate": "2025-05-30T00:00:00+00:00",
 			"cancellationReason": "",
@@ -46,6 +46,15 @@ export const insureLifeClientSummary = {
 					"premium": 0
 				}
 			],
+			"arrears": [
+				{
+					"arrearsID": "AR0000006203",
+					"arrearsPaymentStatus": "PENDING",
+					"arrearsPaymentDueAmount": "66.3600000000",
+					"arrearsPaymentDueDate": "2025-08-25T00:00:00+00:00",
+					"arrearsPaymentReceivedAmount": "0.0000000000"
+				}
+			],
 			"beneficiaries": [
 				{
 					"title": "Mr",
@@ -66,10 +75,11 @@ export const insureLifeClientSummary = {
 			],
 			"totalPolicySumAssured": 120000,
 			"policyReinstatementCount": 0,
+			"arrearsMissedPremiumCount": 1,
 			"newBornPremiumWaiverAvailable": false,
-			"voluntaryPremiumPauseAvailable": false,
+			"voluntaryPremiumPauseAvailable": true,
 			"canReIssue": false,
-			"canIncreaseCover": true,
+			"canIncreaseCover": false,
 			"channelFee": 31
 		},
 		{

@@ -747,5 +747,135 @@ export class InsureLifeService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	/**
+	 * Activate voluntary policy pause for life policy
+	 *
+	 * @param {Object} [vppActivateRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppActivate(vppActivateRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureVppActivate`)) {
+			return this.mock(`insureVppActivate`);
+		}
+		return this.post(
+			`/life-cover/api/v1/policy/voluntary-pause`,
+			vppActivateRequest,
+			this._setInsureHeaders(),
+			`vppActivate`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Stop voluntary policy pause for life policy
+	 *
+	 * @param {Object} [vppStopRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppStop(vppStopRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureVppStop`)) {
+			return this.mock(`insureVppStop`);
+		}
+		return this.post(
+			`/life-cover/api/v1/policy/voluntary-premium-pause-stop`,
+			vppStopRequest,
+			this._setInsureHeaders(),
+			`vppStop`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Voluntary policy pause Info
+	 *
+	 * @param {Object} [vppInfoRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppBenefitInfo(vppInfoRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureVppInfo`)) {
+			return this.mock(`insureVppInfo`);
+		}
+		return this.post(
+			`/life-cover/api/v1/policy/voluntary-pause-info`,
+			vppInfoRequest,
+			this._setInsureHeaders(),
+			`vppBenefitInfo`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Generate VPP Activate agreement
+	 *
+	 * @param {Object} [vppActivateAgreementRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppActivateAgreement(vppActivateAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`);
+		}
+		return this.post(
+			`/life-cover/api/v1/document/generate/vpp-agreement`,
+			vppActivateAgreementRequest,
+			this._setInsureHeaders(),
+			`vppActivateAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	/**
+	 * Generate VPP Activate agreement
+	 *
+	 * @param {Object} [vppStopAgreementRequest] Request data for service call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	async vppStopAgreement(vppStopAgreementRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		if (await this.isMockEnabled(`insureGenericLifeDocument`)) {
+			return this.mock(`insureGenericLifeDocument`);
+		}
+		return this.post(
+			`/life-cover/api/v1/document/generate/cancel-vpp-agreement`,
+			vppStopAgreementRequest,
+			this._setInsureHeaders(),
+			`vppStopAgreement`,
+			null,
+			null,
+			900,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 	// #endregion PUBLIC METHODS
 }

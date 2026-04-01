@@ -46,6 +46,7 @@ import 'app/components/dialogs/insure/funeral/NewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/funeral/GenerateNewAgreementDialog';
 import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverDialog';
 import 'app/components/dialogs/insure/life/LifeNewbornPremiumWaiverReasonDialog';
+import 'app/components/dialogs/insure/life/LifeVppDialog';
 
 const MAIN_LIFE_MINIMUM_COVER = 5000;
 
@@ -139,6 +140,7 @@ class ClientSummary extends Component {
 
 		this.showLifeEmailDialog = false;
 		this.lifeUpdateMode = ``;
+		this.showLifeVppDialog = false;
 
 		this.isInsureAgent = this.roleManager.isInsureAgent;
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
@@ -277,6 +279,12 @@ class ClientSummary extends Component {
 			showLifeBenefitSuccessToast: { type: Boolean, state: true },
 			lifeBenefitSuccessMessage: { type: String, state: true },
 			fetchLifeBenefitDetails: { type: Object, state: true },
+			showLifeVppDialog: { type: Boolean, state: true },
+			fetchLifePolicyPauseAgreementDetails: { type: Object, state: true },
+			lifeCancelPolicyPause: { type: Object, state: true },
+			lifePolicyPauseInfo: { type: Object, state: true },
+			lifeActivatePolicyPause: { type: Object, state: true },
+
 
 			showLifeUpdateBankDetailsDialog: { type: Boolean, state: true },
 
@@ -925,7 +933,7 @@ class ClientSummary extends Component {
 	 * @returns {Boolean} boolean
 	 */
 	_checkLifePolicyStatus(policyStatus) {
-		if (policyStatus === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.LAPSE_PENDING || policyStatus === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER) {
+		if (policyStatus === LIFE_POLICY_STATUSES.PENDING_IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.IN_FORCE || policyStatus === LIFE_POLICY_STATUSES.LAPSE_PENDING || policyStatus === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || policyStatus === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
 			return true;
 		}
 		return false;
@@ -1675,6 +1683,43 @@ class ClientSummary extends Component {
 
 	}
 
+	_openLifeVppDialog(activeLifePolicy) {
+		//check for activate or cancel
+
+		this.selectedLifePolicy = activeLifePolicy;
+		this.showLifeVppDialog = true;
+	}
+
+	_determineLifeVppLabel(activeLifePolicy) {
+		if (activeLifePolicy.policyStatusEnum !== LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
+			return `Activate Voluntary Policy pause`;
+		}
+		return `Cancel Voluntary Policy pause`;
+
+	}
+
+	/**
+	 * Determines if VPP button should be disabled
+	 * @param {Object} activeLifePolicy - The policy to check
+	 * @returns {Boolean} - True if button should be disabled
+	 */
+	_shouldDisableVppButton(activeLifePolicy) {
+		if (!activeLifePolicy?.voluntaryPremiumPauseAvailable) {
+			if (activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE) {
+				return false; // Enable cancel button
+			}
+			return true;
+		}
+		return false;
+	}
+
+	_closeLifeVppDialog(e) {
+		this.showLifeVppDialog = false;
+		this.benefitSuccessMessage = e.detail.successMessage;
+		this.showBenefitSuccessToast = true;
+		this.showLifeEmailDialog = true;
+	}
+
 	// #endregion PRIVATE FUNCTIONS
 
 	// #region RENDERING
@@ -2069,6 +2114,7 @@ class ClientSummary extends Component {
 			${this._renderEmailBenefitDialog()}
 			${this._renderGenerateNewAgreementDialog()}
 			${this._renderBenefitUnavailableDialog()}
+			${this._renderLifeVppDialog()}
 
 		`;
 	}
@@ -2478,8 +2524,8 @@ class ClientSummary extends Component {
 						</capitec-overflow-menu-item>
 					`}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCollector)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy, LIFE_UPDATE_MODE.ALLOCATE)}"></capitec-overflow-menu-item>`
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+				? html`<capitec-overflow-menu-item icon="system/documents-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" label="Manage Policy" @click="${() => this._openAllocateCoverDialog(activeLifePolicy, LIFE_UPDATE_MODE.ALLOCATE)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 			
@@ -2489,14 +2535,14 @@ class ClientSummary extends Component {
 					<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" disabled></capitec-overflow-menu-item>
 				`}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator)
-				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
 
-			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCollector)
-				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
+			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
@@ -2509,6 +2555,14 @@ class ClientSummary extends Component {
 						
 					${this.isInsureAdministrator && activeLifePolicy.newBornPremiumWaiverAvailable
 				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewbornPremiumWaiverReason(activeLifePolicy)}"></capitec-overflow-menu-item>`
+				: html``
+			}
+			${!this.isInsureAgent && !this.isInsureCampaigner && !this.isInsureCollector ? html`<capitec-overflow-menu-item 
+						icon="system/profile-action" 
+						label="${this._determineLifeVppLabel(activeLifePolicy)}" 
+						.disabled="${this._shouldDisableVppButton(activeLifePolicy)}"
+						@click="${() => this._openLifeVppDialog(activeLifePolicy)}">
+					</capitec-overflow-menu-item>`
 				: html``
 			}
 					</capitec-overflow-menu>
@@ -3426,6 +3480,20 @@ class ClientSummary extends Component {
 				.policyItem="${this.selectedPolicyItem}"
 				@close-modal="${() => this.showBenefitUnavailableDialog = false}">
 			</horizon-insure-benefit-unavailable-dialog>
+		`;
+	}
+
+	_renderLifeVppDialog() {
+		return this.showLifeVppDialog === false ? html``
+			: html`
+			<horizon-insure-life-vpp-dialog
+				.policy="${this.selectedLifePolicy}"
+				.fetchLifePolicyPauseAgreementDetails="${(saveDoc, policy, actionType) => this.fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
+				.lifeCancelPolicyPause="${(policy) => this.lifeCancelPolicyPause(policy)}"
+				.lifeActivatePolicyPause="${(policy, benefitReason) => this.lifeActivatePolicyPause(policy, benefitReason)}"
+				@action-success= "${(e) => this._closeLifeVppDialog(e)}"
+				@close-modal="${() => this.showLifeVppDialog = false}">
+			</horizon-insure-life-vpp-dialog>
 		`;
 	}
 	// #endregion RENDERING

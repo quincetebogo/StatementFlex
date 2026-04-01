@@ -102,6 +102,10 @@ export default class InsureChannelServiceMocks {
 		this.activateLifeBenefitMocks = await this._loadMockModule(this.activateLifeBenefitMocks, `insureLifeActivateBenefit`, () => import(`../mocks/insure/life/InsureGenericResponse`).catch(err => logError(err)));
 		this.cancelLifeBenefitMocks = await this._loadMockModule(this.cancelLifeBenefitMocks, `insureLifeCancelBenefit`, () => import(`../mocks/insure/funeral/InsureGenericResponse`).catch(err => logError(err)));
 		this.lifeBlackListCheckMocks = await this._loadMockModule(this.lifeBlackListCheckMocks, `insureBlackListCheck`, () => import(`../mocks/insure/life/LifeBlackListCheck`).catch(err => logError(err)));
+		this.lifePolicyPauseInfoMocks = await this._loadMockModule(this.lifePolicyPauseInfoMocks, `insureVppInfo`, () => import(`../mocks/insure/life/InsureVppInfo`).catch(err => logError(err)));
+		this.lifePolicyPauseStopMocks = await this._loadMockModule(this.lifePolicyPauseStopMocks, `insureVppStop`, () => import(`./insure/life/InsureVppStop.js`).catch(err => logError(err)));
+		this.lifePolicyPauseActivateMocks = await this._loadMockModule(this.lifePolicyPauseActivateMocks, `insureVppActivate`, () => import(`../mocks/insure/life/InsureVppActivate`).catch(err => logError(err)));
+
 	}
 
 	// #region FUNERAL
@@ -658,5 +662,26 @@ export default class InsureChannelServiceMocks {
 		}
 		return null;
 
+	}
+
+	insureVppInfo() {
+		if (this._mockSettings.insureVppInfo.positiveCase) {
+			return this.lifePolicyPauseInfoMocks.insureVppInfo;
+		}
+		return null;
+	}
+
+	insureVppStop() {
+		if (this._mockSettings.insureVppStop.positiveCase) {
+			return this.lifePolicyPauseStopMocks.insureVppStop;
+		}
+		return null;
+	}
+
+	insureVppActivate() {
+		if (this._mockSettings.insureVppActivate.positiveCase) {
+			return this.lifePolicyPauseActivateMocks.insureVppActivate;
+		}
+		return null;
 	}
 }
