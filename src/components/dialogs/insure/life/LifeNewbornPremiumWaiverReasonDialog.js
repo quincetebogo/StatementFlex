@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { formatDate, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { LIFE_BENEFIT_REASONS, LIFE_BENEFIT_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
+import { LIFE_NBPW_REASONS, LIFE_BENEFIT_TYPES, LIFE_CLIENT_SUMMARY_BENEFIT_TYPES, LIFE_POLICY_RULES } from 'app/constants/InsureCommon';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import 'app/components/dialogs/insure/AgreementDialog';
 
@@ -22,7 +22,7 @@ class LifeNewbornPremiumWaiverReasonDialog extends Component {
 	constructor() {
 		super();
 
-		this.benefitReasons = LIFE_BENEFIT_REASONS;
+		this.benefitReasons = LIFE_NBPW_REASONS;
 		this.policy = {};
 		this.cancelBenefit = false;
 		this.showAgreement = false;
@@ -41,10 +41,10 @@ class LifeNewbornPremiumWaiverReasonDialog extends Component {
 	* @param {Object} executeActivateBenefit callback function to execute activate benefit
 	* @param {Object} executeCancelBenefit callback function to execute cancel benefit
 	* @readonly
- 	* @static
+	  * @static
 	*/
 
-	
+
 	static get properties() {
 		return {
 			newbornWaiverAgreementDetails: { type: Object, state: true },
@@ -68,10 +68,10 @@ class LifeNewbornPremiumWaiverReasonDialog extends Component {
 	 * Setup the component once added to the DOM.
 	 * @returns {void}
 	 */
-		connectedCallback() {
-			super.connectedCallback();
-			this._initialise();
-		}
+	connectedCallback() {
+		super.connectedCallback();
+		this._initialise();
+	}
 	// #endregion LIFECYCLE OVERRIDES
 
 	// #region PRIVATE METHODS
@@ -81,22 +81,22 @@ class LifeNewbornPremiumWaiverReasonDialog extends Component {
  * Resets last selected relationship
  * @returns {void}
  */
-async _initialise() {
-    this.newbornWaiverAgreementDetails = {};
-    this.cancelBenefit = false;
-    this.showAgreement = false;
-    this.waiverSelected = false;
-    this.checkConfirmed = false;
-    this.showLifeNewbornPremiumWaiverDialog = false;
+	async _initialise() {
+		this.newbornWaiverAgreementDetails = {};
+		this.cancelBenefit = false;
+		this.showAgreement = false;
+		this.waiverSelected = false;
+		this.checkConfirmed = false;
+		this.showLifeNewbornPremiumWaiverDialog = false;
 
-    this.nbpwBenefit = this.policy?.benefit;
-    if (this.nbpwBenefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE) {
-        this.cancelBenefit = true;
-        this.lifeBenefitDetails = await this.fetchLifeBenefitDetails(this.policy.contractReference);
-    }
-}
+		this.nbpwBenefit = this.policy?.benefit;
+		if (this.nbpwBenefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE) {
+			this.cancelBenefit = true;
+			this.lifeBenefitDetails = await this.fetchLifeBenefitDetails(this.policy.contractReference);
+		}
+	}
 
-// #endregion PRIVATE METHODS
+	// #endregion PRIVATE METHODS
 	// #endregion PRIVATE METHODS
 	// #region EVENT HANDLERS
 	_cancelClick() {
@@ -129,7 +129,7 @@ async _initialise() {
 	_checkChange(e, reason) {
 		this.checkConfirmed = e.detail.new;
 		this.selectedReason = reason;
-		this.requestUpdate(); 
+		this.requestUpdate();
 	}
 
 	_closeLifeNewbornPremiumWaiverDialog(e) {
@@ -142,16 +142,16 @@ async _initialise() {
 
 		// Forward the success message up to close this dialog too
 		if (e.detail && e.detail.successMessage) {
-			this.dispatchEvent(new CustomEvent(`close-modal`, { 
+			this.dispatchEvent(new CustomEvent(`close-modal`, {
 				detail: { successMessage: e.detail.successMessage }
 			}));
 		}
 	}
 
 	_handleContinueClick() {
-			this.showLifeNewbornPremiumWaiverDialog = true;
-			this.waiverSelected = true;
-			this.requestUpdate(); // Ensure the component re-renders
+		this.showLifeNewbornPremiumWaiverDialog = true;
+		this.waiverSelected = true;
+		this.requestUpdate(); // Ensure the component re-renders
 	}
 
 	// #endregion EVENT HANDLERS
@@ -168,13 +168,13 @@ async _initialise() {
 		`;
 	}
 
-/**
- * Render modal body section
- * 
- * @returns {html} The html content of the component.
- */
-_renderDialogBody() {
-    return html`
+	/**
+	 * Render modal body section
+	 * 
+	 * @returns {html} The html content of the component.
+	 */
+	_renderDialogBody() {
+		return html`
         ${this.showLifeNewbornPremiumWaiverDialog ? html`
             <horizon-insure-life-newborn-premium-waiver-dialog
                 .policy="${this.policy}"
@@ -222,9 +222,9 @@ _renderDialogBody() {
             `}
         `}
     `;
-}
+	}
 
-		
+
 	/**
 	 * Render modal footer section
 	 * 
@@ -248,17 +248,17 @@ _renderDialogBody() {
 		`;
 	}
 
-		/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
-		static get styles() {
-			return [
-				super.styles,
-				css`
+	/**
+ * Generates the component stylesheet.
+ *
+ * @readonly
+ * @static
+ * @returns {css} CSS for the component.
+ */
+	static get styles() {
+		return [
+			super.styles,
+			css`
 					${INSURE_CSS}
 	
 					capitec-modal {
@@ -320,8 +320,8 @@ _renderDialogBody() {
 					.
 					
 				`
-			];
-		}
+		];
+	}
 	// #endregion RENDERING
 }
 

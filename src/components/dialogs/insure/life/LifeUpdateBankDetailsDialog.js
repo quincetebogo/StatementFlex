@@ -472,6 +472,7 @@ class LifeUpdateBankDetailsDialog extends Component {
 				<capitec-text-field 
 					label="Account Number" 
 					type="numeric" 
+					maxlength="13"
 					class="banking-form-input"
 					value="${this.updatedPolicy?.bankDetails?.accountNumber}"
 					error = "${this.accountNumberErrorMsg}"

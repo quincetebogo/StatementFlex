@@ -1087,7 +1087,7 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
-			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
+			"roleplayers": policyToUpdate.roleplayers,
 			"collectionDetails": policyToUpdate.deductionDetails,
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
@@ -1242,6 +1242,40 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	async _lifeCancelPolicyPause(policy) {
+		const cancelVppRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			policyNumber: policy.contractReference,
+			benefitStopDate: new Date().toISOString()
+		};
+
+		const cancelVppResponse = await this.insureLifeService.vppStop(cancelVppRequest);
+
+		if (!cancelVppResponse?.succeeded) {
+			this.handleToastError(cancelVppResponse.exception);
+			return;
+		}
+
+		return cancelVppResponse;
+	}
+
+	async _lifeActivatePolicyPause(policy, benefitReason) {
+		const activateVppRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			policyNumber: policy.contractReference,
+			pauseReason: benefitReason
+		};
+
+		const activateVppResponse = await this.insureLifeService.vppActivate(activateVppRequest);
+
+		if (!activateVppResponse?.succeeded) {
+			this.handleToastError(activateVppResponse.exception);
+			return;
+		}
+
+		return activateVppResponse;
+	}
+
 	async _retrievePolicyBenefitInfo(contractRef, productCode) {
 		const benefitInfoRequest = {
 			"contractReference": contractRef,
@@ -1259,9 +1293,26 @@ export class ExistingClient extends InsureViewBase {
 
 	}
 
+	async _retrieveLifePolicyPauseInfo(contractRef, isActivate, cif) {
+		const vppInfoRequest = {
+			"policyNumber": contractRef,
+			"isActivate": isActivate,
+			"cifNumber": cif
+		};
+
+		const lifeBenefitResponse = await this.insureLifeService.vppBenefitInfo(vppInfoRequest);
+
+		if (!lifeBenefitResponse.succeeded) {
+			this.handleToastError(lifeBenefitResponse.exception);
+			return;
+		}
+
+		return lifeBenefitResponse.result;
+	}
+
 	async _fetchBenefitAgreement(saveDocument, policy, action) {
 
-		let benefitInfo = {}
+		let benefitInfo = {};
 
 		benefitInfo = await this._retrievePolicyBenefitInfo(policy.contractReference, policy.productCode);
 
@@ -1283,7 +1334,7 @@ export class ExistingClient extends InsureViewBase {
 				"firstName": this.callerInformation.firstName,
 				"surname": this.callerInformation.surname,
 				"idNumber": this.callerInformation.southAfricanIDNumber,
-				"dateOfBirth": dob.toISOString(),
+				"dateOfBirth": dob.toISOString()
 			},
 			"benefitDetails": benefitInfo,
 			"emailDetails": {
@@ -1323,6 +1374,59 @@ export class ExistingClient extends InsureViewBase {
 		mainLife.idNumber = this.callerInformation.southAfricanIDNumber;
 		mainLife.dateOfBirth = dob.toISOString();
 	}
+
+	async _fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType) {
+
+		const agreementRequest = {
+			"saveDocument": saveDoc,
+			"documentOptions": {
+				"stamp": `Default`,
+				"barcode": `Default`,
+				"watermark": `Copy`,
+				"channel": `Horizon`,
+				"contentType": `Pdf`
+			},
+			"metadata": {
+				"deviceId": null,
+				"signatureType": `V`,
+				"branchName": ``,
+				"branchNumber": ``,
+				"documentDate": new Date().toISOString(),
+				"language": ``,
+				"productId": `12601`
+			},
+			"voiceReferenceNumber": this.incomingCallDetails?.voiceReferenceNumber ?? null,
+			"cifNumber": this.callerInformation.cifNumber,
+			"policyNumber": policy.contractReference,
+			"acceptanceDate": new Date().toISOString(),
+			"signatureDate": new Date().toISOString(),
+			"emailAddress": this.callerInformation?.emailId ?? null
+		};
+
+		let agreementResponse = {};
+
+		if (actionType === ACTION_TYPE.ACTIVATE) {
+			agreementResponse = await this.insureLifeService.vppActivateAgreement(agreementRequest);
+		} else {
+			agreementResponse = await this.insureLifeService.vppStopAgreement(agreementRequest);
+		}
+
+		if (!agreementResponse.succeeded) {
+			this.handleToastError(agreementResponse.exception);
+			return;
+		}
+
+		this.lifeDocsToEmail = agreementResponse.result;
+
+		// Fetch VPP benefit info after agreement and return both
+		const policyPauseInfo = await this._retrieveLifePolicyPauseInfo(policy.contractReference, actionType === ACTION_TYPE.ACTIVATE, this.callerInformation.cifNumber);
+
+		return {
+			agreementDetails: agreementResponse.result,
+			policyPauseInfo: policyPauseInfo
+		};
+	}
+
 
 	// #endregion PRIVATE METHODS
 
@@ -1806,7 +1910,6 @@ export class ExistingClient extends InsureViewBase {
 					item.arrearsAllocatedDate = isNullorEmpty(item.arrearsAllocatedDate) ? `` : formatDateforPremiumHistory(new Date(Date.parse(item.arrearsAllocatedDate)));
 					return item;
 				});
-			this.transactions.push(...formattedTrans);
 			this.funeralPolicyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY;
 		} else {
@@ -2436,7 +2539,11 @@ export class ExistingClient extends InsureViewBase {
 				.executeActivateBenefit="${(activationReason, benefitType, policy) => this.executeFuneralActivateBenefit(activationReason, benefitType, policy)}"
 				.executeCancelBenefit="${(benefitType, policy) => this.executeFuneralCancelBenefit(benefitType, policy)}"
 				.fetchBenefitDetails="${(contractRef, productCode) => this._retrievePolicyBenefitInfo(contractRef, productCode)}"
+				.fetchLifePolicyPauseInfo="${(contractRef, isActivate, cif) => this._retrieveLifePolicyPauseInfo(contractRef, isActivate, cif)}"
 				.fetchPolicyPauseAgreementDetails = "${(saveDocument, policy, action) => this._fetchBenefitAgreement(saveDocument, policy, action)}"
+				.fetchLifePolicyPauseAgreementDetails = "${(saveDoc, policy, actionType) => this._fetchLifePolicyPauseAgreementDetails(saveDoc, policy, actionType)}"
+				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
+				.lifeActivatePolicyPause= "${(policy, benefitReason) => this._lifeActivatePolicyPause(policy, benefitReason)}"
 				@send-benefit-email = "${(e) => this._sendEmail(e)}"
 				@life-reissue-completed = "${(e) => this._lifeReissueCompleted(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
@@ -2530,6 +2637,7 @@ export class ExistingClient extends InsureViewBase {
 		return html`
 			<horizon-insure-funeral-cancel-policy-success
 				.contractReference = ${this.selectedFuneralPolicyContractReference}
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email = "${(e) => this._sendEmail(e)}" 
 				@navigate-to-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-funeral-cancel-policy-success>`;
@@ -2544,6 +2652,7 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-funeral-pay-premium-success-page 
 				.amountToPay = "${this.amountToPay}" 
 				.contractReference = "${this.selectedFuneralPolicyContractReference}"
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email= "${(e) => this._sendEmail(e)}"
 				@navigate-to-policy-summary="${(e) => this._goToFuneralPolicySummary(e)}"
 				@navigate-back="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
@@ -2624,6 +2733,8 @@ export class ExistingClient extends InsureViewBase {
 			<horizon-insure-life-policy-summary 
 				.selectedLifePolicy="${this.selectedLifePolicy}"
 				.lifePolicyMandates = "${this.lifePolicyMandates}"
+				.lifeCancelPolicyPause= "${(policy) => this._lifeCancelPolicyPause(policy)}"
+                .lifeActivatePolicyPause= "${(policy, benefitReason) => this._lifeActivatePolicyPause(policy, benefitReason)}"
 				@navigate-back="${() => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-life-policy-summary >`;
 	}
@@ -2682,6 +2793,7 @@ export class ExistingClient extends InsureViewBase {
 				.successMessage="${this.successPageMessage}" 
 				.callerPage = "${this.callerPage}" 
 				.contractReference = "${this.selectedFuneralPolicyContractReference}"
+				.email="${this.funeralPolicies?.summaryDetails?.policies?.find(p => p.contractReference === this.selectedFuneralPolicyContractReference)?.roleplayers?.find(r => r.relationship === 'MainLife')?.contactDetails?.email || ''}"
 				@send-email = "${(e) => this._sendEmail(e)}"
 				@navigate-back="${(e) => this._rerenderClientSummary(e.detail.navigateBackTo)}">
 			</horizon-insure-success-page>`;
