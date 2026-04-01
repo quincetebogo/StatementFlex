@@ -1087,7 +1087,7 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
-			"roleplayers": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
+			"roleplayers": policyToUpdate.roleplayers,
 			"collectionDetails": policyToUpdate.deductionDetails,
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
