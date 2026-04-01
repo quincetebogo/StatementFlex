@@ -1252,11 +1252,7 @@ export class ExistingClient extends InsureViewBase {
 		const cancelVppResponse = await this.insureLifeService.vppStop(cancelVppRequest);
 
 		if (!cancelVppResponse?.succeeded) {
-			if (cancelVppResponse?.exception) {
-				this.handleToastError(cancelVppResponse.exception);
-			} else {
-				console.error('VPP Stop failed:', cancelVppResponse);
-			}
+			this.handleToastError(cancelVppResponse.exception);
 			return;
 		}
 
@@ -1273,11 +1269,7 @@ export class ExistingClient extends InsureViewBase {
 		const activateVppResponse = await this.insureLifeService.vppActivate(activateVppRequest);
 
 		if (!activateVppResponse?.succeeded) {
-			if (activateVppResponse?.exception) {
-				this.handleToastError(activateVppResponse.exception);
-			} else {
-				console.error('VPP Activate failed:', activateVppResponse);
-			}
+			this.handleToastError(activateVppResponse.exception);
 			return;
 		}
 

@@ -856,8 +856,6 @@ class LifePolicySummary extends Component {
 
 	_renderVppBenefitSection() {
 		const benefit = this.selectedLifePolicy?.benefit;
-		console.log(this.selectedLifePolicy)
-		console.log(benefit)
 		// Only render if the benefit object exists
 		if (isNullorEmpty(benefit)) {
 			return html``;
