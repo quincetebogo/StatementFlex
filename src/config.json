@@ -315,7 +315,7 @@
 			"positiveCase": true
 		},
 		"insureGenerateAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
@@ -327,7 +327,7 @@
 			"positiveCase": true
 		},
 		"insureSendEmail": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelPolicy": {
@@ -535,7 +535,7 @@
 			"positiveCase": true
 		},
 		"insureBenefitAgreement": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCancelBenefit": {
@@ -584,6 +584,22 @@
 		},
 		"insureBlackListCheck": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"insureLifeVppStop": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppInfo": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppActivate": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"insureVppStop": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

@@ -119,6 +119,7 @@ export class ConfirmPolicyPauseDialog extends Component {
 		return html`
 			
 			<ul>
+				<li>Please note: If you activate this VPP benefit, your funeral cover will be paused. This means you will not have funeral cover and cannot claim until your premium payments start again.</li>
 				<li>Your Voluntary policy pause benefit will be <b>activated</b> from <b>${formatDateToInsure(this.policyPauseInfo.benefitStartDate)}</b> and will expire on <b>${formatDateToInsure(this.policyPauseInfo.benefitEndDate)}</b>.</li>
 				<li>Your next collection date will be <b>${formatDateToInsure(this.policyPauseInfo.nextCollectionDate)}</b>.</li>
 			</ul>

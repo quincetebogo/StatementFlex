@@ -2241,7 +2241,7 @@ class FuneralUpdatePlan extends Component {
 									style="width: 50%" value="${this._getBank()}" 
 									@value-changed = "${(e) => this._selectedBankChange(e)}">
 								</capitec-select>
-								<capitec-text-field label="Account Number" type="numeric" style="width: 50%"
+								<capitec-text-field label="Account Number" type="numeric" maxlength="13" style="width: 50%"
 									value="${this.policyDetails.deductionDetails?.bankDetails?.accountNumber}"
 									error = "${this.accountNumErrorMsg}"
 									@value-changed = "${(e) => this._accountNumberChange(e)}"

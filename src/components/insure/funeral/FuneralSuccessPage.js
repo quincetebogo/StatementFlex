@@ -30,6 +30,7 @@ class FuneralSuccessPage extends Component {
 		this.showEmailPlanDialog = false;
 		this.contractReference = ``;
 		this.titleMessage = ``;
+		this.email = ``;
 
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
@@ -54,7 +55,8 @@ class FuneralSuccessPage extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true },
 			callerPage: { type: String },
 			contractReference: { type: String },
-			titleMessage: { type: String }
+			titleMessage: { type: String },
+			email: { type: String }
 		};
 	}
 	// #endregion PROPERTIES
@@ -240,6 +242,7 @@ class FuneralSuccessPage extends Component {
 				<horizon-insure-email-dialog
 					.contractReference = "${this.contractReference}" 
 					.titleMessage = "${this.titleMessage}"
+					.email="${this.email}"
 					@close-modal="${() => this.showEmailPlanDialog = false}"
 					@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 				</horizon-insure-email-dialog>`;

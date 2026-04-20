@@ -256,6 +256,7 @@ class LifeSuccessPage extends Component {
 		return this.showEmailDialog === true ? html`
 			<horizon-insure-email-dialog
 				.titleMessage = "${`Email Agreement`}"
+				.email="${this.email}"
 				@close-modal="${() => this.showEmailDialog = false}"
 				@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 			</horizon-insure-email-dialog>

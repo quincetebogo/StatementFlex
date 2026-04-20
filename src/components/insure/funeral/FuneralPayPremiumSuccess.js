@@ -28,6 +28,7 @@ class FuneralPayPremiumSuccess extends Component {
 		this.amountToPay = ``;
 		this.contractReference = ``;
 		this.titleMessage = ``;
+		this.email = ``;
 
 		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 
@@ -53,7 +54,8 @@ class FuneralPayPremiumSuccess extends Component {
 			showEmailPlanDialog: { type: Boolean, state: true },
 			amountToPay: { type: Object },
 			contractReference: { type: Object },
-			titleMessage: { type: String }
+			titleMessage: { type: String },
+			email: { type: String }
 		};
 	}
 
@@ -310,6 +312,7 @@ class FuneralPayPremiumSuccess extends Component {
 		<horizon-insure-email-dialog
 			.contractReference = "${this.contractReference}" 
 			.titleMessage = "${this.titleMessage}"
+			.email="${this.email}"
 			@close-modal="${(e) => this.showEmailPlanDialog = false}"
 			@send-email = "${(emailAddress) => this._sendEmail(emailAddress)}">
 		</horizon-insure-email-dialog>
