@@ -5,349 +5,276 @@
  * @constant PolicySummary
  */
 export const PolicySummary = {
-	"contractReference": `CF09847678`,
-	"productCode": `Capitec`,
-	"commencementDate": `2020-05-10T17:35:05.190Z`,
-	"status": `InForce`,
-	"displayStatus": `In Force`,
-	"deductionDetails": {
-		"collectionDay": `3`,
-		"bankDetails": {
-			"accountName": `Mr John Smith`,
-			"branchCode": `470010`,
-			"accountNumber": `8459878987`,
-			"bank": `Capitec Bank`,
-			"accountType": `Bond`
+	"roleplayers": [
+		{
+			"title": "Mrs",
+			"surname": "Bogan",
+			"firstName": "Kate",
+			"idNumber": "6504092059083",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Female",
+			"dateOfBirth": "1965-04-09T04:00:00Z",
+			"recordID": "D3A29D23-81AC-4154-9BC0-8F4BE0D46366",
+			"recordIDType": "PAS",
+			"cifNumber": "441361536",
+			"relationship": "MainLife",
+			"coverAmount": 5000,
+			"premium": 40,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 0
 		},
-		"collectionMethod": `EFT`,
-		"mandateReferenceNumber": ``,
-		"frequency": `MONTHLY`,
-		"effectiveFromDate": `2022-05-10T17:35:05.190Z`,
-		"effectiveToDate": `2022-05-10T17:35:05.190Z`
+		{
+			"title": "Mr",
+			"surname": "Waters",
+			"firstName": "Jeannette",
+			"idNumber": "7103261659085",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Female",
+			"dateOfBirth": "1971-03-26T04:00:00Z",
+			"recordID": "6788C9D9-D4F3-440C-9CFE-8F277F154BC8",
+			"recordIDType": "PAS",
+			"relationship": "Parent",
+			"coverAmount": 5000,
+			"premium": 16.6,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 1
+		},
+		{
+			"title": "Ms",
+			"surname": "Lee",
+			"firstName": "Lawrence",
+			"idNumber": "7103265853080",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Male",
+			"dateOfBirth": "1971-03-26T04:00:00Z",
+			"recordID": "2FEC6C86-4BC8-45DF-9856-8CFFFCEFB5EB",
+			"recordIDType": "PAS",
+			"relationship": "Parent",
+			"coverAmount": 5000,
+			"premium": 16.6,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 2
+		},
+		{
+			"title": "Miss",
+			"surname": "Farrell",
+			"firstName": "Irvin",
+			"idNumber": "7103266583082",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Male",
+			"dateOfBirth": "1971-03-26T04:00:00Z",
+			"recordID": "E52AFBC6-F76F-4328-B86C-80E7B0585775",
+			"recordIDType": "PAS",
+			"relationship": "Parent",
+			"coverAmount": 5000,
+			"premium": 16.6,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 3
+		},
+		{
+			"title": "Ms",
+			"surname": "Emard",
+			"firstName": "Margaret",
+			"idNumber": "7103261340082",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Female",
+			"dateOfBirth": "1971-03-26T04:00:00Z",
+			"recordID": "41D5F26D-1E43-4D19-8F45-DFA66EA8ADE3",
+			"recordIDType": "PAS",
+			"relationship": "ExtendedParent",
+			"coverAmount": 5000,
+			"premium": 25.7,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 4
+		},
+		{
+			"title": "Mr",
+			"surname": "Wilderman",
+			"firstName": "Glenn",
+			"idNumber": "7103268146086",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Male",
+			"dateOfBirth": "1971-03-26T04:00:00Z",
+			"recordID": "C4BBC3E8-3C5E-4BE2-99EF-794EABEB6C1A",
+			"recordIDType": "PAS",
+			"relationship": "ExtendedParent",
+			"coverAmount": 5000,
+			"premium": 25.7,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 5
+		},
+		{
+			"title": "Dr",
+			"surname": "Smyth",
+			"firstName": "Delia",
+			"idNumber": "0203263676082",
+			"lifeAssured": true,
+			"beneficiary": true,
+			"benefitPayout": 5000,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Female",
+			"dateOfBirth": "2002-03-26T04:00:00Z",
+			"recordID": "B12D8585-8FD6-4189-8D54-E3B30335FABD",
+			"recordIDType": "PAS",
+			"relationship": "Spouse",
+			"coverAmount": 5000,
+			"premium": 5.5,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 6
+		},
+		{
+			"title": "Dr",
+			"surname": "Evans",
+			"firstName": "Christie",
+			"idNumber": "1003262465084",
+			"lifeAssured": true,
+			"beneficiary": false,
+			"contactDetails": {
+				"cellphone": "0935280099",
+				"homephone": "0003347970",
+				"workphone": "0918905668"
+			},
+			"gender": "Female",
+			"dateOfBirth": "2010-03-26T04:00:00Z",
+			"recordID": "EA980F16-97E8-4B87-AC0F-34EA3DBECDD7",
+			"recordIDType": "PAS",
+			"relationship": "ExtendedSpouse",
+			"coverAmount": 5000,
+			"premium": 3.6,
+			"coverStartDate": "2026-01-01T02:00:00Z",
+			"premiumStartDate": "2026-02-01T02:00:00Z",
+			"idType": "RSAID",
+			"rowID": 7
+		}
+	],
+	"contractReference": "FP00007576",
+	"productCode": "Capitec",
+	"commencementDate": "2026-01-01T02:00:00Z",
+	"status": "Active",
+	"pasStatus": "Active",
+	"displayStatus": "Active",
+	"deductionDetails": {
+		"collectionMethod": "DO",
+		"collectionDay": 1,
+		"bankDetails": {
+			"accountName": "Bogan",
+			"branchCode": "470010",
+			"accountNumber": "2476377666",
+			"bank": "Capitec",
+			"accountType": "Savings"
+		}
 	},
-	"totalPremium": 95.5,
+	"totalPremium": 150.3,
 	"arrearDetails": {
-		"outstandingAmount": 289.5,
-		"monthsOutstanding": 3,
+		"outstandingAmount": 150.3,
+		"monthsOutstanding": 1,
 		"arrears": [
 			{
-				"amount": 95.5,
-				"dueDate": `2022-02-10T17:35:05.191Z`,
-				"objectID": ``
-			},
-			{
-				"amount": 95.5,
-				"dueDate": `2022-03-08T17:35:05.191Z`,
-				"objectID": ``
-			},
-			{
-				"amount": 95.5,
-				"dueDate": `2022-04-06T17:35:05.191Z`,
-				"objectID": ``
+				"amount": 150.3,
+				"dueDate": "2026-02-01T02:00:00Z",
+				"objectID": "AR0000001729",
+				"totalArrearsAmount": 150.3
 			}
 		]
 	},
-	"cancellationDetails": {
-		"recordedCancellationDate": `2022-05-10T17:35:05.191Z`,
-		"effectiveCancellationDate": `2022-05-10T17:35:05.191Z`,
-		"reason": `Affordability`
-	},
 	"paymentSchedule": {
-		"previousArrearsPaymentDate": `2022-01-27T22:00:00.0000000+00:00`,
-		"previousArrearsPaymentAmount": 95.5,
-		"previousPaymentDate": `2022-05-24T22:00:00.0000000+00:00`,
-		"previousPaymentAmount": 95.5,
-		"nextPaymentDate": `2022-06-24T22:00:00.0000000+00:00`,
-		"nextPaymentAmount": 95.5
+		"previousPaymentDate": "2026-03-01T02:00:00Z",
+		"previousPaymentAmount": 150.3,
+		"nextPaymentDate": "2026-04-01T02:00:00Z",
+		"nextPaymentAmount": 150.3
 	},
 	"benefits": [
 		{
-			"type": `NewBorn`,
-			"available": true,
-			"availableDate": `2022-05-10T17:35:05.191Z`
+			"type": "NewBornPremiumWaiver",
+			"available": false,
+			"availableDate": "2026-07-01T02:00:00Z",
+			"isBenefitActive": false
+		},
+		{
+			"type": "VoluntaryPolicyPause",
+			"available": false,
+			"availableDate": "2028-01-01T02:00:00Z",
+			"isBenefitActive": false
 		}
 	],
 	"mandates": [
 		{
-			"accountName": `Mr John Smith`,
-			"branchCode": `470010`,
-			"accountNumber": `8459878987`,
-			"bank": `Capitec Bank`,
-			"accountType": `Bond`,
-			"mandateType": `EFT`,
+			"accountName": "Bogan",
+			"branchCode": "470010",
+			"accountNumber": "2476377666",
+			"accountType": "Bond",
+			"mandateType": "Debicheck",
 			"initialInstalmentAmount": 0,
-			"firstCollectionDate": `2022-05-10T17:35:05.191Z`,
-			"numberOfDebitInstalments": 0,
-			"statusReason": `string`,
-			"mandateStatus": `Inactive`,
-			"mandateInitiationDate": `2022-05-10T17:35:05.191Z`,
+			"numberOfDebitInstalments": 999999,
+			"mandateStatus": "Active",
+			"mandateInitiationDate": "2026-01-01T02:00:00Z",
 			"mandateID": 0,
-			"lastCollectionDate": `2022-05-10T17:35:05.191Z`,
-			"instalmentAmount": 0,
-			"contractReference": `string`,
+			"instalmentAmount": 150.3,
+			"contractReference": "FP00007576",
 			"collectionDay": 0,
 			"cifNumber": 0,
-			"idNumber": `string`,
-			"instalmentOccurrence": `OOFF`,
-			"messageAuthenticationCode": `string`,
-			"authRequired": true,
-			"mandateReferenceNumber": `string`,
-			"contactNumber": `string`,
-			"voiceRecordingNumber": `string`,
-			"mandateRequestTransactionIdentifier": `string`
+			"instalmentOccurrence": "RCUR",
+			"authRequired": false,
+			"mandateReferenceNumber": "FP00007576"
 		}
 	],
-	"claims": [
-		{
-			"roleplayer": {
-				"title": `Mr`,
-				"surname": `Smith`,
-				"firstName": `John`,
-				"middleName": `Marshal`,
-				"idNumber": `8006045095089`,
-				"lifeAssured": true,
-				"beneficiary": true,
-				"benefitPayout": 5000,
-				"contactDetails": {
-					"cellphone": `string`,
-					"homephone": `string`,
-					"workphone": `string`,
-					"email": `string`
-				},
-				"gender": `Male`,
-				"dateOfBirth": `2022-05-10T17:35:05.191Z`,
-				"recordID": `string`,
-				"cifNumber": 0,
-				"relationship": `MainLife`,
-				"coverAmount": 10000,
-				"premium": 100.3,
-				"rowID": 0
-			},
-			"claimsReference": `CLM-19238343`,
-			"claimSettlementAmount": 40000,
-			"taskReference": `FLO-191023-RK4`,
-			"claimIntimationDate": `2019-10-22T22:00:00.0000000+00:00`,
-			"claimReceivedOnDate": `2019-10-22T22:00:00.0000000+00:00`,
-			"claimIncidentDate": `2019-10-22T22:00:00.0000000+00:00`,
-			"claimStatus": `Claim initiated`,
-			"clientClaimStatus": `Claim Under Assessment`,
-			"claimType": `Other`,
-			"subClaimType": ``,
-			"causeOfIncident": `Natural`,
-			"documentsRequired": [
-				{
-					"documentCode": `Death_Certificate`,
-					"documentName": `Death Certificate`,
-					"guid": `3040c039-1c97-4ef5-8976-ee9083dccf3e`,
-					"isMandatory": true,
-					"docStatus": `Pending`
-				}
-			],
-			"documentsReceived": [
-				{
-					"isMandatory": true,
-					"docStatus": `Pending`,
-					"documentCode": `Death_Certificate`,
-					"documentName": `Death Certificate`,
-					"guid": `3040c039-1c97-4ef5-8976-ee9083dccf3e`
-				}
-			],
-			"paymentTransaction": [
-				{
-					"date": `2020-02-05`,
-					"amount": 50000,
-					"bankDetails": [
-						{
-							"accountName": `Mr John Smith`,
-							"branchCode": `470010`,
-							"accountNumber": `8459878987`,
-							"bank": `Capitec Bank`,
-							"accountType": `Bond`
-						}
-					],
-					"beneficiary": {
-						"title": `Mr`,
-						"surname": `Smith`,
-						"firstName": `John`,
-						"middleName1": `Marshal`,
-						"idNumber": `8006045095089`,
-						"lifeAssured": true,
-						"beneficiary": true,
-						"benefitPayout": 7000,
-						"contactDetails": {
-							"cellphone": `string`,
-							"homephone": `string`,
-							"workphone": `string`,
-							"email": `string`
-						},
-						"gender": `Male`,
-						"dateOfBirth": `2022-05-10T17:35:05.191Z`,
-						"recordID": `string`,
-						"cifNumber": 0,
-						"relationship": `MainLife`,
-						"coverAmount": 0,
-						"premium": 0,
-						"rowID": 0
-					},
-					"payStatus": `Authorised`
-				}
-			],
-			"incidentNumber": `string`,
-			"lastComment": `string`,
-			"repudiationDate": `2022-05-10T17:35:05.191Z`,
-			"repudiationReason": `string`
-		}
-	],
-	"policyRule": `Standard`,
+	"policyRule": "Standard",
 	"policyMinumumPremium": 0,
-	"roleplayers": [
-		{
-			"title": `Mr`,
-			"surname": `Motseko`,
-			"firstName": `Linda`,
-			"middleName": ``,
-			"idNumber": `8006045095089`,
-			"lifeAssured": false,
-			"beneficiary": false,
-			"benefitPayout": 15000,
-			"contactDetails": {
-				"cellphone": `061 111 1111`,
-				"homephone": `string`,
-				"workphone": `string`,
-				"email": `abc@gmail.com`
-			},
-			"gender": `Male`,
-			"dateOfBirth": `1982-04-15T12:15:05.191Z`,
-			"recordID": `string`,
-			"cifNumber": 0,
-			"relationship": `MainLife`,
-			"coverAmount": 50000,
-			"premium": 48.5,
-			"rowID": 0,
-			"coverDetails": {
-				"isExtendedFamily": false,
-				"defaultCover": 0,
-				"maxCoverAmount": `100000`,
-				"minCoverAmount": `5000`,
-				"minAge": 18, "maxAge": 64,
-				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
-				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
-				"ageMessage": ``,
-				"coverMessage": ``,
-				"disableDoB": true,
-				"canSubmit": true 
-			}
-		},
-		{
-			"title": `Mrs`,
-			"surname": `Naidoo`,
-			"firstName": `Thaliya`,
-			"middleName": `Mishka`,
-			"idNumber": `8006045095089`,
-			"lifeAssured": true,
-			"beneficiary": true,
-			"benefitPayout": 15000,
-			"contactDetails": {
-				"cellphone": `061 111 1111`,
-				"homephone": `string`,
-				"workphone": `string`,
-				"email": `abc@gmail.com`
-			},
-			"gender": `Female`,
-			"dateOfBirth": `1989-10-11T12:15:05.191Z`,
-			"recordID": `string`,
-			"cifNumber": 0,
-			"relationship": `Spouse`,
-			"coverAmount": 25000,
-			"premium": 25,
-			"rowID": 1,
-			"coverDetails": {
-				"isExtendedFamily": false,
-				"defaultCover": 0,
-				"maxCoverAmount": `100000`,
-				"minCoverAmount": `5000`,
-				"minAge": 18, "maxAge": 64,
-				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
-				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
-				"ageMessage": ``,
-				"coverMessage": ``,
-				"disableDoB": true,
-				"canSubmit": true 
-			}
-		},
-		{
-			"title": `Mr`,
-			"surname": `Makamu`,
-			"firstName": `Mano`,
-			"middleName": ``,
-			"idNumber": `8006045095089`,
-			"lifeAssured": false,
-			"beneficiary": true,
-			"benefitPayout": 12000,
-			"contactDetails": {
-				"cellphone": ``,
-				"homephone": `string`,
-				"workphone": `string`,
-				"email": ``
-			},
-			"gender": `Male`,
-			"dateOfBirth": `2012-02-24T05:25:05.191Z`,
-			"recordID": `string`,
-			"cifNumber": 0,
-			"relationship": `Child`,
-			"coverAmount": 25000,
-			"premium": 22,
-			"rowID": 2,
-			"coverDetails": {
-				"isExtendedFamily": false,
-				"defaultCover": 0,
-				"maxCoverAmount": `100000`,
-				"minCoverAmount": `5000`,
-				"minAge": 18, "maxAge": 64,
-				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
-				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
-				"ageMessage": ``,
-				"coverMessage": ``,
-				"disableDoB": true,
-				"canSubmit": true 
-			}
-		},
-		{
-			"title": `Mr`,
-			"surname": `Mpai`,
-			"firstName": `Neo`,
-			"middleName": `Nyathi`,
-			"idNumber": `8006045095089`,
-			"lifeAssured": true,
-			"beneficiary": false,
-			"benefitPayout": 8000,
-			"contactDetails": {
-				"cellphone": `string`,
-				"homephone": `string`,
-				"workphone": `string`,
-				"email": `string`
-			},
-			"gender": `Male`,
-			"dateOfBirth": `1996-03-10T17:35:05.191Z`,
-			"recordID": `string`,
-			"cifNumber": 0,
-			"relationship": `Child`,
-			"coverAmount": 25000,
-			"premium": 22,
-			"rowID": 3,
-			"coverDetails": {
-				"isExtendedFamily": false,
-				"defaultCover": 0,
-				"maxCoverAmount": `100000`,
-				"minCoverAmount": `5000`,
-				"minAge": 18, "maxAge": 64,
-				"maxCoverMessage": `Only cover up to R{0:#,##0} on main life assured is allowed.`,
-				"minCoverMessage": `A minimum cover amount of R{0:#,##0} is required for the main life.`,
-				"ageMessage": ``,
-				"coverMessage": ``,
-				"disableDoB": true,
-				"canSubmit": true 
-			}
-		}
-	]
+	"canReinstate": false,
+	"isOptedOutForEarlyCollection": false,
+	"hasInvalidRelationship": true
 };

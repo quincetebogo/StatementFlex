@@ -27,12 +27,12 @@ export const acceptCallSuccess = {
 export const searchCaller = {
 	"callerInformation": {
 		"name": `Mr LAWRENCE DOLO`,
-		"southAfricanIDNumber": `6310123199181`,
+		"southAfricanIDNumber": `6504092059083`,
 		"verifiedTelephoneNumber": `0684058890`,
 		"livesIn": `MOKOPANE`,
 		"languagePreference": `ENGLISH`,
-		"birthdate": `Monday, 09 March 1998`,
-		"cifNumber": `363291008`,
+		"birthdate": `Friday, 09 April 1965`,
+		"cifNumber": `441361536`,
 		"title": `Mr`,
 		"firstName": `LAWRENCE`,
 		"lastName": `DOLO`,
@@ -46,25 +46,25 @@ export const searchCaller = {
 
 export const clientDetails = {
 	"correlationId": "8d71ef57-fb88-4f73-9c64-83ee5678b893",
-    "nickname": "Mziavifani",
-    "nationalityCode": "ZA",
-    "residentialAddress": {
-        "address1": "10 QUNTUM STR",
-        "address2": "X",
-        "suburb": "TEST",
-        "city": "JOHANNESBURG",
-        "postalCode": "1868"
-    },
-    "residentialPhoneNumber": "0215550000",
-    "businessPhoneNumber": "0215560000",
-    "employmentStatus": "SELF_EMPLOYED",
-    "employmentType": "INFORMALLY_SELF_EMPLOYED",
-    "employerName": "VENDA",
-    "employerNumber": null,
-    "industryCode": "COMMUNITY_SOCIAL_AND_PERSONAL",
-    "sourceOfFunds": "COMMISSION",
-    "incomeRange": "R0_R3000",
-    "incomeFrequency": "Monthly"
+	"nickname": "Mziavifani",
+	"nationalityCode": "ZA",
+	"residentialAddress": {
+		"address1": "10 QUNTUM STR",
+		"address2": "X",
+		"suburb": "TEST",
+		"city": "JOHANNESBURG",
+		"postalCode": "1868"
+	},
+	"residentialPhoneNumber": "0215550000",
+	"businessPhoneNumber": "0215560000",
+	"employmentStatus": "SELF_EMPLOYED",
+	"employmentType": "INFORMALLY_SELF_EMPLOYED",
+	"employerName": "VENDA",
+	"employerNumber": null,
+	"industryCode": "COMMUNITY_SOCIAL_AND_PERSONAL",
+	"sourceOfFunds": "COMMISSION",
+	"incomeRange": "R0_R3000",
+	"incomeFrequency": "Monthly"
 };
 
 export const employerList = {

@@ -30,6 +30,7 @@ import 'app/components/insure/funeral/FuneralSMSHistory';
 import 'app/components/insure/funeral/FuneralPolicyTransactionHistory';
 import 'app/components/insure/funeral/FuneralPayPremiumSuccess';
 import 'app/components/insure/funeral/FuneralCancelPolicySuccess';
+import 'app/components/insure/funeral/FuneralAmendRelationship';
 
 import 'app/components/insure/life/LifeSuccess';
 
@@ -109,6 +110,8 @@ export class ExistingClient extends InsureViewBase {
 		this.lifePremiumHistory = {};
 		this.lifeDocsToEmail = {};
 
+		this.policyToAmend = {}
+
 		this.showInsureSuccessToast = false;
 
 		this.funeralCancelationReasons = CANCELATION_REASONS_FUNERAL_CLIENTCARE;
@@ -151,6 +154,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @property {Object} policyPauseSuccessMessage contains the policy pause success message
 	 * @property {Object} lifePolicyMandates contains life policy mandates
 	 * @property {Object} blackListCheck determines if client can reissue policy or increase cover
+	 * @property {Object} policyToAmend Policy with Relationships to Amend
 	 * @readonly
 	 * @static
 	 */
@@ -181,7 +185,6 @@ export class ExistingClient extends InsureViewBase {
 			lifeSuccessPageMessages: { type: Object, state: true },
 			arrearsPaymentDocumentDetails: { type: Object, state: true },
 			confirmedEmail: { type: Object, state: true },
-			renderMode: { type: Number },
 			claims: { type: Object, state: true },
 			emailEstimateSuccess: { type: Boolean, state: true },
 			clientArrears: { type: Object, state: true },
@@ -192,6 +195,8 @@ export class ExistingClient extends InsureViewBase {
 			lifePolicyMandates: { type: Object, state: true },
 			lifeDocsToEmail: { type: Object, state: true },
 			lifeUpdateBankingDetailsAgreement: { type: Object, state: true },
+
+			policyToAmend: { type: Object, state: true },
 
 			funeralPolicyPauseSuccess: { type: Boolean, state: true },
 			policyPauseSuccessMessage: { type: String, state: true },
@@ -2282,6 +2287,13 @@ export class ExistingClient extends InsureViewBase {
 		}
 	}
 
+	_navigateToRelationshipAmend(policy) {
+		console.log(policy)
+		this.policyToAmend = policy.detail.policyDetails
+		console.log(this.policyToAmend)
+		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_AMEND_RELATIONSHIPS);
+	}
+
 	// --- END Navigation
 
 	// --- Helpers
@@ -2473,6 +2485,8 @@ export class ExistingClient extends InsureViewBase {
 				return html`${this._renderLifePolicyPremiumHistoryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SMS_HISTORY:
 				return html`${this._renderLifeSMSHistoryPage()}`;
+			case INSURE_RENDER_MODE.FUNERAL_AMEND_RELATIONSHIPS:
+				return html`${this._renderFuneralAmendRelationshipPage()}`;
 			default:
 				return html``;
 		}
@@ -2612,6 +2626,7 @@ export class ExistingClient extends InsureViewBase {
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
+				@navigate-to-amend-relationship="${(policy) => this._navigateToRelationshipAmend(policy)}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-funeral-update-plan>`;
 	}
@@ -2764,6 +2779,19 @@ export class ExistingClient extends InsureViewBase {
 				.sendLifeEmail="${(e) => this._sendLifeEmail(e)}"
 				@navigate-to-summary="${() => this._refreshLifePolicies()}">
 			</horizon-insure-life-success>`;
+	}
+
+	/**
+	 * Renders the Funeral Amend Relationships page
+	 * 
+	 * @returns {html} html
+	 */
+	_renderFuneralAmendRelationshipPage() {
+		return html`
+		<horizon-insure-funeral-amend-relationship
+			.policyToAmend="${this.policyToAmend}">
+		</horizon-insure-funeral-amend-relationship>
+		`
 	}
 
 	/**

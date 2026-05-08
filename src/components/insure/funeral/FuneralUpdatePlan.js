@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, FUN_POLICY_RULES, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS } from 'app/constants/InsureCommon';
+import { ACCOUNT_TYPES, BANK_OPTIONS, DEBIT_ORDER_DAY_OPTIONS, FUN_POLICY_RULES, GENDER_OPTIONS, INSURE_CALLER_PAGE, INSURE_DISCLOSURE_TYPE, ROLE_PLAYER_RELATIONSHIP, TITLE_OPTIONS, OLD_RELATIONSHIPS } from 'app/constants/InsureCommon';
 import { Component, css, html } from 'platform/elements';
 import { formatDate, formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { formatDateToInsure, getAgeFromDob, getAgeFromIDNumber, getDobFromIDNumber, isValidRSAIdNumber, policyAllowsEditing, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
@@ -14,6 +14,7 @@ import 'app/components/dialogs/insure/funeral/AddLifeDialog';
 import '../../dialogs/insure/funeral/PCAAgreementDialog';
 import '../../dialogs/insure/funeral/DOAgreementDialog';
 import '../../dialogs/insure/funeral/BeneficiariesAgreementDialog';
+import '../../dialogs/insure/funeral/AmendRelationshipInfoDialog';
 
 import 'app/components/dialogs/insure/funeral/RemoveBeneficiaryDialog';
 import 'app/components/dialogs/insure/funeral/RemoveLifeAssuredDialog';
@@ -72,6 +73,7 @@ class FuneralUpdatePlan extends Component {
 		this.lifeAssuredToRemoveDescription = null;
 		this.beneficiaryToRemoveDescription = ``;
 
+		this.showDiscontinuedRelationshipDialog = false;
 		this.showBeneAgreementDialog = false;
 		this.showPCAAgreementDialog = false;
 		this.showDOAgreementDialog = false;
@@ -114,6 +116,9 @@ class FuneralUpdatePlan extends Component {
 		this.telemetryEvents = {};
 
 		this.beneOnlyRowId = 0;
+
+		this.financialChanges = false;
+		this.nonFinancialChanges = false
 
 		// Auto accept disclosures for Collector role
 		if (this.isInsureCollector) {
@@ -172,6 +177,7 @@ class FuneralUpdatePlan extends Component {
 			showBeneAgreementDialog: { type: Boolean, state: true },
 			showPCAAgreementDialog: { type: Boolean, state: true },
 			showDOAgreementDialog: { type: Boolean, state: true },
+			showDiscontinuedRelationshipDialog: { type: Boolean, state: true },
 			showValidationConfirmDialog: { type: Boolean, state: true },
 			showPolicyRulesWarningDialog: { type: Boolean, state: true },
 			policyRulesDialogContent: { type: Object, state: true },
@@ -450,6 +456,23 @@ class FuneralUpdatePlan extends Component {
 	 */
 	_lifeCoverAmountValueChanged(event, rowID) {
 		let age = ``;
+		let invalidChange = false;
+
+		this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
+			if (rolePlayer.rowID === rowID && rolePlayer.coverDetails?.hasInvalidRelationship) {
+				if (this.policyDetails.roleplayers[index].coverAmount < event.detail.new) {
+					this.showDiscontinuedRelationshipDialog = true;
+					invalidChange = true
+					return;
+				}
+			}
+		})
+
+		if (invalidChange) {
+			return
+		}
+
+		console.log("oh no, it didnt stop")
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
@@ -1253,6 +1276,10 @@ class FuneralUpdatePlan extends Component {
 			this.showBeneAgreementDialog = true;
 		}
 
+		if (type === `InvalidRel`) {
+			this.showDiscontinuedRelationshipDialog = true
+		}
+
 	}
 
 	// #endregion EVENT HANDLERS
@@ -1331,6 +1358,7 @@ class FuneralUpdatePlan extends Component {
 					rolePlayer.coverDetails.disableDoB = true;
 				}
 			}
+			this._determineInvalidRelationships(rolePlayer)
 		});
 		this._openIneligibleLivesDialog();
 	}
@@ -1675,6 +1703,43 @@ class FuneralUpdatePlan extends Component {
 		return isDisabled;
 	}
 
+	_determineInvalidRelationships(lifeAssured) {
+		console.log(Object.values(OLD_RELATIONSHIPS))
+		console.log(formatStringAsPascalCase(lifeAssured.relationship).toUpperCase())
+		lifeAssured.coverDetails.hasInvalidRelationship = false
+
+		if (Object.keys(OLD_RELATIONSHIPS).includes(lifeAssured.relationship.toUpperCase()) && lifeAssured.lifeAssured === true) {
+			console.log("in if")
+			lifeAssured.coverDetails.hasInvalidRelationship = true
+		}
+	}
+
+	_setRelationshipColor(life) {
+		console.log(life)
+		if (life.coverDetails?.hasInvalidRelationship) {
+			console.log("in if")
+			return `color: #d1821a;`
+		}
+	}
+
+	_setLifeLabelColour(life) {
+		if (life.coverDetails?.hasInvalidRelationship) {
+			console.log("warning")
+			return `fixed-label-secondary-warning`
+		} else {
+			console.log("no warning")
+			return `fixed-label-secondary`
+		}
+	}
+
+	_navigateToAmend() {
+		this.dispatchEvent(new CustomEvent(`navigate-to-amend-relationship`, {
+			detail: {
+				policyDetails: this.policyDetails
+			}
+		}));
+	}
+
 	// #endregion PRIVATE Functions
 
 	// #region RENDERING
@@ -1887,6 +1952,11 @@ class FuneralUpdatePlan extends Component {
 				width: 200px;
 				text-overflow: ellipsis;
 			}
+
+			.invalid-Relationship {
+				--horizon-label-value-color: #d1821a;
+			}
+
 			horizon-label {
 				width: 285px;
 				padding-left: 16px;
@@ -1909,6 +1979,12 @@ class FuneralUpdatePlan extends Component {
 			.fixed-label-secondary{
 				width: 65%;
 				--horizon-label-max-overflow-width: 170px;
+			}
+
+			.fixed-label-secondary-warning{
+				width: 65%;
+				--horizon-label-max-overflow-width: 170px;
+				--horizon-label-value-color: #f08811;
 			}
 
 
@@ -1952,6 +2028,7 @@ class FuneralUpdatePlan extends Component {
 		${this._renderBeneAgreementDialog()}
 		${this._renderPCAAgreementDialog()}
 		${this._renderDOAgreementDialog()}
+		${this._renderAmendRelationshipInfoDialog()}
 		${this._renderRemoveLifeAssuredDialog()}
 		${this._renderRemoveBeneficiaryDialog()}
 		${this._renderUpdatePlanAgreementDialog()}
@@ -2023,6 +2100,7 @@ class FuneralUpdatePlan extends Component {
 		return html`
 			<div class="insure-calc-column-left">
 				<div class="left-card">
+					${this._renderInvalidRelationshipsNotification()}
 					${this._renderPCANotification()}
 					<capitec-spacer></capitec-spacer>
 			
@@ -2078,7 +2156,7 @@ class FuneralUpdatePlan extends Component {
 					<horizon-expander expandButtonAlignment="right">
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
 							valign="center">
-							<horizon-label class="fixed-label-secondary" 
+							<horizon-label class="${this._setLifeLabelColour(roleplayer)}" 
 								label="${roleplayer.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[roleplayer.relationship?.toUpperCase()])}" 
 								textOverflow="ellipsis" 
 								value="${roleplayer.firstName} ${roleplayer.surname}">
@@ -2121,7 +2199,7 @@ class FuneralUpdatePlan extends Component {
 					<!-- life list -->
 					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true).map(lifeAssured => html`
 						<div class="calc-life-list">
-							<capitec-label label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}">
+							<capitec-label style="${this._setRelationshipColor(lifeAssured)}" label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}">
 							</capitec-label>
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>
@@ -2354,6 +2432,19 @@ class FuneralUpdatePlan extends Component {
 		<capitec-alert-banner class="clickable" @click="${() => this._openAgreement(`Bene`)}"
 			type="${this._getAlertBannerType(this.agreementBeneAccepted)}" header="Disclosure:"
 			label="I agree to the Beneficiaries Agreement stipulated in this disclosure">
+		</capitec-alert-banner>`;
+	}
+
+	/**
+		 * Render notification component for 'Debit Order agreement'
+		 * 
+		 * @returns {html} The html content of the component.
+		 */
+	_renderInvalidRelationshipsNotification() {
+		return this.policyDetails.hasInvalidRelationship === false ? html`` : html`
+		<capitec-alert-banner style="padding-bottom: 10px" class="clickable" @click="${() => this._openAgreement(`InvalidRel`)}"
+			type="warning" header="Warning:"
+			label="Your Policy contains lives with discontinued relationship types, Please amend".>
 		</capitec-alert-banner>`;
 	}
 
@@ -2672,6 +2763,15 @@ class FuneralUpdatePlan extends Component {
 			@agreementAccepted="${() => this._acceptDOAgreement()}"
 			@close-modal="${() => this._cancelDisclosureDialog(INSURE_DISCLOSURE_TYPE.DO_NOTIFICATION)}">
 		</horizon-insure-do-agreement-dialog>`;
+	}
+
+	_renderAmendRelationshipInfoDialog() {
+		return this.showDiscontinuedRelationshipDialog === false ? `` : html`
+		<horizon-insure-amend-relationship-info-dialog
+		@navigateToAmend="${() => this._navigateToAmend()}"
+		@close-modal="${() => this.showDiscontinuedRelationshipDialog = false}">
+		</horizon-insure-amend-relationship-info-dialog>
+		`;
 	}
 
 	/** 
