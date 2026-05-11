@@ -458,10 +458,14 @@ class FuneralUpdatePlan extends Component {
 		let age = ``;
 		let invalidChange = false;
 
+
+		console.log("new Amount:", event.detail.new)
 		this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
-			if (rolePlayer.rowID === rowID && rolePlayer.coverDetails?.hasInvalidRelationship) {
-				if (this.policyDetails.roleplayers[index].coverAmount < event.detail.new) {
+			if (rolePlayer.rowID === rowID && rolePlayer.amendDetails?.hasInvalidRelationship) {
+				console.log(this.policyDetails.roleplayers[index])
+				if (this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount < event.detail.new) {
 					this.showDiscontinuedRelationshipDialog = true;
+					this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
 					invalidChange = true
 					return;
 				}
@@ -994,6 +998,10 @@ class FuneralUpdatePlan extends Component {
 					ele.coverDetails.canSubmit = false;
 				}
 
+				if (!isNullorEmpty(ele.coverDetails.coverMessage)) {
+					ele.coverDetails.canSubmit = false;
+				}
+
 				// ID and Date of Birth
 				if (isNullorEmpty(ele.idNumber) && isNullorEmpty(ele.dateOfBirth)) {
 					ele.coverDetails.canSubmit = false;
@@ -1315,7 +1323,7 @@ class FuneralUpdatePlan extends Component {
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
 		this.disableAccountNumber = this._disableAccountNumber();
-
+		console.log(this.policyDetails)
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			const relationship = this.policyDetails.roleplayers[index].relationship;
@@ -1704,30 +1712,25 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_determineInvalidRelationships(lifeAssured) {
-		console.log(Object.values(OLD_RELATIONSHIPS))
-		console.log(formatStringAsPascalCase(lifeAssured.relationship).toUpperCase())
-		lifeAssured.coverDetails.hasInvalidRelationship = false
+		lifeAssured.amendDetails = {}
+		lifeAssured.amendDetails.hasInvalidRelationship = false
 
 		if (Object.keys(OLD_RELATIONSHIPS).includes(lifeAssured.relationship.toUpperCase()) && lifeAssured.lifeAssured === true) {
-			console.log("in if")
-			lifeAssured.coverDetails.hasInvalidRelationship = true
+			lifeAssured.amendDetails.hasInvalidRelationship = true
+			lifeAssured.amendDetails.initialCoverAmount = lifeAssured.coverAmount
 		}
 	}
 
 	_setRelationshipColor(life) {
-		console.log(life)
-		if (life.coverDetails?.hasInvalidRelationship) {
-			console.log("in if")
+		if (life.amendDetails?.hasInvalidRelationship) {
 			return `color: #d1821a;`
 		}
 	}
 
 	_setLifeLabelColour(life) {
-		if (life.coverDetails?.hasInvalidRelationship) {
-			console.log("warning")
+		if (life.amendDetails?.hasInvalidRelationship) {
 			return `fixed-label-secondary-warning`
 		} else {
-			console.log("no warning")
 			return `fixed-label-secondary`
 		}
 	}

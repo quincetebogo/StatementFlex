@@ -246,6 +246,26 @@ export const OLD_RELATIONSHIPS = Object.freeze({
 	PARENTINLAW: `PARENT IN LAW`,
 })
 
+/**
+ * List of Relationships being decomissioned
+ * @readonly
+ * @enum {Object} RELTIONSHIP_FIX_EXT_FAM
+ */
+export const RELTIONSHIP_FIX_EXT_FAM = Object.freeze([
+	{ code: `Child`, text: `Child` },
+	{ code: `Spouse`, text: `Spouse` },
+	{ code: `Parent`, text: `Parent` },
+	{ code: `Sibling`, text: `Sibling` },
+	{ code: `CousinsChild`, text: `First Cousin's Child` },
+	{ code: `AuntUncle`, text: `Aunt/Uncle` },
+	{ code: `FirstCousin`, text: `First Cousin` },
+	{ code: `NephewNiece`, text: `Nephew/Niece` },
+	{ code: `Grandchild`, text: `Grandchild` },
+	{ code: `GreatGrandparent`, text: `Great Grandparent` },
+	{ code: `GreatGrandchild`, text: `Great Grandchild` },
+	{ code: `Grandparent`, text: `Grandparent` },
+])
+
 export const Status = {
 	'Active': 1,
 	'PendingInForce': 2,
