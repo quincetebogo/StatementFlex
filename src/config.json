@@ -355,7 +355,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {

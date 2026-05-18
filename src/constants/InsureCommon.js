@@ -230,7 +230,8 @@ export const ROLE_PLAYER_RELATIONSHIP = Object.freeze({
 	EXTENDEDSPOUSE: `SPOUSE EXTENDED`,
 	EXTENDEDPARENT: `PARENT EXTENDED`,
 	PARENTINLAW: `PARENT IN LAW`,
-	BENEFICIARYONLY: `BENEFICIARY ONLY`
+	BENEFICIARYONLY: `BENEFICIARY ONLY`,
+	UNKNOWN: `UNKNOWN`
 });
 
 /**
@@ -247,7 +248,7 @@ export const OLD_RELATIONSHIPS = Object.freeze({
 })
 
 /**
- * List of Relationships being decomissioned
+ * List of Relationships not being decommisioned
  * @readonly
  * @enum {Object} RELTIONSHIP_FIX_EXT_FAM
  */

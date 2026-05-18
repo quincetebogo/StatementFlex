@@ -2299,6 +2299,11 @@ export class ExistingClient extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
 	}
 
+	_amendAndNavBackToUpdate(policy) {
+		this.selectedFuneralPolicyDetails = policy.detail.policy
+		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
+	}
+
 	// --- END Navigation
 
 	// --- Helpers
@@ -2796,7 +2801,8 @@ export class ExistingClient extends InsureViewBase {
 		<horizon-insure-funeral-amend-relationship
 			.productParams="${this.productParams}"
 			.policyToAmend="${this.policyToAmend}"
-			@navigate-back-to-update="${(policy) => this._navBackToUpdateFromAmend(policy)}">
+			@navigate-back-to-update="${(policy) => this._navBackToUpdateFromAmend(policy)}"
+			@amend-and-navigate-back-to-update="${(policy) => this._amendAndNavBackToUpdate(policy)}">
 		</horizon-insure-funeral-amend-relationship>
 		`
 	}

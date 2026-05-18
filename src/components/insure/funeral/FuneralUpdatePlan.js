@@ -1712,23 +1712,31 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_determineInvalidRelationships(lifeAssured) {
-		lifeAssured.amendDetails = {}
-		lifeAssured.amendDetails.hasInvalidRelationship = false
+		if (!lifeAssured?.amendDetails) {
+			lifeAssured.amendDetails = {}
+			lifeAssured.amendDetails.hasInvalidRelationship = false
 
-		if (Object.keys(OLD_RELATIONSHIPS).includes(lifeAssured.relationship.toUpperCase()) && lifeAssured.lifeAssured === true) {
-			lifeAssured.amendDetails.hasInvalidRelationship = true
-			lifeAssured.amendDetails.initialCoverAmount = lifeAssured.coverAmount
+			if (Object.keys(OLD_RELATIONSHIPS).includes(lifeAssured.relationship.toUpperCase()) && lifeAssured.lifeAssured === true) {
+				lifeAssured.amendDetails.hasInvalidRelationship = true
+				lifeAssured.amendDetails.initialCoverAmount = lifeAssured.coverAmount
+			}
 		}
+
 	}
 
 	_setRelationshipColor(life) {
-		if (life.amendDetails?.hasInvalidRelationship) {
+		if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.amendDetails?.riskAccepted) {
 			return `color: #d1821a;`
+		} else if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
+			return `color: #c24242;`
 		}
 	}
 
 	_setLifeLabelColour(life) {
-		if (life.amendDetails?.hasInvalidRelationship) {
+		console.log(life.amendDetails)
+		if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
+			return `fixed-label-secondary-warning-red`
+		} else if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.amendDetails?.riskAccepted) {
 			return `fixed-label-secondary-warning`
 		} else {
 			return `fixed-label-secondary`
@@ -1988,6 +1996,12 @@ class FuneralUpdatePlan extends Component {
 				width: 65%;
 				--horizon-label-max-overflow-width: 170px;
 				--horizon-label-value-color: #f08811;
+			}
+
+			.fixed-label-secondary-warning-red{
+				width: 65%;
+				--horizon-label-max-overflow-width: 170px;
+				--horizon-label-value-color: #c24242;
 			}
 
 

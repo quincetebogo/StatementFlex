@@ -78,7 +78,7 @@ export class AmendRelationshipInfoDialog extends Component {
 		return html`
 		<capitec-modal type="form" class="selectable-text" header="Discontinued Relationships" style="--theme-modal-header-color: black;">
 			<div slot="body">
-				<capitec-content-box class="body-box selectable-text" >
+				<capitec-content-box class="body-box selectable-text">
 					${this._renderDialogBody()}
 				</capitec-content-box>
 			</div>
@@ -92,21 +92,10 @@ export class AmendRelationshipInfoDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>Heading</strong>
-		<ul>
-			<li>info​</li>
-			<li>info​</li>
-			<li>info​</li>
-			<li>info​</li>
-			<li>info​</li>
-		</ul>
-		<strong>Heading</strong>
-		<ul>
-			<li>info​</li>
-			<li>info​</li>
-			<li>info​</li>
-			<li>info​​</li>
-		</ul>
+		<strong>Relationship update required for cover increases</strong>
+		<p>
+		We have simplified the relationship types on our Funeral Cover Plan. You have covered lives on your policy that fall into these categories. You must please update these relationships if you want to increase the cover on this life assured.
+		</p>
 		`;
 	}
 
