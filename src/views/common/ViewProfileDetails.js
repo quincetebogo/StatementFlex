@@ -152,7 +152,7 @@ export class ViewProfileDetails extends ViewBase {
 	}
 
 	async _createClassifyAndUpdateIncident(need, succeeded) {
-		his.horizonIncidentManager.setCurrentNeed(need);
+		this.horizonIncidentManager.setCurrentNeed(need);
 		await this.horizonIncidentManager.autoCreateAndClassify(this._toggleBusyFlag, succeeded ? HORIZON_INCIDENT_STATE.COMPLETED : HORIZON_INCIDENT_STATE.FAILED);
 	}
 
