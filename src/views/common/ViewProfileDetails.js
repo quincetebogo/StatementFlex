@@ -494,5 +494,4 @@ export class ViewProfileDetails extends ViewBase {
 	}
 
 }
-
 customElements.define(`horizon-view-profile-details`, ViewProfileDetails);
