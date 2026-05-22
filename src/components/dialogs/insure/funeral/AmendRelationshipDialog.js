@@ -32,9 +32,8 @@ class AmendRelationshipDialog extends Component {
 		this.currentTotalExtendedFamily = 0;
 		this.selectedRelationship = ``;
 		this.showExtendedList = false;
-		// this.beneToAdd = {};
-		// this.showAddBeneficiaryOnly = false;
-		// this.beneOnlyToAdd = {};
+		this.financialChange = false;
+		this.nonFinancialChange = false;
 	}
 
 	// #endregion INITIALIZE
@@ -113,23 +112,9 @@ class AmendRelationshipDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
-		// if (this.selectedRelationship === `Spouse` || this.selectedRelationship === `Parent` || this.selectedRelationship === `Child`) {
-		// 	this.showExtendedList = false;
-		// }
-
-		// if (Object.keys(this.beneToAdd).length !== 0 && (this.beneToAdd?.relationship !== `Spouse` || this.beneToAdd?.relationship !== `Parent` || this.beneToAdd?.relationship !== `Child`)) {
-		// 	this.showExtendedList = true;
-		// }
-
-		// if (this.selectedRelationship === `BeneficiaryOnly`) {
-		// 	this.showExtendedList = false;
-		// 	this.showAddBeneficiaryOnly = true;
-		// 	return;
-		// }
-		// const coverDetails = refreshRelationshipCoverDetails(this.selectedRelationship, this.productParams, 0, 0, ``, this.showExtendedList, true);
 		console.log("before dispatch")
 		this.dispatchEvent(new CustomEvent(`amend-relationship`, { detail: { relationship: this.selectedRelationship } }));
-		// this.showExtendedList = false;
+
 	}
 
 	/**
@@ -139,8 +124,7 @@ class AmendRelationshipDialog extends Component {
 	 */
 	_relationshipSelect(event) {
 
-		// this.showAddBeneficiaryOnly = false;
-		// this.beneToAdd = {};
+
 		if (event.detail.new) {
 			this.selectedRelationship = event.target.id;
 			this.requestUpdate();
@@ -250,33 +234,33 @@ class AmendRelationshipDialog extends Component {
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" 
-					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
 					hint="The person you are married to. Up to ${livesPerPolicy(`Spouse`, this.productParams)} allowed between the ages of 18 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Child" id="Child" 
-					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
 					hint="Your/Your spouse’s biological child, legally adopted child, stepchild, son/daughter-in-law or where you/your spouse are the child’s legal guardian. Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 50 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Parent" id="Parent" 
-					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
 					hint="Your/Your spouse’s biological parents, parents-in-law, legal guardian if you are adopted and stepparents. Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Extended Family"  id="ExtendedFamily"
-					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY}" 
+					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._showExtendedFamilyList(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="None of the Above" id="Unknown" 
+				<capitec-radio label="None of the Above" id="Unknown" .disabled="${this.nonFinancialChange}"
 					hint="Life does not match any of the provided relationship types"
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>

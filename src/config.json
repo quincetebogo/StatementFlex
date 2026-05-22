@@ -303,7 +303,7 @@
 			"positiveCase": false
 		},
 		"insurePrepareUpdate": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {

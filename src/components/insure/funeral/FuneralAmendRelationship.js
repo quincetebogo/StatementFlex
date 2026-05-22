@@ -7,6 +7,8 @@ import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 
 import '../../dialogs/insure/funeral/AmendRelationshipDialog';
 import '../../dialogs/insure/funeral/AmendActionInfoDialog';
+import '../../dialogs/insure/funeral/AmendConfirmAcceptRiskDialog';
+import '../../dialogs/insure/funeral/AmendConfirmRemoveLifeDialog';
 
 
 
@@ -37,8 +39,14 @@ class FuneralAmendRelationship extends Component {
 		this.productParams = {}
 
 		this.financialChange = false;
+		this.nonFinancialChange = false;
 		this.showAmendRelationshipDialog = false;
 		this.showAmendActionInfoDialog = false;
+
+		this.showConfirmAcceptRisk = false;
+		this.showConfirmRemoveLife = false;
+
+		this.livesToBeRemoved = []
 
 	}
 
@@ -59,8 +67,11 @@ class FuneralAmendRelationship extends Component {
 			currentTotalParent: { type: Number, state: true },
 			currentTotalExtendedFamily: { type: Number, state: true },
 			livesToAmend: { type: Array, state: true },
+			livesToBeRemoved: { type: Array, state: true },
 			showAmendRelationshipDialog: { type: Boolean, state: true },
-			showAmendActionInfoDialog: { type: Boolean, state: true }
+			showAmendActionInfoDialog: { type: Boolean, state: true },
+			showConfirmAcceptRisk: { type: Boolean, state: true },
+			showConfirmRemoveLife: { type: Boolean, state: true },
 
 		};
 	}
@@ -85,17 +96,22 @@ class FuneralAmendRelationship extends Component {
 	_initialise() {
 		this.amendedPolicy = JSON.parse(JSON.stringify(this.policyToAmend))
 		this.livesToAmend = this.amendedPolicy.roleplayers.map(rp => JSON.parse(JSON.stringify(rp)))
-		this._setNewAmendRelationshipFields()
+		if (!this.amendedPolicy?.amended) {
+			this._setNewAmendRelationshipFields()
+		}
+		if (this.amendedPolicy?.isFinancialChanges) {
+			this.financialChange = true
+		}
+
 		this._getRelationshipTotals()
 		this._validateRelationshipTotals()
 
-		console.log(this.livesToAmend)
+		console.log("Lives on Initialise ", this.livesToAmend)
 	}
 
 	_setNewAmendRelationshipFields() {
 		this.livesToAmend.forEach((life, index) => {
 
-			// life.relationshipFix = {};
 			if (!life?.amendDetails?.previousRelationship) {
 				life.amendDetails.toFix = false;
 			}
@@ -107,6 +123,9 @@ class FuneralAmendRelationship extends Component {
 				life.amendDetails.riskAccepted = false;
 				life.amendDetails.toFix = true;
 				life.amendDetails.amended = false;
+				life.amendDetails.showAcceptRisk = false;
+				life.amendDetails.showRemoveLife = false;
+				life.amendDetails.showChangeRelationship = true;
 			}
 
 			this._getRelationshipTotals()
@@ -233,35 +252,58 @@ class FuneralAmendRelationship extends Component {
 	}
 
 
-	_removeLifeFromInception(lives, index) {
+	_removeLifeFromInception() {
 		//TODO: pop dialog to confirm removal
-		lives.amendDetails.removeFromInception = true;
-		lives.amendDetails.riskAccepted = true;
-		lives.amendDetails.amended = true;
-		console.log(this.livesToAmend)
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+		this.financialChange = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
+		this.showConfirmRemoveLife = false
+		this.livesToBeRemoved.push(this.livesToAmend[this.selectedRoleplayer])
+		console.log("lives to be removed: ", this.livesToBeRemoved)
+		console.log("Lives to amend", this.livesToAmend)
+		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 		this.requestUpdate()
 	}
 
-	_acceptRiskOnLife(lives, index) {
+	_acceptRiskOnLife() {
 		//TODO: Pop dialog to accept risk
-		lives.amendDetails.removeFromInception = false;
-		lives.amendDetails.riskAccepted = true;
-		lives.amendDetails.amended = true;
-		if (lives.amendDetails?.previousRelationship?.length > 0) {
-			lives.relationship = lives.amendDetails.previousRelationship
-			lives.amendDetails.previousRelationship = ""
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+		this.financialChange = true;
+		if (this.livesToAmend[this.selectedRoleplayer].amendDetails?.previousRelationship?.length > 0) {
+			this.livesToAmend[this.selectedRoleplayer].relationship = this.livesToAmend[this.selectedRoleplayer].amendDetails.previousRelationship
 		}
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
+		this.showConfirmAcceptRisk = false
+		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 		this.requestUpdate()
 	}
 
 	_updateRelationship(e) {
 		//TODO: set new selected relationship
 		this.showAmendRelationshipDialog = false;
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.previousRelationship = this.livesToAmend[this.selectedRoleplayer].relationship
-		this.livesToAmend[this.selectedRoleplayer].relationship = e.detail.relationship
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = false;
+
+		if (e.detail.relationship === `Unknown`) {
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = false;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.showAcceptRisk = true
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.showRemoveLife = true
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = true
+		} else {
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.previousRelationship = this.livesToAmend[this.selectedRoleplayer].relationship;
+			this.livesToAmend[this.selectedRoleplayer].relationship = e.detail.relationship;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = false;
+			this.financialChange = false;
+			this.nonFinancialChange = true;
+
+		}
+		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 
 		this._getRelationshipTotals()
 		this.requestUpdate()
@@ -272,42 +314,96 @@ class FuneralAmendRelationship extends Component {
 		this.showAmendRelationshipDialog = false;
 	}
 
-	_determineRelationshipChangeAvailablity() {
+	_determineRelationshipChangeAvailablity(lives) {
 		let disable = false;
-		this.livesToAmend.forEach((life) => {
-			if (life.amendDetails?.removeFromInception || life.amendDetails.riskAccepted) {
-				disable = true
-			}
-		})
+		if (!lives.amendDetails?.showChangeRelationship) {
+			disable = true
+		}
+
 		return disable
 	}
 
-	_determineRemoveLifeAvailablity() {
-		let disable = false;
-		this.livesToAmend.forEach((life) => {
-			if (life.amendDetails?.previousRelationship?.length > 0) {
-				disable = true
-			}
-		})
+	_determineRemoveLifeAvailablity(lives) {
+		let disable = true;
+		if (lives.amendDetails.showRemoveLife) {
+			disable = false
+		}
 		return disable
 	}
 
-	_determineAcceptRiskAvailablity() {
-		let disable = false;
-		this.livesToAmend.forEach((life) => {
-			if (life.amendDetails?.previousRelationship?.length > 0) {
-				disable = true
-			}
-		})
+	_determineAcceptRiskAvailablity(lives) {
+		let disable = true;
+		if (lives.amendDetails?.showAcceptRisk) {
+			disable = false
+		}
 		return disable
 	}
 
 	_openInfoDialog() {
 		this.showAmendActionInfoDialog = true;
-		console.log(this.showAmendActionInfoDialog)
 		this.requestUpdate()
 	}
 
+	_openConfirmAcceptRiskDialog(lives, index) {
+		this.selectedRoleplayer = index
+		this.showConfirmAcceptRisk = true
+	}
+
+	_openConfirmRemoveLifeDialog(lives, index) {
+		this.selectedRoleplayer = index
+		this.showConfirmRemoveLife = true
+
+	}
+
+	_setNonInsurableDetails() {
+		let nonInsurableLives = []
+		this.livesToAmend.forEach((life, index) => {
+			if (life.amendDetails.removeFromInception || life.amendDetails.riskAccepted) {
+				nonInsurableLives.push({
+					nonInsurableRemoval: life.amendDetails.removeFromInception,
+					nonInsurableAcknowledged: life.amendDetails.riskAccepted,
+					recordID: life.recordID
+				})
+			}
+
+		})
+
+		for (let index = 0; index < this.livesToAmend.length; index++) {
+			for (let i = 0; i < nonInsurableLives.length; i++) {
+				if (this.livesToAmend[index].recordID === nonInsurableLives[i].recordID && this.livesToAmend[index]?.amendDetails?.removeFromInception && nonInsurableLives[i].nonInsurableRemoval) {
+					console.log("splicing...")
+					this.livesToAmend.splice(index, 1)
+				}
+			}
+			//reshuffle
+			for (let index = 0; index < this.livesToAmend.length; index++) {
+				this.livesToAmend[index].rowID = index;
+			}
+		}
+
+		if (!this.amendedPolicy.hasOwnProperty("nonInsurableRoleplayerDetails")) {
+			this.amendedPolicy.nonInsurableRoleplayerDetails = []
+		}
+
+		console.log("after setting non insurable lives")
+		console.log("this.livesToAmend: ", this.livesToAmend)
+		console.log("nonInsurableLives: ", nonInsurableLives)
+
+		for (let i = 0; i < nonInsurableLives.length; i++) {
+			for (let index = 0; index < this.amendedPolicy?.nonInsurableRoleplayerDetails.length; index++) {
+				if (this.amendedPolicy?.nonInsurableRoleplayerDetails[index]?.recordID === nonInsurableLives[i]?.recordID) {
+					this.amendedPolicy.nonInsurableRoleplayerDetails[index] = nonInsurableLives[i]
+					nonInsurableLives.splice(i, 1)
+				}
+			}
+			this.amendedPolicy.nonInsurableRoleplayerDetails.push(nonInsurableLives[i])
+		}
+
+		console.log("this.amendedPolicy", this.amendedPolicy)
+
+
+
+	}
 
 
 	// #endregion PRIVATE METHODS
@@ -327,6 +423,17 @@ class FuneralAmendRelationship extends Component {
 	}
 
 	_confirmAmendment() {
+		this.amendedPolicy.amended = true
+		console.log("isFinancial?: ", this.financialChange)
+		if (this.financialChange) {
+			this.amendedPolicy.isFinancialChanges = true
+			this._setNonInsurableDetails()
+		}
+
+		if (this.nonFinancialChange) {
+			this.amendedPolicy.isNonFinancialChanges = true
+		}
+
 		this.amendedPolicy.roleplayers = this.livesToAmend
 		this.dispatchEvent(new CustomEvent(`amend-and-navigate-back-to-update`, {
 			detail: {
@@ -532,8 +639,7 @@ class FuneralAmendRelationship extends Component {
 		</capitec-title-bar>
 
 		<capitec-card style="min-height: 50vh;">
-			${this._renderAmendRelationshipDialog()}
-			${this._renderAmendActionInfoDialog()}
+			${this._renderDialogs()}
 			<div class="insure-calc-columns">
 				<div class="insure-calc-column-left">
 					${this._renderLivesToAmend()}
@@ -545,6 +651,15 @@ class FuneralAmendRelationship extends Component {
 			
 		</capitec-card>
 		`;
+	}
+
+	_renderDialogs() {
+		return html`
+			${this._renderAmendRelationshipDialog()}
+			${this._renderAmendActionInfoDialog()}
+			${this._renderConfirmRemoveLife()}
+			${this._renderConfirmAcceptRisk()}
+		`
 	}
 
 	_renderLivesToAmend() {
@@ -600,29 +715,28 @@ class FuneralAmendRelationship extends Component {
 												<capitec-button 
 													label="Change Relationship" 
 													type="primary" 
-													.disabled="${this._determineRelationshipChangeAvailablity()}"
+													.disabled="${this._determineRelationshipChangeAvailablity(lives)}"
 													style="width: 50%; padding-left: 15px; max-height: 47px;" 
 													@click="${() => this._selectNewRelationship(lives, index)}">
 												</capitec-button>
 												<capitec-button 
 													label="Remove Life" 
 													type="primary" 
-													.disabled="${this._determineRemoveLifeAvailablity()}"
+													.disabled="${this._determineRemoveLifeAvailablity(lives)}"
 													style="width: 50%; padding-left: 15px; max-height: 47px;" 
-													@click="${() => this._removeLifeFromInception(lives, index)}">
+													@click="${() => this._openConfirmRemoveLifeDialog(lives, index)}">
 												</capitec-button>
 												<capitec-button 
 													label="Accept Risk" 
 													type="primary" 
-													.disabled="${this._determineAcceptRiskAvailablity()}"
+													.disabled="${this._determineAcceptRiskAvailablity(lives)}"
 													style="width: 50%; padding-left: 15px; max-height: 47px;" 
-													@click="${() => this._acceptRiskOnLife(lives, index)}">
+													@click="${() => this._openConfirmAcceptRiskDialog(lives, index)}">
 												</capitec-button>
 											<div>
 										</capitec-group>
 									</div>
-								</horizon-expander>	
-							${console.log("life done rendering:", lives)}
+								</horizon-expander>
 							`}
 						`)}
 							
@@ -678,6 +792,8 @@ class FuneralAmendRelationship extends Component {
 			<horizon-insure-amend-relationship-dialog 
 				.currentLifesAssured="${this.livesToAmend}" 
 				.productParams="${this.productParams}"
+				.financialChange="${this.financialChange}"
+				.nonFinancialChange="${this.nonFinancialChange}"
 				@amend-relationship="${(e) => this._updateRelationship(e)}" 
 				@close-modal="${(e) => this._closeAmendRelationshipDialog(e)}">
 			</horizon-insure-amend-relationship-dialog>`;
@@ -699,13 +815,30 @@ class FuneralAmendRelationship extends Component {
 
 	_renderAmendActionInfoDialog() {
 		return this.showAmendActionInfoDialog === false ? html`` : html`
-		${console.log("rendering dialog")}
 		<horizon-insure-amend-action-info-dialog
 			@close-modal="${() => this.showAmendActionInfoDialog = false}">
 		</horizon-insure-amend-action-info-dialog>
 		`
 	}
 
+	_renderConfirmAcceptRisk() {
+		return this.showConfirmAcceptRisk === false ? html`` : html`
+			<horizon-insure-amend-confirm-accept-risk-dialog
+				@confirm-change="${() => this._acceptRiskOnLife()}"
+				@close-modal="${() => this.showConfirmAcceptRisk = false}">
+			</horizon-insure-amend-confirm-accept-risk-dialog>
+		`
+
+	}
+
+	_renderConfirmRemoveLife() {
+		return this.showConfirmRemoveLife === false ? html`` : html`
+			<horizon-insure-amend-confirm-remove-life-dialog
+				@confirm-change="${() => this._removeLifeFromInception()}"
+				@close-modal="${() => this.showConfirmRemoveLife = false}">
+			</horizon-insure-amend-confirm-remove-life-dialog>
+		`
+	}
 
 
 	// #endregion

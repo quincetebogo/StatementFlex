@@ -1046,15 +1046,17 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updateFuneralPlanQuote(policyToCalc) {
+		console.log("policyToCalc: ", policyToCalc)
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
 			"productCode": this.selectedFuneralPolicyProductCode,
 			"cifNumber": this.callerInformation.cifNumber,
 			"totalPremium": policyToCalc.totalPremium,
-			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true)
+			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true),
+			"nonInsurableRoleplayerDetails": policyToCalc?.nonInsurableRoleplayerDetails
 		};
-
+		console.log("Quote Request: ", quoteCalcRequest)
 		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
@@ -1092,7 +1094,7 @@ export class ExistingClient extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
-			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
+			"roleplayers": policyToUpdate.roleplayers,
 			"collectionDetails": policyToUpdate.deductionDetails,
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
