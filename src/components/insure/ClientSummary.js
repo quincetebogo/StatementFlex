@@ -1627,7 +1627,7 @@ class ClientSummary extends Component {
 		} else if (policy.arrearsMissedPremiumCount === 2) {
 			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and may lapse if one more premium is missed`;
 		} else if (policy.arrearsMissedPremiumCount === 3) {
-			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))} and will lapse on ${formatDate(this._determineLapseDate(unpaidArrears[2].arrearsPaymentDueDate), `dd mmm yyyy`)} if you do not make at least one payment.`;
+			message = `Your policy is in arrears by ${formatCurrency(this._calculateLifeArrearsAmount(policy))}. To avoid policy from lapsing, make a payment today.`;
 		}
 		return message;
 	}
