@@ -46,6 +46,8 @@ class FuneralAmendRelationship extends Component {
 		this.showConfirmAcceptRisk = false;
 		this.showConfirmRemoveLife = false;
 
+		this.canReinstate = false;
+
 		this.livesToBeRemoved = []
 
 	}
@@ -72,6 +74,7 @@ class FuneralAmendRelationship extends Component {
 			showAmendActionInfoDialog: { type: Boolean, state: true },
 			showConfirmAcceptRisk: { type: Boolean, state: true },
 			showConfirmRemoveLife: { type: Boolean, state: true },
+			canReinstate: { type: Boolean, state: true },
 
 		};
 	}
@@ -96,11 +99,22 @@ class FuneralAmendRelationship extends Component {
 	_initialise() {
 		this.amendedPolicy = JSON.parse(JSON.stringify(this.policyToAmend))
 		this.livesToAmend = this.amendedPolicy.roleplayers.map(rp => JSON.parse(JSON.stringify(rp)))
+
+		if (this.amendedPolicy?.canReinstate) {
+			this.canReinstate = true;
+			this.showAmendActionInfoDialog = true
+		}
+
 		if (!this.amendedPolicy?.amended) {
 			this._setNewAmendRelationshipFields()
 		}
+
 		if (this.amendedPolicy?.isFinancialChanges) {
 			this.financialChange = true
+		}
+
+		if (this.amendedPolicy?.isNonFinancialChanges) {
+			this.nonFinancialChange = true
 		}
 
 		this._getRelationshipTotals()
@@ -415,14 +429,24 @@ class FuneralAmendRelationship extends Component {
 	 * @returns {void}
 	 */
 	_backToUpdatePlan() {
-		this.dispatchEvent(new CustomEvent(`navigate-back-to-update`, {
-			detail: {
-				policy: this.policyToAmend
-			}
-		}));
+		if (!this.canReinstate) {
+			this.dispatchEvent(new CustomEvent(`navigate-back-to-update`, {
+				detail: {
+					policy: this.policyToAmend
+				}
+			}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`navigate-back-to-client-summary`, {
+				detail: {
+					policy: this.policyToAmend
+				}
+			}));
+		}
+
 	}
 
 	_confirmAmendment() {
+
 		this.amendedPolicy.amended = true
 		console.log("isFinancial?: ", this.financialChange)
 		if (this.financialChange) {
@@ -440,6 +464,22 @@ class FuneralAmendRelationship extends Component {
 				policy: this.amendedPolicy
 			}
 		}));
+	}
+
+	_checkAvailability() {
+		if (!this.canReinstate) {
+			return false
+		}
+
+		let allAmended = true;
+
+		this.livesToAmend.forEach((life) => {
+			if (life.amendDetails.amended = false) {
+				allAmended = false;
+			}
+		})
+
+		return !allAmended
 	}
 	// #endregion EVENT HANDLERS
 
@@ -634,6 +674,7 @@ class FuneralAmendRelationship extends Component {
 			<capitec-label label="${`Amend Policy Relationships #${this.policyToAmend.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button label="Confirm" type="white" class="capitec-button-medium"
+					.disabled="${_checkAvailability()}"
 					@click="${() => this._confirmAmendment()}">
 			</capitec-button>
 		</capitec-title-bar>

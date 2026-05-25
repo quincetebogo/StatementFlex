@@ -2804,6 +2804,7 @@ export class ExistingClient extends InsureViewBase {
 			.productParams="${this.productParams}"
 			.policyToAmend="${this.policyToAmend}"
 			@navigate-back-to-update="${(policy) => this._navBackToUpdateFromAmend(policy)}"
+			@navigate-back-to-client-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
 			@amend-and-navigate-back-to-update="${(policy) => this._amendAndNavBackToUpdate(policy)}">
 		</horizon-insure-funeral-amend-relationship>
 		`
