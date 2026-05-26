@@ -674,7 +674,7 @@ class FuneralAmendRelationship extends Component {
 			<capitec-label label="${`Amend Policy Relationships #${this.policyToAmend.contractReference}`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button label="Confirm" type="white" class="capitec-button-medium"
-					.disabled="${_checkAvailability()}"
+					.disabled="${this._checkAvailability()}"
 					@click="${() => this._confirmAmendment()}">
 			</capitec-button>
 		</capitec-title-bar>
