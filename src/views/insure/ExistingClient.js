@@ -2093,6 +2093,7 @@ export class ExistingClient extends InsureViewBase {
 				this.selectedFuneralPolicyDetails.canReinstate = true;
 				this.selectedFuneralPolicyDetails.policyRule = policyResponse.policyRule;
 				this.selectedFuneralPolicyDetails.deductionDetails = policyResponse.deductionDetails;
+				this.selectedFuneralPolicyDetails.hasInvalidRelationship = policyResponse.hasInvalidRelationship
 				delete this.selectedFuneralPolicyDetails.eligibleRoleplayers;
 			} else {
 				this.handleToastError(calcResponse.exception);
@@ -2332,6 +2333,7 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _rerenderClientSummary(navigateBackTo) {
+		console.log("rerender summary")
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this._navigateToSubView(navigateBackTo);
 	}

@@ -1397,11 +1397,18 @@ class FuneralUpdatePlan extends Component {
 	 * @returns {void}
 	 */
 	_openIneligibleLivesDialog() {
-		if (this.canReinstate === true && this.policyDetails.ineligibleRoleplayers.length > 0) {
+
+		console.log(" in _openIneligibleLivesDialog")
+		console.log("this.policyDetails", this.policyDetails)
+		if (this.canReinstate === true && this.policyDetails?.ineligibleRoleplayers?.length > 0) {
+			console.log(" in first if")
 			this.showIneligibleLivesDialog = true;
 		}
-
-		if (!this.showIneligibleLivesDialog && this.policyDetails.hasInvalidRelationship && this.canReinstate === true) {
+		console.log(" !this.showIneligibleLivesDialog", !this.showIneligibleLivesDialog)
+		console.log("this.policyDetails.hasInvalidRelationship", this.policyDetails.hasInvalidRelationship)
+		console.log(" this.canReinstate", this.canReinstate)
+		if (!this.showIneligibleLivesDialog && this.policyDetails.hasInvalidRelationship && this.canReinstate === true && this.policyDetails.amended === false) {
+			console.log(" in second if")
 			this._navigateToAmend()
 		}
 	}

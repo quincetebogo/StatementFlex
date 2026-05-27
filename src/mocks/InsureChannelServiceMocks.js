@@ -161,7 +161,7 @@ export default class InsureChannelServiceMocks {
 	 * Reinstate Policy Quote Calc mock check
 	 * @returns {Object} Mock response data
 	 */
-	reinstateQuoteCalc() {
+	insurePolicyReissue() {
 		if (this._mockSettings.insurePolicyReissue.positiveCase) {
 			return this.policyReissueMocks.PolicyReissue;
 		}

@@ -319,7 +319,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
