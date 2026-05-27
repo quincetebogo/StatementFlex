@@ -13,6 +13,18 @@ import { Component, css, html } from 'platform/elements';
  * @class ValueAddedServices
  * @extends {Component}
  */
+const CONSENT_CATEGORIES = [
+  { key: 'REWARDS',label: 'Rewards and benefits',description: 'Get discounts, special offers and Live Better rewards.'},
+  { key: 'SAVE', label: 'Money tips', description: 'Learn simple ways to manage and grow your money.'},
+  { key: 'AIRTIME', label: 'Affordable data and devices', description: 'Deals on data, airtime and devices to help you stay connected.'},
+  { key: 'CREDIT', label: 'Credit when I need it', description: 'Personalised credit offers for your needs.' },
+  { key: 'SPENDING', label: 'Hassle-free payments and renewals', description: 'Send money, buy airtime, pay bills and renew license discs.' },
+  { key: 'INSURE', label: 'Cover and protection', description: 'Cover options for your personal and business needs.' },
+  { key: 'LOTTO', label: 'LOTTO and Powerball', description: 'How-to-play tips and reminders so you never miss a draw.' },
+  { key: 'MONEY', label: 'Smarter ways to get things done', description: 'New features and tools that make everyday banking easier.' },
+  { key: 'BUSINESS', label: 'Support for business goals', description: 'Solutions to help you start, grow and run your business.' },
+  { key: 'NEWS', label: 'Our performance and news', description: 'Updates on results, leadership and how we’re evolving.' }
+];
 
 export class ValueAddedServices extends Component {
 
@@ -22,11 +34,13 @@ export class ValueAddedServices extends Component {
 
 	constructor() {
 		super();
-		this.optOutInsights = false;
 		this.optOutBehaviouralMarketing = false;
 		this.statusVAS = {};
 		this.alertBannerMessage = ``;
 		this.updateValueAddedServicesCallback = null;
+		this.updateClientInterestConsentCallback = null;
+		this.marketingInterestConsent = {};
+		this.selectAllConsent = false;
 	}
 
 	
@@ -36,7 +50,7 @@ export class ValueAddedServices extends Component {
 
 	/**
 	 * @property {String} statusVAS - value of the statusVAS
-	 *
+	 * @property {String} statusInterestConsent
 	 * @readonly
 	 * @static
 	 * @memberof AddCallerDetails
@@ -44,13 +58,17 @@ export class ValueAddedServices extends Component {
 	 static get properties() {
 		return {
 			statusVAS: { type: Object },
+			statusInterestConsent: {type: Object},
 			updateValueAddedServicesCallback: { type: Object },
+			updateClientInterestConsentCallback: {type: Object },
 			cifnumber: {type : String },
 			alertBannerMessage: { state: true },
-			optOutInsights: { state: true },
-			optOutBehaviouralMarketing: { state: true }
+			optOutBehaviouralMarketing: { state: true },
+			marketingInterestConsent: { state: true },
+			selectAllConsent: { state: true },
 		};
 	}
+	
 	
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -60,9 +78,38 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 		
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.optOutInsights = this.statusVAS.insights;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
+	}
+
+	updated(changedProperties) {
+		// Only run this if the data actually changed and isn't null
+		if (changedProperties.has('statusVAS')) {
+			this._initializeInterests();
+		}
+	}
+
+	_initializeInterests() {
+		// Get the marketing consent data (it's already in object format from the API)
+		const marketingData = this.statusVAS.newStatusInterestConsent?.marketing;
+
+		// If the API returns an array, convert it to object format
+		if (Array.isArray(marketingData)) {
+			this.marketingInterestConsent = marketingData.reduce((acc, item) => {
+				acc[item.interestType] = item.optInPreference;
+				return acc;
+			}, {});
+		} else {
+			// If it's already an object, use it directly
+			this.marketingInterestConsent = marketingData || {};
+		}
+
+		// Update selectAllConsent based on whether all items are selected
+		const consentValues = Object.values(this.marketingInterestConsent);
+		this.selectAllConsent = consentValues.length > 0 && consentValues.every(val => val === true);
+
+		// This forces the radio buttons to re-render with the new "checked" values
+		this.requestUpdate();
 	}
 
 	// --------------
@@ -72,11 +119,9 @@ export class ValueAddedServices extends Component {
 	_toggleValue(e, value) {
 		this.alertBannerMessage = ``;
 		
-		const insights = () => this._insightsStatusChanged(value);
 		const behavioural = () => this._behavioralStatusChanged(value);
 
 		const toggleSwitched = {
-			'insights': insights,
 			'behavioural': behavioural
 		};
 
@@ -91,10 +136,21 @@ export class ValueAddedServices extends Component {
 		const valueAddedServices = {
 			capitecEntityId: this.capitecEntityId,
 			cifnumber: this.cifnumber,
-			optOutInsights: this.optOutInsights,
 			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing
-			
 		};
+
+		console.log('this is accept button: ', this.marketingInterestConsent);
+
+		const clientInterestConsent = {
+			cifNumber: this.cifnumber,
+			optInConsentInterestPreferences : {
+				marketing: this.marketingInterestConsent
+			}
+		};
+
+		if(await this.updateClientInterestConsentCallback(clientInterestConsent)){
+			this.dispatchEvent(new CustomEvent('accept', {detail: {clientInterestConsent: clientInterestConsent}}));
+		}
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
 			this.dispatchEvent(new CustomEvent(`accept`, { detail: { valueAddedServices: valueAddedServices } }));
@@ -107,10 +163,6 @@ export class ValueAddedServices extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_insightsStatusChanged(value) {
-		this.optOutInsights = value;
-	}
 
 	_behavioralStatusChanged(value) {
 		this.optOutBehaviouralMarketing = value;
@@ -217,6 +269,33 @@ export class ValueAddedServices extends Component {
 					width: 450px;
 					font-size: 12px;
 				}
+
+				.select-all-group {
+					background-color: #F7F7F7;
+					padding: 12px 16px;
+					border-radius: 4px;
+					margin: 12px 0px;
+					border: 1px solid #E1E1E1;
+				}
+			.select-all-group capitec-toggle {
+				margin: 0px 0px 0px 8px;
+				width: 32px;
+			}
+
+			.select-all-group capitec-label {
+				margin: 0px 0px 0px 8px;
+				font-size: 13px;
+			}
+
+				.section-divider {
+					border: none;
+					border-top: 1px solid #E1E1E1;
+					margin: 16px 0px;
+				}
+
+				.interests-container {
+					margin-top: 16px;
+				}
 			`
 		];
 	}
@@ -276,50 +355,88 @@ export class ValueAddedServices extends Component {
 
 	_renderPermissionList() {
 		return html`
-			${this._renderInsights()}
 			${this._renderBehavioral()}
+
+			<div class="interests-container">
+				<capitec-label type="title" label="Direct Marketing Categories"></capitec-label>
+				${this._renderSelectAll()}
+				<hr class="section-divider">
+				${CONSENT_CATEGORIES.map(cat => this._renderConsentOption('marketing', cat.key, cat.label, cat.description))}
+			</div>
 		`;
 	}
 
+_renderConsentOption(type, categoryKey, label, description) {
+    const consentSource = this.marketingInterestConsent;
 
-_renderInsights() {
-	return html`
-			<capitec-group gap="none">
+    const isChecked = consentSource[categoryKey] === true;
+
+    return html`
+        <capitec-group gap="none">
 			<capitec-title-bar>
-			<capitec-group layout="horizontal">
-			<p class="permission-message">May we analyse the type of transactions you perform to provide you with personalised offers to improve existing and create new products that could benefit you? <strong>(personalised offers)</strong></p>
-			<capitec-radio-group layout="horizontal" >
-			<capitec-radio 
-							id="insights"
-							label="Yes"
-							@value-change="${(e) => this._toggleValue(e, true)}"
-							?checked = "${this.optOutInsights}">
-						</capitec-radio>
-						<capitec-radio
-						id="insights"
-						label="No"
-							@value-change="${(e) => this._toggleValue(e, false)}"
-							?checked = "${!this.optOutInsights}">
-						</capitec-radio>
-						</capitec-radio-group>
-						
-						</capitec-group>
-						</capitec-title-bar>
-						${this._renderInsightsAlert()}
-						</capitec-group>
-	`;
+            <capitec-group layout="horizontal">
+                <p class="permission-message">
+                    <strong>${label}</strong><br>
+                    <span class="description">${description}</span>
+                </p>
+                <capitec-radio-group layout="horizontal">
+                    <capitec-radio
+                        name="${categoryKey}"
+                        label="Yes"
+                        .checked="${isChecked}" 
+                        @click="${() => this._updateConsent(type, categoryKey, true)}">
+                    </capitec-radio>
+                    <capitec-radio
+                        name="${categoryKey}"
+                        label="No"
+                        .checked="${!isChecked}"
+                        @click="${() => this._updateConsent(type, categoryKey, false)}">
+                    </capitec-radio>
+                </capitec-radio-group>
+            </capitec-group>
+        </capitec-group>
+    `;
 }
 
+	_updateConsent(type, categoryKey, newValue) {
+			if (type === 'marketing') {
+				// Create a new object to ensure Lit detects the change
+				this.marketingInterestConsent = {
+					...this.marketingInterestConsent,
+					[categoryKey]: newValue
+				};
+			}
+			// This tells the component to re-render with the new "Yes/No" selection
+			this.requestUpdate();
+	}
 
-	_renderInsightsAlert() {
-		return !this.optOutInsights
-		? html`
-			<horizon-alert-banner 
-				data-automation-id="value-added-services-insights-alert-banner"
-				type="warning"
-				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
-			</horizon-alert-banner>`
-		: html``;
+	_toggleSelectAll(value) {
+		this.alertBannerMessage = ``;
+		this.selectAllConsent = value;
+
+		// Set all consent categories to the selected value
+		const updatedConsent = {};
+		CONSENT_CATEGORIES.forEach(cat => {
+			updatedConsent[cat.key] = value;
+		});
+
+		this.marketingInterestConsent = updatedConsent;
+		this.requestUpdate();
+	}
+
+	_renderSelectAll() {
+		return html`
+			<capitec-group gap="none" class="select-all-group">
+				<capitec-group layout="horizontal" halign="left" valign="center">
+					<p class="permission-message"><strong>Select All / Deselect All</strong></p>
+					<capitec-toggle
+						size="small"
+						@value-changed="${(event) => this._toggleSelectAll(event.detail.new)}"
+						?checked="${this.selectAllConsent}">
+					</capitec-toggle>
+				</capitec-group>
+			</capitec-group>
+		`;
 	}
 
 	_renderBehavioral() {
@@ -329,7 +446,7 @@ _renderInsights() {
 				<capitec-group layout="horizontal">
 				<p class="permission-message">Receive the latest offers and products by means of electronic communication <br><strong>(direct marketing)</strong> </p>
 				<capitec-radio-group layout="horizontal" >
-				<capitec-radio 
+				<capitec-radio
 								id="behavioural"
 								label="Yes"
 								@value-change="${(e) => this._toggleValue(e, true)}"
