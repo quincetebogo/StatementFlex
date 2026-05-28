@@ -479,7 +479,6 @@ class FuneralUpdatePlan extends Component {
 			return
 		}
 
-		console.log("oh no, it didnt stop")
 		if (event.detail.old !== event.detail.new) {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
@@ -948,7 +947,6 @@ class FuneralUpdatePlan extends Component {
 		const onUpdateValidations = this.validateUpdatePlanCalculate();
 		if (onUpdateValidations.validated === true) {
 			delete this.policyDetails.totalPremium;
-			console.log("deets from update: ", this.policyDetails)
 			const calcQuoteResponse = await this.updatePlanQuote(this.policyDetails);
 
 			this.currentTotalPremium = calcQuoteResponse.totalPremium;
@@ -1207,11 +1205,10 @@ class FuneralUpdatePlan extends Component {
 			return;
 		}
 
-		const isValid = false
+		let isValid = false
 		if (!this.policyDetails?.isNonFinancialChanges) {
 			isValid = await this._calculatePremium();
 		}
-
 
 		if (isValid || this.policyDetails?.isNonFinancialChanges) {
 			this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
@@ -1324,15 +1321,11 @@ class FuneralUpdatePlan extends Component {
 	 * @return {void} 
 	 */
 	_initialise() {
-		console.log("policy deets on initialise", this.policyDetails)
 		if (this.policyDetails?.amended) {
-			console.log("Amended Details: ", this.policyDetails)
 			if (this.policyDetails?.isFinancialChanges) {
-				console.log("inFinancial")
 				this.financialChanges = true
 			}
 			if (this.policyDetails?.isNonFinancialChanges) {
-				console.log("inNonFinancial")
 				this.nonFinancialChanges = true
 			}
 		}
@@ -1344,7 +1337,6 @@ class FuneralUpdatePlan extends Component {
 		this.currentTotalPremium = this.policyDetails.totalPremium;
 
 		this.disableAccountNumber = this._disableAccountNumber();
-		console.log(this.policyDetails)
 		// Set Initial Cover Details for each player
 		for (let index = 0; index < this.policyDetails.roleplayers.length; index++) {
 			const relationship = this.policyDetails.roleplayers[index].relationship;
@@ -1398,17 +1390,10 @@ class FuneralUpdatePlan extends Component {
 	 */
 	_openIneligibleLivesDialog() {
 
-		console.log(" in _openIneligibleLivesDialog")
-		console.log("this.policyDetails", this.policyDetails)
 		if (this.canReinstate === true && this.policyDetails?.ineligibleRoleplayers?.length > 0) {
-			console.log(" in first if")
 			this.showIneligibleLivesDialog = true;
 		}
-		console.log(" !this.showIneligibleLivesDialog", !this.showIneligibleLivesDialog)
-		console.log("this.policyDetails.hasInvalidRelationship", this.policyDetails.hasInvalidRelationship)
-		console.log(" this.canReinstate", this.canReinstate)
 		if (!this.showIneligibleLivesDialog && this.policyDetails.hasInvalidRelationship && this.canReinstate === true && this.policyDetails.amended === false) {
-			console.log(" in second if")
 			this._navigateToAmend()
 		}
 	}
@@ -1765,8 +1750,6 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_setLifeLabelColour(life) {
-		console.log(life.amendDetails)
-		console.log(life.relationship)
 		if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
 			return `fixed-label-secondary-warning-red`
 		} else if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.amendDetails?.riskAccepted) {
