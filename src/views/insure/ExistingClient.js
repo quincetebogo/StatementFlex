@@ -1910,6 +1910,7 @@ export class ExistingClient extends InsureViewBase {
 					item.arrearsAllocatedDate = isNullorEmpty(item.arrearsAllocatedDate) ? `` : formatDateforPremiumHistory(new Date(Date.parse(item.arrearsAllocatedDate)));
 					return item;
 				});
+			this.transactions.push(...formattedTrans);
 			this.funeralPolicyTransactionHistory.transactions = this.transactions;
 			this.renderMode = INSURE_RENDER_MODE.FUNERAL_POLICY_TRANSACTION_HISTORY;
 		} else {
