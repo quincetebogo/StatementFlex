@@ -1046,7 +1046,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {*} result
 	 */
 	async _updateFuneralPlanQuote(policyToCalc) {
-		console.log("policyToCalc: ", policyToCalc)
 		const quoteCalcRequest = {
 			"saveQuote": true,
 			"contractReference": policyToCalc.contractReference,
@@ -1056,7 +1055,6 @@ export class ExistingClient extends InsureViewBase {
 			"lifesAssured": policyToCalc.roleplayers.filter(ele => ele.lifeAssured === true),
 			"nonInsurableRoleplayerDetails": policyToCalc?.nonInsurableRoleplayerDetails
 		};
-		console.log("Quote Request: ", quoteCalcRequest)
 		const calculateQuoteResp = await this.insureFuneralService.calculateQuote(quoteCalcRequest);
 		if (!calculateQuoteResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
@@ -2291,9 +2289,7 @@ export class ExistingClient extends InsureViewBase {
 	}
 
 	_navigateToRelationshipAmend(policy) {
-		console.log(policy)
 		this.policyToAmend = policy.detail.policyDetails
-		console.log(this.policyToAmend)
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_AMEND_RELATIONSHIPS);
 	}
 
@@ -2333,7 +2329,6 @@ export class ExistingClient extends InsureViewBase {
 	 * @returns {void}
 	 */
 	async _rerenderClientSummary(navigateBackTo) {
-		console.log("rerender summary")
 		this.funeralPolicies = await this._retrieveClientFuneralPolicies();
 		this._navigateToSubView(navigateBackTo);
 	}

@@ -706,6 +706,10 @@ class FuneralAmendRelationship extends Component {
 		`;
 	}
 
+	/**
+	 * Render the the necessary dialogs
+	 * @returns {html} html content
+	 */
 	_renderDialogs() {
 		return html`
 			${this._renderAmendRelationshipDialog()}
@@ -715,86 +719,83 @@ class FuneralAmendRelationship extends Component {
 		`
 	}
 
+	/**
+	 * Render the content HTML for the lives to amend component
+	 * @returns {html} html content
+	 */
 	_renderLivesToAmend() {
 		return html`
 
 		<capitec-content-box class="body-box">
-		${this._renderInvalidRelationshipsNotification()}
-			<div class="select" >
-						${this.livesToAmend.map((lives, index) => html`
-							${lives.amendDetails.toFix === false ? html`` : html`
-								<horizon-expander expandButtonAlignment="right" .expanded="${this._validateRoleplayer(lives)}" >
-		<capitec class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
-			valign="center">
-			<horizon-label class="fixed-label-secondary"
-				label="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}"
-				textOverflow="ellipsis"
-				value="${lives.firstName} ${lives.surname}">
-			</horizon-label>
-			<div class="vertical-line"></div>
-			${lives.amendDetails?.amended === false ? html`
-											<horizon-label style="--horizon-label-text-color: green;"
-												label="Action needed"
-												value="Please Amend life">
-											</horizon-label>
-											` : html`
-												${lives.amendDetails?.removeFromInception ? html`
-													<horizon-label 
-														label="Action"
-														value="Life to be removed">
-													</horizon-label>
-												`: html`
-													${lives.amendDetails?.riskAccepted && !lives.amendDetails?.removeFromInception ? html`
-														<horizon-label 
-															label="Action"
-															value="Risk accepted">
-														</horizon-label>
-													` : html`
-														<horizon-label 
-															label="New Relationship"
-															value="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}">
-														</horizon-label>
-														`}
-												`}
-											`}
-			<!-- <horizon-label
-				label="New Relationship"
-				value="${lives.relationship == " ExtendedFamily" ? "" : ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}">
-		</horizon-label> -->
-									</capitec - group >
-									<div slot="content">
-										<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
-											<div class="expander-options">
-												<capitec-button 
-													label="Change Relationship" 
-													type="primary" 
-													.disabled="${this._determineRelationshipChangeAvailablity(lives)}"
-													style="width: 50%; padding-left: 15px; max-height: 47px;" 
-													@click="${() => this._selectNewRelationship(lives, index)}">
-												</capitec-button>
-												<capitec-button 
-													label="Remove Life" 
-													type="primary" 
-													.disabled="${this._determineRemoveLifeAvailablity(lives)}"
-													style="width: 50%; padding-left: 15px; max-height: 47px;" 
-													@click="${() => this._openConfirmRemoveLifeDialog(lives, index)}">
-												</capitec-button>
-												<capitec-button 
-													label="Accept Risk" 
-													type="primary" 
-													.disabled="${this._determineAcceptRiskAvailablity(lives)}"
-													style="width: 50%; padding-left: 15px; max-height: 47px;" 
-													@click="${() => this._openConfirmAcceptRiskDialog(lives, index)}">
-												</capitec-button>
-											<div>
-										</capitec-group>
-									</div >
-								</horizon - expander >
-			`}
-						`)}
-							
-						
-				
+			${this._renderInvalidRelationshipsNotification()}
+			<div class="select">
+			${this.livesToAmend.map((lives, index) => html`
+				${lives.amendDetails.toFix === false ? html`` : html`
+					<horizon-expander expandButtonAlignment="right" .expanded="${this._validateRoleplayer(lives)}" >
+						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
+							valign="center">
+							<horizon-label class="fixed-label-secondary"
+								label="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}"
+								textOverflow="ellipsis"
+								value="${lives.firstName} ${lives.surname}">
+							</horizon-label>
+							<div class="vertical-line"></div>
+							${lives.amendDetails?.amended === false ? html`
+								<horizon-label style="--horizon-label-text-color: green;"
+									label="Action needed"
+									value="Please Amend life">
+								</horizon-label>
+								` : html`
+								${lives.amendDetails?.removeFromInception ? html`
+									<horizon-label 
+										label="Action"
+										value="Life to be removed">
+									</horizon-label>
+								`: html`
+									${lives.amendDetails?.riskAccepted && !lives.amendDetails?.removeFromInception ? html`
+										<horizon-label 
+											label="Action"
+											value="Risk accepted">
+										</horizon-label>
+									` : html`
+										<horizon-label 
+											label="New Relationship"
+											value="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}">
+										</horizon-label>
+										`}
+									`}
+							`}
+						</capitec-group >
+						<div slot="content">
+							<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
+								<div class="expander-options">
+									<capitec-button 
+										label="Change Relationship" 
+										type="primary" 
+										.disabled="${this._determineRelationshipChangeAvailablity(lives)}"
+										style="width: 50%; padding-left: 15px; max-height: 47px;" 
+										@click="${() => this._selectNewRelationship(lives, index)}">
+									</capitec-button>
+									<capitec-button 
+										label="Remove Life" 
+										type="primary" 
+										.disabled="${this._determineRemoveLifeAvailablity(lives)}"
+										style="width: 50%; padding-left: 15px; max-height: 47px;" 
+										@click="${() => this._openConfirmRemoveLifeDialog(lives, index)}">
+									</capitec-button>
+									<capitec-button 
+										label="Accept Risk" 
+										type="primary" 
+										.disabled="${this._determineAcceptRiskAvailablity(lives)}"
+										style="width: 50%; padding-left: 15px; max-height: 47px;" 
+										@click="${() => this._openConfirmAcceptRiskDialog(lives, index)}">
+									</capitec-button>
+								<div>
+							</capitec-group>
+						</div >
+					</horizon-expander >
+				`}
+			`)}
 			</div>
 		</capitec-content-box>
 		`
