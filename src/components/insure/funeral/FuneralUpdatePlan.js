@@ -1613,6 +1613,19 @@ class FuneralUpdatePlan extends Component {
 		return this._policyRuleAllowsChange(`editDateOfBirth`, roleplayer.relationship);
 	}
 
+	_determineRelationshipDisplay(roleplayer) {
+
+		if (roleplayer.relationship?.toUpperCase() === `COUSINSCHILD`) {
+			return `First Cousin's Child`
+		}
+
+		if (roleplayer.relationship?.toUpperCase() === `PARENT`) {
+			return `Parent/Parent in Law`
+		}
+
+		return formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[roleplayer.relationship?.toUpperCase()])
+	}
+
 	/**
 	 * on change event for life DoB
 	 * @param {*} e e
@@ -2203,7 +2216,7 @@ class FuneralUpdatePlan extends Component {
 						<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
 							valign="center">
 							<horizon-label class="${this._setLifeLabelColour(roleplayer)}" 
-								label="${roleplayer.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[roleplayer.relationship?.toUpperCase()])}" 
+								label="${this._determineRelationshipDisplay(roleplayer)}" 
 								textOverflow="ellipsis" 
 								value="${roleplayer.firstName} ${roleplayer.surname}">
 							</horizon-label>
@@ -2245,7 +2258,7 @@ class FuneralUpdatePlan extends Component {
 					<!-- life list -->
 					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true).map(lifeAssured => html`
 						<div class="calc-life-list">
-							<capitec-label style="${this._setRelationshipColor(lifeAssured)}" label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}">
+							<capitec-label style="${this._setRelationshipColor(lifeAssured)}" label="${this._determineRelationshipDisplay(lifeAssured)}">
 							</capitec-label>
 							<capitec-label label="${isNullorEmpty(lifeAssured.premium) ? formatCurrency(0) : formatCurrency(lifeAssured.premium)}"></capitec-label>
 						</div>

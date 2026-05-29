@@ -273,6 +273,17 @@ class FuneralAmendRelationship extends Component {
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 		this.financialChange = true;
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
+
+		//if also a beneficiary
+		if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
+
+			this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
+
+			this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
+			this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
+			console.log("removed as life assured, kept as beneficiary:", this.livesToAmend[this.selectedRoleplayer])
+		}
+
 		this.showConfirmRemoveLife = false
 		this.livesToBeRemoved.push(this.livesToAmend[this.selectedRoleplayer])
 		console.log("lives to be removed: ", this.livesToBeRemoved)
@@ -459,6 +470,7 @@ class FuneralAmendRelationship extends Component {
 		}
 
 		this.amendedPolicy.roleplayers = this.livesToAmend
+		console.log("policy After Amendments: ", this.amendedPolicy)
 		this.dispatchEvent(new CustomEvent(`amend-and-navigate-back-to-update`, {
 			detail: {
 				policy: this.amendedPolicy
@@ -711,16 +723,16 @@ class FuneralAmendRelationship extends Component {
 			<div class="select" >
 						${this.livesToAmend.map((lives, index) => html`
 							${lives.amendDetails.toFix === false ? html`` : html`
-								<horizon-expander expandButtonAlignment="right" .expanded="${this._validateRoleplayer(lives) || lives.relationship === "ExtendedFamily"}" }">
-									<capitec-group class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
-										valign="center">
-										<horizon-label class="fixed-label-secondary" 
-											label="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}" 
-											textOverflow="ellipsis" 
-											value="${lives.firstName} ${lives.surname}">
-										</horizon-label>
-										<div class="vertical-line"></div>
-										${lives.amendDetails?.amended === false ? html`
+								<horizon-expander expandButtonAlignment="right" .expanded="${this._validateRoleplayer(lives)}" >
+		<capitec class="expander-header" slot="custom-header" layout="horizontal" gap="clear" halign="left"
+			valign="center">
+			<horizon-label class="fixed-label-secondary"
+				label="${ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}"
+				textOverflow="ellipsis"
+				value="${lives.firstName} ${lives.surname}">
+			</horizon-label>
+			<div class="vertical-line"></div>
+			${lives.amendDetails?.amended === false ? html`
 											<horizon-label style="--horizon-label-text-color: green;"
 												label="Action needed"
 												value="Please Amend life">
@@ -745,11 +757,11 @@ class FuneralAmendRelationship extends Component {
 														`}
 												`}
 											`}
-										<!-- <horizon-label 
-											label="New Relationship"
-											value="${lives.relationship == "ExtendedFamily" ? "" : ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}">
-										</horizon-label> -->
-									</capitec-group>
+			<!-- <horizon-label
+				label="New Relationship"
+				value="${lives.relationship == " ExtendedFamily" ? "" : ROLE_PLAYER_RELATIONSHIP[lives.relationship?.toUpperCase()]}">
+		</horizon-label> -->
+									</capitec - group >
 									<div slot="content">
 										<capitec-group class="expander-content" layout="vertical" gap="none" halign="left" valign="center">
 											<div class="expander-options">
@@ -776,9 +788,9 @@ class FuneralAmendRelationship extends Component {
 												</capitec-button>
 											<div>
 										</capitec-group>
-									</div>
-								</horizon-expander>
-							`}
+									</div >
+								</horizon - expander >
+			`}
 						`)}
 							
 						
