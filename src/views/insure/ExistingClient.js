@@ -1097,6 +1097,8 @@ export class ExistingClient extends InsureViewBase {
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
 
+		console.log("Prepare Update: ", prepareUpdateRequest)
+
 		const prepareUpdateResp = await this.insureFuneralService.prepareUpdate(prepareUpdateRequest);
 		if (!prepareUpdateResp.succeeded) {
 			super.isOnlyProductEnquiry = false;
