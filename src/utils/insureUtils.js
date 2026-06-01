@@ -118,16 +118,11 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 				coverDetails.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
-			} else if (age && age >= 6 && age <= 13) {
+			} else if (age && age >= 6 && age <= 50) {
 				coverDetails.maxCoverAmount = currentRole.ageRange[1].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[1].minCoverAmount;
 				coverDetails.maxCoverMessage = currentRole.ageRange[1].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[1].coverAmountMinMessage;
-			} else if (age && age >= 14 && age <= 25) {
-				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
-				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
-				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
-				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
 			} else if (age && (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age))) {
 				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
 				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
