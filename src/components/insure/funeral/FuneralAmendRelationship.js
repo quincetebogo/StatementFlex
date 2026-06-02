@@ -99,7 +99,8 @@ class FuneralAmendRelationship extends Component {
 	_initialise() {
 		this.amendedPolicy = JSON.parse(JSON.stringify(this.policyToAmend))
 		this.livesToAmend = this.amendedPolicy.roleplayers.map(rp => JSON.parse(JSON.stringify(rp)))
-
+		console.log("this.amendedPolicy", this.amendedPolicy)
+		console.log(this.livesToAmend)
 		if (this.amendedPolicy?.canReinstate) {
 			this.canReinstate = true;
 			this.showAmendActionInfoDialog = true
