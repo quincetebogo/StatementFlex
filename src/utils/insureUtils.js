@@ -128,11 +128,11 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
 				coverDetails.ageMessage = ageMessage;
 
-				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
-				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
+				coverDetails.maxCoverAmount = currentRole.ageRange[1].maxCoverAmount;
+				coverDetails.minCoverAmount = currentRole.ageRange[1].minCoverAmount;
 
-				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
-				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
+				coverDetails.maxCoverMessage = currentRole.ageRange[1].coverAmountMessage;
+				coverDetails.minCoverMessage = currentRole.ageRange[1].coverAmountMinMessage;
 
 			}
 
