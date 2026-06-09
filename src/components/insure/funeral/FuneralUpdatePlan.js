@@ -515,7 +515,7 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.disableDoB = true;
 						}
 					}
-					this.financialChanges = true
+					this.policyDetails.isFinancialChanges = true
 				}
 			});
 		}
@@ -550,6 +550,7 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.titleErrorMessageLA = ``;
 						}
 					}
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 		}
@@ -574,6 +575,7 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.genderErrorMessageLA = ``;
 						}
 					}
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 		}
@@ -597,7 +599,7 @@ class FuneralUpdatePlan extends Component {
 					} else {
 						rolePlayer.coverDetails.firstNameErrorMessage = ``;
 					}
-
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 		}
@@ -622,7 +624,7 @@ class FuneralUpdatePlan extends Component {
 					} else {
 						rolePlayer.coverDetails.surnameErrorMessage = ``;
 					}
-
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 		}
@@ -640,6 +642,8 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].middleName = event.detail.new;
+
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 		}
@@ -708,10 +712,11 @@ class FuneralUpdatePlan extends Component {
 					} else {
 						rolePlayer.coverDetails.idNumberErrorMessage = `ID Number not valid`;
 					}
-
+					this.policyDetails.isFinancialChanges = true
 				}
 			});
 		}
+
 		this.requestUpdate();
 	}
 
@@ -738,6 +743,7 @@ class FuneralUpdatePlan extends Component {
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.cellphoneNumberErrorMessage = ``;
 					}
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 			this.requestUpdate();
@@ -766,6 +772,7 @@ class FuneralUpdatePlan extends Component {
 					} else {
 						this.policyDetails.roleplayers[index].coverDetails.emailAddressErrorMessage = ``;
 					}
+					this.policyDetails.isNonFinancialChanges = true
 				}
 			});
 			this.requestUpdate();
@@ -812,7 +819,7 @@ class FuneralUpdatePlan extends Component {
 						ele.coverDetails.benefitPayoutErrorMessage = `Minimum benefit payout of R1000 per beneficiary`;
 					}
 				});
-
+				this.policyDetails.isNonFinancialChanges = true
 
 			}
 
@@ -1674,6 +1681,7 @@ class FuneralUpdatePlan extends Component {
 					}
 
 					rolePlayer.idNumber = ``;
+					this.policyDetails.isFinancialChanges = true
 				}
 			});
 		}
@@ -1773,10 +1781,6 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_navigateToAmend() {
-
-		if (this.financialChanges) {
-			this.policyDetails.isFinancialChanges = true
-		}
 		this.dispatchEvent(new CustomEvent(`navigate-to-amend-relationship`, {
 			detail: {
 				policyDetails: this.policyDetails
