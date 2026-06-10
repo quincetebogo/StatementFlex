@@ -1213,11 +1213,11 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		let isValid = false
-		if (!this.policyDetails?.isNonFinancialChanges) {
+		if (!this.nonFinancialChanges) {
 			isValid = await this._calculatePremium();
 		}
 
-		if (isValid || this.policyDetails?.isNonFinancialChanges) {
+		if (isValid || this.nonFinancialChanges) {
 			this.prepareUpdateResponse = await this.updatePlanPrepare(this.policyDetails);
 			if (this.prepareUpdateResponse === undefined) {
 				return;
@@ -2113,7 +2113,7 @@ class FuneralUpdatePlan extends Component {
 			<capitec-spacer></capitec-spacer>
 			${this.selectedTabIndex === 0 && !this.isInsureCollector ? html`
 					<capitec-button label="Calculate" type="white" class="capitec-button-medium"
-						.disabled="${this.policyDetails?.isNonFinancialChanges}"
+						.disabled="${this.nonFinancialChanges}"
 						@click="${() => this._calculatePremium()}">
 					</capitec-button>
 					` : html``}
@@ -2200,7 +2200,7 @@ class FuneralUpdatePlan extends Component {
 							<capitec-label label="Lives Assured" type="strong" class="stronger">
 							</capitec-label>`
 				: ``}
-					${!this.isInsureCollector && !this.policyDetails?.isNonFinancialChanges ? html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
+					${!this.isInsureCollector && !this.nonFinancialChanges ? html`<capitec-label label="Add Life Assured" type="subtitle" class="stronger link"
 						@click="${() => this._openAddLifeDialog()}">
 					</capitec-label>` : ``}
 						
@@ -2211,7 +2211,7 @@ class FuneralUpdatePlan extends Component {
 					roleplayer.lifeAssured === true)
 					? html`
 					
-					${!this.isInsureCollector && !this.policyDetails?.isNonFinancialChanges ? html`
+					${!this.isInsureCollector && !this.nonFinancialChanges ? html`
 						<capitec-label label="Remove" @click="${() => this._openRemoveLifeAssuredDialog(roleplayer, index)}" type="subtitle"
 						class="stronger link" style="position: relative; width: fit-content; left: 613px; top: 43px;">
 					</capitec-label>` : ``}
