@@ -1038,7 +1038,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
-			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
+			"roleplayers": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
 			"collectionDetails": policyToUpdate.deductionDetails,
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
