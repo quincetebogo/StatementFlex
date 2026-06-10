@@ -466,11 +466,13 @@ class FuneralUpdatePlan extends Component {
 				if (rolePlayer.rowID === rowID && rolePlayer.amendDetails?.hasInvalidRelationship) {
 					if (this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount < event.detail.new) {
 						this.showDiscontinuedRelationshipDialog = true;
+						this.policyDetails.roleplayers[index].coverAmount = this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
 						invalidChange = true
 						return;
 					}
 				}
+				//add val for if overage
 			})
 		}
 
@@ -483,6 +485,9 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
+					if (Number(event.detail.new) >= Number(this.policyDetails.roleplayers[index].coverDetails.minCoverAmount)) {
+						this.policyDetails.isFinancialChanges = true
+					}
 					if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverAmount)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = ``;
 					}
@@ -490,7 +495,6 @@ class FuneralUpdatePlan extends Component {
 					if (rolePlayer.dateOfBirth !== undefined) {
 						age = getAgeFromDob(rolePlayer.dateOfBirth);
 					}
-
 					// Cover Details
 					this.policyDetails.roleplayers[index].coverDetails = refreshRelationshipCoverDetails(
 						this.policyDetails.roleplayers[index].relationship,
@@ -501,7 +505,6 @@ class FuneralUpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
-
 					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
@@ -515,7 +518,9 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.disableDoB = true;
 						}
 					}
-					this.policyDetails.isFinancialChanges = true
+					if (this.policyDetails.roleplayers[index].coverAmount === this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount) {
+						this.policyDetails.isFinancialChanges = false
+					}
 				}
 			});
 		}
