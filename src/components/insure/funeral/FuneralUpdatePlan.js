@@ -1768,7 +1768,7 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_setRelationshipColor(life) {
-		if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.amendDetails?.riskAccepted) {
+		if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.nonInsurableAcknowledged) {
 			return `color: #d1821a;`
 		} else if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
 			return `color: #c24242;`
@@ -1778,7 +1778,7 @@ class FuneralUpdatePlan extends Component {
 	_setLifeLabelColour(life) {
 		if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
 			return `fixed-label-secondary-warning-red`
-		} else if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.amendDetails?.riskAccepted) {
+		} else if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.nonInsurableAcknowledged) {
 			return `fixed-label-secondary-warning`
 		} else {
 			return `fixed-label-secondary`
@@ -2213,7 +2213,7 @@ class FuneralUpdatePlan extends Component {
 			
 					<!-- Lifes Assured list -->
 					${this.policyDetails.roleplayers.map((roleplayer, index) => html` ${(roleplayer.relationship !== `MainLife` &&
-					roleplayer.lifeAssured === true)
+					roleplayer.lifeAssured === true && !roleplayer.nonInsurableRemoval)
 					? html`
 					
 					${!this.isInsureCollector && !this.nonFinancialChanges ? html`
@@ -2265,7 +2265,7 @@ class FuneralUpdatePlan extends Component {
 					<hr>
 		
 					<!-- life list -->
-					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true).map(lifeAssured => html`
+					${this.policyDetails.roleplayers.filter(ele => ele.lifeAssured === true && !ele.nonInsurableRemoval).map(lifeAssured => html`
 						<div class="calc-life-list">
 							<capitec-label style="${this._setRelationshipColor(lifeAssured)}" label="${this._determineRelationshipDisplay(lifeAssured)}">
 							</capitec-label>

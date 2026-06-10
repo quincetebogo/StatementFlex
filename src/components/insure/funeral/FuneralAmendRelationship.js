@@ -48,7 +48,6 @@ class FuneralAmendRelationship extends Component {
 
 		this.canReinstate = false;
 
-		this.livesToBeRemoved = []
 
 	}
 
@@ -69,7 +68,6 @@ class FuneralAmendRelationship extends Component {
 			currentTotalParent: { type: Number, state: true },
 			currentTotalExtendedFamily: { type: Number, state: true },
 			livesToAmend: { type: Array, state: true },
-			livesToBeRemoved: { type: Array, state: true },
 			showAmendRelationshipDialog: { type: Boolean, state: true },
 			showAmendActionInfoDialog: { type: Boolean, state: true },
 			showConfirmAcceptRisk: { type: Boolean, state: true },
@@ -134,8 +132,8 @@ class FuneralAmendRelationship extends Component {
 			if (Object.keys(OLD_RELATIONSHIPS).includes(life.relationship.toUpperCase()) && life.lifeAssured === true) {
 				life.amendDetails.previousRelationship = "";
 				life.amendDetails.relationshipMessage = "";
-				life.amendDetails.removeFromInception = false;
-				life.amendDetails.riskAccepted = false;
+				life.nonInsurableRemoval = false;
+				life.nonInsurableAcknowledged = false;
 				life.amendDetails.toFix = true;
 				life.amendDetails.amended = false;
 				life.amendDetails.showAcceptRisk = false;
@@ -269,8 +267,12 @@ class FuneralAmendRelationship extends Component {
 
 	_removeLifeFromInception() {
 		//TODO: pop dialog to confirm removal
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = true;
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = true;
+
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
+
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+
+
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 		this.financialChange = true;
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
@@ -286,8 +288,7 @@ class FuneralAmendRelationship extends Component {
 		}
 
 		this.showConfirmRemoveLife = false
-		this.livesToBeRemoved.push(this.livesToAmend[this.selectedRoleplayer])
-		console.log("lives to be removed: ", this.livesToBeRemoved)
+
 		console.log("Lives to amend", this.livesToAmend)
 		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 		this.requestUpdate()
@@ -295,8 +296,9 @@ class FuneralAmendRelationship extends Component {
 
 	_acceptRiskOnLife() {
 		//TODO: Pop dialog to accept risk
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = true;
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = false;
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 		this.financialChange = true;
 		if (this.livesToAmend[this.selectedRoleplayer].amendDetails?.previousRelationship?.length > 0) {
@@ -314,8 +316,8 @@ class FuneralAmendRelationship extends Component {
 
 		if (e.detail.relationship === `Unknown`) {
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = false;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = false;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = false;
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.showAcceptRisk = true
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.showRemoveLife = true
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = true
@@ -323,8 +325,8 @@ class FuneralAmendRelationship extends Component {
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.previousRelationship = this.livesToAmend[this.selectedRoleplayer].relationship;
 			this.livesToAmend[this.selectedRoleplayer].relationship = e.detail.relationship;
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.removeFromInception = false;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.riskAccepted = false;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = false;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = false;
 			this.financialChange = false;
 			this.nonFinancialChange = true;
 
@@ -380,57 +382,6 @@ class FuneralAmendRelationship extends Component {
 		this.showConfirmRemoveLife = true
 
 	}
-
-	_setNonInsurableDetails() {
-		let nonInsurableLives = []
-		this.livesToAmend.forEach((life, index) => {
-			if (life.amendDetails.removeFromInception || life.amendDetails.riskAccepted) {
-				nonInsurableLives.push({
-					nonInsurableRemoval: life.amendDetails.removeFromInception,
-					nonInsurableAcknowledged: life.amendDetails.riskAccepted,
-					recordID: life.recordID
-				})
-			}
-
-		})
-
-		for (let index = 0; index < this.livesToAmend.length; index++) {
-			for (let i = 0; i < nonInsurableLives.length; i++) {
-				if (this.livesToAmend[index].recordID === nonInsurableLives[i].recordID && this.livesToAmend[index]?.amendDetails?.removeFromInception && nonInsurableLives[i].nonInsurableRemoval) {
-					console.log("splicing...")
-					this.livesToAmend.splice(index, 1)
-				}
-			}
-			//reshuffle
-			for (let index = 0; index < this.livesToAmend.length; index++) {
-				this.livesToAmend[index].rowID = index;
-			}
-		}
-
-		if (!this.amendedPolicy.hasOwnProperty("nonInsurableRoleplayerDetails")) {
-			this.amendedPolicy.nonInsurableRoleplayerDetails = []
-		}
-
-		console.log("after setting non insurable lives")
-		console.log("this.livesToAmend: ", this.livesToAmend)
-		console.log("nonInsurableLives: ", nonInsurableLives)
-
-		for (let i = 0; i < nonInsurableLives.length; i++) {
-			for (let index = 0; index < this.amendedPolicy?.nonInsurableRoleplayerDetails.length; index++) {
-				if (this.amendedPolicy?.nonInsurableRoleplayerDetails[index]?.recordID === nonInsurableLives[i]?.recordID) {
-					this.amendedPolicy.nonInsurableRoleplayerDetails[index] = nonInsurableLives[i]
-					nonInsurableLives.splice(i, 1)
-				}
-			}
-			this.amendedPolicy.nonInsurableRoleplayerDetails.push(nonInsurableLives[i])
-		}
-
-		console.log("this.amendedPolicy", this.amendedPolicy)
-
-
-
-	}
-
 
 	// #endregion PRIVATE METHODS
 
@@ -747,13 +698,13 @@ class FuneralAmendRelationship extends Component {
 									value="Please Amend life">
 								</horizon-label>
 								` : html`
-								${lives.amendDetails?.removeFromInception ? html`
+								${lives.nonInsurableRemoval ? html`
 									<horizon-label 
 										label="Action"
 										value="Life to be removed">
 									</horizon-label>
 								`: html`
-									${lives.amendDetails?.riskAccepted && !lives.amendDetails?.removeFromInception ? html`
+									${lives.nonInsurableAcknowledged && !lives.nonInsurableRemoval ? html`
 										<horizon-label 
 											label="Action"
 											value="Risk accepted">
