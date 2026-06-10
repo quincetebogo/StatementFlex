@@ -472,18 +472,24 @@ class FuneralUpdatePlan extends Component {
 						return;
 					}
 				}
+				if (rolePlayer.rowID === rowID) {
+					console.log("getAgeFromDob(rolePlayer.dateOfBirth): ", getAgeFromDob(rolePlayer.dateOfBirth))
+					console.log("rolePlayer.coverDetails.maxAge: ", rolePlayer.coverDetails.maxAge)
+					console.log("if check: ", Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge)
 
+					if ((Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge) && (rolePlayer.amendDetails.initialCoverAmount < event.detail.new)) {
+						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
+						invalidChange = true
+						return;
+					}
+				}
 			})
 			//for when life comes in that is already overage
-			if (getAgeFromDob(rolePlayer.dateOfBirth) > rolePlayer.coverDetails.maxAge) {
-				this.policyDetails.roleplayers[index].coverAmount = this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount
-				this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
-				invalidChange = true
-				return;
-			}
+
 		}
 
 		if (invalidChange) {
+			this.requestUpdate();
 			return
 		}
 
@@ -1764,6 +1770,7 @@ class FuneralUpdatePlan extends Component {
 		if (!lifeAssured?.amendDetails) {
 			lifeAssured.amendDetails = {}
 			lifeAssured.amendDetails.hasInvalidRelationship = false
+			lifeAssured.amendDetails.initialCoverAmount = lifeAssured.coverAmount
 
 			if (Object.keys(OLD_RELATIONSHIPS).includes(lifeAssured.relationship.toUpperCase()) && lifeAssured.lifeAssured === true) {
 				lifeAssured.amendDetails.hasInvalidRelationship = true
