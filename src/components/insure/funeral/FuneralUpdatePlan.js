@@ -472,11 +472,8 @@ class FuneralUpdatePlan extends Component {
 						return;
 					}
 				}
+				//for when life comes in that is already overage
 				if (rolePlayer.rowID === rowID) {
-					console.log("getAgeFromDob(rolePlayer.dateOfBirth): ", getAgeFromDob(rolePlayer.dateOfBirth))
-					console.log("rolePlayer.coverDetails.maxAge: ", rolePlayer.coverDetails.maxAge)
-					console.log("if check: ", Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge)
-
 					if ((Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge) && (rolePlayer.amendDetails.initialCoverAmount < event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
 						invalidChange = true
@@ -484,8 +481,6 @@ class FuneralUpdatePlan extends Component {
 					}
 				}
 			})
-			//for when life comes in that is already overage
-
 		}
 
 		if (invalidChange) {
