@@ -1,4 +1,4 @@
-import { Component, css, html } from 'platform/elements'; 
+import { Component, css, html } from 'platform/elements';
 
 
 /**
@@ -14,16 +14,16 @@ import { Component, css, html } from 'platform/elements';
  * @extends {Component}
  */
 const CONSENT_CATEGORIES = [
-  { key: 'REWARDS',label: 'Rewards and benefits',description: 'Get discounts, special offers and Live Better rewards.'},
-  { key: 'SAVE', label: 'Money tips', description: 'Learn simple ways to manage and grow your money.'},
-  { key: 'AIRTIME', label: 'Affordable data and devices', description: 'Deals on data, airtime and devices to help you stay connected.'},
-  { key: 'CREDIT', label: 'Credit when I need it', description: 'Personalised credit offers for your needs.' },
-  { key: 'SPENDING', label: 'Hassle-free payments and renewals', description: 'Send money, buy airtime, pay bills and renew license discs.' },
-  { key: 'INSURE', label: 'Cover and protection', description: 'Cover options for your personal and business needs.' },
-  { key: 'LOTTO', label: 'LOTTO and Powerball', description: 'How-to-play tips and reminders so you never miss a draw.' },
-  { key: 'MONEY', label: 'Smarter ways to get things done', description: 'New features and tools that make everyday banking easier.' },
-  { key: 'BUSINESS', label: 'Support for business goals', description: 'Solutions to help you start, grow and run your business.' },
-  { key: 'NEWS', label: 'Our performance and news', description: 'Updates on results, leadership and how we’re evolving.' }
+	{ key: 'REWARDS', label: 'Rewards and benefits', description: 'Get discounts, special offers and Live Better rewards.' },
+	{ key: 'SAVE', label: 'Money tips', description: 'Learn simple ways to manage and grow your money.' },
+	{ key: 'AIRTIME', label: 'Affordable data and devices', description: 'Deals on data, airtime and devices to help you stay connected.' },
+	{ key: 'CREDIT', label: 'Finance when you need it', description: 'Financial flexibility to act on what matters.' },
+	{ key: 'SPENDING', label: 'Hassle-free payments and renewals', description: 'Send money, buy airtime, pay bills and renew license discs.' },
+	{ key: 'INSURE', label: 'Cover and protection', description: 'Cover options for your personal and business needs.' },
+	{ key: 'LOTTO', label: 'LOTTO and Powerball', description: 'How-to-play tips and reminders so you never miss a draw.' },
+	{ key: 'MONEY', label: 'Smarter ways to get things done', description: 'New features and tools that make everyday banking easier.' },
+	{ key: 'BUSINESS', label: 'Support for business goals', description: 'Solutions to help you start, grow and run your business.' },
+	{ key: 'NEWS', label: 'Our performance and news', description: 'Updates on results, leadership and how we’re evolving.' }
 ];
 
 export class ValueAddedServices extends Component {
@@ -43,7 +43,7 @@ export class ValueAddedServices extends Component {
 		this.selectAllConsent = false;
 	}
 
-	
+
 	// --------------
 	// PROPERTIES
 	// -----------
@@ -55,28 +55,28 @@ export class ValueAddedServices extends Component {
 	 * @static
 	 * @memberof AddCallerDetails
 	 */
-	 static get properties() {
+	static get properties() {
 		return {
 			statusVAS: { type: Object },
-			statusInterestConsent: {type: Object},
+			statusInterestConsent: { type: Object },
 			updateValueAddedServicesCallback: { type: Object },
-			updateClientInterestConsentCallback: {type: Object },
-			cifnumber: {type : String },
+			updateClientInterestConsentCallback: { type: Object },
+			cifnumber: { type: String },
 			alertBannerMessage: { state: true },
 			optOutBehaviouralMarketing: { state: true },
 			marketingInterestConsent: { state: true },
 			selectAllConsent: { state: true },
 		};
 	}
-	
-	
+
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
 		this.optOutBehaviouralMarketing = this.statusVAS.marketing;
 		this.cifnumber = this.statusVAS.cifNumber;
@@ -118,7 +118,7 @@ export class ValueAddedServices extends Component {
 
 	_toggleValue(e, value) {
 		this.alertBannerMessage = ``;
-		
+
 		const behavioural = () => this._behavioralStatusChanged(value);
 
 		const toggleSwitched = {
@@ -143,13 +143,13 @@ export class ValueAddedServices extends Component {
 
 		const clientInterestConsent = {
 			cifNumber: this.cifnumber,
-			optInConsentInterestPreferences : {
+			optInConsentInterestPreferences: {
 				marketing: this.marketingInterestConsent
 			}
 		};
 
-		if(await this.updateClientInterestConsentCallback(clientInterestConsent)){
-			this.dispatchEvent(new CustomEvent('accept', {detail: {clientInterestConsent: clientInterestConsent}}));
+		if (await this.updateClientInterestConsentCallback(clientInterestConsent)) {
+			this.dispatchEvent(new CustomEvent('accept', { detail: { clientInterestConsent: clientInterestConsent } }));
 		}
 
 		if (await this.updateValueAddedServicesCallback(valueAddedServices)) {
@@ -300,7 +300,7 @@ export class ValueAddedServices extends Component {
 		];
 	}
 
-	
+
 	_mobileTemplate() {
 		return _webTemplate();
 	}
@@ -366,12 +366,12 @@ export class ValueAddedServices extends Component {
 		`;
 	}
 
-_renderConsentOption(type, categoryKey, label, description) {
-    const consentSource = this.marketingInterestConsent;
+	_renderConsentOption(type, categoryKey, label, description) {
+		const consentSource = this.marketingInterestConsent;
 
-    const isChecked = consentSource[categoryKey] === true;
+		const isChecked = consentSource[categoryKey] === true;
 
-    return html`
+		return html`
         <capitec-group gap="none">
 			<capitec-title-bar>
             <capitec-group layout="horizontal">
@@ -396,18 +396,18 @@ _renderConsentOption(type, categoryKey, label, description) {
             </capitec-group>
         </capitec-group>
     `;
-}
+	}
 
 	_updateConsent(type, categoryKey, newValue) {
-			if (type === 'marketing') {
-				// Create a new object to ensure Lit detects the change
-				this.marketingInterestConsent = {
-					...this.marketingInterestConsent,
-					[categoryKey]: newValue
-				};
-			}
-			// This tells the component to re-render with the new "Yes/No" selection
-			this.requestUpdate();
+		if (type === 'marketing') {
+			// Create a new object to ensure Lit detects the change
+			this.marketingInterestConsent = {
+				...this.marketingInterestConsent,
+				[categoryKey]: newValue
+			};
+		}
+		// This tells the component to re-render with the new "Yes/No" selection
+		this.requestUpdate();
 	}
 
 	_toggleSelectAll(value) {
@@ -468,15 +468,15 @@ _renderConsentOption(type, categoryKey, label, description) {
 
 	_renderBehavioralAlert() {
 		return !this.optOutBehaviouralMarketing
-		? html`
+			? html`
 			<horizon-alert-banner 
 				data-automation-id="value-added-services-behavioral-alert-banner"
 				type="warning"
 				label="Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.">
 			</horizon-alert-banner>`
-		: html``;
+			: html``;
 	}
-	
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
