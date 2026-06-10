@@ -472,10 +472,16 @@ class FuneralUpdatePlan extends Component {
 						return;
 					}
 				}
-				//add val for if overage
-			})
-		}
 
+			})
+			//for when life comes in that is already overage
+			if (getAgeFromDob(rolePlayer.dateOfBirth) > rolePlayer.coverDetails.maxAge) {
+				this.policyDetails.roleplayers[index].coverAmount = this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount
+				this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
+				invalidChange = true
+				return;
+			}
+		}
 
 		if (invalidChange) {
 			return
