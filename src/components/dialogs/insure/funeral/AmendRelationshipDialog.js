@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
+import { livesPerPolicy, refreshRelationshipCoverDetails, getAgeFromDob } from 'app/utils/insureUtils';
 import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
 
 const MAX_LIVES_PER_POLICY = 22;
@@ -51,6 +51,7 @@ class AmendRelationshipDialog extends Component {
 	static get properties() {
 		return {
 			currentLifesAssured: { type: Array, state: true },
+			selectedLife: { type: Number, state: true },
 			productParams: { type: Object, state: true },
 			showExtendedList: { type: Boolean, state: true }
 		};

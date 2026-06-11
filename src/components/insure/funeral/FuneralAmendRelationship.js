@@ -797,6 +797,7 @@ class FuneralAmendRelationship extends Component {
 			: html`
 			<horizon-insure-amend-relationship-dialog 
 				.currentLifesAssured="${this.livesToAmend}" 
+				.selectedLife="${this.selectedRoleplayer}"
 				.productParams="${this.productParams}"
 				.financialChange="${this.financialChange}"
 				.nonFinancialChange="${this.nonFinancialChange}"
