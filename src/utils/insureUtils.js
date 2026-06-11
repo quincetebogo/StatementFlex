@@ -245,6 +245,31 @@ export function livesPerPolicy(relationship, productParams) {
 }
 
 /**
+ * Find minAge for supplied relationship
+ *
+ * @export
+ * @param {string} relationship Current Relationship
+ * @returns {Number} per policy limit
+ */
+export function getRelationshipMinAge(relationship, productParams) {
+	const product = productParams.products.find(item => item.parameters.id === PRODUCT_ID);
+	const currentRole = product.parameters.rolePlayers.roleList.role.find(role => role.relationshipTypeEnum === relationship);
+
+	let minAge = 0
+	if (relationship === `Spouse`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else if (relationship === `Parent`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else if (relationship === `Child`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else {
+		minAge = currentRole.ageRange[0].minAge
+	}
+
+	return minAge
+}
+
+/**
  * Check the Policy rules for the Life based on the ruleType
  *
  * @export

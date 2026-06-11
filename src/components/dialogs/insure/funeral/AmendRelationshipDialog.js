@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { livesPerPolicy, refreshRelationshipCoverDetails, getAgeFromDob } from 'app/utils/insureUtils';
+import { livesPerPolicy, refreshRelationshipCoverDetails, getAgeFromDob, getRelationshipMinAge } from 'app/utils/insureUtils';
 import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
 
 const MAX_LIVES_PER_POLICY = 22;
@@ -143,6 +143,17 @@ class AmendRelationshipDialog extends Component {
 		this.selectedRelationship = ``;
 	}
 
+	_validAgeCheck(selectedRelationship, params) {
+		let minAge = getRelationshipMinAge(selectedRelationship, params)
+		let lifeAge = getAgeFromDob(this.currentLifesAssured[this.selectedLife].dateOfBirth)
+		if (Number(lifeAge) < minAge) {
+			return true
+		} else {
+			return false
+		}
+
+	}
+
 
 	// #endregion EVENT HANDLERS
 
@@ -236,27 +247,27 @@ class AmendRelationshipDialog extends Component {
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Spouse" id="Spouse" 
-					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
+					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Spouse`, this.productParams)}" 
 					hint="The person you are married to. Up to ${livesPerPolicy(`Spouse`, this.productParams)} allowed between the ages of 18 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Child" id="Child" 
-					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
+					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Child`, this.productParams)}" 
 					hint="Your/Your spouse’s biological child, legally adopted child, stepchild, son/daughter-in-law or where you/your spouse are the child’s legal guardian. Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 50 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Parent" id="Parent" 
-					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
+					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Parent`, this.productParams)}" 
 					hint="Your/Your spouse’s biological parents, parents-in-law, legal guardian if you are adopted and stepparents. Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Extended Family"  id="ExtendedFamily"
-					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange}" 
+					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`ExtendedFamily`, this.productParams)}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._showExtendedFamilyList(e)}">
 				</capitec-radio>
