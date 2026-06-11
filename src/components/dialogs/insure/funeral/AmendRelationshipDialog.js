@@ -53,7 +53,8 @@ class AmendRelationshipDialog extends Component {
 			currentLifesAssured: { type: Array, state: true },
 			selectedLife: { type: Number, state: true },
 			productParams: { type: Object, state: true },
-			showExtendedList: { type: Boolean, state: true }
+			showExtendedList: { type: Boolean, state: true },
+			canReinstate: { type: Boolean, state: true }
 		};
 	}
 
@@ -261,7 +262,7 @@ class AmendRelationshipDialog extends Component {
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="None of the Above" id="Unknown" .disabled="${this.nonFinancialChange}"
+				<capitec-radio label="None of the Above" id="Unknown" .disabled="${this.nonFinancialChange && !this.canReinstate}"
 					hint="Life does not match any of the provided relationship types"
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>

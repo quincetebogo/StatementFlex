@@ -266,25 +266,31 @@ class FuneralAmendRelationship extends Component {
 
 
 	_removeLifeFromInception() {
-		//TODO: pop dialog to confirm removal
 
-		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
+		if (this.canReinstate) {
+			if (this.livesToAmend[this.selectedRoleplayer].beneficiary === false) {
+				this.livesToAmend.splice(this.selectedRoleplayer, 1);
+				for (let index = 0; index < this.livesToAmend.length; index++) {
+					this.livesToAmend[index].rowID = index;
+				}
+			} else {
+				this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
+				this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
+				this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
+			}
+		} else {
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+			this.financialChange = true;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
+			//if also a beneficiary
+			if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
+				this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
+				this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
+				this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
+			}
 
-		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
-
-
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
-		this.financialChange = true;
-		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
-
-		//if also a beneficiary
-		if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
-
-			this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
-
-			this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
-			this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
-			console.log("removed as life assured, kept as beneficiary:", this.livesToAmend[this.selectedRoleplayer])
 		}
 
 		this.showConfirmRemoveLife = false
@@ -295,7 +301,6 @@ class FuneralAmendRelationship extends Component {
 	}
 
 	_acceptRiskOnLife() {
-		//TODO: Pop dialog to accept risk
 		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = false;
 		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
 
@@ -311,7 +316,6 @@ class FuneralAmendRelationship extends Component {
 	}
 
 	_updateRelationship(e) {
-		//TODO: set new selected relationship
 		this.showAmendRelationshipDialog = false;
 
 		if (e.detail.relationship === `Unknown`) {
@@ -327,8 +331,11 @@ class FuneralAmendRelationship extends Component {
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = false;
 			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = false;
-			this.financialChange = false;
-			this.nonFinancialChange = true;
+			if (!this.canReinstate) {
+				this.financialChange = false;
+				this.nonFinancialChange = true;
+			}
+
 
 		}
 		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
@@ -363,6 +370,9 @@ class FuneralAmendRelationship extends Component {
 		let disable = true;
 		if (lives.amendDetails?.showAcceptRisk) {
 			disable = false
+		}
+		if (this.canReinstate) {
+			disable = true
 		}
 		return disable
 	}
@@ -414,7 +424,6 @@ class FuneralAmendRelationship extends Component {
 		console.log("isFinancial?: ", this.financialChange)
 		if (this.financialChange) {
 			this.amendedPolicy.isFinancialChanges = true
-			this._setNonInsurableDetails()
 		}
 
 		if (this.nonFinancialChange) {
@@ -438,11 +447,10 @@ class FuneralAmendRelationship extends Component {
 		let allAmended = true;
 
 		this.livesToAmend.forEach((life) => {
-			if (life.amendDetails.amended = false) {
+			if (life.amendDetails.amended === false) {
 				allAmended = false;
 			}
 		})
-
 		return !allAmended
 	}
 	// #endregion EVENT HANDLERS
@@ -798,6 +806,7 @@ class FuneralAmendRelationship extends Component {
 			<horizon-insure-amend-relationship-dialog 
 				.currentLifesAssured="${this.livesToAmend}" 
 				.selectedLife="${this.selectedRoleplayer}"
+				.canReinstate="${this.canReinstate}"
 				.productParams="${this.productParams}"
 				.financialChange="${this.financialChange}"
 				.nonFinancialChange="${this.nonFinancialChange}"
