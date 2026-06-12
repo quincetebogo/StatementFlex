@@ -246,34 +246,34 @@ class AmendRelationshipDialog extends Component {
 
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Spouse" id="Spouse" 
+				<capitec-radio label="Spouse" id="Spouse" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.currentTotalSpouse >= livesPerPolicy(`Spouse`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Spouse`, this.productParams)}" 
-					hint="The person you are married to. Up to ${livesPerPolicy(`Spouse`, this.productParams)} allowed between the ages of 18 - 85 years."
+					hint="Your legal husband, wife or life partner. Up to ${livesPerPolicy(`Spouse`, this.productParams)} allowed between the ages of 18 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}"></capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Child" id="Child" 
+				<capitec-radio label="Child" id="Child" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.currentTotalChild >= livesPerPolicy(`Child`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Child`, this.productParams)}" 
-					hint="Your/Your spouse’s biological child, legally adopted child, stepchild, son/daughter-in-law or where you/your spouse are the child’s legal guardian. Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 50 and younger." 
+					hint="Your children or your spouse’s children. Including your son-in-law and daughter-in-law. Up to ${livesPerPolicy(`Child`, this.productParams)} allowed for ages 50 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent" id="Parent" 
+				<capitec-radio label="Parent" id="Parent" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`Parent`, this.productParams)}" 
-					hint="Your/Your spouse’s biological parents, parents-in-law, legal guardian if you are adopted and stepparents. Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
+					hint="Your parents or your spouse’s parents. Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Extended Family"  id="ExtendedFamily"
+				<capitec-radio label="Extended Family"  id="ExtendedFamily" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.currentTotalExtendedFamily >= livesPerPolicy(`ExtendedFamily`, this.productParams) || currentLifeAssuredLength === MAX_LIVES_PER_POLICY || this.financialChange || this._validAgeCheck(`ExtendedFamily`, this.productParams)}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._showExtendedFamilyList(e)}">
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="None of the Above" id="Unknown" .disabled="${this.nonFinancialChange && !this.canReinstate}"
+				<capitec-radio label="None of the Above" id="Unknown" .disabled="${this.nonFinancialChange && !this.canReinstate}" style="--theme-input-hint-label-font-color: black;"
 					hint="Life does not match any of the provided relationship types"
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
@@ -290,74 +290,74 @@ class AmendRelationshipDialog extends Component {
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Aunt/ Uncle" id="AuntUncle" 
-					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="The sister/brother of your/your spouse's father or mother, or your aunt’s/uncle’s spouse. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
+					.disabled="${this.ruleTotalExtendedFamily >= 8}" style="--theme-input-hint-label-font-color: black;"
+					hint="Your parent's sister or brother and their spouses. Includes your spouse's aunt/uncle. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 
 			<capitec-card class="relationship-card">
 				<capitec-radio label="First Cousin" id="Firstcousin" 
-					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="The child of your/your spouse’s aunt/uncle. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
+					.disabled="${this.ruleTotalExtendedFamily >= 8}" style="--theme-input-hint-label-font-color: black;"
+					hint="First cousin is the child of your aunt or uncle. Includes your spouse's first cousin (must share a grandparent). Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
 				<capitec-radio label="First Cousin's Child" id="Cousinschild"
-					 .disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="The child of your/your spouse’s first cousin. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
+					 .disabled="${this.ruleTotalExtendedFamily >= 8}" style="--theme-input-hint-label-font-color: black;"
+					hint="The child of your first cousin. Including your spouse’s first cousin’s child. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Grandchild" id="Grandchild" 
+				<capitec-radio label="Grandchild" id="Grandchild" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="Your/your spouse’s child’s child. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
+					hint="Your child’s child. Including your spouse’s grandchild. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Grandparent" id="Grandparent" 
+				<capitec-radio label="Grandparent" id="Grandparent" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="Your/your spouse’s parent’s parent. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
+					hint="Your parent’s parent. Including your spouse’s grandparent. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Nephew/ Niece" id="NephewNiece" 
+				<capitec-radio label="Nephew/ Niece" id="NephewNiece" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="The male/female child of your/your spouse’s brother or sister. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
+					hint="The child of your brother or sister. Including your spouse’s nephew or niece. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Sibling" id="Sibling" 
-					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="Your/your spouse’s parent’s male or female child. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
+					.disabled="${this.ruleTotalExtendedFamily >= 8}" style="--theme-input-hint-label-font-color: black;"
+					hint="Your brother or sister. You need to share at least one parent. This includes your spouse’s sibling and your sibling’s spouse. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Great Grandparent" id="Greatgrandparent"
-					 
+					 style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="Your/your spouse’s parent’s grandparent. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
+					hint="Your grandparent’s parent. Including your spouse’s great-grandparent. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
 				<capitec-radio label="Great Grandchild" id="Greatgrandchild"
-					 
+					 style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="The child of your/your spouse’s grandchild. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
+					hint="Your great-grandchildren. Including your spouse’s great-grandchild. Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._relationshipSelect(e)}">
 				</capitec-radio>
 			</capitec-card>
