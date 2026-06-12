@@ -34,6 +34,7 @@ class AmendRelationshipDialog extends Component {
 		this.showExtendedList = false;
 		this.financialChange = false;
 		this.nonFinancialChange = false;
+		this.invalidRelMessage = ``
 	}
 
 	// #endregion INITIALIZE
@@ -86,6 +87,25 @@ class AmendRelationshipDialog extends Component {
 		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === `Parent` && life.lifeAssured === true).length;
 		this.currentTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent` && life.lifeAssured === true).length;
 		this.selectedRelationship = ``;
+
+		this._determineCurrentRelationship()
+	}
+
+	_determineCurrentRelationship() {
+		let currentRel = this.currentLifesAssured[this.selectedLife].relationship
+
+		if (currentRel === `ExtendedFamily`) {
+			this.invalidRelMessage = `Extended Family category is no longer applicable, we have removed this category, please select the correct relationship type.`
+		} else if (currentRel === `ExtendedSpouse`) {
+			this.invalidRelMessage = `Spouse Extended category is no longer applicable, we have simplified this to Spouse. If this person is your Husband, Wife or Life Partner, please confirm below, otherwise select the correct relationship type.`
+		} else if (currentRel === `ExtendedParent`) {
+			this.invalidRelMessage = `Parent Extended category is no longer applicable, we have simplified this to Parent. If this person is your Parent, Parent-in-law, Step-Parent or legal Gaurdian, please confirm below, otherwise select the correct relationship type.`
+		} else if (currentRel === `ExtendedChild`) {
+			this.invalidRelMessage = `Child Extended category is no longer applicable, we have simplified this to Child. If this person is your child, adopted child, step child or son/daughter in-law, please confirm below, otherwise select the correct relationship type.`
+		} else if (currentRel === `ParentInLaw`) {
+			this.invalidRelMessage = `Parent In Law category is no longer applicable, we have simplified this to Parent. If this person is your Parent, Parent-in-law, Step-Parent or legal Gaurdian, please confirm below, otherwise select the correct relationship type`
+		}
+
 	}
 
 	// #endregion PRIVATE METHODS
@@ -176,7 +196,7 @@ class AmendRelationshipDialog extends Component {
 				}
 				
 				#dialog-body{
-					height: 450px;
+					height: 485px;
 					padding: 0px;
 				}
 
@@ -243,6 +263,9 @@ class AmendRelationshipDialog extends Component {
 		const currentLifeAssuredLength = this.currentLifesAssured.filter((life) => life.lifeAssured === true).length;
 
 		return html`
+
+		<capitec-label label="${this.invalidRelMessage}" type="strong"></capitec-label>
+		
 
 		<capitec-radio-group>
 			<capitec-card class="relationship-card">
