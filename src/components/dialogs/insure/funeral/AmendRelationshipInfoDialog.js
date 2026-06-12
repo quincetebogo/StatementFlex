@@ -20,6 +20,14 @@ export class AmendRelationshipInfoDialog extends Component {
 
 	constructor() {
 		super();
+
+
+	}
+
+	static get properties() {
+		return {
+			amendBannerSelected: { type: Boolean, state: true }
+		}
 	}
 
 	// #endregion INITIALIZE
@@ -92,10 +100,19 @@ export class AmendRelationshipInfoDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>Relationship update required for cover increases</strong>
-		<p>
-		We have simplified the relationship types on our Funeral Cover Plan. You have covered lives on your policy that fall into these categories. You must please update these relationships if you want to increase the cover on this life assured.
-		</p>
+		${this.amendBannerSelected ? html`
+			<strong>Relationship update required for cover increases</strong>
+			<p>
+			We have simplified the relationship types on our Funeral Cover Plan. You have covered lives on your policy that fall into these categories. You must please update these relationships if you want to increase the cover on these lives assured.
+			</p>
+			`
+				: html`
+			<strong>Cover increases are not allowed on this life, as this relationship type is no longer valid.</strong>
+			<p>
+			We have simplified the relationship types on our Funeral Cover Plan. You have covered lives on your policy that fall into these categories. You must please update these relationships if you want to increase the cover on this life assured.
+			</p>
+			`}
+		
 		`;
 	}
 

@@ -119,6 +119,7 @@ class FuneralUpdatePlan extends Component {
 
 		this.financialChanges = false;
 		this.nonFinancialChanges = false;
+		this.amendBannerSelected = false
 
 		// Auto accept disclosures for Collector role
 		if (this.isInsureCollector) {
@@ -222,6 +223,7 @@ class FuneralUpdatePlan extends Component {
 
 			financialChanges: { type: Boolean, state: true },
 			nonFinancialChanges: { type: Boolean, state: true },
+			amendBannerSelected: { type: Boolean, state: true },
 
 			accountTypeErrorMsg: { type: String, state: true }
 		};
@@ -465,6 +467,7 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID && rolePlayer.amendDetails?.hasInvalidRelationship) {
 					if (this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount < event.detail.new) {
+						this.amendBannerSelected = false
 						this.showDiscontinuedRelationshipDialog = true;
 						this.policyDetails.roleplayers[index].coverAmount = this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
@@ -1310,6 +1313,7 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		if (type === `InvalidRel`) {
+			this.amendBannerSelected = true
 			this.showDiscontinuedRelationshipDialog = true
 		}
 
@@ -2521,7 +2525,7 @@ class FuneralUpdatePlan extends Component {
 		return this.policyDetails.hasInvalidRelationship === false || this.canReinstate ? html`` : html`
 		<capitec-alert-banner style="padding-bottom: 10px" class="clickable" @click="${() => this._openAgreement(`InvalidRel`)}"
 			type="warning" header="Warning:"
-			label="Your Policy contains lives with discontinued relationship types, Please amend.".>
+			label="Your policy contains lives with discontinued relationship types within the extended family category. Please amend.">
 		</capitec-alert-banner>`;
 	}
 
@@ -2845,6 +2849,7 @@ class FuneralUpdatePlan extends Component {
 	_renderAmendRelationshipInfoDialog() {
 		return this.showDiscontinuedRelationshipDialog === false ? `` : html`
 		<horizon-insure-amend-relationship-info-dialog
+		.amendBannerSelected = "${this.amendBannerSelected}"
 		@navigateToAmend="${() => this._navigateToAmend()}"
 		@close-modal="${() => this.showDiscontinuedRelationshipDialog = false}">
 		</horizon-insure-amend-relationship-info-dialog>

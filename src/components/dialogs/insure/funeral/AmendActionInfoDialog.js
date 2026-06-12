@@ -84,12 +84,7 @@ export class AmendActionInfoDialog extends Component {
 	 */
 	_renderDialogBody() {
 		return html`
-		<strong>Accept Risk on a life: </strong>
-		The life will remain on the policy , however at claims stage you will need to provide proof of on-going financial dependency at Cover Start Date.
-
-
-		<strong>Remove a life: </strong>
-		A request will be sent to remove this life from the Cover Start Date.
+		We have simplified the relationship types on our Funeral Cover Plan. You have covered lives on your policy that fall into these categories. You must please update these relationships if you want to reissue this policy.
 
 		`;
 	}

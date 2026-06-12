@@ -643,7 +643,7 @@ class FuneralAmendRelationship extends Component {
 		return html`
 		<capitec-title-bar type="insure" class="insure-title-bar">
 			<img class="action-image" src="/images/insure/left-arrow.svg" @click="${() => this._backToUpdatePlan()}" />
-			<capitec-label label="${`Amend Policy Relationships #${this.policyToAmend.contractReference}`}" type="title"></capitec-label>
+			<capitec-label label="${!this.canReinstate ? `Amend Policy Relationships #${this.policyToAmend.contractReference}` : `Amend Policy Relationships`}" type="title"></capitec-label>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button label="Confirm" type="white" class="capitec-button-medium"
 					.disabled="${this._checkAvailability()}"
@@ -823,9 +823,8 @@ class FuneralAmendRelationship extends Component {
 	_renderInvalidRelationshipsNotification() {
 		return html`
 		<capitec-alert-banner style="padding-bottom: 10px" class="clickable"}"
-			type="info" header="Please Advise:"
-			@click="${() => this._openInfoDialog()}"
-			label="Actions need to be taken on the below lives. Click for more Information.">
+			type="info" header="Please Update:"
+			label="You have covered lives on your policy that fall into these extended categories.">
 		</capitec-alert-banner>`;
 	}
 
