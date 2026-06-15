@@ -2,15 +2,11 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will confirmamtion message for removing life from inception
+ * Dialog that will confirmation message for removing life from inception
  * 
- * Events Raised 
- * -------------
- * agreementAccepted
- * close-modal
  *  
  * @export
- * @class PCAAgreementDialog
+ * @class AmendConfirmRemoveLifeDialog
  * @extends {Component}
  */
 export class AmendConfirmRemoveLifeDialog extends Component {

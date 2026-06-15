@@ -1728,11 +1728,6 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
 	}
 
-	_amendAndNavBackToUpdate(policy) {
-		this.selectedFuneralPolicyDetails = policy.detail.policy
-		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
-	}
-
 	/**
 	 * Fetch latest claim details and render Claims Summary 
 	 * @param {event} e e
@@ -2397,8 +2392,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			.productParams="${this.productParams}"
 			.policyToAmend="${this.policyToAmend}"
 			@navigate-back-to-update="${(policy) => this._navBackToUpdateFromAmend(policy)}"
-			@navigate-back-to-client-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}"
-			@amend-and-navigate-back-to-update="${(policy) => this._amendAndNavBackToUpdate(policy)}">
+			@navigate-back-to-client-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 		</horizon-insure-funeral-amend-relationship>
 		`
 	}

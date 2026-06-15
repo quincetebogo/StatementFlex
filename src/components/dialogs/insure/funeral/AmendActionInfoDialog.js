@@ -2,15 +2,10 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the PCA Agreement
+ * Dialog that will display the Amend Policy info
  * 
- * Events Raised 
- * -------------
- * agreementAccepted
- * close-modal
- *  
  * @export
- * @class PCAAgreementDialog
+ * @class AmendActionInfoDialog
  * @extends {Component}
  */
 export class AmendActionInfoDialog extends Component {

@@ -2,7 +2,7 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Dialog that will display the PCA Agreement
+ * Dialog for Amending a relationship
  * 
  * Events Raised 
  * -------------
@@ -10,7 +10,7 @@ import { Component, css, html } from 'platform/elements';
  * close-modal
  *  
  * @export
- * @class PCAAgreementDialog
+ * @class AmendRelationshipInfoDialog
  * @extends {Component}
  */
 export class AmendRelationshipInfoDialog extends Component {

@@ -419,7 +419,7 @@ class FuneralAmendRelationship extends Component {
 		}
 
 		this.amendedPolicy.roleplayers = this.livesToAmend
-		this.dispatchEvent(new CustomEvent(`amend-and-navigate-back-to-update`, {
+		this.dispatchEvent(new CustomEvent(`navigate-back-to-update`, {
 			detail: {
 				policy: this.amendedPolicy
 			}
