@@ -85,7 +85,7 @@ class AmendRelationshipDialog extends Component {
 		this.currentTotalSpouse = this.currentLifesAssured.filter((life) => life.relationship === `Spouse` && life.lifeAssured === true).length;
 		this.currentTotalChild = this.currentLifesAssured.filter((life) => life.relationship === `Child` && life.lifeAssured === true).length;
 		this.currentTotalParent = this.currentLifesAssured.filter((life) => life.relationship === `Parent` && life.lifeAssured === true).length;
-		this.currentTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent` && life.lifeAssured === true).length;
+		this.currentTotalExtendedFamily = this.currentLifesAssured.filter((life) => life.relationship !== `MainLife` && life.relationship !== `Spouse` && life.relationship !== `Child` && life.relationship !== `Parent` && life.relationship !== `ExtendedFamily` && life.relationship !== `ExtendedSpouse` && life.relationship !== `ExtendedParent` && life.relationship !== `ExtendedChild` && life.relationship !== `ParentInLaw` && life.lifeAssured === true).length;
 		this.selectedRelationship = ``;
 
 		this._determineCurrentRelationship()
