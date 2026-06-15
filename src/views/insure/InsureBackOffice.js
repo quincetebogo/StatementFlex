@@ -24,6 +24,7 @@ import '../../components/insure/funeral/FuneralPolicySummary';
 import '../../components/insure/funeral/FuneralPolicyTransactionHistory';
 import '../../components/insure/ClaimSummary';
 import 'app/components/insure/funeral/FuneralPolicyHistory';
+import 'app/components/insure/funeral/FuneralAmendRelationship';
 
 import 'app/components/insure/life/LifePolicySummary';
 import 'app/components/insure/life/LifePremiumHistory';
@@ -1037,7 +1038,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 			"contractReference": policyToUpdate.contractReference,
 			"cifNumber": this.callerInformation.cifNumber,
 			"quoteNumber": policyToUpdate.quoteNumber,
-			"beneficiaries": policyToUpdate.roleplayers.filter(ele => ele.beneficiary === true),
+			"roleplayers": policyToUpdate.roleplayers,
 			"collectionDetails": policyToUpdate.deductionDetails,
 			"productCode": this.selectedFuneralPolicyProductCode
 		};
@@ -1717,6 +1718,16 @@ export class InsureBackOfficeView extends InsureViewBase {
 		this.renderMode = newMode;
 	}
 
+	_navigateToRelationshipAmend(policy) {
+		this.policyToAmend = policy.detail.policyDetails
+		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_AMEND_RELATIONSHIPS);
+	}
+
+	_navBackToUpdateFromAmend(policy) {
+		this.selectedFuneralPolicyDetails = policy.detail.policy
+		this._navigateToSubView(INSURE_RENDER_MODE.FUNERAL_UPDATE_PLAN);
+	}
+
 	/**
 	 * Fetch latest claim details and render Claims Summary 
 	 * @param {event} e e
@@ -2248,6 +2259,8 @@ export class InsureBackOfficeView extends InsureViewBase {
 				return html`${this._renderFuneralPolicyHistoryPage()}`;
 			case INSURE_RENDER_MODE.LIFE_SUCCESS:
 				return html`${this._renderLifeSuccessPage()}`;
+			case INSURE_RENDER_MODE.FUNERAL_AMEND_RELATIONSHIPS:
+				return html`${this._renderFuneralAmendRelationshipPage()}`;
 			default:
 				return html``;
 		}
@@ -2363,8 +2376,25 @@ export class InsureBackOfficeView extends InsureViewBase {
 				.defaultSavingsAccountNumber="${this.defaultSavingsAccountNumber}"
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				@accept-policy="${(policyToAccept) => this._acceptPolicy(policyToAccept)}"
+				@navigate-to-amend-relationship="${(policy) => this._navigateToRelationshipAmend(policy)}"
 				@navigate-back="${(e) => this._navigateToSubView(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
 			</horizon-insure-funeral-update-plan>`;
+	}
+
+	/**
+	 * Renders the Funeral Amend Relationships page
+	 * 
+	 * @returns {html} html
+	 */
+	_renderFuneralAmendRelationshipPage() {
+		return html`
+		<horizon-insure-funeral-amend-relationship
+			.productParams="${this.productParams}"
+			.policyToAmend="${this.policyToAmend}"
+			@navigate-back-to-update="${(policy) => this._navBackToUpdateFromAmend(policy)}"
+			@navigate-back-to-client-summary="${() => this._rerenderClientSummary(INSURE_RENDER_MODE.CLIENT_POLICIES)}">
+		</horizon-insure-funeral-amend-relationship>
+		`
 	}
 
 	/**
