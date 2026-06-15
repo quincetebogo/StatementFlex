@@ -97,8 +97,6 @@ class FuneralAmendRelationship extends Component {
 	_initialise() {
 		this.amendedPolicy = JSON.parse(JSON.stringify(this.policyToAmend))
 		this.livesToAmend = this.amendedPolicy.roleplayers.map(rp => JSON.parse(JSON.stringify(rp)))
-		console.log("this.amendedPolicy", this.amendedPolicy)
-		console.log(this.livesToAmend)
 		if (this.amendedPolicy?.canReinstate) {
 			this.canReinstate = true;
 			this.showAmendActionInfoDialog = true
@@ -119,7 +117,6 @@ class FuneralAmendRelationship extends Component {
 		this._getRelationshipTotals()
 		this._validateRelationshipTotals()
 
-		console.log("Lives on Initialise ", this.livesToAmend)
 	}
 
 	_setNewAmendRelationshipFields() {
@@ -171,10 +168,6 @@ class FuneralAmendRelationship extends Component {
 			&& !Object.keys(OLD_RELATIONSHIPS).includes(life.relationship.toUpperCase())
 			&& life.lifeAssured === true).length;
 
-		console.log("Spouse count:", this.currentTotalSpouse)
-		console.log("Child count:", this.currentTotalChild)
-		console.log("Parent count:", this.currentTotalParent)
-		console.log("Extended count:", this.currentTotalExtendedFamily)
 	}
 
 	_validateRelationshipTotals() {
@@ -295,8 +288,6 @@ class FuneralAmendRelationship extends Component {
 
 		this.showConfirmRemoveLife = false
 
-		console.log("Lives to amend", this.livesToAmend)
-		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 		this.requestUpdate()
 	}
 
@@ -311,7 +302,6 @@ class FuneralAmendRelationship extends Component {
 		}
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
 		this.showConfirmAcceptRisk = false
-		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 		this.requestUpdate()
 	}
 
@@ -338,7 +328,6 @@ class FuneralAmendRelationship extends Component {
 
 
 		}
-		console.log(this.livesToAmend[this.selectedRoleplayer].amendDetails)
 
 		this._getRelationshipTotals()
 		this.requestUpdate()
@@ -421,7 +410,6 @@ class FuneralAmendRelationship extends Component {
 	_confirmAmendment() {
 
 		this.amendedPolicy.amended = true
-		console.log("isFinancial?: ", this.financialChange)
 		if (this.financialChange) {
 			this.amendedPolicy.isFinancialChanges = true
 		}
@@ -431,7 +419,6 @@ class FuneralAmendRelationship extends Component {
 		}
 
 		this.amendedPolicy.roleplayers = this.livesToAmend
-		console.log("policy After Amendments: ", this.amendedPolicy)
 		this.dispatchEvent(new CustomEvent(`amend-and-navigate-back-to-update`, {
 			detail: {
 				policy: this.amendedPolicy

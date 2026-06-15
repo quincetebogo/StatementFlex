@@ -134,7 +134,6 @@ class AmendRelationshipDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
-		console.log("before dispatch")
 		this.dispatchEvent(new CustomEvent(`amend-relationship`, { detail: { relationship: this.selectedRelationship } }));
 
 	}
@@ -151,7 +150,6 @@ class AmendRelationshipDialog extends Component {
 			this.selectedRelationship = event.target.id;
 			this.requestUpdate();
 		}
-		console.log(this.selectedRelationship)
 	}
 
 	/**
