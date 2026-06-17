@@ -255,7 +255,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent" id="Parent" data-automation-id="horizon-insure-add-life-dialog-relationship" 
+				<capitec-radio label="Parent/Parent in Law" id="Parent" data-automation-id="horizon-insure-add-life-dialog-relationship" 
 					.disabled="${this._checkDisabled(`Parent`)}" 
 					hint="Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._setRelationship(e, `Parent`)}">
@@ -285,15 +285,7 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 					@value-changed="${(e) => this._setRelationship(e, `AuntUncle`)}">
 				</capitec-radio>
 			</capitec-card>
-		
-			<capitec-card class="relationship-card">
-				<capitec-radio label="Child Extended" id="ExtendedChild"
-					data-automation-id="horizon-insure-add-life-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger." 
-					@value-changed="${(e) => this._setRelationship(e, `ExtendedChild`)}">
-				</capitec-radio>
-			</capitec-card>
-		
+
 			<capitec-card class="relationship-card">
 				<capitec-radio label="First Cousin" id="Firstcousin" data-automation-id="horizon-insure-add-life-dialog-relationship"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
@@ -335,35 +327,10 @@ class AddBeneficiaryOnlyLaDialog extends Component {
 			</capitec-card>
 		
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent Extended" id="ExtendedParent"
-					data-automation-id="horizon-insure-add-life-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
-					@value-changed="${(e) => this._setRelationship(e, `ExtendedParent`)}">
-				</capitec-radio>
-			</capitec-card>
-		
-			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent in Law" id="ParentInLaw" data-automation-id="horizon-insure-add-life-dialog-relationship"
-					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
-					@value-changed="${(e) => this._setRelationship(e, `ParentInLaw`)}">
-				</capitec-radio>
-			</capitec-card>
-		
-			<capitec-card class="relationship-card">
 				<capitec-radio label="Sibling" id="Sibling" data-automation-id="horizon-insure-add-life-dialog-relationship"
 					.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
 					@value-changed="${(e) => this._setRelationship(e, `Sibling`)}">
-				</capitec-radio>
-			</capitec-card>
-		
-			<capitec-card class="relationship-card">
-				<capitec-radio label="Spouse Extended" id="ExtendedSpouse"
-					data-automation-id="horizon-insure-add-life-dialog-relationship" 
-					.disabled="${this.ruleTotalExtendedFamily >= 8}"
-					hint="Up to ${livesPerPolicy(`ExtendedFamily`, this.productParams)} allowed for ages 85 and younger."
-					@value-changed="${(e) => this._setRelationship(e, `ExtendedSpouse`)}">
 				</capitec-radio>
 			</capitec-card>
 		

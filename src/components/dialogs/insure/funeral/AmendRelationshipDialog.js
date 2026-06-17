@@ -280,7 +280,7 @@ class AmendRelationshipDialog extends Component {
 				</capitec-radio>
 			</capitec-card>
 			<capitec-card class="relationship-card">
-				<capitec-radio label="Parent" id="Parent" style="--theme-input-hint-label-font-color: black;"
+				<capitec-radio label="Parent/Parent in Law" id="Parent" style="--theme-input-hint-label-font-color: black;"
 					.disabled="${this.currentTotalParent >= livesPerPolicy(`Parent`, this.productParams) || this.financialChange || this._validAgeCheck(`Parent`, this.productParams)}" 
 					hint="Your parents or your spouse’s parents. Up to ${livesPerPolicy(`Parent`, this.productParams)} allowed between ages of 26 - 85 years."
 					@value-changed="${(e) => this._relationshipSelect(e)}">

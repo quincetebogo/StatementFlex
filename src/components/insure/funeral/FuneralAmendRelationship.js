@@ -780,7 +780,7 @@ class FuneralAmendRelationship extends Component {
 					</div>
 					<hr>
 					<div class="calc-life-list">
-						<capitec-label label="Parent"></capitec-label>
+						<capitec-label label="Parent/Parent in Law"></capitec-label>
 						<capitec-label label="${this.currentTotalParent}/5"></capitec-label>
 					</div>
 					<hr>

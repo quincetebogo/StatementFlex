@@ -2808,7 +2808,7 @@ class ClientSummary extends Component {
 								<div>R100 000 - Spouse</div>
 								<div>R20 000 - Children (0 - 5 years) </div>
 								<div>R50 000 - Children (6 - 50 years) </div>
-								<div>R50 000 - Parents </div>
+								<div>R50 000 - Parents/Parents in Law </div>
 								<div>R50 000 - Extended Family</div>
 							</td>
 						</tr>
@@ -2823,7 +2823,7 @@ class ClientSummary extends Component {
 							<td>
 								<div>64 - Main Life</div>
 								<div>50 - Children</div>
-								<div>85 - Spouse, Parents and Extended Family</div>
+								<div>85 - Spouse, Parents/Parents in Law and Extended Family</div>
 							</td>
 						</tr>
 						<tr>

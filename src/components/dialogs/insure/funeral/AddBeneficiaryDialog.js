@@ -308,7 +308,7 @@ class AddBeneficiaryDialog extends Component {
 							<horizon-product-tile
 								data-automation-id="statements-dialog-one-month-period"
 								type="radio-button"
-								label="Parent"
+								label="Parent/Parent in Law"
 								subtitle="Up to 4 allowed for ages 85 and younger"
 								detail=""
 								@click="${(e) => this._addNewBeneficiaryChange(`Parent`)}"
