@@ -260,31 +260,18 @@ class FuneralAmendRelationship extends Component {
 
 	_removeLifeFromInception() {
 
-		if (this.canReinstate) {
-			if (this.livesToAmend[this.selectedRoleplayer].beneficiary === false) {
-				this.livesToAmend.splice(this.selectedRoleplayer, 1);
-				for (let index = 0; index < this.livesToAmend.length; index++) {
-					this.livesToAmend[index].rowID = index;
-				}
-			} else {
-				this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
-				this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
-				this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
-			}
-		} else {
-			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
-			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
-			this.financialChange = true;
-			this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
-			//if also a beneficiary
-			if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
-				this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
-				this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
-				this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
-			}
-
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+		this.financialChange = true;
+		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
+		//if also a beneficiary
+		if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
+			this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
+			this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
+			this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
 		}
+
 
 		this.showConfirmRemoveLife = false
 
@@ -378,7 +365,15 @@ class FuneralAmendRelationship extends Component {
 
 	_openConfirmRemoveLifeDialog(lives, index) {
 		this.selectedRoleplayer = index
-		this.showConfirmRemoveLife = true
+		// this.showConfirmRemoveLife = true
+		if (this.canReinstate) {
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
+			this.requestUpdate()
+		} else {
+			this.showConfirmRemoveLife = true
+		}
 
 	}
 
@@ -418,6 +413,22 @@ class FuneralAmendRelationship extends Component {
 			this.amendedPolicy.isNonFinancialChanges = true
 		}
 
+		if (this.canReinstate) {
+			for (let i = 1; i < this.livesToAmend.length; i++) {
+				if (this.livesToAmend[i].nonInsurableRemoval) {
+					if (this.livesToAmend[i].beneficiary === false) {
+						this.livesToAmend.splice(i, 1);
+						for (let index = 0; index < this.livesToAmend.length; index++) {
+							this.livesToAmend[index].rowID = index;
+						}
+					} else {
+						this.livesToAmend[i].relationship = `BeneficiaryOnly`;
+						this.livesToAmend[i].lifeAssured = false;
+						this.livesToAmend[i].coverAmount = 0;
+					}
+				}
+			}
+		}
 		this.amendedPolicy.roleplayers = this.livesToAmend
 		this.dispatchEvent(new CustomEvent(`navigate-back-to-update`, {
 			detail: {
@@ -769,7 +780,7 @@ class FuneralAmendRelationship extends Component {
 					</div>
 					<hr>
 					<div class="calc-life-list">
-						<capitec-label label="Parent"></capitec-label>
+						<capitec-label label="Parent/Parent in Law"></capitec-label>
 						<capitec-label label="${this.currentTotalParent}/5"></capitec-label>
 					</div>
 					<hr>
