@@ -487,6 +487,16 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		if (invalidChange) {
+			// The entered value was rejected (e.g. increase not allowed). Cancel any pending
+			// debounce and recalculate isFinancialChanges now that coverAmount has been reset,
+			// so an intermediate keyup value (e.g. "1000" while typing "10000") that was
+			// already flagged as a financial change gets correctly cleared.
+			clearTimeout(this._coverAmountDebounceTimer);
+			this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
+				const initial = Number(rolePlayer.amendDetails?.initialCoverAmount);
+				const current = Number(rolePlayer.coverAmount);
+				return !isNaN(initial) && !isNaN(current) && current !== initial && current > 0;
+			});
 			this.requestUpdate();
 			return
 		}
@@ -495,9 +505,7 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
-					if (Number(event.detail.new) >= Number(this.policyDetails.roleplayers[index].coverDetails.minCoverAmount)) {
-						this.policyDetails.isFinancialChanges = true
-					}
+
 					if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverAmount)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = ``;
 					}
@@ -528,11 +536,24 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.disableDoB = true;
 						}
 					}
-					if (this.policyDetails.roleplayers[index].coverAmount === this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount) {
-						this.policyDetails.isFinancialChanges = false
-					}
 				}
 			});
+
+			// Debounce the isFinancialChanges recalculation so it only fires after the user
+			// stops typing (600ms). This prevents intermediate keyup values (e.g. typing "5500"
+			// also fires "5", "55", "550") from incorrectly setting the financial change flag.
+			// The flag is recalculated across ALL roleplayers to avoid one roleplayer's state
+			// incorrectly overriding another's, and uses Number() coercion to avoid string/number
+			// type mismatch on the initialCoverAmount comparison.
+			clearTimeout(this._coverAmountDebounceTimer);
+			this._coverAmountDebounceTimer = setTimeout(() => {
+				this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
+					const initial = Number(rolePlayer.amendDetails?.initialCoverAmount);
+					const current = Number(rolePlayer.coverAmount);
+					return !isNaN(initial) && !isNaN(current) && current !== initial && current > 0;
+				});
+				this.requestUpdate();
+			}, 600);
 		}
 		this.requestUpdate();
 	}
