@@ -487,6 +487,12 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		if (invalidChange) {
+			clearTimeout(this._coverAmountDebounceTimer);
+			this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
+				const initial = Number(rolePlayer.amendDetails?.initialCoverAmount);
+				const current = Number(rolePlayer.coverAmount);
+				return !isNaN(initial) && !isNaN(current) && current !== initial && current > 0;
+			});
 			this.requestUpdate();
 			return
 		}
@@ -495,9 +501,7 @@ class FuneralUpdatePlan extends Component {
 			this.policyDetails.roleplayers.forEach((rolePlayer, index) => {
 				if (rolePlayer.rowID === rowID) {
 					this.policyDetails.roleplayers[index].coverAmount = event.detail.new;
-					if (Number(event.detail.new) >= Number(this.policyDetails.roleplayers[index].coverDetails.minCoverAmount)) {
-						this.policyDetails.isFinancialChanges = true
-					}
+
 					if (!isNullorEmpty(this.policyDetails.roleplayers[index].coverAmount)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = ``;
 					}
@@ -528,11 +532,18 @@ class FuneralUpdatePlan extends Component {
 							rolePlayer.coverDetails.disableDoB = true;
 						}
 					}
-					if (this.policyDetails.roleplayers[index].coverAmount === this.policyDetails.roleplayers[index].amendDetails.initialCoverAmount) {
-						this.policyDetails.isFinancialChanges = false
-					}
 				}
 			});
+
+			clearTimeout(this._coverAmountDebounceTimer);
+			this._coverAmountDebounceTimer = setTimeout(() => {
+				this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
+					const initial = Number(rolePlayer.amendDetails?.initialCoverAmount);
+					const current = Number(rolePlayer.coverAmount);
+					return !isNaN(initial) && !isNaN(current) && current !== initial && current > 0;
+				});
+				this.requestUpdate();
+			}, 600);
 		}
 		this.requestUpdate();
 	}
