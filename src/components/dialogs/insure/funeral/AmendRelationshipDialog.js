@@ -396,7 +396,7 @@ class AmendRelationshipDialog extends Component {
 				${this._renderCancelOrBackButton()}
 				<capitec-button id="id-confirm-button" type="primary" label="Add" data-automation-id="horizon-insure-add-life-dialog-add"
 					@click="${() => this._addClick()}"
-					.disabled="${this.currentLifesAssured.filter((life) => life.lifeAssured === true).length >= MAX_LIVES_PER_POLICY || this.selectedRelationship === ``}">
+					.disabled="${this.selectedRelationship === ``}">
 				</capitec-button>
 			</capitec-group>`;
 	}
