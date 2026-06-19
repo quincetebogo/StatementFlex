@@ -487,10 +487,6 @@ class FuneralUpdatePlan extends Component {
 		}
 
 		if (invalidChange) {
-			// The entered value was rejected (e.g. increase not allowed). Cancel any pending
-			// debounce and recalculate isFinancialChanges now that coverAmount has been reset,
-			// so an intermediate keyup value (e.g. "1000" while typing "10000") that was
-			// already flagged as a financial change gets correctly cleared.
 			clearTimeout(this._coverAmountDebounceTimer);
 			this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
 				const initial = Number(rolePlayer.amendDetails?.initialCoverAmount);
@@ -539,12 +535,6 @@ class FuneralUpdatePlan extends Component {
 				}
 			});
 
-			// Debounce the isFinancialChanges recalculation so it only fires after the user
-			// stops typing (600ms). This prevents intermediate keyup values (e.g. typing "5500"
-			// also fires "5", "55", "550") from incorrectly setting the financial change flag.
-			// The flag is recalculated across ALL roleplayers to avoid one roleplayer's state
-			// incorrectly overriding another's, and uses Number() coercion to avoid string/number
-			// type mismatch on the initialCoverAmount comparison.
 			clearTimeout(this._coverAmountDebounceTimer);
 			this._coverAmountDebounceTimer = setTimeout(() => {
 				this.policyDetails.isFinancialChanges = this.policyDetails.roleplayers.some(rolePlayer => {
