@@ -261,13 +261,12 @@ class FuneralAmendRelationship extends Component {
 	_removeLifeFromInception() {
 
 		this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
-		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+		this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = false;
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 		this.financialChange = true;
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
 		//if also a beneficiary
 		if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
-			this.livesToAmend[this.selectedRoleplayer].relationship = `BeneficiaryOnly`;
 			this.livesToAmend[this.selectedRoleplayer].lifeAssured = false;
 			this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
 		}
@@ -368,7 +367,7 @@ class FuneralAmendRelationship extends Component {
 		// this.showConfirmRemoveLife = true
 		if (this.canReinstate) {
 			this.livesToAmend[this.selectedRoleplayer].nonInsurableRemoval = true;
-			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = true;
+			this.livesToAmend[this.selectedRoleplayer].nonInsurableAcknowledged = false;
 			this.livesToAmend[this.selectedRoleplayer].amendDetails.amended = true;
 			this.requestUpdate()
 		} else {
@@ -710,7 +709,7 @@ class FuneralAmendRelationship extends Component {
 										value="Life to be removed">
 									</horizon-label>
 								`: html`
-									${lives.nonInsurableAcknowledged && !lives.nonInsurableRemoval ? html`
+									${lives.nonInsurableAcknowledged ? html`
 										<horizon-label 
 											label="Action"
 											value="Risk accepted">
