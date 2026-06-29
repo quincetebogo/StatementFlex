@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
+import { INSURE_CALLER_PAGE, ROLE_PLAYER_RELATIONSHIP, OLD_RELATIONSHIPS } from 'app/constants/InsureCommon';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { livesPerPolicy, refreshRelationshipCoverDetails } from 'app/utils/insureUtils';
 import 'app/components/dialogs/insure/AddBeneficiaryOnlyLaDialog';
@@ -309,11 +309,11 @@ class AddLifeDialog extends Component {
 		<capitec-radio-group>
 		${this.callerPage === INSURE_CALLER_PAGE.UPDATE_PLAN ? html`
 			<capitec-label label="Add existing beneficiary" type="title" class="title"></capitec-label>
-			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary === true).length === 0 ? html`
+			${this.currentLifesAssured.filter((life) => life.lifeAssured === false && life.beneficiary === true && !Object.keys(OLD_RELATIONSHIPS).includes(life.relationship.toUpperCase())).length === 0 ? html`
 				<capitec-label label="No existing beneficiaries to add" type="subtitle" class="subtitle"></capitec-label>
 			` : html``}
 			${this.currentLifesAssured.map((life) => html`
-				${life.lifeAssured === true || (life.lifeAssured === false && life.beneficiary === false) ? html``
+				${life.lifeAssured === true || (life.lifeAssured === false && life.beneficiary === false) || Object.keys(OLD_RELATIONSHIPS).includes(life.relationship.toUpperCase()) ? html``
 				: html`
 					<capitec-card class="relationship-card">
 						<capitec-radio label="${life.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[life.relationship?.toUpperCase()])}: ${life.firstName} ${life.surname}"
