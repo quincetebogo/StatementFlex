@@ -266,9 +266,9 @@ class FuneralAmendRelationship extends Component {
 		this.financialChange = true;
 		this.livesToAmend[this.selectedRoleplayer].amendDetails.showChangeRelationship = false
 		//if also a beneficiary
-		if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
-			this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
-		}
+		// if (this.livesToAmend[this.selectedRoleplayer].beneficiary === true) {
+		// 	this.livesToAmend[this.selectedRoleplayer].coverAmount = 0;
+		// }
 
 
 		this.showConfirmRemoveLife = false
