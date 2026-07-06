@@ -475,14 +475,16 @@ class FuneralUpdatePlan extends Component {
 						return;
 					}
 				}
-				//for when life comes in that is already overage
+
 				if (rolePlayer.rowID === rowID) {
+					//for when life comes in that is already overage
 					if ((Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge) && (rolePlayer.amendDetails.initialCoverAmount < event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
 						invalidChange = true
 						return;
 					}
 				}
+
 			})
 		}
 
@@ -519,6 +521,11 @@ class FuneralUpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
+
+					if (rolePlayer.relationship === "Child" && event.detail.new <= rolePlayer.amendDetails.initialCoverAmount && event.detail.new > Number(rolePlayer.coverDetails.maxCoverAmount)) {
+						rolePlayer.coverDetails.coverMessage = ""
+					}
+
 					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
@@ -1392,6 +1399,15 @@ class FuneralUpdatePlan extends Component {
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
 			}
+			console.log("policy before : ", this.policyDetails)
+			console.log("relationship : ", relationship)
+			console.log("this.policyDetails.roleplayers[index].coverAmount : ", this.policyDetails.roleplayers[index].coverAmount)
+			console.log("this.policyDetails.roleplayers[index].coverDetails.maxCoverAmount : ", this.policyDetails.roleplayers[index].coverDetails.maxCoverAmount)
+			if (relationship === "Child" && this.policyDetails.roleplayers[index].coverAmount > Number(this.policyDetails.roleplayers[index].coverDetails.maxCoverAmount)) {
+				console.log("in if")
+				this.policyDetails.roleplayers[index].coverDetails.coverMessage = ""
+			}
+			console.log("policy after : ", this.policyDetails)
 		}
 
 		let validRoleplayers = this.policyDetails.roleplayers.filter(rolePlayer => rolePlayer.beneficiary === true || rolePlayer.lifeAssured === true);
@@ -1416,6 +1432,8 @@ class FuneralUpdatePlan extends Component {
 			this._determineInvalidRelationships(rolePlayer)
 		});
 		this._openIneligibleLivesDialog();
+
+		console.log("policy: ", this.policyDetails)
 	}
 
 	/**
