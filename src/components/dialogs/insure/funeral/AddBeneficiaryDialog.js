@@ -76,10 +76,10 @@ class AddBeneficiaryDialog extends Component {
 	 * @returns {void}
 	 */
 	_addClick() {
-			const detail = {
-				beneficiary: this.newBeneficiary
-			};
-			this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
+		const detail = {
+			beneficiary: this.newBeneficiary
+		};
+		this.dispatchEvent(new CustomEvent(`add-click`, { detail: detail }));
 	}
 
 	/**
@@ -105,11 +105,11 @@ class AddBeneficiaryDialog extends Component {
 
 	// #region PRIVATE METHODS
 
-	 /**
-	  * event to add a beneficiary that is also a life assured
-	  * @param {object} lifeAssured life Assured details of selected life assured
-	  * @returns {void}
-	  */
+	/**
+	 * event to add a beneficiary that is also a life assured
+	 * @param {object} lifeAssured life Assured details of selected life assured
+	 * @returns {void}
+	 */
 	_addExistingBeneficiaryChange(lifeAssured) {
 		lifeAssured.beneficiary = true;
 		lifeAssured.benefitPayout = 0;
@@ -126,25 +126,25 @@ class AddBeneficiaryDialog extends Component {
 	_addNewBeneficiaryChange(relationship) {
 		this.selectedRelationship = relationship;
 
-			this.newBeneficiary = {
-				relationship: relationship,
-				beneficiary: true,
-				lifeAssured: false,
-				title: ``,
-				firstName: ``,
-				surname: ``,
-				gender: `Male`,
-				benefitPayout: 0,
-				coverAmount: 0,
-				rowID: this.roleplayerLength,
-				coverDetails: {},
-				contactDetails: {
-					cellphone: ``
-				}
-			};
+		this.newBeneficiary = {
+			relationship: relationship,
+			beneficiary: true,
+			lifeAssured: false,
+			title: ``,
+			firstName: ``,
+			surname: ``,
+			gender: `Male`,
+			benefitPayout: 0,
+			coverAmount: 0,
+			rowID: this.roleplayerLength,
+			coverDetails: {},
+			contactDetails: {
+				cellphone: ``
+			}
+		};
 
-			this.canAdd = true;
-			this.requestUpdate();
+		this.canAdd = true;
+		this.requestUpdate();
 	}
 
 	// #endregion PRIVATE METHODS
@@ -272,8 +272,8 @@ class AddBeneficiaryDialog extends Component {
 					<capitec-radio-group>
 						<capitec-content-box style="max-height:200px; padding-left: 0px;">
 							${this.lifesAssured.map((lifeAssured) => html`
-								${getAgeFromDob(lifeAssured.dateOfBirth) < 18 ? html`` 
-								: html`
+								${getAgeFromDob(lifeAssured.dateOfBirth) < 18 ? html``
+				: html`
 									<div class="add-life-assured">
 										<capitec-radio label="${lifeAssured.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[lifeAssured.relationship?.toUpperCase()])}: ${lifeAssured.firstName} ${lifeAssured.surname}"
 											@value-changed="${() => this._addExistingBeneficiaryChange(lifeAssured)}">
@@ -308,7 +308,7 @@ class AddBeneficiaryDialog extends Component {
 							<horizon-product-tile
 								data-automation-id="statements-dialog-one-month-period"
 								type="radio-button"
-								label="Parent"
+								label="Parent/Parent in Law"
 								subtitle="Up to 4 allowed for ages 85 and younger"
 								detail=""
 								@click="${(e) => this._addNewBeneficiaryChange(`Parent`)}"
@@ -376,13 +376,6 @@ class AddBeneficiaryDialog extends Component {
 						</capitec-card>
 					
 						<capitec-card class="relationship-card">
-							<capitec-radio label="Child Extended" id="ExtendedChild"
-								data-automation-id="horizon-insure-add-beneficiary-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
-								@value-changed="${() => this._addNewBeneficiaryChange(`ExtendedChild`)}">
-							</capitec-radio>
-						</capitec-card>
-					
-						<capitec-card class="relationship-card">
 							<capitec-radio label="First Cousin" id="Firstcousin" data-automation-id="horizon-insure-add-beneficiary-dialog-relationship"
 								.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 								@value-changed="${() => this._addNewBeneficiaryChange(`Firstcousin`)}">
@@ -418,31 +411,9 @@ class AddBeneficiaryDialog extends Component {
 						</capitec-card>
 					
 						<capitec-card class="relationship-card">
-							<capitec-radio label="Parent Extended" id="ExtendedParent"
-								data-automation-id="horizon-insure-add-beneficiary-dialog-relationship" .disabled="${this.ruleTotalExtendedFamily >= 8}"
-								@value-changed="${() => this._addNewBeneficiaryChange(`ExtendedParent`)}">
-							</capitec-radio>
-						</capitec-card>
-					
-						<capitec-card class="relationship-card">
-							<capitec-radio label="Parent in Law" id="ParentInLaw" data-automation-id="horizon-insure-add-beneficiary-dialog-relationship"
-								.disabled="${this.ruleTotalExtendedFamily >= 8}" 
-								@value-changed="${() => this._addNewBeneficiaryChange(`ParentInLaw`)}">
-							</capitec-radio>
-						</capitec-card>
-					
-						<capitec-card class="relationship-card">
 							<capitec-radio label="Sibling" id="Sibling" data-automation-id="horizon-insure-add-beneficiary-dialog-relationship"
 								.disabled="${this.ruleTotalExtendedFamily >= 8}" 
 								@value-changed="${() => this._addNewBeneficiaryChange(`Sibling`)}">
-							</capitec-radio>
-						</capitec-card>
-					
-						<capitec-card class="relationship-card">
-							<capitec-radio label="Spouse Extended" id="ExtendedSpouse"
-								data-automation-id="horizon-insure-add-beneficiary-dialog-relationship" 
-								.disabled="${this.ruleTotalExtendedFamily >= 8}"
-								@value-changed="${() => this._addNewBeneficiaryChange(`ExtendedSpouse`)}">
 							</capitec-radio>
 						</capitec-card>
 					
@@ -485,12 +456,12 @@ class AddBeneficiaryDialog extends Component {
 	}
 
 	_renderCancelOrBack() {
-		return this.showExtendedRelationships === true 
-		? html`
+		return this.showExtendedRelationships === true
+			? html`
 		<capitec-button slot="footer" type="secondary" label="Back" @click="${() => this._backClick()}">
 		</capitec-button>
-		` 
-		: html`
+		`
+			: html`
 		<capitec-button slot="footer" type="secondary" label="Cancel" @click="${() => this._cancelClick()}">
 		</capitec-button>
 		`;
