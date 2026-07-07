@@ -475,8 +475,9 @@ class FuneralUpdatePlan extends Component {
 						return;
 					}
 				}
-				//for when life comes in that is already overage
+
 				if (rolePlayer.rowID === rowID) {
+					//for when life comes in that is already overage
 					if ((Number(getAgeFromDob(rolePlayer.dateOfBirth)) > rolePlayer.coverDetails.maxAge) && (rolePlayer.amendDetails.initialCoverAmount < event.detail.new)) {
 						this.policyDetails.roleplayers[index].coverDetails.coverMessage = `Unable to increase cover on this life`;
 						invalidChange = true
@@ -519,6 +520,11 @@ class FuneralUpdatePlan extends Component {
 						this.policyDetails.roleplayers[index].coverDetails?.isExtendedFamily,
 						false
 					);
+
+					if (rolePlayer.relationship === "Child" && event.detail.new <= rolePlayer.amendDetails.initialCoverAmount && event.detail.new > Number(rolePlayer.coverDetails.maxCoverAmount)) {
+						rolePlayer.coverDetails.coverMessage = ""
+					}
+
 					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
 					} else {
@@ -1391,6 +1397,9 @@ class FuneralUpdatePlan extends Component {
 			}
 			if (this.policyDetails.roleplayers[index].lifeAssured === false && this.policyDetails.roleplayers[index].beneficiary === true) {
 				this.policyDetails.roleplayers[index].coverDetails = {};
+			}
+			if (relationship === "Child" && this.policyDetails.roleplayers[index].coverAmount > Number(this.policyDetails.roleplayers[index].coverDetails.maxCoverAmount)) {
+				this.policyDetails.roleplayers[index].coverDetails.coverMessage = ""
 			}
 		}
 
