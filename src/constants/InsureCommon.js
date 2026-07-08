@@ -214,14 +214,9 @@ export const LIFE_CANCELATION_REASONS_BACKOFFICE = Object.freeze([
 export const ROLE_PLAYER_RELATIONSHIP = Object.freeze({
 	MAINLIFE: `MAIN LIFE`,
 	CHILD: `CHILD`,
-	EXTENDEDFAMILY: `EXTENDED FAMILY`,
 	SPOUSE: `SPOUSE`,
 	PARENT: `PARENT`,
-	EXTENDEDCHILD: `CHILD EXTENDED`,
-	EXTENDEDSPOUSE: `SPOUSE EXTENDED`,
-	EXTENDEDPARENT: `PARENT EXTENDED`,
 	SIBLING: `SIBLING`,
-	PARENTINLAW: `PARENT IN LAW`,
 	NEPHEWNIECE: `NEPHEW/NIECE`,
 	GRANDPARENT: `GRANDPARENT`,
 	GRANDCHILD: `GRANDCHILD`,
@@ -230,8 +225,47 @@ export const ROLE_PLAYER_RELATIONSHIP = Object.freeze({
 	FIRSTCOUSIN: `FIRST COUSIN`,
 	GREATGRANDPARENT: `GREAT GRANDPARENT`,
 	GREATGRANDCHILD: `GREAT GRANDCHILD`,
-	BENEFICIARYONLY: `BENEFICIARY ONLY`
+	EXTENDEDFAMILY: `EXTENDED FAMILY`,
+	EXTENDEDCHILD: `CHILD EXTENDED`,
+	EXTENDEDSPOUSE: `SPOUSE EXTENDED`,
+	EXTENDEDPARENT: `PARENT EXTENDED`,
+	PARENTINLAW: `PARENT IN LAW`,
+	BENEFICIARYONLY: `BENEFICIARY ONLY`,
+	UNKNOWN: `UNKNOWN`
 });
+
+/**
+ * List of Relationships being decomissioned
+ * @readonly
+ * @enum {Object} ROLE_PLAYER_RELATIONSHIP
+ */
+export const OLD_RELATIONSHIPS = Object.freeze({
+	EXTENDEDFAMILY: `EXTENDED FAMILY`,
+	EXTENDEDCHILD: `CHILD EXTENDED`,
+	EXTENDEDSPOUSE: `SPOUSE EXTENDED`,
+	EXTENDEDPARENT: `PARENT EXTENDED`,
+	PARENTINLAW: `PARENT IN LAW`,
+})
+
+/**
+ * List of Relationships not being decommisioned
+ * @readonly
+ * @enum {Object} RELTIONSHIP_FIX_EXT_FAM
+ */
+export const RELTIONSHIP_FIX_EXT_FAM = Object.freeze([
+	{ code: `Child`, text: `Child` },
+	{ code: `Spouse`, text: `Spouse` },
+	{ code: `Parent`, text: `Parent` },
+	{ code: `Sibling`, text: `Sibling` },
+	{ code: `CousinsChild`, text: `First Cousin's Child` },
+	{ code: `AuntUncle`, text: `Aunt/Uncle` },
+	{ code: `FirstCousin`, text: `First Cousin` },
+	{ code: `NephewNiece`, text: `Nephew/Niece` },
+	{ code: `Grandchild`, text: `Grandchild` },
+	{ code: `GreatGrandparent`, text: `Great Grandparent` },
+	{ code: `GreatGrandchild`, text: `Great Grandchild` },
+	{ code: `Grandparent`, text: `Grandparent` },
+])
 
 export const Status = {
 	'Active': 1,

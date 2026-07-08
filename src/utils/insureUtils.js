@@ -118,26 +118,21 @@ export function refreshRelationshipCoverDetails(relationship, productParams, cov
 				coverDetails.maxAge = currentRole.ageRange[currentRole.ageRange.length - 1].maxAge;
 				coverDetails.maxCoverMessage = currentRole.ageRange[0].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[0].coverAmountMinMessage;
-			} else if (age && age >= 6 && age <= 13) {
+			} else if (age && age >= 6 && age <= 50) {
 				coverDetails.maxCoverAmount = currentRole.ageRange[1].maxCoverAmount;
 				coverDetails.minCoverAmount = currentRole.ageRange[1].minCoverAmount;
 				coverDetails.maxCoverMessage = currentRole.ageRange[1].coverAmountMessage;
 				coverDetails.minCoverMessage = currentRole.ageRange[1].coverAmountMinMessage;
-			} else if (age && age >= 14 && age <= 25) {
-				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
-				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
-				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
-				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
 			} else if (age && (age < coverDetails.minAge || age > coverDetails.maxAge || age % 1 !== 0 || Number.isNaN(age))) {
 				let ageMessage = currentRole.ageMessage.replace(`{0}`, coverDetails.minAge);
 				ageMessage = ageMessage.replace(`{1}`, coverDetails.maxAge);
 				coverDetails.ageMessage = ageMessage;
 
-				coverDetails.maxCoverAmount = currentRole.ageRange[2].maxCoverAmount;
-				coverDetails.minCoverAmount = currentRole.ageRange[2].minCoverAmount;
+				coverDetails.maxCoverAmount = currentRole.ageRange[1].maxCoverAmount;
+				coverDetails.minCoverAmount = currentRole.ageRange[1].minCoverAmount;
 
-				coverDetails.maxCoverMessage = currentRole.ageRange[2].coverAmountMessage;
-				coverDetails.minCoverMessage = currentRole.ageRange[2].coverAmountMinMessage;
+				coverDetails.maxCoverMessage = currentRole.ageRange[1].coverAmountMessage;
+				coverDetails.minCoverMessage = currentRole.ageRange[1].coverAmountMinMessage;
 
 			}
 
@@ -247,6 +242,31 @@ export function livesPerPolicy(relationship, productParams) {
 	const product = productParams.products.find(item => item.parameters.id === PRODUCT_ID);
 	const currentRole = product.parameters.rolePlayers.roleList.role.find(role => role.relationshipTypeEnum === relationship);
 	return currentRole.perPolicy;
+}
+
+/**
+ * Find minAge for supplied relationship
+ *
+ * @export
+ * @param {string} relationship Current Relationship
+ * @returns {Number} per policy limit
+ */
+export function getRelationshipMinAge(relationship, productParams) {
+	const product = productParams.products.find(item => item.parameters.id === PRODUCT_ID);
+	const currentRole = product.parameters.rolePlayers.roleList.role.find(role => role.relationshipTypeEnum === relationship);
+
+	let minAge = 0
+	if (relationship === `Spouse`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else if (relationship === `Parent`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else if (relationship === `Child`) {
+		minAge = currentRole.ageRange[0].minAge
+	} else {
+		minAge = currentRole.ageRange[0].minAge
+	}
+
+	return minAge
 }
 
 /**
