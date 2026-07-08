@@ -1796,6 +1796,9 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_setRelationshipColor(life) {
+		if (life.nonInsurableAcknowledged && !life.amendDetails?.amended) {
+			return
+		}
 		if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.nonInsurableAcknowledged) {
 			return `color: #d1821a;`
 		} else if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
@@ -1804,6 +1807,9 @@ class FuneralUpdatePlan extends Component {
 	}
 
 	_setLifeLabelColour(life) {
+		if (life.nonInsurableAcknowledged && !life.amendDetails?.amended) {
+			return `fixed-label-secondary`
+		}
 		if (life.amendDetails?.hasInvalidRelationship && !life.amendDetails?.amended) {
 			return `fixed-label-secondary-warning-red`
 		} else if (life.amendDetails?.hasInvalidRelationship && life.amendDetails?.amended && life.nonInsurableAcknowledged) {
