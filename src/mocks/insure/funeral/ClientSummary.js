@@ -1326,7 +1326,7 @@ export const ClientSummary = {
 				],
 				"policyRule": "Standard",
 				"policyMinumumPremium": 0,
-				"canReinstate": false,
+				"canReinstate": true,
 				"isOptedOutForEarlyCollection": false
 			},
 			{
@@ -8694,8 +8694,8 @@ export const ClientSummary = {
 				feature: "IssuePolicy",
 			},
 			{
-				enabled: false,
-				visible: false,
+				enabled: true,
+				visible: true,
 				message: "Reissue Policy not available",
 				feature: "ReissuePolicy",
 			},

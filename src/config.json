@@ -259,7 +259,7 @@
 			"positiveCase": true
 		},
 		"insureCommsHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"budgetAccounts": {
@@ -303,7 +303,7 @@
 			"positiveCase": false
 		},
 		"insurePrepareUpdate": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insurePolicyAccept": {
@@ -319,7 +319,7 @@
 			"positiveCase": true
 		},
 		"insurePolicyReissue": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"insureCreatePolicy": {
@@ -355,7 +355,7 @@
 			"positiveCase": true
 		},
 		"insureArrears": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"ftspUnlockOptions": {

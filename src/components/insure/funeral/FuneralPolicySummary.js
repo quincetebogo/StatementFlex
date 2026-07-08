@@ -109,6 +109,19 @@ class FuneralPolicySummary extends Component {
 		return displayStatus;
 	}
 
+	_determineRelationshipDisplay(roleplayer) {
+
+		if (roleplayer.relationship?.toUpperCase() === `COUSINSCHILD`) {
+			return `First Cousin's Child`
+		}
+
+		if (roleplayer.relationship?.toUpperCase() === `PARENT`) {
+			return `Parent/Parent in Law`
+		}
+
+		return formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[roleplayer.relationship?.toUpperCase()])
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region PRIVATE FUNCTIONS
@@ -476,9 +489,10 @@ class FuneralPolicySummary extends Component {
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
+							style="width: 170px;"
 							data-automation-id="insure-beneficiaries-relationship"
 							label="Relationship"
-							value="${item.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
+							value="${this._determineRelationshipDisplay(item)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-beneficiaries-dateofbirth"
@@ -540,9 +554,10 @@ class FuneralPolicySummary extends Component {
 						</horizon-label>
 						<div class="vertical-line"></div>
 						<horizon-label
+							style="width: 170px;"
 							data-automation-id="insure-lives-assured-relationship"
 							label="Relationship"
-							value="${item.relationship?.toUpperCase() === `COUSINSCHILD` ? `First Cousin's Child` : formatStringAsPascalCase(ROLE_PLAYER_RELATIONSHIP[item.relationship?.toUpperCase()])}">
+							value="${this._determineRelationshipDisplay(item)}">
 						</horizon-label>
 						<horizon-label
 							data-automation-id="insure-lives-assured-dateofbirth"
@@ -637,8 +652,8 @@ class FuneralPolicySummary extends Component {
 		return html`
 			<capitec-title-bar type="default" label="Mandate details">
 			</capitec-title-bar>
-			${mandateDetails.length === 0 ? this._renderNoResults() 
-			: html`
+			${mandateDetails.length === 0 ? this._renderNoResults()
+				: html`
 			${mandateDetails.map((mandate) => html`
 			${new Date(mandate.mandateInitiationDate).getTime() === latestDate.getTime() ? html`
 				<capitec-content-box  class="accounts-box">
@@ -719,11 +734,11 @@ class FuneralPolicySummary extends Component {
 	}
 
 	_renderBenefitDetailsSection() {
-	return html`
+		return html`
 		<capitec-title-bar type="default" label="Premium Waivers">
 		</capitec-title-bar>
-		${this.policyDetails.policyRule === FUN_POLICY_RULES.STANDARD ? this._renderNoResults() 
-		: html`
+		${this.policyDetails.policyRule === FUN_POLICY_RULES.STANDARD ? this._renderNoResults()
+				: html`
 			<capitec-content-box class="accounts-box">
 				<horizon-expander
 				expandButtonAlignment="right"
