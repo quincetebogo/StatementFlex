@@ -521,9 +521,6 @@ class FuneralUpdatePlan extends Component {
 						false
 					);
 
-					if (rolePlayer.relationship === "Child" && event.detail.new <= rolePlayer.amendDetails.initialCoverAmount && event.detail.new > Number(rolePlayer.coverDetails.maxCoverAmount)) {
-						rolePlayer.coverDetails.coverMessage = ""
-					}
 
 					if (isNullorEmpty(rolePlayer.idNumber)) {
 						rolePlayer.coverDetails.disableDoB = false;
