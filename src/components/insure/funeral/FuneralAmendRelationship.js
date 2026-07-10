@@ -127,17 +127,22 @@ class FuneralAmendRelationship extends Component {
 			}
 
 			if (Object.keys(OLD_RELATIONSHIPS).includes(life.relationship.toUpperCase()) && life.lifeAssured === true) {
-				life.amendDetails.previousRelationship = "";
-				life.amendDetails.relationshipMessage = "";
-				life.nonInsurableRemoval = false;
-				life.nonInsurableAcknowledged = false;
-				life.amendDetails.toFix = true;
-				life.amendDetails.amended = false;
-				life.amendDetails.showAcceptRisk = false;
-				life.amendDetails.showRemoveLife = false;
-				life.amendDetails.showChangeRelationship = true;
-			}
 
+				if (!life.amendDetails?.amended && life.nonInsurableAcknowledged) {
+					life.amendDetails.toFix = false
+				} else {
+					life.amendDetails.previousRelationship = "";
+					life.amendDetails.relationshipMessage = "";
+					life.nonInsurableRemoval = false;
+					life.nonInsurableAcknowledged = false;
+					life.amendDetails.toFix = true;
+					life.amendDetails.amended = false;
+					life.amendDetails.showAcceptRisk = false;
+					life.amendDetails.showRemoveLife = false;
+					life.amendDetails.showChangeRelationship = true;
+				}
+
+			}
 			this._getRelationshipTotals()
 
 		})
