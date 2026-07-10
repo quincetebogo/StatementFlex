@@ -2807,9 +2807,8 @@ class ClientSummary extends Component {
 								<div>R100 000 - Main Life</div>
 								<div>R100 000 - Spouse</div>
 								<div>R20 000 - Children (0 - 5 years) </div>
-								<div>R50 000 - Children (6 - 13 years) </div>
-								<div>R60 000 - Children (14 - 25 years) </div>
-								<div>R50 000 - Parents </div>
+								<div>R50 000 - Children (6 - 50 years) </div>
+								<div>R50 000 - Parents/Parents in Law </div>
 								<div>R50 000 - Extended Family</div>
 							</td>
 						</tr>
@@ -2822,9 +2821,9 @@ class ClientSummary extends Component {
 						<tr>
 							<td>Maximum entry age</td>
 							<td>
-								<div>64 - Main Life and Spouse</div>
-								<div>25 - Children</div>
-								<div>85 - Parents and Extended Family</div>
+								<div>64 - Main Life</div>
+								<div>50 - Children</div>
+								<div>85 - Spouse, Parents/Parents in Law and Extended Family</div>
 							</td>
 						</tr>
 						<tr>

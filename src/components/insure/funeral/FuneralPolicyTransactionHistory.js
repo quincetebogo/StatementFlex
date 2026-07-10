@@ -273,8 +273,6 @@ class FuneralPolicyTransactionHistory extends Component {
 			this.filteredData = this.policyTransactionHistory?.transactions.filter(item => new Date(item.date) >= new Date(this.startDate) && new Date(item.date) <= new Date(this.endDate));
 			this.hideLoadMore = this.policyTransactionHistory?.transactions?.length % MAX_RESULTS > 0 && this.policyTransactionHistory?.transactions?.length % MAX_RESULTS < MAX_RESULTS;
 		}
-		console.log(this.policyTransactionHistory);
-		console.log(this.filteredData)
 	}
 
 	/**
