@@ -2331,6 +2331,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@life-update-banking-details = "${(e) => this._updateBankingDetailsLifePolicy(e)}"
 				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
+				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				.showFeatureBanner="${this.showFeatureBanner}"
 				.featureBannerMessage="${this.featureBannerMessage}"

@@ -146,6 +146,7 @@ class ClientSummary extends Component {
 		this.isInsureAdministrator = this.roleManager.isInsureAdministrator;
 		this.isInsureCampaigner = this.roleManager.isInsureCampaigner;
 		this.isInsureCollector = this.roleManager.isInsureCollector;
+		this.isInsureSales = this.roleManager.isInsureSales;
 
 		this.blackListBannerMessage = ``;
 		this.showBlackListBanner = false;
@@ -1361,7 +1362,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Re-Issue" 
 				icon="system/history-action"
-				.disabled="${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
+				.disabled="${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner || this.isInsureCollector || this.isInsureSales || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}"
 				@click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
@@ -1380,7 +1381,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Pay Arrears" 
 				icon="status/error"
-				.disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
+				.disabled="${this.isInsureAgent || this.isInsureCollector || this.isInsureSales || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}"
 				@click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
@@ -1398,7 +1399,7 @@ class ClientSummary extends Component {
 				class="button-margin" 
 				label="Cancel Plan" 
 				icon="system/delete-action"
-				.disabled="${this.isInsureAgent || this.isInsureCollector || this.isInsureCampaigner || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}"
+				.disabled="${this.isInsureAgent || this.isInsureCollector || this.isInsureCampaigner || this.isInsureSales || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}"
 				@click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 			</horizon-option-button>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
@@ -1406,7 +1407,7 @@ class ClientSummary extends Component {
 				data-automation-id="insure-policy-options-transaction-history"
 				class="button-margin" 
 				label="Premium History" 
-				.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing)}"
+				.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing) || this.isInsureSales}"
 				icon="system/transfer-action"
 				@click="${() => this._goToFuneralPolicyTransactionHistory(policyItem)}">
 			</horizon-option-button>`;
@@ -1415,7 +1416,7 @@ class ClientSummary extends Component {
 				data-automation-id="insure-policy-options-sms-history"
 				class="button-margin" 
 				label="SMS History"
-				.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing)}"
+				.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing) || this.isInsureSales}"
 				icon="system/send-action"
 				@click="${() => this._goToFuneralSMSHistory(policyItem) || this._featureEnabled()}">
 			</horizon-option-button>`;
@@ -1434,7 +1435,7 @@ class ClientSummary extends Component {
 		switch (showOption) {
 			case POLICY_OPTIONS.REINSTATE:
 				return html`<capitec-overflow-menu-item icon="system/history-action" 
-					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
+					label="Re-Issue" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || this.isInsureSales || !this._featureEnabled(FEATURE_TOGGLES.ReissuePolicy)}" @click="${() => this._displayCFPDisclosure(`update`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.EMAIL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1443,7 +1444,7 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.PAY_ARREARS:
 				return html`<capitec-overflow-menu-item icon="status/error" 
-					label="Pay Arrears" .disabled="${this.isInsureAgent || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
+					label="Pay Arrears" .disabled="${this.isInsureAgent || this.isInsureSales || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE || !this._featureEnabled(FEATURE_TOGGLES.AdhocPayment)}" @click="${() => this._displayCFPDisclosure(`adhoc`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/profile-action" 
@@ -1451,16 +1452,16 @@ class ClientSummary extends Component {
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.CANCEL_PLAN:
 				return html`<capitec-overflow-menu-item icon="system/delete-action" 
-					label="Cancel Plan" .disabled="${this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
+					label="Cancel Plan" .disabled="${this.isInsureAgent || this.isInsureSales || this.isInsureCampaigner || this.isInsureCollector || !this._featureEnabled(FEATURE_TOGGLES.CancelPolicy)}" @click="${() => this._displayCFPDisclosure(`cancel`, policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.TRANSACTION_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/transfer-action" 
-					.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing)}"
+					.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing) || this.isInsureSales}"
 					label="Premium History" @click="${() => this._goToFuneralPolicyTransactionHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.SMS_HISTORY:
 				return html`<capitec-overflow-menu-item icon="system/send-action" 
-					.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing)}"
+					.disabled="${!this._featureEnabled(FEATURE_TOGGLES.Emailing) || this.isInsureSales}"
 					label="SMS History" @click="${() => this._goToFuneralSMSHistory(policyItem)}">
 				</capitec-overflow-menu-item>`;
 			case POLICY_OPTIONS.UPDATE_ID_DOB:
@@ -1475,7 +1476,7 @@ class ClientSummary extends Component {
 					@click="${() => this._openVoluntaryPolicyPauseDialog(policyItem)}"
 					icon="system/profile-action" 
 					label="${policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? `Cancel Voluntary Policy pause` : `Activate Voluntary Policy pause`}"
-					.disabled="${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner || this.isInsureCollector || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || (policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? !this._featureEnabled(FEATURE_TOGGLES.CancelPolicyPause) : !this._featureEnabled(FEATURE_TOGGLES.ActivatePolicyPause))}">
+					.disabled="${this.isInsureAgent || this.isInsureAdministrator || this.isInsureCampaigner || this.isInsureCollector || this.isInsureSales || policyItem.policyRule === FUN_POLICY_RULES.MATERNITY_WAIVER || (policyItem.policyRule === FUN_POLICY_RULES.POLICY_PAUSE ? !this._featureEnabled(FEATURE_TOGGLES.CancelPolicyPause) : !this._featureEnabled(FEATURE_TOGGLES.ActivatePolicyPause))}">
 				</capitec-overflow-menu-item>`
 			case POLICY_OPTIONS.NEW_BORN_WAIVER:
 				return html`<capitec-overflow-menu-item
@@ -2243,7 +2244,7 @@ class ClientSummary extends Component {
 	 * @returns {html} html
 	 */
 	_renderGetFuneralEstimateButton() {
-		if (!this._featureEnabled("Estimate")) {
+		if (!this._featureEnabled("Estimate") || this.isInsureSales) {
 			return html``
 		}
 
@@ -2296,18 +2297,19 @@ class ClientSummary extends Component {
 					${this.lifePolicies?.policies.length === 0 ? html`${this._renderNoResultsLifeTab()}` : html`${this._renderLifePoliciesList()}`}
 					${this._renderFooter()}
 				</capitec-tab>
-				
-				<capitec-tab
-					data-automation-id="insure-landing-claims-tab"
-					label="Claims">
-					<capitec-content-box  id="client-policies-box" class="accounts-box">
-						<horizon-insure-client-claims-summary 
-							.clientClaims="${this.clientClaims}"
-							@claim-selected="${(e) => this._goToClaimSummary(e)}" >
-						</horizon-insure-client-claims-summary>
-					</capitec-content-box>
-					${this._renderFooter()}
-				</capitec-tab>
+				${!this.isInsureSales ? html`
+					<capitec-tab
+						data-automation-id="insure-landing-claims-tab"
+						label="Claims">
+						<capitec-content-box  id="client-policies-box" class="accounts-box">
+							<horizon-insure-client-claims-summary 
+								.clientClaims="${this.clientClaims}"
+								@claim-selected="${(e) => this._goToClaimSummary(e)}" >
+							</horizon-insure-client-claims-summary>
+						</capitec-content-box>
+						${this._renderFooter()}
+					</capitec-tab>`
+				: html``}
 			</capitec-tab-group>`;
 	}
 
@@ -2535,23 +2537,23 @@ class ClientSummary extends Component {
 					<capitec-overflow-menu-item icon="system/my-details-action" label="Increase Cover" disabled></capitec-overflow-menu-item>
 				`}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureSales)
 				? html`<capitec-overflow-menu-item icon="system/prepaid-mobile-action" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" label="Update Payment Details" @click="${() => this._openLifeUpdateBankDetailsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
 
-			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner)
+			${this._calculateLifeArrearsAmount(activeLifePolicy) > 0 && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureSales)
 				? html`<capitec-overflow-menu-item icon="system/documents-action" label="Pay Arrears" .disabled="${activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.NEW_BORN_PREMIUM_WAIVER || activeLifePolicy?.policyStatusEnum === LIFE_POLICY_STATUSES.VOLUNTARY_PAUSE}" @click="${() => this._openLifePayArrearsDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
 
-					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureCollector)
+					${this._checkLifePolicyStatus(activeLifePolicy?.policyStatusEnum) && (!this.isInsureAgent && !this.isInsureAdministrator && !this.isInsureCampaigner && !this.isInsureCollector && !this.isInsureSales)
 				? html`<capitec-overflow-menu-item  icon="system/account-details-action" label="Cancel Policy" @click="${() => this._openLifeCancelPolicyDialog(activeLifePolicy)}"></capitec-overflow-menu-item>`
 				: html``
 			}
-						<capitec-overflow-menu-item icon="system/pay-to-cell-action" label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
-						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/pay-to-cell-action" label="Premium History" .disabled="${this.isInsureSales}" @click="${() => this._goToLifePolicyPremiumHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
+						<capitec-overflow-menu-item icon="system/send-action" label="SMS History" .disabled="${this.isInsureSales}" @click="${() => this._goToLifeSMSHistory(activeLifePolicy)}"></capitec-overflow-menu-item>
 						
 					${this.isInsureAdministrator && activeLifePolicy.newBornPremiumWaiverAvailable
 				? html`<capitec-overflow-menu-item icon="system/profile-action" label="${activeLifePolicy?.benefit?.benefitStatus === LIFE_CLIENT_SUMMARY_BENEFIT_TYPES.ACTIVE ? `Cancel Newborn Premium Waiver` : `Activate Newborn Premium Waiver`}" @click="${() => this._openLifeNewbornPremiumWaiverReason(activeLifePolicy)}"></capitec-overflow-menu-item>`
@@ -2560,7 +2562,7 @@ class ClientSummary extends Component {
 			${!this.isInsureAgent && !this.isInsureCampaigner && !this.isInsureCollector ? html`<capitec-overflow-menu-item 
 						icon="system/profile-action" 
 						label="${this._determineLifeVppLabel(activeLifePolicy)}" 
-						.disabled="${this._shouldDisableVppButton(activeLifePolicy)}"
+						.disabled="${this._shouldDisableVppButton(activeLifePolicy) || this.isInsureSales}"
 						@click="${() => this._openLifeVppDialog(activeLifePolicy)}">
 					</capitec-overflow-menu-item>`
 				: html``
@@ -2708,8 +2710,8 @@ class ClientSummary extends Component {
 								<capitec-overflow-menu-item label="Email Policy" @click="${() => this._openLifeEmailDialog(pol)}"></capitec-overflow-menu-item>
 							`}
 
-							<capitec-overflow-menu-item label="Premium History" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
-							<capitec-overflow-menu-item label="SMS History" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="Premium History" .disabled="${this.isInsureSales}" @click="${() => this._goToLifePolicyPremiumHistory(pol)}"></capitec-overflow-menu-item>
+							<capitec-overflow-menu-item label="SMS History" .disabled="${this.isInsureSales}" @click="${() => this._goToLifeSMSHistory(pol)}"></capitec-overflow-menu-item>
 
 
 						<!--${this._canShowReIssuePolicy(pol) ? html`
