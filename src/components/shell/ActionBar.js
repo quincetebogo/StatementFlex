@@ -241,7 +241,7 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 					<capitec-button type="clear"
 									label="Add caller details"
-									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector}"
+									?hidden="${this.hideAddCallerDetails || this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector || this.roleManager.isInsureSales}"
 									@click="${() => this._addCallerDetails()}"
 									data-automation-id="action-bar-add-caller-details">
 					</capitec-button>

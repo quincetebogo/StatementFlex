@@ -930,7 +930,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLanguagePreference() {
-		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector
+		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector || this.roleManager.isInsureSales
 			? html`
 				<horizon-label 
 					class="client-info-row" 
