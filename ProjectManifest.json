@@ -2,7 +2,7 @@
 	"name": "cec-ui-horizon",
 	"product": "horizon",
 	"group": "G_CKS_CEC_HORIZON_ADMIN",
-	"version": "3.10.33",
+	"version": "3.10.34",
 	"alias": "cec-horizon",
 	"release": "251017",
 	"contractVersion": "v1",
