@@ -150,7 +150,7 @@ export class ClientProfileService extends ChannelServiceBase {
 		);
 	}
 
-	// consent management methods
+	// consent management methods - direct marketing only
 
 	async getClientConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 
@@ -187,7 +187,6 @@ export class ClientProfileService extends ChannelServiceBase {
 
 		const request = {
 			"cifNumber": vasRequest.cifnumber,
-			"optInInsights": vasRequest.optOutInsights,
 			"optInMarketing": vasRequest.optOutBehaviouralMarketing
 		};
 
@@ -200,6 +199,52 @@ export class ClientProfileService extends ChannelServiceBase {
 			`putClientConsent`,
 			null,
 			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+	async updateClientInterestConsent(vasRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES){
+
+		const url = '/client/preferences/consent/interest';
+		var request = {
+			"cifNumber": vasRequest.cifNumber,
+			"optInConsentInterestPreferences" : vasRequest.optInConsentInterestPreferences
+		}
+		return this.post(
+			url,
+			request,
+			this.setToken(),
+			'updateClientInterestConsent',
+			null,
+			null,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
+
+
+	// get client interest consent
+	async getClientInterestConsent(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES){
+		if (await this.isMockEnabled(`getClientDetails`)) {
+			return this.mock(`getClientDetails`);
+		}
+
+		var headers = {
+			...this.setToken(),
+			cifNumber
+		}
+		const url = `/client/preferences/consent/interest`;
+
+		return this.get(
+			url,
+			headers,
+			null,
+			'getClientInterestConsent',
 			null,
 			null,
 			errorHandler,

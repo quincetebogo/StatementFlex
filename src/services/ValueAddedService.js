@@ -53,7 +53,7 @@ export class ValueAddedService extends ChannelServiceBase {
 	putValueAddedServiceStatus(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const url = `/clientcare-client-${this._version}/value-added-services?` +
 			`capitecEntityId=${request.capitecEntityId}&` +
-			`optOutInsights=${request.optOutInsights}&` +
+			`` +
 			`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
 			`optOutPreAssessments=${request.optOutPreAssessments}&` +
 			`optOutAnalysis=${request.optOutAnalysis}&` +
