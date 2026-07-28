@@ -272,7 +272,7 @@ export class ConfirmCallerDetails extends Component {
 			1	1	1	1 - Help desk agents are allowed in
 		*/
 
-		return this.callerInformation.isBranchConsultant && (this.roleManager.isHelpDeskAgent || !this.confirmedCaller.isClientPresent);
+		return this.roleManager.isHelpDeskAgent || (this.callerInformation.isBranchConsultant && !this.confirmedCaller.isClientPresent);
 	}
 
 	_isInComingCallAuthenticated() {
@@ -457,7 +457,7 @@ export class ConfirmCallerDetails extends Component {
 			``, // nonclient ID number
 			``, // nonclient relationship
 			true, // isConfirmed
-			this.confirmedCaller.isClientVerifiedInBranch ? `verified` : `unverified`, // verificationStatus
+			(this.confirmedCaller.isClientVerifiedInBranch || this.roleManager.isHelpDeskAgent) ? `verified` : `unverified`, // verificationStatus
 			false, // verificationToastDisplayed
 			false, // isThirdParty
 			false, // isNonClient
@@ -466,7 +466,7 @@ export class ConfirmCallerDetails extends Component {
 			{ itaAttempts: 0, sqAttempts: 0 },
 			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
 			this.confirmedCaller.isClientPresent, // isClientPresent
-			this.confirmedCaller.isClientVerifiedInBranch ? `ITA` : ``,
+			(this.confirmedCaller.isClientVerifiedInBranch || this.roleManager.isHelpDeskAgent) ? `ITA` : ``,
 			this.confirmedCaller.firstName,
 			this.confirmedCaller.middleName1,
 			this.confirmedCaller.middleName2,

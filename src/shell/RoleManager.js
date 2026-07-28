@@ -38,6 +38,10 @@ export class RoleManager {
 		return isAuthorised;
 	}
 
+	get isInsureReadOnly() {
+		return this.isInsureAgent || this.isInsureCampaigner || this.isInsureCollector || this.isHelpDeskAgent;
+	}
+
 	get isInsureAgent() {
 		return this.roles && this.roles.includes(`insure-agent`);
 	}
