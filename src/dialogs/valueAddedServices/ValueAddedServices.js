@@ -104,7 +104,7 @@ export class ValueAddedServices extends Component {
 	// ---------------
 
 	async _updateValueAddedServices(valueAddedServices) {
-		
+		// Only update direct marketing consent (personalised offers removed)
 		const returnValue = await this.clientProfileService.putClientConsent(valueAddedServices);
 
 		if (returnValue.succeeded) {
@@ -113,14 +113,20 @@ export class ValueAddedServices extends Component {
 				"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
 				"next-screen": TelemetryScreen.FAVOURITES,
 				"capitec-entity-id": valueAddedServices.capitecEntityId,
-				"insights": valueAddedServices.optOutInsights,
 				"behavioural-marketing": valueAddedServices.optOutBehaviouralMarketing
-				
 				
 			});
 		}
 
 		return returnValue.succeeded;
+	}
+
+	async _updateClientInterestConsent(clientInterestConsent){
+		const returnValue = await this.clientProfileService.updateClientInterestConsent(clientInterestConsent);
+
+		if(!returnValue.succeeded){
+			// Need to display that error screen if anything fails;
+		}
 	}
 
 	// ---------
@@ -143,6 +149,7 @@ export class ValueAddedServices extends Component {
 		<capitec-pc-value-added-services
 			.statusVAS="${this.statusVAS}"
 			.updateValueAddedServicesCallback="${(valueAddedServices) => this._updateValueAddedServices(valueAddedServices)}"
+			.updateClientInterestConsentCallback="${(clientInterestConsent) => this._updateClientInterestConsent(clientInterestConsent)}"
 			@accept="${(e) => this._accept(e)}"
 			@cancel="${(e) => this._cancel(e)}">
 		</capitec-pc-value-added-services>`;
