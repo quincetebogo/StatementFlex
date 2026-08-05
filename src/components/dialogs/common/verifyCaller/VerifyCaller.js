@@ -164,7 +164,10 @@ export class VerifyCaller extends Component {
 			await this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 				"screen": TelemetryScreen.VERIFY_CALLER
 			});
-			await this._initiateItaVerification();
+
+			if (!this.roleManager.isHelpDeskAgent) {
+				await this._initiateItaVerification();
+			}
 		}
 
 		this.authMethod = await this.configuration.getSetting(`AuthMethod`);
