@@ -2582,7 +2582,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _refreshLifePolicies() {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.requestUpdate();
 	}
 
