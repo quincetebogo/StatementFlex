@@ -144,7 +144,7 @@ export class ProductButtonPanel extends Component {
 	}
 
 	render() {
-		const isInsureRole = this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector;
+		const isInsureRole = this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector || this.roleManager.isInsureSales;
 
 		return html`
 			<horizon-product-tile 
