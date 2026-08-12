@@ -2331,6 +2331,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 				@life-update-banking-details = "${(e) => this._updateBankingDetailsLifePolicy(e)}"
 				@navigate-to-funeral-policy-history= "${(e) => this._goToFuneralPolicyHistory(e)}"
 				@life-update-completed = "${(e) => this._lifeUpdateCompleted(e)}"
+				@verify-now = ${() => this._verifyClick()}
 				.setInsureIncident = "${(need) => super.setInsureIncident(need)}"
 				.showFeatureBanner="${this.showFeatureBanner}"
 				.featureBannerMessage="${this.featureBannerMessage}"
@@ -2581,7 +2582,7 @@ export class InsureBackOfficeView extends InsureViewBase {
 	 */
 	async _refreshLifePolicies() {
 		this.renderMode = INSURE_RENDER_MODE.CLIENT_POLICIES;
-		this.lifePolicies = await this._retrieveClientLifePolicies();
+		this.lifePolicies = await this._retrieveClientLifePolicies(this.callerInformation.cifNumber);
 		this.requestUpdate();
 	}
 
