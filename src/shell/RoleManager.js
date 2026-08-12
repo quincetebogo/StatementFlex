@@ -34,7 +34,7 @@ export class RoleManager {
 	}
 
 	get isAuthorised() {
-		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`) || this.roles.includes(`capitecconnect-teamleader`) || this.roles.includes(`insure-agent`) || this.roles.includes(`insure-administrator`) || this.roles.includes(`insure-collections`) || this.roles.includes(`insure-campaigns`);
+		const isAuthorised = this.roles.includes(`helpdesk-agent`) || this.roles.includes(`clientcare-agent`) || this.roles.includes(`capitecconnect-agent`) || this.roles.includes(`capitecconnect-teamleader`) || this.roles.includes(`insure-agent`) || this.roles.includes(`insure-administrator`) || this.roles.includes(`insure-collections`) || this.roles.includes(`insure-campaigns`) || this.roles.includes(`insure-sales`);
 		return isAuthorised;
 	}
 
@@ -56,6 +56,10 @@ export class RoleManager {
 
 	get isInsureCollector() {
 		return this.roles && this.roles.includes(`insure-collections`);
+	}
+
+	get isInsureSales() {
+		return this.roles && this.roles.includes(`insure-sales`);
 	}
 
 	get isCapitecConnectTeamleader() {

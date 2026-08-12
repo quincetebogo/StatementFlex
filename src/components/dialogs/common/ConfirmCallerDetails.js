@@ -505,8 +505,11 @@ export class ConfirmCallerDetails extends Component {
 			screenDetails.cards = returnValue.result && returnValue.result.cards;
 			this.horizonStore.setScreenDetails(screenDetails);
 		};
-
-		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+		if (this.roleManager.isInsureSales) {
+			this._navigateToInsureBackOfficePage()
+		} else {
+			this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+		}
 	}
 
 	_navigateToInsureBackOfficePage() {
@@ -930,7 +933,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_renderLanguagePreference() {
-		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector
+		return this.roleManager.isInsureAgent || this.roleManager.isInsureAdministrator || this.roleManager.isInsureCampaigner || this.roleManager.isInsureCollector || this.roleManager.isInsureSales
 			? html`
 				<horizon-label 
 					class="client-info-row" 
