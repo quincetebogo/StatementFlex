@@ -5,6 +5,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import 'app/components/common/HorizonStatusTracker';
 
 /**
  * Claim Summary component shows details of a selected claim, including any outstanding documents
@@ -80,6 +81,54 @@ class ClaimSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
+	_claimTrackingLabel(status) {
+		const labelMap = {
+			CLAIM_RECEIVED: `Claim received`,
+			CHECKING_DOCUMENTS: `Checking your documents`,
+			ASSESSING_CLAIM: `Checking your cover`,
+			CLAIM_OUTCOME: `Claim outcome`
+		};
+
+		if (labelMap[status]) {
+			return labelMap[status];
+		}
+
+		return `${status || ``}`
+			.toLowerCase()
+			.split(`_`)
+			.filter(Boolean)
+			.map(word => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+			.join(` `);
+	}
+
+	_getActiveClaimTrackingIndex(claimTracking) {
+		const firstIncompleteIndex = claimTracking?.findIndex(stage => !stage?.isStageCompleted) ?? -1;
+
+		if (firstIncompleteIndex < 0) {
+			return (claimTracking?.length ?? 1) - 1;
+		}
+
+		return firstIncompleteIndex;
+	}
+
+	_getClaimStatusDisplay() {
+		const claimTracking = this.claimSummary?.claimTracking;
+
+		if (isNullorEmpty(claimTracking)) {
+			return this.claimSummary?.claimStatus || ``;
+		}
+
+		const activeIndex = this._getActiveClaimTrackingIndex(claimTracking);
+		const activeStage = claimTracking?.[activeIndex];
+		const isLastStage = activeIndex === claimTracking.length - 1;
+
+		if (isLastStage && !isNullorEmpty(activeStage?.message)) {
+			return activeStage.message[0];
+		}
+
+		return this._claimTrackingLabel(activeStage?.status);
+	}
+
 	// #endregion EVENT HANDLERS
 
 	// #region RENDERING
@@ -134,6 +183,64 @@ class ClaimSummary extends Component {
 				.doc-item{
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-color: #3A3A3A;
+				}
+
+				.claim-detail-layout {
+					display: grid;
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+					gap: 16px;
+					padding: 0 15px 16px;
+				}
+
+				.section-card {
+					background: #FFFFFF;
+					border: 1px solid #D9E0EA;
+					border-radius: 12px;
+					padding: 16px 18px 18px;
+					box-shadow: none;
+				}
+
+				.section-title {
+					--theme-label-font-size: 16px;
+					--theme-label-font-weight: 600;
+					--theme-label-font-color: #2D3440;
+				}
+
+				.section-divider {
+					height: 1px;
+					background: #E9EDF3;
+					margin: 12px 0 4px;
+				}
+
+				.detail-list {
+					display: flex;
+					flex-direction: column;
+				}
+
+				.detail-row {
+					display: grid;
+					grid-template-columns: 128px minmax(0, 1fr);
+					gap: 12px;
+					align-items: center;
+					padding: 11px 0;
+					border-bottom: 1px solid #EEF2F7;
+				}
+
+				.detail-row-last {
+					border-bottom: none;
+				}
+
+				.detail-label {
+					--theme-label-font-size: 12px;
+					--theme-label-font-weight: 400;
+					--theme-label-font-color: #8A919B;
+				}
+
+				.detail-value {
+					--theme-label-subtitle-font-size: 14px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-label-font-color: #2D3440;
+					word-break: break-word;
 				}
 
 				capitec-group > capitec-title-bar {
@@ -201,7 +308,7 @@ class ClaimSummary extends Component {
 					</horizon-label>
 					<horizon-label label="Claim status" 
 					class="row-item"
-						value="${this.claimSummary?.claimStatus}">
+						value="${this._getClaimStatusDisplay()}">
 					</horizon-label>
 				</div>
 
@@ -231,66 +338,62 @@ class ClaimSummary extends Component {
 					` : html``}
 				</div>
 
-				<div class="doc-container">
-					<capitec-label class="label-text" label="${!isNullorEmpty(this.claimSummary?.outstandingDocs) ? `Outstanding documents` : `No outstanding documents`}" type="default">
-					</capitec-label>
-					<ul id="doc-item-list">
-						${this.claimSummary?.outstandingDocs?.map(doc => html`
-							<li class="doc-item">${doc.documentName}</li>
-						`)}
-					</ul>
+				<div class="claim-detail-layout">
+					${this._renderDeceasedDetails()}
+					${this._renderClaimTracking()}
 				</div>
-
-				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-					<capitec-title-bar type="default" label="${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? `Deceased details` : `Life assured`}">
-					</capitec-title-bar>
-					<capitec-content-box class="lives-container">
-						<horizon-expander
-							expandButtonAlignment="none"
-							disabled>
-							<capitec-group 
-								class="expander-header"
-								slot="custom-header"
-								layout="horizontal"
-								gap="clear"
-								halign="left"
-								valign="center">
-								<horizon-label
-									class="fixed-label"
-									label="Relationship"
-									textOverflow="ellipsis"
-									value="${this.claimSummary?.lifeAssured?.relationship}">
-								</horizon-label>
-								<horizon-label
-									class="fixed-label"
-									label="First name"
-									textOverflow="ellipsis"
-									value="${this.claimSummary?.lifeAssured?.firstName}">
-								</horizon-label>
-								<horizon-label
-									class="fixed-label"
-									label="Surname"
-									textOverflow="ellipsis"
-									value="${this.claimSummary?.lifeAssured?.surname}">
-								</horizon-label>
-								<horizon-label
-									class="fixed-label"
-									label="Date of birth"
-									textOverflow="ellipsis"
-									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.dateOfBirth) ? `-` : formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}">
-								</horizon-label>
-								<horizon-label
-									class="fixed-label"
-									label="ID Number"
-									textOverflow="ellipsis"
-									value="${isNullorEmpty(this.claimSummary?.lifeAssured?.idNumber) ? `-` : this.claimSummary?.lifeAssured?.idNumber}">
-								</horizon-label>
-							</capitec-group>
-						</horizon-expander>
-					</capitec-content-box>
-				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderClaimTracking() {
+		return html`<capitec-content-box class="section-card tracker-card" noPadding>
+				<capitec-label class="label-text" label="Track your claim" type="strong"></capitec-label>
+				<div class="section-divider"></div>
+				<horizon-status-tracker 
+					.stages="${this.claimSummary?.claimTracking}"
+					.stageLabel="${(status) => this._claimTrackingLabel(status)}"
+					.outstandingDocs="${this.claimSummary?.outstandingDocs}">
+				</horizon-status-tracker>
+			</capitec-content-box>`;
+	}
+
+	_renderDetailRow(label, value, last = false) {
+		return html`
+			<div class="detail-row ${last ? `detail-row-last` : ``}">
+				<capitec-label class="detail-label" label="${label}" type="default"></capitec-label>
+				<capitec-label class="detail-value" label="${value}" type="subtitle"></capitec-label>
+			</div>
+		`;
+	}
+
+	_renderDeceasedDetails() {
+		return html`<capitec-content-box class="section-card details-card" noPadding>
+				<capitec-label class="label-text" label="${this.claimSummary?.claimType?.toUpperCase() === `DEATH` ? `Deceased details` : `Life assured`}" type="strong"></capitec-label>
+				<div class="section-divider"></div>
+				<div class="detail-list">
+					<div class="detail-row">
+						<capitec-label class="detail-label" label="Relationship" type="default"></capitec-label>
+						<capitec-label class="detail-value" label="${this.claimSummary?.lifeAssured?.relationship}" type="subtitle"></capitec-label>
+					</div>
+					<div class="detail-row">
+						<capitec-label class="detail-label" label="First name" type="default"></capitec-label>
+						<capitec-label class="detail-value" label="${this.claimSummary?.lifeAssured?.firstName}" type="subtitle"></capitec-label>
+					</div>
+					<div class="detail-row">
+						<capitec-label class="detail-label" label="Surname" type="default"></capitec-label>
+						<capitec-label class="detail-value" label="${this.claimSummary?.lifeAssured?.surname}" type="subtitle"></capitec-label>
+					</div>
+					<div class="detail-row">
+						<capitec-label class="detail-label" label="Date of birth" type="default"></capitec-label>
+						<capitec-label class="detail-value" label="${isNullorEmpty(this.claimSummary?.lifeAssured?.dateOfBirth) ? `-` : formatDate(this.claimSummary?.lifeAssured?.dateOfBirth, `dd mmm yyyy`)}" type="subtitle"></capitec-label>
+					</div>
+					<div class="detail-row detail-row-last">
+						<capitec-label class="detail-label" label="ID Number" type="default"></capitec-label>
+						<capitec-label class="detail-value" label="${isNullorEmpty(this.claimSummary?.lifeAssured?.idNumber) ? `-` : this.claimSummary?.lifeAssured?.idNumber}" type="subtitle"></capitec-label>
+					</div>
+				</div>
+			</capitec-content-box>`;
 	}
 
 	// #endregion RENDERING
