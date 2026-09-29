@@ -5,328 +5,561 @@
  * @constant Claims
  */
 export const Claims = {
-  claimSummaries: [
-    {
-      lifeAssured: {
-        title: "Mr",
-        firstName: "SIHLE",
-        surname: "JULA",
-        gender: "Male",
-        age: 22,
-        dateOfBirth: "2002-01-01T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "CLM00658131",
-      claimStatus: "Claim Declined - No insurable interest",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      productName: "Funeral Cover",
-      policyNumber: "CF39335917",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2022-01-31T02:00:00+00:00",
-      dateOfClaim: "2022-03-03T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: 0.0,
-    },
-    {
-      lifeAssured: {
-        title: "Miss",
-        firstName: "AMANDA",
-        surname: "NGELEKA",
-        gender: "Female",
-        age: 21,
-        dateOfBirth: "2003-02-27T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "CLM02160686",
-      claimStatus: "Claim Paid",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      productName: "Funeral Cover",
-      policyNumber: "CF39335917",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2022-01-31T02:00:00+00:00",
-      dateOfClaim: "2022-02-01T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: -29418.8,
-      paymentTransactionList: [
-        {
-          date: "2022-02-02",
-          amount: 29418.8,
-          bankDetails: [],
-          payStatus: "Authorised",
-        },
-      ],
-    },
-    {
-      lifeAssured: {
-        title: "Miss",
-        firstName: "AMANDA",
-        surname: "NGELEKA",
-        gender: "Female",
-        age: 21,
-        dateOfBirth: "2003-02-27T02:00:00+00:00",
-        relationship: "ExtendedFamily",
-      },
-      claimsReference: "FLO-220201-E4M",
-      taskReference: "FLO-220201-E4M",
-      claimStatus: "No mapping for Claim Status:  and Stage Name: ",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "90798450",
-      productName: "Funeral Cover",
-      policyNumber: "CF39335917",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2022-01-31T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: 0.0,
-    },
-    {
-      lifeAssured: {
-        title: "Mr",
-        firstName: "SIHLE",
-        surname: "JULA",
-        gender: "Female",
-        age: 22,
-        dateOfBirth: "2002-01-01T02:00:00+00:00",
-        relationship: "ExtendedFamily",
-      },
-      claimsReference: "FLO-220302-RPV",
-      taskReference: "FLO-220302-RPV",
-      claimStatus: "No mapping for Claim Status:  and Stage Name: ",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "91769219",
-      productName: "Funeral Cover",
-      policyNumber: "CF39335917",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2022-01-31T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: 0.0,
-    },
-    {
-      lifeAssured: {
-        title: "Miss",
-        firstName: "Sinelizwe",
-        surname: "Ziyatsha",
-        gender: "Female",
-        age: 13,
-        dateOfBirth: "2011-06-16T02:00:00+00:00",
-        relationship: "Firstcousin",
-      },
-      claimsReference: "FLO-240726-835",
-      taskReference: "FLO-240726-835",
-      claimStatus: "Claim Declined - Child limits apply",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "122021058",
-      productName: "Funeral Cover",
-      policyNumber: "CF57133939",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2024-06-27T02:00:00+00:00",
-      dateOfClaim: "2024-07-26T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: 0.0,
-    },
-    {
-      lifeAssured: {
-        title: "Miss",
-        firstName: "Thabsile",
-        surname: "Ndlovu",
-        gender: "Female",
-        age: 21,
-        dateOfBirth: "2002-12-03T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "FLO-240209-PRF",
-      taskReference: "FLO-240209-PRF",
-      claimStatus: "Claim Paid",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "115961341",
-      productName: "Funeral Cover",
-      policyNumber: "CF57893783",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2024-02-08T02:00:00+00:00",
-      dateOfClaim: "2024-02-09T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: -40000.0,
-      paymentTransactionList: [
-        {
-          date: "2024-02-09",
-          amount: 40000.0,
-          bankDetails: [],
-          payStatus: "Authorised",
-        },
-      ],
-    },
-    {
-      lifeAssured: {
-        title: "Miss",
-        firstName: "Noncedo",
-        surname: "Gcaba",
-        gender: "Female",
-        age: 24,
-        dateOfBirth: "2000-01-16T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "FLO-231108-R5B",
-      taskReference: "FLO-231108-R5B",
-      claimStatus: "Claim Paid",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "112435651",
-      productName: "Funeral Cover",
-      policyNumber: "CF58029664",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2023-11-06T02:00:00+00:00",
-      dateOfClaim: "2023-11-08T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: -40000.0,
-      paymentTransactionList: [
-        {
-          date: "2023-11-09",
-          amount: 40000.0,
-          bankDetails: [],
-          payStatus: "Authorised",
-        },
-      ],
-    },
-    {
-      lifeAssured: {
-        title: "Mr",
-        firstName: "Simphiwe Blose",
-        surname: "Blose",
-        gender: "Male",
-        age: 25,
-        dateOfBirth: "1999-06-16T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "FLO-241007-EQM",
-      taskReference: "FLO-241007-EQM",
-      claimStatus: "Claim Paid",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "01300416",
-      productName: "Funeral Cover",
-      policyNumber: "CF72224371",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2024-10-02T02:00:00+00:00",
-      dateOfClaim: "2024-10-07T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: -35000.0,
-      paymentTransactionList: [
-        {
-          date: "2024-10-08",
-          amount: 35000.0,
-          bankDetails: [],
-          payStatus: "Authorised",
-        },
-      ],
-    },
-    {
-      lifeAssured: {
-        title: "Mr",
-        firstName: "Kwanele",
-        surname: "Mkhize",
-        gender: "Female",
-        age: 22,
-        dateOfBirth: "2001-11-02T02:00:00+00:00",
-        relationship: "NephewNiece",
-      },
-      claimsReference: "FLO-240528-B73",
-      taskReference: "FLO-240528-B73",
-      claimStatus: "Claim Paid",
-      claimFunctionalStatus: "Approved",
-      claimType: "Death",
-      policyType: "Funeral",
-      causeOfIncident: "Natural",
-      incidentNumber: "119884016",
-      productName: "Funeral Cover",
-      policyNumber: "CF72312317",
-      bankAccount: {
-        accountName: "Miss Zonke Ndlovu",
-        branchCode: "470010",
-        accountNumber: "1700599524",
-        bank: "CAPITEC BANK LIMITED",
-        accountType: "Savings",
-      },
-      dateOfEvent: "2024-05-27T02:00:00+00:00",
-      dateOfClaim: "2024-05-28T02:00:00+00:00",
-      outstandingDocs: [],
-      claimSettlementAmount: -30000.0,
-      paymentTransactionList: [
-        {
-          date: "2024-05-29",
-          amount: 30000.0,
-          bankDetails: [],
-          payStatus: "Authorised",
-        },
-      ],
-    },
-  ],
+	claimSummaries: [
+		{
+			lifeAssured: {
+				title: "Mr",
+				firstName: "SIHLE",
+				surname: "JULA",
+				gender: "Male",
+				age: 22,
+				dateOfBirth: "2002-01-01T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "CLM00658131",
+			claimStatus: "Claim Declined - No insurable interest",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			productName: "Funeral Cover",
+			policyNumber: "CF39335917",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2022-01-31T02:00:00+00:00",
+			dateOfClaim: "2022-03-03T02:00:00+00:00",
+			outstandingDocs: [
+			],
+			claimSettlementAmount: 0.0,
+			incidentNumber: "07722507",
+			lastComment: "",
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Miss",
+				firstName: "AMANDA",
+				surname: "NGELEKA",
+				gender: "Female",
+				age: 21,
+				dateOfBirth: "2003-02-27T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "CLM02160686",
+			claimStatus: "Claim Paid",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			productName: "Funeral Cover",
+			policyNumber: "CF39335917",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2022-01-31T02:00:00+00:00",
+			dateOfClaim: "2022-02-01T02:00:00+00:00",
+			outstandingDocs: [{
+				"documentCode": "CLAIM_FORM",
+				"documentName": "first document",
+				"documentStatus": "Outstanding"
+			},
+			{
+				"documentCode": "CLAIM_FORM",
+				"documentName": "second document",
+				"documentStatus": "Outstanding"
+			},
+			{
+				"documentCode": "CLAIM_FORM",
+				"documentName": "third document",
+				"documentStatus": "Outstanding"
+			}
+			],
+			claimSettlementAmount: -29418.8,
+			paymentTransactionList: [
+				{
+					date: "2022-02-02",
+					amount: 29418.8,
+					bankDetails: [],
+					payStatus: "Authorised",
+				},
+			],
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: ["Checking your documents"],
+					isStageCompleted: false
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [
+					],
+					isStageCompleted: false
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Miss",
+				firstName: "AMANDA",
+				surname: "NGELEKA",
+				gender: "Female",
+				age: 21,
+				dateOfBirth: "2003-02-27T02:00:00+00:00",
+				relationship: "ExtendedFamily",
+			},
+			claimsReference: "FLO-220201-E4M",
+			taskReference: "FLO-220201-E4M",
+			claimStatus: "No mapping for Claim Status:  and Stage Name: ",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "90798450",
+			productName: "Funeral Cover",
+			policyNumber: "CF39335917",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2022-01-31T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: 0.0,
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Mr",
+				firstName: "SIHLE",
+				surname: "JULA",
+				gender: "Female",
+				age: 22,
+				dateOfBirth: "2002-01-01T02:00:00+00:00",
+				relationship: "ExtendedFamily",
+			},
+			claimsReference: "FLO-220302-RPV",
+			taskReference: "FLO-220302-RPV",
+			claimStatus: "No mapping for Claim Status:  and Stage Name: ",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "91769219",
+			productName: "Funeral Cover",
+			policyNumber: "CF39335917",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2022-01-31T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: 0.0,
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Miss",
+				firstName: "Sinelizwe",
+				surname: "Ziyatsha",
+				gender: "Female",
+				age: 13,
+				dateOfBirth: "2011-06-16T02:00:00+00:00",
+				relationship: "Firstcousin",
+			},
+			claimsReference: "FLO-240726-835",
+			taskReference: "FLO-240726-835",
+			claimStatus: "Claim Declined - Child limits apply",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "122021058",
+			productName: "Funeral Cover",
+			policyNumber: "CF57133939",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2024-06-27T02:00:00+00:00",
+			dateOfClaim: "2024-07-26T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: 0.0,
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Miss",
+				firstName: "Thabsile",
+				surname: "Ndlovu",
+				gender: "Female",
+				age: 21,
+				dateOfBirth: "2002-12-03T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "FLO-240209-PRF",
+			taskReference: "FLO-240209-PRF",
+			claimStatus: "Claim Paid",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "115961341",
+			productName: "Funeral Cover",
+			policyNumber: "CF57893783",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2024-02-08T02:00:00+00:00",
+			dateOfClaim: "2024-02-09T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: -40000.0,
+			paymentTransactionList: [
+				{
+					date: "2024-02-09",
+					amount: 40000.0,
+					bankDetails: [],
+					payStatus: "Authorised",
+				},
+			],
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Miss",
+				firstName: "Noncedo",
+				surname: "Gcaba",
+				gender: "Female",
+				age: 24,
+				dateOfBirth: "2000-01-16T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "FLO-231108-R5B",
+			taskReference: "FLO-231108-R5B",
+			claimStatus: "Claim Paid",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "112435651",
+			productName: "Funeral Cover",
+			policyNumber: "CF58029664",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2023-11-06T02:00:00+00:00",
+			dateOfClaim: "2023-11-08T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: -40000.0,
+			paymentTransactionList: [
+				{
+					date: "2023-11-09",
+					amount: 40000.0,
+					bankDetails: [],
+					payStatus: "Authorised",
+				},
+			],
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Mr",
+				firstName: "Simphiwe Blose",
+				surname: "Blose",
+				gender: "Male",
+				age: 25,
+				dateOfBirth: "1999-06-16T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "FLO-241007-EQM",
+			taskReference: "FLO-241007-EQM",
+			claimStatus: "Claim Paid",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "01300416",
+			productName: "Funeral Cover",
+			policyNumber: "CF72224371",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2024-10-02T02:00:00+00:00",
+			dateOfClaim: "2024-10-07T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: -35000.0,
+			paymentTransactionList: [
+				{
+					date: "2024-10-08",
+					amount: 35000.0,
+					bankDetails: [],
+					payStatus: "Authorised",
+				},
+			],
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+		{
+			lifeAssured: {
+				title: "Mr",
+				firstName: "Kwanele",
+				surname: "Mkhize",
+				gender: "Female",
+				age: 22,
+				dateOfBirth: "2001-11-02T02:00:00+00:00",
+				relationship: "NephewNiece",
+			},
+			claimsReference: "FLO-240528-B73",
+			taskReference: "FLO-240528-B73",
+			claimStatus: "Claim Paid",
+			claimFunctionalStatus: "Approved",
+			claimType: "Death",
+			policyType: "Funeral",
+			causeOfIncident: "Natural",
+			incidentNumber: "119884016",
+			productName: "Funeral Cover",
+			policyNumber: "CF72312317",
+			bankAccount: {
+				accountName: "Miss Zonke Ndlovu",
+				branchCode: "470010",
+				accountNumber: "1700599524",
+				bank: "CAPITEC BANK LIMITED",
+				accountType: "Savings",
+			},
+			dateOfEvent: "2024-05-27T02:00:00+00:00",
+			dateOfClaim: "2024-05-28T02:00:00+00:00",
+			outstandingDocs: [],
+			claimSettlementAmount: -30000.0,
+			paymentTransactionList: [
+				{
+					date: "2024-05-29",
+					amount: 30000.0,
+					bankDetails: [],
+					payStatus: "Authorised",
+				},
+			],
+			claimTracking: [
+				{
+					status: "CLAIM_RECEIVED",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CHECKING_DOCUMENTS",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "ASSESSING_CLAIM",
+					message: [],
+					isStageCompleted: true
+				},
+				{
+					status: "CLAIM_OUTCOME",
+					message: [
+						"Your claim has been finalised"
+					],
+					isStageCompleted: false
+				}
+			]
+		},
+	],
 };
