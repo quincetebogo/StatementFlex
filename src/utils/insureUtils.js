@@ -20,6 +20,54 @@ export const LIFE_COVER_ERROR_MESSAGES = {
 	INCREASE_COVER_LESS_CURRENT_COVER: `Your new cover can not be less than your original cover of {0}`
 };
 
+export function getClaimTrackingLabel(status) {
+	const labelMap = {
+		CLAIM_RECEIVED: `Claim received`,
+		CHECKING_DOCUMENTS: `Checking your documents`,
+		ASSESSING_CLAIM: `Checking your cover`,
+		CLAIM_OUTCOME: `Claim outcome`
+	};
+
+	if (labelMap[status]) {
+		return labelMap[status];
+	}
+
+	return `${status || ``}`
+		.toLowerCase()
+		.split(`_`)
+		.filter(Boolean)
+		.map(word => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+		.join(` `);
+}
+
+export function getActiveClaimTrackingIndex(claimTracking) {
+	const firstIncompleteIndex = claimTracking?.findIndex(stage => !stage?.isStageCompleted) ?? -1;
+
+	if (firstIncompleteIndex < 0) {
+		return (claimTracking?.length ?? 1) - 1;
+	}
+
+	return firstIncompleteIndex;
+}
+
+export function getClaimStatusDisplay(claim) {
+	const claimTracking = claim?.claimTracking;
+
+	if (isNullorEmpty(claimTracking)) {
+		return claim?.claimStatus || ``;
+	}
+
+	const activeIndex = getActiveClaimTrackingIndex(claimTracking);
+	const activeStage = claimTracking?.[activeIndex];
+	const isLastStage = activeIndex === claimTracking.length - 1;
+
+	if (isLastStage && !isNullorEmpty(activeStage?.message)) {
+		return activeStage.message[0];
+	}
+
+	return getClaimTrackingLabel(activeStage?.status);
+}
+
 /**
  * Calculate cover details metadata for ui controls based on relationship & Insure product params
  * @param {string} relationship relationship

@@ -4,6 +4,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { LodgeClaimEvents } from 'app/constants/telemetry/events/Insure';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { getClaimStatusDisplay } from 'app/utils/insureUtils';
 
 
 /**
@@ -89,15 +90,14 @@ class ClientClaimsSummary extends Component {
 	* @param {object} claim Current claim
 	* @returns {void} 
 	*/
-	_claimStatusLabel(claim) {
-		let status = ``;
-		if (claim?.claimStatus.length < 25) {
-			status = claim?.claimStatus;
-		} else {
-			status = claim?.claimStatus.slice(0, 23);
-			status += `...`;
+	_getClaimStatusDisplay(claim) {
+		const displayStatus = getClaimStatusDisplay(claim);
+
+		if (displayStatus.length < 22) {
+			return displayStatus;
 		}
-		return status;
+
+		return `${displayStatus.slice(0, 20)}...`;
 	}
 
 	// #endregion EVENT HANDLERS
@@ -276,7 +276,7 @@ class ClientClaimsSummary extends Component {
 						</horizon-label>
 						<horizon-label
 							label="Status"
-							value="${this._claimStatusLabel(claim)}">
+							value="${this._getClaimStatusDisplay(claim)}">
 						</horizon-label>
 				</capitec-group>
 				<div slot="content">
