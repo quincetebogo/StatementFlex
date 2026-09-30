@@ -5,6 +5,7 @@ import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { INSURE_CSS } from 'app/css/InsureCommonStyles';
 import { ROLE_PLAYER_RELATIONSHIP } from 'app/constants/InsureCommon';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
+import { getClaimStatusDisplay, getClaimTrackingLabel } from 'app/utils/insureUtils';
 import 'app/components/common/HorizonStatusTracker';
 
 /**
@@ -81,52 +82,8 @@ class ClaimSummary extends Component {
 		this.dispatchEvent(new CustomEvent(`navigate-back`, {}));
 	}
 
-	_claimTrackingLabel(status) {
-		const labelMap = {
-			CLAIM_RECEIVED: `Claim received`,
-			CHECKING_DOCUMENTS: `Checking your documents`,
-			ASSESSING_CLAIM: `Checking your cover`,
-			CLAIM_OUTCOME: `Claim outcome`
-		};
-
-		if (labelMap[status]) {
-			return labelMap[status];
-		}
-
-		return `${status || ``}`
-			.toLowerCase()
-			.split(`_`)
-			.filter(Boolean)
-			.map(word => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-			.join(` `);
-	}
-
-	_getActiveClaimTrackingIndex(claimTracking) {
-		const firstIncompleteIndex = claimTracking?.findIndex(stage => !stage?.isStageCompleted) ?? -1;
-
-		if (firstIncompleteIndex < 0) {
-			return (claimTracking?.length ?? 1) - 1;
-		}
-
-		return firstIncompleteIndex;
-	}
-
 	_getClaimStatusDisplay() {
-		const claimTracking = this.claimSummary?.claimTracking;
-
-		if (isNullorEmpty(claimTracking)) {
-			return this.claimSummary?.claimStatus || ``;
-		}
-
-		const activeIndex = this._getActiveClaimTrackingIndex(claimTracking);
-		const activeStage = claimTracking?.[activeIndex];
-		const isLastStage = activeIndex === claimTracking.length - 1;
-
-		if (isLastStage && !isNullorEmpty(activeStage?.message)) {
-			return activeStage.message[0];
-		}
-
-		return this._claimTrackingLabel(activeStage?.status);
+		return getClaimStatusDisplay(this.claimSummary);
 	}
 
 	// #endregion EVENT HANDLERS
@@ -352,7 +309,7 @@ class ClaimSummary extends Component {
 				<div class="section-divider"></div>
 				<horizon-status-tracker 
 					.stages="${this.claimSummary?.claimTracking}"
-					.stageLabel="${(status) => this._claimTrackingLabel(status)}"
+					.stageLabel="${getClaimTrackingLabel}"
 					.outstandingDocs="${this.claimSummary?.outstandingDocs}">
 				</horizon-status-tracker>
 			</capitec-content-box>`;
