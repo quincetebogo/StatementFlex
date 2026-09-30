@@ -93,10 +93,6 @@ class ClientClaimsSummary extends Component {
 	_getClaimStatusDisplay(claim) {
 		const displayStatus = getClaimStatusDisplay(claim);
 
-		if (claim.claimsReference === `CLM02160686`) {
-			console.log(displayStatus.length);
-		}
-
 		if (displayStatus.length < 22) {
 			return displayStatus;
 		}
