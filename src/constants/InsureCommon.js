@@ -43,6 +43,7 @@ export const BANK_OPTIONS = Object.freeze([
 	{ code: `NEDBANK PEOPLES MORTAGES LTD`, text: `NEDBANK PEOPLES MORTAGES LTD`, branchCode: `760005` },
 	{ code: `NEDBANK SWAZILAND`, text: `NEDBANK SWAZILAND`, branchCode: `0` },
 	{ code: `OLYMPUS MOBILE`, text: `OLYMPUS MOBILE`, branchCode: `585001` },
+	{ code: `OM BANK LIMITED`, text: `OM BANK LIMITED`, branchCode: `352000` },
 	{ code: `RAND MERCHANT BANK`, text: `RAND MERCHANT BANK`, branchCode: `255050` },
 	{ code: `SA BANK OF ATHENS`, text: `SA BANK OF ATHENS`, branchCode: `410105` },
 	{ code: `SA POST OFFICE`, text: `SA POST OFFICE`, branchCode: `460005` },
