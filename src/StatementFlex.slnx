@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="StatementFlex/StatementFlex.Application/StatementFlex.Application.csproj" />
+  <Project Path="StatementFlex/StatementFlex.Infrastructure/StatementFlex.Infrastructure.csproj" />
+  <Project Path="StatementFlex/StatementFlex.Core/StatementFlex.Core.csproj" />
+  <Project Path="StatementFlex/StatementFlex.Integration.Tests/StatementFlex.Integration.Tests.csproj" />
+  <Project Path="StatementFlex/StatementFlex.API/StatementFlex.API.csproj" />
+</Solution>
