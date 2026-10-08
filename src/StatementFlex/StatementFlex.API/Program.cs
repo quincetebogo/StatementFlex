@@ -17,41 +17,58 @@ using StatementFlex.Infrastructure.Storage;
 using Hangfire;
 using StatementFlex.Infrastructure.Jobs;
 using StatementGenerationService = StatementFlex.Infrastructure.Services.StatementManagementService;
-using Minio;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Amazon.RDS.Util;
-
+using Amazon.S3;
+using Amazon.Runtime;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.Configure<StatementProcessing>(
     builder.Configuration.GetSection(StatementProcessing.SectionName)
 );
+var s3BucketName = builder.Configuration["AWSSettings:BucketName"] ?? "statementsflex";
 
 // Register StatementProcessing as a singleton for direct injection
 var statementProcessingConfig = new StatementProcessing();
 builder.Configuration.GetSection(StatementProcessing.SectionName).Bind(statementProcessingConfig);
 builder.Services.AddSingleton(statementProcessingConfig);
 
-// Configure DbContext (Aurora PostgreSQL with IAM authentication)
-var rdsHost = "statementflex.cluster-chy8q4kqw5ee.eu-north-1.rds.amazonaws.com";
-var rdsPort = 5432;
-var dbUser = "postgres";
-var dbName = "statementflex";
-var region = "eu-north-1";
+var rawAccessKey = builder.Configuration["AWS:AccessKey"];
+var rawSecretKey = builder.Configuration["AWS:SecretKey"];
+var awsRegion = builder.Configuration["AWSSettings:Region"];
+var rawAccessPointArn = builder.Configuration["AWSSettings:AccessPointArn"];
 
-var token = RDS.GenerateAuthenticationToken(
-    hostname: rdsHost,
-    port: rdsPort,
-    username: dbUser,
-    region: region
-);
+Console.WriteLine($"DEBUG: RAW AccessKey (before processing): '{rawAccessKey}' (length: {rawAccessKey?.Length})");
+Console.WriteLine($"DEBUG: RAW SecretKey (before processing): '{rawSecretKey}' (length: {rawSecretKey?.Length})");
 
-var connectionString = $"Host={rdsHost};Port={rdsPort};Database={dbName};Username={dbUser};Password={token};SslMode=Require";
+//var regionEndpoint = Amazon.RegionEndpoint.GetBySystemName(awsRegion);
+//var credentials = new BasicAWSCredentials(accessKey, secretKey);
+var accessKey = new string(rawAccessKey.Where(c => c <= 127).ToArray()).Trim();
+var secretKey = new string(rawSecretKey.Where(c => c <= 127).ToArray()).Trim();
+var accessPointArm = new string(rawAccessPointArn.Where(c => c <= 127).ToArray()).Trim();
+
+Console.WriteLine($"DEBUG: Filtered AccessKey length: {accessKey?.Length}, Removed {(rawAccessKey?.Length ?? 0) - (accessKey?.Length ?? 0)} chars");
+Console.WriteLine($"DEBUG: Filtered SecretKey length: {secretKey?.Length}, Removed {(rawSecretKey?.Length ?? 0) - (secretKey?.Length ?? 0)} chars");
+Console.WriteLine($"DEBUG: AccessKey (AFTER FILTER): '{accessKey}'");
+Console.WriteLine($"DEBUG: SecretKey (AFTER FILTER): '{secretKey}'");
+Console.WriteLine($"DEBUG: Region: {awsRegion}");
+
+var regionEndpoint = Amazon.RegionEndpoint.GetBySystemName(awsRegion);
+var credentials = new BasicAWSCredentials(accessKey, secretKey);
+
+var s3Config = new AmazonS3Config {
+    RegionEndpoint = regionEndpoint,
+    UseArnRegion = true,
+    UseAccelerateEndpoint = false
+};
+builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(credentials, s3Config));
+// Configure DbContext (PostgreSQL)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Host=localhost;Port=5432;Database=statementflex;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseNpgsql(connectionString));
@@ -172,29 +189,13 @@ builder.Services.AddScoped<IStatementRepository, StatementRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IDownloadTokenService, DownloadTokenService>();
 
-// Configure MinIO client
-var minioEndpoint = builder.Configuration["StorageSettings:MinIO:Endpoint"] ?? "localhost:9002";
-var minioAccessKey = builder.Configuration["StorageSettings:MinIO:AccessKey"] ?? "minioadmin";
-var minioSecretKey = builder.Configuration["StorageSettings:MinIO:SecretKey"] ?? "minioadmin";
-var minioBucketName = builder.Configuration["StorageSettings:MinIO:BucketName"] ?? "statements";
-var minioUseSSL = bool.Parse(builder.Configuration["StorageSettings:MinIO:UseSSL"] ?? "false");
 
-builder.Services.AddSingleton<IMinioClient>(sp =>
-{
-    return new MinioClient()
-        .WithEndpoint(minioEndpoint)
-        .WithCredentials(minioAccessKey, minioSecretKey)
-        .WithSSL(minioUseSSL)
-        .Build();
-});
-
-// Register MinioStorageService with bucket name
 builder.Services.AddScoped<IStorageService>(sp =>
 {
-    var minioClient = sp.GetRequiredService<IMinioClient>();
-    return new MinioStorageService(minioClient, minioBucketName);
+    var s3Client = sp.GetRequiredService<IAmazonS3>();
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return new AWSS3BucketService(s3Client, configuration);
 });
-
 builder.Services.AddRateLimiter( options =>
 {
           options.AddFixedWindowLimiter("fixed", opt =>

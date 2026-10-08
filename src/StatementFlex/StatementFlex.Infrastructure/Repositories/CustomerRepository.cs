@@ -12,7 +12,6 @@ public class CustomerRepository(ApplicationDBContext applicationDBContext) : ICu
     public async Task<Customer?> GetCustomerByEmailAsync(string email, CancellationToken cancellationToken)
     {
         var response = await _applicationDBContext.Customers.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
-        Console.WriteLine(response);
         return response;
     }
     public async Task<Customer> RegisterCustomerAsync(Customer customer, CancellationToken cancellationToken)
