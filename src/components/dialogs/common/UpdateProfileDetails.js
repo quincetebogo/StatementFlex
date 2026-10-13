@@ -3,6 +3,7 @@ import { EMAIL_DOMAINS, LANGUAGE_LIST } from 'app/constants/Common';
 import { EMPLOYMENT_STATUS, EMPLOYMENT_TYPE, ERROR, FIELDS, INCOME_FREQUENCY, INCOME_RANGE, INDUSTRY_CODE, INVALID_VALUE, DETAILS_TYPE as MENU_ITEMS, SOURCE_FUNDS, getKey, getValue } from 'app/constants/ficaDetails';
 import { formatStringAsPascalCase, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Utilities } from 'platform/Utilities';
+import { ClientProfileService } from 'app/services/ClientProfileService';
 
 import 'app/components/common/HorizonSelectIcon';
 
@@ -22,17 +23,27 @@ export class UpdateProfileDetails extends Component {
 		super();
 		this.header = ``;
 		this.selectedMenuItem = MENU_ITEMS.PREFERENCES;
-		
+
 		this.emailSuggestion = ``;
 		this.emailError = ``;
+		this.nationalityCode = ``;
 
 		this.updatedClientDetails = {};
 		this.ficaDetails = {};
 		this.employerList = [];
+		this.nationalitiesList = [];
+		this.filteredNationalitiesList = [];
+		this.nationalitySearchTerm = '';
 
 		this.showAddEmployerModal = false;
 		this.displayIndustryCode = false;
+		this.loadingNationalities = false;
 		this.hasValidationErrors = false;
+
+		this.clientProfileService = new ClientProfileService(
+			() => {},
+			null
+		);
 	}
 
 	// --------------
@@ -53,6 +64,7 @@ export class UpdateProfileDetails extends Component {
 
 			updatedClientDetails: { attribute: false },
 			preferredLanguage: { attribute: false },
+			nationalityCode: { attribute: false },
 			selectedMenuItem: { attribute: false },
 			showAddEmployerModal: { attribute: false },
 			hasValidationErrors: { attribute: false },
@@ -60,7 +72,11 @@ export class UpdateProfileDetails extends Component {
 			email: { attribute: false },
 			emailSuggestion: { attribute: false },
 			emailError: { attribute: false },
-			employerList: { attribute: false }
+			employerList: { attribute: false },
+			nationalitiesList: { attribute: false },
+			filteredNationalitiesList: { attribute: false },
+			nationalitySearchTerm: { attribute: false },
+			loadingNationalities: { attribute: false }
 		};
 	}
 
@@ -72,6 +88,7 @@ export class UpdateProfileDetails extends Component {
 		super.connectedCallback();
 		this.preferredLanguage = this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE];
 		this.email = this.clientDetails[MENU_ITEMS.CONTACT_DETAILS][FIELDS.EMAIL];
+		this.nationalityCode = this.clientDetails[MENU_ITEMS.PERSONAL_DETAILS][FIELDS.NATIONALITY];
 		const employmentStatus = this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.EMP_STATUS];
 
 
@@ -93,10 +110,12 @@ export class UpdateProfileDetails extends Component {
 					industryCode: getKey(INDUSTRY_CODE, this.clientDetails[MENU_ITEMS.EMPLOYMENT_DETAILS][FIELDS.INDUSTRY]),
 					sourceOfFunds: getKey(SOURCE_FUNDS[employmentStatus], this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.SOF]),
 					incomeRange: getKey(INCOME_RANGE, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.EXP_INCOME]),
-					incomeFrequency: getKey(INCOME_FREQUENCY, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY])
+					incomeFrequency: getKey(INCOME_FREQUENCY, this.clientDetails[MENU_ITEMS.INCOME_DETAILS][FIELDS.INCOME_FREQUENCY]),
+					nationalityCode: this.nationalityCode
 			};
 		// Deep Copying the values before they are update - used for comparing whether the value is changed while saving
 		this.ficaDetails = Utilities.deepCopy(this.updatedClientDetails);
+		this._fetchNationalities();
 	}
 
 	async updated(changedProperties) {
@@ -195,6 +214,12 @@ export class UpdateProfileDetails extends Component {
 		this.requestUpdate();
 	}
 
+	_nationalityChange(e) {
+		this.nationalityCode = e.detail.new.key;
+		this.updatedClientDetails.nationalityCode = e.detail.new.key;
+		this.requestUpdate();
+	}
+
 	_onAddEmpCancelClick() {
 		this.showAddEmployerModal = false;
 		const empSelect = this.shadowRoot.getElementById(`emp-select`);
@@ -229,10 +254,60 @@ export class UpdateProfileDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
+	async _fetchNationalities() {
+		this.loadingNationalities = true;
+		try {
+			const response = await this.clientProfileService.getNationalities();
+
+			if (response.succeeded && response.result) {
+				this.nationalitiesList = response.result
+					.filter(n => !n.deprecated)
+					.map(n => ({
+						key: n.nationalityCode,
+						value: n.description
+					}));
+				this.filteredNationalitiesList = this.nationalitiesList;
+			} else {
+				console.error('Failed to fetch nationalities:', response.exception);
+				this.nationalitiesList = [];
+				this.filteredNationalitiesList = [];
+			}
+		} catch (error) {
+			console.error('Error fetching nationalities:', error);
+			this.nationalitiesList = [];
+		} finally {
+			this.loadingNationalities = false;
+			this.requestUpdate();
+		}
+	}
+
 	_getLanguageValue(languagePreference) {
 		const result = LANGUAGE_LIST.find((entry) => entry.key === languagePreference);
 		return result ? result.value : this.clientDetails[MENU_ITEMS.PREFERENCES][FIELDS.PREFERRED_LANGUAGE];
+	}
+
+	_getNationalityValue(nationalityCode) {
+		if (!nationalityCode) return ``;
+		const result = this.nationalitiesList.find((entry) => entry.key === nationalityCode);
+		if (result) {
+			return result.value;
+		}
+		return nationalityCode;
+	}
+
+	_filterNationalities(e) {
+		const searchTerm = (e.detail?.filterText || e.target?.value || '').toLowerCase();
+		this.nationalitySearchTerm = searchTerm;
+
+		if (!searchTerm) {
+			this.filteredNationalitiesList = this.nationalitiesList;
+		} else {
+			this.filteredNationalitiesList = this.nationalitiesList.filter(n =>
+				n.value.toLowerCase().includes(searchTerm) || n.key.toLowerCase().includes(searchTerm)
+			);
+		}
+		this.requestUpdate();
 	}
 
 	_isSaveDisabled() {
@@ -764,11 +839,16 @@ export class UpdateProfileDetails extends Component {
 				disabled>
 			</capitec-text-field>
 
-			<capitec-text-field 
-				label="Nationality" 
-				value=${personalDetails[FIELDS.NATIONALITY]}
-				disabled>
-			</capitec-text-field>
+			<capitec-select
+				label="Nationality"
+				.value=${this._getNationalityValue(this.nationalityCode)}
+				.items="${this.filteredNationalitiesList}"
+				display-field="value"
+				id-field="value"
+				?disabled=${this.loadingNationalities}
+				select-mode="single"
+				@value-changed=${(e) => this._nationalityChange(e)}>
+			</capitec-select>
 
 			<capitec-text-field 
 				label="ID number / Passport Number" 

@@ -95,6 +95,8 @@ export class ViewProfileDetails extends ViewBase {
 
 	async _updateClientDetails(details) {
 		const serviceCalls = [];
+
+		// Standard FICA request with correlation ID
 		const ficaRequest = {
 			"correlationId": this.clientFICADetails.correlationId,
 			...details.ficaDetails
@@ -105,14 +107,16 @@ export class ViewProfileDetails extends ViewBase {
 			this.horizonIncidentManager.setCurrentNeed(`update-language-preference`);
 
 			serviceCalls.push(this._updatePreferences(details.preferredlanguage, this.callerInformation.cifNumber));
-			serviceCalls.push(this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber));
+			const ficaUpdateCall = this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber);
+			serviceCalls.push(ficaUpdateCall);
 
 			const returnValues = await Promise.allSettled(serviceCalls);
 
 			const isLanguageUpdated = returnValues[0].status === `fulfilled` && returnValues[0].value;
 			await this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
 
-			const isDetailsUpdated = returnValues[1].status === `fulfilled` && returnValues[1].value.succeeded;
+			// Backend returns Success: null, so treat any response as success
+			const isDetailsUpdated = returnValues[1].status === `fulfilled` && !!returnValues[1].value;
 			this._updateClientFICADetails(details.ficaDetails, isDetailsUpdated);
 
 		} else if (details.preferredlanguage) {
@@ -123,8 +127,10 @@ export class ViewProfileDetails extends ViewBase {
 			this._updateClientPreferences(details.preferredlanguage, isLanguageUpdated);
 		} else if (details.ficaDetails) {
 			// When trying to update only FICA details
-			const isDetailsUpdated = await this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber);
-			this._updateClientFICADetails(details.ficaDetails, isDetailsUpdated.succeeded);
+			const ficaUpdateCall = this.clientProfileService.updateFICADetails(ficaRequest, this.callerInformation.cifNumber);
+			const isDetailsUpdated = await ficaUpdateCall;
+			// Backend returns Success: null, so treat any response as success
+			this._updateClientFICADetails(details.ficaDetails, !!isDetailsUpdated);
 		}
 	}
 

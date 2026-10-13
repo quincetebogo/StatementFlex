@@ -320,4 +320,24 @@ export class ClientProfileService extends ChannelServiceBase {
 			autoRetries
 		);
 	}
+
+	async getNationalities(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+
+		if (await this.isMockEnabled(`getNationalities`)) {
+			return this.mock(`getNationalities`);
+		}
+
+		const url = `/client-v3/nationalities`;
+
+		return this.get(
+			url,
+			this.setToken(),
+			null,
+			`getNationalities`,
+			null,
+			null,
+			errorHandler,
+			autoRetries
+		);
+	}
 }
